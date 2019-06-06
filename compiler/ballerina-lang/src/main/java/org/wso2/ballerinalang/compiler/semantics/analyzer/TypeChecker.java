@@ -73,10 +73,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -84,10 +82,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
@@ -583,94 +583,190 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangArrayLiteral arrayLiteral) {
+    @Override
+    public void visit(BLangListConstructorExpr listConstructor) {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.semanticError;
 
-        if (expType.tag == TypeTags.ANY) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+        if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
+            dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
             resultType = symTable.semanticError;
             return;
         }
 
         int expTypeTag = expType.tag;
         if (expTypeTag == TypeTags.JSON) {
-            checkExprs(arrayLiteral.exprs, this.env, expType);
+            checkExprs(listConstructor.exprs, this.env, expType);
             actualType = expType;
-
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
             if (arrayType.state == BArrayState.OPEN_SEALED) {
-                arrayType.size = arrayLiteral.exprs.size();
+                arrayType.size = listConstructor.exprs.size();
                 arrayType.state = BArrayState.CLOSED_SEALED;
-            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
-                dlog.error(arrayLiteral.pos,
-                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
+            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
+                dlog.error(listConstructor.pos,
+                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
                 resultType = symTable.semanticError;
                 return;
             }
-            checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
+            checkExprs(listConstructor.exprs, this.env, arrayType.eType);
             actualType = arrayType;
-
         } else if (expTypeTag == TypeTags.UNION) {
             Set<BType> expTypes = ((BUnionType) expType).getMemberTypes();
-            List<BArrayType> matchedTypeList = expTypes.stream()
-                    .filter(type -> type.tag == TypeTags.ARRAY)
-                    .map(BArrayType.class::cast)
+            List<BType> matchedTypeList = expTypes.stream()
+                    .filter(type -> type.tag == TypeTags.ARRAY || type.tag == TypeTags.TUPLE)
                     .collect(Collectors.toList());
-
             if (matchedTypeList.isEmpty()) {
-                dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
             } else if (matchedTypeList.size() == 1) {
-                // If only one type in the union is an array, use that as the expected type
+                // If only one type in the union is an array or tuple, use that as the expected type
                 actualType = matchedTypeList.get(0);
-                checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) actualType).eType);
+                if (actualType.tag == TypeTags.ARRAY) {
+                    checkExprs(listConstructor.exprs, this.env, ((BArrayType) actualType).eType);
+                } else {
+                    List<BType> results = new ArrayList<>();
+                    for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                        BType expType = ((BTupleType) actualType).tupleTypes.get(i);
+                        BType actType = checkExpr(listConstructor.exprs.get(i), env, expType);
+                        results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                    }
+                    actualType = new BTupleType(results);
+                }
             } else {
                 // If more than one array type, visit the literal to get its type and use that type to filter the
                 // compatible array types in the union
-                actualType = checkArrayLiteralExpr(arrayLiteral);
+                actualType = checkArrayLiteralExpr(listConstructor);
             }
-        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
-            actualType = checkArrayLiteralExpr(arrayLiteral);
-        }
-
-        resultType = types.checkType(arrayLiteral, actualType, expType);
-    }
-
-    private BType checkArrayLiteralExpr(BLangArrayLiteral arrayLiteral) {
-        List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
-        Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
-        BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
-        BType arrayLiteralType;
-        if (uniqueExprTypes.length == 0) {
-            arrayLiteralType = symTable.anyType;
-        } else if (uniqueExprTypes.length == 1) {
-            arrayLiteralType = resTypes.get(0);
-        } else {
-            BType superType = uniqueExprTypes[0];
-            for (int i = 1; i < uniqueExprTypes.length; i++) {
-                if (types.isAssignable(superType, uniqueExprTypes[i])) {
-                    superType = uniqueExprTypes[i];
-                } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
-                    superType = symTable.anyType;
-                    break;
+        } else if (expTypeTag == TypeTags.TYPEDESC) {
+            List<BType> results = new ArrayList<>();
+            listConstructor.isTypedescExpr = true;
+            for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                results.add(checkExpr(listConstructor.exprs.get(i), env, symTable.noType));
+            }
+            List<BType> actualTypes = new ArrayList<>();
+            for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                final BLangExpression expr = listConstructor.exprs.get(i);
+                if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
+                    actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
+                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
+                } else {
+                    actualTypes.add(results.get(i));
                 }
             }
-            arrayLiteralType = superType;
+            if (actualTypes.size() == 1) {
+                listConstructor.typedescType = actualTypes.get(0);
+            } else {
+                listConstructor.typedescType = new BTupleType(actualTypes);
+            }
+            resultType = symTable.typeDesc;
+            return;
+        } else if (expTypeTag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) this.expType;
+            // Fix this.
+            List<BType> expTypes = getListWithErrorTypes(listConstructor.exprs.size());
+            if (tupleType.tupleTypes.size() != listConstructor.exprs.size()) {
+                dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
+                        "tuple and expression size does not match");
+            } else {
+                expTypes = tupleType.tupleTypes;
+            }
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                // Infer type from lhs since lhs might be union
+                // TODO: Need to fix with tuple casting
+                BType expType = expTypes.get(i);
+                BType actType = checkExpr(listConstructor.exprs.get(i), env, expType);
+                results.add(expType.tag != TypeTags.NONE ? expType : actType);
+            }
+            actualType = new BTupleType(results);
+        } else if (listConstructor.exprs.size() > 1) {
+            // This is a tuple.
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                results.add(checkExpr(listConstructor.exprs.get(i), env, symTable.noType));
+            }
+            actualType = new BTupleType(results);
+            List<BType> tupleCompatibleType = getListCompatibleTypes(expType, actualType);
+            if (tupleCompatibleType.isEmpty()) {
+                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+            } else if (tupleCompatibleType.size() > 1) {
+                dlog.error(listConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else if (tupleCompatibleType.get(0).tag == TypeTags.ANY) {
+                dlog.error(listConstructor.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
+            }
+        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
+            actualType = checkArrayLiteralExpr(listConstructor);
         }
-        BType actualType = new BArrayType(arrayLiteralType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
 
-        List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
+        resultType = types.checkType(listConstructor, actualType, expType);
+    }
 
-        if (arrayCompatibleType.isEmpty()) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
-        } else if (arrayCompatibleType.size() > 1) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
-        } else if (arrayCompatibleType.get(0).tag == TypeTags.ANY) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-        } else if (arrayCompatibleType.get(0).tag == TypeTags.ARRAY) {
-            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) arrayCompatibleType.get(0)).eType);
+    private BType checkArrayLiteralExpr(BLangListConstructorExpr listConstructorExpr) {
+        Set<BType> expTypes;
+        if (expType.tag == TypeTags.UNION) {
+            expTypes = ((BUnionType) expType).getMemberTypes();
+        } else {
+            expTypes = new LinkedHashSet<>();
+            expTypes.add(expType);
+        }
+        BType actualType = symTable.noType;
+        List<BType> listCompatibleTypes = new ArrayList<>();
+        for (BType type : expTypes) {
+            if (type.tag == TypeTags.ARRAY) {
+                List<BType> resTypes = checkExprs(listConstructorExpr.exprs, this.env, symTable.noType);
+                Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
+                BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+                BType arrayLiteralType;
+                if (uniqueExprTypes.length == 0) {
+                    arrayLiteralType = symTable.anyType;
+                } else if (uniqueExprTypes.length == 1) {
+                    arrayLiteralType = resTypes.get(0);
+                } else {
+                    BType superType = uniqueExprTypes[0];
+                    for (int i = 1; i < uniqueExprTypes.length; i++) {
+                        if (types.isAssignable(superType, uniqueExprTypes[i])) {
+                            superType = uniqueExprTypes[i];
+                        } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
+                            superType = symTable.anyType;
+                            break;
+                        }
+                    }
+                    arrayLiteralType = superType;
+                }
+                actualType = new BArrayType(arrayLiteralType, null, listConstructorExpr.exprs.size(),
+                        BArrayState.UNSEALED);
+                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
+            } else if (type.tag == TypeTags.TUPLE) {
+                BTupleType tupleType = (BTupleType) type;
+                List<BType> results = new ArrayList<>();
+                for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
+                    BType expType = tupleType.tupleTypes.get(i);
+                    BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
+                    results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                }
+                actualType = new BTupleType(results);
+                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
+            }
+        }
+
+        if (listCompatibleTypes.isEmpty()) {
+            dlog.error(listConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+        } else if (listCompatibleTypes.size() > 1) {
+            dlog.error(listConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+        } else if (listCompatibleTypes.get(0).tag == TypeTags.ANY) {
+            dlog.error(listConstructorExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+        } else if (listCompatibleTypes.get(0).tag == TypeTags.ARRAY) {
+            checkExprs(listConstructorExpr.exprs, this.env, ((BArrayType) listCompatibleTypes.get(0)).eType);
+        } else if (listCompatibleTypes.get(0).tag == TypeTags.TUPLE) {
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
+                BType expType = ((BTupleType) listCompatibleTypes.get(0)).tupleTypes.get(i);
+                BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
+                results.add(expType.tag != TypeTags.NONE ? expType : actType);
+            }
+            actualType = new BTupleType(results);
         }
         return actualType;
     }
@@ -790,7 +886,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
+    private List<BType> getListCompatibleTypes(BType expType, BType actualType) {
         Set<BType> expTypes =
                 expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() : new LinkedHashSet<BType>() {
                     {
@@ -1853,80 +1949,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        // Handle Tuple Expression.
-        if (expType.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) this.expType;
-            // Fix this.
-            List<BType> expTypes = getListWithErrorTypes(bracedOrTupleExpr.expressions.size());
-            if (tupleType.tupleTypes.size() != bracedOrTupleExpr.expressions.size()) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.SYNTAX_ERROR,
-                        "tuple and expression size does not match");
-            } else {
-                expTypes = tupleType.tupleTypes;
-            }
-            List<BType> results = new ArrayList<>();
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                // Infer type from lhs since lhs might be union
-                // TODO: Need to fix with tuple casting
-                BType expType = expTypes.get(i);
-                BType actualType = checkExpr(bracedOrTupleExpr.expressions.get(i), env, expType);
-                results.add(expType.tag != TypeTags.NONE ? expType : actualType);
-            }
-            resultType = new BTupleType(results);
-            return;
-        }
-
-        List<BType> results = new ArrayList<>();
+    public void visit(BLangGroupExpr groupExpr) {
         if (expType.tag == TypeTags.TYPEDESC) {
-            bracedOrTupleExpr.isTypedescExpr = true;
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
+            groupExpr.isTypedescExpr = true;
+            BType actualType = checkExpr(groupExpr.expression, env, symTable.noType);
+            final BLangExpression expr = groupExpr.expression;
+            if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
+                actualType = ((BLangTypedescExpr) expr).resolvedType;
+            } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                actualType = ((BLangSimpleVarRef) expr).symbol.type;
             }
-            List<BType> actualTypes = new ArrayList<>();
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                final BLangExpression expr = bracedOrTupleExpr.expressions.get(i);
-                if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
-                    actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
-                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
-                } else {
-                    actualTypes.add(results.get(i));
-                }
-            }
-            if (actualTypes.size() == 1) {
-                bracedOrTupleExpr.typedescType = actualTypes.get(0);
-            } else {
-                bracedOrTupleExpr.typedescType = new BTupleType(actualTypes);
-            }
+            groupExpr.typedescType = actualType;
             resultType = symTable.typeDesc;
-        } else if (bracedOrTupleExpr.expressions.size() > 1) {
-            // This is a tuple.
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
-            }
-            BType actualType = new BTupleType(results);
-
-            if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
-                resultType = symTable.semanticError;
-                return;
-            }
-
-            List<BType> tupleCompatibleType = getArrayCompatibleTypes(expType, actualType);
-            if (tupleCompatibleType.isEmpty()) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
-            } else if (tupleCompatibleType.size() > 1) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
-            } else if (tupleCompatibleType.get(0).tag == TypeTags.ANY) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
-            } else {
-                resultType = types.checkType(bracedOrTupleExpr, actualType, expType);
-            }
         } else {
-            // This is a braced expression.
-            bracedOrTupleExpr.isBracedExpr = true;
-            resultType = checkExpr(bracedOrTupleExpr.expressions.get(0), env, expType);
+            resultType = checkExpr(groupExpr.expression, env, expType);
         }
     }
 

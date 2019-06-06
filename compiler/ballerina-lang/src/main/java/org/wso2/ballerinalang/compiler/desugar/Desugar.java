@@ -92,11 +92,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -106,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -121,6 +119,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBui
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
@@ -1097,9 +1099,8 @@ public class Desugar extends BLangNodeVisitor {
         returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
         ifStmt.body = ifBlock;
 
-        BLangBracedOrTupleExpr tupleExpr = new BLangBracedOrTupleExpr();
-        tupleExpr.isBracedExpr = true;
-        tupleExpr.type = symTable.booleanType;
+        BLangGroupExpr groupExpr = new BLangGroupExpr();
+        groupExpr.type = symTable.booleanType;
 
         BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
                 symTable.stringType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
@@ -1111,8 +1112,8 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
                 binaryExpr.opKind, binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
 
-        tupleExpr.expressions.add(binaryExpr);
-        ifStmt.expr = tupleExpr;
+        groupExpr.expression = binaryExpr;
+        ifStmt.expr = groupExpr;
     }
 
     private BLangLambdaFunction createLambdaFunction(BLangFunction function, BInvokableSymbol functionSymbol) {
@@ -1931,7 +1932,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             values = hexStringToByteArray(result[1]);
         }
-        BLangArrayLiteral arrayLiteralNode = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteralNode = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.type = literalExpr.type;
         arrayLiteralNode.pos = literalExpr.pos;
         arrayLiteralNode.exprs = new ArrayList<>();
@@ -1959,6 +1960,30 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr listConstructor) {
+        listConstructor.exprs = rewriteExprs(listConstructor.exprs);
+        BLangExpression expr;
+        if (listConstructor.type.tag == TypeTags.TUPLE) {
+            expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.type);
+            result = rewriteExpr(expr);
+            return;
+        } else if (listConstructor.type.tag == TypeTags.ARRAY) {
+            expr = new BLangArrayLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.type);
+            result = rewriteExpr(expr);
+            return;
+        } else if (listConstructor.type.tag == TypeTags.JSON) {
+            expr = new BLangJSONArrayLiteral(listConstructor.exprs, new BArrayType(listConstructor.type));
+            result = rewriteExpr(expr);
+            return;
+        } else if (getElementType(listConstructor.type).tag == TypeTags.JSON) {
+            expr = new BLangJSONArrayLiteral(listConstructor.exprs, listConstructor.type);
+            result = rewriteExpr(expr);
+            return;
+        }
+        result = listConstructor;
+    }
+
+    @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
         arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
 
@@ -1970,6 +1995,35 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = arrayLiteral;
+    }
+
+    @Override
+    public void visit(BLangTupleLiteral tupleLiteral) {
+        if (tupleLiteral.isTypedescExpr) {
+            final BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = tupleLiteral.typedescType;
+            typedescExpr.type = symTable.typeDesc;
+            result = rewriteExpr(typedescExpr);
+            return;
+        }
+        tupleLiteral.exprs.forEach(expr -> {
+            BType expType = expr.impConversionExpr == null ? expr.type : expr.impConversionExpr.type;
+            types.setImplicitCastExpr(expr, expType, symTable.anyType);
+        });
+        tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
+        result = tupleLiteral;
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        if (groupExpr.isTypedescExpr) {
+            final BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = groupExpr.typedescType;
+            typedescExpr.type = symTable.typeDesc;
+            result = rewriteExpr(typedescExpr);
+        } else {
+            result = rewriteExpr(groupExpr.expression);
+        }
     }
 
     @Override
@@ -2614,27 +2668,6 @@ public class Desugar extends BLangNodeVisitor {
         matchExpr.type = elvisExpr.type;
         matchExpr.pos = elvisExpr.pos;
         result = rewriteExpr(matchExpr);
-    }
-
-    @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        if (bracedOrTupleExpr.isTypedescExpr) {
-            final BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-            typedescExpr.resolvedType = bracedOrTupleExpr.typedescType;
-            typedescExpr.type = symTable.typeDesc;
-            result = rewriteExpr(typedescExpr);
-            return;
-        }
-        if (bracedOrTupleExpr.isBracedExpr) {
-            result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
-            return;
-        }
-        bracedOrTupleExpr.expressions.forEach(expr -> {
-            BType expType = expr.impConversionExpr == null ? expr.type : expr.impConversionExpr.type;
-            types.setImplicitCastExpr(expr, expType, symTable.anyType);
-        });
-        bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
-        result = bracedOrTupleExpr;
     }
 
     @Override
@@ -3378,7 +3411,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangArrayLiteral createArrayLiteralExprNode() {
-        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
         expr.type = new BArrayType(symTable.anyType);
         return expr;
@@ -3905,7 +3938,7 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.restArgs.size() == 1 && iExpr.restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
             return;
         }
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteral.exprs = iExpr.restArgs;
         arrayLiteral.type = invocableSymbol.restParam.type;
         iExpr.restArgs = new ArrayList<>();
@@ -4381,8 +4414,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
-        if (NodeKind.BRACED_TUPLE_EXPR == expression.getKind() && ((BLangBracedOrTupleExpr) expression).isBracedExpr) {
-            return createBinaryExpression(pos, varRef, ((BLangBracedOrTupleExpr) expression).expressions.get(0));
+        if (NodeKind.GROUP_EXPR == expression.getKind()) {
+            return createBinaryExpression(pos, varRef, ((BLangGroupExpr) expression).expression);
         }
 
         if (NodeKind.BINARY_EXPR == expression.getKind()) {
