@@ -51,6 +51,7 @@ public class ToUpper extends BlockingNativeCallableUnit {
     }
 
     public static String toUpper(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.toUpperCase(Locale.getDefault());
     }
 }

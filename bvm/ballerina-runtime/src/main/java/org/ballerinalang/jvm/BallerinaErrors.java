@@ -88,6 +88,10 @@ public class BallerinaErrors {
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
+    public static ErrorValue createNullReferenceError() {
+        return createError(BallerinaErrors.NULL_REF_EXCEPTION);
+    }
+
     public static ArrayValue generateCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
