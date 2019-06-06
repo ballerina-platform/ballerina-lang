@@ -27,15 +27,20 @@ under the License.
         <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
     <!--</listeners>-->
 
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.utils.JBallerinaTestInitializer"/>
+    </listeners>
+
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
                 <exclude name="broken"/>
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!-- <package name="org.ballerinalang.stdlib.entity.*"/>
             <package name="org.ballerinalang.stdlib.multipart.*"/>
             <package name="org.ballerinalang.stdlib.services.basics.*"/>
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
@@ -46,15 +51,28 @@ under the License.
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <package name="org.ballerinalang.stdlib.auth.*"/>
-            <package name="org.ballerinalang.stdlib.connectionpool.*"/>
+            <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
+            <!-- <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
                 <methods>
                     <include name="testSignatureWithBooleanParamAsThirdParam"/>
                 </methods>
+            </class> -->
+            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
+                <methods>
+                    <exclude name="testSetString" />
+                    <exclude name="testGetString" />
+                    <exclude name="testGetStringAfterSetString"/>
+                    <exclude name="testGetFormParamsNativeFunction" />
+                    <exclude name="testGetFormParamsForUndefinedKey" />
+                    <exclude name="testGetFormParamsEmptyResponseMsgPayload" />
+                    <exclude name="testErrorReturn" />
+                    <exclude name="testGetFormParamsWithUnsupportedMediaType" />
+                    <exclude name="testGetFormParamsWithoutContentType" />
+                    <exclude name="testConstantValueAsAnnAttributeVal" />
+                </methods>
             </class>
-
         </classes>
     </test>
 </suite>

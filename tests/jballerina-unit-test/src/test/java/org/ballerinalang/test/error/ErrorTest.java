@@ -152,12 +152,12 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-//    @Test
-//    public void testGetCallStack() {
-//        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
-//        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-//                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
-//    }
+    @Test
+    public void testGetCallStack() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
+                + " fileName:\"error_test.bal\", lineNumber:73}");
+    }
 
     @Test
     public void testConsecutiveTraps() {

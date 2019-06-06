@@ -44,8 +44,8 @@ public type MockListener object {
     public function init(ServiceEndpointConfiguration c);
     public function initEndpoint() returns error? = external;
     public function register(service s, string? name) returns error? = external;
-    public function start() = external;
-    public function stop() = external;
+    public function start() returns error? = external;
+    public function stop() returns error? = external;
 };
 
 public function MockListener.init (ServiceEndpointConfiguration c) {
