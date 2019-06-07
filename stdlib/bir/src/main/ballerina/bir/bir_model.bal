@@ -295,6 +295,8 @@ public type BStreamType record {|
 
 
 public type BErrorType record {|
+    ModuleID moduleId = {};
+    Name name = {};
     BType reasonType;
     BType detailType;
 |};
@@ -458,6 +460,7 @@ public type NewArray record {|
 public type NewError record {|
     DiagnosticPos pos;
     InstructionKind kind;
+    BType typeValue;
     VarRef lhsOp;
     VarRef reasonOp;
     VarRef detailsOp;

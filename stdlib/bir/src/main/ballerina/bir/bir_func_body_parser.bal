@@ -181,10 +181,12 @@ public type FuncBodyParser object {
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
             kind = INS_KIND_NEW_ERROR;
+            var typeValue = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();
-            NewError newError = {pos:pos, kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            NewError newError = {pos:pos, kind:kind, typeValue:typeValue, lhsOp:lhsOp, reasonOp:reasonOp, 
+                                 detailsOp:detailsOp};
             return newError;
         } else if (kindTag == INS_NEW_XML_ELEMENT) {
             kind = INS_KIND_NEW_XML_ELEMENT;

@@ -69,6 +69,7 @@ public class FindAll extends AbstractRegexFunction {
     }
 
     public static Object findAll(Strand strand, String value, String regex) {
+        StringUtils.checkForNull(value, regex);
         try {
             Pattern pattern = validatePattern(regex);
             ArrayValue stringArray = new ArrayValue(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,6 +67,11 @@ public class Scheduler {
      * List key is the own strand.
      */
     private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
+
+    /**
+     * Items that are due for unblock, but not yet actually in blocked list.
+     */
+    private List<Strand> unblockedList = new ArrayList<>();
 
     private static final boolean DEBUG = false;
 
@@ -204,7 +210,13 @@ public class Scheduler {
                         if (DEBUG) {
                             debugLog(item + " blocked");
                         }
-                        blockedOnUnknownList.put(item.future.strand, item);
+                        synchronized (item.future.strand) {
+                            if (unblockedList.remove(item.future.strand)) {
+                                reschedule(item);
+                            } else {
+                                blockedOnUnknownList.put(item.future.strand, item);
+                            }
+                        }
                     } else {
                         item.blockedOn().forEach(blockedOn -> {
                             synchronized (blockedOn) {
@@ -333,23 +345,19 @@ public class Scheduler {
 
     public void unblockStrand(Strand strand) {
         SchedulerItem item;
-        int i = 0;
-        // TODO: remove this busy waiting, use locking
-        while ((item = blockedOnUnknownList.remove(strand)) == null) {
-            i++;
-            if (i == 1000000) {
-                logger.warn("Possible infinite wait for receiver worker by :" +
-                        Thread.currentThread().getStackTrace()[2]);
+        synchronized (strand) {
+            if ((item = blockedOnUnknownList.remove(strand)) == null) {
+                unblockedList.add(strand);
                 if (DEBUG) {
-                    debugLog("possible infinite wait for receiver " + strand.hashCode() + " to block, by " +
-                            Thread.currentThread().getStackTrace()[2]);
+                    debugLog(strand.hashCode() + " not exists in blocked list");
                 }
+                return;
             }
+            if (DEBUG) {
+                debugLog(item + " got unblocked due to send");
+            }
+            reschedule(item);
         }
-        if (DEBUG) {
-            debugLog(item + " got unblocked due to send");
-        }
-        reschedule(item);
     }
 
     public void release(List<Strand> blockedOnList, Strand strand) {

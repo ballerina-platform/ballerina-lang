@@ -19,12 +19,12 @@
 package org.ballerinalang.stdlib.services.configuration;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -58,7 +58,7 @@ public class ServiceConfigurationTest {
 
         String serviceFile = Paths.get(resourceRoot, "test-src", "services", "configuration",
                 "service_configuration.bal").toString();
-        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+        CompileResult configuredService = BCompileUtil.compile(serviceFile);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);

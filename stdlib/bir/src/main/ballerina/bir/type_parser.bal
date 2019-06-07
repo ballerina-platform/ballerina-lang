@@ -319,7 +319,8 @@ public type TypeParser object {
     }
 
     function parseErrorType() returns BErrorType {
-        BErrorType err = {reasonType:TYPE_NIL, detailType:TYPE_NIL};
+        BErrorType err = {moduleId:self.cp.packages[self.readInt32()], name:{value:self.readStringCpRef()},
+                             reasonType:TYPE_NIL, detailType:TYPE_NIL};
         self.cp.types[self.cpI] = err;
         err.reasonType = self.parseTypeCpRef();
         err.detailType = self.parseTypeCpRef();
