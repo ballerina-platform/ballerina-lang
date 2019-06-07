@@ -99,7 +99,7 @@ public class ReadBool implements NativeCallableUnit {
 
     public static Object readBool(Strand strand, ObjectValue dataChannelObj) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext( new NonBlockingCallback(strand));
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadBoolEvent event = new ReadBoolEvent(channel, eventContext);
         Register register = EventRegister.getFactory().register(event, ReadBool::readChannelResponse);
         eventContext.setRegister(register);
