@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.values.ErrorValue;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;

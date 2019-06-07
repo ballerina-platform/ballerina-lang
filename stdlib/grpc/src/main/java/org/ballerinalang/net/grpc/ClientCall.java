@@ -98,7 +98,7 @@ public final class ClientCall {
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }
 
-    private void checkAndObserveHttpRequest() {
+    public void checkAndObserveHttpRequest() {
         Optional<ObserverContext> observerContext =
                 ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
         observerContext.ifPresent(ctx -> {

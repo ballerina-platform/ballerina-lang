@@ -161,7 +161,8 @@ public abstract class ServerCallHandler {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error, ObserverContext context) {
+    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error,
+                       ObserverContext context) {
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);
