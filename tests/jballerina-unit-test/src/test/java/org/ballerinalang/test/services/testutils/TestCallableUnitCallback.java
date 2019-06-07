@@ -52,8 +52,8 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BError error) {
-        int carbonStatusCode = requestMessage.getHttpStatusCode();
-        int statusCode = (carbonStatusCode == 0) ? 500 : carbonStatusCode;
+        Integer carbonStatusCode = requestMessage.getHttpStatusCode();
+        int statusCode = (carbonStatusCode == null) ? 500 : carbonStatusCode;
         String errorMsg = getAggregatedRootErrorMessages(error);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
