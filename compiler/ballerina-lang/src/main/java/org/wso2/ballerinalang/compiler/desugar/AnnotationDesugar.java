@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -123,49 +124,49 @@ public class AnnotationDesugar {
 
     void rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
-        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        blockStmt.pos = initFunction.body.pos;
 
-        defineTypeAnnotations(pkgNode, env, blockStmt);
-        defineServiceAnnotations(pkgNode, env, blockStmt);
-        defineFunctionAnnotations(pkgNode, env, blockStmt);
-
-        int index = calculateIndex(initFunction.body.stmts);
-
-        for (BLangStatement stmt : blockStmt.stmts) {
-            initFunction.body.stmts.add(index++, stmt);
-        }
+        defineTypeAnnotations(pkgNode, env, initFunction);
+        defineServiceAnnotations(pkgNode, env, initFunction);
+        defineFunctionAnnotations(pkgNode, env, initFunction);
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
         pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
-    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
+    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             PackageID pkgID = typeDef.symbol.pkgID;
             BSymbol owner = typeDef.symbol.owner;
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, target, pkgID, owner);
+                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body, pkgID, owner);
             }
         }
     }
 
-    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
+    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangService service : pkgNode.services) {
             PackageID pkgID = service.symbol.pkgID;
             BSymbol owner = service.symbol.owner;
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
+                BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                target.pos = initFunction.body.pos;
+
                 addInvocationToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target, pkgID,
                                               owner);
+
+                int index = calculateIndex(initFunction.body.stmts, service);
+                for (BLangStatement stmt : target.stmts) {
+                    initFunction.body.stmts.add(index++, stmt);
+                }
             }
         }
     }
 
-    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangBlockStmt target) {
+    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
@@ -178,10 +179,17 @@ public class AnnotationDesugar {
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
+                BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                target.pos = initFunction.body.pos;
 //                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
 //                        function.symbol.name.value : function.name.value;
                 String identifier = function.symbol.name.value;
                 addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
+
+                int index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
+                for (BLangStatement stmt : target.stmts) {
+                    initFunction.body.stmts.add(index++, stmt);
+                }
             }
         }
     }
@@ -538,14 +546,27 @@ public class AnnotationDesugar {
         return funcInvocation;
     }
 
-    private int calculateIndex(List<BLangStatement> stmts) {
-        for (int i = 0; i < stmts.size(); i++) {
-            BLangStatement stmt = stmts.get(i);
+    private int calculateIndex(List<BLangStatement> statements, BLangService service) {
+        for (int i = 0; i < statements.size(); i++) {
+            BLangStatement stmt = statements.get(i);
             if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR)) {
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
+                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).serviceNode == service) {
                 return i;
             }
         }
-        return stmts.size();
+        return statements.size();
+    }
+
+    private int calculateIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
+        for (int i = 0; i < statements.size(); i++) {
+            BLangStatement stmt = statements.get(i);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
+                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).type.tsymbol == symbol) {
+                return i;
+            }
+        }
+        return statements.size();
     }
 }
