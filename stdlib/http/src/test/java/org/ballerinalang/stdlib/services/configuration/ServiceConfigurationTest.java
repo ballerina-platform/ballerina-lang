@@ -58,7 +58,7 @@ public class ServiceConfigurationTest {
 
         String serviceFile = Paths.get(resourceRoot, "test-src", "services", "configuration",
                 "service_configuration.bal").toString();
-        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+        CompileResult configuredService = BCompileUtil.compile(serviceFile);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
