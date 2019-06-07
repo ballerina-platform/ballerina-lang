@@ -37,6 +37,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+
 /**
  * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
  */
@@ -185,7 +189,7 @@ public class TimeoutHandler implements Http2DataEventListener {
 
         private void handlePrimaryResponseTimeout(OutboundMsgHolder msgHolder) {
             if (msgHolder.getResponse() != null) {
-                handleIncompleteInboundResponse(msgHolder);
+                handleIncompleteResponse(msgHolder, true);
             } else {
                 notifyTimeoutError(msgHolder, true);
             }
@@ -194,19 +198,23 @@ public class TimeoutHandler implements Http2DataEventListener {
 
         private void handlePushResponseTimeout(OutboundMsgHolder promiseHolder) {
             if (promiseHolder.getPushResponse(streamId) != null) {
-                handleIncompleteInboundResponse(promiseHolder);
+                handleIncompleteResponse(promiseHolder, false);
             } else {
                 notifyTimeoutError(promiseHolder, false);
             }
             http2ClientChannel.removePromisedMessage(streamId);
         }
 
-        private void handleIncompleteInboundResponse(OutboundMsgHolder msgHolder) {
+        private void handleIncompleteResponse(OutboundMsgHolder msgHolder, boolean primary) {
             LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(
-                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY)));
+            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(getErrorMessage(primary))));
             msgHolder.getResponse().addHttpContent(lastHttpContent);
-            LOG.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
+            LOG.warn(getErrorMessage(primary));
+        }
+
+        private String getErrorMessage(boolean primary) {
+            return primary ? IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY :
+                    IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {
@@ -217,15 +225,14 @@ public class TimeoutHandler implements Http2DataEventListener {
 
         private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
             if (primary) {
-                msgHolder.getResponseFuture().notifyHttpListener(getTimeOutError());
+                msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
             } else {
-                msgHolder.getResponseFuture().notifyPushResponse(streamId, getTimeOutError());
+                msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
             }
-        }
-
-        private EndpointTimeOutException getTimeOutError() {
-            return new EndpointTimeOutException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                                                HttpResponseStatus.GATEWAY_TIMEOUT.code());
         }
 
         private long getNextDelay(OutboundMsgHolder msgHolder) {

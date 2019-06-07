@@ -332,10 +332,14 @@ public final class Constants {
             = "Idle timeout triggered while writing outbound request entity body";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE
             = "Idle timeout triggered before initiating inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE
+            = "Idle timeout triggered before initiating push response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS
             = "Idle timeout triggered while reading inbound response headers";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY
             = "Idle timeout triggered while reading inbound response entity body";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY
+            = "Idle timeout triggered while reading push response entity body";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
