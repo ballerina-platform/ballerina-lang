@@ -91,7 +91,7 @@ dependencies {
 }
 
 task test(type: Exec) {
-    mustRunAfter ':examples-test:test'
+    // mustRunAfter ':examples-test:test'
     dependsOn copyDistribution
     onlyIf {
         !assemble.state.upToDate

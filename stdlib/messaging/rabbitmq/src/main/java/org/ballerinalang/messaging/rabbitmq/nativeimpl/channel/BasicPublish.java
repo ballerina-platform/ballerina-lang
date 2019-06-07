@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
@@ -29,7 +30,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +55,7 @@ public class BasicPublish extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
@@ -64,9 +65,9 @@ public class BasicPublish extends BlockingNativeCallableUnit {
         try {
             ChannelUtils.basicPublish(channel, routingKey, msgContent.stringValue().getBytes(StandardCharsets.UTF_8),
                     exchange);
-        } catch (BallerinaException exception) {
+        } catch (RabbitMQConnectorException exception) {
             LOGGER.error("I/O exception while publishing a message", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);
         }
     }
 }

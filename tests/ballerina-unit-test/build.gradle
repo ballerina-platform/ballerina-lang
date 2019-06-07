@@ -84,15 +84,16 @@ dependencies {
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
+    // baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
+    // baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-privacy', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
 }
 
 configurations.all {

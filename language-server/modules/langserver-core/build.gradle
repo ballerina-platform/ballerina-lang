@@ -24,6 +24,9 @@ configurations {
     dependency {
         transitive false
     }
+    index
+    libs
+    langserverResources
 }
 
 dependencies {
@@ -39,9 +42,9 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-websub')
+    // implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
-    implementation project(':ballerina-grpc')
+    // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-activemq-artemis')
@@ -80,9 +83,9 @@ dependencies {
     baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
+    // baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
+    // baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -150,8 +153,10 @@ task createZip(type: Zip) {
     with copyResourceSpec
 }
 
-artifacts.add('dist', createZip.archiveFile) {
-    builtBy createZip
+artifacts {
+    dist file: file(createZip.archiveFile), builtBy: createZip
+    libs configurations.dependency.files
+    langserverResources file: file("$buildDir/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
 test {
