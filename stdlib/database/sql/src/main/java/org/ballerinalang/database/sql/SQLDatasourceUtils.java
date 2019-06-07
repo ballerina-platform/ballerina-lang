@@ -68,6 +68,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -601,6 +602,7 @@ public class SQLDatasourceUtils {
         byte[] val = null;
         if (value instanceof BValueArray) {
             val = ((BValueArray) value).getBytes();
+            val = Arrays.copyOfRange(val, 0, (int) value.size());
         } else if (value instanceof BString) {
             val = getBytesFromBase64String(value.stringValue());
         }
@@ -995,6 +997,13 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.BOOLEAN;
         case TypeTags.DECIMAL_TAG:
             return Constants.SQLDataTypes.DECIMAL;
+        case TypeTags.ARRAY_TAG:
+            if (((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                return Constants.SQLDataTypes.BINARY;
+            } else {
+                throw new BallerinaException("Array data type as direct value is supported only " +
+                        "with byte type elements, use sql:Parameter " + value.getName());
+            }
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());

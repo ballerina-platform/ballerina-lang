@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
@@ -29,8 +30,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-
-import java.io.IOException;
 
 /**
  * Closes a RabbitMQ Connection.
@@ -47,8 +46,10 @@ import java.io.IOException;
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
         BValue closeCode = context.getNullableRefArgument(1);
         BValue closeMessage = context.getNullableRefArgument(2);
@@ -57,7 +58,7 @@ public class Close extends BlockingNativeCallableUnit {
                 RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);
         try {
             ConnectionUtils.handleCloseConnection(connection, closeCode, closeMessage, timeout);
-        } catch (IOException | ArithmeticException exception) {
+        } catch (RabbitMQConnectorException exception) {
             RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
                     context, exception);
         }

@@ -60,7 +60,7 @@ public class HttpResiliencyTest extends BaseTest {
     private static final String GET_STATE_SERVICE_PATH = "cb" + File.separator + "getstate";
     private static final String REQUEST_VOLUME_SERVICE_PATH = "cb" + File.separator + "requestvolume";
     private static final String STATUS_CODE_SERVICE_PATH = "cb" + File.separator + "statuscode";
-    private static final String TRIAL_FAILLURE_SERVICE_PATH = "cb" + File.separator + "trialrun";
+    private static final String TRIAL_FAILURE_SERVICE_PATH = "cb" + File.separator + "trialrun";
     private static final String LB_ROUND_ROBIN_SERVICE_PATH = "lb" + File.separator + "roundRobin";
     private static final String LB_ROUND_ROBIN_WITH_FO_SERVICE_PATH = "lb" + File.separator + "failover";
     private static final String ALL_LB_EP_FAILURE_SERVICE_PATH = "lb" + File.separator + "delay";
@@ -69,7 +69,8 @@ public class HttpResiliencyTest extends BaseTest {
     @BeforeTest(alwaysRun = true)
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{8080, 9300, 8081, 9301, 8082, 9302, 8083, 9303, 8084, 9304, 8085, 9305,
-                8086, 9306, 8087, 9307, 8088, 9308, 8089, 9309, 8090, 9310, 8091, 9311, 8092, 9312, 8093, 9313};
+                8086, 9306, 8087, 9307, 8088, 9308, 8089, 9309, 8090, 9310, 8091, 9311, 8092, 9312, 8093, 9313,
+                8094, 9314, 8095, 9315};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
@@ -219,57 +220,57 @@ public class HttpResiliencyTest extends BaseTest {
     }
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
-    public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, messasge);
+    public void testTypicalBackendTimeout(int responseCode, String message) throws Exception {
+        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker forceOpen functionality",
             dataProvider = "forceOpenResponseDataProvider")
-    public void testForceOPen(int responseCode, String messasge) throws Exception {
-        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, messasge);
+    public void testForceOPen(int responseCode, String message) throws Exception {
+        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker forceClese functionality",
             dataProvider = "forceCloseResponseDataProvider")
-    public void testForceClose(int responseCode, String messasge) throws Exception {
-        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, messasge);
+    public void testForceClose(int responseCode, String message) throws Exception {
+        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker getState functionality",
             dataProvider = "getStateResponseDataProvider")
-    public void testgetState(int responseCode, String messasge) throws Exception {
-        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, messasge);
+    public void testgetState(int responseCode, String message) throws Exception {
+        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker requestVolumeThreshold functionality",
             dataProvider = "requestVolumeResponseDataProvider")
-    public void requestVolumeTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, messasge);
+    public void requestVolumeTest(int responseCode, String message) throws Exception {
+        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, message);
 
     }
 
     @Test(description = "Test for circuit breaker failure status codes functionality",
             dataProvider = "statusCodeResponseDataProvider")
-    public void httpStatusCodesTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, messasge);
+    public void httpStatusCodesTest(int responseCode, String message) throws Exception {
+        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for circuit breaker trail failure functionality",
             dataProvider = "trialRunFailureResponseDataProvider")
-    public void trialRunFailureTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9312, TRIAL_FAILLURE_SERVICE_PATH, responseCode, messasge);
+    public void trialRunFailureTest(int responseCode, String message) throws Exception {
+        verifyResponses(9312, TRIAL_FAILURE_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for round robin implementation algorithm of load balancer",
             dataProvider = "roundRobinResponseDataProvider")
-    public void roundRobinLoadBlanceTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_ROUND_ROBIN_SERVICE_PATH, responseCode, messasge);
+    public void roundRobinLoadBalanceTest(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_ROUND_ROBIN_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for verify failover behavior with load balancer",
             dataProvider = "roundRobinWithFailoverResponseDataProvider")
-    public void roundRobinWithFailoverResponseDataProvider(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_ROUND_ROBIN_WITH_FO_SERVICE_PATH, responseCode, messasge);
+    public void roundRobinWithFailoverResponseDataProvider(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_ROUND_ROBIN_WITH_FO_SERVICE_PATH, responseCode, message);
     }
 
     @Test(description = "Test for verify the error message when all endpoints are failing")
@@ -286,8 +287,34 @@ public class HttpResiliencyTest extends BaseTest {
 
     @Test(description = "Test for custom algorithm implementation of load balancer",
             dataProvider = "customLbResponseDataProvider")
-    public void customLbResponseDataProvider(int responseCode, String messasge) throws Exception {
-        verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, messasge);
+    public void customLbResponseDataProvider(int responseCode, String message) throws Exception {
+        verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, message);
+    }
+
+    @Test(description = "Test basic failover scenario for HTTP2 clients")
+    public void testBasicHttp2Failover() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
+                , "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
+                , "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
+    }
+
+    @Test(
+            description = "Test circuit breaker functionality for HTTP/2 methods",
+            dataProvider = "http2CircuitBreakerDataProvider"
+    )
+    public void testBasicHttp2CircuitBreaker(int responseCode, String message) throws Exception {
+        verifyResponses(9315, TRIAL_FAILURE_SERVICE_PATH, responseCode, message);
     }
 
     @DataProvider(name = "responseDataProvider")
@@ -358,6 +385,16 @@ public class HttpResiliencyTest extends BaseTest {
 
     @DataProvider(name = "trialRunFailureResponseDataProvider")
     public Object[][] trialRunFailureResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "http2CircuitBreakerDataProvider")
+    public Object[][] http2CircuitBreakerDataProvider() {
         return new Object[][]{
                 new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
                 new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},

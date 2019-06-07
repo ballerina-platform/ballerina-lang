@@ -46,13 +46,25 @@ import org.slf4j.LoggerFactory;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createSession",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.SESSION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.SESSION_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "con", type = TypeKind.OBJECT, structType = ArtemisConstants.CONNECTION_OBJ),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "SessionConfiguration")
+                @Argument(
+                        name = "con",
+                        type = TypeKind.OBJECT,
+                        structType = ArtemisConstants.CONNECTION_OBJ
+                ),
+                @Argument(
+                        name = "config",
+                        type = TypeKind.RECORD,
+                        structType = "SessionConfiguration"
+                )
         }
 )
 public class CreateSession extends BlockingNativeCallableUnit {
@@ -93,7 +105,7 @@ public class CreateSession extends BlockingNativeCallableUnit {
                                          new ArtemisTransactionContext(sessionObj));
             }
         } catch (ActiveMQException e) {
-            ArtemisUtils.logAndSetError("Error occurred while starting session", context, e, logger);
+            ArtemisUtils.throwException("Error occurred while starting session", context, e, logger);
         }
     }
 }

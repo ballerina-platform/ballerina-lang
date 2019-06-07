@@ -24,7 +24,7 @@
         <!--<listener class-name="org.ballerinalang.test.listener.TestNGListener"/>-->
     </listeners>
 
-<!--     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
@@ -68,5 +68,5 @@
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
         </packages>
-    </test> -->
+    </test>
 </suite>

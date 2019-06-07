@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS DataTypeTable(
   smallint_type SMALLINT,
   clob_type    CLOB,
   binary_type  BINARY(27),
+  bit_type     BIT(64),
   PRIMARY KEY (row_id)
 );
 /
