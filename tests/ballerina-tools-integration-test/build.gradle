@@ -51,7 +51,8 @@ test {
     forkEvery=500
     // make sure ballerina tools zip is built before test run
     dependsOn = [":ballerina-tools:build", ":jballerina-tools:build", ":ballerina-integration-test:test", 
-                 ":examples-test:test"]
+                 // ":examples-test:test"
+                 ]
 
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
