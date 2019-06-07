@@ -23,7 +23,7 @@ import ballerina/websub;
 listener websub:Listener websubEP = new websub:Listener(8383);
 
 auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "tom", password: "1234" });
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+http:BasicAuthHeaderHandler basicAuthHandler = new(basicAuthProvider);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
@@ -33,7 +33,7 @@ http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
     secret: "Kslk30SNF2AChs2",
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler
+            authHandler: basicAuthHandler
         }
     }
 }
@@ -51,7 +51,7 @@ service websubSubscriber on websubEP {
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler
+            authHandler: basicAuthHandler
         }
     }
 }

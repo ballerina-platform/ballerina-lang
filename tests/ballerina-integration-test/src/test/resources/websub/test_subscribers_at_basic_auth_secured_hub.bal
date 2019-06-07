@@ -23,7 +23,7 @@ import ballerina/websub;
 listener websub:Listener websubEP = new websub:Listener(8484);
 
 auth:OutboundBasicAuthProvider basicAuthProvider1 = new({ username: "tom", password: "1234" });
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
+http:BasicAuthHeaderHandler basicAuthHandler1 = new(basicAuthProvider1);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
@@ -33,7 +33,7 @@ http:BasicAuthHeaderAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
     secret: "Kslk30SNF2AChs2",
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler1
+            authHandler: basicAuthHandler1
         }
     }
 }
@@ -45,7 +45,7 @@ service websubSubscriber on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider2 = new({ username: "tom", password: "4321" });
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
+http:BasicAuthHeaderHandler basicAuthHandler2 = new(basicAuthProvider2);
 
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
@@ -54,7 +54,7 @@ http:BasicAuthHeaderAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler2
+            authHandler: basicAuthHandler2
         }
     }
 }
@@ -66,7 +66,7 @@ service websubSubscriberTwo on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider3 = new({ username: "mary", password: "xyz" });
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler3 = new(basicAuthProvider3);
+http:BasicAuthHeaderHandler basicAuthHandler3 = new(basicAuthProvider3);
 
 @websub:SubscriberServiceConfig {
     path: "/websubThree",
@@ -75,7 +75,7 @@ http:BasicAuthHeaderAuthnHandler basicAuthnHandler3 = new(basicAuthProvider3);
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler3
+            authHandler: basicAuthHandler3
         }
     }
 }
@@ -87,7 +87,7 @@ service websubSubscriberThree on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider4 = new({ username: "tom", password: "1234" });
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler4 = new(basicAuthProvider4);
+http:BasicAuthHeaderHandler basicAuthHandler4 = new(basicAuthProvider4);
 
 @websub:SubscriberServiceConfig {
     path: "/websubFour",
@@ -96,7 +96,7 @@ http:BasicAuthHeaderAuthnHandler basicAuthnHandler4 = new(basicAuthProvider4);
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: {
-            authnHandler: basicAuthnHandler4
+            authHandler: basicAuthHandler4
         }
     }
 }
