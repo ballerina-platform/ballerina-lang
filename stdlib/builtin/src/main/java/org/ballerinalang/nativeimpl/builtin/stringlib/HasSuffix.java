@@ -52,6 +52,7 @@ public class HasSuffix extends BlockingNativeCallableUnit {
     }
 
     public static boolean hasSuffix(Strand strand, String value, String suffix) {
+        StringUtils.checkForNull(value, suffix);
         return value.endsWith(suffix);
     }
 }

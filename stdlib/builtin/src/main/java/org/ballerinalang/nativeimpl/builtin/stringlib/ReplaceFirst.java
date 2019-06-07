@@ -54,6 +54,7 @@ public class ReplaceFirst extends BlockingNativeCallableUnit {
     }
 
     public static String replaceFirst(Strand strand, String value, String regex, String replaceWith) {
+        StringUtils.checkForNull(value, regex, replaceWith);
         return value.replaceFirst(regex, replaceWith);
     }
 }

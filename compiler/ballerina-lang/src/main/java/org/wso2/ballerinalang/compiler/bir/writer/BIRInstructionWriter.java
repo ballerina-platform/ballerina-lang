@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -347,6 +348,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
+        if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
+            buf.writeBoolean(birFieldAccess.except);
+        }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
         birFieldAccess.rhsOp.accept(this);
@@ -411,6 +415,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewError birNewError) {
         writePosition(birNewError.pos);
         buf.writeByte(birNewError.kind.getValue());
+        writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);

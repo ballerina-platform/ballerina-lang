@@ -73,6 +73,7 @@ import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -93,6 +94,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -343,6 +345,9 @@ public class BRunUtil {
                 case TypeTags.MAP_TAG:
                     typeClazz = MapValue.class;
                     break;
+                case TypeTags.XML_TAG:
+                    typeClazz = XMLValue.class;
+                    break;
                 case TypeTags.OBJECT_TYPE_TAG:
                     typeClazz = ObjectValue.class;
                     break;
@@ -383,8 +388,8 @@ public class BRunUtil {
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, null);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new org.ballerinalang.util.exceptions
-                        .BLangRuntimeException(futureValue.panic.getMessage(), futureValue.panic);
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                        futureValue.panic);
             }
             jvmResult = futureValue.result;
         } catch (NoSuchMethodException e) {
@@ -487,6 +492,13 @@ public class BRunUtil {
                     jvmObject.addNativeData(key, nativeData.get(key));
                 }
                 return jvmObject;
+            case TypeTags.XML_TAG:
+                BXML<?> xml = (BXML<?>) value;
+                if(xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                    return new XMLItem(((BXMLItem)xml).value());
+                }
+                BValueArray elements = ((BXMLSequence) xml).value();
+                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -539,6 +551,9 @@ public class BRunUtil {
                         case TypeTags.FLOAT_TAG:
                             jvmArray.add(i, array.getFloat(i));
                             break;
+                        case TypeTags.JSON_TAG:
+                            jvmArray.add(i, array.getRefValue(i));
+                            break;
                         default:
                             throw new RuntimeException("Function signature type '" + type + "' is not supported");
                     }
@@ -547,7 +562,7 @@ public class BRunUtil {
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
                 BMap bMap = (BMap) value;
-                MapValueImpl<Object, Object> jvmMap = new MapValueImpl<Object, Object>(getJVMType(mapType));
+                MapValueImpl<Object, Object> jvmMap = new MapValueImpl<>(getJVMType(mapType));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
                     jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
@@ -559,12 +574,32 @@ public class BRunUtil {
                 return getJVMValue(value.getType(), value);
             case TypeTags.JSON_TAG:
                 bMap = (BMap) value;
-                jvmMap = new MapValueImpl<Object, Object>(getJVMType(type));
+                jvmMap = new MapValueImpl<>(getJVMType(type));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
-                    jvmMap.put(k, getJVMValue(bValue.getType(), bValue));
+                    jvmMap.put(k, bValue != null ? getJVMValue(bValue.getType(), bValue) : null);
                 });
                 return jvmMap;
+            case TypeTags.OBJECT_TYPE_TAG:
+                String ObjPackagePath = type.getPackagePath();
+                String ObjName = type.getName();
+
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(ObjPackagePath, ObjName);
+                HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
+                if (nativeData == null) {
+                    return jvmObject;
+                }
+                for (String key : nativeData.keySet()) {
+                    jvmObject.addNativeData(key, nativeData.get(key));
+                }
+                return jvmObject;
+            case TypeTags.XML_TAG:
+                BXML<?> xml = (BXML<?>) value;
+                if(xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                    return new XMLItem(((BXMLItem)xml).value());
+                }
+                BValueArray elements = ((BXMLSequence) xml).value();
+                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -845,6 +880,8 @@ public class BRunUtil {
         return bvmValue;
     }
 
+    private static Stack<org.ballerinalang.jvm.types.BField> selfTypeStack = new Stack<>();
+
     private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType) {
         switch (jvmType.getTag()) {
             case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
@@ -877,14 +914,18 @@ public class BRunUtil {
                 return BTypes.typeError;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
-                BRecordType bvmRecordType =
-                        new BRecordType(null, recordType.getName(), recordType.getPackage().getName(),
-                                        recordType.flags);
+                BRecordType bvmRecordType = new BRecordType(null, recordType.getName(),
+                        recordType.getPackage().getName(), recordType.flags);
                 Map<String, BField> recordFields =
-                        recordType.getFields().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> new BField(getBVMType(entry.getValue().type), entry.getValue().getFieldName(),
-                        entry.getValue().flags), (a, b) -> b, LinkedHashMap::new));
+                        recordType.getFields().entrySet().stream()
+                                .filter(entry -> !selfTypeStack.contains(entry.getValue()))
+                                .peek(entry -> selfTypeStack.push(entry.getValue()))
+                                .collect(Collectors.toMap(Map.Entry::getKey,
+                                        entry -> new BField(getBVMType(entry.getValue().type),
+                                                entry.getValue().getFieldName(), entry.getValue().flags),
+                                        (a, b) -> b, LinkedHashMap::new));
                 bvmRecordType.setFields(recordFields);
+                selfTypeStack.clear();
                 return bvmRecordType;
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
                 return BTypes.typeJSON;
@@ -898,7 +939,12 @@ public class BRunUtil {
                 org.ballerinalang.jvm.types.BStreamType streamType = (org.ballerinalang.jvm.types.BStreamType) jvmType;
                 return new BStreamType(getBVMType(streamType.getConstrainedType()));
             case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
-                return BTypes.typePureType;
+                org.ballerinalang.jvm.types.BUnionType unionType = (org.ballerinalang.jvm.types.BUnionType) jvmType;
+                memberTypes = new ArrayList<>();
+                for (org.ballerinalang.jvm.types.BType type : unionType.getMemberTypes()) {
+                    memberTypes.add(getBVMType(type));
+                }
+                return new BUnionType(memberTypes);
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
@@ -906,9 +952,14 @@ public class BRunUtil {
                                         objectType.flags);
                 Map<String, BField> objectFields = new HashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
+                    if (selfTypeStack.contains(field)) {
+                        continue;
+                    }
+                    selfTypeStack.push(field);
                     objectFields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
                 }
                 bvmObjectType.setFields(objectFields);
+                selfTypeStack.clear();
                 return bvmObjectType;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 return BTypes.typeXML;
