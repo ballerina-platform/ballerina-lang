@@ -16,62 +16,59 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
+import com.rabbitmq.client.AlreadyClosedException;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * Retrieves the xml content of the RabbitMQ message.
+ * Retrieves the RabbitMQ Connection object.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "getXMLContent",
+        functionName = "getConnection",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.MESSAGE_OBJECT,
+                structType = RabbitMQConstants.CHANNEL_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetXMLContent extends BlockingNativeCallableUnit {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLContent.class);
-
+public class GetConnection extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        boolean isInTransaction = context.isInTransaction();
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
-        byte[] messageContent = (byte[]) messageObject.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+        BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
+        Channel channel = RabbitMQUtils.getNativeObject(channelBObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
+                Channel.class, context);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelBObject.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock(context);
-        }
         try {
-            context.setReturnValues(XMLUtils.parse(new String(messageContent,
-                    StandardCharsets.UTF_8.name())));
-        } catch (UnsupportedEncodingException exception) {
-            LOGGER.error("Error while retrieving the xml content of the message");
-            RabbitMQUtils.returnError("Error while retrieving the xml content of the message: "
-                    + exception.getMessage(), context, exception);
+            Connection connection = channel.getConnection();
+            ProgramFile programFile = context.getProgramFile();
+            BMap<String, BValue> connectionObject = BLangConnectorSPIUtil.createBStruct(
+                    programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.CONNECTION_OBJECT);
+            connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
+            context.setReturnValues(connectionObject);
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context);
+            }
+        } catch (AlreadyClosedException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR, context, exception);
         }
     }
 }
