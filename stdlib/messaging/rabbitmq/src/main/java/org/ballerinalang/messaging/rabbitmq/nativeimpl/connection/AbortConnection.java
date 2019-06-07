@@ -48,6 +48,7 @@ public class AbortConnection extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
         BValue closeCode = context.getNullableRefArgument(1);
         BValue closeMessage = context.getNullableRefArgument(2);

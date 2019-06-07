@@ -20,13 +20,13 @@ package org.ballerinalang.messaging.rabbitmq.util;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,8 @@ public class ConnectionUtils {
             return connectionFactory.newConnection();
         } catch (IOException | TimeoutException exception) {
             LOGGER.error(RabbitMQConstants.CREATE_CONNECTION_ERROR, exception);
-            throw new BallerinaException(RabbitMQConstants.CREATE_CONNECTION_ERROR + exception.getMessage(), exception);
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_CONNECTION_ERROR
+                    + exception.getMessage(), exception);
         }
     }
 
@@ -100,26 +101,30 @@ public class ConnectionUtils {
      *                     operations, use -1 for infinity.
      * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeMessage A message indicating the reason for closing the connection.
-     * @throws IOException If an I/O problem is encountered.
      */
     public static void handleCloseConnection(Connection connection, BValue closeCode, BValue closeMessage,
-                                             BValue timeout) throws IOException {
+                                             BValue timeout) {
         boolean validTimeout = timeout instanceof BInteger;
         boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
-        if (validTimeout && validCloseCode) {
-            close(connection,
-                    Math.toIntExact(((BInteger) closeCode).intValue()),
-                    closeMessage.stringValue(),
-                    Math.toIntExact(((BInteger) timeout).intValue()));
-        } else if (validTimeout) {
-            close(connection,
-                    Math.toIntExact(((BInteger) timeout).intValue()));
-        } else if (validCloseCode) {
-            close(connection,
-                    Math.toIntExact(((BInteger) closeCode).intValue()),
-                    closeMessage.stringValue());
-        } else {
-            close(connection);
+        try {
+            if (validTimeout && validCloseCode) {
+                close(connection,
+                        Math.toIntExact(((BInteger) closeCode).intValue()),
+                        closeMessage.stringValue(),
+                        Math.toIntExact(((BInteger) timeout).intValue()));
+            } else if (validTimeout) {
+                close(connection,
+                        Math.toIntExact(((BInteger) timeout).intValue()));
+            } else if (validCloseCode) {
+                close(connection,
+                        Math.toIntExact(((BInteger) closeCode).intValue()),
+                        closeMessage.stringValue());
+            } else {
+                close(connection);
+            }
+        } catch (IOException | ArithmeticException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    exception);
         }
     }
 

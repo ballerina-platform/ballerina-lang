@@ -44,12 +44,20 @@ import java.nio.channels.Channels;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "saveToWritableByteChannel",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "ch", type = TypeKind.OBJECT, structType = "WritableByteChannel")
+                @Argument(
+                        name = "ch",
+                        type = TypeKind.OBJECT,
+                        structType = "WritableByteChannel"
+                )
         }
 )
 public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {

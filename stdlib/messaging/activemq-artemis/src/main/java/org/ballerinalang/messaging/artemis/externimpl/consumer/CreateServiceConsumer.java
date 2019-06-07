@@ -22,16 +22,11 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
@@ -39,16 +34,14 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
@@ -59,13 +52,18 @@ import java.util.Map;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createConsumer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.LISTENER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS)
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.LISTENER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        )
 )
 public class CreateServiceConsumer extends BlockingNativeCallableUnit {
     private static final Logger logger = LoggerFactory.getLogger(CreateServiceConsumer.class);
+    private static final PrintStream console = System.out;
 
     @Override
     public void execute(Context context) {
@@ -101,14 +99,12 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
                                                                      addressName, autoCreated, routingType, temporary,
                                                                      queueFilter, durable, maxConsumers,
                                                                      purgeOnNoConsumers, exclusive, lastValue, logger);
+            console.println("[" + ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS + "] Client Consumer created for queue " +
+                                    queueName);
 
             Resource onMessageResource = service.getResources()[0];
             if (onMessageResource != null) {
-                consumer.setMessageHandler(
-                        clientMessage -> Executor
-                                .execute(onMessageResource, new ResponseCallback(clientMessage, autoAck, sessionObj),
-                                         null, null,
-                                         getSignatureParameters(onMessageResource, clientMessage, sessionObj)));
+                consumer.setMessageHandler(new ArtemisMessageHandler(onMessageResource, sessionObj, autoAck));
             }
         } catch (ActiveMQException e) {
             context.setReturnValues(ArtemisUtils.getError(context, e));
@@ -133,47 +129,5 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
             return null;
         }
         return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-
-    private static class ResponseCallback implements CallableUnitCallback {
-        private ClientMessage message;
-        private boolean autoAck;
-        private BMap<String, BValue> sessionObj;
-
-        ResponseCallback(ClientMessage message, boolean autoAck, BMap<String, BValue> sessionObj) {
-            this.message = message;
-            this.autoAck = autoAck;
-            this.sessionObj = sessionObj;
-        }
-
-        @Override
-        public void notifySuccess() {
-            if (autoAck) {
-                try {
-                    message.acknowledge();
-                    if (ArtemisUtils.isAnonymousSession(sessionObj)) {
-                        ((ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION)).commit();
-                    }
-                } catch (ActiveMQException e) {
-                    throw new BallerinaConnectorException("Failure during acknowledging the message", e);
-                }
-            }
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        }
-    }
-
-    private BValue getSignatureParameters(Resource onMessageResource, ClientMessage clientMessage,
-                                          BMap<String, BValue> sessionObj) {
-        ProgramFile programFile = onMessageResource.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
-                programFile, ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, ArtemisConstants.MESSAGE_OBJ);
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                 sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
-        return messageObj;
     }
 }

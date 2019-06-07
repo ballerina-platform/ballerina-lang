@@ -31,10 +31,10 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-log-api')
+    implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
     implementation 'javax.jms:javax.jms-api'
     implementation 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-simple'
 }
 
 description = 'Ballerina - JMS'
