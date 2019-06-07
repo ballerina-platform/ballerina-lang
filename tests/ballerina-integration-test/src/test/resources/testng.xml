@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-     <!--  <test name="ballerina-http-tests" parallel="false">
+     <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -241,9 +241,9 @@
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
-            WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
+            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass
+                @BeforeClass in test classes which have @BeforeClass -->
             <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
@@ -255,9 +255,9 @@
     <test name="ballerina-websub-advanced-config-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
-            DummyTestCase or any other test which does not have @BeforeClass and belongs to the
+            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
                 "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass
+                @BeforeClass in test classes which have @BeforeClass -->
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
             <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>
@@ -284,5 +284,5 @@
             <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
         </classes>
-    </test> -->
+    </test>
 </suite>
