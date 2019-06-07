@@ -1,10 +1,16 @@
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration,
-    ProviderResult, debug, ExtensionContext, window
+    ProviderResult, debug, ExtensionContext, window,
+    DebugSession, 
+    DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
 } from 'vscode';
+
+import * as child_process from "child_process";
+import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
+import { isUnix } from "./osUtils";
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -56,9 +62,45 @@ const debugConfigProvider: DebugConfigurationProvider = {
 
         return config;
     }
+    
 };
 
 export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext>ballerinaExtInstance.context;
+
     context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigProvider));
+
+    const factory = new BallerinaDebugAdapterDescriptorFactory();
+    context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
+}
+
+class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
+    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable <DebugAdapterDescriptor> {
+        return new Promise(function(resolve, reject) {
+            // launch debugger
+            const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
+
+            let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
+            // Ensure that start script can be executed
+            if (isUnix()) {
+                child_process.exec("chmod +x " + startScriptPath);
+            } else {
+                startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+            }
+
+            console.info("Found debug adapter {} with args {}", startScriptPath);
+            const serverProcess = child_process.spawn(startScriptPath);
+
+            serverProcess.stdout.on('data', (data) => {
+                if (data.toString().includes('Debug server started')) {
+                    resolve(new DebugAdapterServer(4711));
+                }
+            });
+            
+            serverProcess.stderr.on('data', (data) => {
+                console.log(`stderr: ${data}`);
+                reject(data);
+            });
+        });
+    }
 }

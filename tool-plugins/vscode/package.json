@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.26.1"
+        "vscode": "^1.30.2"
     },
     "categories": [
         "Programming Languages",
@@ -103,8 +103,7 @@
             {
                 "type": "ballerina",
                 "label": "Ballerina Debug",
-                "program": "./out/src/debugger/start.js",
-                "runtime": "node",
+                "program": "/usr/local/Cellar/ballerina/0.991.0/libexec/lib/tools/debug-adapter/launcher/debug-adapter-launcher.sh",
                 "configurationAttributes": {
                     "attach": {
                         "required": [
