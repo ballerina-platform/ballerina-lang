@@ -37,7 +37,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
- 
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')
