@@ -65,8 +65,8 @@ public class AnnotationAttachmentTest {
     }
 
     @Test
-    public void testAnnotOnObjectFunctionDefinition() {
-        BLangFunction function = getFunction("setName");
+    public void testAnnotOnObjectFunction() {
+        BLangFunction function = getFunction("T2.setName");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertNameAndKeyValuePair(attachments.get(0), "v3", "val", "v31 value");
@@ -92,11 +92,6 @@ public class AnnotationAttachmentTest {
     }
 
     @Test
-    public void testAnnotOnObjectFunctionDeclaration() {
-        // TODO: 5/30/19 Maryam - fix and add tests
-    }
-
-    @Test
     public void testAnnotOnFunction() {
         BLangFunction function = getFunction("func");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
@@ -114,6 +109,76 @@ public class AnnotationAttachmentTest {
         attachments = function.restParam.annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value rest");
+
+        attachments = function.returnTypeAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        BLangAnnotationAttachment attachment = attachments.get(0);
+        Assert.assertEquals(attachment.annotationName.getValue(), "v7");
+        Assert.assertNull(attachment.expr);
+    }
+
+    @Test
+    public void testAnnotOnListener() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getGlobalVariables().stream()
+                        .filter(globalVar -> globalVar.getName().getValue().equals("lis"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
+    }
+
+    @Test
+    public void testAnnotOnServiceOne() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getServices().stream()
+                        .filter(serviceNode -> serviceNode.getName().getValue().equals("ser"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
+    }
+
+    @Test
+    public void testAnnotOnResourceOne() {
+        BLangFunction function = getFunction("ser$$service$0.res");
+        List<BLangAnnotationAttachment> attachments = function.annAttachments;
+        Assert.assertEquals(attachments.size(), 2);
+        assertNameAndKeyValuePair(attachments.get(0), "v3", "val", "v34");
+        assertNameAndKeyValuePair(attachments.get(1), "v5", "val", "54");
+
+        attachments = function.requiredParams.get(0).annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v64");
+
+        attachments = function.returnTypeAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        BLangAnnotationAttachment attachment = attachments.get(0);
+        Assert.assertEquals(attachment.annotationName.getValue(), "v7");
+        Assert.assertNull(attachment.expr);
+    }
+
+    @Test
+    public void testAnnotOnServiceTwo() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getServices().stream()
+                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$1"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v8", "val", "v82");
+    }
+
+    @Test
+    public void testAnnotOnResourceTwo() {
+        BLangFunction function = getFunction("$anonService$1$$service$2.res");
+        List<BLangAnnotationAttachment> attachments = function.annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v5", "val", "542");
+
+        attachments = function.requiredParams.get(0).annAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v642");
 
         attachments = function.returnTypeAnnAttachments;
         Assert.assertEquals(attachments.size(), 1);
@@ -175,7 +240,7 @@ public class AnnotationAttachmentTest {
 
     private BLangFunction getFunction(String functionName) {
         return (BLangFunction) compileResult.getAST().getFunctions().stream()
-                .filter(function ->  function.getName().toString().equals(functionName))
+                .filter(function ->  functionName.equals(((BLangFunction) function).symbol.getName().toString()))
                 .findFirst()
                 .get();
     }

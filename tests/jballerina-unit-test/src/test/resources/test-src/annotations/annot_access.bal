@@ -23,9 +23,10 @@ public annotation Annot v1 on type;
 annotation Annot[] v2 on object type;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
-public annotation Annot v5 on resource function;
+public annotation map<string> v5 on resource function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
+annotation Annot[] v8 on service;
 
 string strValue = "v1 value";
 
@@ -76,18 +77,16 @@ type T2 object {
         self.name = name;
     }
 
-    public function getLetter(@v6 { foo: "v62 value" } int intVal) returns @v7 string;
+    @v3 {
+        foo: "v32 value"
+    }
+    @v4 {
+        val: 42
+    }
+    public function getLetter(@v6 { foo: "v62 value" } int intVal) returns @v7 string {
+        return self.name.substring(intVal, intVal + 1);
+    }
 };
-
-@v3 {
-    foo: "v32 value"
-}
-@v4 {
-    val: 42
-}
-public function T2.getLetter(@v6 { foo: "v62 value" } int intVal) returns @v7 string {
-    return self.name.substring(intVal, intVal + 1);
-}
 
 function testObjectTypeAnnotAccess1() returns boolean {
     T2 c = new;
@@ -118,3 +117,93 @@ function testObjectTypeAnnotAccess3() returns boolean {
     Annot? annot = t.@v3;
     return annot is ();
 }
+
+listener Listener lis = new;
+
+string v8a = "v8a";
+
+@v8 {
+    foo: v8a
+}
+@v8 {
+    foo: "v8b"
+}
+service ser on lis {
+
+    @v3 {
+        foo: "v34"
+    }
+    @v5 {
+        val: "54"
+    }
+    resource function res(@v6 { foo: "v64" } int intVal) returns @v7 string {
+        return "";
+    }
+}
+
+function testServiceAnnotAccess1() returns boolean {
+    typedesc t = typeof ser;
+    Annot[]? annots = t.@v8;
+    if (annots is Annot[]) {
+        if (annots.length() != 2) {
+            return false;
+        }
+        Annot annot1 = annots[0];
+        Annot annot2 = annots[1];
+        return annot1.foo == v8a && annot2.foo == "v8b";
+    }
+    return false;
+}
+
+function testServiceAnnotAccess2() returns boolean {
+    typedesc t = typeof ser;
+    Annot? annot = t.@v1;
+    return annot is ();
+}
+
+service serTwo = @v8 {
+                     foo: "v82"
+                 } service {
+
+    @v5 {
+        val: "542"
+    }
+    resource function res(@v6 { foo: "v642" } int intVal) returns @v7 int {
+        return 1;
+    }
+};
+
+function testServiceAnnotAccess3() returns boolean {
+    typedesc t = typeof serTwo;
+    Annot[]? annots = t.@v8;
+    if (annots is Annot[]) {
+        if (annots.length() != 1) {
+            return false;
+        }
+        Annot annot1 = annots[0];
+        return annot1.foo == "v82";
+    }
+    return false;
+}
+
+function testServiceAnnotAccess4() returns boolean {
+    typedesc t = typeof serTwo;
+    Annot[]? annot = t.@v2;
+    return annot is ();
+}
+
+type Listener object {
+    *AbstractListener;
+
+    public function __init() {
+    }
+
+    public function __attach(service s, string? name = ()) returns error? {
+    }
+
+    public function __start() returns error? {
+    }
+
+    public function __stop() returns error? {
+    }
+};
