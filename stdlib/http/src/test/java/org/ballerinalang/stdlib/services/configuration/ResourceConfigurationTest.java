@@ -31,11 +31,10 @@ import org.testng.annotations.Test;
  */
 public class ResourceConfigurationTest {
 
-    private CompileResult compileResult;
-
     @Test(description = "Tests for multiple resource configs in a resource")
     public void testDuplicateResourceConfigAnnotations() {
-        compileResult = BCompileUtil.compile("test-src/services/configuration/resource-config-annotation.bal");
+        CompileResult compileResult = BCompileUtil
+                .compile("test-src/services/configuration/resource-config-annotation.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),

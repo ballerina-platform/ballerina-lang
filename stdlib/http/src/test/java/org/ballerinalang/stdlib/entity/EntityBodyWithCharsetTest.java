@@ -48,7 +48,7 @@ public class EntityBodyWithCharsetTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/entity/entity-body-with-charset-test.bal";
-        compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
+        compileResult = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
