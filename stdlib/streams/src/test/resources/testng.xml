@@ -21,8 +21,10 @@
 
 <suite name="Ballerina-Streaming-Test-Suite">
     <test name="ballerina-streaming-tests" enabled="true" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.streams.*"/>
-        </packages>
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.stdlib.streams.nativeimpl.BallerinaStreamsV2FilterTest"/>
+            <class name="org.ballerinalang.stdlib.streams.nativeimpl.BallerinaStreamsV2StreamJoinTest"/>
+        </classes>
     </test>
 </suite>
