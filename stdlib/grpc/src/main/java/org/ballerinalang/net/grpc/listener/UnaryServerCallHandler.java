@@ -24,6 +24,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.util.observability.ObserverContext;
 
 /**
  * Interface to initiate processing of incoming remote calls for unary services.
@@ -95,7 +96,9 @@ public class UnaryServerCallHandler extends ServerCallHandler {
         }
 
         public void invoke(Message request, ServerCallStreamObserver responseObserver) {
-            onMessageInvoke(resource, request, responseObserver, call.getObserverContext());
+            ObserverContext observerContext = getModifiedObserverContext(call,
+                    resource.getResource()).orElse(null);
+            onMessageInvoke(resource, request, responseObserver, observerContext);
         }
     }
 }

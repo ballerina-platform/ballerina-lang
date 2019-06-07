@@ -30,7 +30,6 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
-import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.Map;
@@ -53,31 +52,31 @@ public class StreamingServerCallHandler extends ServerCallHandler {
     @Override
     public Listener startCall(ServerCall call) {
         ServerCallStreamObserver responseObserver = new ServerCallStreamObserver(call);
-        StreamObserver requestObserver = invoke(responseObserver, call.getObserverContext());
+        ObserverContext observerContext = getModifiedObserverContext(call,
+                resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE).getResource()).orElse(null);
+        StreamObserver requestObserver = invoke(responseObserver, observerContext);
         return new StreamingServerCallListener(requestObserver, responseObserver);
     }
 
-    public StreamObserver invoke(StreamObserver responseObserver, ObserverContext context) {
+    public StreamObserver invoke(StreamObserver responseObserver, ObserverContext observerContext) {
         ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
-        StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver, context);
-        context.setServiceName(ObserveUtils.getFullServiceName(onOpen.getResource().getService()
-                .getServiceInfo()));
-        Executor.submit(onOpen.getResource(), callback, null, context, computeMessageParams
+        StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver, observerContext);
+        Executor.submit(onOpen.getResource(), callback, null, observerContext, computeMessageParams
                 (onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
         return new StreamObserver() {
             @Override
             public void onNext(Message value) {
                 ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
-                CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
-                Executor.submit(onMessage.getResource(), callback, null, context, computeMessageParams(onMessage,
-                        value, responseObserver));
+                CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, observerContext);
+                Executor.submit(onMessage.getResource(), callback, null, observerContext,
+                        computeMessageParams(onMessage, value, responseObserver));
             }
 
             @Override
             public void onError(Message error) {
                 ServiceResource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
-                onErrorInvoke(onError, responseObserver, error, context);
+                onErrorInvoke(onError, responseObserver, error, observerContext);
             }
 
             @Override
@@ -87,8 +86,9 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                     String message = "Error in listener service definition. onError resource does not exists";
                     throw new ServerRuntimeException(message);
                 }
-                CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE, context);
-                Executor.submit(onCompleted.getResource(), callback, null, context, computeMessageParams
+                CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE,
+                        observerContext);
+                Executor.submit(onCompleted.getResource(), callback, null, observerContext, computeMessageParams
                         (onCompleted, null, responseObserver));
             }
         };

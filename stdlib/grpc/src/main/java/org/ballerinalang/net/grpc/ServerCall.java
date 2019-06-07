@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
@@ -159,8 +160,8 @@ public final class ServerCall {
         this.context = context;
     }
 
-    public ObserverContext getObserverContext() {
-        return context;
+    public Optional<ObserverContext> getObserverContext() {
+        return Optional.of(context);
     }
 
     public void setMessageCompression(boolean enable) {

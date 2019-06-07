@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
@@ -45,6 +46,7 @@ import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
@@ -165,7 +167,7 @@ public abstract class ServerCallHandler {
     }
 
     void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error,
-                       ObserverContext context) {
+                       ObserverContext observerContext) {
         if (resource == null || resource.getParamDetailList() == null) {
             throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
         }
@@ -184,17 +186,16 @@ public abstract class ServerCallHandler {
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
-        CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
-        Executor.submit(resource.getResource(), callback, null, context, signatureParams);
+        CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, observerContext);
+        Executor.submit(resource.getResource(), callback, null, observerContext, signatureParams);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
-                         ObserverContext context) {
-        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse(), context);
-        context.setServiceName(ObserveUtils.getFullServiceName(resource.getResource().getService()
-                    .getServiceInfo()));
-        Executor.submit(resource.getResource(), callback, null, context, computeMessageParams(resource, request,
-                responseObserver));
+                         ObserverContext observerContext) {
+        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse(),
+                observerContext);
+        Executor.submit(resource.getResource(), callback, null, observerContext, computeMessageParams(resource,
+                request, responseObserver));
     }
 
     BValue[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
@@ -217,6 +218,13 @@ public abstract class ServerCallHandler {
             signatureParams[signatureParams.length - 1] = headerStruct;
         }
         return signatureParams;
+    }
+
+    Optional<ObserverContext> getModifiedObserverContext(ServerCall call, Resource resource) {
+        Optional<ObserverContext> observerContext = call.getObserverContext();
+        observerContext.ifPresent(ctx -> ctx.setServiceName(
+                ObserveUtils.getFullServiceName(resource.getService().getServiceInfo())));
+        return observerContext;
     }
 
     /**
