@@ -315,12 +315,12 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = untaint bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, contentType = <@untainted string> bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = untaint inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, contentType = <@untainted string> inRequest.getContentType());
     }
     return inRequest;
 }

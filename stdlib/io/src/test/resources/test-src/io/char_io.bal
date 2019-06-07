@@ -22,17 +22,17 @@ io:WritableCharacterChannel? wca = ();
 
 function initReadableChannel(string filePath, string encoding) {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+    rch = <@untainted io:ReadableCharacterChannel> new io:ReadableCharacterChannel(byteChannel, encoding);
 }
 
 function initWritableChannel(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
-    wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = <@untainted io:WritableCharacterChannel> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function initWritableChannelToAppend(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath, append = true);
-    wca = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+    wca = <@untainted io:WritableCharacterChannel> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {

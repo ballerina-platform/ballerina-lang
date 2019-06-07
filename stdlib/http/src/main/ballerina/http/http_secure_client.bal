@@ -731,7 +731,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
                 return prepareError("Client id or client secret cannot be empty.");
             }
-            refreshUrl = untaint refreshConfig.refreshUrl;
+            refreshUrl = <@untainted string> refreshConfig.refreshUrl;
             var clientCreation = createClient(refreshUrl, {});
             if (clientCreation is Client) {
                 refreshClient = clientCreation;
@@ -828,7 +828,7 @@ function prepareRequest(RequestConfig config) returns Request|error {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }
     }
-    req.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    req.setTextPayload(<@untainted string> textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     return req;
 }
 

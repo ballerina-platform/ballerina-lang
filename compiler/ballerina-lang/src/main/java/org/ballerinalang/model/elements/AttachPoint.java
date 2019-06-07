@@ -90,9 +90,9 @@ public class AttachPoint {
          */
         CHANNEL("channel"),
         /**
-         * Indicate type cast Attach point.
+         * Indicate typedesc Attach point.
          */
-        TYPE_CAST("<>");
+        TYPEDESC("typedesc");
 
         private String value;
 

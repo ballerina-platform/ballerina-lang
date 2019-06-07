@@ -698,7 +698,7 @@ function isAStrongValidator(string etag) returns boolean {
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders(Response cachedResponse, Response validationResponse) {
-    string[] headerNames = untaint validationResponse.getHeaderNames();
+    string[] headerNames = <@untainted string[]> validationResponse.getHeaderNames();
 
     log:printDebug("Updating response headers using validation response.");
 

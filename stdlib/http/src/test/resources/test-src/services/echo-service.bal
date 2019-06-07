@@ -54,7 +54,7 @@ service echo on echoEP {
         } else {
             payloadData = payload;
         }
-        self.serviceLevelStr = untaint payloadData;
+        self.serviceLevelStr = <@untainted string> payloadData;
         checkpanic caller->respond(res);
     }
 
@@ -124,10 +124,10 @@ service echo on echoEP {
                 team = params.team;
             }
             json responseJson = {"Name":name , "Team":team};
-            res.setJsonPayload(untaint responseJson);
+            res.setJsonPayload(<@untainted json> responseJson);
         } else {
             string errMsg = <string> params.detail().message;
-            res.setPayload(untaint errMsg);
+            res.setPayload(<@untainted string> errMsg);
         }
         checkpanic caller->respond(res);
     }
@@ -149,7 +149,7 @@ service echo on echoEP {
     resource function errorReturn(http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
-        res.setPayload(untaint payload);
+        res.setPayload(<@untainted json> payload);
         res.statusCode = 200;
         checkpanic caller->respond(res);
     }

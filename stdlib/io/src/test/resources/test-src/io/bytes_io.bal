@@ -20,11 +20,11 @@ io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
 function initReadableChannel(string filePath) {
-    rch = untaint io:openReadableFile(filePath);
+    rch = <@untainted io:ReadableByteChannel> io:openReadableFile(filePath);
 }
 
 function initWritableChannel(string filePath) {
-    wch = untaint io:openWritableFile(filePath);
+    wch = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
 }
 
 function readBytes(int numberOfBytes) returns byte[]|error {

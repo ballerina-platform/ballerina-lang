@@ -2417,6 +2417,7 @@ public class Types {
         if (type.getKind() == TypeKind.SERVICE) {
             return false;
         }
+
         if (type.tsymbol.kind == SymbolKind.OBJECT) {
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
             if (initializerFunc == null) {
