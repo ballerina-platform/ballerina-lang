@@ -902,6 +902,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
+               bType is bir:BFiniteType ||
                bType is bir:BJSONType ||
                bType is bir:BXMLType) {
         return io:sprintf("L%s;", OBJECT);

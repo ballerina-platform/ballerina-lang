@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
@@ -627,7 +628,7 @@ type TerminatorGenerator object {
         
         // load strand
         self.mv.visitInsn(DUP);
-        self.mv.visitIntInsn(BIPUSH, localVarOffset);
+        self.mv.visitIntInsn(BIPUSH, 0);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitInsn(AASTORE);
 
