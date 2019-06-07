@@ -195,7 +195,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         } else if (msg instanceof Http2DataFrame) {
             onDataRead(ctx, (Http2DataFrame) msg);
         } else if (msg instanceof Http2PushPromise) {
-            onPushPromiseRead((Http2PushPromise) msg);
+            onPushPromiseRead(ctx, (Http2PushPromise) msg);
         } else if (msg instanceof Http2Reset) {
             onResetRead((Http2Reset) msg);
         }
@@ -239,11 +239,11 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
-    private void onPushPromiseRead(Http2PushPromise http2PushPromise) {
+    private void onPushPromiseRead(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise) {
         int streamId = http2PushPromise.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
-        http2MessageStateContext.getSenderState().readInboundPromise(http2PushPromise, outboundMsgHolder);
+        http2MessageStateContext.getSenderState().readInboundPromise(ctx, http2PushPromise, outboundMsgHolder);
     }
 
     private void onResetRead(Http2Reset http2Reset) {

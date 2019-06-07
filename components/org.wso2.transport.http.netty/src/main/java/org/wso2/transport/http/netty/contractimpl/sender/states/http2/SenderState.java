@@ -84,5 +84,6 @@ public interface SenderState {
      * @param http2PushPromise  the HTTP/2 promise frame
      * @param outboundMsgHolder the outbound message holder
      */
-    void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder);
+    void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                            OutboundMsgHolder outboundMsgHolder);
 }
