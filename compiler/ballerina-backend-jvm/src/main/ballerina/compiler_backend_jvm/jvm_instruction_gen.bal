@@ -714,6 +714,7 @@ type InstructionGenerator object {
         self.loadVar(inst.lhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         self.loadVar(inst.rhsOp.variableDcl);
+        addBoxInsn(self.mv, inst.rhsOp.variableDcl.typeValue);
 
         bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
@@ -723,27 +724,8 @@ type InstructionGenerator object {
             return;
         }
 
-        string valueDesc;
-        if (varRefType is bir:BArrayType) {
-            if (varRefType.eType is bir:BTypeByte) {
-                self.mv.visitInsn(I2B);
-                valueDesc = "B";
-            } else if (varRefType.eType is bir:BTypeInt) {
-                valueDesc = "J";
-            } else if (varRefType.eType is bir:BTypeString) {
-                valueDesc = io:sprintf("L%s;", STRING_VALUE);
-            } else if (varRefType.eType is bir:BTypeBoolean) {
-                valueDesc = "Z";
-            } else if (varRefType.eType is bir:BTypeFloat) {
-                valueDesc = "D";
-            } else {
-                valueDesc = io:sprintf("L%s;", OBJECT);
-            }
-        } else {
-            valueDesc = io:sprintf("L%s;", OBJECT);
-        }
-
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
+        self.mv.visitMethodInsn(INVOKESTATIC, LIST_UTILS, "add", io:sprintf("(L%s;JL%s;)V", ARRAY_VALUE, OBJECT),
+                                    false);
     }
 
     # Generating loading a new value from an array to the top of the stack
