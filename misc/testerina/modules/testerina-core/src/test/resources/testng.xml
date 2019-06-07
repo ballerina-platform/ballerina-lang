@@ -29,7 +29,7 @@ under the License.
         </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.testerina.test.TesterinaCompilationNegativeTest"/>
+            <!-- <class name="org.ballerinalang.testerina.test.TesterinaCompilationNegativeTest"/>
             <class name="org.ballerinalang.testerina.test.AssertTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigAnnotationTest"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
@@ -42,7 +42,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ListGroupsTest"/>
             <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
             <class name="org.ballerinalang.testerina.test.SkipTest"/>
-            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/>
+            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/> -->
         </classes>
     </test>
 </suite>
