@@ -922,12 +922,14 @@ public class TypeChecker {
                     return false;
                 }
             }
+            return true;
         } else if (sourceType.getTag() == TypeTags.MAP_TAG) {
             for (Object value : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
             }
+            return true;
         } else if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
             if (unresolvedValues.contains(typeValuePair)) {
@@ -939,8 +941,9 @@ public class TypeChecker {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
