@@ -763,10 +763,18 @@ type TerminatorGenerator object {
         int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
 
+        jvm:Label jumpAfterReceive = new;
+        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
+        self.mv.visitJumpInsn(IFNULL, jumpAfterReceive);
+
+        jvm:Label withinReceiveSuccess = new;
+        self.mv.visitLabel(withinReceiveSuccess);
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+
+        self.mv.visitLabel(jumpAfterReceive);
     }
 
     function genFlushIns(bir:Flush ins, string funcName, int localVarOffset) {

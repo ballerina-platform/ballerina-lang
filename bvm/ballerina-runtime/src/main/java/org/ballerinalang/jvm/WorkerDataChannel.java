@@ -40,7 +40,7 @@ public class WorkerDataChannel {
     private Throwable panic;
     private int senderCounter;
     private int receiverCounter;
-    private boolean syncSent = false;
+    private boolean reschedule;
 
     private Lock channelLock;
 
@@ -95,7 +95,7 @@ public class WorkerDataChannel {
     public Object syncSendData(Object data, Strand strand) throws Throwable {
         try {
             acquireChannelLock();
-            if (!syncSent) {
+            if (!reschedule) {
                 // this is a new message, not a reschedule
                 this.channel.add(new WorkerResult(data, true));
                 this.senderCounter++;
@@ -115,11 +115,13 @@ public class WorkerDataChannel {
                     return ret;
                 }
 
+                reschedule = true;
                 strand.blocked = true;
                 strand.yield = true;
                 return null;
             }
 
+            reschedule = false;
             if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 Throwable e = this.panic;
                 this.panic = null;
@@ -134,7 +136,6 @@ public class WorkerDataChannel {
             // sync send done
             return null;
         } finally {
-            this.syncSent = false;
             releaseChannelLock();
         }
     }
@@ -153,7 +154,6 @@ public class WorkerDataChannel {
                     Strand waiting  = this.waitingSender.waitingStrand;
                     waiting.scheduler.unblockStrand(waiting);
                     this.waitingSender = null;
-                    this.syncSent = true;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;

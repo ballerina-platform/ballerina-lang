@@ -212,6 +212,9 @@ public class Scheduler {
                         }
                         synchronized (item.future.strand) {
                             if (unblockedList.remove(item.future.strand)) {
+                                if (DEBUG) {
+                                    debugLog(item + " releasing from unblockedList");
+                                }
                                 reschedule(item);
                             } else {
                                 blockedOnUnknownList.put(item.future.strand, item);
@@ -303,7 +306,7 @@ public class Scheduler {
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
-        Set<ChannelDetails> channels = item.future.strand.channelDetails;
+        ChannelDetails[] channels = item.future.strand.channelDetails;
         if (DEBUG) {
             debugLog("notifying channels:" + channels.toString());
         }
