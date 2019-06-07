@@ -1,8 +1,29 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 import org.apache.tools.ant.taskdefs.condition.Os
+
 apply from: "$rootDir/gradle/jsProject.gradle"
 
 configurations {
-    dist {
+    composerDistribution {
+      transitive false
+    }
+    composerFonts {
       transitive false
     }
     ballerinaTools
@@ -32,33 +53,58 @@ npmBuild() {
     }
 }
 
+task copyDistribution() {
+    dependsOn ":ballerina-tools:build"
+    doFirst {
+        copy {
+            from file(configurations.ballerinaTools.asPath)
+            into "extractedDistribution/ballerina-tools-${project.version}"
+        }
+    }
+}
+
+task copyComposerDistribution() {
+    dependsOn(':composer-library:assemble')
+    doFirst {
+        copy {
+            from file(configurations.composerDistribution.asPath)
+            exclude '**/*.map'
+            exclude '**/*.d.ts'
+            into "resources/composer"
+        }
+        copy {
+            from file(configurations.composerFonts.asPath)
+            into "resources/composer/font"
+        }
+    }
+}
+
 task assemble(overwrite: true) {
     dependsOn 'npmBuild'
-    dependsOn(':composer-library:assemble')
+    dependsOn 'copyComposerDistribution'
 }
 
 dependencies {
-    dist project(':composer-library')
+    composerDistribution project(path: ':composer-library', configuration: 'composer')
+    composerFonts project(path: ':composer-library', configuration: 'fonts')
     ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
 task test(type: Exec) {
-    dependsOn ":ballerina-tools:build"
+    mustRunAfter ':examples-test:test'
+    dependsOn copyDistribution
     onlyIf {
         !assemble.state.upToDate
     }
-    def resourcePath = configurations.ballerinaTools.asPath
     doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'test'
-            } else {
-                commandLine 'npm', 'run', 'test'
-            }
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'test'
+        } else {
+            commandLine 'npm', 'run', 'test'
         }
     }
 }
 
 build {
-    // dependsOn test
+    dependsOn test
 }

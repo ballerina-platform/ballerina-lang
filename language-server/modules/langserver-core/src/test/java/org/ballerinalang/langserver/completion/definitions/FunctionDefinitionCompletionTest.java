@@ -51,8 +51,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"variableBoundItemSuggestions4.json", "function"},
                 {"panicStatementErrorSuggestions.json", "function"},
                 {"recordVarDef1.json", "function"},
-                // Regression issue of Grammar changes
-//                {"recordVarDef2.json", "function"},
+                {"recordVarDef2.json", "function"},
                 {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
@@ -84,7 +83,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
                 {"objectAttachFunctionImpl3.json", "function"},
-                {"completionAfterReturn.json", "function"},
+//                {"completionAfterReturn.json", "function"},
                 {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
@@ -99,6 +98,14 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
+                {"workerDeclarationContext1.json", "function"},
+                {"workerDeclarationContext2.json", "function"},
+                {"workerDeclarationContext3.json", "function"},
+                {"workerDeclarationContext4.json", "function"},
+                {"completionWithinInvocationArgs1.json", "function"},
+                {"completionWithinInvocationArgs2.json", "function"},
+                {"completionWithinInvocationArgs3.json", "function"},
+                {"completionWithinInvocationArgs4.json", "function"},
         };
     }
 }

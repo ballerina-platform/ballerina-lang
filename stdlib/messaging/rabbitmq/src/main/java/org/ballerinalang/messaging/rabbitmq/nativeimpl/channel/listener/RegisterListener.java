@@ -19,32 +19,22 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 
 import com.rabbitmq.client.Channel;
-
-import com.rabbitmq.client.DeliverCallback;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,12 +52,15 @@ import java.util.Map;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class RegisterListener extends BlockingNativeCallableUnit {
+    private final ArrayList<Service> services = new ArrayList<>();
 
     @Override
     public void execute(Context context) {
-        Resource onMessageResource;
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> channelObj = (BMap<String, BValue>) channelListObject.get("chann");
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        BMap<String, BValue> channelObj =
+                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         List<Annotation> annotationList = service.getAnnotationList(RabbitMQConstants.PACKAGE_RABBITMQ,
@@ -77,38 +70,10 @@ public class RegisterListener extends BlockingNativeCallableUnit {
         Map<String, Value> queueConfig = value.getMapField(RabbitMQConstants.QUEUE_CONFIG);
         String queueName = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_NAME).getStringValue();
         boolean durable = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_DURABLE).getBooleanValue();
-        boolean exclusive = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE).getBooleanValue();;
-        boolean autoDelete = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE).getBooleanValue();;
+        boolean exclusive = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE).getBooleanValue();
+        boolean autoDelete = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE).getBooleanValue();
         ChannelUtils.queueDeclare(channel, queueName, durable, exclusive, autoDelete);
-        onMessageResource = service.getResources()[0];
-        getMessages(onMessageResource, channel, queueName);
+        services.add(service);
+        channelListObject.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
     }
-
-    private static class ResponseCallback implements CallableUnitCallback {
-
-        @Override
-        public void notifySuccess() {
-            // nothing to handle
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        }
-    }
-
-    private void getMessages(Resource resource, Channel channel, String queue) {
-        try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), "UTF-8");
-                Executor.submit(resource, new ResponseCallback(),
-                        null, null, new BString(message));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
-        }
-    }
-
 }

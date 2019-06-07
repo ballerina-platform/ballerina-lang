@@ -6,7 +6,7 @@
 // the alias.
 import ballerina/math;
 
-// Declare an explicit alias
+// Declare an explicit alias.
 import ballerina/io as console;
 
 public function main() {

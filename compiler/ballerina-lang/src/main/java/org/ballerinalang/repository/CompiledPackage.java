@@ -46,6 +46,10 @@ public interface CompiledPackage {
 
     CompilerOutputEntry getPackageMDEntry();
 
+    CompilerOutputEntry getPackageBirEntry();
+
+    void setPackageBirEntry(CompilerOutputEntry entry);
+
     CompilerOutputEntry getPackageBinaryEntry();
 
     void setPackageBinaryEntry(CompilerOutputEntry entry);

@@ -1,0 +1,2 @@
+// This example shows how transactions can be used during the reception of a message in the Artemis connector.
+// If the transaction fails due to an error or by the use of `abort` message acknowledgements will not be committed.

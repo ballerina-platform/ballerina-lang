@@ -89,12 +89,15 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
     public static final String LISTENER_KEYWORD = "listener";
+    public static final String RETURNS_KEYWORD = "returns";
+    public static final String UNTAINT_KEYWORD = "untaint";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
     public static final String FINAL_KEYWORD = "final";
     public static final String CONST_KEYWORD = "const";
-    
+    public static final String MAP_KEYWORD = "map";
+
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
     public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";

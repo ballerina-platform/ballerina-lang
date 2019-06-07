@@ -41,7 +41,12 @@ public class TaskJob implements Job {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         Task task = (Task) jobDataMap.get(TASK_OBJECT);
         for (ServiceWithParameters serviceWithParameters : task.getServicesMap().values()) {
-            TaskExecutor.execute(serviceWithParameters);
+            //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
+            if (serviceWithParameters.getService() != null) {
+                TaskExecutor.execute(serviceWithParameters);
+            } else {
+                TaskExecutor.executeFunction(serviceWithParameters);
+            }
         }
     }
 }

@@ -23,7 +23,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -48,25 +51,36 @@ public abstract class BIRNode {
         public Name org;
         public Name name;
         public Name version;
+        public Name sourceFileName;
         public List<BIRImportModule> importModules;
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
+        public List<BIRAnnotation> annotations;
+        public List<BIRConstant> constants;
 
-        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
+        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
+                          Name sourceFileName) {
             super(pos);
             this.org = org;
             this.name = name;
             this.version = version;
+            this.sourceFileName = sourceFileName;
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
+            this.annotations = new ArrayList<>();
+            this.constants = new ArrayList<>();
         }
 
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+        
+        public Name getSourceFileName() {
+            return sourceFileName;
         }
     }
 
@@ -103,6 +117,7 @@ public abstract class BIRNode {
         public Name name;
         public VarKind kind;
         public VarScope scope;
+        public boolean ignoreVariable;
 
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope, VarKind kind) {
             super(pos);
@@ -114,6 +129,25 @@ public abstract class BIRNode {
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
             this(null, type, name, scope, kind);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A parameter.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRParameter extends BIRNode {
+        public Name name;
+
+        public BIRParameter(DiagnosticPos pos, Name name) {
+            super(pos);
+            this.name = name;
         }
 
         @Override
@@ -149,6 +183,26 @@ public abstract class BIRNode {
     }
 
     /**
+     * A function parameter declaration.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRFunctionParameter extends BIRVariableDcl {
+        public final boolean hasDefaultExpr;
+
+        public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
+                                    VarScope scope, VarKind kind, boolean hasDefaultExpr) {
+            super(pos, type, name, scope, kind);
+            this.hasDefaultExpr = hasDefaultExpr;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A function definition.
      *
      * @since 0.980.0
@@ -166,6 +220,11 @@ public abstract class BIRNode {
         public boolean isDeclaration;
 
         /**
+         * Indicate whether this is a function definition or an interface.
+         */
+        public boolean isInterface;
+
+        /**
          * Visibility of this function.
          * 0 - package_private
          * 1 - private
@@ -177,6 +236,26 @@ public abstract class BIRNode {
          * Type of this function. e.g., (int, int) returns (int).
          */
         public BInvokableType type;
+
+        /**
+         * List of required parameters.
+         */
+        public List<BIRParameter> requiredParams;
+
+        /**
+         * List of defaultable parameters.
+         */
+        public List<BIRParameter> defaultParams;
+
+        /**
+         * Type of the receiver. This is an optional field.
+         */
+        public BType receiverType;
+
+        /**
+         * Rest parameter.
+         */
+        public BIRParameter restParam;
 
         /**
          * Number of function arguments.
@@ -192,6 +271,13 @@ public abstract class BIRNode {
          */
         public List<BIRVariableDcl> localVars;
 
+        public BIRVariableDcl returnVariable;
+
+        /**
+         * Variable used for parameters of this function.
+         */
+        public Map<BIRFunctionParameter, List<BIRBasicBlock>>  parameters;
+
         /**
          * List of basic blocks in this function.
          */
@@ -202,14 +288,37 @@ public abstract class BIRNode {
          */
         public List<BIRErrorEntry> errorTable;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
+        /**
+         * Name of the current worker.
+         */
+        public Name workerName;
+
+        /**
+         * List of channels this worker interacts.
+         */
+        public ChannelDetails[] workerChannels;
+
+        /**
+         * Taint table for the function.
+         */
+        public TaintTable taintTable;
+
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
+                           Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
             this.type = type;
             this.localVars = new ArrayList<>();
+            this.parameters = new LinkedHashMap<>();
+            this.requiredParams = new ArrayList<>();
+            this.defaultParams = new ArrayList<>();
+            this.receiverType = receiverType;
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
+            this.workerName = workerName;
+            this.workerChannels = new ChannelDetails[sendInsCount];
+            this.taintTable = taintTable;
         }
 
         @Override
@@ -307,6 +416,153 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /**
+     * Channel details which has channel name and where it resides.
+     *
+     * @since 0.995.0
+     */
+    public static class ChannelDetails {
+        public String name;
+        public boolean channelInSameStrand;
+        public boolean send;
+
+        public ChannelDetails(String name, boolean channelInSameStrand, boolean send) {
+            this.name = name;
+            this.channelInSameStrand = channelInSameStrand;
+            this.send = send;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    /**
+     * Annotation definition node in BIR.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRAnnotation extends BIRNode {
+        /**
+         * Name of the annotation definition.
+         */
+        public Name name;
+
+        /**
+         * Visibility of this annotation.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        /**
+         * Attach points, this is needed only in compiled symbol enter as it is.
+         */
+        public int attachPoints;
+
+        /**
+         * Type of the annotation body.
+         */
+        public BType annotationType;
+
+        public BIRAnnotation(DiagnosticPos pos, Name name, Visibility visibility,
+                             int attachPoints, BType annotationType) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.attachPoints = attachPoints;
+            this.annotationType = annotationType;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
+    /**
+     * Constant definition node in BIR.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRConstant extends BIRNode {
+        /**
+         * Name of the constant.
+         */
+        public Name name;
+
+        /**
+         * Visibility of this constant.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        /**
+         * Type of the constant.
+         */
+        public BType type;
+
+        /**
+         * Value of the constant.
+         */
+        public ConstValue constValue;
+
+        public BIRConstant(DiagnosticPos pos, Name name, Visibility visibility,
+                             BType type, ConstValue constValue) {
+            super(pos);
+            this.name = name;
+            this.visibility = visibility;
+            this.type = type;
+            this.constValue = constValue;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
+    /**
+     * Constant value.
+     *
+     * @since 0.995.0
+     */
+    public static class ConstValue {
+        public BType valueType;
+        public Object literalValue;
+
+        public Map<Name, ConstValue> constantValueMap;
+
+        public ConstValue() {
+            this.constantValueMap = new HashMap<>();
+        }
+
+        public Map<Name, ConstValue> getConstantValueMap() {
+            return constantValueMap;
+        }
+    }
+
+    /**
+     * Taint table of the function.
+     *
+     * @since 0.995.0
+     */
+    public static class TaintTable {
+        public int columnCount;
+        public int rowCount;
+        public Map<Integer, List<Byte>> taintTable;
+
+        public TaintTable() {
+            this.taintTable = new LinkedHashMap<>();
         }
     }
 }

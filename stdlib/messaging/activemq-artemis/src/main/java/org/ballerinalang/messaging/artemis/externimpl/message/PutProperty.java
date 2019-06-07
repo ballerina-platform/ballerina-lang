@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
+import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -43,13 +44,23 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "putProperty",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "key", type = TypeKind.STRING),
-                @Argument(name = "value", type = TypeKind.UNION)
+                @Argument(
+                        name = "key",
+                        type = TypeKind.STRING
+                ),
+                @Argument(
+                        name = "value",
+                        type = TypeKind.UNION
+                )
         }
 )
 public class PutProperty extends BlockingNativeCallableUnit {
@@ -73,7 +84,7 @@ public class PutProperty extends BlockingNativeCallableUnit {
         } else if (valObj instanceof BByte) {
             message.putByteProperty(key, (byte) ((BByte) valObj).byteValue());
         } else if (valObj instanceof BValueArray) {
-            message.putBytesProperty(key, ((BValueArray) valObj).getBytes());
+            message.putBytesProperty(key, ArtemisUtils.getBytesData((BValueArray) valObj));
         }//else is not needed because these are the only values supported by the Ballerina the method
     }
 }

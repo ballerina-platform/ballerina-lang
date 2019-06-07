@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -69,6 +70,10 @@ public class VisitLdcInsn extends BlockingNativeCallableUnit {
             case TypeTags.BOOLEAN_TAG:
                 boolean booleanValue = ((BBoolean) value).booleanValue();
                 mv.visitLdcInsn(booleanValue);
+                break;
+            case TypeTags.BYTE_TAG:
+                int intVal = (int) ((BByte) value).byteValue();
+                mv.visitLdcInsn(intVal);
                 break;
             default:
                 throw new UnsupportedOperationException();

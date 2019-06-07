@@ -14,15 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type anyStruct record {
+public type anyStruct record {|
     any...;
-};
+|};
 
 public type annotationData record {
     string name;
     string moduleName;
     string moduleVersion;
-    record { any...; } value;
+    record {| any...; |} value;
 };
 
 public function getServiceAnnotations(service serviceType) returns annotationData[] = external;

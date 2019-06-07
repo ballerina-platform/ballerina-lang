@@ -289,7 +289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Since the function definition's super parent is CompilationUnit and it is the only super parent for
         // FunctionDefinition, following cast is safe.
         int annotCount = ((BallerinaParser.CompilationUnitContext) ctx.parent.parent).annotationAttachment().size();
-        this.pkgBuilder.startFunctionDef(annotCount);
+        this.pkgBuilder.startFunctionDef(annotCount, false);
     }
 
     /**
@@ -692,7 +692,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void enterInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -701,7 +701,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitOpenRecordTypeDescriptor(BallerinaParser.OpenRecordTypeDescriptorContext ctx) {
+    public void exitInclusiveRecordTypeDescriptor(BallerinaParser.InclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -712,15 +712,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
-        boolean hasExplicitRestField = ctx.recordRestFieldDefinition() != null;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, false,
-                                      hasExplicitRestField);
+                                      false);
     }
 
     @Override
-    public void enterClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void enterExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -729,7 +727,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitClosedRecordTypeDescriptor(BallerinaParser.ClosedRecordTypeDescriptorContext ctx) {
+    public void exitExclusiveRecordTypeDescriptor(BallerinaParser.ExclusiveRecordTypeDescriptorContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -741,8 +739,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
 
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, true,
-                                      false);
+        boolean hasRestField = ctx.recordRestFieldDefinition() != null;
+
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous,
+                                      hasRestField, true);
     }
 
     @Override

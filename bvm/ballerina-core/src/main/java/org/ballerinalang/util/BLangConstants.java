@@ -28,7 +28,7 @@ import java.math.MathContext;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 28;
+    public static final short VERSION_NUMBER = 50;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -90,4 +90,8 @@ public class BLangConstants {
                                                                                          MathContext.DECIMAL128);
 
     public static final String DEFAULT_WORKER_NAME = "default";
+
+    public static final String BALLERINA_TARGET = "ballerina.target";
+
+    public static final String JVM_TARGET = "jvm";
 }

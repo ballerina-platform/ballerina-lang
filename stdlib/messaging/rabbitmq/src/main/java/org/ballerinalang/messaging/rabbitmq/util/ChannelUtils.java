@@ -20,10 +20,13 @@ package org.ballerinalang.messaging.rabbitmq.util;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -55,16 +58,93 @@ public class ChannelUtils {
     /**
      * Closes the channel.
      *
-     * @param channel RabbitMQ Channel object.
-     * @param context Context.
+     * @param channel      RabbitMQ Channel object.
+     * @param closeMessage The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeCode    A message indicating the reason for closing the channel.
      */
-    public static void close(Channel channel, Context context) {
+    public static void handleAbortChannel(Channel channel, BValue closeCode, BValue closeMessage) {
+        boolean validCloseCode = closeCode instanceof BInteger;
+        boolean validCloseMessage = closeMessage instanceof BString;
         try {
-            channel.close();
-        } catch (TimeoutException | IOException exception) {
-            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
-                    + " " + exception.getMessage(), context, exception);
+            if (validCloseCode && validCloseMessage) {
+                abort(channel, Math.toIntExact(((BInteger) closeCode).intValue()), closeMessage.stringValue());
+            } else {
+                abort(channel);
+            }
+        } catch (IOException | ArithmeticException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.ABORT_CHANNEL_ERROR + exception.getMessage(),
+                    exception);
         }
+    }
+
+    /**
+     * Aborts the channel.
+     *
+     * @param channel RabbitMQ Channel object.
+     * @throws IOException If an I/O problem is encountered.
+     */
+    public static void abort(Channel channel) throws IOException {
+        channel.abort();
+    }
+
+    /**
+     * Aborts the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     * @throws IOException If an I/O problem is encountered.
+     */
+    public static void abort(Channel channel, int closeCode, String closeMessage) throws IOException {
+        channel.abort(closeCode, closeMessage);
+    }
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     */
+    public static void handleCloseChannel(Channel channel, BValue closeCode, BValue closeMessage) {
+        boolean validCloseCode = closeCode instanceof BInteger;
+        boolean validCloseMessage = closeMessage instanceof BString;
+        try {
+            if (validCloseCode && validCloseMessage) {
+                close(channel, Math.toIntExact(((BInteger) closeCode).intValue()), closeMessage.stringValue());
+            } else {
+                close(channel);
+            }
+        } catch (IOException | ArithmeticException | TimeoutException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CHANNEL_ERROR + exception.getMessage(),
+                    exception);
+        }
+    }
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel RabbitMQ Channel object.
+     * @throws IOException      If an I/O problem is encountered.
+     * @throws TimeoutException Thrown the operation times out.
+     */
+    public static void close(Channel channel) throws IOException, TimeoutException {
+        channel.close();
+    }
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     * @throws IOException      If an I/O problem is encountered.
+     * @throws TimeoutException Thrown the operation times out.
+     */
+    public static void close(Channel channel, int closeCode, String closeMessage)
+            throws IOException, TimeoutException {
+        channel.close(closeCode, closeMessage);
+
     }
 
     /**
@@ -95,9 +175,9 @@ public class ChannelUtils {
                                     boolean autoDelete) {
         try {
             channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
-        } catch (IOException e) {
-            String errorMessage = "An error occurred while declaring the queue ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+        } catch (IOException exception) {
+            String errorMessage = "An error occurred while declaring the queue: ";
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
     }
 
@@ -111,11 +191,13 @@ public class ChannelUtils {
         String exchangeName = RabbitMQUtils.getStringFromBValue(exchangeConfig, RabbitMQConstants.ALIAS_EXCHANGE_NAME);
         String exchangeType = RabbitMQUtils.getStringFromBValue(exchangeConfig, RabbitMQConstants.ALIAS_EXCHANGE_TYPE);
         boolean durable = RabbitMQUtils.getBooleanFromBValue(exchangeConfig, RabbitMQConstants.ALIAS_EXCHANGE_DURABLE);
+        boolean autoDelete = RabbitMQUtils.getBooleanFromBValue(exchangeConfig,
+                RabbitMQConstants.ALIAS_EXCHANGE_AUTODELETE);
         try {
-            channel.exchangeDeclare(exchangeName, exchangeType, durable);
-        } catch (IOException e) {
-            String errorMessage = "An error occurred while declaring the exchange ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+            channel.exchangeDeclare(exchangeName, exchangeType, durable, autoDelete, null);
+        } catch (IOException exception) {
+            String errorMessage = "An error occurred while declaring the exchange: ";
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
     }
 
@@ -132,7 +214,7 @@ public class ChannelUtils {
             channel.queueBind(queueName, exchangeName, bindingKey);
         } catch (Exception e) {
             String errorMessage = "An error occurred while binding the queue to an exchange ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+            throw new RabbitMQConnectorException(errorMessage + e.getMessage(), e);
         }
     }
 
@@ -145,12 +227,12 @@ public class ChannelUtils {
      * @param message    The message body.
      * @param exchange   The name of the exchange.
      */
-    public static void basicPublish(Channel channel, String routingKey, String message, String exchange) {
+    public static void basicPublish(Channel channel, String routingKey, byte[] message, String exchange) {
         try {
-            channel.basicPublish(exchange, routingKey, null, message.getBytes("UTF-8"));
+            channel.basicPublish(exchange, routingKey, null, message);
         } catch (Exception e) {
-            String errorMessage = "An error occurred while publishing the message to a queue ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+            String errorMessage = "An error occurred while publishing the message to the queue ";
+            throw new RabbitMQConnectorException(errorMessage + e.getMessage(), e);
         }
     }
 
@@ -159,13 +241,21 @@ public class ChannelUtils {
      *
      * @param channel   RabbitMQ Channel object.
      * @param queueName Name of the queue.
+     * @param ifUnused  True if the queue should be deleted only if not in use.
+     * @param ifEmpty   True if the queue should be deleted only if empty.
      */
-    public static void queueDelete(Channel channel, String queueName) {
+    public static void queueDelete(Channel channel, String queueName, BValue ifUnused, BValue ifEmpty) {
+        boolean isValidValues = ifUnused instanceof BBoolean && ifEmpty instanceof BBoolean;
         try {
-            channel.queueDelete(queueName);
-        } catch (Exception e) {
+            if (isValidValues) {
+                channel.queueDelete(queueName, ((BBoolean) ifUnused).booleanValue(),
+                        ((BBoolean) ifEmpty).booleanValue());
+            } else {
+                channel.queueDelete(queueName);
+            }
+        } catch (Exception exception) {
             String errorMessage = "An error occurred while deleting the queue ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
     }
 
@@ -193,10 +283,30 @@ public class ChannelUtils {
     public static void queuePurge(Channel channel, String queueName) {
         try {
             channel.queuePurge(queueName);
-        } catch (Exception e) {
+        } catch (IOException exception) {
             String errorMessage = "An error occurred while purging the queue ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
+    }
+
+    /**
+     * Validates whether the message has been acknowledged.
+     *
+     * @param messageObject Message object.
+     * @return True if the message was acknowledged already, and false otherwise.
+     */
+    public static boolean validateMultipleAcknowledgements(BMap<String, BValue> messageObject) {
+        return messageObject.getNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS) != null;
+    }
+
+    /**
+     * Validates the acknowledgement mode of the message.
+     *
+     * @param messageObject Message object.
+     * @return True if the ack-mode is client acknowledgement mode, and false otherwise.
+     */
+    public static boolean validateAckMode(BMap<String, BValue> messageObject) {
+        return !(Boolean) messageObject.getNativeData(RabbitMQConstants.AUTO_ACK_STATUS);
     }
 
     private ChannelUtils() {

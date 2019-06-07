@@ -16,13 +16,11 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -45,6 +43,26 @@
         <artifactId>ballerina-lang</artifactId>
     </dependency>
     <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>artemis-core-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-crypto</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-system</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-filepath</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-log-api</artifactId>
+    </dependency>
+    <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-builtin</artifactId>
         <scope>test</scope>
@@ -58,10 +76,6 @@
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-utils</artifactId>
         <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-core-client</artifactId>
     </dependency>
     <dependency>
         <groupId>org.ballerinalang</groupId>
@@ -91,6 +105,30 @@
     <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-io</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-crypto</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-filepath</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-system</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-log-api</artifactId>
         <type>zip</type>
         <classifier>ballerina-binary-repo</classifier>
     </dependency>
@@ -129,12 +167,14 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
 

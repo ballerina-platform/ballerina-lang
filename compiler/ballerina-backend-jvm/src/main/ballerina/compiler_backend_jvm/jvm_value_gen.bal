@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+    // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@ public type ObjectGenerator object {
 
     private bir:Package module;
     private bir:BObjectType? currentObjectType = ();
+    private bir:BRecordType? currentRecordType = ();
 
     public function __init(bir:Package module) {
         self.module = module;
@@ -27,10 +28,15 @@ public type ObjectGenerator object {
         foreach var optionalTypeDef in typeDefs {
             bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
-            if (bType is bir:BObjectType) {
+            if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
-                string className = self.getObjectValueClassName(typeDef.name.value);
+                string className = self.getTypeValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
+                jarEntries[className + ".class"] = bytes;
+            } else if (bType is bir:BRecordType) {
+                self.currentRecordType = bType;
+                string className = self.getTypeValueClassName(typeDef.name.value);
+                byte[] bytes = self.createRecordValueClass(bType, className, typeDef);
                 jarEntries[className + ".class"] = bytes;
             }
         }
@@ -38,13 +44,15 @@ public type ObjectGenerator object {
 
     // Private methods
 
-    private function getObjectValueClassName(string objTypeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(objTypeName);
+    private function getTypeValueClassName(string typeName) returns string {
+        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
     }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
+        currentClass = className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, [OBJECT_VALUE]);
 
         bir:BObjectField?[] fields = objectType.fields;
@@ -56,7 +64,7 @@ public type ObjectGenerator object {
         }
 
         self.createObjectInit(cw);
-        self.createCallMethod(cw, objectType.attachedFunctions, className);
+        self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
         cw.visitEnd();
@@ -75,6 +83,7 @@ public type ObjectGenerator object {
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
+                addDefaultableBooleanVarsToSignature(func);
                 generateMethod(func, cw, self.module, attachedType = self.currentObjectType);
             }
         }
@@ -96,7 +105,11 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createCallMethod(jvm:ClassWriter cw, bir:BAttachedFunction?[] funcs, string className) {
+    private function createCallMethod(jvm:ClassWriter cw, bir:Function?[]? functions, string objClassName,
+                                        string objTypeName) {
+
+        bir:Function?[] funcs = getFunctions(functions);
+
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                 io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT), (), ());
         mv.visitCode();
@@ -105,29 +118,79 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(funcs);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
+
+        string className = objClassName;
 
         // case body
         int i = 0;
         foreach var optionalFunc in funcs {
-            bir:BAttachedFunction func = self.getFunction(optionalFunc);
+            bir:Function func = getFunction(optionalFunc);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
 
-            // load self
-            mv.visitVarInsn(ALOAD, 0);
+            string methodName = getName(func);
+            bir:BType?[] paramTypes = func.typeValue.paramTypes;
+            bir:BType? retType = func.typeValue["retType"];
 
-            // load strand
-            mv.visitVarInsn(ALOAD, 1);
+            string methodSig = "";
+            int jvmMethodInvokeInsn = INVOKEVIRTUAL;
 
-            bir:BType[] paramTypes = func.funcType.paramTypes;
+            jvm:Label blockedOnExternLabel = new;
+            jvm:Label notBlockedOnExternLabel = new;
+
+            if (isExternFunc(func)) {
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+                if (!(retType is () || retType is bir:BTypeNil)) {
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
+                                            "Ljava/util/concurrent/Future;");
+                    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
+                                                true);
+                    addUnboxInsn(mv, retType);
+                }
+
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitInsn(ICONST_0);
+                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+
+                mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+                mv.visitLabel(blockedOnExternLabel);
+
+                string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." +
+                                                    methodName;
+                methodSig = lookupJavaMethodDescription(lookupKey);
+                className = lookupFullQualifiedClassName(lookupKey);
+                jvmMethodInvokeInsn = INVOKESTATIC;
+
+                // load strand
+                mv.visitVarInsn(ALOAD, 1);
+
+                // load self
+                mv.visitVarInsn(ALOAD, 0);
+            } else {
+                // use index access, since retType can be nil.
+                methodSig = getMethodDesc(paramTypes, retType);
+
+                // load self
+                mv.visitVarInsn(ALOAD, 0);
+
+                // load strand
+                mv.visitVarInsn(ALOAD, 1);
+            }
+
             int j = 0;
             foreach var paramType in paramTypes {
+                bir:BType pType = getType(paramType);
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
 
@@ -135,14 +198,11 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, paramType);
+                addUnboxInsn(mv, pType);
                 j += 1;
             }
 
-            // use index access, since retType can be nil.
-            bir:BType? retType = func.funcType["retType"];
-            string methodSig = getMethodDesc(paramTypes, retType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, getName(func, self.currentObjectType), methodSig, false);
+            mv.visitMethodInsn(jvmMethodInvokeInsn, className, getName(func), methodSig, false);
 
             if (retType is () || retType is bir:BTypeNil) {
                 mv.visitInsn(ACONST_NULL);
@@ -150,11 +210,13 @@ public type ObjectGenerator object {
                 addBoxInsn(mv, retType);
             }
 
+            mv.visitLabel(notBlockedOnExternLabel);
+
             mv.visitInsn(ARETURN);
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
         mv.visitMaxs(funcs.length() + 10, funcs.length() + 10);
         mv.visitEnd();
     }
@@ -168,11 +230,11 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(fields);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -187,7 +249,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
     }
@@ -202,11 +264,11 @@ public type ObjectGenerator object {
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
-        NodeSorter sorter = new(self.currentObjectType);
+        NodeSorter sorter = new();
         sorter.sortByHash(fields);
 
-        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
                 defaultCaseLabel);
 
         // case body
@@ -223,70 +285,9 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
-    }
-
-    private function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes, 
-            jvm:Label defaultCaseLabel) returns jvm:Label[] {
-        mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
-
-        // Create labels for the cases
-        int i = 0;
-        jvm:Label[] labels = [];
-        int[] hashCodes = [];
-        foreach var node in nodes {
-            if (node is NamedNode) {
-                labels[i] = new jvm:Label();
-                hashCodes[i] = getName(node, self.currentObjectType).hashCode();
-                i += 1;
-            }
-        }
-        mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
-        return labels;
-    }
-
-    private function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
-        mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
-        mv.visitInsn(DUP);
-
-        // Create error message
-        mv.visitTypeInsn(NEW, STRING_BUILDER);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("No such field or method: ");
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
-        mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", io:sprintf("()L%s;", STRING_VALUE), false);
-
-        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
-                io:sprintf("(L%s;)V", STRING_VALUE), false);
-        mv.visitInsn(ATHROW);
-    }
-
-    private function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
-            jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
-        jvm:Label[] targetLabels = [];
-        int i = 0;
-        foreach var node in nodes {
-            if (node is NamedNode) {
-                mv.visitLabel(labels[i]);
-                mv.visitVarInsn(ALOAD, nameRegIndex);
-                mv.visitLdcInsn(getName(node, self.currentObjectType));
-                mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                        io:sprintf("(L%s;)Z", OBJECT), false);
-                jvm:Label targetLabel = new jvm:Label();
-                mv.visitJumpInsn(IFNE, targetLabel);
-                mv.visitJumpInsn(GOTO, defaultCaseLabel);
-                targetLabels[i] = targetLabel;
-                i += 1;
-            }
-        }
-
-        return targetLabels;
     }
 
     private function getFunction(bir:BAttachedFunction? func) returns bir:BAttachedFunction {
@@ -298,9 +299,122 @@ public type ObjectGenerator object {
         }
     }
 
+    private function createRecordValueClass(bir:BRecordType recordType, string className, bir:TypeDef typeDef)
+            returns byte[] {
+        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
+        currentClass = className;
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
+
+        bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            self.createRecordMethods(cw, attachedFuncs);
+        }
+
+        self.createRecordConstructor(cw, className);
+        cw.visitEnd();
+        return cw.toByteArray();
+    }
+
+    private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
+        foreach var func in attachedFuncs {
+            if (func is bir:Function) {
+                generateMethod(func, cw, self.module, attachedType = self.currentRecordType);
+            }
+        }
+    }
+
+    private function createRecordConstructor(jvm:ClassWriter cw, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
+        mv.visitCode();
+
+        // load super
+        mv.visitVarInsn(ALOAD, 0);
+        // load type
+        mv.visitVarInsn(ALOAD, 1);
+
+        // invoke super(type);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitVarInsn(ALOAD, 0);
+
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_4);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "(I)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
+                            "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(5, 5);
+        mv.visitEnd();
+    }
 };
 
-function getName(any node, bir:BObjectType? objectType) returns string {
+function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
+        jvm:Label defaultCaseLabel) returns jvm:Label[] {
+    mv.visitVarInsn(ALOAD, nameRegIndex);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
+
+    // Create labels for the cases
+    int i = 0;
+    jvm:Label[] labels = [];
+    int[] hashCodes = [];
+    foreach var node in nodes {
+        if (node is NamedNode) {
+            labels[i] = new jvm:Label();
+            hashCodes[i] = getName(node).hashCode();
+            i += 1;
+        }
+    }
+    mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
+    return labels;
+}
+
+function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
+    mv.visitLabel(defaultCaseLabel);
+    mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
+    mv.visitInsn(DUP);
+
+    // Create error message
+    mv.visitTypeInsn(NEW, STRING_BUILDER);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn("No such field or method: ");
+    mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
+    mv.visitVarInsn(ALOAD, nameRegIndex);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", io:sprintf("()L%s;", STRING_VALUE), false);
+
+    mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
+            io:sprintf("(L%s;)V", STRING_VALUE), false);
+    mv.visitInsn(ATHROW);
+}
+
+function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,
+        jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
+    jvm:Label[] targetLabels = [];
+    int i = 0;
+    foreach var node in nodes {
+        if (node is NamedNode) {
+            mv.visitLabel(labels[i]);
+            mv.visitVarInsn(ALOAD, nameRegIndex);
+            mv.visitLdcInsn(getName(node));
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
+                    io:sprintf("(L%s;)Z", OBJECT), false);
+            jvm:Label targetLabel = new jvm:Label();
+            mv.visitJumpInsn(IFNE, targetLabel);
+            mv.visitJumpInsn(GOTO, defaultCaseLabel);
+            targetLabels[i] = targetLabel;
+            i += 1;
+        }
+    }
+
+    return targetLabels;
+}
+
+function getName(any node) returns string {
     if (node is NamedNode) {
         return node.name.value;
     } else {
@@ -316,12 +430,6 @@ type NamedNode record {
 };
 
 type NodeSorter object {
-
-    private bir:BObjectType? currentObjectType;
-
-    function __init(bir:BObjectType? currentObjectType) {
-        self.currentObjectType = currentObjectType;
-    }
 
     function sortByHash(NamedNode?[] arr) {
         self.quickSort(arr, 0, arr.length() - 1);
@@ -355,7 +463,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return getName(node, self.currentObjectType).hashCode();
+        return getName(node).hashCode();
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

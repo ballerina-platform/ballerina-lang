@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -57,5 +58,20 @@ public class ToString extends BlockingNativeCallableUnit {
         }
 
         ctx.setReturnValues(new BString(jsonStr));
+    }
+
+    public static String toString(Object json) {
+        if (json == null) {
+            return "null";
+        }
+
+        try {
+            return json.toString();
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+                    e);
+        }
+
+        return null;
     }
 }

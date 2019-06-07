@@ -216,7 +216,7 @@ public type Cache object {
 
 # Removes expired cache entries from all caches.
 #
-# + return - Any error which occured during cache expiration
+# + return - Any error which occurred during cache expiration
 function runCacheExpiry() returns error? {
 
     // We need to keep track of empty caches. We remove these to prevent OOM issues.

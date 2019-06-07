@@ -96,7 +96,7 @@ public class OpenApiCmd implements BLauncherCmd {
                 break;
             default:
                 throw LauncherUtils.createLauncherException(
-                        "Only following actions(genservice, client) are " + "supported in openapi command");
+                        "Only following actions(genservice, gen-client) are " + "supported in openapi command");
         }
         msg.append(" for input file - " + argList.get(1));
         outStream.println(msg.toString());
@@ -143,10 +143,5 @@ public class OpenApiCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-
     }
 }

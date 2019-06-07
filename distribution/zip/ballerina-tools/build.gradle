@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 plugins {
     id 'base'
 }
@@ -11,13 +28,16 @@ configurations {
     distBal {
         transitive false
     }
-    tools {
-        transitive false
-    }
-    toolsZip {
+    langserverLib {
         transitive false
     }
     ballerinaZip {
+        transitive false
+    }
+    composerDistribution {
+        transitive false
+    }
+    composerFonts {
         transitive false
     }
     docerina
@@ -29,11 +49,10 @@ configurations {
     staticFiles
     balx
     unzipped
+    langserverResources
 }
 
 dependencies {
-    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
@@ -42,7 +61,6 @@ dependencies {
     dist 'org.ow2.asm:asm:6.2.1'
 
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-llvm')
     dist project(':ballerina-jvm')
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
@@ -52,7 +70,6 @@ dependencies {
     dist project(':testerina:testerina-core')
     
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
-    dist project(':ballerina-backend-llvm')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
@@ -62,15 +79,19 @@ dependencies {
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     docerina project(':docerina-gradle-plugin')
 
-    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist')
-    tools project(':language-server:language-server-stdio-launcher')
-    tools project(':language-server:language-server-core')
+    langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
+    langserverLib project(':language-server:language-server-stdio-launcher')
+    langserverLib project(':language-server:language-server-core')
+    langserverResources project(path: ':language-server:language-server-core', configuration: 'langserverResources')
+
     balSource project(path: ':ballerina', configuration: 'source')
     distBal project(path: ':ballerina', configuration: 'balo')
     dist project(path: ':ballerina', configuration: 'jar')
     bin project(path: ':ballerina', configuration: 'bin')
     staticFiles project(path: ':ballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':ballerina', configuration: 'resourceFiles')
+    composerDistribution project(path: ':composer-library', configuration: 'composer')
+    composerFonts project(path: ':composer-library', configuration: 'fonts')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
@@ -139,19 +160,17 @@ def copyBinSpec = {
     }
 }
 
-def copyToolsBin = {
+def copyLangServerBinSpec = {
     path -> copySpec {
         from('resources')
         into(path + 'lib/tools/lang-server/launcher')
     }
 }
 
-def copyToolsZipSpec = {
+def copyLangSeverIndexSpec = {
     path -> copySpec {
-        configurations.toolsZip.asFileTree.each {
-            from(zipTree(it))
-        }
-        into(path + 'lib/tools/lang-server')
+        from configurations.langserverResources
+        into(path + 'lib/tools/lang-server/resources')
      }
 }
 
@@ -167,10 +186,24 @@ def copyBallerinaZipSpec = {
     }
 }
 
-def copyToolsSpec = {
+def copyLangServerLibsSpec = {
     path -> copySpec {
-        from configurations.tools
+        from configurations.langserverLib
         into(path + 'lib/tools/lang-server/lib')
+    }
+}
+
+def copyComposerDistributionSpec = {
+    path -> copySpec {
+        from(configurations.composerDistribution) 
+        into(path + 'lib/tools/composer-library')
+    }
+}
+
+def copyComposerFontsSpec = {
+    path -> copySpec {
+        from configurations.composerFonts 
+        into(path + 'lib/tools/composer-library')
     }
 }
 
@@ -235,9 +268,11 @@ task createZip(type: Zip) {
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
-    with copyToolsSpec(basePath)
-    with copyToolsZipSpec(basePath)
-    with copyToolsBin(basePath)
+    with copyLangServerLibsSpec(basePath)
+    with copyLangSeverIndexSpec(basePath)
+    with copyLangServerBinSpec(basePath)
+    with copyComposerDistributionSpec(basePath)
+    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
@@ -252,9 +287,11 @@ task updateBalHome(type: Copy) {
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
-    with copyToolsSpec(installDir)
-    with copyToolsZipSpec(installDir)
-    with copyToolsBin(installDir)
+    with copyLangServerLibsSpec(installDir)
+    with copyLangSeverIndexSpec(installDir)
+    with copyLangServerBinSpec(installDir)
+    with copyComposerDistributionSpec(installDir)
+    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
@@ -271,9 +308,11 @@ task createDistribution(type: Copy) {
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
-    with copyToolsSpec("")
-    with copyToolsZipSpec("")
-    with copyToolsBin("")
+    with copyLangServerLibsSpec("")
+    with copyLangSeverIndexSpec("")
+    with copyLangServerBinSpec("")
+    with copyComposerDistributionSpec("")
+    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with apiDocsSpec("")
     with examplesSpec("")
@@ -284,8 +323,6 @@ task createDistribution(type: Copy) {
 }
 
 build {
-    // To make sure language server zip is ready before building pack
-    dependsOn ':language-server:language-server-core:build'
     dependsOn createZip
     dependsOn createDistribution
     finalizedBy ':ballerina-tools-integration-test:test'

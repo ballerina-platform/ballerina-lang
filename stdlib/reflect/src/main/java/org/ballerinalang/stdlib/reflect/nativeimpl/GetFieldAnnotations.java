@@ -18,6 +18,9 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -43,5 +46,16 @@ public class GetFieldAnnotations extends AbstractAnnotationReader {
         BStructureType structType = (BStructureType) bTypeValue.value();
         String key = structType.getName() + DOT + context.getStringArgument(0);
         context.setReturnValues(getAnnotationValue(context, structType.getPackagePath(), key));
+    }
+
+    public static ArrayValue getStructFieldAnnotations(Strand strand, TypedescValue typeValue, String fieldName) {
+        //TODO verify the use of typeValue.getDescribingType() instead of typeValue.getType()
+        if (!(typeValue.getDescribingType() instanceof org.ballerinalang.jvm.types.BStructureType)) {
+            return null;
+        }
+        org.ballerinalang.jvm.types.BStructureType structType =
+                (org.ballerinalang.jvm.types.BStructureType) typeValue.getDescribingType();
+        String key = structType.getName() + DOT + fieldName;
+        return getAnnotationValue(structType, key);
     }
 }

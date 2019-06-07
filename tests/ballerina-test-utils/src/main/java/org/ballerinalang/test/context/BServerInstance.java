@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -348,14 +349,17 @@ public class BServerInstance implements BServer {
 
         log.info("Starting Ballerina server..");
 
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
         try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
-
+                cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + scriptName + ".bat", "run"};
             } else {
                 cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
             }

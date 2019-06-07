@@ -2,7 +2,6 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run task_service_timer.bal
-Initiating service(s) in 'task_service_timer.bal'
 INFO  [] - Cleaning up...
 INFO  [] - 1
 INFO  [] - Cleaning up...

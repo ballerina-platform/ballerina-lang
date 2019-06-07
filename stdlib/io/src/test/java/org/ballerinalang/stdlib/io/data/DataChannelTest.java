@@ -19,14 +19,14 @@
 
 package org.ballerinalang.stdlib.io.data;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,7 +43,7 @@ public class DataChannelTest {
 
     @BeforeClass
     public void setup() {
-        dataChannel = BCompileUtil.compileAndSetup("test-src/io/data_io.bal");
+        dataChannel = BCompileUtil.compile("test-src/io/data_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 

@@ -1944,6 +1944,11 @@ public class TypeChecker extends BLangNodeVisitor {
             if (exprType != symTable.semanticError) {
                 actualType = exprType;
             }
+        } else if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            exprType = checkExpr(unaryExpr.expr, env);
+            if (exprType != symTable.semanticError) {
+                actualType = symTable.typeDesc;
+            }
         } else {
             exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
                     checkExpr(unaryExpr.expr, env);
@@ -3043,6 +3048,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.concatExpr = contentExpr;
         xmlTextLiteral.pos = contentExpr.pos;
+        xmlTextLiteral.type = symTable.xmlType;
         return xmlTextLiteral;
     }
 

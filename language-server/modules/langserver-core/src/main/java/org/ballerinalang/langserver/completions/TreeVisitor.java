@@ -36,6 +36,8 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Recor
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
+import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -100,6 +102,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -180,8 +183,8 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
-        if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, evalPkg);
+        if (this.lsContext.get(CompletionKeys.SCOPE_NODE_KEY) == null) {
+            this.lsContext.put(CompletionKeys.SCOPE_NODE_KEY, evalPkg);
             this.populateSymbols(this.resolveAllVisibleSymbols(this.getSymbolEnv()), this.getSymbolEnv());
             forceTerminateVisitor();
         }
@@ -207,18 +210,34 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        String functionName = funcNode.getName().getValue();
+        String funcName = funcNode.getName().getValue();
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
+        DiagnosticPos functionPos = CommonUtil.clonePosition(funcNode.getPosition());
 
-        funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
+        if (!funcNode.flagSet.contains(Flag.WORKER)) {
+            funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
+            boolean withinParamContext = CompletionVisitorUtil
+                    .isWithinParameterContext(funcName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY, funcEnv, lsContext, this);
+            if (withinParamContext) {
+                this.lsContext.put(CompletionKeys.IN_FUNCTION_PARAMETER_CONTEXT_KEY, true);
+                return;
+            }
+            if (!funcNode.annAttachments.isEmpty()) {
+                BLangAnnotationAttachment lastItem = CommonUtil.getLastItem(funcNode.annAttachments);
+                List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
+                String[] firstWSItem = wsList.get(0).getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT);
+                int precedingNewLines = firstWSItem.length - 1;
+                functionPos.sLine = lastItem.pos.eLine + precedingNewLines;
+                functionPos.sCol = firstWSItem[firstWSItem.length - 1].length() + 1;
+            }
+        } else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
+                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
+            return;
+        }
+        boolean cursorBeforeNode = cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol);
 
-        boolean withinParamContext = CompletionVisitorUtil
-                .isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY, funcEnv, lsContext, this);
-        boolean cursorBeforeNode = cpr.isCursorBeforeNode(funcNode.getPosition(), this, this.lsContext, funcNode,
-                funcNode.symbol);
-
-        if (terminateVisitor || cursorBeforeNode || withinParamContext) {
+        if (terminateVisitor || cursorBeforeNode) {
             return;
         }
 
@@ -468,9 +487,11 @@ public class TreeVisitor extends LSNodeVisitor {
                 && serviceFields.isEmpty()
                 && CompletionVisitorUtil.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv, this.lsContext,
                 this);
+        boolean cursorWithinAttachedExprs = CompletionVisitorUtil.cursorWithinServiceExpressionList(serviceNode,
+                serviceEnv, this.lsContext, this);
 
         if (cpr.isCursorBeforeNode(serviceNode.getPosition(), this, this.lsContext, serviceNode, serviceNode.symbol)
-                || cursorWithinBlock) {
+                || cursorWithinBlock || cursorWithinAttachedExprs) {
             return;
         }
 
@@ -811,7 +832,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     private void populateSymbolEnvNode(BLangNode node) {
-        lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
+        lsContext.put(CompletionKeys.SCOPE_NODE_KEY, node);
     }
     
     private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {

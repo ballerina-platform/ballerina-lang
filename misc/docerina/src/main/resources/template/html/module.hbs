@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body>
+<div class="ui grid">
+    <div class="navi-wrapper two wide column">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+        <div class="main-wrapper module-wrapper">
+                <h1>Module : <span class="modules">{{ project.organization }}{{ module.id }}</span></h1>
+            {{{ module.description }}}
+
+            {{#if module.records}}
+                <h2><a name="records">Records</a></h2>
+                <table>
+                    {{#each module.records}}
+                        <tr>
+                            <td class="module-title truncate records" id="{{name}}">
+                                <a class="records"
+                                   href="records/{{name}}.html">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.objects}}
+                <h2><a name="objects">Objects</a></h2>
+                <table>
+                    {{#each module.objects}}
+                        <tr>
+                            <td class="module-title truncate objects" id="{{name}}">
+                                <a class="objects"
+                                   href="objects/{{name}}.html">
+                                    {{name}}
+                                </a>
+                            </td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.clients}}
+                <h2><a name="clients">Clients</a></h2>
+                <table>
+                    {{#each module.clients}}
+                        <tr>
+                            <td class="module-title truncate clients" id="{{name}}">
+                                <a class="clients"
+                                   href="clients/{{name}}.html">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.listeners}}
+                <h2><a name="listeners">Listeners</a></h2>
+                <table>
+                    {{#each module.listeners}}
+                        <tr>
+                            <td class="module-title truncate listeners" id="{{name}}">
+                                <a class="listeners"
+                                   href="listeners/{{name}}.html">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.functions}}
+                <h2><a name="functions">Functions</a></h2>
+                <table>
+                    {{#each module.functions}}
+                        <tr>
+                            <td class="module-title truncate functions" id="{{name}}"><a
+                                    class="functions" href="functions.html#{{name}}">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+
+            {{#if module.constants}}
+                <h2><a name="constants">Constants</a></h2>
+                <table>
+                    {{#each module.constants}}
+                        <tr>
+                            <td class="module-title truncate constant" id="{{name}}"><a
+                                    class="constant" href="constants.html#{{name}}">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+
+            {{#if module.annotations}}
+                <h2><a name="annotations">Annotations</a></h2>
+                <table>
+                    {{#each module.annotations}}
+                        <tr>
+                            <td class="module-title truncate annotations" id="{{name}}"><a
+                                    class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.unionTypes}}
+                <h2><a name="types">Types</a></h2>
+                <table>
+                    {{#each module.unionTypes}}
+                        <tr>
+                            <td class="module-title truncate types" id="{{name}}">
+                                <a class="types" href="types.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+
+            {{#if module.errors}}
+                <h2><a name="errors">Errors</a></h2>
+                <table>
+                    {{#each module.errors}}
+                        <tr>
+                            <td class="module-title truncate errors" id="{{name}}">
+                                <a class="errors" href="errors.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">{{{ description }}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{> monaco }}
+</body>

@@ -35,6 +35,7 @@ CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
+TYPEOF      : 'typeof';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -156,6 +157,10 @@ RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
+
+// Delimiters
+LEFT_CLOSED_RECORD_DELIMITER     : '{|' ;
+RIGHT_CLOSED_RECORD_DELIMITER    : '|}' ;
 
 // Documentation markdown
 
@@ -635,17 +640,22 @@ XMLTemplateText
     ;
 
 XMLText
-    :   XMLBracesSequence* (XMLTextChar XMLBracesSequence*)+
-    |   XMLBracesSequence (XMLTextChar XMLBracesSequence?)*
-    |   XMLBracesSequence+
+    :   XMLTextChar+
     ;
 
 fragment
 XMLTextChar
-    :   ~[<&$`{}]
+    :   ~[<&$`{]
     |   '\\' [`]
     |   XML_WS
     |   XMLEscapedSequence
+    |   DollarSequence
+    |   XMLBracesSequence
+    ;
+
+fragment
+DollarSequence
+    :  '$'+ LookAheadTokenIsNotOpenBrace
     ;
 
 fragment
@@ -738,6 +748,7 @@ fragment
 XMLDoubleQuotedStringChar
     :   ~[$<"{}\\]
     |   XMLEscapedSequence
+    |   DollarSequence
     ;
 
 

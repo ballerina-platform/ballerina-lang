@@ -168,16 +168,16 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
-    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     ;
 
-openRecordTypeDescriptor
-    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
+inclusiveRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* RIGHT_BRACE
     ;
 
-closedRecordTypeDescriptor
-    :   RECORD LEFT_BRACE PIPE fieldDescriptor* PIPE RIGHT_BRACE
+exclusiveRecordTypeDescriptor
+    :   RECORD LEFT_CLOSED_RECORD_DELIMITER fieldDescriptor* recordRestFieldDefinition? RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 fieldDescriptor
@@ -427,7 +427,7 @@ openRecordBindingPattern
     ;
 
 closedRecordBindingPattern
-    :   LEFT_BRACE PIPE fieldBindingPattern (COMMA fieldBindingPattern)* PIPE RIGHT_BRACE
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
@@ -468,7 +468,7 @@ openRecordRefBindingPattern
     ;
 
 closedRecordRefBindingPattern
-    :   LEFT_BRACE PIPE fieldRefBindingPattern (COMMA fieldRefBindingPattern)* PIPE RIGHT_BRACE
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldRefBindingPattern (COMMA fieldRefBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 errorRefBindingPattern
@@ -699,7 +699,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName GT expression                                           # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT | TYPEOF) expression    # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
