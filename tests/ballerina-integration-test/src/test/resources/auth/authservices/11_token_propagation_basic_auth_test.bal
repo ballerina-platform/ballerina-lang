@@ -18,12 +18,12 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/jwt;
 
-auth:ConfigAuthStoreProvider basicAuthProvider11_1 = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler11_1 = new(basicAuthProvider11_1);
+auth:InboundBasicAuthProvider basicAuthProvider11_1 = new;
+http:BasicAuthHeaderHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
 
 listener http:Listener listener11_1 = new(9103, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler11_1]
+        authHandlers: [basicAuthHandler11_1]
     },
     secureSocket: {
         keyStore: {
@@ -33,7 +33,7 @@ listener http:Listener listener11_1 = new(9103, config = {
     }
 });
 
-jwt:OutboundJWTAuthProvider outboundJwtAuthProvider11_2 = new({
+jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
     inferredJwtIssuerConfig: {
         issuer: "ballerina",
         audience: ["ballerina"],
@@ -45,11 +45,11 @@ jwt:OutboundJWTAuthProvider outboundJwtAuthProvider11_2 = new({
         }
     }
 });
-http:BearerAuthHeaderAuthnHandler bearerAuthnHandler11_2 = new(outboundJwtAuthProvider11_2);
+http:BearerAuthHeaderHandler jwtAuthHandler11_2 = new(jwtAuthProvider11_2);
 
 http:Client nyseEP03 = new("https://localhost:9104", config = {
     auth: {
-        authnHandler: bearerAuthnHandler11_2
+        authHandler: jwtAuthHandler11_2
     }
 });
 
@@ -74,7 +74,7 @@ service passthroughService11 on listener11_1 {
     }
 }
 
-jwt:InboundJWTAuthProvider jwtAuthProvider11_3 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -83,11 +83,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider11_3 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler11_3 = new(jwtAuthProvider11_3);
+http:BearerAuthHeaderHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);
 
 listener http:Listener listener11_2 = new(9104, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler11_3]
+        authHandlers: [jwtAuthHandler11_3]
     },
     secureSocket: {
         keyStore: {

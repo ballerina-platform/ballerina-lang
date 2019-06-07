@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:InboundJWTAuthProvider jwtAuthProvider14_1 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider14_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -26,11 +26,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider14_1 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler14_1 = new(jwtAuthProvider14_1);
+http:BearerAuthHeaderHandler jwtAuthHandler14_1 = new(jwtAuthProvider14_1);
 
 listener http:Listener listener14_1 = new(9109, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler14_1]
+        authHandlers: [jwtAuthHandler14_1]
     },
     secureSocket: {
         keyStore: {
@@ -40,7 +40,7 @@ listener http:Listener listener14_1 = new(9109, config = {
     }
 });
 
-jwt:OutboundJWTAuthProvider outboundJwtAuthProvider14_2 = new({
+jwt:OutboundJwtAuthProvider jwtAuthProvider14_2 = new({
     inferredJwtIssuerConfig: {
         issuer: "ballerina",
         audience: ["ballerina"],
@@ -52,11 +52,11 @@ jwt:OutboundJWTAuthProvider outboundJwtAuthProvider14_2 = new({
         }
     }
 });
-http:BearerAuthHeaderAuthnHandler bearerAuthnHandler14_2 = new(outboundJwtAuthProvider14_2);
+http:BearerAuthHeaderHandler jwtAuthHandler14_2 = new(jwtAuthProvider14_2);
 
 http:Client nyseEP14 = new("https://localhost:9110", config = {
     auth: {
-        authnHandler: bearerAuthnHandler14_2
+        authHandler: jwtAuthHandler14_2
     }
 });
 
@@ -81,7 +81,7 @@ service passthroughService14 on listener14_1 {
     }
 }
 
-jwt:InboundJWTAuthProvider jwtAuthProvider14_3 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider14_3 = new({
     issuer: "example2aaaaaaaaaaaaaa",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -90,11 +90,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider14_3 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler14_3 = new(jwtAuthProvider14_3);
+http:BearerAuthHeaderHandler jwtAuthHandler14_3 = new(jwtAuthProvider14_3);
 
 listener http:Listener listener14_2 = new(9110, config = {
         auth: {
-            authnHandlers: [jwtAuthnHandler14_3]
+            authHandlers: [jwtAuthHandler14_3]
         },
         secureSocket: {
             keyStore: {

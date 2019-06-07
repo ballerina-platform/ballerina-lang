@@ -19,12 +19,12 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/runtime;
 
-CustomAuthStoreProvider customAuthStoreProvider = new;
-CustomAuthnHandler customAuthnHandler = new(customAuthStoreProvider);
+CustomAuthProvider customAuthProvider = new;
+CustomAuthHandler customAuthHandler = new(customAuthProvider);
 
 listener http:Listener listener17 = new(9113, config = {
         auth: {
-            authnHandlers: [customAuthnHandler],
+            authHandlers: [customAuthHandler],
             scopes: ["all"]
         },
         secureSocket: {
@@ -47,32 +47,32 @@ service echo17 on listener17 {
 
 // ---------- custom_authn_handler ----------
 
-public type CustomAuthnHandler object {
+public type CustomAuthHandler object {
 
-    *http:InboundAuthnHandler;
+    *http:InboundAuthHandler;
 
     public auth:InboundAuthProvider authProvider;
 
     public function __init(auth:InboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }
+
+    public function handle(http:Request req) returns boolean|error {
+        var customAuthHeader = req.getHeader(http:AUTH_HEADER);
+        string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
+        return self.authProvider.authenticate(credential);
+    }
+
+    public function canHandle(http:Request req) returns boolean {
+        var customAuthHeader = req.getHeader(http:AUTH_HEADER);
+        return customAuthHeader.hasPrefix("Custom");
+    }
 };
-
-public function CustomAuthnHandler.handle(http:Request req) returns boolean|error {
-    var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-    string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
-    return self.authProvider.authenticate(credential);
-}
-
-public function CustomAuthnHandler.canHandle(http:Request req) returns boolean {
-    var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-    return customAuthHeader.hasPrefix("Custom");
-}
 
 
 // ---------- custom_auth_store_provider ----------
 
-public type CustomAuthStoreProvider object {
+public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 

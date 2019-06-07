@@ -19,12 +19,12 @@ import ballerina/http;
 import ballerina/jwt;
 
 // token propagation is set to false by default
-auth:ConfigAuthStoreProvider basicAuthProvider10 = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler10 = new(basicAuthProvider10);
+auth:InboundBasicAuthProvider basicAuthProvider10 = new;
+http:BasicAuthHeaderHandler basicAuthHandler10 = new(basicAuthProvider10);
 
 listener http:Listener listener10_1 = new(9101, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler10]
+        authHandlers: [basicAuthHandler10]
     },
     secureSocket: {
         keyStore: {
@@ -58,7 +58,7 @@ service passthroughService10 on listener10_1 {
     }
 }
 
-jwt:InboundJWTAuthProvider jwtAuthProvider10 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -68,11 +68,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider10 = new({
     }
 });
 
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler10 = new(jwtAuthProvider10);
+http:BearerAuthHeaderHandler jwtAuthHandler10 = new(jwtAuthProvider10);
 
 listener http:Listener listener10_2 = new(9102, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler10]
+        authHandlers: [jwtAuthHandler10]
     },
     secureSocket: {
         keyStore: {

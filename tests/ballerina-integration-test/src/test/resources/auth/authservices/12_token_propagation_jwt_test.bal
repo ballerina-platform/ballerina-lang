@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:InboundJWTAuthProvider jwtAuthProvider12_1 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider12_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -26,11 +26,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider12_1 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler12_1 = new(jwtAuthProvider12_1);
+http:BearerAuthHeaderHandler jwtAuthHandler12_1 = new(jwtAuthProvider12_1);
 
 listener http:Listener listener12_1 = new(9105, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler12_1]
+        authHandlers: [jwtAuthHandler12_1]
     },
     secureSocket: {
         keyStore: {
@@ -40,12 +40,12 @@ listener http:Listener listener12_1 = new(9105, config = {
     }
 });
 
-jwt:OutboundJWTAuthProvider outboundJwtAuthProvider12_2 = new({});
-http:BearerAuthHeaderAuthnHandler bearerAuthnHandler12_2 = new(outboundJwtAuthProvider12_2);
+jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new({});
+http:BearerAuthHeaderHandler jwtAuthHandler12_2 = new(jwtAuthProvider12_2);
 
 http:Client nyseEP12 = new("https://localhost:9106", config = {
     auth: {
-        authnHandler: bearerAuthnHandler12_2
+        authHandler: jwtAuthHandler12_2
     }
 });
 
@@ -70,7 +70,7 @@ service passthroughService12 on listener12_1 {
     }
 }
 
-jwt:InboundJWTAuthProvider jwtAuthProvider12_3 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider12_3 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -79,11 +79,11 @@ jwt:InboundJWTAuthProvider jwtAuthProvider12_3 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler12_3 = new(jwtAuthProvider12_3);
+http:BearerAuthHeaderHandler jwtAuthHandler12_3 = new(jwtAuthProvider12_3);
 
 listener http:Listener listener12_2 = new(9106, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler12_3]
+        authHandlers: [jwtAuthHandler12_3]
     },
     secureSocket: {
         keyStore: {
