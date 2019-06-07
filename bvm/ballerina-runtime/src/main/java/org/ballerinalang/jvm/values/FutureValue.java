@@ -41,8 +41,6 @@
 
      public Throwable panic;
 
-     public boolean isCancelled;
-
      public FutureValue(Strand strand) {
          this.strand = strand;
      }
@@ -51,7 +49,6 @@
      public String stringValue() {
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
-         sj.add("cancelled:" + isCancelled);
          if (isDone) {
              sj.add("result:" + result.toString());
          }
@@ -74,14 +71,6 @@
      @Override
      public Object copy(Map<Object, Object> refs) {
          return null;
-     }
-
-     public boolean isDone() {
-         return isDone;
-     }
-
-     public boolean isCancelled() {
-         return isCancelled;
      }
 
      public void cancel() {

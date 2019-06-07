@@ -16,8 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -56,11 +54,5 @@ public class WorkerCancelledTest {
         } finally {
             System.setOut(defaultOut);
         }
-    }
-
-    @Test
-    public void futureActionsTest() {
-        BValue[] result = BRunUtil.invoke(this.result, "futureActions");
-        Assert.assertTrue(((BBoolean) result[0]).booleanValue());
     }
 }
