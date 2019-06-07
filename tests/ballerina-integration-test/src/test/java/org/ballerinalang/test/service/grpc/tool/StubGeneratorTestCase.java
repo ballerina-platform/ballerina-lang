@@ -248,7 +248,8 @@ public class StubGeneratorTestCase {
                 "Address1_StreetNumber"), "Expected record type not found");
     }
 
-    private CompileResult getStubCompileResult(String protoFilename, String outputFilename) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private CompileResult getStubCompileResult(String protoFilename, String outputFilename)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path protoFilePath = resourceDir.resolve(protoFilename);
