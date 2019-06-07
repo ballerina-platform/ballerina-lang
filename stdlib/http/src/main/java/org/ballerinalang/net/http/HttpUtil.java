@@ -1222,6 +1222,12 @@ public class HttpUtil {
         return responseStruct;
     }
 
+    /**
+     * Populate sender configurations that are common to both HTTP/1.x and HTTP/2.
+     *
+     * @param senderConfiguration  sender configurations that need to be populated
+     * @param clientEndpointConfig ballerina client endpoint configurations
+     */
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
@@ -1252,9 +1258,6 @@ public class HttpUtil {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
         long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
@@ -1262,9 +1265,6 @@ public class HttpUtil {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
-                .getStringValue();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {

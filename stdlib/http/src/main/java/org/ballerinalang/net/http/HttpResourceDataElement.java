@@ -162,18 +162,18 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         return DispatcherUtil.concatValues(methods, false);
     }
 
-    public HttpResource validateConsumes(HttpResource resource, HttpCarbonMessage cMsg) {
+    private void validateConsumes(HttpResource resource, HttpCarbonMessage cMsg) {
         String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()));
         List<String> consumesList = resource.getConsumes();
 
         if (consumesList == null) {
-            return resource;
+            return;
         }
         //when Content-Type header is not set, treat it as "application/octet-stream"
         contentMediaType = (contentMediaType != null ? contentMediaType : HttpConstants.VALUE_ATTRIBUTE);
         for (String consumeType : consumesList) {
             if (contentMediaType.equalsIgnoreCase(consumeType.trim())) {
-                return resource;
+                return;
             }
         }
         cMsg.setHttpStatusCode(415);
@@ -190,16 +190,16 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         return header;
     }
 
-    public HttpResource validateProduces(HttpResource resource, HttpCarbonMessage cMsg) {
+    private void validateProduces(HttpResource resource, HttpCarbonMessage cMsg) {
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpHeaderNames.ACCEPT.toString()));
         List<String> producesList = resource.getProduces();
 
         if (producesList == null || acceptMediaTypes == null) {
-            return resource;
+            return;
         }
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
         if (acceptMediaTypes.contains("*/*")) {
-            return resource;
+            return;
         }
         if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
             List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
@@ -208,7 +208,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                     .collect(Collectors.toList());
             for (String token : resource.getProducesSubTypes()) {
                 if (subTypeWildCardMediaTypes.contains(token)) {
-                    return resource;
+                    return;
                 }
             }
         }
@@ -216,7 +216,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                 .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
         for (String produceType : producesList) {
             if (noWildCardMediaTypes.stream().anyMatch(produceType::equalsIgnoreCase)) {
-                return resource;
+                return;
             }
         }
         cMsg.setHttpStatusCode(406);

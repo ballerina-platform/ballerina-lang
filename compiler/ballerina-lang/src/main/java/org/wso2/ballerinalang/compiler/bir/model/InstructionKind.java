@@ -36,6 +36,7 @@ public enum InstructionKind {
     FLUSH((byte) 10),
     LOCK((byte) 11),
     UNLOCK((byte) 12),
+    WAIT_ALL((byte) 13),
 
     // Non-terminating instructions
     MOVE((byte) 20),
@@ -71,7 +72,6 @@ public enum InstructionKind {
     NEW_TABLE((byte) 50),
     NEW_TYPEDESC((byte) 51),
     NEW_STREAM((byte) 52),
-    TERNARY((byte) 53),
 
     // Binary expression related instructions.
     ADD((byte) 61),
@@ -95,7 +95,13 @@ public enum InstructionKind {
     // Unary expression related instructions.
     TYPEOF((byte) 80),
     NOT((byte) 81),
-    NEGATE((byte) 82);
+    NEGATE((byte) 82),
+    BITWISE_AND((byte) 83),
+    BITWISE_OR((byte) 84),
+    BITWISE_XOR((byte) 85),
+    BITWISE_LEFT_SHIFT((byte) 86),
+    BITWISE_RIGHT_SHIFT((byte) 87),
+    BITWISE_UNSIGNED_RIGHT_SHIFT((byte) 88);
 
     byte value;
 

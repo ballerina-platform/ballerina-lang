@@ -26,4 +26,5 @@ public class VisibilityFlags {
     public static final byte PACKAGE_PRIVATE = 0;
     public static final byte PRIVATE = 1;
     public static final byte PUBLIC = 2;
+    public static final byte OPTIONAL = 3;
 }

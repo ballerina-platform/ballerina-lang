@@ -98,6 +98,14 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
+                {"workerDeclarationContext1.json", "function"},
+                {"workerDeclarationContext2.json", "function"},
+                {"workerDeclarationContext3.json", "function"},
+                {"workerDeclarationContext4.json", "function"},
+                {"completionWithinInvocationArgs1.json", "function"},
+                {"completionWithinInvocationArgs2.json", "function"},
+                {"completionWithinInvocationArgs3.json", "function"},
+                {"completionWithinInvocationArgs4.json", "function"},
         };
     }
 }

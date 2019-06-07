@@ -213,37 +213,44 @@ public type TargetService record {|
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
-# + chunking - The chunking behaviour of the request
 # + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
-# + retryConfig - Configurations associated with Retry
 # + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
-# + http2Settings - Configurations related to HTTP/2 protocol
+# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
+# + retryConfig - Configurations associated with Retry
 public type ClientEndpointConfig record {|
-    CircuitBreakerConfig? circuitBreaker = ();
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
-    string httpVersion = "1.1";
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
-    Http2Settings http2Settings = {};
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
+|};
+
+# Provides settings related to HTTP/1.x protocol.
+#
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + chunking - The chunking behaviour of the request
+public type Http1Settings record {|
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = CHUNKING_AUTO;
 |};
 
 function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
@@ -442,11 +449,12 @@ public type DirectTokenRefreshConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
+// TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
 # The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+//# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

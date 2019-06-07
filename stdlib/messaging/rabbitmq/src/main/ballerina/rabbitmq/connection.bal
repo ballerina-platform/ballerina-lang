@@ -28,7 +28,8 @@ public type Connection object {
     # It waits with a provided timeout for all the close operations to complete.
     # When timeout is reached the socket is forced to close.
     #
-    # + closeCode - The close code (For information, go to the"Reply Codes" section in the [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
+    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
+    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - An `error` if an I/O problem is encountered.
@@ -39,7 +40,8 @@ public type Connection object {
     # the socket is forced to close.
     # Any encountered exceptions in the close operations are silently discarded.
     #
-    # + closeCode - The close code (For information, go to the"Reply Codes" section in the [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
+    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
+    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
     # + return - Returns an `error` if an I/O problem is encountered.

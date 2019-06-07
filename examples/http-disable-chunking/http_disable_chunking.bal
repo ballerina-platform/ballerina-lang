@@ -6,7 +6,7 @@ import ballerina/log;
 //in the request. When chunking is set to auto, chunking is done as specified in the request.
 
 http:Client clientEndpoint = new("http://localhost:9090",
-                                 config = {chunking: http:CHUNKING_NEVER});
+                                 config = { http1Settings : { chunking: http:CHUNKING_NEVER }});
 
 service chunkingSample on new http:Listener(9092) {
 

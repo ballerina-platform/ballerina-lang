@@ -98,6 +98,9 @@ include(':benchmarks')
 include(':ballerina-activemq-artemis')
 include(':ballerina-rabbitmq')
 include(':ballerina-nats')
+include(':ballerina-jwt')
+include(':ballerina-ldap')
+include(':ballerina-oauth2')
 include(':build-config:checkstyle')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-utils').projectDir = file('stdlib/utils')
@@ -194,6 +197,9 @@ project(':ballerina-intellij-idea-plugin').projectDir = file('tool-plugins/intel
 project(':ballerina-activemq-artemis').projectDir = file('stdlib/messaging/activemq-artemis')
 project(':ballerina-rabbitmq').projectDir = file('stdlib/messaging/rabbitmq')
 project(':ballerina-nats').projectDir = file('stdlib/nats')
+project(':ballerina-jwt').projectDir = file('stdlib/jwt')
+project(':ballerina-ldap').projectDir = file('stdlib/ldap')
+project(':ballerina-oauth2').projectDir = file('stdlib/oauth2')
 
 buildCache {
     remote(HttpBuildCache) {

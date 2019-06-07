@@ -24,6 +24,9 @@ configurations {
     dependency {
         transitive false
     }
+    index
+    libs
+    langserverResources
 }
 
 dependencies {
@@ -151,11 +154,9 @@ task createZip(type: Zip) {
 }
 
 artifacts {
-    dist createZip
-}
-
-build {
-    dependsOn createZip
+    dist file: file(createZip.archiveFile), builtBy: createZip
+    libs configurations.dependency.files
+    langserverResources file: file("$buildDir/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
 test {

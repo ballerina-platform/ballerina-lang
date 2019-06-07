@@ -43,30 +43,26 @@ public class ConfigAuthProviderTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
-    private Path secretCopyPath;
+    private Path secretCopyFilePath;
 
     @BeforeClass
     public void setup() throws IOException {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", BALLERINA_CONF);
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
-        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
-        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", secretFile);
-        Files.deleteIfExists(secretCopyPath);
-        copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", secretFile);
+        String secretCopyFile = "secret-copy.txt";
+        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", secretCopyFile);
+        copySecretFile(secretFilePath.toString(), secretCopyFilePath.toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyPath.toString()),
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyFilePath.toString()),
                 ballerinaConfPath.toString(), null);
-    }
-
-    private void copySecretFile(String from, String to) throws IOException {
-        Files.copy(Paths.get(from), Paths.get(to));
     }
 
     @Test(description = "Test case for creating file based userstore")
@@ -157,7 +153,7 @@ public class ConfigAuthProviderTest {
 
     @AfterClass
     public void tearDown() throws IOException {
-        Files.deleteIfExists(secretCopyPath);
+        Files.deleteIfExists(secretCopyFilePath);
     }
 
     private void assertSuccessOfResults(BValue[] returns) {
@@ -168,5 +164,10 @@ public class ConfigAuthProviderTest {
     private void assertFailureOfResults(BValue[] returns) {
         Assert.assertNotNull(returns);
         Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void copySecretFile(String from, String to) throws IOException {
+        Files.deleteIfExists(Paths.get(to));
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 }
