@@ -85,7 +85,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             setSslContext(serverConnectorBootstrap, sslConfig, listenerConfig);
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
-        if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+        if (Constants.HTTP_2_0.equals(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
@@ -118,7 +118,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
             serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
             if (sslConfig.getKeyStore() != null) {
-                if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+                if (Constants.HTTP_2_0.equals(listenerConfig.getVersion())) {
                     serverConnectorBootstrap
                             .addHttp2SslContext(sslHandlerFactory.createHttp2TLSContextForServer(sslConfig));
                 } else {
@@ -126,7 +126,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
                             .addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores(true));
                 }
             } else {
-                if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+                if (Constants.HTTP_2_0.equals(listenerConfig.getVersion())) {
                     serverConnectorBootstrap
                             .addHttp2SslContext(sslHandlerFactory.createHttp2TLSContextForServer(sslConfig));
                 } else {

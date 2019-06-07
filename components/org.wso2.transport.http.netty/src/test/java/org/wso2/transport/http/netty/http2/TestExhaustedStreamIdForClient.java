@@ -68,7 +68,7 @@ public class TestExhaustedStreamIdForClient {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
+        listenerConfiguration.setVersion(Constants.HTTP_2_0);
         serverConnector = connectorFactory
             .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
@@ -78,7 +78,7 @@ public class TestExhaustedStreamIdForClient {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
         senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
         connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
         httpClientConnector = connectorFactory.createHttpClientConnector(

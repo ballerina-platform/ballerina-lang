@@ -173,9 +173,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
         sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
-        sourceReqCmsg.setProperty(Constants.HTTP_VERSION,
-                                  protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        sourceReqCmsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        sourceReqCmsg.setHttpMethod(httpRequest.method().name());
         InetSocketAddress localAddress = null;
 
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
@@ -194,7 +193,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
         sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         sourceReqCmsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
+        sourceReqCmsg.setRequestUrl(httpRequest.uri());
         sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
 
         return sourceReqCmsg;

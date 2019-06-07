@@ -58,7 +58,7 @@ public class MessageGenerator {
 
     private static HttpCarbonMessage getHttpCarbonMessage(HttpMethod httpMethod, String payload,
                                                           HttpCarbonMessage httpCarbonMessage, int port) {
-        httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
+        httpCarbonMessage.setHttpMethod(httpMethod.toString());
         httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
         httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + port);
@@ -82,7 +82,7 @@ public class MessageGenerator {
         HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
-        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, status.code());
+        httpResponse.setHttpStatusCode(status.code());
 
         if (response != null) {
             byte[] responseByteValues = response.getBytes(StandardCharsets.UTF_8);

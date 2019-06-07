@@ -55,7 +55,7 @@ public class HttpPipeliningListener implements HttpConnectorListener {
                         new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
-                httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+                httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
                 httpResponse.setSequenceId(httpRequest.getSequenceId());
                 httpResponse.setPipeliningEnabled(httpRequest.isPipeliningEnabled());
                 ChannelHandlerContext sourceContext = httpRequest.getSourceContext();

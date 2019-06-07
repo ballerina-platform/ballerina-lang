@@ -58,7 +58,7 @@ public class Http2ClientConnectorBasicTestCase {
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);

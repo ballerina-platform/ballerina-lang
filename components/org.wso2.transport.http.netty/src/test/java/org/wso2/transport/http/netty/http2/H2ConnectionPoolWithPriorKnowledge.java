@@ -74,7 +74,7 @@ public class H2ConnectionPoolWithPriorKnowledge {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(SERVER_CONNECTOR_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
+        listenerConfiguration.setVersion(Constants.HTTP_2_0);
         serverConnector = httpWsConnectorFactory
             .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -82,7 +82,7 @@ public class H2ConnectionPoolWithPriorKnowledge {
         SenderConfiguration h2cSenderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                               Constants.HTTP_SCHEME);
         h2cSenderConfiguration.setForceHttp2(true);
-        h2cSenderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        h2cSenderConfiguration.setHttpVersion(Constants.HTTP_2_0);
         serverConnectorFuture.setHttpConnectorListener(
             new PassthroughMessageProcessorListener(h2cSenderConfiguration, true));
         try {

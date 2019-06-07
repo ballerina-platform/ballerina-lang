@@ -52,7 +52,7 @@ public class Http2Util {
         listenerConfiguration.setParameters(serverParams);
         listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
+        listenerConfiguration.setVersion(HTTP_2_0);
         listenerConfiguration.setVerifyClient(OPTIONAL);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
@@ -83,7 +83,7 @@ public class Http2Util {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        senderConfiguration.setHttpVersion(HTTP_2_0);
         if (withPriorKnowledge) {
             senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
         }
