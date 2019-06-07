@@ -84,6 +84,14 @@ const int CONTINUE = 56;
 //Delimiters
 const int LEFT_CLOSED_RECORD_DELIMITER = 57;
 
+//>>,>>>,<< newly added tokens
+const int DOUBLE_GT = 58;
+const int DOUBLE_LT = 59;
+const int TRIPLE_GT = 60;
+
+//incomplete token range 61-70
+//const int INCOMPLETE_SY = 61;
+
 
 string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON", "LPAREN", "RPAREN", "QUESTION_MARK",
 "LEFT_BRACKET", "RIGHT_BRACKET", "HASH", "ADD", "SUB", "DIV", "MUL", "MOD", "GT", "GT_EQUAL", "LT", "LT_EQUAL",
@@ -91,7 +99,8 @@ string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON",
 "HALF_OPEN_RANGE", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_DIV", "COMPOUND_MUL", "COMPOUND_RIGHT_SHIFT",
 "COMPOUND_LEFT_SHIFT", "COMPOUND_LOGICAL_SHIFT", "RANGE", "ELLIPSIS", "ELVIS", "EQUAL_GT", "RARROW", "SYNCRARROW",
 "LARROW", "ASSIGN", "IDENTIFIER", "NUMBER", "QUOTED_STRING_LITERAL", "LEXER_ERROR_TOKEN", "PARSER_ERROR_TOKEN",
-"EOF", "FINAL", "FUNCTION", "INT", "STRING", "CONTINUE", "LEFT_CLOSED_RECORD_DELIMITER"];
+"EOF", "FINAL", "FUNCTION", "INT", "STRING", "CONTINUE", "LEFT_CLOSED_RECORD_DELIMITER", "DOUBLE_GT", "DOUBLE_LT",
+"TRIPLE_GT"];
 
 //single token symbols
 const string rBraceSymbol = "}";
@@ -122,7 +131,7 @@ const string ltSymbol = "<";
 const string singleQuoteSym = "\"";
 
 //double token symbols
-const string lCosedRecordSy = "{|";
+const string lClosedRecordSy = "{|";
 const string compAddSy = "+=";
 const string compSubSy = "-=";
 const string comMulSy = "*=";
@@ -154,65 +163,78 @@ const string eofSym = "EOF";
 //quadruple token symbol
 const string compLogicalSym = ">>>=";
 
+//incomplete symbols
+const string doubleGtSym = ">>";
+const string doubleLtSym = "<<";
+const string tripleGtSym = ">>>";
+
+//const string atSym = "$";
 
 
 #object which fills tokens into separate maps based on the size of the symbol
 type TokenMapper object {
-    map<int> singleSymbol = {};
-    map<int> doubleSymbol = {};
-    map<int> tripleSymbol = {};
+    map<int> tokenMap = {};
 
     public function __init() {
-        self.fillSingleSymbolMap();
-        self.fillDoubleSymbolMap();
-        self.fillTripleSymbolMap();
+        self.fillTokenMap();
     }
 
-    function fillSingleSymbolMap() {
-        self.singleSymbol[rBraceSymbol] = RBRACE;
-        self.singleSymbol[lParenSymbol] = LPAREN;
-        self.singleSymbol[rParenSymbol] = RPAREN;
-        self.singleSymbol[colonSymbol] = COLON;
-        self.singleSymbol[commaSymbol] = COMMA;
-        self.singleSymbol[lBracketSymbol] = LEFT_BRACKET;
-        self.singleSymbol[rBracketSymbol] = RIGHT_BRACKET;
-        self.singleSymbol[hashSymbol] = HASH;
-        self.singleSymbol[bitComplimentSy] = BIT_COMPLEMENT;
-        self.singleSymbol[modSymbol] = MOD;
-        self.singleSymbol[semicolonSym] = SEMICOLON;
+    function fillTokenMap() {
+        self.tokenMap[rBraceSymbol] = RBRACE;
+        self.tokenMap[lParenSymbol] = LPAREN;
+        self.tokenMap[rParenSymbol] = RPAREN;
+        self.tokenMap[colonSymbol] = COLON;
+        self.tokenMap[commaSymbol] = COMMA;
+        self.tokenMap[lBracketSymbol] = LEFT_BRACKET;
+        self.tokenMap[rBracketSymbol] = RIGHT_BRACKET;
+        self.tokenMap[hashSymbol] = HASH;
+        self.tokenMap[bitComplimentSy] = BIT_COMPLEMENT;
+        self.tokenMap[modSymbol] = MOD;
+        self.tokenMap[semicolonSym] = SEMICOLON;
 
-        self.singleSymbol[lBraceSymbol] = LBRACE;
-        self.singleSymbol[addSymbol] = ADD;
-        self.singleSymbol[subSymbol] = SUB;
-        self.singleSymbol[mulSymbol] = MUL;
-        self.singleSymbol[divSymbol] = DIV;
-        self.singleSymbol[quesMarkSym] = QUESTION_MARK;
+        self.tokenMap[lBraceSymbol] = LBRACE;
+        self.tokenMap[addSymbol] = ADD;
+        self.tokenMap[subSymbol] = SUB;
+        self.tokenMap[mulSymbol] = MUL;
+        self.tokenMap[divSymbol] = DIV;
+        self.tokenMap[quesMarkSym] = QUESTION_MARK;
 
-        self.singleSymbol[assignSym] = ASSIGN;
-        self.singleSymbol[dotSym] = DOT;
-        self.singleSymbol[notSym] = NOT;
-    }
+        self.tokenMap[assignSym] = ASSIGN;
+        self.tokenMap[dotSym] = DOT;
+        self.tokenMap[notSym] = NOT;
+        self.tokenMap[gtSymbol] = GT;
+        self.tokenMap[ltSymbol] = LT;
 
-    function fillDoubleSymbolMap() {
-        self.doubleSymbol[lCosedRecordSy] = LEFT_CLOSED_RECORD_DELIMITER;
-        self.doubleSymbol[compAddSy] = COMPOUND_ADD;
-        self.doubleSymbol[compSubSy] = COMPOUND_SUB;
-        self.doubleSymbol[comMulSy] = COMPOUND_MUL;
-        self.doubleSymbol[comDivSy] = COMPOUND_DIV;
-        self.doubleSymbol[elvisSy] = ELVIS;
+        self.tokenMap[lClosedRecordSy] = LEFT_CLOSED_RECORD_DELIMITER;
+        self.tokenMap[compAddSy] = COMPOUND_ADD;
+        self.tokenMap[compSubSy] = COMPOUND_SUB;
+        self.tokenMap[comMulSy] = COMPOUND_MUL;
+        self.tokenMap[comDivSy] = COMPOUND_DIV;
+        self.tokenMap[elvisSy] = ELVIS;
 
-        self.doubleSymbol[equalSym] = EQUAL;
-        self.doubleSymbol[equalGtSym] = EQUAL_GT;
-        self.doubleSymbol[rarrowSym] = RARROW;
-        self.doubleSymbol[rangeSym] = RANGE;
-        self.doubleSymbol[notEqSym] = NOT_EQUAL;
-    }
+        self.tokenMap[equalSym] = EQUAL;
+        self.tokenMap[equalGtSym] = EQUAL_GT;
+        self.tokenMap[rarrowSym] = RARROW;
+        self.tokenMap[rangeSym] = RANGE;
+        self.tokenMap[notEqSym] = NOT_EQUAL;
+        self.tokenMap[gtEqSym] = GT_EQUAL;
+        self.tokenMap[ltEqSym] = LT_EQUAL;
+        self.tokenMap[larrowSym] = LARROW;
 
-    function fillTripleSymbolMap() {
-        self.tripleSymbol[refEqSym] = REF_EQUAL;
-        self.tripleSymbol[syncRarrowSym] = SYNCRARROW;
-        self.tripleSymbol[ellipsisSym] = ELLIPSIS;
-        self.tripleSymbol[halfOpenRangeSym] = HALF_OPEN_RANGE;
-        self.tripleSymbol[refNotEqSym] = REF_NOT_EQUAL;
+        self.tokenMap[refEqSym] = REF_EQUAL;
+        self.tokenMap[syncRarrowSym] = SYNCRARROW;
+        self.tokenMap[ellipsisSym] = ELLIPSIS;
+        self.tokenMap[halfOpenRangeSym] = HALF_OPEN_RANGE;
+        self.tokenMap[refNotEqSym] = REF_NOT_EQUAL;
+        self.tokenMap[compRShiftSym] = COMPOUND_RIGHT_SHIFT;
+        self.tokenMap[comLShiftSym] = COMPOUND_LEFT_SHIFT;
+
+        self.tokenMap[compLogicalSym] = COMPOUND_LOGICAL_SHIFT;
+
+        self.tokenMap[doubleGtSym] = DOUBLE_GT;
+        self.tokenMap[doubleLtSym] = DOUBLE_LT;
+        self.tokenMap[tripleGtSym] = TRIPLE_GT;
+
+    //self.tokenMap[atSym] = INCOMPLETE_SY;
     }
 };

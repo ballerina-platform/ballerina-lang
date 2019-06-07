@@ -71,8 +71,7 @@ MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | R
 
 type Node record {
     NodeKind nodeKind;
-	//made the tokenList nullable since error node token list can be null
-    Token[] tokenList?;
+    Token[] tokenList;
 };
 
 public type PackageNode record {

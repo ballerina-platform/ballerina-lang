@@ -8,10 +8,6 @@ public function main() {
 		   if (j is json) {
 		       io:println(j);
 		   }
-		   //if (j is error){
-		   //		io:println(j);
-		   //
-		   //}
 		//io:println(parsedFile);
 	}
 }

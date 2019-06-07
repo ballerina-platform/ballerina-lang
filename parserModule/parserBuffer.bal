@@ -9,11 +9,11 @@ public type ParserBufferReader object {
     private int readPointer = 0;
     //counter to fill the buffer initialy
     private int bufferSize = 0;
-    private Lexer lex2;
+    private Lexer lexer;
     private Token[] tokenArray = [];
 
-    public function __init(Lexer lex2, int capacity = 5) {
-        self.lex2 = lex2;
+    public function __init(Lexer lexer, int capacity = 5) {
+        self.lexer = lexer;
         self.capacity = capacity;
         self.fillTokenBuffer();
     }
@@ -21,7 +21,7 @@ public type ParserBufferReader object {
     //fill the token array
     function fillTokenBuffer() {
         while (self.bufferSize < self.capacity) {
-            Token token =self.lex2.nextToken();
+            Token token =self.lexer.nextToken();
             self.tokenArray[self.bufferSize] = token;
             if (token.tokenType == EOF) {
                 break;
@@ -49,7 +49,7 @@ public type ParserBufferReader object {
     }
 
     function storeToken() {
-        self.tokenArray[self.readPointer] = self.lex2.nextToken();
+        self.tokenArray[self.readPointer] = self.lexer.nextToken();
     }
 
     function lookAheadToken(int lookAheadCount = 1) returns Token {
