@@ -161,7 +161,7 @@ public final class ServerCall {
     }
 
     public Optional<ObserverContext> getObserverContext() {
-        return Optional.of(context);
+        return Optional.ofNullable(context);
     }
 
     public void setMessageCompression(boolean enable) {
