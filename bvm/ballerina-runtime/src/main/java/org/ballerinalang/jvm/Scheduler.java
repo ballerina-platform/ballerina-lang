@@ -67,7 +67,7 @@ public class Scheduler {
      */
     private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final BlockingQueue<String> DEBUG_LOG;
 

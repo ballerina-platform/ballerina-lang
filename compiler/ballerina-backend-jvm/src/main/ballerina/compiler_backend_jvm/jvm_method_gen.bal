@@ -1590,7 +1590,7 @@ function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
 }
 
 function populateChannelDetailList(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
-    mv.visitFieldInsn(GETFIELD, STRAND, "channelDetails", io:sprintf("L%s;", LIST));
+    mv.visitFieldInsn(GETFIELD, STRAND, "channelDetails", io:sprintf("L%s;", SET));
     // int index = 0;
     foreach bir:ChannelDetail ch in channels {
         // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
@@ -1616,7 +1616,7 @@ function populateChannelDetailList(jvm:MethodVisitor mv, bir:ChannelDetail[] cha
 
         mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", io:sprintf("(L%s;ZZ)V", STRING_VALUE),
             false);
-        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
     mv.visitInsn(POP);
