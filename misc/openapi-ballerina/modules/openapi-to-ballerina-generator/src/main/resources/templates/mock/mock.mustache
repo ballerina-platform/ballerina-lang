@@ -5,45 +5,16 @@ import ballerina/openapi;
 {{#servers}}
 listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{host}}"}{{/host}});
 {{/servers}}
-@openapi:ServiceInfo {{=<% %>=}}{<%={{ }}=%>{{#info}}
-    title: "{{title}}"{{#description}},
-    description: "{{{description}}}"{{/description}},
-    serviceVersion: "{{version}}"{{#termsOfService}},
-    termsOfService: "{{termsOfService}}"{{/termsOfService}}{{#contact}},
-    contact: {name: "{{contact.name}}", email: "{{contact.email}}", url: "{{contact.url}}"}{{/contact}}{{#license}},
-    license: {name: "{{license.name}}", url: "{{license.url}}"}{{/license}}{{/info}}{{#if tags}},
-    tags: [{{#tags}}
-        {name: "{{name}}", description: "{{description}}", {{=<% %>=}}externalDocs: <%>doc%><%={{ }}=%>}{{#unless @last}},{{/unless}}{{/tags}}
-    ]{{/if}}{{#if externalDocs}},
-    externalDocs: {{>doc}}{{/if}}{{#if security}},
-    security: [{{#security}}
-        {{>security}}{{/security}}
-    ]{{/if}}
+@openapi:Service {{=<% %>=}}{<%={{ }}=%>
+    contract: "{{definitionPath}}"{{#if tags}},
+    tags: [ {{#tags}}{{name}}{{/tags}} ]{{/if}}{{#if tags}},
+    operations: [ {{#operations}}{{name}}{{/operations}} ]{{/if}}
 }
 @http:ServiceConfig {
     basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
 service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {{=<% %>=}}{<%={{ }}=%>{{#paths}}{{#value}}{{#if sameResourceOperationExists}}{{#sameResourceOperations}}{{#value}}{{!-- If multiple methods belongs to one Ballerina resource implementation this will generate the code --}}
 
-    @openapi:MultiResourceInfo {
-        resourceInformation: {{=<% %>=}}{<%={{ }}=%>{{#operations}}
-            "{{upper key}}":{{#value}}{
-                summary: "{{summary}}"{{#if tags}},
-                tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
-                description: "{{description}}"{{/if}}{{#if externalDocs}},
-                externalDocs: {{>doc}}{{/if}}{{#if parameters}},
-                parameters: [{{#parameters}}{
-                    name: "{{name}}",{{#schema}}
-                    paramType: "{{type}}",{{/schema}}
-                    inInfo: "{{in}}",
-                    description: "{{description}}",{{#required}}
-                    required: {{required}},{{/required}}{{#deprecated}}
-                    discontinued: {{deprecated}},{{/deprecated}}
-                    allowEmptyValue: "{{allowEmptyValue}}"
-                }{{#unless @last}},{{/unless}}{{/parameters}}]{{/if}}
-            }{{#unless @last}},{{/unless}}{{/value}}{{/operations}}
-        }
-    }
     @http:ResourceConfig {{=<% %>=}}{<%={{ }}=%>{{#if methods}}
         methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}
         path:"{{../../key}}"{{#requestBody}}{{#equals "multipart/form-data" requestBody.selectedMedia.mediaType}}{{else}},
@@ -69,24 +40,7 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
             log:printError(result.reason(), err = result);
         }
     }{{/if}}{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}{{!-- Generate Ballerina resource for single method resources --}}
-
-    @openapi:ResourceInfo {
-        summary: "{{summary}}"{{#if tags}},
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
-        description: "{{description}}"{{/if}}{{#if externalDocs}},
-        externalDocs: {{>doc}}{{/if}}{{#if parameters}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",{{#schema}}
-                paramType: "{{type}}",{{/schema}}
-                description: "{{description}}",{{#required}}
-                required: {{required}},{{/required}}{{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]{{/if}}
-    }
+    
     @http:ResourceConfig {
         methods:["{{upper key}}"],
         path:"{{../../key}}"{{#requestBody}}{{#equals "multipart/form-data" requestBody.selectedMedia.mediaType}}{{else}},
