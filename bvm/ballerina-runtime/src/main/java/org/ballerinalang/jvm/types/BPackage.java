@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import java.util.Objects;
+
 /**
  * {@code BPackage} represents the package of defined type in Ballerina.
  *
@@ -38,5 +40,23 @@ public class BPackage {
 
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BPackage bPackage = (BPackage) o;
+        return Objects.equals(name, bPackage.name) &&
+               Objects.equals(version, bPackage.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version);
     }
 }

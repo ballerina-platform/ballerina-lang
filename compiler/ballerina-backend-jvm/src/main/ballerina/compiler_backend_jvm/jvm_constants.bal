@@ -236,6 +236,7 @@ const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
 const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
 
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
@@ -284,6 +285,7 @@ const string TYPES_ERROR =  "typeError";
 // error related constants
 const string PANIC_FIELD =  "panic";
 const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
+const string SET_DETAIL_TYPE_METHOD = "setDetailType";
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
@@ -292,6 +294,9 @@ const string THROWABLE = "java/lang/Throwable";
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
+const string BALLERINA = "ballerina";
+const string BUILT_IN_PACKAGE_NAME = "builtin";
+
 
 // scheduler related constants
 const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";

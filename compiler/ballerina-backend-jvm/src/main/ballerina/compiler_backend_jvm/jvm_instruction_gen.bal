@@ -659,6 +659,9 @@ type InstructionGenerator object {
         } else if (varRefType is bir:BRecordType) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+        } else if (varRefType is bir:BMapType && !mapLoadIns.except) {
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+            io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
                     io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
@@ -725,6 +728,7 @@ type InstructionGenerator object {
         self.loadVar(inst.lhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         self.loadVar(inst.rhsOp.variableDcl);
+        addBoxInsn(self.mv, inst.rhsOp.variableDcl.typeValue);
 
         bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
@@ -734,27 +738,8 @@ type InstructionGenerator object {
             return;
         }
 
-        string valueDesc;
-        if (varRefType is bir:BArrayType) {
-            if (varRefType.eType is bir:BTypeByte) {
-                self.mv.visitInsn(I2B);
-                valueDesc = "B";
-            } else if (varRefType.eType is bir:BTypeInt) {
-                valueDesc = "J";
-            } else if (varRefType.eType is bir:BTypeString) {
-                valueDesc = io:sprintf("L%s;", STRING_VALUE);
-            } else if (varRefType.eType is bir:BTypeBoolean) {
-                valueDesc = "Z";
-            } else if (varRefType.eType is bir:BTypeFloat) {
-                valueDesc = "D";
-            } else {
-                valueDesc = io:sprintf("L%s;", OBJECT);
-            }
-        } else {
-            valueDesc = io:sprintf("L%s;", OBJECT);
-        }
-
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
+        self.mv.visitMethodInsn(INVOKESTATIC, LIST_UTILS, "add", io:sprintf("(L%s;JL%s;)V", ARRAY_VALUE, OBJECT),
+                                    false);
     }
 
     # Generating loading a new value from an array to the top of the stack
@@ -770,6 +755,9 @@ type InstructionGenerator object {
                 (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
                         io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
+        } else if (varRefType is bir:BTupleType) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
         } else if (bType is bir:BTypeString) {
@@ -794,10 +782,12 @@ type InstructionGenerator object {
     function generateNewErrorIns(bir:NewError newErrorIns) {
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
+        // load errorType
+        loadType(self.mv, newErrorIns.typeValue);
         self.loadVar(newErrorIns.reasonOp.variableDcl);
         self.loadVar(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, STRING_VALUE, OBJECT), false);
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 

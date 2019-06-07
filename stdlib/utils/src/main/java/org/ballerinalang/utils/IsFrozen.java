@@ -49,6 +49,6 @@ public class IsFrozen extends BlockingNativeCallableUnit {
     }
 
     public static boolean isFrozen(Strand strand, Object value) {
-        return value == null || ((RefValue) value).isFrozen();
+        return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
     }
 }

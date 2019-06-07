@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
  */
 public class BErrorType extends AnnotatableType {
 
-    private BType reasonType;
-    private BType detailType;
+    public BType reasonType;
+    public BType detailType;
 
     public BErrorType(String typeName, BPackage pkg, BType reasonType, BType detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -35,7 +35,12 @@ public class BErrorType extends AnnotatableType {
         this.detailType = detailType;
     }
 
-    public BErrorType(BType reasonType, BType detailType) {
+    public BErrorType(String typeName, BPackage pkg, BType reasonType) {
+        super(typeName, pkg, ErrorValue.class);
+        this.reasonType = reasonType;
+    }
+
+    public BErrorType(BType reasonType) {
         super(TypeConstants.ERROR, null, ErrorValue.class);
         this.reasonType = reasonType;
         this.detailType = detailType;
@@ -54,6 +59,24 @@ public class BErrorType extends AnnotatableType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    public void setDetailType(BType detailType) {
+        this.detailType = detailType;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailType == other.detailType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
     }
 
     @Override

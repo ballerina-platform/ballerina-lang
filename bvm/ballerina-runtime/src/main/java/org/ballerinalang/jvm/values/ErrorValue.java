@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -43,7 +44,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 public class ErrorValue extends RuntimeException implements RefValue {
 
     private static final long serialVersionUID = 1L;
-    private final BErrorType type;
+    private final BType type;
     private final String reason;
     private final Object details;
 
@@ -54,13 +55,20 @@ public class ErrorValue extends RuntimeException implements RefValue {
         this.details = details;
     }
 
+    public ErrorValue(BType type, String reason, Object details) {
+        super(reason);
+        this.type = type;
+        this.reason = reason;
+        this.details = details;
+    }
+
     @Override
     public String stringValue() {
         return reason + " " + details.toString();
     }
 
     @Override
-    public BErrorType getType() {
+    public BType getType() {
         return type;
     }
 
@@ -110,7 +118,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
         StackTraceElement[] stackTrace = super.getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
         for (int i = 0; i < stackTrace.length; i++) {
-            StackTraceElement stackTraceElement = filterStackTraceElement(stackTrace, i);
+            StackTraceElement stackTraceElement = BallerinaErrors.filterStackTraceElement(stackTrace, i);
             if (stackTraceElement != null) {
                 filteredStack.add(stackTraceElement);
             }
@@ -122,12 +130,12 @@ public class ErrorValue extends RuntimeException implements RefValue {
     public String getPrintableStackTrace() {
         String errorMsg = getErrorMessage();
         StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg).append("\n\tat ");
         // Append function/action/resource name with package path (if any)
         StackTraceElement[] stackTrace = this.getStackTrace();
         if (stackTrace.length == 0) {
             return sb.toString();
         }
+        sb.append(errorMsg).append("\n\tat ");
         // print first element
         printStackElement(sb, stackTrace[0], "");
         for (int i = 1; i < stackTrace.length; i++) {
@@ -158,28 +166,13 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return errorMsg;
     }
 
-    private static StackTraceElement filterStackTraceElement(StackTraceElement[] stackTrace,
-                                                             int currentIndex) {
-        StackTraceElement stackFrame = stackTrace[currentIndex];
-        String pkgName = stackFrame.getClassName();
-        String fileName = stackFrame.getFileName();
-        int lineNo = stackFrame.getLineNumber();
-        if (lineNo < 0) {
-            return null;
-        }
-        // Handle init function
-        if (pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            if (currentIndex != 0) {
-                return new StackTraceElement(stackFrame.getClassName(), INIT_FUNCTION_SUFFIX,
-                                             fileName, stackFrame.getLineNumber());
-            }
+ 
 
-            return null;
-        }
-        // Remove java sources for bal stacktrace.
-        if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
-            return null;
-        }
-        return stackFrame;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFrozen() {
+        return true;
     }
 }

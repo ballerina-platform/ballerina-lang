@@ -1,6 +1,4 @@
-import ballerina/mime;
 import ballerina/http;
-import ballerina/io;
 
 final string constPath = getConstPath();
 
@@ -31,14 +29,14 @@ service echo on echoEP {
         path:"/message_worker"
     }
     resource function message_worker(http:Caller caller, http:Request req) {
-        worker w1 {
+        //worker w1 {
             http:Response res = new;
             checkpanic caller->respond(res);
-        }
-        worker w2 {
-            int x = 0;
-            int a = x + 1;
-        }
+        //}
+        //worker w2 {
+        //    int x = 0;
+        //    int a = x + 1;
+        //}
     }
 
     @http:ResourceConfig {

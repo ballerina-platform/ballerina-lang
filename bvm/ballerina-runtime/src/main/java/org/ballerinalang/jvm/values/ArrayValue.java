@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
@@ -30,6 +31,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -644,6 +646,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         if ((int) index < 0 || index >= maxArraySize) {
+            if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                        RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            }
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -684,8 +690,12 @@ public class ArrayValue implements RefValue, CollectionValue {
      */
     private void handleFrozenArrayValue() {
         synchronized (this) {
-            if (this.freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+            try {
+                if (this.freezeStatus.getState() != State.UNFROZEN) {
+                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                }
+            } catch (BLangFreezeException e) {
+                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
             }
         }
     }
@@ -728,10 +738,20 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.freezeStatus = freezeStatus;
         if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
-                Object refValue = this.getRefValue(i);
-                ((RefValue) refValue).attemptFreeze(freezeStatus);
+                Object value = this.getRefValue(i);
+                if (value instanceof RefValue) {
+                    ((RefValue) value).attemptFreeze(freezeStatus);
+                }
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
     }
     
     private boolean isBasicType(BType type) {

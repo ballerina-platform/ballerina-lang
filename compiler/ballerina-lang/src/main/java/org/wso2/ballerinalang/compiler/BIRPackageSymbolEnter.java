@@ -845,11 +845,16 @@ public class BIRPackageSymbolEnter {
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
                     compositeStack.push(errorType);
+                    pkgCpIndex = inputStream.readInt();
+                    pkgId = getPackageId(pkgCpIndex);
+                    String errorName = getStringCPEntryValue(inputStream);
                     BType reasonType = readTypeFromCp();
                     BType detailsType = readTypeFromCp();
                     errorType.reasonType = reasonType;
                     errorType.detailType = detailsType;
                     errorSymbol.type = errorType;
+                    errorSymbol.pkgID = pkgId;
+                    errorSymbol.name = names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
                     return errorType;
