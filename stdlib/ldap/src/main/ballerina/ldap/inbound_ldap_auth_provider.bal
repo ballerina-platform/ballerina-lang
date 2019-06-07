@@ -42,7 +42,7 @@ import ballerina/runtime;
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
-public type LdapAuthStoreProviderConfig record {|
+public type InboundLdapAuthProviderConfig record {|
     string domainName;
     string connectionURL;
     string connectionName;
@@ -75,23 +75,23 @@ public type SecureClientSocket record {|
     string trustedCertFile = "";
 |};
 
-# Represents Ballerina configuration for LDAP based auth store provider.
+# Represents Ballerina configuration for LDAP based auth provider.
 #
-# + ldapAuthStoreProviderConfig - LDAP auth store configurations
+# + ldapAuthProviderConfig - LDAP auth provider configurations
 # + instanceId - Endpoint instance id
-public type LdapAuthStoreProvider object {
+public type InboundLdapAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig;
+    public InboundLdapAuthProviderConfig ldapAuthProviderConfig;
     public string instanceId;
 
     # Create an LDAP auth store with the given configurations.
     #
-    # + ldapAuthStoreProviderConfig -  LDAP auth store configurations
+    # + ldapAuthProviderConfig -  LDAP auth provider configurations
     # + instanceId - Endpoint instance id
-    public function __init(LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig, string instanceId) {
-        self.ldapAuthStoreProviderConfig = ldapAuthStoreProviderConfig;
+    public function __init(InboundLdapAuthProviderConfig ldapAuthProviderConfig, string instanceId) {
+        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
@@ -110,7 +110,7 @@ public type LdapAuthStoreProvider object {
         boolean authenticated = doAuthenticate(self, username, password);
         if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
+            principal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
             principal.scopes = getLdapScopes(self, username);
@@ -121,21 +121,21 @@ public type LdapAuthStoreProvider object {
 
 # Reads the scope(s) for the user with the given username.
 #
-# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
 # + username - Username
 # + return - Array of groups for the user denoted by the username
-function getLdapScopes(LdapAuthStoreProvider ldapAuthStoreProvider, string username) returns string[] = external;
+function getLdapScopes(InboundLdapAuthProvider ldapAuthProvider, string username) returns string[] = external;
 
 # Authenticate with username and password.
 #
-# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
 # + username - Username
 # + password - Password
 # + return - true if authentication is a success, else false
-function doAuthenticate(LdapAuthStoreProvider ldapAuthStoreProvider, string username, string password) returns boolean = external;
+function doAuthenticate(InboundLdapAuthProvider ldapAuthProvider, string username, string password) returns boolean = external;
 
 # Initailizes LDAP connection context.
 #
-# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
 # + instanceId - Unique id generated to identify an endpoint
-function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId) = external;
+function initLdapConnectionContext(InboundLdapAuthProvider ldapAuthProvider, string instanceId) = external;

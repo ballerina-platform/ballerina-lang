@@ -336,9 +336,9 @@ public type ProxyConfig record {|
 
 # The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + authnHandler - Outbound authn handler
+# + authHandler - Outbound authentication handler
 public type OutboundAuthConfig record {|
-    OutboundAuthnHandler authnHandler;
+    OutboundAuthHandler authHandler;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

@@ -160,7 +160,7 @@ function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
 # + keyAlias - Key alias for signing newly issued JWT tokens
 # + keyPassword - Key password for signing newly issued JWT tokens
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJWTIssuerConfig record {|
+public type InferredJwtIssuerConfig record {|
     string issuer;
     string[] audience;
     int expTime = 300;

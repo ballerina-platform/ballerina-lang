@@ -39,7 +39,7 @@ import java.util.Collections;
 /**
  * Configuration auth provider testcase.
  */
-public class ConfigAuthProviderTest {
+public class InboundBasicAuthProviderTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
@@ -51,7 +51,7 @@ public class ConfigAuthProviderTest {
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
 
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("inbound_basic_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
         Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);

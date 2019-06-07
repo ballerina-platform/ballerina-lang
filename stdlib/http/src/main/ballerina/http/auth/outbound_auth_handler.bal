@@ -14,18 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of inbound authentication handler for HTTP traffic.
-public type InboundAuthnHandler abstract object {
+# Representation of outbound authentication handler for HTTP traffic.
+public type OutboundAuthHandler abstract object {
 
-    # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
+    # Prepare the request with the relevant authentication requirments.
     #
     # + req - `Request` instance
-    # + return - `true` if can be authenticated, else `false`
-    public function canHandle(Request req) returns boolean;
-
-    # Tries to authenticate the request with the relevant `HttpAuthnHandler` implementation
-    #
-    # + req - `Request` instance
-    # + return - `true` if authenticated successfully, else `false` or, `error` in case of errors
-    public function handle(Request req) returns boolean|error;
+    # + return - () or `error` in case of errors
+    public function prepare(Request req) returns error?;
 };

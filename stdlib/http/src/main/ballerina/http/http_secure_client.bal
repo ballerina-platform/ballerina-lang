@@ -352,10 +352,10 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 function generateSecureRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns boolean|error {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
-        OutboundAuthnHandler authnHandler = auth.authnHandler;
-        var response = authnHandler.prepare(req);
+        OutboundAuthHandler authHandler = auth.authHandler;
+        var response = authHandler.prepare(req);
         if (response is error) {
-            return prepareError("Failed to prepare request from outbound authn handler.");
+            return prepareError("Failed to prepare request from outbound auth handler.");
         }
     }
     return false;

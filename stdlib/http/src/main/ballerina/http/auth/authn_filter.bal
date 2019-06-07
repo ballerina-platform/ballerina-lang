@@ -18,13 +18,13 @@ import ballerina/reflect;
 
 # Representation of the Authentication filter.
 #
-# + authnHandlers - Array of authentication handlers
+# + authHandlers - Array of authentication handlers
 public type AuthnFilter object {
 
-    public InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers;
+    public InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers;
 
-    public function __init(InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers) {
-        self.authnHandlers = authnHandlers;
+    public function __init(InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers) {
+        self.authHandlers = authHandlers;
     }
 
     # Request filter method which attempts to authenticated the request.
@@ -35,12 +35,12 @@ public type AuthnFilter object {
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|error authenticated;
-        var authnHandlers = getAuthnHandlers(context);
-        if (authnHandlers is InboundAuthnHandler?[]|InboundAuthnHandler?[][]) {
-            authenticated = handleAuthnRequest(authnHandlers, request);
+        var authHandlers = getAuthHandlers(context);
+        if (authHandlers is InboundAuthHandler?[]|InboundAuthHandler?[][]) {
+            authenticated = handleAuthRequest(authHandlers, request);
         } else {
-            if (authnHandlers) {
-                authenticated = handleAuthnRequest(self.authnHandlers, request);
+            if (authHandlers) {
+                authenticated = handleAuthRequest(self.authHandlers, request);
             } else {
                 authenticated = true;
             }
@@ -53,12 +53,12 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(InboundAuthnHandler?[]|InboundAuthnHandler?[][] authnHandlers, Request request) returns boolean|error {
-    if (authnHandlers is InboundAuthnHandler?[]) {
-        return checkForAuthnHandlers(authnHandlers, request);
+function handleAuthRequest(InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers, Request request) returns boolean|error {
+    if (authHandlers is InboundAuthHandler?[]) {
+        return checkForAuthHandlers(authHandlers, request);
     } else {
-        foreach InboundAuthnHandler?[] authnHandler in authnHandlers {
-            var response = checkForAuthnHandlers(authnHandler, request);
+        foreach InboundAuthHandler?[] authHandler in authHandlers {
+            var response = checkForAuthHandlers(authHandler, request);
             if (response is boolean) {
                 if (!response) {
                     return response;
@@ -71,13 +71,13 @@ function handleAuthnRequest(InboundAuthnHandler?[]|InboundAuthnHandler?[][] auth
     }
 }
 
-function checkForAuthnHandlers(InboundAuthnHandler?[] authnHandlers, Request request) returns boolean|error {
+function checkForAuthHandlers(InboundAuthHandler?[] authHandlers, Request request) returns boolean|error {
     error? err = ();
-    foreach InboundAuthnHandler? authnHandler in authnHandlers {
-        if (authnHandler is InboundAuthnHandler) {
-            boolean canHandleResponse = authnHandler.canHandle(request);
+    foreach InboundAuthHandler? authHandler in authHandlers {
+        if (authHandler is InboundAuthHandler) {
+            boolean canHandleResponse = authHandler.canHandle(request);
             if (canHandleResponse) {
-                var handleResponse = authnHandler.handle(request);
+                var handleResponse = authHandler.handle(request);
                 if (handleResponse is boolean) {
                     if (handleResponse) {
                         // If one of the authenticators from the chain could successfully authenticate the user,

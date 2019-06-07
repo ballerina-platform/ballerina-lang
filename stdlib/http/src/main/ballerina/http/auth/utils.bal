@@ -41,7 +41,7 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
 #
 # + context - `FilterContext` instance
 # + return - Authentication handlers or whether it is needed to engage listener level handlers or not
-function getAuthnHandlers(FilterContext context) returns InboundAuthnHandler[]|InboundAuthnHandler[][]|boolean {
+function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|InboundAuthHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
     (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
@@ -57,12 +57,12 @@ function getAuthnHandlers(FilterContext context) returns InboundAuthnHandler[]|I
     }
     // check if auth providers are given at resource level
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        var resourceAuthHandlers = resourceLevelAuthAnn["authnHandlers"];
-        if (resourceAuthHandlers is InboundAuthnHandler[]) {
+        var resourceAuthHandlers = resourceLevelAuthAnn["authHandlers"];
+        if (resourceAuthHandlers is InboundAuthHandler[]) {
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
             }
-        } else if (resourceAuthHandlers is InboundAuthnHandler[][]) {
+        } else if (resourceAuthHandlers is InboundAuthHandler[][]) {
             if (resourceAuthHandlers[0].length() > 0) {
                 return resourceAuthHandlers;
             }
@@ -76,12 +76,12 @@ function getAuthnHandlers(FilterContext context) returns InboundAuthnHandler[]|I
     }
     // no auth providers found in resource level, try in service level
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
-        var serviceAuthHandlers = serviceLevelAuthAnn["authnHandlers"];
-        if (serviceAuthHandlers is InboundAuthnHandler[]) {
+        var serviceAuthHandlers = serviceLevelAuthAnn["authHandlers"];
+        if (serviceAuthHandlers is InboundAuthHandler[]) {
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
             }
-        } else if (serviceAuthHandlers is InboundAuthnHandler[][]) {
+        } else if (serviceAuthHandlers is InboundAuthHandler[][]) {
             if (serviceAuthHandlers[0].length() > 0) {
                 return serviceAuthHandlers;
             }
@@ -147,7 +147,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 # + context - `FilterContext` instance
 # + return - Resource level and service level authentication annotations
 function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
-    // get authn details from the resource level
+    // get auth details from the resource level
     ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,

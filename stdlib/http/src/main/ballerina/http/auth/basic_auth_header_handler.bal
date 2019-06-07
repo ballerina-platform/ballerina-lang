@@ -15,15 +15,17 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/encoding;
 import ballerina/log;
+import ballerina/runtime;
 
-# Representation of Bearer auth header authn handler for both inbound and outbound HTTP traffic.
+# Defines Basic auth header handler for inbound and outbound HTTP traffic.
 #
-# + authProvider - `InboundAuthProvider` instance or `OutboundAuthProvider` instance
-public type BearerAuthHeaderAuthnHandler object {
+# + authProvider - AuthProvider instance
+public type BasicAuthHeaderHandler object {
 
-    *InboundAuthnHandler;
-    *OutboundAuthnHandler;
+    *InboundAuthHandler;
+    *OutboundAuthHandler;
 
     public auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider;
 
@@ -31,25 +33,25 @@ public type BearerAuthHeaderAuthnHandler object {
         self.authProvider = authProvider;
     }
 
-    # Checks if the request can be authenticated with Bearer auth header.
+    # Checks if the provided request can be authenticated with Basic auth header.
     #
-    # + req - `Request` instance
-    # + return - `true` if can be authenticated, else `false`
+    # + req - Request object
+    # + return - `true` if authentication is a success, else `false`
     public function canHandle(Request req) returns boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
-            return headerValue.hasPrefix(auth:AUTH_SCHEME_BEARER);
+            return headerValue.hasPrefix(auth:AUTH_SCHEME_BASIC);
         }
         return false;
     }
 
-    # Authenticates the incoming request with the use of credentials passed as Bearer auth header.
+    # Authenticates the incoming request with the use of credentials passed as Basic auth header.
     #
-    # + req - `Request` instance
-    # + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
+    # + req - Request object
+    # + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
     public function handle(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
-        string credential = headerValue.substring(6, headerValue.length()).trim();
+        string credential = headerValue.substring(5, headerValue.length()).trim();
         var authProvider = self.authProvider;
         if (authProvider is auth:InboundAuthProvider) {
             return authProvider.authenticate(credential);
@@ -58,7 +60,7 @@ public type BearerAuthHeaderAuthnHandler object {
         }
     }
 
-    # Prepare the request with Bearer auth header.
+    # Prepare the request with Basic auth header.
     #
     # + req - `Request` instance
     # + return - `Request` instance or `error` in case of errors
@@ -66,7 +68,7 @@ public type BearerAuthHeaderAuthnHandler object {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             string token = check authProvider.generateToken();
-            req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+            req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
         } else {
             return prepareError("Inbound auth provider is configured for outbound authentication.");
         }

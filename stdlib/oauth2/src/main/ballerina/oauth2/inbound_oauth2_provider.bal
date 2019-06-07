@@ -15,12 +15,11 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/config;
 import ballerina/http;
 import ballerina/mime;
 import ballerina/runtime;
 
-# Represents Ballerina OAuth2 provider, which calls the introspection server and validate the received credentials.
+# Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection

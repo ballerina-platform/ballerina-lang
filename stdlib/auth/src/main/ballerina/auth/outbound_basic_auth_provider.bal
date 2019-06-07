@@ -19,25 +19,25 @@ import ballerina/log;
 
 # Represents outbound Basic auth authenticator.
 #
-# + outboundBasicAuthConfig - Outbound Basic auth provider configurations
+# + basicAuthProviderConfig - Outbound Basic auth provider configurations
 public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
 
-    public OutboundBasicAuthConfig outboundBasicAuthConfig;
+    public OutboundBasicAuthConfig basicAuthProviderConfig;
 
     # Provides authentication based on the provided basic auth configuration.
     #
-    # + outboundBasicAuthConfig - Outbound Basic authentication configurations
-    public function __init(OutboundBasicAuthConfig outboundBasicAuthConfig) {
-        self.outboundBasicAuthConfig = outboundBasicAuthConfig;
+    # + basicAuthProviderConfig - Outbound Basic auth provider configurations
+    public function __init(OutboundBasicAuthConfig basicAuthProviderConfig) {
+        self.basicAuthProviderConfig = basicAuthProviderConfig;
     }
 
     # Generate token for Basic authentication.
     #
     # + return - Generated token or `error` if an error occurred during validation
     public function generateToken() returns string|error {
-        return getAuthTokenForBasicAuth(self.outboundBasicAuthConfig);
+        return getAuthTokenForBasicAuth(self.basicAuthProviderConfig);
     }
 };
 

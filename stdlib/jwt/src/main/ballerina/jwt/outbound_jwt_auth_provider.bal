@@ -21,18 +21,18 @@ import ballerina/time;
 
 # Represents outbound JWT authenticator.
 #
-# + outboundJwtAuthConfig - Outbound JWT auth provider configurations
-public type OutboundJWTAuthProvider object {
+# + jwtAuthProviderConfig - Outbound JWT auth provider configurations
+public type OutboundJwtAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public OutboundJWTAuthConfig outboundJwtAuthConfig;
+    public OutboundJwtAuthProviderConfig jwtAuthProviderConfig;
 
-    # Provides authentication based on the provided jwt configuration.
+    # Provides authentication based on the provided JWT configuration.
     #
     # + outboundJwtAuthConfig - Outbound JWT authentication configurations
-    public function __init(OutboundJWTAuthConfig outboundJwtAuthConfig) {
-        self.outboundJwtAuthConfig = outboundJwtAuthConfig;
+    public function __init(OutboundJwtAuthProviderConfig jwtAuthProviderConfig) {
+        self.jwtAuthProviderConfig = jwtAuthProviderConfig;
     }
 
     # Generate token for JWT authentication.
@@ -40,8 +40,8 @@ public type OutboundJWTAuthProvider object {
     # + return - Generated token or `error` if an error occurred during the JWT issuing or validation
     public function generateToken() returns string|error {
         string authToken = EMPTY_STRING;
-        var jwtIssuerConfig = self.outboundJwtAuthConfig["inferredJwtIssuerConfig"];
-        if (jwtIssuerConfig is InferredJWTIssuerConfig) {
+        var jwtIssuerConfig = self.jwtAuthProviderConfig["inferredJwtIssuerConfig"];
+        if (jwtIssuerConfig is InferredJwtIssuerConfig) {
             authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
         } else {
             authToken = runtime:getInvocationContext().authenticationContext.authToken;
@@ -54,18 +54,18 @@ public type OutboundJWTAuthProvider object {
     }
 };
 
-# The `outboundJwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
+# The `OutboundJwtAuthProviderConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
 # + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
-public type OutboundJWTAuthConfig record {|
-    InferredJWTIssuerConfig inferredJwtIssuerConfig?;
+public type OutboundJwtAuthProviderConfig record {|
+    InferredJwtIssuerConfig inferredJwtIssuerConfig?;
 |};
 
 # Process auth token for JWT auth.
 #
 # + jwtIssuerConfig - JWT issuer configurations
 # + return - Auth token or `error` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(InferredJWTIssuerConfig jwtIssuerConfig) returns string|error {
+function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     JwtPayload payload = {
         sub: runtime:getInvocationContext().principal.username,

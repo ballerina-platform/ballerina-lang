@@ -62,7 +62,7 @@ import javax.net.ssl.SSLContext;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "initLdapConnectionContext",
-        args = {@Argument(name = "ldapAuthStoreProvider", type = TypeKind.OBJECT, structType = "LdapAuthStoreProvider"),
+        args = {@Argument(name = "ldapAuthProvider", type = TypeKind.OBJECT, structType = "InboundLdapAuthProvider"),
                 @Argument(name = "instanceId", type = TypeKind.STRING)})
 public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
