@@ -28,6 +28,11 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Positive test cases for variable shadowing.
+ *
+ * @since 0.995.0
+ */
 public class VariableShadowingTest {
 
     private CompileResult result;
