@@ -236,6 +236,7 @@ const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
 const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
 
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
