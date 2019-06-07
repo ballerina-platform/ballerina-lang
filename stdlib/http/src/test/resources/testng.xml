@@ -54,23 +54,14 @@ under the License.
             <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
         </packages>
         <classes>
-            <!-- <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
                 <methods>
-                    <include name="testSignatureWithBooleanParamAsThirdParam"/>
+                    <exclude name="testSignatureWithMismatchedBodyParam"/>
                 </methods>
-            </class> -->
+            </class>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
-                    <exclude name="testSetString" />
-                    <exclude name="testGetString" />
-                    <exclude name="testGetStringAfterSetString"/>
-                    <exclude name="testGetFormParamsNativeFunction" />
-                    <exclude name="testGetFormParamsForUndefinedKey" />
-                    <exclude name="testGetFormParamsEmptyResponseMsgPayload" />
-                    <exclude name="testErrorReturn" />
-                    <exclude name="testGetFormParamsWithUnsupportedMediaType" />
-                    <exclude name="testGetFormParamsWithoutContentType" />
-                    <exclude name="testConstantValueAsAnnAttributeVal" />
+                    <exclude name="testErrorReturn"></exclude>
                 </methods>
             </class>
         </classes>

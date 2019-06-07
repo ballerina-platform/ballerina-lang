@@ -70,8 +70,7 @@ public class Remove extends BlockingNativeCallableUnit {
         try {
             org.ballerinalang.jvm.JSONUtils.remove(json, fieldName);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
-                    e);
+            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, OPERATION, e);
         }
     }
 }
