@@ -115,9 +115,6 @@
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
             <!--Built in methods-->
-            <class name="org.ballerinalang.test.expressions.builtinoperations.LengthOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"/>
-
             <class name="org.ballerinalang.test.expressions.conversion.NativeConversionWithStampTypesTest"/>
 
             <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
