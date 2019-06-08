@@ -26,12 +26,16 @@ public class CommandConstants {
     public static final String UNDEFINED_FUNCTION = "undefined function";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
     public static final String UNRESOLVED_MODULE = "cannot resolve module";
+    public static final String TAINTED_PARAM_PASSED = "tainted value passed to sensitive parameter";
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile("cannot resolve module '(.*)'");
+    public static final Pattern TAINTED_PARAM_PATTERN = Pattern.compile(
+            "tainted value passed to sensitive parameter '(.*)'");
     public static final Pattern UNDEFINED_FUNCTION_PATTERN = Pattern.compile("undefined function '(.*)'");
     public static final String INCOMPATIBLE_TYPES = "incompatible types";
     public static final Pattern INCOMPATIBLE_TYPE_PATTERN = Pattern.compile(
             "incompatible types: expected '(.*)', found '(.*)'");
     public static final Pattern FQ_TYPE_PATTERN = Pattern.compile("(.*)/([^:]*):(?:.*:)?(.*)");
+    public static final Pattern NO_CONCAT_PATTERN = Pattern.compile("^\\\"[^\\\"]*\\\"$|^[^\\\"\\+]*$");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -60,6 +64,8 @@ public class CommandConstants {
     public static final String IGNORE_RETURN_TITLE = "Ignore Return Value";
 
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
+
+    public static final String MARK_UNTAINTED_TITLE = "Mark '%s' as Untainted";
 
     public static final String CREATE_TEST_FUNC_TITLE = "Create Test For Function";
 

@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
@@ -34,9 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Represent an error in ballerina.

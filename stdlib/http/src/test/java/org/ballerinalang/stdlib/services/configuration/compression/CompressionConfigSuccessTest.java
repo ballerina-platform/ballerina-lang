@@ -24,7 +24,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class CompressionConfigSuccessTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/services/configuration/compression/compression-annotation-test.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        serviceResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test(description = "Test Compression.AUTO, with no Accept-Encoding header. The response here means the one " +

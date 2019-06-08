@@ -50,8 +50,11 @@ import java.util.concurrent.TimeoutException;
 public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> channelOb = (BMap<String, BValue>) channelListObject.get("chann");
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        BMap<String, BValue> channelOb =
+                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelOb.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         if (channel == null) {
             throw new BallerinaException("ChannelListener not properly initialised");

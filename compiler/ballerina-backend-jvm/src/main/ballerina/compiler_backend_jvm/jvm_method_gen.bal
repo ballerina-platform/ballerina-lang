@@ -1270,7 +1270,8 @@ function getModuleStartFuncName(bir:Package module) returns string {
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        var (importedPkg, isFromCache) = lookupModule(importModuleToModuleId(mod));
+
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string startFuncName = cleanupFunctionName(getModuleStartFuncName(importedPkg));
@@ -1366,7 +1367,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
-    currentClass = frameClassName;
+    currentClass = untaint frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 

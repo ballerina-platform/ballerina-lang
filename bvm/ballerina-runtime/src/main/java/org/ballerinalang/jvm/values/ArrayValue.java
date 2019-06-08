@@ -646,6 +646,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         if ((int) index < 0 || index >= maxArraySize) {
+            if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                        RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            }
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }

@@ -99,23 +99,22 @@ function lookupGlobalVarClassName(string key) returns string {
     }
 }
 
-public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
+public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean isEntry) {
+    string orgName = moduleId.org;
+    string moduleName = moduleId.name;
+    string pkgName = getPackageName(orgName, moduleName);
 
-    if (compiledPkgCache.hasKey(orgName + moduleName)) {
+    var (module, isFromCache) = lookupModule(moduleId);
+
+    if (!isEntry && isFromCache) {
         return;
     }
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
-        generateImportedPackage(importedPkg, pkgEntries);
-        compiledPkgCache[importedPkg.org.value + importedPkg.name.value] = importedPkg;
+        generatePackage(importModuleToModuleId(mod), jarFile, false);
     }
 
-    string pkgName = getPackageName(orgName, moduleName);
-    string sourceFileName = module.name.value;
     foreach var func in module.functions {
         addDefaultableBooleanVarsToSignature(func);
     }
@@ -124,8 +123,8 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
-    objGen.generateValueClasses(module.typeDefs, pkgEntries);
-    generateFrameClasses(module, pkgEntries);
+    objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
+    generateFrameClasses(module, jarFile.pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = untaint moduleClass;
@@ -141,7 +140,23 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
                     generateLockForVariable(globalVar, cw);
                 }
             }
-            generateStaticInitializer(module.globalVars, cw, moduleClass, false);
+            boolean serviceEPAvailable = false;
+            if (isEntry) {
+                bir:Function? mainFunc = getMainFunc(module.functions);
+                string mainClass = "";
+                if (mainFunc is bir:Function) {
+                    mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
+                                                        cleanupBalExt(mainFunc.pos.sourceFileName));
+                }
+                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+                if (mainFunc is bir:Function) {
+                    generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+                }
+                generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
+                jarFile.manifestEntries["Main-Class"] = moduleClass;
+                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+            }
+            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -159,75 +174,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         lambdas = {};
         cw.visitEnd();
         byte[] classContent = cw.toByteArray();
-        pkgEntries[moduleClass + ".class"] = classContent;
-    }
-}
-
-public function generateEntryPackage(bir:Package module, string sourceFileName, map<byte[]> pkgEntries,
-        map<string> manifestEntries) {
-
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
-    string pkgName = getPackageName(orgName, moduleName);
-
-    foreach var func in module.functions {
-        addDefaultableBooleanVarsToSignature(func);
-    }
-    typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
-
-    // generate object value classes
-    ObjectGenerator objGen = new(module);
-    objGen.generateValueClasses(module.typeDefs, pkgEntries);
-    generateFrameClasses(module, pkgEntries);
-    bir:Function? mainFunc = getMainFunc(module.functions);
-    string mainClass = "";
-    if (mainFunc is bir:Function) {
-        mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                            cleanupBalExt(mainFunc.pos.sourceFileName));
-    }
-    foreach var (moduleClass, v) in jvmClassMap {
-        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        currentClass = untaint moduleClass;
-        if (moduleClass == typeOwnerClass) {
-            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
-            generateDefaultConstructor(cw, VALUE_CREATOR);
-            generateUserDefinedTypeFields(cw, module.typeDefs);
-            generateValueCreatorMethods(cw, module.typeDefs, pkgName);
-            // populate global variable to class name mapping and generate them
-            foreach var globalVar in module.globalVars {
-                if (globalVar is bir:GlobalVariableDcl) {
-                    generatePackageVariable(globalVar, cw);
-                    generateLockForVariable(globalVar, cw);
-                }
-            }
-            boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
-            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
-            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
-            if (mainFunc is bir:Function) {
-                generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-            }
-            generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
-            manifestEntries["Main-Class"] = moduleClass;
-        } else {
-            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-            generateDefaultConstructor(cw, OBJECT);
-        }
-        cw.visitSource(v.sourceFileName);
-        // generate methods
-        foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module);
-        }
-        
-        // generate lambdas
-        foreach var (name, call) in lambdas {
-            generateLambdaMethod(call[0], cw, call[1], name);
-        }
-        // clear the lambdas
-        lambdas = {};
-        cw.visitEnd();
-        byte[] classContent = cw.toByteArray();
-        pkgEntries[moduleClass + ".class"] = classContent;
+        jarFile.pkgEntries[moduleClass + ".class"] = classContent;
     }
 }
 
@@ -287,10 +234,18 @@ function computeLockNameFromString(string varName) returns string {
     return "$lock" + varName;
 }
 
-function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
-    bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
-                                modVersion: importModule.modVersion.value};
-    return birContext.lookupBIRModule(moduleId);
+function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
+        string orgName = modId.org;
+        string moduleName = modId.name;
+
+        var pkgFromCache = compiledPkgCache[orgName + moduleName];
+        if (pkgFromCache is bir:Package) {
+            return (pkgFromCache, true);
+        }
+        var parsedPkg = currentBIRContext.lookupBIRModule(modId);
+        compiledPkgCache[orgName + moduleName] = parsedPkg;
+        return (parsedPkg, false);
+
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
@@ -481,19 +436,14 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     };
 }
 
-function generateBuiltInPackages(bir:BIRContext birContext, map<byte[]> jarEntries) {
-    bir:ImportModule utilsBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "utils"},
-                                        modVersion: {value: ""}};
+// TODO: remove ImportModule type replace with ModuleID
+function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
+     return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
+}
 
-    bir:ImportModule builtInBIRMod = {modOrg: {value: "ballerina"}, modName: {value: "builtin"},
-                                        modVersion: {value: ""}};
-
-    bir:Package utilsModule = lookupModule(utilsBIRMod, birContext);
-    bir:Package builtInModule = lookupModule(builtInBIRMod, birContext);
-
-    generateImportedPackage(utilsModule, jarEntries);
-    compiledPkgCache[utilsModule.org.value + utilsModule.name.value] = utilsModule;
-
-    generateImportedPackage(builtInModule, jarEntries);
-    compiledPkgCache[builtInModule.org.value + builtInModule.name.value] = builtInModule;
+function generateBuiltInPackages(bir:BIRContext birContext, JarFile jarFile) {
+    bir:ModuleID utilsId = {org : "ballerina", name : "utils", modVersion : ""};
+    bir:ModuleID builtinId = {org : "ballerina", name : "builtin", modVersion : ""};
+    generatePackage(utilsId, jarFile, false);
+    generatePackage(builtinId, jarFile, false);
 }

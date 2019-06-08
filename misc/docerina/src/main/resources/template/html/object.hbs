@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body>
+<div class="ui grid">
+    <div class="navi-wrapper two wide column">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Objects</h3>
+                <ul>
+                    {{#each module.objects}}
+                        <li>
+                            <a href="{{name}}.html">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+        <div class="main-wrapper">
+            <h1>Object : <span class="objects">{{ object.name }}</span> </h1>
+            <p>{{{ object.description }}}</p>
+
+            <div class="constants">
+                {{#if object.initMethod}}
+                    {{#object.initMethod}}
+                       {{> initMethod }}
+                    {{/object.initMethod}}
+                {{/if}}
+
+                {{#if object.otherMethods}}
+                    <h2>Methods</h2>
+                    <div class="method-list">
+                        {{#each object.otherMethods}}
+                            {{> methodSignature }}
+                        {{/each}}
+                    </div>
+                {{/if}}
+
+                {{#if object.fields}}
+                    {{#object}}
+                        <h2>Fields</h2>
+                            {{> fields }}
+                    {{/object}}
+                {{/if}}
+
+                {{#if object.otherMethods }}
+                    <h2>Methods</h2>
+                    {{#each object.otherMethods }}
+                        {{> method }}
+                    {{/each}}
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
