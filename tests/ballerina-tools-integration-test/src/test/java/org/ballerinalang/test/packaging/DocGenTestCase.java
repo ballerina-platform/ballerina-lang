@@ -61,8 +61,8 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("functions.html")));
     }
 
     @Test(description = "Test doc generation for single bal file", dependsOnMethods = "testInitProject")
@@ -73,8 +73,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("foo").resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("main.bal.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("functions.html")));
     }
 
     @Test(description = "Test doc generation for a project", dependsOnMethods = "testInitProject")
@@ -84,9 +83,9 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("functions.html")));
     }
 
     @AfterClass

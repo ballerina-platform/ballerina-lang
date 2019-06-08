@@ -54,11 +54,11 @@ under the License.
             <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
         </packages>
         <classes>
-            <!-- <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
                 <methods>
-                    <include name="testSignatureWithBooleanParamAsThirdParam"/>
+                    <exclude name="testSignatureWithMismatchedBodyParam"/>
                 </methods>
-            </class> -->
+            </class>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>

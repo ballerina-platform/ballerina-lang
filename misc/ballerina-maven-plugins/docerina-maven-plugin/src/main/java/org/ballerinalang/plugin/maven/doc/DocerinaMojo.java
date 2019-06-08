@@ -23,7 +23,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -85,12 +84,6 @@ public class DocerinaMojo extends AbstractMojo {
 
     @Parameter(property = "outputZip", required = false)
     private String outputZip;
-    
-    /**
-     * Generates the table of content file for the package.
-     */
-    @Parameter(property = "generateTOC", required = false, defaultValue = "false")
-    private boolean generateTOC;
 
     /**
      * enable debug level logs.
@@ -118,8 +111,6 @@ public class DocerinaMojo extends AbstractMojo {
         if (orgName != null) {
             System.setProperty(BallerinaDocConstants.ORG_NAME, orgName);
         }
-        
-        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, generateTOC);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         List<String> sources;
@@ -140,7 +131,6 @@ public class DocerinaMojo extends AbstractMojo {
             System.clearProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY);
             System.clearProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
             System.clearProperty(BallerinaDocConstants.ORG_NAME);
-            ConfigRegistry.getInstance().removeConfiguration(BallerinaDocConstants.GENERATE_TOC);
         }
     }
 }

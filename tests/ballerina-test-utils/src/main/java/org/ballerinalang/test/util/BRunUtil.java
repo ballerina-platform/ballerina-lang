@@ -480,10 +480,10 @@ public class BRunUtil {
                 }
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:
-                String ObjPackagePath = type.tsymbol.pkgID.toString();
-                String ObjName = type.tsymbol.getName().getValue();
+                String objPackagePath = type.tsymbol.pkgID.toString();
+                String objName = type.tsymbol.getName().getValue();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(ObjPackagePath, ObjName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;
@@ -494,8 +494,8 @@ public class BRunUtil {
                 return jvmObject;
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
-                if(xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem)xml).value());
+                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                    return new XMLItem(((BXMLItem) xml).value());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
@@ -581,10 +581,10 @@ public class BRunUtil {
                 });
                 return jvmMap;
             case TypeTags.OBJECT_TYPE_TAG:
-                String ObjPackagePath = type.getPackagePath();
-                String ObjName = type.getName();
+                String objPackagePath = type.getPackagePath();
+                String objName = type.getName();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(ObjPackagePath, ObjName);
+                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;
@@ -595,8 +595,8 @@ public class BRunUtil {
                 return jvmObject;
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
-                if(xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem)xml).value());
+                if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
+                    return new XMLItem(((BXMLItem) xml).value());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));

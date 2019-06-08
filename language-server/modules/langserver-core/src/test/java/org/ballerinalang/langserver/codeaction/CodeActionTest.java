@@ -238,7 +238,9 @@ public class CodeActionTest {
         return new Object[][]{
                 {"fixReturnType1.json", "fixReturnType.bal"},
                 {"fixReturnType2.json", "fixReturnType.bal"},
-                {"fixReturnType3.json", "fixReturnType.bal"}
+                {"fixReturnType3.json", "fixReturnType.bal"},
+                {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
+                {"markUntaintedCodeAction2.json", "taintedVariable.bal"}
         };
     }
 
@@ -263,7 +265,7 @@ public class CodeActionTest {
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
-                {"packagePull.json", "packagePull.bal"}
+                {"packagePull.json", "packagePull.bal"},
         };
     }
 

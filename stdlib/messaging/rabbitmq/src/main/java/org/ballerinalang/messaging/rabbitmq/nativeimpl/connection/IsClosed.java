@@ -48,6 +48,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class IsClosed extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
         Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
                 RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);

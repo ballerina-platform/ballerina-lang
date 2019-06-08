@@ -35,8 +35,8 @@ service wssService on securedListener2 {
 auth:ConfigAuthStoreProvider basicAuthProvider1 = new;
 auth:ConfigAuthStoreProvider basicAuthProvider2 = new;
 
-http:BasicAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
-http:BasicAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
 
 listener http:Listener securedListener = new(9090, config = {
         auth: {

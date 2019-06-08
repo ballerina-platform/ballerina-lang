@@ -103,6 +103,7 @@ public class AnnotationDesugar {
         int index = calculateIndex(initFunction.body.stmts);
 
         for (BLangStatement stmt : blockStmt.stmts) {
+            stmt.pos = pkgNode.pos;
             initFunction.body.stmts.add(index++, stmt);
         }
 
