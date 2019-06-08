@@ -19,18 +19,6 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Specifies how to send the authentication credentials when exchanging tokens.
-public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER|NO_BEARER;
-
-# Indicates that the authentication credentials should be sent via the Authentication Header
-public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
-
-# Indicates that the authentication credentials should be sent via the body of the POST request
-public const POST_BODY_BEARER = "POST_BODY_BEARER";
-
-# Indicates that the authentication credentials should not be sent
-public const NO_BEARER = "NO_BEARER";
-
 # Specifies the type of the OAuth2 grant type
 public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT|DIRECT_TOKEN;
 

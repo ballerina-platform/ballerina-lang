@@ -79,7 +79,7 @@ public type ClientCredentialsGrantConfig record {|
     string[] scopes?;
     int clockSkew = 0;
     boolean retryRequest = true;
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
 # The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
@@ -104,7 +104,7 @@ public type PasswordGrantConfig record {|
     RefreshConfig refreshConfig?;
     int clockSkew = 0;
     boolean retryRequest = true;
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
 # The `DirectTokenConfig` record configures the access token directly.
@@ -119,7 +119,7 @@ public type DirectTokenConfig record {|
     DirectTokenRefreshConfig refreshConfig?;
     int clockSkew = 0;
     boolean retryRequest = true;
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
 # The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.
@@ -130,7 +130,7 @@ public type DirectTokenConfig record {|
 public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
 # The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for
@@ -148,7 +148,7 @@ public type DirectTokenRefreshConfig record {|
     string clientId;
     string clientSecret;
     string[] scopes?;
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
 # The `CachedToken` stores the values received from the authorization/token server to use them
@@ -175,7 +175,7 @@ type RequestConfig record {|
     string clientId?;
     string clientSecret?;
     string[]? scopes;
-    CredentialBearer credentialBearer;
+    http:CredentialBearer credentialBearer;
 |};
 
 # Process auth token for OAuth2.
@@ -529,7 +529,7 @@ function prepareRequest(RequestConfig config) returns http:Request|error {
 
     var clientId = config["clientId"];
     var clientSecret = config["clientSecret"];
-    if (config.credentialBearer == AUTH_HEADER_BEARER) {
+    if (config.credentialBearer == http:AUTH_HEADER_BEARER) {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
             req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC + WHITE_SPACE +
@@ -537,7 +537,7 @@ function prepareRequest(RequestConfig config) returns http:Request|error {
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }
-    } else if (config.credentialBearer == POST_BODY_BEARER) {
+    } else if (config.credentialBearer == http:POST_BODY_BEARER) {
         if (clientId is string && clientSecret is string) {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         } else {

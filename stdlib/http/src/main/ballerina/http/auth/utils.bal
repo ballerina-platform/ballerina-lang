@@ -27,6 +27,18 @@ const string SERVICE_ANN_NAME = "ServiceConfig";
 # Authorization header name.
 public const string AUTH_HEADER = "Authorization";
 
+# Specifies how to send the authentication credentials when exchanging tokens.
+public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER|NO_BEARER;
+
+# Indicates that the authentication credentials should be sent via the Authentication Header
+public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
+
+# Indicates that the authentication credentials should be sent via the body of the POST request
+public const POST_BODY_BEARER = "POST_BODY_BEARER";
+
+# Indicates that the authentication credentials should not be sent
+public const NO_BEARER = "NO_BEARER";
+
 # Extracts the Authorization header value from the request.
 #
 # + req - Request instance
