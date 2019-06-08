@@ -7,7 +7,7 @@ plugins {
 }
 
 // TODO: remove following, when moved to gradle release plugin
-def mvnVersion = new XmlSlurper().parse('pom.xml').version
+def mvnVersion = new XmlSlurper().parse("${project.rootDir}/pom.xml").version
 allprojects {
     group = 'org.ballerinalang'
     version = '0.992.0-m2-SNAPSHOT'

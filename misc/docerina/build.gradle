@@ -18,6 +18,10 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 configurations {
     distBal {
         transitive false
@@ -84,12 +88,3 @@ task copyBalo(type: org.gradle.api.tasks.Copy) {
 }
 
 description = 'Ballerina - Docerina'
-
-test {
-    dependsOn copyBalo
-    systemProperty "ballerina.home", "$buildDir"
-
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}

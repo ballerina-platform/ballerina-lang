@@ -55,7 +55,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of module names to be "
             + "filtered from the documentation")
-    private String packageFilter;
+    private String moduleFilter;
 
     @CommandLine.Option(names = {"--native", "-n"}, description = "read the source as native ballerina code")
     private boolean nativeSource;
@@ -108,8 +108,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                offline, sources);
+        try {
+            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, moduleFilter, nativeSource,
+                    offline, sources);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to generate api docs: " + sourceRootPath.toString(), e);
+        }
     }
 
     @Override

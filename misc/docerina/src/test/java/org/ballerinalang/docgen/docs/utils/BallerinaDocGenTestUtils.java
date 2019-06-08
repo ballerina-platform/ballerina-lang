@@ -18,7 +18,7 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
-import org.ballerinalang.docgen.model.PackageDoc;
+import org.ballerinalang.docgen.model.ModuleDoc;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -33,14 +33,14 @@ public class BallerinaDocGenTestUtils {
 
     private static final PrintStream out = System.out;
     
-    public static void printDocMap(Map<String, PackageDoc> docsMap) {
-        for (Entry<String, PackageDoc> entry : docsMap.entrySet()) {
+    public static void printDocMap(Map<String, ModuleDoc> docsMap) {
+        for (Entry<String, ModuleDoc> entry : docsMap.entrySet()) {
             out.println(entry.getValue().bLangPackage.toString());
         }
     }
     
     public static void cleanUp() {
-        BallerinaDocDataHolder.getInstance().setPackageMap(new HashMap<String, PackageDoc>());
+        BallerinaDocDataHolder.getInstance().setPackageMap(new HashMap<String, ModuleDoc>());
     }
 
     public static void deleteDirectory(String path) {

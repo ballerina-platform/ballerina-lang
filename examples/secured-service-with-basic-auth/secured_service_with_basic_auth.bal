@@ -4,7 +4,7 @@ import ballerina/log;
 
 // Create a Basic authentication handler with the relevant configurations.
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
-http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 // The endpoint used here is the `http:Listener`, which by default tries to
 // authenticate and authorize each request. It is optional to override the

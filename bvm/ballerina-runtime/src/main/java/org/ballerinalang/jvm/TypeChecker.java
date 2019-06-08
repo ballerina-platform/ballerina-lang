@@ -322,14 +322,12 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() == TypeTags.INT_TAG) {
+                if (sourceType.getTag() == targetType.getTag()) {
                     return true;
                 }
+                return sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.DECIMAL_TAG:
-                if (sourceType.getTag() == TypeTags.INT_TAG || sourceType.getTag() == TypeTags.BYTE_TAG ||
-                        sourceType.getTag() == TypeTags.FLOAT_TAG) {
-                    return true;
-                }
+                return sourceType.getTag() <= TypeTags.DECIMAL_TAG;
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
@@ -922,12 +920,14 @@ public class TypeChecker {
                     return false;
                 }
             }
+            return true;
         } else if (sourceType.getTag() == TypeTags.MAP_TAG) {
             for (Object value : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
             }
+            return true;
         } else if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
             if (unresolvedValues.contains(typeValuePair)) {
@@ -939,8 +939,9 @@ public class TypeChecker {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
