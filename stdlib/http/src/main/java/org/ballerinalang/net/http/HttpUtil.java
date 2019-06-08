@@ -884,7 +884,7 @@ public class HttpUtil {
 
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         List<String> contentTypesAnnotationValues = getAsStringList(
-                compressionConfig.getArrayValue(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getValues());
+                compressionConfig.getArrayValue(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getStringArray());
         String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
 
         if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
