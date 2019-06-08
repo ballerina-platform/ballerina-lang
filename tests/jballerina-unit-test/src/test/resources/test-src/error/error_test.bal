@@ -204,3 +204,6 @@ public function testRuntimeFailingWhenAssigningErrorToAny() {
 public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
     mapVal[index] = member;
 }
+
+const string reasonA = "ErrNo-1";
+type UserDefErrorTwo error<reasonA, map<string>>;

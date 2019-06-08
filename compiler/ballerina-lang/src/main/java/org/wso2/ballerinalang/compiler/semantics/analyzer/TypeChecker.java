@@ -2626,72 +2626,70 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
-        if (types.isAssignable(expType, symTable.errorType)) {
-            BErrorType targetErrorType = (BErrorType) expType;
-            BSymbol resolvedSymbol = symResolver.lookupSymbol(env, targetErrorType.tsymbol.name, SymTag.CONSTRUCOR);
-            BConstructorSymbol ctorSymbol = (BConstructorSymbol) resolvedSymbol;
+        if (!types.isAssignable(expType, symTable.errorType)) {
+            // Cannot infer error type from error constructor. 'var e = error("r", a="b", b="c");
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR);
+            resultType = symTable.semanticError;
+            return;
+        }
 
-            BLangExpression arg0 = iExpr.argExprs.get(0);
-            BErrorType ctorType = (BErrorType) ctorSymbol.type;
-            int namedArgStartPos = 0;
-            // if present, error reason should be the first and only positional argument to error constructor.
-            if (arg0.getKind() != NodeKind.NAMED_ARGS_EXPR) {
-                    checkExpr(arg0, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
-                    namedArgStartPos = 1;
-            }
-            // expected error is of built-in error type
-            if (targetErrorType.tsymbol.name.equals(Names.ERROR)) {
-                if (types.isAssignable(targetErrorType.reasonType, symTable.stringType)
-                    && types.isAssignable(targetErrorType.detailType, symTable.pureTypeConstrainedMap)) {
-                    setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
-                    setErrorDetailArgsToNamedArgsList(iExpr);
-                    resultType = expType;
-                    iExpr.symbol = ctorSymbol;
-                    return;
-                }
-            } else {
-                if (namedArgStartPos == 0 && ctorType.reasonType.getKind() == TypeKind.FINITE) {
-                    BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
-                    if (finiteType.valueSpace.size() != 1) {
-                        dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
-                        resultType = symTable.semanticError;
-                        return;
-                    }
-                }
+        BErrorType lhsErrorType = (BErrorType) expType;
+        BConstructorSymbol ctorSymbol = (BConstructorSymbol) symResolver.lookupSymbol(env, lhsErrorType.tsymbol.name,
+                SymTag.ERROR_CONSTRUCTOR);
+        BErrorType ctorType = (BErrorType) ctorSymbol.type;
 
-                if (ctorType.detailType.tag == TypeTags.RECORD) {
-                    BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
-                    BRecordType recordType = createErrorDetailRecordType(iExpr, namedArgStartPos, targetErrorDetailRec);
-                    if (recordType == null) {
-                        return;
-                    }
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+            return;
+        }
 
-                    if (!types.isAssignable(recordType, targetErrorDetailRec)) {
-                        dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
-                        resultType = symTable.semanticError;
-                        return;
-                    }
-                } else {
-                    BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
-                    List<BLangNamedArgsExpression> errorDetails = getErrorDetails(iExpr, namedArgStartPos);
-                    if (errorDetails == null) {
-                        return;
-                    }
-                    for (BLangNamedArgsExpression errorDetailArg : errorDetails) {
-                        checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
-                    }
-                }
-                setErrorReasonParam(iExpr, namedArgStartPos, ctorType);
-                setErrorDetailArgsToNamedArgsList(iExpr);
+        boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
 
-                resultType = expType;
-                iExpr.symbol = ctorSymbol;
+        if (ctorType.detailType.tag == TypeTags.RECORD) {
+            BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+            BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
+            if (recordType == null) {
                 return;
             }
+
+            if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
+                resultType = symTable.semanticError;
+                return;
+            }
+        } else {
+            BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
+            for (BLangNamedArgsExpression errorDetailArg : getProvidedErrorDetails(iExpr, reasonArgGiven)) {
+                checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
+            }
         }
-        dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR);
-        resultType = symTable.semanticError;
+        setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
+        setErrorDetailArgsToNamedArgsList(iExpr);
+
+        resultType = expType;
+        iExpr.symbol = ctorSymbol;
         return;
+    }
+
+    private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
+        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
+        // if present, error reason should be the first and only positional argument to error constructor.
+        if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+            checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
+        if (errorType.reasonType.getKind() == TypeKind.FINITE) {
+            BFiniteType finiteType = (BFiniteType) errorType.reasonType;
+            if (finiteType.valueSpace.size() != 1) {
+                dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                resultType = symTable.semanticError;
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
@@ -2714,8 +2712,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void setErrorReasonParam(BLangInvocation iExpr, int namedArgStartPos, BErrorType ctorType) {
-        if (namedArgStartPos == 0) {
+    private void setErrorReasonParam(BLangInvocation iExpr, boolean reasonArgGiven, BErrorType ctorType) {
+        if (reasonArgGiven) {
             if (ctorType.reasonType.getKind() == TypeKind.FINITE) {
                 BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
                 BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
@@ -2732,13 +2730,14 @@ public class TypeChecker extends BLangNodeVisitor {
      * from {@code iExpr} expression.
      *
      * @param iExpr error constructor invocation
-     * @param namedArgStartPos start position fo named arg expressions in {@code iExpr} parameter
+     * @param reasonArgGiven error reason is provided as first argument
      * @param targetErrorDetailsType target error details type to extract metadata such as pkgId from
      * @return error detail record
      */
-    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr, int namedArgStartPos,
+    // todo: try to re-use recrod literal checking
+    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr, boolean reasonArgGiven,
                                                     BRecordType targetErrorDetailsType) {
-        List<BLangNamedArgsExpression> namedArgs = getErrorDetails(iExpr, namedArgStartPos);
+        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, reasonArgGiven);
         if (namedArgs == null) {
             return null;
         }
@@ -2770,9 +2769,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private List<BLangNamedArgsExpression> getErrorDetails(BLangInvocation iExpr, int namedArgStartPos) {
+    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr, boolean reasonArgGiven) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for (int i = namedArgStartPos; i < iExpr.argExprs.size(); i++) {
+        for (int i = reasonArgGiven ? 1: 0; i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
             checkExpr(argExpr, env);
             if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {

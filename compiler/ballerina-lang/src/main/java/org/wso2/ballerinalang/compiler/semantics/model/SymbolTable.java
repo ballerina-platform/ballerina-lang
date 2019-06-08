@@ -193,7 +193,7 @@ public class SymbolTable {
         errorSymbol.type = this.errorType;
 
         // Initialize constructor symbol for ballerina built-in error type
-        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCOR,
+        this.errorConstructor = new BConstructorSymbol(SymTag.ERROR_CONSTRUCTOR,
                 errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
         this.errorConstructor.kind = SymbolKind.CONSTRUCTOR;
         rootScope.define(errorConstructor.name, this.errorConstructor);

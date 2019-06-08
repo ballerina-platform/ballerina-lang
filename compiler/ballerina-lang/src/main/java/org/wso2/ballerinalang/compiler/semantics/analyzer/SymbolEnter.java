@@ -607,7 +607,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCOR,
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.ERROR_CONSTRUCTOR,
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
