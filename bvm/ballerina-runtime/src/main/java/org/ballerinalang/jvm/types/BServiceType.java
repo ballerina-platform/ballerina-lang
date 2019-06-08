@@ -21,24 +21,14 @@ package org.ballerinalang.jvm.types;
  *
  * @since 0.995.0
  */
-public class BServiceType extends BType {
+public class BServiceType extends BObjectType {
 
-    public BServiceType(String typeName, BPackage pkgPath) {
-        super(typeName, pkgPath, BServiceType.class);
+    public BServiceType(String typeName, BPackage pkg, int flags) {
+        super(typeName, pkg, flags);
     }
 
     @Override
     public int getTag() {
         return TypeTags.SERVICE_TAG;
-    }
-
-    @Override
-    public <V> V getZeroValue() {
-        return null;
-    }
-
-    @Override
-    public <V> V getEmptyValue() {
-        return null;
     }
 }

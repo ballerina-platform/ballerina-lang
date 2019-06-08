@@ -110,7 +110,9 @@ public class HttpService implements Cloneable {
     }
 
     public String getName() {
-        return balService.getType().getAnnotationKey(); //TODO fix - rajith
+        String serviceTypeName = balService.getType().getName();
+        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
+        return serviceTypeName.substring(0, serviceIndex);
     }
 
     public String getPackage() {

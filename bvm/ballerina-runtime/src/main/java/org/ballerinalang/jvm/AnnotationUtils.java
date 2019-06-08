@@ -48,7 +48,7 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG || type.getTag() == TypeTags.SERVICE_TAG) {
             BObjectType objectType = (BObjectType) type;
             for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
                 annotationKey = attachedFunction.getAnnotationKey();
