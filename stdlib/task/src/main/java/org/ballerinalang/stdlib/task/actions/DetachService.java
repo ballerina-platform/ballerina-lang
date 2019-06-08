@@ -63,9 +63,10 @@ public class DetachService extends BlockingNativeCallableUnit {
         task.removeService(serviceName);
     }
 
-    public static void detachService(Strand strand, ObjectValue taskListener, ObjectValue service) {
+    public static Object detachService(Strand strand, ObjectValue taskListener, ObjectValue service) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         String serviceName = service.getType().getName();
         task.removeService(serviceName);
+        return null;
     }
 }

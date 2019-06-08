@@ -20,6 +20,8 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,6 +35,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
@@ -61,5 +64,15 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
         }
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
+    }
+
+    public static void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel,
+                                      String contentType) {
+        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME));
+        Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+        if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
+            entityObj.addNativeData(MESSAGE_DATA_SOURCE, null);
+        }
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
     }
 }

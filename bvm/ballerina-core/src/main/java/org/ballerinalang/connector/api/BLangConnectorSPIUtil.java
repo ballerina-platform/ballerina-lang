@@ -143,7 +143,7 @@ public final class BLangConnectorSPIUtil {
     }
 
     public static BMap<String, BValue> getPackageEndpoint(ProgramFile programFile, String pkgName, String version,
-                                             String endpointName) {
+                                                          String endpointName) {
         String pkgID = getPackageID(pkgName, version);
         final PackageInfo packageInfo = programFile.getPackageInfo(pkgID);
         if (packageInfo == null) {
@@ -154,7 +154,7 @@ public final class BLangConnectorSPIUtil {
             throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
         }
         return (BMap<String, BValue>) programFile.globalMemArea.getRefField(packageInfo.pkgIndex,
-                packageVarInfo.getGlobalMemIndex());
+                                                                            packageVarInfo.getGlobalMemIndex());
     }
 
     public static Service getService(ProgramFile programFile, BMap serviceValue) {

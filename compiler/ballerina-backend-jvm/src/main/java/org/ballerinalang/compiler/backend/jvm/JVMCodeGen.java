@@ -64,7 +64,7 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
 
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
     private static final String functionName = "generateJarBinary";
-    private static final String JAR_ENTRIES = "jarEntries";
+    private static final String PKG_ENTRIES = "pkgEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
 
     @Override
@@ -118,10 +118,10 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (JarOutputStream target = new JarOutputStream(baos, manifest)) {
 
-            if (!entries.containsKey(JAR_ENTRIES)) {
+            if (!entries.containsKey(PKG_ENTRIES)) {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
-            Map<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
+            Map<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(PKG_ENTRIES)).getMap();
             for (String entryName : jarEntries.keySet()) {
                 byte[] entryContent = ((BValueArray) jarEntries.get(entryName)).getBytes();
                 JarEntry entry = new JarEntry(entryName);

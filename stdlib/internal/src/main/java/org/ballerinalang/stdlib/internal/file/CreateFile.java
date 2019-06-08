@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -74,5 +77,22 @@ public class CreateFile extends BlockingNativeCallableUnit {
             log.error(msg, e);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
+    }
+
+    public static Object createFile(Strand strand, ObjectValue self) {
+        Path filePath = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        try {
+            Files.createFile(filePath);
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            String msg;
+            if (e instanceof SecurityException) {
+                msg = "Permission denied. Failed to create the file: " + filePath.toString();
+            } else {
+                msg = "Failed to create the file: " + filePath.toString();
+            }
+            log.error(msg, e);
+            BallerinaErrors.createError(msg);
+        }
+        return null;
     }
 }

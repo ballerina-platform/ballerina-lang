@@ -31,8 +31,8 @@ class BFloatType extends BType {
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Float.class);
+    BFloatType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Float.class);
     }
 
     @Override

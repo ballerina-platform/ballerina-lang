@@ -19,6 +19,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,7 @@ public class CorsHeaders {
         this.exposeHeaders = exposeHeaders;
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static CorsHeaders buildCorsHeaders(Struct corsConfig) {
         CorsHeaders corsHeaders = new CorsHeaders();
 
@@ -138,6 +140,24 @@ public class CorsHeaders {
         return corsHeaders;
     }
 
+    public static CorsHeaders buildCorsHeaders(MapValue corsConfig) {
+        CorsHeaders corsHeaders = new CorsHeaders();
+
+        if (corsConfig == null) {
+            return corsHeaders;
+        }
+
+        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayValue(ALLOW_HEADERS_FIELD).getValues()));
+        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayValue(ALLOW_METHODS_FIELD).getValues()));
+        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayValue(ALLOWS_ORIGINS_FIELD).getValues()));
+        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayValue(EXPOSE_HEADERS_FIELD).getValues()));
+        corsHeaders.setAllowCredentials(corsConfig.getBooleanValue(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
+        corsHeaders.setMaxAge(corsConfig.getIntValue(MAX_AGE_FIELD));
+
+        return corsHeaders;
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     private static List<String> getAsStringList(Value[] values) {
         if (values == null) {
             return null;
@@ -145,6 +165,17 @@ public class CorsHeaders {
         List<String> valuesList = new ArrayList<>();
         for (Value val : values) {
             valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
+    }
+
+    private static List<String> getAsStringList(Object[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Object val : values) {
+            valuesList.add(val.toString().trim());
         }
         return !valuesList.isEmpty() ? valuesList : null;
     }

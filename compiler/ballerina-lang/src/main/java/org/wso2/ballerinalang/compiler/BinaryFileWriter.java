@@ -110,7 +110,7 @@ public class BinaryFileWriter {
     }
 
     private void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+        if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.jarBinaryContent != null) {
             String jarFilename = cleanupExecFileName(fileName, BLANG_COMPILED_JAR_EXT);
             this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(packageNode.jarBinaryContent),
                     jarFilename);

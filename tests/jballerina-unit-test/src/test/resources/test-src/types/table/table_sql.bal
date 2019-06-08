@@ -299,12 +299,10 @@ function testSimpleSelectAllWithCondition() returns int {
     checkpanic personTable.add(p3);
     checkpanic personTable.add(p4);
 
-    if (recordCount == 0) {
-        table<Person> personTableCopy = from personTable select * limit 2;
-        while (personTableCopy.hasNext()) {
-            _ = personTableCopy.getNext();
-            recordCount = recordCount + 1;
-        }
+    table<Person> personTableCopy = from personTable select * limit 2;
+    while (personTableCopy.hasNext()) {
+        _ = personTableCopy.getNext();
+        recordCount = recordCount + 1;
     }
 
     return recordCount;

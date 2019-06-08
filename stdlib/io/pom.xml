@@ -44,12 +44,12 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ballerinalang</groupId>-->
+            <!--<artifactId>ballerina-builtin</artifactId>-->
+            <!--<type>zip</type>-->
+            <!--<classifier>ballerina-binary-repo</classifier>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
@@ -70,11 +70,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,13 +95,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-utils</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>

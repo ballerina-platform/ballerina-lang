@@ -10,7 +10,7 @@ plugins {
 def mvnVersion = new XmlSlurper().parse("${project.rootDir}/pom.xml").version
 allprojects {
     group = 'org.ballerinalang'
-    version = mvnVersion
+    version = '0.992.0-m2-SNAPSHOT'
 
     task printPath {
         doLast{

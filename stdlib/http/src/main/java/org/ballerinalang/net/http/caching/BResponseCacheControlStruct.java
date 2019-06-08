@@ -48,16 +48,16 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  *
  * @since 0.965.0
  */
-public class ResponseCacheControlStruct {
+public class BResponseCacheControlStruct {
 
     private BMap<String, BValue> responseCacheControl;
 
-    public ResponseCacheControlStruct(StructureTypeInfo structInfo) {
+    public BResponseCacheControlStruct(StructureTypeInfo structInfo) {
         responseCacheControl = BLangVMStructs.createBStruct(structInfo);
         init();
     }
 
-    public ResponseCacheControlStruct(BMap<String, BValue> responseCacheControl) {
+    public BResponseCacheControlStruct(BMap<String, BValue> responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
     }
 
@@ -76,54 +76,54 @@ public class ResponseCacheControlStruct {
         responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(-1));
     }
 
-    public ResponseCacheControlStruct setMustRevalidate(boolean mustRevalidate) {
+    public BResponseCacheControlStruct setMustRevalidate(boolean mustRevalidate) {
         responseCacheControl.put(RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD, new BBoolean(mustRevalidate));
         return this;
     }
 
-    public ResponseCacheControlStruct setNoCache(boolean noCache) {
+    public BResponseCacheControlStruct setNoCache(boolean noCache) {
         responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
         return this;
     }
 
-    public ResponseCacheControlStruct setNoCache(boolean noCache, String[] noCacheFields) {
+    public BResponseCacheControlStruct setNoCache(boolean noCache, String[] noCacheFields) {
         responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
         responseCacheControl.put(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD, new BValueArray(noCacheFields));
         return this;
     }
 
-    public ResponseCacheControlStruct setNoStore(boolean noStore) {
+    public BResponseCacheControlStruct setNoStore(boolean noStore) {
         responseCacheControl.put(RES_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(noStore));
         return this;
     }
 
-    public ResponseCacheControlStruct setNoTransform(boolean noTransform) {
+    public BResponseCacheControlStruct setNoTransform(boolean noTransform) {
         responseCacheControl.put(RES_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(noTransform));
         return this;
     }
 
-    public ResponseCacheControlStruct setPrivate(boolean isPrivate) {
+    public BResponseCacheControlStruct setPrivate(boolean isPrivate) {
         responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(isPrivate));
         return this;
     }
 
-    public ResponseCacheControlStruct setPrivate(boolean isPrivate, String[] privateFields) {
+    public BResponseCacheControlStruct setPrivate(boolean isPrivate, String[] privateFields) {
         responseCacheControl.put(RES_CACHE_CONTROL_IS_PRIVATE_FIELD, new BBoolean(isPrivate));
         responseCacheControl.put(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD, new BValueArray(privateFields));
         return this;
     }
 
-    public ResponseCacheControlStruct setProxyRevalidate(boolean proxyRevalidate) {
+    public BResponseCacheControlStruct setProxyRevalidate(boolean proxyRevalidate) {
         responseCacheControl.put(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, new BBoolean(proxyRevalidate));
         return this;
     }
 
-    public ResponseCacheControlStruct setMaxAge(long maxAge) {
+    public BResponseCacheControlStruct setMaxAge(long maxAge) {
         responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(maxAge));
         return this;
     }
 
-    public ResponseCacheControlStruct setSMaxAge(long sMaxAge) {
+    public BResponseCacheControlStruct setSMaxAge(long sMaxAge) {
         responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(sMaxAge));
         return this;
     }
