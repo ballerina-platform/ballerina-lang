@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/http;
+import ballerina/jwt;
 
-auth:JWTAuthProvider jwtAuthProvider07 = new({
+jwt:JWTAuthProvider jwtAuthProvider07 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -27,7 +27,7 @@ auth:JWTAuthProvider jwtAuthProvider07 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler07 = new(jwtAuthProvider07);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler07 = new(jwtAuthProvider07);
 
 listener http:Listener listener07 = new(9098, config = {
     auth: {

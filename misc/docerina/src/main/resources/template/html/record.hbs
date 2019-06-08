@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body>
+<div class="ui grid">
+    <div class="navi-wrapper two wide column">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Records</h3>
+                <ul>
+                    {{#each module.records}}
+                        <li>
+                            <a href="{{name}}.html">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+        <div class="main-wrapper">
+            <h1>Record : <span class="records">{{ record.name }}</span></h1>
+
+            <p>{{{ record.description }}}</p>
+            <div class="constants">
+                {{#if record.fields}}
+                    {{#record}}
+                        <h2>Fields</h2>
+                            {{> fields }}
+                    {{/record}}
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+</body>

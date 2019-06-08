@@ -86,6 +86,20 @@ public class BallerinaDocUtils {
     }
 
     /**
+     * Parse a given markdown.
+     *
+     * @param mdContent content
+     * @return Node parse tree
+     */
+    public static Node parseMD(String mdContent) {
+        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
+                .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
+                .class))).build();
+       return parser.parse(mdContent != null ? mdContent.trim() : "");
+    }
+
+    /**
      * Load primitive types of Ballerina.
      *
      * @param filterDescription is filter.

@@ -96,6 +96,18 @@ public class ClosedRecordEquivalencyRulesTest {
         BRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField2");
     }
 
+    @Test(description = "RHS and LHS closed with RHS type being a public typedesc")
+    public void testCRToCRHeterogeneousTypedescEq() {
+        BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq");
+        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
+    }
+
+    @Test(description = "RHS and LHS closed with LHS type being a public typedesc")
+    public void testCRToCRHeterogeneousTypedescEq2() {
+        BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq2");
+        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
+    }
+
     @Test(description = "RHS open and LHS closed is disallowed")
     public void testORToCR() {
         CompileResult openRecToClosedRec = BCompileUtil.compile("test-src/record/equivalency_rules_or_to_cr.bal");

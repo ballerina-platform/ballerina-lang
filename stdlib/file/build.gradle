@@ -19,6 +19,10 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 description = 'Ballerina - File'
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 configurations.testCompileClasspath {
     resolutionStrategy {
         preferProjectModules()
