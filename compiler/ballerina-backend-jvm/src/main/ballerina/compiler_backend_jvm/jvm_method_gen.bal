@@ -86,6 +86,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     loadChannelDetails(mv, func.workerChannels);
     mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
 
+    // panic if this strand is cancelled
+    checkStrandCancelled(mv, localVarOffset);
+
     bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
@@ -1598,4 +1601,15 @@ function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
         error err = error(io:sprintf("Invalid functions: %s", functions));
         panic err;
     }
+}
+
+function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
+    jvm:Label notCancelledLabel = new;
+    mv.visitJumpInsn(IFEQ, notCancelledLabel);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
+    mv.visitInsn(ATHROW);
+    
+    mv.visitLabel(notCancelledLabel);
 }
