@@ -7,7 +7,17 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getAST',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {
+                console.log(args[0], '<-----');
                 return langClient.getAST(args[0]);
+            });
+        }
+    },
+    {
+        methodName: 'getProjectAST',
+        handler: (args: any[]) => {
+            return langClient.onReady().then(() => {
+                console.log(args[0], '<-----');
+                return langClient.getProjectAST(args[0]);
             });
         }
     },
@@ -134,9 +144,11 @@ export class WebViewRPCHandler {
     }
 
     private _onRemoteMessage(msg: WebViewRPCMessage) {
+        console.log(msg);
         if (msg.id !== undefined) {
             // this is a request from remote
             const method = this._getMethod(msg.methodName);
+            console.log(msg.methodName)
             if (method) {
                 method.handler(msg.arguments || [])
                     .then((response: Thenable<any>) => {

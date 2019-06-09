@@ -123,6 +123,11 @@ export interface BallerinaServiceListResponse {
 
 export class ExtendedLangClient extends LanguageClient {
 
+    getProjectAST(sourceRoot: string): Thenable<BallerinaASTResponse> {
+        const req = { sourceRoot };
+        return this.sendRequest("ballerinaProject/modules", req);
+    }
+
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
         const req: GetASTRequest = {
             documentIdentifier: {

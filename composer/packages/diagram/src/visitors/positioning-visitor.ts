@@ -117,7 +117,7 @@ class PositioningVisitor implements Visitor {
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
             workerY = bodyViewState.bBox.y;
 
-            if (workers.length > 0 || visibleEndpoints.length > 0) {
+            if (viewState.containsOtherLifelines) {
                 bodyViewState.bBox.y += config.lifeLine.header.height +
                 + config.statement.height; // leave room for start line.
             }

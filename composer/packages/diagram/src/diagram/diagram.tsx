@@ -1,13 +1,14 @@
 import { ASTUtil, CompilationUnit } from "@ballerina/ast-model";
+import { ProjectAST } from "@ballerina/lang-service";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { setActionViewStatus, visitor as actionViewVisitor } from "../visitors/action-view";
 import { visitor as initVisitor } from "../visitors/init-visitor";
+import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
-import { ControllerPanel } from "./controllers/controller-panel";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
 
@@ -21,6 +22,7 @@ export interface CommonDiagramProps {
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: CompilationUnit;
+    projectAst?: ProjectAST;
 }
 
 export interface DiagramState {
@@ -34,14 +36,14 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     public static contextType = DiagramContext;
 
     public state = {
-        currentMode: DiagramMode.ACTION,
+        currentMode: this.props.mode,
         currentZoom: this.props.zoom
     };
 
     private containerRef = React.createRef<HTMLDivElement>();
 
     public render() {
-        const { ast, width, height } = this.props;
+        const { ast, width, height, projectAst } = this.props;
         const children: React.ReactNode[] = [];
 
         // use default width/height if not provided
@@ -52,9 +54,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         cuViewState.container.w = diagramWidth;
         cuViewState.container.h = diagramHeight;
 
-        if (ast) {
+        if (ast && projectAst) {
             // Initialize AST node view state
             ASTUtil.traversNode(ast, initVisitor);
+            setProjectAST(projectAst);
+            ASTUtil.traversNode(ast, invocationVisitor);
             // Action view visitor
             setActionViewStatus(this.state.currentMode === DiagramMode.ACTION);
             ASTUtil.traversNode(ast, actionViewVisitor);
@@ -90,12 +94,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             h: diagramHeight,
             w: diagramWidth
         })}>
-                <div className="diagram-container" ref={this.containerRef}>
-                    <ControllerPanel stickTo={this.containerRef} />
-                    <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
-                        {children}
-                    </SvgCanvas>
-                </div>
+            <div className="diagram-container" ref={this.containerRef}>
+                <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
+                    {children}
+                </SvgCanvas>
+            </div>
         </DiagramContext.Provider>;
     }
 
@@ -123,9 +126,9 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                 });
             },
             zoomIn: () => {
-               this.setState({
-                   currentZoom: this.state.currentZoom + zoomFactor
-               });
+                this.setState({
+                    currentZoom: this.state.currentZoom + zoomFactor
+                });
             },
             zoomLevel: currentZoom,
             zoomOut: () => {
