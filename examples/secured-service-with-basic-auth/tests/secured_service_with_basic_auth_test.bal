@@ -22,10 +22,10 @@ function testFunc() {
 function testAuthSuccess() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "tom", password: "password1" });
-    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler1 = new(outboundBasicAuthProvider1);
+    http:BasicAuthHeaderHandler outboundBasicAuthHandler1 = new(outboundBasicAuthProvider1);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundBasicAuthnHandler1
+            authHandler: outboundBasicAuthHandler1
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -41,10 +41,10 @@ function testAuthSuccess() {
 function testAuthnFailure() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "tom", password: "password" });
-    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler2 = new(outboundBasicAuthProvider2);
+    http:BasicAuthHeaderHandler outboundBasicAuthHandler2 = new(outboundBasicAuthProvider2);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundBasicAuthnHandler2
+            authHandler: outboundBasicAuthHandler2
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -60,10 +60,10 @@ function testAuthnFailure() {
 function testAuthzFailure() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "dick", password: "password2" });
-    http:BasicAuthHeaderAuthnHandler outboundBasicAuthnHandler3 = new(outboundBasicAuthProvider3);
+    http:BasicAuthHeaderHandler outboundBasicAuthHandler3 = new(outboundBasicAuthProvider3);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundBasicAuthnHandler3
+            authHandler: outboundBasicAuthHandler3
         }
     });
     // Send a `GET` request to the specified endpoint

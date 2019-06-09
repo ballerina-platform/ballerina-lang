@@ -4,16 +4,19 @@ import ballerina/log;
 import ballerina/runtime;
 
 // Define the JWT auth client endpoint to call the backend services.
-// JWT authentication is enabled by creating `OutboundJWTAuthProvider` with/without passing
-// JWT issuer configurations as a record.
-jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
+// JWT authentication is enabled by creating `jwt:OutboundJWTAuthProvider`
+// with/without passing JWT issuer configurations as a record. If JWT issuer
+// configurations are passed, a new JWT will be issued and it will be used for
+// the outbound authentication.
+jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
 
-// Create a Bearer auth header authentication handler with the created JWT auth provider.
-http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
+// Create a Bearer auth header handler with the created JWT auth provider.
+http:BearerAuthHeaderHandler outboundJwtAuthHandler =
+                                                new(outboundJwtAuthProvider);
 
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
-        authnHandler: outboundJwtAuthnHandler
+        authHandler: outboundJwtAuthHandler
     }
 });
 
@@ -22,14 +25,14 @@ public function main() {
     // scheme as `jwt`
     string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJ" +
         "pbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUyND" +
-        "U3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJhdW" +
-        "QiOlsiYmFsbGVyaW5hIiwiYmFsbGVyaW5hLm9yZyIsImJhbGxlcmluYS5pbyJdLCJzY" +
-        "29wZSI6ImhlbGxvIn0.bNoqz9_DzgeKSK6ru3DnKL7NiNbY32ksXPYrh6Jp0_O3ST7W" +
-        "fXMs9WVkx6Q2TiYukMAGrnMUFrJnrJvZwC3glAmRBrl4BYCbQ0c5mCbgM9qhhCjC1tB" +
-        "A50rjtLAtRW-JTRpCKS0B9_EmlVKfvXPKDLIpM5hnfhOin1R3lJCPspJ2ey_Ho6fDhs" +
-        "KE3DZgssvgPgI9PBItnkipQ3CqqXWhV-RFBkVBEGPDYXTUVGbXhdNOBSwKw5ZoVJrCU" +
-        "iNG5XD0K4sgN9udVTi3EMKNMnVQaq399k6RYPAy3vIhByS6QZtRjOG8X93WJw-9GLiH" +
-        "vcabuid80lnrs2-mAEcstgiHVw";
+        "U3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJhd" +
+        "WQiOlsiYmFsbGVyaW5hIiwiYmFsbGVyaW5hLm9yZyIsImJhbGxlcmluYS5pbyJdLCJz" +
+        "Y29wZSI6ImhlbGxvIn0.bNoqz9_DzgeKSK6ru3DnKL7NiNbY32ksXPYrh6Jp0_O3ST7" +
+        "WfXMs9WVkx6Q2TiYukMAGrnMUFrJnrJvZwC3glAmRBrl4BYCbQ0c5mCbgM9qhhCjC1t" +
+        "BA50rjtLAtRW-JTRpCKS0B9_EmlVKfvXPKDLIpM5hnfhOin1R3lJCPspJ2ey_Ho6fDh" +
+        "sKE3DZgssvgPgI9PBItnkipQ3CqqXWhV-RFBkVBEGPDYXTUVGbXhdNOBSwKw5ZoVJrC" +
+        "UiNG5XD0K4sgN9udVTi3EMKNMnVQaq399k6RYPAy3vIhByS6QZtRjOG8X93WJw-9GLi" +
+        "Hvcabuid80lnrs2-mAEcstgiHVw";
     runtime:getInvocationContext().authenticationContext.scheme = "jwt";
     runtime:getInvocationContext().authenticationContext.authToken = token;
 
@@ -44,8 +47,8 @@ public function main() {
     }
 }
 
-// Create a JWT authentication provider with the relevant configurations.
-jwt:InboundJWTAuthProvider inboundJwtAuthProvider = new({
+// Defines the sample backend service, secured with JWT auth authentication.
+jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
     certificateAlias: "ballerina",
@@ -54,13 +57,11 @@ jwt:InboundJWTAuthProvider inboundJwtAuthProvider = new({
         password: "ballerina"
     }
 });
-
-// Create a Bearer auth header authentication handler with the created JWT auth provider.
-http:BearerAuthHeaderAuthnHandler inboundJwtAuthnHandler = new(inboundJwtAuthProvider);
-
+http:BearerAuthHeaderHandler inboundJwtAuthHandler =
+                                                new(inboundJwtAuthProvider);
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authnHandlers: [inboundJwtAuthnHandler]
+        authHandlers: [inboundJwtAuthHandler]
     },
     secureSocket: {
         keyStore: {
@@ -70,19 +71,8 @@ listener http:Listener ep = new(9090, config = {
     }
 });
 
-@http:ServiceConfig {
-    basePath: "/hello",
-    auth: {
-        enabled: true
-    }
-}
-service echo on ep {
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/sayHello"
-    }
-    resource function hello(http:Caller caller, http:Request req) {
+service hello on ep {
+    resource function sayHello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
             log:printError("Error in responding to caller", err = result);

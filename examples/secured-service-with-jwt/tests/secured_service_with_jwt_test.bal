@@ -19,11 +19,11 @@ function testFunc() {
 
 function testAuthSuccess() {
     // create client
-    jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
-    http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    http:BearerAuthHeaderHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundJwtAuthnHandler
+            authHandler: outboundJwtAuthHandler
         }
     });
     // Send a GET request to the specified endpoint
@@ -38,11 +38,11 @@ function testAuthSuccess() {
 
 function testAuthnFailure() {
     // Create a client.
-    jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
-    http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    http:BearerAuthHeaderHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundJwtAuthnHandler
+            authHandler: outboundJwtAuthHandler
         }
     });
     // Send a `GET` request to the specified endpoint
@@ -57,11 +57,11 @@ function testAuthnFailure() {
 
 function testAuthzFailure() {
     // Create a client.
-    jwt:OutboundJWTAuthProvider outboundJwtAuthProvider = new({});
-    http:BearerAuthHeaderAuthnHandler outboundJwtAuthnHandler = new(outboundJwtAuthProvider);
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    http:BearerAuthHeaderHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
-            authnHandler: outboundJwtAuthnHandler
+            authHandler: outboundJwtAuthHandler
         }
     });
     // Send a `GET` request to the specified endpoint
