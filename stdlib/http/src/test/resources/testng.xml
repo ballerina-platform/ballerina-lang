@@ -64,6 +64,7 @@ under the License.
                     <exclude name="testErrorReturn"></exclude>
                 </methods>
             </class>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
         </classes>
     </test>
 </suite>

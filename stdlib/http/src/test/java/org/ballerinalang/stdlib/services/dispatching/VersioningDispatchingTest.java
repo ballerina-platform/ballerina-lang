@@ -26,7 +26,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -52,11 +52,10 @@ public class VersioningDispatchingTest {
 
     @BeforeClass
     public void setup() {
-        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching", "versioning");
-        result1 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
-        result2 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
-        result3 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
+        Path sourceRoot = Paths.get( "test-src", "services", "dispatching", "versioning");
+        result1 = BCompileUtil.compile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
+        result2 = BCompileUtil.compile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
+        result3 = BCompileUtil.compile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
     }
 
     @Test(description = "Test dispatching with version template, no version allow and match major configs",

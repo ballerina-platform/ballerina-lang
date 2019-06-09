@@ -44,7 +44,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 # + mv - method visitor
 # + typeDefs - array of type definitions
 public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, BalToJVMIndexMap indexMap,
-                                            string pkgName) {
+                                            string pkgName, string pkgVersion) {
     string fieldName;
     string typePkgName = ".";
     if (pkgName != "") {
@@ -57,13 +57,13 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
-            createRecordType(mv, bType, typeDef, typePkgName);
+            createRecordType(mv, bType, typeDef, typePkgName, pkgVersion);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef, typePkgName);
+            createObjectType(mv, bType, typeDef, typePkgName, pkgVersion);
         } else if (bType is bir:BServiceType) {
-            createObjectType(mv, bType.oType, typeDef, typePkgName);
+            createObjectType(mv, bType.oType, typeDef, typePkgName, pkgVersion);
         } else if (bType is bir:BErrorType) {
-            createErrorType(mv, bType, typeDef.name.value, typePkgName);
+            createErrorType(mv, bType, typeDef.name.value, typePkgName, pkgVersion);
         } else {
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
             continue;
@@ -232,7 +232,8 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 # + mv - method visitor
 # + recordType - record type
 # + name - name of the record
-function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef, string pkgName) {
+function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef, string pkgName,
+                            string pkgVersion) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
     mv.visitInsn(DUP);
@@ -246,8 +247,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(pkgVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
                             "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
@@ -345,7 +345,8 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + mv - method visitor
 # + objectType - object type
 # + name - name of the object
-function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName,
+                            string pkgVersion) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
@@ -358,8 +359,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(pkgVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
                             "(Ljava/lang/String;Ljava/lang/String;)V", false);
 
@@ -535,7 +535,8 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 # + mv - method visitor
 # + errorType - error type
 # + name - name of the error
-function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName) {
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName,
+                            string pkgVersion) {
     // Create the error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);
     mv.visitInsn(DUP);
@@ -547,8 +548,7 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
     mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(pkgVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>", 
                         io:sprintf("(L%s;L%s;)V", STRING_VALUE, STRING_VALUE), false);
 

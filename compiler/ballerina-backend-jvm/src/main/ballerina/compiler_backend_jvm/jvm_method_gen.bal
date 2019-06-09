@@ -24,6 +24,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     }
 
     string currentPackageName = getPackageName(module.org.value, module.name.value);
+    string currentPackageVersion = module.versionValue.value;
 
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
@@ -62,7 +63,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName, currentPackageVersion);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
