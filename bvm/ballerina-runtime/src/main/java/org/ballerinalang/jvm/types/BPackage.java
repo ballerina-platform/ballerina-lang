@@ -19,6 +19,12 @@ package org.ballerinalang.jvm.types;
 
 import java.util.Objects;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+import static org.ballerinalang.jvm.util.BLangConstants.EMPTY;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+
 /**
  * {@code BPackage} represents the package of defined type in Ballerina.
  *
@@ -41,7 +47,7 @@ public class BPackage {
     }
 
     public String getName() {
-        return org == null || org.equals("") ? name : org + "/" + name;
+        return name;
     }
 
     public String getVersion() {
@@ -60,6 +66,24 @@ public class BPackage {
         return Objects.equals(org, bPackage.org) &&
                 Objects.equals(name, bPackage.name) &&
                 Objects.equals(version, bPackage.version);
+    }
+
+    @Override
+    public String toString() {
+        if (DOT.equals(this.name)) {
+            return this.name;
+        }
+
+        String orgName = "";
+        if (this.org != null && !this.org.equals(ANON_ORG)) {
+            orgName = this.org + ORG_NAME_SEPARATOR;
+        }
+
+        if (version == null || version.equals(EMPTY)) {
+            return orgName + this.name;
+        }
+
+        return orgName + this.name + VERSION_SEPARATOR + this.version;
     }
 
     @Override
