@@ -55,6 +55,10 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
+
+            <package name="org.ballerinalang.test.types.xml.*">
+                <exclude name="XMLIterationTest"/>
+            </package>
         </packages>
 
         <classes>

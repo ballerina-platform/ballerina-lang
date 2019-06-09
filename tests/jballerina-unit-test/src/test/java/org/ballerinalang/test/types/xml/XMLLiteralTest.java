@@ -31,7 +31,6 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -80,7 +79,7 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);
 
         // get attributes from non-xml
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 47, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 47, 17);
 
         // update attributes map
         BAssertUtil.validateError(negativeResult, index++,
@@ -90,7 +89,7 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 57, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 65, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 65, 20);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
@@ -334,7 +333,7 @@ public class XMLLiteralTest {
                 + "xmlns:ns1=\"http://ballerina.com/b\"><ns0:foo>hello</ns0:foo></root>");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
@@ -383,7 +382,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testServiceLevelXML() {
-        CompileResult result = BServiceUtil.setupProgramFile(this, "test-src/types/xml/xml_literals_in_service.bal");
+        CompileResult result = BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
         HttpCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
         Assert.assertNotNull(response);

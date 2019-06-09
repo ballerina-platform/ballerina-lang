@@ -182,7 +182,9 @@ public class ArrayValue implements RefValue, CollectionValue {
                 break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
-                Arrays.fill(refValues, elementType.getZeroValue());
+                if (size > 0) {
+                    Arrays.fill(refValues, elementType.getZeroValue());
+                }
         }
     }
 
