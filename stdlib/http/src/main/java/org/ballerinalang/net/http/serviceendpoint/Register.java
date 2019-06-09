@@ -90,8 +90,8 @@ public class Register extends AbstractHttpNativeFunction {
         BType param;
         AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
         if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
-            String callerType = param.getName();
-            if (HttpConstants.HTTP_CALLER_NAME.endsWith(callerType)) { // TODO fix should work with equals - rajith
+            String callerType = param.toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
                 httpServicesRegistry.registerService(service);
             } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
                 WebSocketService webSocketService = new WebSocketService(service);

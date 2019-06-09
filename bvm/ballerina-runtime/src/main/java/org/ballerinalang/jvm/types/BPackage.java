@@ -26,16 +26,22 @@ import java.util.Objects;
  */
 public class BPackage {
 
+    public String org;
     public String name;
     public String version;
 
-    public BPackage(String name, String version) {
+    public BPackage(String org, String name, String version) {
+        this.org = org;
         this.name = name;
         this.version = version;
     }
 
+    public String getOrg() {
+        return org;
+    }
+
     public String getName() {
-        return name;
+        return org == null || org.equals("") ? name : org + "/" + name;
     }
 
     public String getVersion() {
@@ -51,12 +57,13 @@ public class BPackage {
             return false;
         }
         BPackage bPackage = (BPackage) o;
-        return Objects.equals(name, bPackage.name) &&
-               Objects.equals(version, bPackage.version);
+        return Objects.equals(org, bPackage.org) &&
+                Objects.equals(name, bPackage.name) &&
+                Objects.equals(version, bPackage.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, version);
+        return Objects.hash(org, name, version);
     }
 }
