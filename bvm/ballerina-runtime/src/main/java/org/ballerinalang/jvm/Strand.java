@@ -65,7 +65,7 @@ public class Strand {
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
-        this.globalProps = properties;
+        this.globalProps = properties != null ? properties : new HashMap<>();
     }
 
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
