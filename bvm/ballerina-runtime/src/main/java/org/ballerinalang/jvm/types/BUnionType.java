@@ -101,4 +101,8 @@ public class BUnionType extends BType {
 
         return Objects.hash(super.hashCode(), memberTypes);
     }
+
+    public boolean isNilable() {
+        return nullable;
+    }
 }

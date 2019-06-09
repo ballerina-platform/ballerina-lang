@@ -49,4 +49,8 @@ public class BAnydataType extends BType {
     public int getTag() {
         return TypeTags.ANYDATA_TAG;
     }
+
+    public boolean isNilable() {
+        return true;
+    }
 }

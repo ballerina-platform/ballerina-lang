@@ -90,6 +90,10 @@ public abstract class BType {
         return false;
     }
 
+    public boolean isNilable() {
+        return false;
+    }
+
     public int hashCode() {
         return (pkg.getName() + ":" + typeName).hashCode();
     }

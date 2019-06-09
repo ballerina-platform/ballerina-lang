@@ -60,4 +60,8 @@ public class BJSONType extends BType {
     public boolean equals(Object obj) {
         return super.equals(obj) && obj instanceof BJSONType;
     }
+
+    public boolean isNilable() {
+        return true;
+    }
 }
