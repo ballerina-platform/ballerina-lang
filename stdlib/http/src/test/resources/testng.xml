@@ -65,6 +65,8 @@ under the License.
                 </methods>
             </class>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
         </classes>
     </test>
 </suite>
