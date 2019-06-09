@@ -79,7 +79,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of int array by inserting nil value to int? covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*incompatible types: expected 'int', found 'null'.*")
+                    ".*error:.*incompatible types: expected 'int', found '\\(\\)'.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
     }
@@ -88,7 +88,7 @@ public class ArrayMutabilityTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
-                            "'boolean\\|float\\|null', found 'Person'.*?")
+                            "'boolean\\|float\\|\\(\\)', found 'Person'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
@@ -159,7 +159,7 @@ public class ArrayMutabilityTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation .*?\"message\":\"incompatible types: expected " +
-                            "\\'int\\|string\\|null\\', found \\'boolean\\'.*")
+                            "\\'int\\|string\\|\\(\\)\\', found \\'boolean\\'.*")
     public void testChainingAssignment() {
         BRunUtil.invoke(compileResult, "testChainingAssignment");
     }
