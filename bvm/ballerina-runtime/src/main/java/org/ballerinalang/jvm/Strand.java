@@ -50,6 +50,7 @@ public class Strand {
     public boolean blockedOnExtern;
     public ChannelDetails[] channelDetails;
     private Map<String, Object> globalProps;
+    public boolean cancel;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
