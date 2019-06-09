@@ -564,6 +564,8 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (value != null) {
                 sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
                         : value.toString());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();
