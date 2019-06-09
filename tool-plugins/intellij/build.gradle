@@ -59,30 +59,6 @@ intellij {
     // alternativeIdePath localIdePath
 }
 
-apply plugin: 'de.undercouch.download'
-task downloadPsiViewerPlugin() {
-    download {
-        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
-        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
-        onlyIfNewer true
-    }
-}
-
-apply plugin: "jacoco"
-jacoco {
-    toolVersion = "0.8.1"
-    reportsDir = file("$buildDir/customJacocoReportDir")
-}
-
-task copyPsiViewerPluginToSandBox(type: Copy) {
-    from "${buildDir}/tmp/plugins/PsiViewer.jar"
-    into "${buildDir}/idea-sandbox/plugins/"
-}
-
-//copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
-copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
-runIde.dependsOn copyPsiViewerPluginToSandBox
-
 checkstyle {
     checkstyleMain {
         source = fileTree("src/main/java")
@@ -116,3 +92,28 @@ spotbugsMain {
 
 runIde.dependsOn check
 buildPlugin.dependsOn check
+
+// Uncomment following tasks to debug plugin with PSI tree viewer.
+
+//apply plugin: 'de.undercouch.download'
+//task downloadPsiViewerPlugin() {
+//    download {
+//        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+//        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
+//        onlyIfNewer true
+//    }
+//}
+//
+//apply plugin: "jacoco"
+//jacoco {
+//    toolVersion = "0.8.1"
+//    reportsDir = file("$buildDir/customJacocoReportDir")
+//}
+//
+//task copyPsiViewerPluginToSandBox(type: Copy) {
+//    from "${buildDir}/tmp/plugins/PsiViewer.jar"
+//    into "${buildDir}/idea-sandbox/plugins/"
+//}
+//
+//copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
+//runIde.dependsOn copyPsiViewerPluginToSandBox
