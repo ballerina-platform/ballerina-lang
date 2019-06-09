@@ -147,10 +147,10 @@ public class CorsHeaders {
             return corsHeaders;
         }
 
-        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayValue(ALLOW_HEADERS_FIELD).getValues()));
-        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayValue(ALLOW_METHODS_FIELD).getValues()));
-        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayValue(ALLOWS_ORIGINS_FIELD).getValues()));
-        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayValue(EXPOSE_HEADERS_FIELD).getValues()));
+        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayValue(ALLOW_HEADERS_FIELD).getStringArray()));
+        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayValue(ALLOW_METHODS_FIELD).getStringArray()));
+        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayValue(ALLOWS_ORIGINS_FIELD).getStringArray()));
+        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayValue(EXPOSE_HEADERS_FIELD).getStringArray()));
         corsHeaders.setAllowCredentials(corsConfig.getBooleanValue(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
         corsHeaders.setMaxAge(corsConfig.getIntValue(MAX_AGE_FIELD));
 

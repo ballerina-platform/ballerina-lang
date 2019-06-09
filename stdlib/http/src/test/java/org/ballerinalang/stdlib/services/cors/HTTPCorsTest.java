@@ -26,7 +26,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,11 +40,11 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class HTTPCorsTest {
 
     private static final String TEST_EP = "testEP";
-    CompileResult complieResult;
+    private CompileResult complieResult;
 
     @BeforeClass
     public void setup() {
-        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/cors-test.bal");
+        complieResult = BCompileUtil.compile("test-src/services/cors/cors-test.bal");
     }
 
     public void assertEqualsCorsResponse(HttpCarbonMessage response, int statusCode, String origin, String credentials
