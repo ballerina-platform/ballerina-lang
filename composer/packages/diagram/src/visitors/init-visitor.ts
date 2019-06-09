@@ -1,7 +1,8 @@
 import {
     Assignment, ASTKindChecker, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Function as BalFunction, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
+    ExpressionStatement, Function as BalFunction, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend, If
 } from "@ballerina/ast-model";
+import { ProjectAST } from "@ballerina/lang-service";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
 import { ExpandContext } from "../view-model/expand-context";
@@ -10,63 +11,71 @@ import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
 
 let visibleEndpoints: VisibleEndpoint[] = [];
+let envEndpoints: VisibleEndpoint[] = [];
+let projectAST: ProjectAST;
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
         node.viewState = new StmntViewState();
     }
-
-    const viewState = node.viewState as StmntViewState;
-    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
-        const expandedFunction = viewState.expandContext.expandedSubTree;
-        expandedFunction.viewState = new FunctionViewState();
-        expandedFunction.viewState.isExpandedFunction = true;
-        ASTUtil.traversNode(expandedFunction, visitor);
-        handleEndpointParams(viewState.expandContext);
-    }
+    // undo previous expandings
+    // the same statement may be expanded inside some functions but not in others
+    (node.viewState as StmntViewState).expandContext = undefined;
 }
 
-// This function processes endpoint parameters of expanded functions
-// so that actions to these parameters can be drawn to the original endpoint passed to them
-function handleEndpointParams(expandContext: ExpandContext) {
-    const invocation = expandContext.expandableNode;
-    const expandedFunction = expandContext.expandedSubTree;
+// // This function processes endpoint parameters of expanded functions
+// // so that actions to these parameters can be drawn to the original endpoint passed to them
+// function handleEndpointParams(expandContext: ExpandContext) {
+//     const invocation = expandContext.expandableNode;
+//     const expandedFunction = expandContext.expandedSubTree;
+//     if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.parameters) {
+//         return;
+//     }
 
-    if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.allParams) {
-        return;
-    }
+//     const params = expandedFunction.parameters;
 
-    const params = expandedFunction.allParams;
+//     expandedFunction.VisibleEndpoints.forEach((ep) => {
+//         // Find of one of the visible endpoints is actually a parameter to the function
+//         params.forEach((p, i) => {
+//             if (ASTKindChecker.isVariable(p)) {
+//                 if (p.name.value === ep.name) {
+//                     // visible endpoint is a parameter
+//                     const arg = invocation.argumentExpressions[i];
+//                     if (ASTKindChecker.isSimpleVariableRef(arg)) {
+//                         // This parameter actually refers to an endpoint with name in arg.variableName
+//                         (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+//                     }
+//                 }
+//             }
+//         });
+//     });
+// }
 
-    expandedFunction.VisibleEndpoints.forEach((ep) => {
-        // Find of one of the visible endpoints is actually a parameter to the function
-        params.forEach((p, i) => {
-            if (ASTKindChecker.isVariable(p)) {
-                if (p.name.value === ep.name) {
-                    // visible endpoint is a parameter
-                    const arg = invocation.argumentExpressions[i];
-                    if (ASTKindChecker.isSimpleVariableRef(arg)) {
-                        // This parameter actually refers to an endpoint with name in arg.variableName
-                        (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
-                    }
-                }
-            }
-        });
-    });
-}
+// function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
+//     if (viewState.expandContext) {
+//         return;
+//     }
 
-function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
-    if (viewState.expandContext) {
-        return;
-    }
+//     if (ASTKindChecker.isInvocation(expression)) {
+//             viewState.expandContext = new ExpandContext(expression, projectAST);
+//     } else if (ASTKindChecker.isCheckExpr(expression) &&
+//         ASTKindChecker.isInvocation(expression.expression)) {
+//             viewState.expandContext = new ExpandContext(expression.expression, projectAST);
+//     }
 
-    if (ASTKindChecker.isInvocation(expression)) {
-            viewState.expandContext = new ExpandContext(expression);
-    } else if (ASTKindChecker.isCheckExpr(expression) &&
-        ASTKindChecker.isInvocation(expression.expression)) {
-            viewState.expandContext = new ExpandContext(expression.expression);
-    }
-}
+//     if (!(viewState.expandContext && viewState.expandContext.expandedSubTree)) {
+//         return;
+//     }
+//     const expandedFunction = viewState.expandContext.expandedSubTree;
+//     expandedFunction.viewState = new FunctionViewState();
+//     expandedFunction.viewState.isExpandedFunction = true;
+//     ASTUtil.traversNode(expandedFunction, visitor);
+//     handleEndpointParams(viewState.expandContext);
+// }
+
+// export function setProjectAST(ast: ProjectAST) {
+//     projectAST = ast;
+// }
 
 export const visitor: Visitor = {
 
@@ -81,6 +90,24 @@ export const visitor: Visitor = {
             node.viewState = new BlockViewState();
         }
         node.parent = parent;
+        if (!node.parent) {
+            return;
+        }
+        const parentNode = (parent as (If | BalFunction));
+        if (parentNode.VisibleEndpoints) {
+            envEndpoints = [...envEndpoints, ...parentNode.VisibleEndpoints];
+        }
+    },
+
+    endVisitBlock(node: Block, parent: ASTNode) {
+        if (!node.parent) {
+            return;
+        }
+        const parentNode = (parent as (If | BalFunction));
+        if (parentNode.VisibleEndpoints) {
+            const visibleEndpoints = parentNode.VisibleEndpoints;
+            envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
+        }
     },
 
     // tslint:disable-next-line:ban-types
@@ -89,7 +116,8 @@ export const visitor: Visitor = {
             visibleEndpoints = [...node.VisibleEndpoints, ...visibleEndpoints];
         }
         if (!node.viewState) {
-            node.viewState = new FunctionViewState();
+            const viewState = new FunctionViewState();
+            node.viewState = viewState;
         }
         if (node.body) {
             node.body.statements.forEach((statement, index) => {
@@ -140,27 +168,27 @@ export const visitor: Visitor = {
             return;
         }
 
-        const viewState = node.viewState as StmntViewState;
-        if (ASTKindChecker.isInvocation(node.expression) && !viewState.expandContext) {
-            viewState.expandContext = new ExpandContext(node.expression);
-        }
+        // const viewState = node.viewState as StmntViewState;
+        // if (ASTKindChecker.isInvocation(node.expression) && !viewState.expandContext) {
+        //     handleExpanding(node.expression, viewState);
+        // }
     },
 
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
 
-        if (ASTUtil.isActionInvocation(node)) {
-            return;
-        }
+        // if (ASTUtil.isActionInvocation(node)) {
+        //     return;
+        // }
 
-        if (ASTKindChecker.isVariable(node.variable) && node.variable.initialExpression) {
-            handleExpanding(node.variable.initialExpression, node.viewState as StmntViewState);
-        }
+        // if (ASTKindChecker.isVariable(node.variable) && node.variable.initialExpression) {
+        //     handleExpanding(node.variable.initialExpression, node.viewState as StmntViewState);
+        // }
     },
 
     endVisitAssignment(node: Assignment) {
         initStatement(node);
-        handleExpanding(node.expression, node.viewState as StmntViewState);
+        // handleExpanding(node.expression, node.viewState as StmntViewState);
     },
 
     beginVisitVisibleEndpoint(node: VisibleEndpoint) {
@@ -179,5 +207,5 @@ export const visitor: Visitor = {
 
     beginVisitWorkerSend(node: WorkerSend) {
         node.viewState = new WorkerSendViewState();
-    }
+    },
 };
