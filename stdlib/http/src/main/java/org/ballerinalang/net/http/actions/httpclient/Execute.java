@@ -98,9 +98,9 @@ public class Execute extends AbstractHTTPAction {
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || httpVerb.isEmpty()) {
-            httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+            httpVerb = outboundRequestMsg.getHttpMethod();
         }
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));
         handleAcceptEncodingHeader(outboundRequestMsg, getCompressionConfigFromEndpointConfig(clientObj));
 
         return outboundRequestMsg;

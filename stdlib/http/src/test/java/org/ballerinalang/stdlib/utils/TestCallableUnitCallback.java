@@ -19,7 +19,6 @@ package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -52,7 +51,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifyFailure(ErrorValue error) {
         Integer carbonStatusCode = requestMessage.getHttpStatusCode();
-        int statusCode = (carbonStatusCode == null) ? 500 : carbonStatusCode);
+        int statusCode = (carbonStatusCode == null) ? 500 : carbonStatusCode;
         String errorMsg = getAggregatedRootErrorMessages(error);
         ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);

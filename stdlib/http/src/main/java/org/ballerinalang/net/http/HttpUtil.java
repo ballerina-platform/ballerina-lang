@@ -53,6 +53,7 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -130,7 +131,6 @@ import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
@@ -633,12 +633,9 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestInfo(ObjectValue inboundRequestObj,
                                                      HttpCarbonMessage inboundRequestMsg) {
-        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                              inboundRequestMsg.getRequestUrl());
-        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD,
-                              inboundRequestMsg.getHttpMethod());
-        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD,
-                inboundRequestMsg.getHttpVersion()));
+        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD, inboundRequestMsg.getRequestUrl());
+        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD, inboundRequestMsg.getHttpMethod());
+        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD, inboundRequestMsg.getHttpVersion());
         HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
                 HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
@@ -709,9 +706,9 @@ public class HttpUtil {
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = inboundResponseMsg.getHttpStatusCode();
-        inboundResponse.put(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
-        inboundResponse.put(RESPONSE_REASON_PHRASE_FIELD,
-                new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
+        inboundResponse
+                .set(RESPONSE_REASON_PHRASE_FIELD, new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,
@@ -989,7 +986,7 @@ public class HttpUtil {
                                              HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
         int statusCode = outboundResponseMsg.getHttpStatusCode();
-        methodInvocationCheck(connectionStruct, reqMsg, statusCode);
+        methodInvocationCheck(connectionObj, reqMsg, statusCode);
     }
 
     private static void methodInvocationCheck(ObjectValue connectionObj, HttpCarbonMessage reqMsg, int statusCode) {
@@ -1356,7 +1353,7 @@ public class HttpUtil {
                 Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
-            String sslProtocol = protocols.getStringField(SSL_PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -1659,7 +1656,7 @@ public class HttpUtil {
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringField(SSL_PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }

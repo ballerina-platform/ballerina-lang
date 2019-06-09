@@ -58,7 +58,7 @@ public class Options extends AbstractHTTPAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_OPTIONS);
         DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
         // Execute the operation
         executeNonBlockingAction(dataContext, false);

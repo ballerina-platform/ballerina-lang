@@ -138,7 +138,7 @@ public class Respond extends ConnectionAction {
 
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
-            outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
+            outboundResponseMsg.setHttpStatusCode(HttpResponseStatus.NOT_MODIFIED.code());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
             outboundResponseMsg.waitAndReleaseAllEntities();
