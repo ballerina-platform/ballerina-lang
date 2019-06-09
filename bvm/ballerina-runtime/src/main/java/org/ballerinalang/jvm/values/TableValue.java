@@ -112,6 +112,11 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+    @Override
+    public String toString() {
+        return stringValue();
+    }
+
     public String stringValue() {
         String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
         StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
