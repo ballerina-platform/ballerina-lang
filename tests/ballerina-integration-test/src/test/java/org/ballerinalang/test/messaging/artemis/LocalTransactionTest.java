@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.TestUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,5 +66,18 @@ public class LocalTransactionTest {
         BRunUtil.invoke(producerResult, "testTransactionSend");
         String returnVal = BRunUtil.invoke(consumerResult, "transactionConsumerReceive", consumerVal)[0].stringValue();
         Assert.assertEquals(returnVal, "Example Example ", "Invalid message received");
+    }
+
+    @Test(description = "Tests transaction erring")
+    public void testErringSend() {
+        //Invoking this function is needed to make sure the queue is created before the sending
+        BValue[] consumerVal = BRunUtil.invoke(consumerResult, "createErringConsumer");
+        try {
+            BRunUtil.invoke(producerResult, "testErringSend");
+        } catch (BLangRuntimeException ex) {
+            // Ignore
+        }
+        String returnVal = BRunUtil.invoke(consumerResult, "receiveAndGetText", consumerVal)[0].stringValue();
+        Assert.assertEquals(returnVal, "Example ", "Invalid message received");
     }
 }

@@ -17,6 +17,7 @@
 import ballerina/crypto;
 import ballerina/filepath;
 import ballerina/io;
+import ballerina/time;
 
 # Constant for the artemis error code.
 public const ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";

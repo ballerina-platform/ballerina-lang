@@ -45,14 +45,28 @@ import org.slf4j.LoggerFactory;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createProducer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.PRODUCER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.PRODUCER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "addressName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "AddressConfiguration"),
-                @Argument(name = "rate", type = TypeKind.INT)
+                @Argument(
+                        name = "addressName",
+                        type = TypeKind.STRING
+                ),
+                @Argument(
+                        name = "config",
+                        type = TypeKind.RECORD,
+                        structType = "AddressConfiguration"
+                ),
+                @Argument(
+                        name = "rate",
+                        type = TypeKind.INT
+                )
         }
 )
 public class CreateProducer implements NativeCallableUnit {
@@ -92,7 +106,7 @@ public class CreateProducer implements NativeCallableUnit {
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
-            ArtemisUtils.logAndSetError("Error occurred while creating the producer.", context, ex, logger);
+            ArtemisUtils.throwException("Error occurred while creating the producer.", context, ex, logger);
         }
     }
 

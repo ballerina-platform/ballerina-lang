@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina Language Specification Test Cases. -->
     <test name="ballerina-spec-conformance-test" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.spec.SpecConformanceTests"/>
+            <!-- <class name="org.ballerinalang.test.spec.SpecConformanceTests"/> -->
         </classes>
     </test>
 </suite>

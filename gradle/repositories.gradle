@@ -1,4 +1,5 @@
 repositories {
+    mavenLocal()
     maven {
         url = 'http://maven.wso2.org/nexus/content/repositories/releases/'
     }
@@ -14,5 +15,4 @@ repositories {
     maven {
         url = 'http://repo.maven.apache.org/maven2'
     }
-    mavenLocal()
 }
