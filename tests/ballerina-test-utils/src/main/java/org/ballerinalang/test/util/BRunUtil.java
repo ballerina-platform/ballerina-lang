@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -351,6 +352,9 @@ public class BRunUtil {
                 case TypeTags.OBJECT_TYPE_TAG:
                     typeClazz = ObjectValue.class;
                     break;
+                case TypeTags.NULL_TAG:
+                    typeClazz = null;
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -379,6 +383,10 @@ public class BRunUtil {
                     if (t instanceof ErrorValue) {
                         throw new org.ballerinalang.util.exceptions
                                 .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                    }
+                    if (t instanceof StackOverflowError) {
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 }
@@ -441,7 +449,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType), array.size());
+                ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -628,7 +636,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
-                return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.size);
             case TypeTags.MAP_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BMapType mapType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BMapType) type;
@@ -703,7 +711,7 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
-                return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.getSize());
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
                 org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstrainedType());
@@ -757,10 +765,17 @@ public class BRunUtil {
                 bvmValue = new BString((String) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
-                DecimalValue decimalValue = (DecimalValue) value;
-                bvmValue = new BDecimal(decimalValue.value().toString(),
-                                        org.ballerinalang.model.util.DecimalValueKind
-                                                .valueOf(decimalValue.valueKind.name()));
+                BigDecimal decimalValue;
+                DecimalValueKind decimalValueKind;
+                if (value instanceof BigDecimal) {
+                    decimalValue = (BigDecimal) value;
+                    decimalValueKind = DecimalValueKind.OTHER;
+                } else {
+                    decimalValue = ((DecimalValue) value).value();
+                    decimalValueKind = ((DecimalValue) value).valueKind;
+                }
+                bvmValue = new BDecimal(decimalValue.toString(),
+                                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValueKind.name()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
@@ -969,8 +984,12 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
-                return new BFiniteType(jvmType.getName(), jvmType.getPackage() == null ?
-                        null : jvmType.getPackage().name);
+                org.ballerinalang.jvm.types.BFiniteType jvmBFiniteType =
+                        (org.ballerinalang.jvm.types.BFiniteType) jvmType;
+                BFiniteType bFiniteType = new BFiniteType(jvmBFiniteType.getName(),
+                        jvmBFiniteType.getPackage() == null ? null : jvmType.getPackage().name);
+                jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
+                return bFiniteType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

@@ -49,6 +49,7 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -172,7 +173,7 @@ public class TypeChecker {
             return BTypes.typeInt;
         } else if (value instanceof Double) {
             return BTypes.typeFloat;
-        } else if (value instanceof DecimalValue) {
+        } else if (value instanceof DecimalValue || value instanceof BigDecimal) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
             return BTypes.typeString;
