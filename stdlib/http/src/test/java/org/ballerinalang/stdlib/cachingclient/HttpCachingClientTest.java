@@ -20,18 +20,18 @@ package org.ballerinalang.stdlib.cachingclient;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
-import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
+import org.ballerinalang.net.http.caching.BRequestCacheControlStruct;
+import org.ballerinalang.net.http.caching.BResponseCacheControlStruct;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -68,9 +68,9 @@ public class HttpCachingClientTest {
     private static final String EXPIRES = "Expires";
     private static final String LAST_MODIFIED = "Last-Modified";
     private static final String WARNING = "Warning";
-    
+
     private CompileResult compileResult;
-    
+
     @BeforeClass
     public void setup() throws IOException {
         String httpModuleSourcePath = HttpConstants.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -86,10 +86,10 @@ public class HttpCachingClientTest {
           enabled = false)
     public void testGetResponseAge() {
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                 PROTOCOL_PACKAGE_HTTP,
-                                                                 RESPONSE);
+                                                                              PROTOCOL_PACKAGE_HTTP,
+                                                                              RESPONSE);
 
-        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(AGE, "10");
         inResponseMsg.setHttpStatusCode(200);
 
@@ -112,10 +112,10 @@ public class HttpCachingClientTest {
     public void testGetDateValue() {
         String expectedDate = "Thu, 01 Mar 2018 15:36:34 GMT";
         BMap<String, BValue> inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                             PROTOCOL_PACKAGE_HTTP,
-                                                             RESPONSE);
+                                                                          PROTOCOL_PACKAGE_HTTP,
+                                                                          RESPONSE);
 
-        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(DATE, expectedDate);
         inResponseMsg.setHttpStatusCode(200);
 
@@ -136,10 +136,10 @@ public class HttpCachingClientTest {
         final String warning214 = "Warning: 214 - \"Transformation Applied\"";
         final String warning299 = "Warning: 299 - \"Miscellaneous Persistent Warning\"";
         BMap<String, BValue> inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                             PROTOCOL_PACKAGE_HTTP,
-                                                             RESPONSE);
+                                                                          PROTOCOL_PACKAGE_HTTP,
+                                                                          RESPONSE);
 
-        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         HttpHeaders httpHeaders = inResponseMsg.getHeaders();
         httpHeaders.add(WARNING, "Warning: 110 - \"Response is Stale\"");
         httpHeaders.add(WARNING, "Warning: 111 - \"Revalidation Failed\"");
@@ -172,9 +172,9 @@ public class HttpCachingClientTest {
         final String etagHeader = "1sps79e:q0efehi8";
 
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                 PROTOCOL_PACKAGE_HTTP,
-                                                                 RESPONSE);
-        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+                                                                              PROTOCOL_PACKAGE_HTTP,
+                                                                              RESPONSE);
+        HttpCarbonMessage cachedResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(DATE, cachedDateHeader);
         cachedResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
@@ -183,9 +183,9 @@ public class HttpCachingClientTest {
         initInboundResponse(cachedResponse, cachedResponseMsg);
 
         BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                     PROTOCOL_PACKAGE_HTTP,
-                                                                     RESPONSE);
-        HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+                                                                                  PROTOCOL_PACKAGE_HTTP,
+                                                                                  RESPONSE);
+        HttpCarbonMessage validationResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setHttpStatusCode(304);
         validationResponseMsg.setHeader(DATE, validationDateHeader);
         validationResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
@@ -234,9 +234,9 @@ public class HttpCachingClientTest {
         final String etagHeader = "1sps79e:q0efehi8";
 
         BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                     PROTOCOL_PACKAGE_HTTP,
-                                                                     RESPONSE);
-        HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+                                                                                  PROTOCOL_PACKAGE_HTTP,
+                                                                                  RESPONSE);
+        HttpCarbonMessage validationResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setHttpStatusCode(200);
         validationResponseMsg.setHeader(LAST_MODIFIED, lastModifiedHeader);
         validationResponseMsg.setHeader(ETAG, etagHeader);
@@ -267,21 +267,21 @@ public class HttpCachingClientTest {
             " acceptable", enabled = false)
     public void testIsStaleResponseAccepted() {
         boolean isSharedCache = false;
-        RequestCacheControlStruct requestCacheControl
-                = new RequestCacheControlStruct(compileResult.getProgFile()
+        BRequestCacheControlStruct requestCacheControl
+                = new BRequestCacheControlStruct(compileResult.getProgFile()
                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                         .getStructInfo(REQUEST_CACHE_CONTROL));
         requestCacheControl.setMaxStale(Long.MAX_VALUE);
 
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                 PROTOCOL_PACKAGE_HTTP,
-                                                                 RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
+                                                                              PROTOCOL_PACKAGE_HTTP,
+                                                                              RESPONSE);
+        BResponseCacheControlStruct responseCacheControl
+                = new BResponseCacheControlStruct(compileResult.getProgFile()
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
 
-        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(AGE, "10");
         cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
@@ -309,13 +309,13 @@ public class HttpCachingClientTest {
     @Test(description = "Test for the isServingStaleProhibited() function which determines whether serving stale " +
             "responses is prohibited.", enabled = false)
     public void testIsServingStaleProhibited() {
-        RequestCacheControlStruct requestCacheControl
-                = new RequestCacheControlStruct(compileResult.getProgFile()
+        BRequestCacheControlStruct requestCacheControl
+                = new BRequestCacheControlStruct(compileResult.getProgFile()
                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                         .getStructInfo(REQUEST_CACHE_CONTROL));
 
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
+        BResponseCacheControlStruct responseCacheControl
+                = new BResponseCacheControlStruct(compileResult.getProgFile()
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
 
@@ -362,15 +362,15 @@ public class HttpCachingClientTest {
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                 PROTOCOL_PACKAGE_HTTP,
-                                                                 RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
+                                                                              PROTOCOL_PACKAGE_HTTP,
+                                                                              RESPONSE);
+        BResponseCacheControlStruct responseCacheControl
+                = new BResponseCacheControlStruct(compileResult.getProgFile()
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         responseCacheControl.setSMaxAge(20).setMaxAge(15);
 
-        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
@@ -424,15 +424,15 @@ public class HttpCachingClientTest {
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                                 PROTOCOL_PACKAGE_HTTP,
-                                                                 RESPONSE);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
+                                                                              PROTOCOL_PACKAGE_HTTP,
+                                                                              RESPONSE);
+        BResponseCacheControlStruct responseCacheControl
+                = new BResponseCacheControlStruct(compileResult.getProgFile()
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         responseCacheControl.setMaxAge(300).setSMaxAge(300);
 
-        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setHttpStatusCode(200);
         cachedResponseMsg.setHeader(AGE, String.valueOf(200));
         cachedResponseMsg.setHeader(DATE, dateHeader);
@@ -479,15 +479,15 @@ public class HttpCachingClientTest {
     }
 
     private void initInboundResponse(BMap<String, BValue> inResponse, HttpCarbonMessage inResponseMsg) {
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
+        BHttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                       PROTOCOL_PACKAGE_MIME, ENTITY);
         BMap<String, BValue> mediaType = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                          PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
+        BHttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
     }
 
-    private void initOutboundRequest(BMap<String, BValue> outRequest, RequestCacheControlStruct cacheControl) {
+    private void initOutboundRequest(BMap<String, BValue> outRequest, BRequestCacheControlStruct cacheControl) {
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                       PROTOCOL_PACKAGE_MIME, ENTITY);
         outRequest.put(REQUEST_ENTITY_FIELD, entity);

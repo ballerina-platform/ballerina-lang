@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;

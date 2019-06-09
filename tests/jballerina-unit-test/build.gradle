@@ -28,7 +28,6 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-launcher')
     implementation project(':ballerina-io')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-packerina')
@@ -60,37 +59,37 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-privacy', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-privacy', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'
@@ -101,7 +100,6 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"
@@ -126,8 +124,5 @@ configurations {
 }
 
 configurations.all {
-    resolutionStrategy {
-        force "org.ballerinalang:ballerina-lang:${project.version}"
-        force "org.ballerinalang:ballerina-core:${project.version}"
-    }
+    resolutionStrategy.preferProjectModules()
 }

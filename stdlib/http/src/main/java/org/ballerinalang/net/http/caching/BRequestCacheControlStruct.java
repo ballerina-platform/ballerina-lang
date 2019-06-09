@@ -42,11 +42,11 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  *
  * @since 0.965.0
  */
-public class RequestCacheControlStruct {
+public class BRequestCacheControlStruct {
 
     private BMap<String, BValue> requestCacheControl;
 
-    public RequestCacheControlStruct(StructureTypeInfo structInfo) {
+    public BRequestCacheControlStruct(StructureTypeInfo structInfo) {
         requestCacheControl = BLangVMStructs.createBStruct(structInfo);
 
         // Initialize the struct fields to default values we use
@@ -56,7 +56,7 @@ public class RequestCacheControlStruct {
         requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(-1));
     }
 
-    public RequestCacheControlStruct(BMap<String, BValue> requestCacheControl) {
+    public BRequestCacheControlStruct(BMap<String, BValue> requestCacheControl) {
         this.requestCacheControl = requestCacheControl;
 
         // Initialize the struct fields to default values we use
@@ -70,37 +70,37 @@ public class RequestCacheControlStruct {
         return requestCacheControl;
     }
 
-    public RequestCacheControlStruct setNoCache(boolean noCache) {
+    public BRequestCacheControlStruct setNoCache(boolean noCache) {
         requestCacheControl.put(REQ_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
         return this;
     }
 
-    public RequestCacheControlStruct setNoStore(boolean noStore) {
+    public BRequestCacheControlStruct setNoStore(boolean noStore) {
         requestCacheControl.put(REQ_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(noStore));
         return this;
     }
 
-    public RequestCacheControlStruct setNoTransform(boolean noTransform) {
+    public BRequestCacheControlStruct setNoTransform(boolean noTransform) {
         requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(noTransform));
         return this;
     }
 
-    public RequestCacheControlStruct setOnlyIfCached(boolean onlyIfCached) {
+    public BRequestCacheControlStruct setOnlyIfCached(boolean onlyIfCached) {
         requestCacheControl.put(REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD, new BBoolean(onlyIfCached));
         return this;
     }
 
-    public RequestCacheControlStruct setMaxAge(long maxAge) {
+    public BRequestCacheControlStruct setMaxAge(long maxAge) {
         requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(maxAge));
         return this;
     }
 
-    public RequestCacheControlStruct setMaxStale(long maxStale) {
+    public BRequestCacheControlStruct setMaxStale(long maxStale) {
         requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(maxStale));
         return this;
     }
 
-    public RequestCacheControlStruct setMinFresh(long minFresh) {
+    public BRequestCacheControlStruct setMinFresh(long minFresh) {
         requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(minFresh));
         return this;
     }

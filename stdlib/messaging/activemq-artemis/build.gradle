@@ -17,11 +17,14 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-time')
@@ -45,20 +48,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     testCompile 'org.testng:testng'
-}
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 description = 'Ballerina - ActiveMQ Artemis'

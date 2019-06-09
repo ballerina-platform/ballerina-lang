@@ -21,9 +21,14 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -32,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
@@ -56,20 +62,57 @@ public class Forward extends AbstractHTTPAction {
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
         if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
-                !HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+                !BHttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+            throw new BallerinaException("invalid inbound request parameter");
+        }
+        HttpCarbonMessage outboundRequestMsg = BHttpUtil
+                .getCarbonMsg(requestStruct, BHttpUtil.createHttpCarbonMessage(true));
+
+        if (BHttpUtil.isEntityDataSourceAvailable(requestStruct)) {
+            BHttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
+                                           BLangConnectorSPIUtil.toStruct(requestStruct)
+                                                   .getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+        } else {
+            prepareOutboundRequest(context, path, outboundRequestMsg,
+                                   !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
+            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        }
+        return outboundRequestMsg;
+    }
+
+    public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
+                                     ObjectValue requestObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(serviceUri, path, requestObj);
+        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
+    }
+
+    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, String path,
+                                                                ObjectValue requestObj) {
+        if (requestObj.getNativeData(HttpConstants.REQUEST) == null &&
+                !HttpUtil.isEntityDataSourceAvailable(requestObj)) {
             throw new BallerinaException("invalid inbound request parameter");
         }
         HttpCarbonMessage outboundRequestMsg = HttpUtil
-                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+                .getCarbonMsg(requestObj, HttpUtil.createHttpCarbonMessage(true));
 
-        if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
-            HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-            prepareOutboundRequest(context, path, outboundRequestMsg,
+        if (HttpUtil.isEntityDataSourceAvailable(requestObj)) {
+            HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
+            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setHttpMethod(BLangConnectorSPIUtil.toStruct(requestStruct)
-                    .getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
+                                           requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
         } else {
-            prepareOutboundRequest(context, path, outboundRequestMsg,
+            prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
             String httpVerb = outboundRequestMsg.getHttpMethod();
             outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));

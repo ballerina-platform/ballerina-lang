@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -58,5 +60,11 @@ public class GetName extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         Path fileName = path.getFileName();
         context.setReturnValues(new BString(fileName == null ? "" : fileName.toString()));
+    }
+
+    public static String getName(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        Path fileName = path.getFileName();
+        return fileName == null ? "" : fileName.toString();
     }
 }
