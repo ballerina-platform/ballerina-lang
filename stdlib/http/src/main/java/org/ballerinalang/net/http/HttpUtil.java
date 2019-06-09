@@ -709,7 +709,7 @@ public class HttpUtil {
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
-        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, statusCode);
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
         inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 

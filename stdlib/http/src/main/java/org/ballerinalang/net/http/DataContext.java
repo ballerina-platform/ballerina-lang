@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -40,7 +41,7 @@ import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN
  */
 public class DataContext {
     private Strand strand = null;
-    private ObjectValue clientObj = null;
+    private HttpClientConnector clientObj = null;
     private ObjectValue requestObj = null;
     private NonBlockingCallback callback = null;
     private Context context = null;
@@ -53,18 +54,13 @@ public class DataContext {
         this.correlatedMessage = correlatedMessage;
     }
 
-    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
-                       HttpCarbonMessage outboundRequestMsg) {
-        this.strand = strand;
-        this.clientObj = clientObj;
-        this.requestObj = requestObj;
-        this.correlatedMessage = outboundRequestMsg;
-        this.callback = null;
+    public DataContext(Strand strand, NonBlockingCallback callback, ObjectValue clientObj,
+                       ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
+        //
     }
 
-    public DataContext(Strand strand, NonBlockingCallback callback, ObjectValue clientObj,
-                       ObjectValue requestObj,
-                       HttpCarbonMessage outboundRequestMsg) {
+    public DataContext(Strand strand, HttpClientConnector clientObj, NonBlockingCallback callback,
+                       ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
         this.callback = callback;
         this.clientObj = clientObj;
@@ -122,7 +118,7 @@ public class DataContext {
         return correlatedMessage;
     }
 
-    public ObjectValue getClientObj() {
+    public HttpClientConnector getClientObj() {
         return clientObj;
     }
 

@@ -385,9 +385,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 //        Struct clientEndpoint = BLangConnectorSPIUtil.toStruct(bConnector);
 //        HttpClientConnector clientConnector = (HttpClientConnector)
 //
-        ObjectValue clientEndpoint = dataContext.getClientObj();
-        HttpClientConnector clientConnector = (HttpClientConnector)
-                clientEndpoint.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = dataContext.getClientObj();
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 
