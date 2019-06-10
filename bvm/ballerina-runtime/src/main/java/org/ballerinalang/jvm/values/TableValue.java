@@ -375,6 +375,10 @@ public class TableValue implements RefValue, CollectionValue {
         return tableProvider.getRowCount(tableName);
     }
 
+    public ArrayValue getPrimaryKeys() {
+        return this.primaryKeys;
+    }
+
     /**
      * Provides iterator implementation for table values.
      *

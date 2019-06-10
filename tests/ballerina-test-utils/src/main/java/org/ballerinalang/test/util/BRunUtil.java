@@ -353,7 +353,7 @@ public class BRunUtil {
                     typeClazz = ObjectValue.class;
                     break;
                 case TypeTags.NULL_TAG:
-                    typeClazz = null;
+                    typeClazz = Object.class;
                     break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
@@ -845,7 +845,8 @@ public class BRunUtil {
 
                 jvmTable.close();
                 jvmTable.finalize();
-                bvmValue = new BTable(new BTableType(constraintType), null, null, data);
+                bvmValue = new BTable(new BTableType(constraintType), null,
+                        (BValueArray) getBVMValue(jvmTable.getPrimaryKeys()), data);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
