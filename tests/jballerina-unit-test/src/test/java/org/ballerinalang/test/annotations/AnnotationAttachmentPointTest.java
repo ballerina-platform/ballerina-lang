@@ -36,7 +36,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 163);
+        Assert.assertEquals(compileResult.getErrorCount(), 175);
     }
 
     @Test
@@ -303,5 +303,22 @@ public class AnnotationAttachmentPointTest {
         validateError(compileResult, index++, "annotation 'v10' is not allowed on const", 543, 1);
         validateError(compileResult, index++, "annotation 'v11' is not allowed on const", 546, 1);
         validateError(compileResult, index, "annotation 'v13' is not allowed on const", 549, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentOnExternal() {
+        int index = 163;
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on external", 554, 62);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on external", 557, 61);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on external", 560, 61);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on external", 563, 61);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on external", 566, 61);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on external", 569, 61);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on external", 572, 61);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on external", 573, 61);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on external", 576, 61);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on external", 579, 61);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on external", 582, 61);
+        validateError(compileResult, index, "annotation 'v12' is not allowed on external", 585, 61);
     }
 }

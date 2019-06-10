@@ -1670,6 +1670,25 @@ public class BLangPackageBuilder {
         invokableNode.setBody(block);
     }
 
+    void endExternalFunctionBody(int annotCount) {
+        InvokableNode invokableNode = this.invokableNodeStack.peek();
+
+        if (annotCount == 0 || annotAttachmentStack.empty()) {
+            return;
+        }
+
+        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(annotCount);
+        for (int i = 0; i < annotCount; i++) {
+            if (annotAttachmentStack.empty()) {
+                break;
+            }
+            tempAnnotAttachments.add(annotAttachmentStack.pop());
+        }
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(tempAnnotAttachments);
+        tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
+    }
+
     void addImportPackageDeclaration(DiagnosticPos pos,
                                      Set<Whitespace> ws,
                                      String orgName,

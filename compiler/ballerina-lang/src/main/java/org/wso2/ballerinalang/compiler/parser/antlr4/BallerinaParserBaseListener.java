@@ -136,6 +136,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}

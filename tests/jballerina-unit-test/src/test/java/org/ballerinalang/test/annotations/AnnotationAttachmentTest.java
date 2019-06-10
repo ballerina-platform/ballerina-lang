@@ -221,6 +221,24 @@ public class AnnotationAttachmentTest {
         assertNameAndKeyValuePair(attachments.get(0), "v12", "str", "v12 value");
     }
 
+    @Test(enabled = false)
+    public void testAnnotOnExternal() {
+        BLangFunction function = getFunction("externalFunction");
+        List<BLangAnnotationAttachment> attachments = function.annAttachments;
+        Assert.assertEquals(attachments.size(), 0);
+
+        attachments = function.returnTypeAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        BLangAnnotationAttachment attachment = attachments.get(0);
+        Assert.assertEquals(attachment.annotationName.getValue(), "v7");
+        Assert.assertNull(attachment.expr);
+
+        attachments = function.externalAnnAttachments;
+        Assert.assertEquals(attachments.size(), 1);
+        assertNameAndKeyValuePair(attachments.get(0), "v13", "strOne", "one");
+        assertNameAndKeyValuePair(attachments.get(0), "v13", "strTwo", "two");
+    }
+
     private void assertNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName, String fieldName,
                                            Object value) {
         Assert.assertEquals(attachment.annotationName.getValue(), annotName);

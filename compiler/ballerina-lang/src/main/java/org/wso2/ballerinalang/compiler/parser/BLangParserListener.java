@@ -282,6 +282,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExternalFunctionBody(ctx.annotationAttachment().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         if (isInErrorState) {
             return;
@@ -303,22 +315,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
-        boolean nativeFunc = ctx.EXTERNAL() != null;
+        boolean nativeFunc = ctx.externalFunctionBody() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
-            this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
-                            nativeFunc,
-                            bodyExists, ctx.Identifier().getText());
+            this.pkgBuilder.endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc,
+                                                      remoteFunc, nativeFunc, bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                bodyExists, isReceiverAttached, false);
+                                       bodyExists, isReceiverAttached, false);
     }
 
     @Override
@@ -517,11 +527,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
-        boolean nativeFunc = ctx.EXTERNAL() != null;
+        boolean nativeFunc = ctx.externalFunctionBody() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                resourceFunc, nativeFunc, bodyExists, markdownDocExists, ctx.annotationAttachment().size());
+                                                     resourceFunc, nativeFunc, bodyExists, markdownDocExists,
+                                                     ctx.annotationAttachment().size());
     }
 
     /**

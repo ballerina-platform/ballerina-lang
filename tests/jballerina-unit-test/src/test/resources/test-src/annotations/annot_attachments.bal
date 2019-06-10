@@ -134,3 +134,5 @@ type Listener object {
     public function __stop() returns error? {
     }
 };
+
+//function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
