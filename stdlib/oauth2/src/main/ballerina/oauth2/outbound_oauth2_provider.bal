@@ -44,7 +44,6 @@ public type OutboundOAuth2Provider object {
             expiryTime: 0
         };
     }
-    // TODO: test cache behaviour
 
     # Generate token for OAuth2 authentication.
     #
@@ -411,8 +410,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     //Client authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
-    // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
-    string tokenUrl = EMPTY_STRING;
+    string tokenUrl;
 
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
@@ -466,8 +464,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     //Client refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
-    // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
-    string refreshUrl = EMPTY_STRING;
+    string refreshUrl;
 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
@@ -512,7 +509,13 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     return doRequest(refreshUrl, refreshRequest, tokenCache, clockSkew);
 }
 
-// TODO: add docs
+# Execute the actual request and get the access token from authorization server.
+#
+# + url - URL of the authorization server
+# + request - Prepared request to be sent to the authorization server
+# + tokenCache - Cached token configurations
+# + clockSkew - Clock skew in seconds
+# + return - Access token received or `error` if an error occurred during HTTP client invocation
 function doRequest(string url, http:Request request, CachedToken tokenCache, int clockSkew) returns string|error {
     http:Client clientEP = new(url);
     var response = clientEP->post(EMPTY_STRING, request);
