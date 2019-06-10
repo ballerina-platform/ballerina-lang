@@ -49,19 +49,19 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
  */
 public class ServiceTest {
 
-    private static final String TEST_ENDPOINT_NAME = "echoEP";
-    private CompileResult compileResult, negativeResult;
+    private static final int TEST_ENDPOINT_1_PORT = 9090;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/services/echo-service.bal");
+        BCompileUtil.compile("test-src/services/echo-service.bal");
         negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
     }
 
     @Test
     public void testServiceDispatching() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
         // TODO: Improve with more assets
     }
@@ -69,7 +69,7 @@ public class ServiceTest {
     @Test
     public void testMostSpecificBasePathIdentificationWithDuplicatedPath() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message/echo/message", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload,
@@ -79,7 +79,7 @@ public class ServiceTest {
     @Test
     public void testMostSpecificBasePathIdentificationWithUnmatchedBasePath() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/abcd/message/echo/message", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching service found for path : /abcd/message/echo/message");
@@ -88,7 +88,7 @@ public class ServiceTest {
     @Test
     public void testServiceDispatchingWithWorker() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
     }
 
@@ -96,7 +96,7 @@ public class ServiceTest {
     @Test(description = "Test for service availability check")
     public void testServiceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching service found for path : /foo/message");
@@ -105,7 +105,7 @@ public class ServiceTest {
     @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching resource found for path : /echo/bar , method : GET");
@@ -118,7 +118,7 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers, null);
         requestMsg.waitAndReleaseAllEntities();
         requestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer("hello".getBytes())));
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg);
     }
@@ -126,7 +126,7 @@ public class ServiceTest {
     @Test(dependsOnMethods = "testSetString")
     public void testGetString() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -137,7 +137,7 @@ public class ServiceTest {
 //    @Test(description = "Test accessing service level variable in resource")
 //    public void testGetServiceLevelString() {
 //        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-//        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+//        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 //        Assert.assertNotNull(responseMsg);
 //
 //        String responseMsgPayload = StringUtils
@@ -150,7 +150,7 @@ public class ServiceTest {
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
 
         String responseMsgPayload = StringUtils
@@ -168,10 +168,10 @@ public class ServiceTest {
         setStringrequestMsg.waitAndReleaseAllEntities();
         setStringrequestMsg.addHttpContent(
                 new DefaultLastHttpContent(Unpooled.wrappedBuffer(stringresponseMsgPayload.getBytes())));
-        Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, setStringrequestMsg);
+        Services.invoke(TEST_ENDPOINT_1_PORT, setStringrequestMsg);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
 
         String responseMsgPayload = StringUtils
@@ -183,7 +183,7 @@ public class ServiceTest {
     @Test(description = "Test remove headers native function")
     public void testRemoveHeadersNativeFunction() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
 
         Assert.assertNull(responseMsg.getHeader("header1"));
@@ -196,7 +196,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -211,7 +211,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -225,7 +225,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg),
                             "Error occurred while extracting text data from entity : Empty content");
@@ -237,7 +237,7 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST",
                 "firstName=WSO2&company=BalDance");
         requestMsg.setHeader("Content-Type", APPLICATION_JSON);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Invalid content type : expected " +
@@ -249,7 +249,7 @@ public class ServiceTest {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST",
                                                                       "firstName=WSO2&company=BalDance");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Content type header is not available");
@@ -259,7 +259,7 @@ public class ServiceTest {
     public void testPATCHMethodWithBody() {
         String path = "/echo/modify";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "PATCH", "WSO2");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 204);
@@ -269,7 +269,7 @@ public class ServiceTest {
     public void testPATCHMethodWithoutBody() {
         String path = "/echo/modify";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "PATCH");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 204);
@@ -292,7 +292,7 @@ public class ServiceTest {
     public void testUninitializedAnnotations() {
         String path = "/hello/echo";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         String responseMsgPayload = StringUtils
@@ -307,7 +307,7 @@ public class ServiceTest {
         headers.add("Content-Type", "application/json");
         String invalidJSON = "{name: \"John Doe\"}";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, invalidJSON);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg);
         Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 500);

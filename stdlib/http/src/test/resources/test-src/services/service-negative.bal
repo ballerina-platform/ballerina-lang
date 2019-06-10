@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-listener http:MockListener echoEP = new(9090);
+listener http:MockListener echoEP = new(9091);
 
 service FooService on echoEP {
 

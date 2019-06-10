@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-listener http:MockListener passthruEP  = new(9090);
+listener http:MockListener passthruEP  = new(9091);
 
 @http:ServiceConfig {
     basePath:"/echo/{version}",

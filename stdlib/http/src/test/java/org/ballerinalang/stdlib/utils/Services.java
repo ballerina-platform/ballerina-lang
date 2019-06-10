@@ -45,20 +45,27 @@ import java.util.Map;
  */
 public class Services {
 
-
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, ".", Names.EMPTY.value, endpointName, request);
     }
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance().getHttpServicesRegistry();
+        return invoke(0, request);
+    }
+
+    public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
+        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance()
+                                                            .getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;
