@@ -250,7 +250,7 @@ public class WorkerTest {
     public void workerWithFutureTest1() {
         BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @Test
