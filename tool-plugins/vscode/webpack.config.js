@@ -16,7 +16,9 @@ const config = {
   },
   devtool: 'source-map',
   externals: {
-    vscode: 'commonjs vscode'
+    vscode: 'commonjs vscode',
+    bufferutil: 'commonjs bufferutil',
+    'utf-8-validate': 'commonjs utf-8-validate'
   },
   resolve: {
     extensions: ['.ts', '.js']
