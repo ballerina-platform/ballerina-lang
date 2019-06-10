@@ -72,14 +72,13 @@ public class Forward extends AbstractHTTPAction {
             BHttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
             prepareOutboundRequest(context, path, outboundRequestMsg,
                                    !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
-                                           BLangConnectorSPIUtil.toStruct(requestStruct)
-                                                   .getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+            outboundRequestMsg.setHttpMethod(
+                    BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
         } else {
             prepareOutboundRequest(context, path, outboundRequestMsg,
                                    !BHttpUtil.checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+            String httpVerb = outboundRequestMsg.getHttpMethod();
+            outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));
         }
         return outboundRequestMsg;
     }
@@ -109,13 +108,12 @@ public class Forward extends AbstractHTTPAction {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestObj);
             prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
-                                           requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
+            outboundRequestMsg.setHttpMethod(requestObj.get(HttpConstants.HTTP_REQUEST_METHOD).toString());
         } else {
             prepareOutboundRequest(serviceUri, path, outboundRequestMsg,
                                    !checkRequestBodySizeHeadersAvailability(outboundRequestMsg));
-            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
-            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+            String httpVerb = outboundRequestMsg.getHttpMethod();
+            outboundRequestMsg.setHttpMethod(httpVerb.trim().toUpperCase(Locale.getDefault()));
         }
         return outboundRequestMsg;
     }

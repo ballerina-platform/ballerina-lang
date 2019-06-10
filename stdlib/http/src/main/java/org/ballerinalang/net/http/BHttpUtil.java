@@ -135,14 +135,12 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -157,6 +155,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -467,13 +466,13 @@ public class BHttpUtil {
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        Integer carbonStatusCode = requestMessage.getHttpStatusCode();
         if (carbonStatusCode == null) {
             //log only the internal server errors
             log.error(errorMsg);
             return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
         }
-        return Integer.parseInt(carbonStatusCode.toString());
+        return carbonStatusCode;
     }
 
     public static HttpCarbonMessage createErrorMessage(String payload, int statusCode) {
@@ -503,7 +502,7 @@ public class BHttpUtil {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setHttpStatusCode(statusCode);
     }
 
     /**
@@ -643,12 +642,9 @@ public class BHttpUtil {
 
     private static void enrichWithInboundRequestInfo(BMap<String, BValue> inboundRequestStruct,
                                                      HttpCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.put(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_METHOD_FIELD,
-                                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_VERSION_FIELD,
-                                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
+        inboundRequestStruct.put(HttpConstants.REQUEST_RAW_PATH_FIELD, new BString(inboundRequestMsg.getRequestUrl()));
+        inboundRequestStruct.put(HttpConstants.REQUEST_METHOD_FIELD, new BString(inboundRequestMsg.getHttpMethod()));
+        inboundRequestStruct.put(HttpConstants.REQUEST_VERSION_FIELD, new BString(inboundRequestMsg.getHttpVersion()));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {
@@ -724,7 +720,7 @@ public class BHttpUtil {
                                                BMap<String, BValue> mediaType, ProgramFile programFile,
                                                HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
+        int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.put(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
         inboundResponse.put(RESPONSE_REASON_PHRASE_FIELD,
                 new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
@@ -840,7 +836,7 @@ public class BHttpUtil {
         if (isResponseStruct(struct)) {
             long statusCode = ((BInteger) struct.get(RESPONSE_STATUS_CODE_FIELD)).intValue();
             if (statusCode != 0) {
-                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
+                outboundResponseMsg.setHttpStatusCode(getIntValue(statusCode));
             }
             BValue respPhrase = struct.get(RESPONSE_REASON_PHRASE_FIELD);
             if (respPhrase != null && !respPhrase.stringValue().isEmpty()) {
@@ -1015,7 +1011,7 @@ public class BHttpUtil {
     public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg,
                                              HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
-        int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int statusCode = outboundResponseMsg.getHttpStatusCode();
         methodInvocationCheck(connectionStruct, reqMsg, statusCode);
     }
 
@@ -1173,7 +1169,7 @@ public class BHttpUtil {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
             injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
             ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
             ctx.addTag(TAG_KEY_PEER_ADDRESS,
                        message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
@@ -1384,7 +1380,7 @@ public class BHttpUtil {
                 Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
-            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -1661,7 +1657,7 @@ public class BHttpUtil {
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
