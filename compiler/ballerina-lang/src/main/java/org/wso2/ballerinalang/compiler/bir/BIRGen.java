@@ -161,7 +161,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1090,7 +1089,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructFieldAccessExpr astStructFieldAccessExpr) {
-        generateMappingAccess(astStructFieldAccessExpr);
+        generateMappingAccess(astStructFieldAccessExpr, astStructFieldAccessExpr.except);
     }
 
     @Override
@@ -1100,7 +1099,7 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
 
-        generateMappingAccess(astJSONFieldAccessExpr);
+        generateMappingAccess(astJSONFieldAccessExpr, false);
     }
 
     @Override
@@ -1538,13 +1537,13 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAccessExpr xmlAccessExpr) {
-        generateMappingAccess(xmlAccessExpr);
+        generateMappingAccess(xmlAccessExpr, false);
     }
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr);
+            generateMappingAccess(xmlAttributeAccessExpr, false);
             return;
         }
 
@@ -1874,7 +1873,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
-    private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr) {
+    private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr, boolean except) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
@@ -1923,7 +1922,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_LOAD;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
-                    varRefRegIndex));
+                    varRefRegIndex, except));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
