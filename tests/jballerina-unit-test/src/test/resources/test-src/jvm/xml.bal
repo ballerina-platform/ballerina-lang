@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+xml globalXML = xml `<test><name>ballerina</name></test>`;
+
 function testXML() returns (xml, any, any, xml, xml, xml) {
     xmlns "http://wso2.com/" as ns0;
 
@@ -46,4 +48,8 @@ function testDollarSignOnXMLLiteralTemplate() returns (xml, xml, xml) {
     xml x3 = xml `<foo id="hello $$ ${ 3 + 6 / 3}" >$$ ${a}</foo>`;
 
     return (x1, x2, x3);
+}
+
+function testGetGlobalXML() returns xml {
+    return globalXML;
 }

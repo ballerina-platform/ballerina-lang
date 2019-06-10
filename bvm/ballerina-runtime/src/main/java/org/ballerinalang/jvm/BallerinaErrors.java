@@ -86,6 +86,10 @@ public class BallerinaErrors {
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
+    public static ErrorValue createCancelledFutureError() {
+        return createError(BallerinaErrorReasons.FUTURE_CANCELLED);
+    }
+
     public static ErrorValue createNullReferenceError() {
         return createError(BallerinaErrors.NULL_REF_EXCEPTION);
     }

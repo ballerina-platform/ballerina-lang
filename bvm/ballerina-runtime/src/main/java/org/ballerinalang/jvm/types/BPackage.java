@@ -19,6 +19,12 @@ package org.ballerinalang.jvm.types;
 
 import java.util.Objects;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
+import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+import static org.ballerinalang.jvm.util.BLangConstants.EMPTY;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+
 /**
  * {@code BPackage} represents the package of defined type in Ballerina.
  *
@@ -26,12 +32,18 @@ import java.util.Objects;
  */
 public class BPackage {
 
+    public String org;
     public String name;
     public String version;
 
-    public BPackage(String name, String version) {
+    public BPackage(String org, String name, String version) {
+        this.org = org;
         this.name = name;
         this.version = version;
+    }
+
+    public String getOrg() {
+        return org;
     }
 
     public String getName() {
@@ -51,12 +63,31 @@ public class BPackage {
             return false;
         }
         BPackage bPackage = (BPackage) o;
-        return Objects.equals(name, bPackage.name) &&
-               Objects.equals(version, bPackage.version);
+        return Objects.equals(org, bPackage.org) &&
+                Objects.equals(name, bPackage.name) &&
+                Objects.equals(version, bPackage.version);
+    }
+
+    @Override
+    public String toString() {
+        if (DOT.equals(this.name)) {
+            return this.name;
+        }
+
+        String orgName = "";
+        if (this.org != null && !this.org.equals(ANON_ORG)) {
+            orgName = this.org + ORG_NAME_SEPARATOR;
+        }
+
+        if (version == null || version.equals(EMPTY)) {
+            return orgName + this.name;
+        }
+
+        return orgName + this.name + VERSION_SEPARATOR + this.version;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, version);
+        return Objects.hash(org, name, version);
     }
 }
