@@ -234,6 +234,7 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> addTopLevelItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(getStaticItem(context, Snippet.KW_IMPORT));
+        completionItems.add(getStaticItem(context, Snippet.KW_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));

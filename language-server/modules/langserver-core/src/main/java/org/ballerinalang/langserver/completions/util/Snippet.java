@@ -82,6 +82,8 @@ public enum Snippet {
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
+    KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
+
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),

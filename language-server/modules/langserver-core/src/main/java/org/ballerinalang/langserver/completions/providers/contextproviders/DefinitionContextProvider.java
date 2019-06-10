@@ -79,6 +79,7 @@ public class DefinitionContextProvider extends LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
         completionItems.add(getStaticItem(context, Snippet.KW_ANNOTATION));
+        completionItems.add(getStaticItem(context, Snippet.KW_FUNCTION));
         return completionItems;
     }
 

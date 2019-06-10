@@ -153,6 +153,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Function Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFunctionKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FUNCTION, "function ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Continue Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
