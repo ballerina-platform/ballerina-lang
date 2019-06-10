@@ -20,9 +20,9 @@ public type ReadableCSVChannel object {
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
     #
-    # + byteChannel - CharacterChannel which will represent the content in the CSV
-    # + fs - Field separator which will separate between the records in the CSV
-    # + nHeaders - Number of headers which should be skipped prior to reading records
+    # + byteChannel - The CharacterChannel, which will represent the content in the CSV file
+    # + fs - Field separator, which will separate between the records in the CSV file
+    # + nHeaders - Number of headers, which should be skipped prior to reading records
     public function __init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
