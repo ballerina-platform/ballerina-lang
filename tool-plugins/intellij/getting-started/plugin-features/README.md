@@ -33,17 +33,17 @@ You can debug Ballerina main/service programs with only few clicks as well.
 
 ## Diagram View
 
-Ballerina’s underlying language semantics were designed by modeling how independent parties communicate via structured interactions. 
-Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints, including synchronous and asynchronous calls. 
-To view the sequence diagram of a ballerina file press the diagram icon 
+The underlying language semantics of Ballerina were designed by modeling how independent parties communicate via structured interactions. 
+Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints including synchronous and asynchronous calls.
+To view the sequence diagram of a ballerina file, click the diagram icon  
 ( ![design view icon](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/show-diagram-icon.png) ) 
-in top right corner.
+in the top right corner of the IDE window.
 
 ![alt text](images/DiagramView.gif)
 
 ## Import Modules On-the-fly
 
-This feature adds import declarations on the fly. All you need to do is selecting the module name from the lookup list and the module declaration will be added automatically.
+This feature adds import declarations on the fly. All you need to do is to select the module name from the lookup list and then the module declaration will be added automatically.
 
 ![alt text](images/AutoImports.gif)
 
