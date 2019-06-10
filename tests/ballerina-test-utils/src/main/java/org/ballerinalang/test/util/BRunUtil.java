@@ -659,7 +659,7 @@ public class BRunUtil {
                     fields.put(bvmField.name.value, jvmField);
                 }
                 PackageID pkgID = recordType.tsymbol.pkgID;
-                BPackage pkg = new BPackage(pkgID.name.value, pkgID.version.value);
+                BPackage pkg = new BPackage(pkgID.orgName.value, pkgID.name.value, pkgID.version.value);
                 org.ballerinalang.jvm.types.BType restFieldType =
                         recordType.sealed ? null : getJVMType(recordType.restFieldType);
                 org.ballerinalang.jvm.types.BRecordType jvmRecordType = new org.ballerinalang.jvm.types.BRecordType(
