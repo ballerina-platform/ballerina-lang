@@ -147,7 +147,6 @@ public class GrpcConstants {
     static final String CONTENT_TYPE_KEY = "content-type";
     static final String TE_KEY = "te";
     static final String TO_HEADER = "TO";
-    static final String STATUS_HEADER = "HTTP_STATUS_CODE";
     public static final String SCHEME_HEADER = "scheme";
     public static final String AUTHORITY = "authority";
 

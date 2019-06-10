@@ -27,7 +27,6 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
@@ -263,7 +262,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 204);
     }
 
     @Test(description = "Test Http PATCH verb dispatching without a responseMsgPayload")
@@ -273,7 +272,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 204);
+        Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 204);
     }
 
     //TODO: add more test cases
@@ -311,6 +310,6 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg);
-        Assert.assertEquals(responseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE), 500);
+        Assert.assertEquals((int) responseMsg.getHttpStatusCode(), 500);
     }
 }
