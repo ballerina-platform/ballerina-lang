@@ -61,12 +61,33 @@ public type BearerAuthHandler object {
     # Prepare the request with Bearer auth header.
     #
     # + req - `Request` instance
-    # + return - `Request` instance or `error` in case of errors
-    public function prepare(Request req) returns error? {
+    # + return - Updated `Request` instance or `error` in case of errors
+    public function prepare(Request req) returns Request|error {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             string token = check authProvider.generateToken();
             req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+            return req;
+        } else {
+            return prepareError("Inbound auth provider is configured for outbound authentication.");
+        }
+    }
+
+    # Inspect the request, response and calls the auth provider for inspection.
+    #
+    # req - `Request` instance
+    # resp - `Response` instance
+    # + return - Updated `Request` instance or `error` in case of errors or `()` if nothing to be done
+    public function inspect(Request req, Response resp) returns Request|error? {
+        var authProvider = self.authProvider;
+        if (authProvider is auth:OutboundAuthProvider) {
+            map<anydata> headerMap = createResponseHeaderMap(resp);
+            string? token = check authProvider.inspect(headerMap);
+            if (token is string) {
+                req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+                return req;
+            }
+            return ();
         } else {
             return prepareError("Inbound auth provider is configured for outbound authentication.");
         }
