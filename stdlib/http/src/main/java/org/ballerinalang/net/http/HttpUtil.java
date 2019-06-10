@@ -678,7 +678,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
-        httpCaller.addNativeData(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -688,10 +688,9 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, localHost);
             local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
-        httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
-                                 inboundMsg.getProperty(HttpConstants.PROTOCOL));
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
+        httpCaller.set(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
         httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
 
