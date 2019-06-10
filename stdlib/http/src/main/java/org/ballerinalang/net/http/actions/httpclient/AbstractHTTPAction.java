@@ -66,7 +66,6 @@ import java.net.URL;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
@@ -118,7 +117,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         return requestMsg;
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(ObjectValue clientObj, String path,
+    protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,
                                                                 ObjectValue request) {
         if (request == null) {
             request = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
@@ -127,9 +126,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
         HttpUtil.checkEntityAvailability(request);
         HttpUtil.enrichOutboundMessage(requestMsg, request);
-        String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
         prepareOutboundRequest(serviceUri, path, requestMsg, isNoEntityBodyRequest(request));
-        handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(clientObj));
+        handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(config));
         return requestMsg;
     }
 
@@ -138,8 +136,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         return clientEndpointConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
-    static String getCompressionConfigFromEndpointConfig(ObjectValue httpClientObj) {
-        MapValue clientEndpointConfig = (MapValue) httpClientObj.get(HttpConstants.CLIENT_ENDPOINT_CONFIG);
+    static String getCompressionConfigFromEndpointConfig(MapValue clientEndpointConfig) {
         return clientEndpointConfig.get(ANN_CONFIG_ATTR_COMPRESSION).toString();
     }
 
@@ -385,7 +382,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 //        Struct clientEndpoint = BLangConnectorSPIUtil.toStruct(bConnector);
 //        HttpClientConnector clientConnector = (HttpClientConnector)
 //
-        HttpClientConnector clientConnector = dataContext.getClientObj();
+        HttpClientConnector clientConnector = dataContext.getClientConnector();
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 

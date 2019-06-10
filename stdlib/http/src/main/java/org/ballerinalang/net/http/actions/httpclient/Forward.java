@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
@@ -86,14 +85,11 @@ public class Forward extends AbstractHTTPAction {
     }
 
     public static Object nativeForward(Strand strand, String url, MapValue config, String path,
-                                     ObjectValue requestObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+                                       ObjectValue requestObj) {
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, path, requestObj);
-        HttpClientConnector clientObj = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
-        DataContext dataContext = new DataContext(strand, clientObj, callback, requestObj, outboundRequestMsg);
-        // Execute the operation
+        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
     }

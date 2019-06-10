@@ -29,11 +29,10 @@ import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
-
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
@@ -75,21 +74,18 @@ public class Execute extends AbstractHTTPAction {
         return outboundRequestMsg;
     }
 
-    public static void nativeExecute(Strand strand, ObjectValue clientObj, String url, MapValue config, String verb,
-                                     String path, ObjectValue requestObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, serviceUri, verb, path, requestObj);
-        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
-        // Execute the operation
+    public static Object nativeExecute(Strand strand, String url, MapValue config, String verb, String path,
+                                     ObjectValue requestObj) {
+        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(config, url, verb, path, requestObj);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
+        return null;
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(ObjectValue clientObj, String serviceUri,
-                                                                String httpVerb, String path, ObjectValue requestObj) {
-
+    protected static HttpCarbonMessage createOutboundRequestMsg(MapValue config, String serviceUri, String httpVerb,
+                                                                String path, ObjectValue requestObj) {
         HttpCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestObj, HttpUtil.createHttpCarbonMessage(true));
 
@@ -102,8 +98,7 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        handleAcceptEncodingHeader(outboundRequestMsg, getCompressionConfigFromEndpointConfig(clientObj));
-
+        handleAcceptEncodingHeader(outboundRequestMsg, getCompressionConfigFromEndpointConfig(config));
         return outboundRequestMsg;
     }
 }
