@@ -15,14 +15,66 @@
  *
  */
  
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+
+configurations {
+    baloOldImpl
+    genBalo
+    balSource
+}
 
 dependencies {
+
+    baloOldImpl  project(path: ':ballerina-bootstrapper', configuration: 'balPack')
+
     implementation 'org.ow2.asm:asm'
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
 
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
 }
+
+task ballerinaInit(type: Exec) {
+    dependsOn(':ballerina-bootstrapper:assemble')
+    workingDir "$buildDir/../src/main/ballerina"
+    configurations.baloOldImpl.each {
+        commandLine 'sh', it.path + '/bin/ballerina', 'init'
+    }
+}
+
+task createBalx(type: Exec, dependsOn: ballerinaInit) {
+    dependsOn(':ballerina-bootstrapper:assemble')
+    workingDir "$buildDir/../src/main/ballerina"
+    configurations.baloOldImpl.each {
+        commandLine 'sh', it.path + '/bin/ballerina', 'build', '--skiptests', 'jvm'
+    }
+}
+
+task createCorrectFolderStructure(type: Copy, dependsOn: createBalx) {
+    configurations.baloOldImpl.each {
+        from file("$buildDir/../src/main/ballerina/.ballerina/repo/ballerina/jvm/jvm.zip")
+        into "$buildDir/generated-balo/repo/ballerina/jvm/0.0.0"
+    }
+}
+
+task copyJVMBaloToPack(type: Copy, dependsOn: createCorrectFolderStructure) {
+    configurations.baloOldImpl.each {
+        from file("$buildDir/generated-balo/repo/ballerina")
+        into it.path + '/lib/repo/ballerina'
+    }
+}
+
+task copyJVMNativesToPack(type: Copy, dependsOn: copyJVMBaloToPack) {
+    configurations.baloOldImpl.each {
+        from "$buildDir/libs/"
+        into it.path + '/bre/lib'
+    }
+}
+
+assemble.dependsOn copyJVMNativesToPack
+
+artifacts.add('genBalo', file("$buildDir/generated-balo/")) {
+    builtBy('createCorrectFolderStructure')
+}
+
+artifacts.add('balSource', file("src/main/ballerina/"))

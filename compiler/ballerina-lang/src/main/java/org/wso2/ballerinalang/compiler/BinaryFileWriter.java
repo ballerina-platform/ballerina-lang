@@ -41,11 +41,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PROG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
@@ -116,6 +118,22 @@ public class BinaryFileWriter {
                     jarFilename);
             return;
         }
+
+        if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.symbol.birPackageFile != null) {
+            String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
+            Path destDirPath = ensureAndGetTargetDirPath(); // create a target folder ro write bir
+            try {
+                addFileBirContent(cleanupExecFileName(fileName, BLANG_COMPILED_PKG_BIR_EXT),
+                        packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
+                this.sourceDirectory.saveCompiledPackage(packageNode.symbol.compiledPackage, destDirPath, birFilename);
+            } catch (IOException e) {
+                String msg = "error writing the compiled module(bir) of '" +
+                        packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                throw new BLangCompilerException(msg, e);
+            }
+            return;
+        }
+
         String execFileName = cleanupExecFileName(fileName, BLANG_COMPILED_PROG_EXT);
 
         // Generate code for the given executable
@@ -182,6 +200,23 @@ public class BinaryFileWriter {
 
     // private methods
 
+    private Path ensureAndGetTargetDirPath() {
+        Path targetPath = Paths.get(ProjectDirConstants.TARGET_DIR_NAME);
+        if (!Files.exists(targetPath)) {
+            createDirectory(targetPath);
+        }
+
+        return targetPath;
+    }
+
+    private void createDirectory(Path targetPath) {
+        try {
+            Files.createDirectory(targetPath);
+        } catch (IOException e) {
+            throw new BLangCompilerException("failed create directory '" + targetPath.toString() + "'");
+        }
+    }
+
     private String getOutputFileName(BLangPackage packageNode, String suffix) {
         if (packageNode.packageID.isUnnamed) {
             String sourceFileName = packageNode.packageID.sourceFileName.value;
@@ -218,12 +253,20 @@ public class BinaryFileWriter {
         compiledPackage.setPackageBirEntry(pkgBinaryEntry);
     }
 
+    private void addFileBirContent(String fileName, BIRPackageFile birPackageFile,
+                                   CompiledPackage compiledPackage) throws IOException {
+        byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
+        ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
+                pkgBirBinaryContent, fileName, Kind.BIR);
+        compiledPackage.setPackageBirEntry(pkgBinaryEntry);
+    }
+
     private String getPackageBinaryName(PackageID packageID) {
         return packageID.getName().value + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
     private String getPackageBirName(PackageID packageID) {
-        return packageID.getName().value + ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
+        return packageID.getName().value + BLANG_COMPILED_PKG_BIR_EXT;
     }
 
     private String cleanupExecFileName(String fileName, String extension) {

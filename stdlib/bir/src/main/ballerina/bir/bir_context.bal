@@ -27,9 +27,10 @@ public type BIRContext object {
 
 function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[] = external;
 
+public function decompressSingleFileToBlob(string baloPath, string pathInJar) returns byte[] = external;
 
 // TODO Refactor following methods
-function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
+public function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(modBinary);
     ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
