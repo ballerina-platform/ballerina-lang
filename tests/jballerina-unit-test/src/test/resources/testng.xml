@@ -67,10 +67,6 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
-
-            <package name="org.ballerinalang.test.types.xml.*">
-                <exclude name="XMLIterationTest"/>
-            </package>
         </packages>
 
         <classes>
@@ -236,6 +232,16 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+
+            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
+                <methods>
+                    <exclude name="testServiceLevelXML"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
         </classes>
     </test>
 </suite>

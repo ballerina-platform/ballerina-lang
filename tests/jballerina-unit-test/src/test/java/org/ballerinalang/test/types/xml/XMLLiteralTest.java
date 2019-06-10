@@ -386,7 +386,6 @@ public class XMLLiteralTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
         HttpCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
         Assert.assertNotNull(response);
-
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
                 "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
