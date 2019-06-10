@@ -128,7 +128,7 @@ function testErrorInTupleWithDestructure() returns (int, string, string, map<any
     map<anydata|error> detailVar;
     boolean booleanVar;
 
-    (intVar, stringVar, (error (reasonVar, ...detailVar), booleanVar)) = t1;
+    (intVar, stringVar, (error(reasonVar, ...detailVar), booleanVar)) = t1;
 
     return (intVar, stringVar, reasonVar, detailVar, booleanVar);
 }
@@ -142,7 +142,7 @@ function testErrorInTupleWithDestructure2() returns (int, string, string, anydat
     anydata|error message;
     boolean booleanVar;
 
-    (intVar, stringVar, (error (reasonVar, message = message), booleanVar)) = t1;
+    (intVar, stringVar, (error(reasonVar, message = message), booleanVar)) = t1;
 
     return (intVar, stringVar, reasonVar, message, booleanVar);
 }

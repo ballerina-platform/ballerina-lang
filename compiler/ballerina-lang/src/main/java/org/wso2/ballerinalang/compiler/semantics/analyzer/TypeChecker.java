@@ -2634,7 +2634,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
         if (!types.isAssignable(expType, symTable.errorType)) {
             // Cannot infer error type from error constructor. 'var e = error("r", a="b", b="c");
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR);
+            dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
         }

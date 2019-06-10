@@ -1497,7 +1497,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(errorVarRef.pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
-                        parentTupleVariable.pos, new BMapType(TypeTags.MAP, symTable.anyType, null),
+                        parentTupleVariable.pos, expression.type,
                         tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;

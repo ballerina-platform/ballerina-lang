@@ -396,7 +396,6 @@ public enum DiagnosticCode {
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
-    INVALID_ERROR_CONSTRUCTOR("invalid.error.type.ctor"),
     INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
 
     // Seal inbuilt function related codes
