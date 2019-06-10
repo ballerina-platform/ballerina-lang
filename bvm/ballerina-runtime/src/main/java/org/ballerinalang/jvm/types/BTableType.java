@@ -74,12 +74,12 @@ public class BTableType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new TableValue(this, null, null, null);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new TableValue((BStructureType) constraint);
+        return getZeroValue();
     }
 
     @Override

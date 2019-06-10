@@ -48,7 +48,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<>();
+        return (V) new MapValueImpl<>(this);
     }
 
     @Override
