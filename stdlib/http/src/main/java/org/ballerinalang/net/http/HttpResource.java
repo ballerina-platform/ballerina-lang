@@ -192,14 +192,17 @@ public class HttpResource {
 
         setupTransactionAnnotations(resource, httpResource);
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
-            MapValue resourceConfig = resourceConfigAnnotation;
-            httpResource.setPath(resourceConfig.getStringValue(PATH_FIELD));
-            httpResource.setMethods(getAsStringList(resourceConfig.getArrayValue(METHODS_FIELD).getStringArray()));
-            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayValue(CONSUMES_FIELD).getStringArray()));
-            httpResource.setProduces(getAsStringList(resourceConfig.getArrayValue(PRODUCES_FIELD).getStringArray()));
-            httpResource.setEntityBodyAttributeValue(resourceConfig.getStringValue(BODY_FIELD));
-            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getMapValue(CORS_FIELD)));
-            httpResource.setTransactionInfectable(resourceConfig.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
+            httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD));
+            httpResource.setMethods(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(METHODS_FIELD).getStringArray()));
+            httpResource.setConsumes(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(CONSUMES_FIELD).getStringArray()));
+            httpResource.setProduces(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(PRODUCES_FIELD).getStringArray()));
+            httpResource.setEntityBodyAttributeValue(resourceConfigAnnotation.getStringValue(BODY_FIELD));
+            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfigAnnotation.getMapValue(CORS_FIELD)));
+            httpResource
+                    .setTransactionInfectable(resourceConfigAnnotation.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
 
             processResourceCors(httpResource, httpService);
             httpResource.prepareAndValidateSignatureParams();

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/cache;
 import ballerina/reflect;
 

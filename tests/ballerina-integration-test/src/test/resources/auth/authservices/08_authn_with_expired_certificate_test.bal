@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:JWTAuthProvider jwtAuthProvider08 = new({
+jwt:JWTAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
     audience: ["ballerina.io"],
     certificateAlias: "cert",
@@ -27,7 +27,7 @@ auth:JWTAuthProvider jwtAuthProvider08 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler08 = new(jwtAuthProvider08);
+http:BearerAuthHeaderAuthnHandler jwtAuthnHandler08 = new(jwtAuthProvider08);
 
 listener http:Listener listener08 = new(9099, config = {
     auth: {

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body>
+<div class="ui grid">
+    <div class="navi-wrapper two wide column">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="fourteen wide column content-wrapper">
+        <div class="main-wrapper">
+            <h1>Constants</h1>
+            <div class="constants">
+                <div class="data-wrapper">
+                    {{#each constants}}
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ typeName type }}}</span> {{ value }}</li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

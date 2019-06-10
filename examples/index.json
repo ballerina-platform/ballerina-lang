@@ -998,6 +998,10 @@
             {
                 "name": "Transaction Producer",
                 "url": "artemis-transaction-producer"
+            },
+            {
+                "name": "Data Binding",
+                "url": "artemis-data-binding"
             }
         ]
     },

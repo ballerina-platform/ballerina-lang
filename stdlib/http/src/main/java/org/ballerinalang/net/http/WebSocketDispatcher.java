@@ -93,7 +93,8 @@ public class WebSocketDispatcher {
         } catch (BallerinaConnectorException | URITemplateException e) {
             String message = "No Service found to handle the service request";
             webSocketHandshaker.cancelHandshake(404, message);
-            throw new BallerinaConnectorException(message, e);
+            log.error(message, e);
+            return null;
         }
     }
 
@@ -173,7 +174,7 @@ public class WebSocketDispatcher {
 //                            null, null, bValues);
         } catch (BallerinaException ex) {
             webSocketConnection.terminateConnection(1003, ex.getMessage());
-            throw ex;
+            log.error("Data binding failed. Hence connection terminated. ", ex);
         }
     }
 
