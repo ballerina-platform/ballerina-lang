@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 
@@ -44,15 +45,13 @@ public class Put extends AbstractHTTPAction {
         executeNonBlockingAction(dataContext, false);
     }
 
-    public static void nativePut(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
-                                 ObjectValue requestObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
+    public static Object nativePut(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
+        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
         outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PUT);
-        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
-        // Execute the operation
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
+        return null;
     }
 }

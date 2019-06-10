@@ -17,7 +17,6 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.ChannelDetails;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -272,7 +271,7 @@ public class Scheduler {
                         // TODO clean, better move it to future value itself
                         if (item.future.callback != null) {
                             if (item.future.panic != null) {
-                                item.future.callback.notifyFailure((ErrorValue) panic);
+                                item.future.callback.notifyFailure(BallerinaErrors.createError(panic.getMessage()));
                             } else {
                                 item.future.callback.notifySuccess();
                             }

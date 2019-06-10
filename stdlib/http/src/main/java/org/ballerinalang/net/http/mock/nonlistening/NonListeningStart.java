@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
@@ -51,6 +52,7 @@ public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoin
     public static void start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         MockHTTPConnectorListener httpListener = MockHTTPConnectorListener.getInstance();
-        httpListener.setHttpServicesRegistry(httpServicesRegistry);
+        httpListener.setHttpServicesRegistry(((Long) listener.get(HttpConstants.ENDPOINT_CONFIG_PORT)).intValue(),
+                                             httpServicesRegistry);
     }
 }
