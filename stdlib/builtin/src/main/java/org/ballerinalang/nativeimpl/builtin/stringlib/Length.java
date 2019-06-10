@@ -49,6 +49,7 @@ public class Length extends BlockingNativeCallableUnit {
     }
 
     public static long length(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.length();
     }
 }

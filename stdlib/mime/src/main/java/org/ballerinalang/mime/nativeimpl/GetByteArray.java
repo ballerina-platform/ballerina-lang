@@ -21,6 +21,10 @@ package org.ballerinalang.mime.nativeimpl;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -69,7 +73,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                     String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
                                                                         HttpHeaderNames.CONTENT_TYPE.toString());
                     if (isNotNullAndEmpty(contentTypeValue)) {
-                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                        String charsetValue = MimeUtil.getContentTypeBParamValue(contentTypeValue, CHARSET);
                         if (isNotNullAndEmpty(charsetValue)) {
                             result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
                         } else {
@@ -93,5 +97,44 @@ public class GetByteArray extends AbstractGetPayloadHandler {
             createErrorAndNotify(context, callback,
                                  "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
+    }
+
+    public static Object getByteArray(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        ArrayValue result = null;
+        try {
+            Object messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (messageDataSource != null) {
+                if (messageDataSource instanceof ArrayValue) {
+                    result = (ArrayValue) messageDataSource;
+                } else {
+                    String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
+                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
+                    if (isNotNullAndEmpty(contentTypeValue)) {
+                        String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                        if (isNotNullAndEmpty(charsetValue)) {
+                            result = new ArrayValue(messageDataSource.toString().getBytes(charsetValue));
+                        } else {
+                            result = new ArrayValue(messageDataSource.toString().getBytes(
+                                    Charset.defaultCharset()));
+                        }
+                    }
+                }
+                return result != null ? result : new BValueArray(new byte[0]);
+            }
+
+            Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
+            if (isStreamingRequired(entityObj) || transportMessage == null) {
+                result = EntityBodyHandler.constructBlobDataSource(entityObj);
+                updateDataSource(entityObj, result);
+            } else {
+                callback = new NonBlockingCallback(strand);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(callback,
+                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
+        }
+        return result;
     }
 }

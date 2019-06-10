@@ -52,8 +52,8 @@ public class EncryptAesCbc extends BlockingNativeCallableUnit {
                 -1);
     }
 
-    public static Object encryptAesCbc(Strand strand, Object padding, ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue) {
+    public static Object encryptAesCbc(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
+                                       ArrayValue ivValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;

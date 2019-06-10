@@ -25,8 +25,8 @@ package org.ballerinalang.jvm.types;
  */
 public class BTypedescType extends BType {
 
-    public BTypedescType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Object.class);
+    public BTypedescType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Object.class);
     }
 
     @Override

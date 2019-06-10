@@ -88,10 +88,9 @@ task genBalx(type: JavaExec) {
     outputs.cacheIf { true }
 }
 
-test {
-    dependsOn genBalx
-
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}
+// test {
+//     dependsOn genBalx
+// 
+//     useTestNG() {
+//         suites 'src/test/resources/testng.xml'
+//     }

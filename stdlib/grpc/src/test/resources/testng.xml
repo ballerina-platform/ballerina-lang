@@ -21,12 +21,12 @@ under the License.
 
 <suite name="ballerina-grpc-test-suite">
     <test name="ballerina-grpc-test" parallel="false">
-        <classes >
+        <!-- <classes>
             <class name="org.ballerinalang.net.grpc.CompressorCodecTest"/>
             <class name="org.ballerinalang.net.grpc.ProtoBuilderDefinitionTest"/>
             <class name="org.ballerinalang.net.grpc.ResourceReturnTypeTest"/>
             <class name="org.ballerinalang.net.grpc.UnsupportedFieldTypesTest"/>
             <class name="org.ballerinalang.net.grpc.ConnectionPoolTestCase"/>
-        </classes>
+        </classes> -->
     </test>
 </suite>

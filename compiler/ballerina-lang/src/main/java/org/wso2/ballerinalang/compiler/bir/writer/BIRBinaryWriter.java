@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
@@ -145,7 +146,7 @@ public class BIRBinaryWriter {
             buf.writeByte(birGlobalVar.visibility.value());
 
             // Function type as a CP Index
-            typeWriter.visitType(birGlobalVar.type);
+            writeType(buf, birGlobalVar.type);
         }
     }
 
@@ -156,7 +157,7 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Visibility
         buf.writeByte(typeDef.visibility.value());
-        typeWriter.visitType(typeDef.type);
+        writeType(buf, typeDef.type);
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
@@ -176,11 +177,12 @@ public class BIRBinaryWriter {
         // Non-zero value means this is a function declaration e.g. extern function
         buf.writeByte(birFunction.isDeclaration ? 1 : 0);
         buf.writeByte(birFunction.isInterface ? 1 : 0);
+        buf.writeByte(birFunction.isRemote ? 1 : 0);
         // Visibility
         buf.writeByte(birFunction.visibility.value());
 
         // Function type as a CP Index
-        typeWriter.visitType(birFunction.type);
+        writeType(buf, birFunction.type);
 
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
@@ -202,7 +204,7 @@ public class BIRBinaryWriter {
         boolean hasReceiverType = birFunction.receiverType != null;
         buf.writeBoolean(hasReceiverType);
         if (hasReceiverType) {
-            typeWriter.visitType(birFunction.receiverType);
+            writeType(buf, birFunction.receiverType);
         }
 
         writeTaintTable(buf, birFunction.taintTable);
@@ -218,14 +220,14 @@ public class BIRBinaryWriter {
         birbuf.writeBoolean(birFunction.returnVariable != null);
         if (birFunction.returnVariable != null) {
             birbuf.writeByte(birFunction.returnVariable.kind.getValue());
-            funcTypeWriter.visitType(birFunction.returnVariable.type);
+            writeType(birbuf, birFunction.returnVariable.type);
             birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
         }
 
         birbuf.writeInt(birFunction.parameters.size());
         for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
             birbuf.writeByte(param.kind.getValue());
-            funcTypeWriter.visitType(param.type);
+            writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
             birbuf.writeBoolean(param.hasDefaultExpr);
         }
@@ -233,7 +235,7 @@ public class BIRBinaryWriter {
         birbuf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             birbuf.writeByte(localVar.kind.getValue());
-            funcTypeWriter.visitType(localVar.type);
+            writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
@@ -291,7 +293,7 @@ public class BIRBinaryWriter {
         buf.writeByte(birAnnotation.visibility.value());
 
         buf.writeInt(birAnnotation.attachPoints);
-        typeWriter.visitType(birAnnotation.annotationType);
+        writeType(buf, birAnnotation.annotationType);
     }
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
@@ -311,12 +313,12 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeByte(birConstant.visibility.value());
-        typeWriter.visitType(birConstant.type);
+        writeType(buf, birConstant.type);
         writeConstValue(buf, typeWriter, birConstant.constValue);
     }
 
     private void writeConstValue(ByteBuf buf, BIRTypeWriter typeWriter, ConstValue constValue) {
-        typeWriter.visitType(constValue.valueType);
+        writeType(buf, constValue.valueType);
         switch (constValue.valueType.tag) {
             case TypeTags.INT:
                 buf.writeInt(addIntCPEntry((Long) constValue.literalValue));
@@ -362,5 +364,9 @@ public class BIRBinaryWriter {
 
     private int addByteCPEntry(int value) {
         return cp.addCPEntry(new ByteCPEntry(value));
+    }
+
+    private void writeType(ByteBuf buf, BType type) {
+        buf.writeInt(cp.addShapeCPEntry(type));
     }
 }

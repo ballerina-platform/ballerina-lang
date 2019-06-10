@@ -367,7 +367,7 @@ public function workerWithFutureTest1() returns int {
     future<int> f1 = start add(5, 5);
     worker w1 {
       int i = 40;
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {
@@ -387,7 +387,7 @@ public function workerWithFutureTest2() returns int {
       int i = 40;
       // Delay the execution of worker w1
       runtime:sleep(200);
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {
@@ -402,7 +402,7 @@ public function workerWithFutureTest3() returns int {
     future<int> f1 = start add(10, 8);
     worker w1 {
       int i = 40;
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {

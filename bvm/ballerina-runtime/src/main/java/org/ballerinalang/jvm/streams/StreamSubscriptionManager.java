@@ -18,8 +18,9 @@
 
 package org.ballerinalang.jvm.streams;
 
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.function.Consumer;
 
 /**
  * The {@link StreamSubscriptionManager} manages the streams subscriptions. It is responsible for registering
@@ -51,7 +51,7 @@ public class StreamSubscriptionManager implements Observer {
         return streamSubscriptionManager;
     }
 
-    public void registerMessageProcessor(StreamValue stream, Consumer functionPointer) {
+    public void registerMessageProcessor(StreamValue stream, FPValue<Object[], Object> functionPointer) {
         synchronized (this) {
             processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
                     .add(new DefaultStreamSubscription(stream, functionPointer, this));
@@ -66,10 +66,10 @@ public class StreamSubscriptionManager implements Observer {
 
     }
 
-    public void sendMessage(StreamValue stream, RefValue value) {
+    public void sendMessage(StreamValue stream, Strand strand, Object value) {
         List<StreamSubscription> msgProcessors = processors.get(stream.topicName);
         if (msgProcessors != null) {
-            msgProcessors.forEach(processor -> processor.send(value));
+            msgProcessors.forEach(processor -> processor.send(strand, value));
         }
     }
 
@@ -80,9 +80,10 @@ public class StreamSubscriptionManager implements Observer {
         }
         StreamSubscription msgProcessor = (StreamSubscription) o;
         StreamValue stream = msgProcessor.getStream();
-        if (!(arg instanceof RefValue)) {
-            throw new BallerinaException("Data received to stream: " + stream.getStreamId() + "is not supported");
+        if (!(arg instanceof Object[])) {
+            throw new BallerinaException("Invalid data parameters received to stream: " + stream.getStreamId());
+        } else {
+            msgProcessor.execute((Object[]) arg);
         }
-        msgProcessor.execute((RefValue) arg);
     }
 }

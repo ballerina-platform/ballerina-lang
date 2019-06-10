@@ -18,8 +18,13 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
@@ -35,5 +40,16 @@ public class Submit extends Execute {
         DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         // Execute the operation
         executeNonBlockingAction(dataContext, true);
+    }
+
+    public static void nativeSubmit(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
+                                    ObjectValue requestObj) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
+
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
+        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
     }
 }

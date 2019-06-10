@@ -28,10 +28,10 @@ public class BXMLAttributesType extends BType {
      * Create a {@code BXMLAttributesType} represents the type an xml-attribute-map in ballerina.
      *
      * @param typeName string name of the type
-     * @param pkgPath package path
+     * @param pkg package path
      */
-    BXMLAttributesType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null);
+    BXMLAttributesType(String typeName, BPackage pkg) {
+        super(typeName, pkg, null);
     }
 
     public <V extends Object> V getZeroValue() {

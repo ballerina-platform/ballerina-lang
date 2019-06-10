@@ -21,13 +21,13 @@ under the License.
 
 <suite name="ballerina-test-suite">
 
-    <listeners>
+    <!-- <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
-        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
+        <listener class-name="org.ballerinalang.test.utils.TestNGListener"/>
     </listeners>
 
-    <!--Ballerina language Test Cases. -->
+    Ballerina language Test Cases.
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
             <run>
@@ -70,7 +70,7 @@ under the License.
             <package name="org.ballerinalang.test.imports.*" />
         </packages>
 
-		<!-- TODO: remove once constraint tests are fixed -->
+		TODO: remove once constraint tests are fixed
 		<classes>
 			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
@@ -81,5 +81,5 @@ under the License.
         <packages >
             <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
-    </test>
+    </test> -->
 </suite>

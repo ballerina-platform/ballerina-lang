@@ -200,21 +200,18 @@ public class GetTable implements NativeCallableUnit {
             Register register = EventRegister.getFactory().register(event, GetTable::getResponse);
             eventContext.setRegister(register);
             register.submit();
-            //TODO : Remove callback once strand non-blocking support is given
-            callback.sync();
         } catch (Exception e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
             callback.setReturnValues(IOUtils.createError(msg));
             callback.notifySuccess();
         }
-        return callback.getReturnValue();
+        return null;
     }
 
     private static EventResult getResponse(EventResult<List, EventContext> result) {
         TableValue table;
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {

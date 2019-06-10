@@ -52,6 +52,7 @@ public class HasPrefix extends BlockingNativeCallableUnit {
     }
 
     public static boolean hasPrefix(Strand strand, String value, String prefix) {
+        StringUtils.checkForNull(value, prefix);
         return value.startsWith(prefix);
     }
 }

@@ -28,10 +28,10 @@ public class BNullType extends BType {
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
      *
      * @param typeName string name of the type
-     * @param pkgPath package path
+     * @param pkg package path
      */
-    BNullType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null);
+    BNullType(String typeName, BPackage pkg) {
+        super(typeName, pkg, null);
     }
 
     public <V extends Object> V getZeroValue() {

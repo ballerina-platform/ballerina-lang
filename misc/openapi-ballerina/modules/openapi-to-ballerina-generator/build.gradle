@@ -18,6 +18,10 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser'
     implementation 'com.github.jknack:handlebars'

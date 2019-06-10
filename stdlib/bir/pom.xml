@@ -146,7 +146,7 @@
                         </configuration>
                     </execution>
 
-                    <execution>
+                    <!-- <execution>
                         <id>gen-balx-for-test</id>
                         <goals>
                             <goal>java</goal>
@@ -166,7 +166,7 @@
                             </arguments>
                             <mainClass>org.ballerinalang.cli.utils.GenerateBalx</mainClass>
                         </configuration>
-                    </execution>
+                    </execution> -->
                 </executions>
             </plugin>
 
