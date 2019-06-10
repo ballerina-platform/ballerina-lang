@@ -100,6 +100,10 @@ public enum Snippet {
 
     KW_UNTAINT(SnippetGenerator.getUntaintKeywordSnippet()),
 
+    KW_ABSTRACT(SnippetGenerator.getAbstractKeywordSnippet()),
+
+    KW_CLIENT(SnippetGenerator.getClientKeywordSnippet()),
+
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 
