@@ -22,11 +22,10 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -44,8 +43,7 @@ public class ProducesConsumesAnnotationTest {
 
     @BeforeClass()
     public void setup() {
-        compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
+        compileResult = BCompileUtil.compile("test-src/services/dispatching/produces-consumes-test.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
@@ -68,7 +66,7 @@ public class ProducesConsumesAnnotationTest {
         HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 415, "Unsupported media type");
     }
 
@@ -80,7 +78,7 @@ public class ProducesConsumesAnnotationTest {
         HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 415, "Unsupported media type");
     }
 
@@ -139,7 +137,7 @@ public class ProducesConsumesAnnotationTest {
         HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
@@ -151,7 +149,7 @@ public class ProducesConsumesAnnotationTest {
         HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
@@ -177,7 +175,7 @@ public class ProducesConsumesAnnotationTest {
         HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 

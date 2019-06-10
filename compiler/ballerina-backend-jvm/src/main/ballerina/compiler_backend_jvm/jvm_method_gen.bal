@@ -86,6 +86,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     loadChannelDetails(mv, func.workerChannels);
     mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
 
+    // panic if this strand is cancelled
+    checkStrandCancelled(mv, localVarOffset);
+
     bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
@@ -609,11 +612,24 @@ function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicB
 
 function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, string lambdaName) {
     bir:BType? lhsType;
+    string orgName;
+    string moduleName;
+    string funcName; 
     if (ins is bir:AsyncCall) {
         lhsType = ins.lhsOp.typeValue;
+        orgName = ins.pkgID.org;
+        moduleName = ins.pkgID.name;
+        funcName = ins.name.value;
     } else {
         lhsType = ins.lhsOp.typeValue;
+        orgName = ins.pkgID.org;
+        moduleName = ins.pkgID.name;
+        funcName = ins.name.value;
     }
+
+    string lookupKey = getPackageName(orgName, moduleName) + funcName;
+    string jvmClass = lookupFullQualifiedClassName(lookupKey);
+    boolean isExternFunction = isBIRFunctionExtern(lookupKey);
 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
@@ -644,7 +660,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     }
 
     mv.visitCode();
-
     // load strand as first arg
     // strand and other args are in a object[] param. This param comes after closure maps.
     // hence the closureMapsCount is equal to the array's param index.
@@ -653,8 +668,31 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
+    if (isExternStaticFunctionCall(ins)) {
+        jvm:Label blockedOnExternLabel = new;
+
+        mv.visitInsn(DUP);
+
+        mv.visitFieldInsn(GETFIELD, STRAND, "blockedOnExtern", "Z");
+        mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOnExtern", "Z");
+
+        if (!isVoid) {
+            mv.visitInsn(DUP);
+
+            mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
+            mv.visitInsn(ARETURN);   
+        } else {
+            mv.visitInsn(RETURN);
+        }
+
+        mv.visitLabel(blockedOnExternLabel);
+    }
+
     bir:BType?[] paramBTypes = [];
-    string funcName; 
     if (ins is bir:AsyncCall) {
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
@@ -668,11 +706,12 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
-            addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
-            paramBTypes[paramIndex -1] = "boolean";
-            paramIndex += 1;
+            if (!isExternFunction) {
+                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+                paramBTypes[paramIndex -1] = "boolean";
+                paramIndex += 1;
+            }
         }
-        funcName = ins.name.value;
     } else {
         //load closureMaps
         int i = 0;
@@ -695,14 +734,15 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramIndex += 1;
             i += 1;
 
-            addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
-            paramBTypes[paramIndex -1] = "boolean";
-            paramIndex += 1;
+            if (!isExternFunction) {
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+                paramBTypes[paramIndex -1] = "boolean";
+                paramIndex += 1;
+            }   
         }
-        funcName = ins.name.value;
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
+    mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
     
     if (isVoid) {
         mv.visitInsn(RETURN);
@@ -710,6 +750,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
+
     mv.visitMaxs(0,0);
     mv.visitEnd();
 }
@@ -1458,7 +1499,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     if (isPackage) {
         fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
     } else {
-        fv = cw.visitField(ACC_PROTECTED, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }
     fv.visitEnd();
 }
@@ -1598,4 +1639,15 @@ function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
         error err = error(io:sprintf("Invalid functions: %s", functions));
         panic err;
     }
+}
+
+function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
+    jvm:Label notCancelledLabel = new;
+    mv.visitJumpInsn(IFEQ, notCancelledLabel);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
+    mv.visitInsn(ATHROW);
+    
+    mv.visitLabel(notCancelledLabel);
 }

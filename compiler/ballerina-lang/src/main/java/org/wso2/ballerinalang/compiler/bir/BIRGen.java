@@ -1104,33 +1104,25 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangMapAccessExpr astMapAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
+        BIROperand rhsOp = this.env.targetOperand;
+
+        astMapAccessExpr.expr.accept(this);
+        BIROperand varRefRegIndex = this.env.targetOperand;
+
+        astMapAccessExpr.indexExpr.accept(this);
+        BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
-            BIROperand rhsOp = this.env.targetOperand;
-
-            astMapAccessExpr.expr.accept(this);
-            BIROperand varRefRegIndex = this.env.targetOperand;
-
-            astMapAccessExpr.indexExpr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
                     keyRegIndex, rhsOp));
-        } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
-                    VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand tempVarRef = new BIROperand(tempVarDcl);
-
-            astMapAccessExpr.expr.accept(this);
-            BIROperand varRefRegIndex = this.env.targetOperand;
-
-            astMapAccessExpr.indexExpr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
-            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
-                    keyRegIndex, varRefRegIndex, astMapAccessExpr.except));
-            this.env.targetOperand = tempVarRef;
         }
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
+                keyRegIndex, varRefRegIndex, astMapAccessExpr.except));
+        this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }
 
@@ -1894,33 +1886,26 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
 
+        BIROperand rhsOp = this.env.targetOperand;
+
+        astArrayAccessExpr.expr.accept(this);
+        BIROperand varRefRegIndex = this.env.targetOperand;
+
+        astArrayAccessExpr.indexExpr.accept(this);
+        BIROperand keyRegIndex = this.env.targetOperand;
+
         if (variableStore) {
-            BIROperand rhsOp = this.env.targetOperand;
-
-            astArrayAccessExpr.expr.accept(this);
-            BIROperand varRefRegIndex = this.env.targetOperand;
-
-            astArrayAccessExpr.indexExpr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_STORE, varRefRegIndex,
                     keyRegIndex, rhsOp));
-        } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type, this.env.nextLocalVarId(names),
-                    VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand tempVarRef = new BIROperand(tempVarDcl);
-
-            astArrayAccessExpr.expr.accept(this);
-            BIROperand varRefRegIndex = this.env.targetOperand;
-
-            astArrayAccessExpr.indexExpr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
-            emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
-                    keyRegIndex, varRefRegIndex));
-            this.env.targetOperand = tempVarRef;
         }
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
+                keyRegIndex, varRefRegIndex));
+        this.env.targetOperand = tempVarRef;
 
         this.varAssignment = variableStore;
     }

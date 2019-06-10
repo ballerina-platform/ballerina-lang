@@ -256,7 +256,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     position.getPosition(), context);
             try {
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
-            } catch (LSReferencesException e) {
+            } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while processing Definitions" + ((msg != null) ? ": " + msg : ""), e);
