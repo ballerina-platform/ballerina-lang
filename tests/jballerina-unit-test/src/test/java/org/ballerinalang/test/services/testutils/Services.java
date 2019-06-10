@@ -79,8 +79,6 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        // Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
-        // (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
         callback.setRequestStruct(signatureParams[0]);
 
