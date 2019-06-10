@@ -224,7 +224,7 @@ public class LSCompiler {
             relativeFilePath = fileNamePath == null ? "" : fileNamePath.toString();
             pkgID = new PackageID(relativeFilePath);
             pkgName = relativeFilePath;
-            // No need to compile the full project for the files which does not have a package.
+            // No need to compile the full project for a file which is not inside a module.
             compileFullProject = false;
         } else {
             relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
