@@ -1244,7 +1244,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
         final String serviceVarName = null;
         final DiagnosticPos varPos = serviceDefPos;
-        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, true);
+        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, true,
+                                      ctx.serviceConstructorExpr().annotationAttachment().size());
     }
 
     @Override

@@ -36,7 +36,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 175);
+        Assert.assertEquals(compileResult.getErrorCount(), 188);
     }
 
     @Test
@@ -320,5 +320,23 @@ public class AnnotationAttachmentPointTest {
         validateError(compileResult, index++, "annotation 'v10' is not allowed on external", 579, 61);
         validateError(compileResult, index++, "annotation 'v11' is not allowed on external", 582, 61);
         validateError(compileResult, index, "annotation 'v12' is not allowed on external", 585, 61);
+    }
+
+    @Test
+    public void testInvalidAttachmentOnServiceVariable() {
+        int index = 175;
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 589, 1);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 593, 1);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 596, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on service", 599, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on service", 602, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on service", 605, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on service", 608, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on service", 611, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on service", 612, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on service", 615, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on service", 618, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on service", 621, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on service", 624, 1);
     }
 }
