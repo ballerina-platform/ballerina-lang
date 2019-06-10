@@ -107,7 +107,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HttpCarbonMessage carbonMessage) {
         HttpResource httpResource = null;
         boolean isOptionsRequest = false;
-        String httpMethod = (String) carbonMessage.getProperty(HttpConstants.HTTP_METHOD);
+        String httpMethod = carbonMessage.getHttpMethod();
         for (HttpResource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 httpResource = resourceInfo;
@@ -124,7 +124,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             return httpResource;
         }
         if (!isOptionsRequest) {
-            carbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 405);
+            carbonMessage.setHttpStatusCode(405);
             throw new BallerinaException("Method not allowed");
         }
         return null;
@@ -176,7 +176,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                 return;
             }
         }
-        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 415);
+        cMsg.setHttpStatusCode(415);
         throw new BallerinaException();
     }
 
@@ -219,7 +219,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                 return;
             }
         }
-        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 406);
+        cMsg.setHttpStatusCode(406);
         throw new BallerinaException();
     }
 

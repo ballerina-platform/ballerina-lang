@@ -40,12 +40,12 @@ under the License.
             </run>
         </groups>
         <packages>
-            <!-- <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!--<package name="org.ballerinalang.stdlib.entity.*"/>
             <package name="org.ballerinalang.stdlib.multipart.*"/>
             <package name="org.ballerinalang.stdlib.services.basics.*"/> -->
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
-            <!--<package name="org.ballerinalang.stdlib.services.cors.*"/>
-            <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
+            <package name="org.ballerinalang.stdlib.services.cors.*"/>
+            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>
             <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>
@@ -64,6 +64,9 @@ under the License.
                     <exclude name="testErrorReturn"></exclude>
                 </methods>
             </class>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
         </classes>
     </test>
 </suite>
