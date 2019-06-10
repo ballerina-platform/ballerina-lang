@@ -99,5 +99,5 @@ public type InboundOAuth2Provider object {
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientEndpointConfig clientConfig = {};
 |};

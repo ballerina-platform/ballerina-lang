@@ -84,13 +84,14 @@ public type OAuth2ProviderConfig record {|
 
 # The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
 #
-# + tokenUrl - Token URL for the authorization server
+# + tokenUrl - Token URL for the authorization endpoint
 # + clientId - Client ID for the client credentials grant authentication
 # + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope of the access request
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations which calls the authorization endpoint
 public type ClientCredentialsGrantConfig record {|
     string tokenUrl;
     string clientId;
@@ -99,11 +100,12 @@ public type ClientCredentialsGrantConfig record {|
     int clockSkew = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
+    http:ClientEndpointConfig clientConfig = {};
 |};
 
 # The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
 #
-# + tokenUrl - Token URL for the authorization server
+# + tokenUrl - Token URL for the authorization endpoint
 # + username - Username for password grant authentication
 # + password - Password for password grant authentication
 # + clientId - Client ID for password grant authentication
@@ -112,7 +114,8 @@ public type ClientCredentialsGrantConfig record {|
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations which calls the authorization endpoint
 public type PasswordGrantConfig record {|
     string tokenUrl;
     string username;
@@ -124,15 +127,16 @@ public type PasswordGrantConfig record {|
     int clockSkew = 0;
     boolean retryRequest = true;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
+    http:ClientEndpointConfig clientConfig = {};
 |};
 
 # The `DirectTokenConfig` record configures the access token directly.
 #
-# + accessToken - Access token for the authorization server
+# + accessToken - Access token for the authorization endpoint
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
 public type DirectTokenConfig record {|
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
@@ -145,11 +149,13 @@ public type DirectTokenConfig record {|
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations which calls the authorization endpoint
 public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
+    http:ClientEndpointConfig clientConfig = {};
 |};
 
 # The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for
@@ -157,10 +163,11 @@ public type RefreshConfig record {|
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + refreshToken - Refresh token for the refresh token server
-# + clientId - Client ID for authentication with the authorization server
-# + clientSecret - Client secret for authentication with the authorization server
+# + clientId - Client ID for authentication with the authorization endpoint
+# + clientSecret - Client secret for authentication with the authorization endpoint
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations which calls the authorization endpoint
 public type DirectTokenRefreshConfig record {|
     string refreshUrl;
     string refreshToken;
@@ -168,12 +175,13 @@ public type DirectTokenRefreshConfig record {|
     string clientSecret;
     string[] scopes?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
+    http:ClientEndpointConfig clientConfig = {};
 |};
 
 # The `CachedToken` stores the values received from the authorization/token server to use them
 # for the latter requests without requesting tokens again.
 #
-# + accessToken - Access token for the  authorization server
+# + accessToken - Access token for the  authorization endpoint
 # + refreshToken - Refresh token for the refresh token server
 # + expiryTime - Expiry time of the access token in milliseconds
 public type CachedToken record {
@@ -182,13 +190,13 @@ public type CachedToken record {
     int expiryTime;
 };
 
-# The `RequestConfig` record prepares the HTTP request, which is to be sent to the authorization server.
+# The `RequestConfig` record prepares the HTTP request, which is to be sent to the authorization endpoint.
 #
 # + payload - Payload of the request
 # + clientId - Client ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to the authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization endpoint
 type RequestConfig record {|
     string payload;
     string clientId?;
@@ -400,7 +408,7 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
     return false;
 }
 
-# Request an access token from the authorization server using the provided configurations.
+# Request an access token from the authorization endpoint using the provided configurations.
 #
 # + config - Grant type configuration
 # + tokenCache - Cached token configurations
@@ -411,6 +419,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     RequestConfig requestConfig;
     int clockSkew;
     string tokenUrl;
+    http:ClientEndpointConfig clientConfig;
 
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
@@ -425,6 +434,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             credentialBearer: config.credentialBearer
         };
         clockSkew = config.clockSkew;
+        clientConfig = config.clientConfig;
     } else {
         tokenUrl = config.tokenUrl;
         var clientId = config["clientId"];
@@ -448,13 +458,14 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             };
         }
         clockSkew = config.clockSkew;
+        clientConfig = config.clientConfig;
     }
 
     http:Request authorizationRequest = check prepareRequest(requestConfig);
-    return doRequest(tokenUrl, authorizationRequest, tokenCache, clockSkew);
+    return doRequest(tokenUrl, authorizationRequest, clientConfig, tokenCache, clockSkew);
 }
 
-# Request an access token from the authorization server using the provided refresh configurations.
+# Request an access token from the authorization endpoint using the provided refresh configurations.
 #
 # + config - Password grant type configuration or direct token configuration
 # + tokenCache - Cached token configurations
@@ -465,6 +476,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     RequestConfig requestConfig;
     int clockSkew;
     string refreshUrl;
+    http:ClientEndpointConfig clientConfig;
 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
@@ -480,6 +492,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 scopes: refreshConfig["scopes"],
                 credentialBearer: refreshConfig.credentialBearer
             };
+            clientConfig = refreshConfig.clientConfig;
         } else {
             return prepareError("Failed to refresh access token since RefreshTokenConfig is not provided.");
         }
@@ -499,6 +512,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 scopes: refreshConfig["scopes"],
                 credentialBearer: refreshConfig.credentialBearer
             };
+            clientConfig = refreshConfig.clientConfig;
         } else {
             return prepareError("Failed to refresh access token since DirectRefreshTokenConfig is not provided.");
         }
@@ -506,18 +520,20 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     }
 
     http:Request refreshRequest = check prepareRequest(requestConfig);
-    return doRequest(refreshUrl, refreshRequest, tokenCache, clockSkew);
+    return doRequest(refreshUrl, refreshRequest, clientConfig, tokenCache, clockSkew);
 }
 
-# Execute the actual request and get the access token from authorization server.
+# Execute the actual request and get the access token from authorization endpoint.
 #
-# + url - URL of the authorization server
-# + request - Prepared request to be sent to the authorization server
+# + url - URL of the authorization endpoint
+# + request - Prepared request to be sent to the authorization endpoint
+# + clientConfig - HTTP client configurations which calls the authorization endpoint
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Access token received or `error` if an error occurred during HTTP client invocation
-function doRequest(string url, http:Request request, CachedToken tokenCache, int clockSkew) returns string|error {
-    http:Client clientEP = new(url);
+function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig, CachedToken tokenCache,
+                   int clockSkew) returns string|error {
+    http:Client clientEP = new(url, config = clientConfig);
     var response = clientEP->post(EMPTY_STRING, request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
@@ -529,7 +545,7 @@ function doRequest(string url, http:Request request, CachedToken tokenCache, int
     }
 }
 
-# Prepare the request to be sent to the authorization server by adding the relevant headers and payloads.
+# Prepare the request to be sent to the authorization endpoint by adding the relevant headers and payloads.
 #
 # + config - `RequestConfig` record
 # + return - Prepared HTTP request object
