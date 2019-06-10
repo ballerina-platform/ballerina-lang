@@ -51,12 +51,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function post(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->post(path, req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->post(path, req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->post(path, inspection);
         }
         return res;
     }
@@ -70,12 +69,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function head(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->head(path, message = req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->head(path, message = inspection);
         }
         return res;
     }
@@ -89,12 +87,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function put(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->put(path, req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->put(path, req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->put(path, inspection);
         }
         return res;
     }
@@ -109,12 +106,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->execute(httpVerb, path, req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->execute(httpVerb, path, req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->execute(httpVerb, path, inspection);
         }
         return res;
     }
@@ -128,12 +124,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function patch(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->patch(path, req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->patch(path, req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->patch(path, inspection);
         }
         return res;
     }
@@ -147,12 +142,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function delete(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->delete(path, req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->delete(path, req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->delete(path, inspection);
         }
         return res;
     }
@@ -166,12 +160,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function get(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->get(path, message = req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->get(path, message = req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->get(path, message = inspection);
         }
         return res;
     }
@@ -185,12 +178,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
     public remote function options(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->options(path, message = req);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(req, self.config);
-            return self.httpClient->options(path, message = req);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->options(path, message = inspection);
         }
         return res;
     }
@@ -202,12 +194,12 @@ public type HttpSecureClient client object {
     # + request - An HTTP inbound request message
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function forward(string path, Request request) returns Response|error {
-        boolean retryRequired = check generateSecureRequest(request, self.config);
+        Request req = request;
+        req = check prepareSecureRequest(request, self.config);
         Response res = check self.httpClient->forward(path, request);
-        retryRequired = isRetryRequired(retryRequired, res, self.config);
-        if (retryRequired) {
-            check updateRequest(request, self.config);
-            return self.httpClient->forward(path, request);
+        var inspection = check doInspection(req, res, self.config);
+        if (inspection is Request) {
+            return self.httpClient->forward(path, inspection);
         }
         return res;
     }
@@ -222,7 +214,7 @@ public type HttpSecureClient client object {
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         Request req = <Request>message;
-        boolean retryRequired = check generateSecureRequest(req, self.config);
+        req = check prepareSecureRequest(req, self.config);
         return self.httpClient->submit(httpVerb, path, req);
     }
 
@@ -281,82 +273,35 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-# Prepare an HTTP request with the required headers for authentication based on the scheme and return a flag saying
-# whether retrying is required if the response will be 401.
+# Prepare an HTTP request with the required headers for authentication based on the scheme.
 #
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
-# + return - Whether retrying is required for a 401 response or `error` if an error occurred during the HTTP client invocation
-function generateSecureRequest(Request req, ClientEndpointConfig config) returns boolean|error {
+# + return - Prepared HTTP request or `error` if an error occurred at auth handler invocation
+function prepareSecureRequest(Request req, ClientEndpointConfig config) returns Request|error {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;
-        var response = authHandler.prepare(req);
-        if (response is error) {
-            return prepareError("Failed to prepare request from outbound auth handler.");
-        }
+        return authHandler.prepare(req);
     }
-    return false;
+    // Never throw this error since the auth config is already validated.
+    return prepareError("Failed to prepare the HTTP request since OutboundAuthConfig is not configured.");
 }
 
-# Log, prepare and return the `error`.
+# Do inspection with the received HTTP response for the prepared HTTP request.
 #
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `error` instance
-function prepareError(string message, error? err = ()) returns error {
-    log:printDebug(function () returns string { return message; });
-    error preparedError = error(HTTP_ERROR_CODE, { message: message, reason: err.reason() });
-    return preparedError;
-}
-
-# Check whether retrying is required for the response. This returns 'true' if the scheme is OAuth and the response
-# status is 401. That implies that the user has given an expired access token or the retrieved access token from the
-# cache is expired. Thus, the client should update it with the given refresh configurations.
-#
-# + retryRequired - Whether retrying is required or not
-# + res - Request object
+# + req - An HTTP outbound request message
+# + res - An HTTP outbound response message
 # + config - Client endpoint configurations
-# + return - Whether the client should retry or not
-function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConfig config) returns boolean {
-    if (retryRequired && res.statusCode == UNAUTHORIZED_401) {
-        //var auth = config.auth;
-        //if (auth is OutboundAuthConfig) {
-        //    var authConfig = auth.config;
-        //    if (auth.scheme == OAUTH2 && authConfig is OAuth2AuthConfig) {
-        //        var grantType = authConfig.grantType;
-        //        var grantTypeConfig = authConfig.config;
-        //        if ((grantType is PASSWORD_GRANT || grantType is DIRECT_TOKEN) &&
-        //            (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig)) {
-        //            log:printDebug(function () returns string {
-        //                return "Retry is required for the given request and configurations.";
-        //            });
-        //            return true;
-        //        }
-        //    }
-        //}
+# + return - Prepared HTTP request or `()` if nothing to be done or `error` if an error occurred at auth handler invocation
+function doInspection(Request req, Response res, ClientEndpointConfig config) returns Request|error? {
+    var auth = config.auth;
+    if (auth is OutboundAuthConfig) {
+        OutboundAuthHandler authHandler = auth.authHandler;
+        return authHandler.inspect(req, res);
     }
     log:printDebug(function () returns string {
-        return "Retry is not required for the given request.";
+        return "Retry is not required for the given request after the inspection.";
     });
-    return false;
-}
-
-# Update the retry request with the new access token.
-#
-# + req - HTTP request object
-# + config - Client endpoint configurations
-# + return - Returns `error` if an error occurred during the HTTP client invocation
-function updateRequest(Request req, ClientEndpointConfig config) returns error? {
-    var auth = config.auth;
-    //if (auth is OutboundAuthConfig) {
-    //    var authConfig = auth.config;
-    //    if (authConfig is OAuth2AuthConfig) {
-    //        string authToken;
-    //        boolean retryRequired;
-    //        (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
-    //        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
-    //    }
-    //}
     return ();
 }

@@ -39,6 +39,9 @@ public const POST_BODY_BEARER = "POST_BODY_BEARER";
 # Indicates that the authentication credentials should not be sent
 public const NO_BEARER = "NO_BEARER";
 
+# Indicates that the status code.
+public const STATUS_CODE = "STATUS_CODE";
+
 # Extracts the Authorization header value from the request.
 #
 # + req - Request instance
@@ -206,4 +209,29 @@ function isServiceResourceSecured(ServiceResourceAuth? serviceResourceAuth) retu
         secured = serviceResourceAuth.enabled;
     }
     return secured;
+}
+
+# Create map of headers of HTTP response.
+#
+# + resp - `Response` instance
+# + return - Map of response headers
+function createResponseHeaderMap(Response resp) returns map<anydata> {
+    map<anydata> headerMap = { STATUS_CODE: resp.statusCode };
+    string[] headerNames = resp.getHeaderNames();
+    foreach string header in headerNames {
+        string[] headerValues = resp.getHeaders(untaint header);
+        headerMap[header] = headerValues;
+    }
+    return headerMap;
+}
+
+# Log, prepare and return the `error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `error` instance
+function prepareError(string message, error? err = ()) returns error {
+    log:printDebug(function () returns string { return message; });
+    error preparedError = error(HTTP_ERROR_CODE, { message: message, reason: err.reason() });
+    return preparedError;
 }
