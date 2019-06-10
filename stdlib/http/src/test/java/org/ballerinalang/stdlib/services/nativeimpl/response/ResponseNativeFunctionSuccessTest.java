@@ -36,7 +36,6 @@ import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -78,8 +77,8 @@ public class ResponseNativeFunctionSuccessTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/services/nativeimpl/response/in-response-native-function.bal";
-        result = BCompileUtil.compileAndSetup(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        result = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test

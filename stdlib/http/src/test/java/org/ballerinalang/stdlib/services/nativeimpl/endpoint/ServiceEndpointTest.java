@@ -25,7 +25,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class ServiceEndpointTest {
     @BeforeClass
     public void setup() {
         String filePath = "test-src/services/nativeimpl/endpoint/service-endpoint-test.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, filePath);
+        serviceResult = BCompileUtil.compile(filePath);
     }
 
     @Test(description = "Test the protocol value of ServiceEndpoint struct within a service")
