@@ -45,11 +45,10 @@ public class Put extends AbstractHTTPAction {
         executeNonBlockingAction(dataContext, false);
     }
 
-    public static Object nativePut(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
-                                 ObjectValue requestObj) {
+    public static Object nativePut(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PUT);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PUT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);

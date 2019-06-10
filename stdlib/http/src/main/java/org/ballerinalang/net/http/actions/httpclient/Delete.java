@@ -47,13 +47,13 @@ public class Delete extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
         return outboundRequestMsg;
     }
 
     public static Object nativeDelete(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
         HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);

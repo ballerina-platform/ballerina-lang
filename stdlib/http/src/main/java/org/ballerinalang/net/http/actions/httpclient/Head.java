@@ -50,14 +50,14 @@ public class Head extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
-        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        outboundReqMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
         return outboundReqMsg;
     }
 
     public static Object nativeHead(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);

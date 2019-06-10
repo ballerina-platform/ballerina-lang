@@ -130,14 +130,12 @@ import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -152,6 +150,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -446,13 +445,13 @@ public class HttpUtil {
     }
 
     public static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        Integer carbonStatusCode = requestMessage.getHttpStatusCode();
         if (carbonStatusCode == null) {
             //log only the internal server errors
             log.error(errorMsg);
             return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
         }
-        return Integer.parseInt(carbonStatusCode.toString());
+        return carbonStatusCode;
     }
 
     public static HttpCarbonMessage createErrorMessage(String payload, int statusCode) {
@@ -482,7 +481,7 @@ public class HttpUtil {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setHttpStatusCode(statusCode);
     }
 
     /**
@@ -633,12 +632,9 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestInfo(ObjectValue inboundRequestObj,
                                                      HttpCarbonMessage inboundRequestMsg) {
-        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                              inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
-        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD,
-                              inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
-        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD,
-                              inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
+        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD, inboundRequestMsg.getRequestUrl());
+        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD, inboundRequestMsg.getHttpMethod());
+        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD, inboundRequestMsg.getHttpVersion());
         HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
                 HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
@@ -681,7 +677,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
-        httpCaller.addNativeData(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -691,10 +687,9 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, localHost);
             local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
-        httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
-                                 inboundMsg.getProperty(HttpConstants.PROTOCOL));
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
+        httpCaller.set(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
         httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
 
@@ -708,7 +703,7 @@ public class HttpUtil {
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
+        int statusCode = (Integer) inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
         inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -821,7 +816,7 @@ public class HttpUtil {
             //TODO fix following logic
             long statusCode = (Long) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
             if (statusCode != 0) {
-                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
+                outboundResponseMsg.setHttpStatusCode(getIntValue(statusCode));
             }
             Object respPhrase = messageObj.get(RESPONSE_REASON_PHRASE_FIELD);
             if (respPhrase != null && !respPhrase.toString().isEmpty()) {
@@ -988,7 +983,7 @@ public class HttpUtil {
     public static void checkFunctionValidity(ObjectValue connectionObj, HttpCarbonMessage reqMsg,
                                              HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
-        int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int statusCode = outboundResponseMsg.getHttpStatusCode();
         methodInvocationCheck(connectionObj, reqMsg, statusCode);
     }
 
@@ -1164,7 +1159,7 @@ public class HttpUtil {
 //        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
 //        observerContext.ifPresent(ctx -> {
 //            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-//            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+//            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
 //            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
 //            ctx.addTag(TAG_KEY_PEER_ADDRESS,
 //                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
@@ -1356,7 +1351,7 @@ public class HttpUtil {
                 Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
-            String sslProtocol = protocols.getStringValue(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -1659,7 +1654,7 @@ public class HttpUtil {
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringValue(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }

@@ -553,7 +553,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 //        @Override
 //        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
 //            super.onMessage(httpCarbonMessage);
-//            Integer statusCode = (Integer) httpCarbonMessage.getProperty(HTTP_STATUS_CODE);
+//            int statusCode = httpCarbonMessage.getHttpStatusCode();
 //            addHttpStatusCode(statusCode != null ? statusCode : 0);
 //        }
 //

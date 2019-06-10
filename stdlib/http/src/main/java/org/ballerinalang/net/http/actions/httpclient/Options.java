@@ -49,7 +49,7 @@ public class Options extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_OPTIONS);
         return outboundRequestMsg;
     }
 
@@ -57,7 +57,7 @@ public class Options extends AbstractHTTPAction {
                                        ObjectValue requestObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_OPTIONS);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
