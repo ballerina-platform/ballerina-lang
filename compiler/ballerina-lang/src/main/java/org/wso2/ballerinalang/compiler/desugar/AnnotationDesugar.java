@@ -441,8 +441,7 @@ public class AnnotationDesugar {
                                                                                  target.pos, symTable.booleanType,
                                                                                  Boolean.TRUE),
                                                                          symTable, types);
-        addAnnotValueAssignmentToMap(localMapVar, attachment.annotationSymbol.bvmAlias(), target, expression,
-                                     localMapVar.symbol.type);
+        addAnnotValueAssignmentToMap(localMapVar, attachment.annotationSymbol.bvmAlias(), target, expression);
     }
 
     private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangSimpleVariable localMapVar,
@@ -453,8 +452,7 @@ public class AnnotationDesugar {
                                                             attachment.pos, attachment.annotationName.value,
                                                             attachment.expr, target, parentSymbol);
         // create: $local_annot_map$["v1"] = r1;
-        addAnnotValueAssignmentToMap(localMapVar, attachment.annotationSymbol.bvmAlias(), target, expression,
-                                     localMapVar.symbol.type);
+        addAnnotValueAssignmentToMap(localMapVar, attachment.annotationSymbol.bvmAlias(), target, expression);
     }
 
     private void addAnnotArray(DiagnosticPos pos, String name, BType annotType,
@@ -471,7 +469,7 @@ public class AnnotationDesugar {
                               parentSymbol);
 
         // create: $local_annot_map$["v1"] = r1;
-        addAnnotValueAssignmentToMap(localMapVar, name, target, array, localMapVar.symbol.type);
+        addAnnotValueAssignmentToMap(localMapVar, name, target, array);
     }
 
     private void addAnnotValuesToArray(BLangSimpleVariable annotationArrayVar, String name, BType annotType,
@@ -491,7 +489,7 @@ public class AnnotationDesugar {
             indexAccessNode.pos = target.pos;
             indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.intType, annotCount);
             indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationArrayVar.symbol);
-            indexAccessNode.type = annotationArrayVar.symbol.type;
+            indexAccessNode.type = annotType;
             assignmentStmt.varRef = indexAccessNode;
             annotCount++;
         }
@@ -516,11 +514,11 @@ public class AnnotationDesugar {
                                     BLangBlockStmt target, PackageID packageID, BSymbol owner) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction, packageID, owner);
-        addAnnotValueAssignmentToMap(map, identifier, target, annotFuncInvocation, annotFuncInvocation.type);
+        addAnnotValueAssignmentToMap(map, identifier, target, annotFuncInvocation);
     }
 
     private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier, BLangBlockStmt target,
-                                              BLangExpression expression, BType accessNodeType) {
+                                              BLangExpression expression) {
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(target.pos, target);
         assignmentStmt.expr = expression;
 
@@ -528,7 +526,7 @@ public class AnnotationDesugar {
         indexAccessNode.pos = target.pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType, identifier);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, mapVar.symbol);
-        indexAccessNode.type = accessNodeType;
+        indexAccessNode.type = ((BMapType) mapVar.type).constraint;
         assignmentStmt.varRef = indexAccessNode;
     }
 
