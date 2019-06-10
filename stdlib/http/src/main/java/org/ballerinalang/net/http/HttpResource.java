@@ -17,12 +17,12 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class HttpResource {
     private static final String CORS_FIELD = "cors";
     private static final String TRANSACTION_INFECTABLE_FIELD = "transactionInfectable";
 
-    private Resource balResource;
+    private AttachedFunction balResource;
     private List<String> methods;
     private String path;
     private String entityBodyAttribute;
@@ -70,7 +70,7 @@ public class HttpResource {
 
     private boolean transactionAnnotated = false;
 
-    protected HttpResource(Resource resource, HttpService parentService) {
+    protected HttpResource(AttachedFunction resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
@@ -85,7 +85,7 @@ public class HttpResource {
     }
 
     public String getServiceName() {
-        return balResource.getServiceName();
+        return balResource.parent.getName();
     }
 
     public SignatureParams getSignatureParams() {
@@ -96,7 +96,7 @@ public class HttpResource {
         return parentService;
     }
 
-    public Resource getBalResource() {
+    public AttachedFunction getBalResource() {
         return balResource;
     }
 
@@ -185,21 +185,24 @@ public class HttpResource {
         this.entityBodyAttribute = entityBodyAttribute;
     }
 
-    public static HttpResource buildHttpResource(Resource resource, HttpService httpService) {
+    public static HttpResource buildHttpResource(AttachedFunction resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
-        Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
+        MapValue resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
         setupTransactionAnnotations(resource, httpResource);
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
-            Struct resourceConfig = resourceConfigAnnotation.getValue();
-            httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
-            httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));
-            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
-            httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
-            httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
-            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
-            httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
+            httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD));
+            httpResource.setMethods(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(METHODS_FIELD).getStringArray()));
+            httpResource.setConsumes(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(CONSUMES_FIELD).getStringArray()));
+            httpResource.setProduces(
+                    getAsStringList(resourceConfigAnnotation.getArrayValue(PRODUCES_FIELD).getStringArray()));
+            httpResource.setEntityBodyAttributeValue(resourceConfigAnnotation.getStringValue(BODY_FIELD));
+            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfigAnnotation.getMapValue(CORS_FIELD)));
+            httpResource
+                    .setTransactionInfectable(resourceConfigAnnotation.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
 
             processResourceCors(httpResource, httpService);
             httpResource.prepareAndValidateSignatureParams();
@@ -214,42 +217,40 @@ public class HttpResource {
         return httpResource;
     }
 
-    private static void setupTransactionAnnotations(Resource resource, HttpResource httpResource) {
-        Annotation transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
+    private static void setupTransactionAnnotations(AttachedFunction resource, HttpResource httpResource) {
+        MapValue transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
                         TransactionConstants.TRANSACTION_PACKAGE_PATH);
         if (transactionConfigAnnotation != null) {
             httpResource.transactionAnnotated = true;
         }
     }
 
-    protected static Annotation getResourceConfigAnnotation(Resource resource) {
-        List<Annotation> annotationList = resource.getAnnotationList(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
+    protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
+        ArrayValue annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
 
-        if (annotationList == null) {
+        if (annotation == null) {
             return null;
         }
 
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple resource configuration annotations found in resource: " +
-                            resource.getServiceName() + "." + resource.getName());
+        if (annotation.size() > 1) {
+            throw new BallerinaException("multiple resource configuration annotations found in resource: " +
+                            resource.parent.getName() + "." + resource.getName());
         }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+        return annotation.isEmpty() ? null : (MapValue) annotation.get(0);
     }
 
-    private static boolean hasInterruptibleAnnotation(Resource resource) {
-        List<Annotation> annotationList = resource.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
-        return annotationList != null && !annotationList.isEmpty();
+    private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
+        ArrayValue annotation = resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        return annotation != null && !annotation.isEmpty();
     }
 
-    private static List<String> getAsStringList(Value[] values) {
+    private static List<String> getAsStringList(Object[] values) {
         if (values == null) {
             return null;
         }
         List<String> valuesList = new ArrayList<>();
-        for (Value val : values) {
-            valuesList.add(val.getStringValue().trim());
+        for (Object val : values) {
+            valuesList.add(val.toString().trim());
         }
         return !valuesList.isEmpty() ? valuesList : null;
     }
@@ -278,7 +279,20 @@ public class HttpResource {
     }
 
     private void prepareAndValidateSignatureParams() {
-        signatureParams = new SignatureParams(this, balResource.getParamDetails());
+        signatureParams = new SignatureParams(this);
         signatureParams.validate();
+    }
+
+    public List<BType> getParamTypes() {
+        // TODO remove paramDetail class
+        List<BType> paramDetails = new ArrayList<>();
+        for (BType paramType : this.balResource.getParameterType()) {
+            //TODO:Get this clarified
+            if (paramType.getName().equals("self")) {
+                continue;
+            }
+            paramDetails.add(paramType);
+        }
+        return paramDetails;
     }
 }

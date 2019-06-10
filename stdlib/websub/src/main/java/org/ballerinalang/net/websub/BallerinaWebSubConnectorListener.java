@@ -182,7 +182,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
 
             HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
             response.waitAndReleaseAllEntities();
-            response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
+            response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
 
@@ -210,7 +210,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         if (errorStruct != null) {
             log.debug("Signature Validation failed for Notification: " +
                               ((BMap) errorStruct.getDetails()).get(ERROR_MESSAGE_FIELD).stringValue());
-            httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+            httpCarbonMessage.setHttpStatusCode(404);
             throw new BallerinaException("validation failed for notification");
         }
     }
@@ -313,7 +313,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 URIUtil.populateQueryParamMap(queryString, params);
                 if (!params.hasKey(PARAM_HUB_MODE) || !params.hasKey(PARAM_HUB_TOPIC) ||
                         !params.hasKey(PARAM_HUB_CHALLENGE)) {
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
+                    response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
                     console.println("error: Error auto-responding to intent verification request: Mode, Topic "
@@ -326,7 +326,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
                             challenge.getBytes(StandardCharsets.UTF_8))));
                     response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
+                    response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
                     String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
                             + "], Topic [" + annotatedTopic + "]";
                     if (params.hasKey(PARAM_HUB_LEASE_SECONDS)) {
@@ -338,7 +338,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 } else {
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
                                             + params.get(PARAM_HUB_TOPIC).stringValue() + "]");
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
+                    response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                 }
                 HttpUtil.sendOutboundResponse(httpCarbonMessage, response);

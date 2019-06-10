@@ -19,8 +19,6 @@
 package org.ballerinalang.stdlib.services.cors;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -28,6 +26,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,16 +40,16 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class HTTPCorsTest {
 
     private static final String TEST_EP = "testEP";
-    CompileResult complieResult;
+    private CompileResult complieResult;
 
     @BeforeClass
     public void setup() {
-        complieResult = BServiceUtil.setupProgramFile(this, "test-src/services/cors/cors-test.bal");
+        complieResult = BCompileUtil.compile("test-src/services/cors/cors-test.bal");
     }
 
     public void assertEqualsCorsResponse(HttpCarbonMessage response, int statusCode, String origin, String credentials
             , String headers, String methods, String maxAge) {
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), statusCode);
+        Assert.assertEquals((int) response.getHttpStatusCode(), statusCode);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()), origin);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()),
                 credentials);

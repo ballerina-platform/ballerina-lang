@@ -21,6 +21,9 @@ package org.ballerinalang.mime.nativeimpl.contentdisposition;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -52,5 +55,12 @@ public class GetContentDispositionObject extends BlockingNativeCallableUnit {
                                                                                        CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);
         context.setReturnValues(contentDispositionObj);
+    }
+
+    public static ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
+        ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME,
+                                                                     CONTENT_DISPOSITION_STRUCT);
+        MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);
+        return contentDispositionObj;
     }
 }

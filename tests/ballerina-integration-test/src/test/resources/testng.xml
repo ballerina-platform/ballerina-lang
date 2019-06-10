@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-    <test name="ballerina-http-tests" parallel="false">
+     <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>

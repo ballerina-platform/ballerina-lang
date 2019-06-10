@@ -35,8 +35,7 @@ function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
     checkValidBirChannel(reader);
     ConstPoolParser cpParser = new(reader);
     BirChannelReader birReader = new(reader, cpParser.parse());
-    TypeParser typeParser = new (birReader);
-    PackageParser pkgParser = new(birReader, typeParser);
+    PackageParser pkgParser = new(birReader);
     Package mod = pkgParser.parsePackage();
     return mod;
 }

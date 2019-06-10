@@ -41,7 +41,7 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testMoreThanTwoResourceFunctions() {
-        BCompileUtil.compileAndSetup("service-validation/more_than_one_resource.bal");
+        BCompileUtil.compile("service-validation/more_than_one_resource.bal");
     }
 
     @Test(
@@ -51,7 +51,7 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testNoResourceFunctions() {
-        BCompileUtil.compileAndSetup("service-validation/no_resource_functions.bal");
+        BCompileUtil.compile("service-validation/no_resource_functions.bal");
     }
 
     @Test(
@@ -61,6 +61,6 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*"
     )
     public void testInvalidResourceName() {
-        BCompileUtil.compileAndSetup("service-validation/invalid_resource.bal");
+        BCompileUtil.compile("service-validation/invalid_resource.bal");
     }
 }
