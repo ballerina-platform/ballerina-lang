@@ -39,6 +39,14 @@ public type OutboundBasicAuthProvider object {
     public function generateToken() returns string|error {
         return getAuthTokenForBasicAuth(self.basicAuthProviderConfig);
     }
+
+    # Inspect the incoming data and generate the token for Basic authentication.
+    #
+    # + data - Map of data which is extracted from the HTTP response
+    # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns string|error? {
+        return ();
+    }
 };
 
 # The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.

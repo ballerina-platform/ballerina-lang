@@ -52,6 +52,14 @@ public type OutboundJwtAuthProvider object {
         }
         return authToken;
     }
+
+    # Inspect the incoming data and generate the token for JWT authentication.
+    #
+    # + data - Map of data which is extracted from the HTTP response
+    # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns string|error? {
+        return ();
+    }
 };
 
 # The `OutboundJwtAuthProviderConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.

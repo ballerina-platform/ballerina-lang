@@ -52,6 +52,26 @@ public type OutboundOAuth2Provider object {
     public function generateToken() returns string|error {
         return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, false);
     }
+
+    # Inspect the incoming data and generate the token for OAuth2 authentication.
+    #
+    # + data - Map of data which is extracted from the HTTP response
+    # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns string|error? {
+        if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
+            var config = self.oauth2ProviderConfig.config;
+            if (config is ClientCredentialsGrantConfig) {
+                if (config.retryRequest) {
+                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
+                }
+            } else if (config is DirectTokenConfig) {
+                if (config.retryRequest) {
+                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
+                }
+            }
+        }
+        return ();
+    }
 };
 
 # The `OAuth2ProviderConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
@@ -532,7 +552,7 @@ function prepareRequest(RequestConfig config) returns http:Request|error {
     if (config.credentialBearer == http:AUTH_HEADER_BEARER) {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
-            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC + WHITE_SPACE +
+            req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC +
                     encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
