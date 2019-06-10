@@ -22,7 +22,8 @@ import java.util.List;
  */
 public class AnnotationsPageContext extends ModulePageContext {
     public List<Annotation> annotations;
-    public AnnotationsPageContext(List<Annotation> annotations, Module module, Project project, String rootPath, String title) {
+    public AnnotationsPageContext(List<Annotation> annotations, Module module, Project project, String rootPath,
+                                  String title) {
         super(module, project, rootPath, title);
         this.annotations = annotations;
     }

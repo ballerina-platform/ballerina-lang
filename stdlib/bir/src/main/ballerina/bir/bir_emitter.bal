@@ -80,6 +80,11 @@ public type BirEmitter object {
             println();
             self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
             print("}");
+        } else if (typeValue is BRecordType) {
+            self.typeEmitter.emitRecordType(typeValue, "");
+            println();
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
         } else {
             self.typeEmitter.emitType(bTypeDef.typeValue);
         }
@@ -111,17 +116,50 @@ public type BirEmitter object {
         print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
+        int i = 0;
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+            if v is FunctionParam {
+                self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+                print(" ");
+                print(v.name.value);
+                print("\t ", v.kind);
+                if (v.hasDefaultExpr) {
+                    print("\t// defaultable -> ");
+                    var bb = bFunction.paramDefaultBBs[i][0];
+                    if (bb is BasicBlock) {
+                        print(bb.id.value);
+                    }
+                    i = i + 1;
+                }
+                println();
+                continue;
+            }
+            VariableDcl varDecl = getVariableDcl(v);
+            self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (v.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
-                print(v.name.value);
+                print(varDecl.name.value);
             }
-            println("\t// ", v.kind);
+            println("\t// ", varDecl.kind);
         }
         println();// empty line
+        i = 0;
+        foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                if (v.hasDefaultExpr) {
+                    var bb = bFunction.paramDefaultBBs[i];
+                    foreach var b in bb {
+                        if (b is BasicBlock) {
+                            self.emitBasicBlock(b, tabs + "\t");
+                            println();// empty line
+                        }
+                    }
+                    i = i + 1;
+                }
+            }
+        }
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
                 self.emitBasicBlock(b, tabs + "\t");
@@ -135,6 +173,20 @@ public type BirEmitter object {
             if (e is ErrorEntry) {
                 self.emitErrorEntry(e);
                 println();// empty line
+            }
+        }
+        if (bFunction.workerChannels.length() > 0) {
+            print("WORKER_CHANNELS: ");    
+        }
+
+        int channelsSize = bFunction.workerChannels.length();
+        foreach ChannelDetail ch in bFunction.workerChannels {
+            channelsSize -= 1;
+            print(ch.name.value);
+            if (channelsSize > 0) {
+                print(",");
+            } else {
+                println(";");
             }
         }
         println(tabs, "}");
@@ -196,6 +248,12 @@ type InstructionEmitter object {
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
             println(";");
+        }  else if (ins is UnaryOp) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is Move) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -219,6 +277,28 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewStream) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.nameOp);
+            println(";");
+        } else if (ins is NewTable) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            print(", ");
+            self.opEmitter.emitOp(ins.columnsOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.dataOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.indexColOp);
+            print(", ");
+            self.opEmitter.emitOp(ins.keyColOp);
             println(";");
         } else if (ins is NewInstance) {
             print(tabs);
@@ -252,9 +332,25 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ");
-            print(" ", ins.kind, " ");
-            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "()");
-            println(";");
+            print(ins.kind, " ");
+            print(ins.pkgID.org, "/", ins.pkgID.name, "::", ins.pkgID.modVersion, ":", ins.name.value, "(");
+
+            foreach var v in ins.closureMaps {
+                if (v is VarRef) {
+                    self.opEmitter.emitOp(v);
+                    print(",");
+                }
+            }
+            int i = 0;
+            foreach var v in ins.params {
+                if (i != 0) {
+                    print (",");
+                }
+                VariableDcl varDecl = getVariableDcl(v);
+                self.typeEmitter.emitType(varDecl.typeValue);
+                i += 1;
+            }
+            println(");");
         }
     }
 };
@@ -315,26 +411,103 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WaitAll) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print("{");
+            int i = 0;
+            while (i < term.keys.length()) {
+                if (i != 0) {
+                    print(",");
+                }
+                print(term.keys[i], ":");
+                VarRef? expr = term.futures[i];
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println("} -> ", term.thenBB.id.value, ";");
+        } else if (term is Flush) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            int i = 0;
+            foreach var detail in term.workerChannels {
+                if (i != 0) {
+                    print(",");
+                }
+                print(detail.name);
+                i += 1;
+            }
+            println(";");
+        } else if (term is WorkerReceive) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print(term.channelName.value);
+            println(";");
+        } else if (term is WorkerSend) {
+            print(tabs);
+            if (term.isSync) {
+                VarRef? ref = term.lhsOp;
+                if (ref is VarRef) {
+                    self.opEmitter.emitOp(ref);
+                    print(" = ");
+                }   
+            }
+            self.opEmitter.emitOp(term.dataOp);
+            print(" ", term.kind, " ");
+            print(term.channelName.value);
+            println(";");
         } else if (term is AsyncCall) {
-          print(tabs);
-          VarRef? lhsOp = term.lhsOp;
-          if (lhsOp is VarRef) {
-              self.opEmitter.emitOp(lhsOp);
-              print(" = ");
-          }
-          print(" START ");
-          print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
-          int i = 0;
-          foreach var arg in term.args {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            print("START ");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
+            int i = 0;
+            foreach var arg in term.args {
+                if (arg is VarRef) {
+                    if (i != 0) {
+                        print(", ");
+                    }
+                    self.opEmitter.emitOp(arg);
+                    i = i + 1;
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
+        } else if (term is FPCall) {
+            print(tabs);
+            VarRef? lhsOp = term.lhsOp;
+            if (lhsOp is VarRef) {
+                self.opEmitter.emitOp(lhsOp);
+                print(" = ");
+            }
+            if (term.isAsync) {
+                print("START ");
+            }
+            print(term.kind, " ");
+            self.opEmitter.emitOp(term.fp);
+            print("(");
+            int i = 0;
+            foreach var arg in term.args {
               if (arg is VarRef) {
                   if (i != 0) {
                       print(", ");
-                  }
+                    }
                   self.opEmitter.emitOp(arg);
                   i = i + 1;
-              }
-          }
-          println(") -> ", term.thenBB.id.value, ";");
+                }
+            }
+            println(") -> ", term.thenBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -356,7 +529,8 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone) {
+                || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
@@ -372,10 +546,14 @@ type TypeEmitter object {
             self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
+        } else if (typeVal is BTableType) {
+            self.emitTableType(typeVal, tabs);
         } else if (typeVal is BFutureType) {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BFiniteType) {
+            print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
             self.emitErrorType(typeVal, tabs);
         }
@@ -388,11 +566,12 @@ type TypeEmitter object {
         }
         println("record { ");
         foreach var f in bRecordType.fields {
-            self.emitType(f.typeValue, tabs = tabs + "\t");
-            println(" ", f.name.value, ";");
+            BRecordField recField = getRecordField(f);
+            self.emitType(recField.typeValue, tabs = tabs + "\t");
+            println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 
@@ -406,10 +585,11 @@ type TypeEmitter object {
         // int pCount = bInvokableType.paramTypes.size(); 
         int i = 0;
         foreach var p in bInvokableType.paramTypes {
+            BType pType = getType(p);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(p);
+            self.emitType(pType);
             i = i + 1;
         }
         print(") -> ");
@@ -427,11 +607,12 @@ type TypeEmitter object {
         int i = 0;
         string tabst = tabs;
         foreach var t in bUnionType.members {
+            BType mType = getType(t);
             if (i != 0) {
                 print(" | ");
                 tabst = "";
             }
-            self.emitType(t, tabs = tabst);
+            self.emitType(mType, tabs = tabst);
             i = i + 1;
         }
     }
@@ -440,10 +621,11 @@ type TypeEmitter object {
         int i = 0;
         print(tabs, "(");
         foreach var t in bUnionType.tupleTypes {
+            BType tType = getType(t);
             if (i != 0) {
                 print(", ");
             }
-            self.emitType(t);
+            self.emitType(tType);
             i = i + 1;
         }
         print(")");
@@ -452,6 +634,12 @@ type TypeEmitter object {
     function emitMapType(BMapType bMapType, string tabs) {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
+        print(">");
+    }
+
+    function emitTableType(BTableType bTableType, string tabs) {
+        print(tabs, "table<");
+        self.emitType(bTableType.tConstraint);
         print(">");
     }
 
@@ -472,7 +660,7 @@ type TypeEmitter object {
 
 type PositionEmitter object {
     function emitPosition(DiagnosticPos pos) {
-        if (pos.sLine != -1) {
+        if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
             print("-");
             self.appendPos(pos.eLine);
@@ -494,7 +682,7 @@ type PositionEmitter object {
 function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitter, string tabs) {
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
     foreach var f in bObjectType.fields {
-        if (f is BObjectField){
+        if (f is BObjectField) {
             string visibility = f.visibility;
             print(tabs + "\t", visibility.toLower(), " ");
             typeEmitter.emitType(f.typeValue);

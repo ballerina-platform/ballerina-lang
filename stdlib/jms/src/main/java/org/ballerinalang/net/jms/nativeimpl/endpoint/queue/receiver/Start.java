@@ -28,11 +28,10 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.StartNonDaemonThreadHandler;
 
 /**
- * Extern function to start the JMS QueueReceiver.
+ * Extern function to start the JMS QueueListener.
  *
  * @since 0.995
  */
-
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "start",

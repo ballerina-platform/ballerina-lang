@@ -336,7 +336,7 @@ public type HttpSecureClient client object {
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
     HttpSecureClient httpSecureClient;
-    if (config.auth is AuthConfig) {
+    if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
         return httpSecureClient;
     } else {
@@ -354,7 +354,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # `error` if an error occurred during the HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns boolean|error {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth["config"];
         if (auth.scheme == BASIC_AUTH) {
             if (authConfig is BasicAuthConfig) {
@@ -374,21 +374,22 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
             } else {
                 return prepareError("OAuth2 config not provided.");
             }
-        } else if (auth.scheme == JWT_AUTH) {
-            string authToken = EMPTY_STRING;
-            if (authConfig is JwtAuthConfig) {
-                authToken = check getAuthTokenForJWTAuth(authConfig);
-            } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
-                return prepareError("JWT auth config not provided.");
-            } else {
-                authToken = runtime:getInvocationContext().authenticationContext.authToken;
-            }
-            if (authToken == EMPTY_STRING) {
-                return prepareError("JWT was not used during inbound authentication.
-                                    Provide InferredJwtIssuerConfig to issue new token.");
-            }
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
-            return false;
+        // TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
+        //} else if (auth.scheme == JWT_AUTH) {
+        //    string authToken = EMPTY_STRING;
+        //    if (authConfig is JwtAuthConfig) {
+        //        authToken = check getAuthTokenForJWTAuth(authConfig);
+        //    } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
+        //        return prepareError("JWT auth config not provided.");
+        //    } else {
+        //        authToken = runtime:getInvocationContext().authenticationContext.authToken;
+        //    }
+        //    if (authToken == EMPTY_STRING) {
+        //        return prepareError("JWT was not used during inbound authentication.
+        //                            Provide InferredJwtIssuerConfig to issue new token.");
+        //    }
+        //    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+        //    return false;
         }
     }
     return false;
@@ -397,7 +398,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
 # Process the auth token for basic auth.
 #
 # + authConfig - Basic auth configurations
-# + return - Auth token or `error` if an error occured during validation
+# + return - Auth token or `error` if an error occurred during validation
 function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|error {
     string username = authConfig.username;
     string password = authConfig.password;
@@ -580,34 +581,34 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
     }
 }
 
-# Process auth token for JWT auth.
-#
-# + authConfig - JWT auth configurations
-# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
-    var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
-    if (jwtIssuerConfig is ()) {
-        return runtime:getInvocationContext().authenticationContext.authToken;
-    } else {
-        auth:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-        auth:JwtPayload payload = {
-            sub: runtime:getInvocationContext().principal.username,
-            iss: jwtIssuerConfig.issuer,
-            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
-            iat: time:currentTime().time / 1000,
-            nbf: time:currentTime().time / 1000,
-            jti: system:uuid(),
-            aud: jwtIssuerConfig.audience
-        };
-        auth:JWTIssuerConfig issuerConfig = {
-            keyStore: jwtIssuerConfig.keyStore,
-            keyAlias: jwtIssuerConfig.keyAlias,
-            keyPassword: jwtIssuerConfig.keyPassword
-        };
-        // TODO: cache the token per-user per-client and reuse it
-        return auth:issueJwt(header, payload, issuerConfig);
-    }
-}
+//# Process auth token for JWT auth.
+//#
+//# + authConfig - JWT auth configurations
+//# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
+//function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
+//    var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
+//    if (jwtIssuerConfig is ()) {
+//        return runtime:getInvocationContext().authenticationContext.authToken;
+//    } else {
+//        jwt:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
+//        jwt:JwtPayload payload = {
+//            sub: runtime:getInvocationContext().principal.username,
+//            iss: jwtIssuerConfig.issuer,
+//            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+//            iat: time:currentTime().time / 1000,
+//            nbf: time:currentTime().time / 1000,
+//            jti: system:uuid(),
+//            aud: jwtIssuerConfig.audience
+//        };
+//        jwt:JWTIssuerConfig issuerConfig = {
+//            keyStore: jwtIssuerConfig.keyStore,
+//            keyAlias: jwtIssuerConfig.keyAlias,
+//            keyPassword: jwtIssuerConfig.keyPassword
+//        };
+//        // TODO: cache the token per-user per-client and reuse it
+//        return jwt:issueJwt(header, payload, issuerConfig);
+//    }
+//}
 
 # Check the validity of the access toke,n which is in the cache. If the expiry time is 0, that means no expiry time is
 # returned with the authorization request. This implies that the token is valid forever.
@@ -906,7 +907,7 @@ function updateTokenCache(json responsePayload, CachedToken tokenCache, int cloc
 function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConfig config) returns boolean {
     if (retryRequired && res.statusCode == UNAUTHORIZED_401) {
         var auth = config.auth;
-        if (auth is AuthConfig) {
+        if (auth is OutboundAuthConfig) {
             var authConfig = auth.config;
             if (auth.scheme == OAUTH2 && authConfig is OAuth2AuthConfig) {
                 var grantType = authConfig.grantType;
@@ -935,7 +936,7 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
 # + return - Returns `error` if an error occurred during the HTTP client invocation
 function updateRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns error? {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth.config;
         if (authConfig is OAuth2AuthConfig) {
             string authToken;

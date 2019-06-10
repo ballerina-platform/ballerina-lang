@@ -22,7 +22,8 @@ import java.util.List;
  */
 public class FunctionsPageContext extends ModulePageContext {
     public List<Function> functions;
-    public FunctionsPageContext(List<Function> functions, Module module, Project project, String rootPath, String title) {
+    public FunctionsPageContext(List<Function> functions, Module module, Project project,
+                                String rootPath, String title) {
         super(module, project, rootPath, title);
         this.functions = functions;
     }

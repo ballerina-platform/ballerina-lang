@@ -64,7 +64,7 @@ import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimenta
  * Language server implementation for Ballerina.
  */
 public class BallerinaLanguageServer implements ExtendedLanguageServer, ExtendedLanguageClientAware {
-    private LSIndexImpl lsIndex = null;
+    private LSIndexImpl lsIndex;
     private ExtendedLanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;

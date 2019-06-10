@@ -72,21 +72,3 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
-
-# Defines the possible values for the chunking configuration in HTTP services and clients.
-#
-# `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
-#         otherwise chunking header is set in the outbound request/response
-# `ALWAYS`: Always set chunking header in the response
-# `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
-public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
-
-# If the payload is less than 8KB, content-length header is set in the outbound request/response,
-# otherwise chunking header is set in the outbound request/response.
-public const CHUNKING_AUTO = "AUTO";
-
-# Always set chunking header in the response.
-public const CHUNKING_ALWAYS = "ALWAYS";
-
-# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
-public const CHUNKING_NEVER = "NEVER";

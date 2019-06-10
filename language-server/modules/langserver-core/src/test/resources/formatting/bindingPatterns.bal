@@ -41,12 +41,15 @@ function recordVarInRecordVar() returns (string, int, string, boolean) {
 }
 
 function getPersonWithAge() returns PersonWithAge {
-    return { name: "Peter", age: { age: 29, format: "Y"}, married: true, work: "SE"};
+    return { name: "Peter", age: { age: 29, format: "Y"}, married: true,
+    work: "SE"};
 }
 
 function recordVarInRecordVar2() returns (string, Age) {
-    PersonWithAge p = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
-        PersonWithAge {name: fName, age} = p;
+    PersonWithAge p = {name: "Peter", age: {age:29,format: "Y"}, married: true,
+    work: "SE"};
+        PersonWithAge {name: fName,
+        age} = p;
     return (fName, age);
 }
 
@@ -67,7 +70,9 @@ type PersonWithAddress record {
 };
 
 function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string, string) {
-  PersonWithAddress personWithAdd =  {name: "Peter", married: true, address: {postalCode: 1000, street: {streetName: "PG", city: "Colombo 10"}}};
+  PersonWithAddress personWithAdd =  {name: "Peter", married: true,
+  address: {
+  postalCode: 1000, street: {streetName: "PG", city: "Colombo 10"}}};
         PersonWithAddress {name: fName, married, address: {postalCode, street: {streetName: sName, city}}} = personWithAdd;
     return (fName, married, postalCode, sName, city);
 }
@@ -106,7 +111,8 @@ function getPersonRecord() returns Person {Person person = {name: "Jack", marrie
 }
 
 function nestedRecordVariableWithRHSInvocation() returns string {
-    PersonWithAge person = {name: "Peter", age: getAgeRecord(), married: true, work: "SE"};
+    PersonWithAge person = {name: "Peter", age: getAgeRecord(),
+    married: true, work: "SE"};
            PersonWithAge {name: fName, age: {age: theAge, format}, married} = person;
     string name = fName + " Parker";
     return name;
@@ -118,25 +124,29 @@ function getAgeRecord() returns Age {
 }
 
 function testRestParameter() returns map<any> {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
+    PersonWithAge p = {name: "John", age: {age:30, format: "YY"},
+    married: true, work: "SE", other: getAgeRecord()};
  PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
 function testNestedRestParameter() returns (map<any>, map<any>) {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge p = {name: "John", age: {age:30,
+    format: "YY", year: 1990}, married: true, work: "SE"};
                   PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return (rest1, rest2);
 }
 
 function testVariableAssignment() returns (string, int, string, boolean, map<any>) {
-    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"},
+    married: true, work: "SE"};
  var {name: fName, age: {age, format}, married, ...rest} = person;
     return (fName, age, format, married, rest);
 }
 
 function testVariableAssignment2() returns (string, int, string, boolean, map<any>) {
-    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"},
+    married: true, work: "SE"};
                 var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = "James";
     age = 30;
@@ -165,7 +175,6 @@ type Parent record {
     string[] namesOfChildren;
     Child[] children;
     Child child;
-
 };
 
 type Child record {
@@ -174,27 +183,29 @@ type Child record {
 };
 
 function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
-    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
-    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
-    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    (int, Age) yearAndAge1 = (1992, { age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, { age: 24,format: "X"});
+    (int, Age) yearAndAge3 = (1996, {age: 22,format: "Z"});
     Child ch1 = {name: "A", yearAndAge: yearAndAge1};
-    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch2 = {  name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "C", yearAndAge: yearAndAge3};
 
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    Parent parent = {
+    namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
                 Parent {namesOfChildren, children, ...child} = parent;
     return (namesOfChildren, children[0].name, child);
 }
 
 function testRecordInsideTupleInsideRecord2() returns (string, int, int, string) {
-  (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
-       (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
-  (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+  (int, Age) yearAndAge1 = (1992, { age: 26, format: "Y"});
+       (int, Age) yearAndAge2 = (1994, { age: 24,format: "X"});
+  (int, Age) yearAndAge3 = (1996, {age: 22,format: "Z"});
            Child ch1 = {name: "A", yearAndAge: yearAndAge1};
   Child ch2 = {name: "B", yearAndAge: yearAndAge2};
          Child ch3 = {name: "C", yearAndAge: yearAndAge3};
 
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};Parent {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
+    Parent parent = {namesOfChildren: ["A", "B"],
+    children: [ch1, ch2], child: ch3};Parent {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
     return (name, yearInt, age, format);
 }
 
@@ -206,20 +217,22 @@ function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, m
     Child ch2 = {name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "C", yearAndAge: yearAndAge3};
 
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    Parent parent = {namesOfChildren: ["A", "B"],
+    children: [ch1, ch2], child: ch3};
 var {namesOfChildren, children, ...child} = parent;
     return (namesOfChildren, children[0].name, child);
 }
 
 function testRecordInsideTupleInsideRecord2WithVar() returns (string, int, int, string) {
- (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
-    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
-    (int, Age) yearAndAge3 = (1998, {age: 20, format: "A"});
+ (int, Age) yearAndAge1 = (1992, { age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, { age: 24, format: "X"});
+    (int, Age) yearAndAge3 = (1998, { age: 20, format: "A"});
     Child ch1 = {name: "A", yearAndAge: yearAndAge1};
     Child ch2 = {name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "D", yearAndAge: yearAndAge3};
 
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2],
+    child: ch3};
                     var {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
     return (name, yearInt, age, format);
 }
@@ -270,7 +283,8 @@ function testUnionRecordVariable() returns (string | boolean, string | boolean, 
 
 function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?, string?) {
     map<anydata> m = {var1: "A", var2: true};
-    map<string> m2 = {var10: "B", var11: "C"};
+    map<string> m2 = {var10: "B",
+    var11: "C"};
 
     var {var1, var2, var3} = m;var {var10, var11, var12} = m2;
 
@@ -278,6 +292,8 @@ function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?
 }
 
 function testIgnoreVariable() returns (string, int) {
-    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
+    PersonWithAge p = {name: "John", age: {age:30,
+    format: "YY", year: 1990}, married: true,
+    work: "SE"};PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
     return (name, age);
 }

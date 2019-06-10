@@ -107,8 +107,8 @@ if $os400; then
 fi
 
 # If the jre is found inside BALLERINA_HOME, override JAVA_HOME
-if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172" ] ; then
-  JAVA_HOME="$BALLERINA_HOME/bre/lib/jre1.8.0_172"
+if [ -x "$BALLERINA_HOME/bre/lib/jdk8u202-b08-jre" ] ; then
+  JAVA_HOME="$BALLERINA_HOME/bre/lib/jdk8u202-b08-jre"
 fi
 
 if [ -z "$JAVACMD" ] ; then

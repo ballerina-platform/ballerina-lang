@@ -41,8 +41,6 @@ import org.ballerinalang.docgen.generator.model.ProjectPageContext;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.TypesPageContext;
-import org.ballerinalang.docgen.model.Caption;
-import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -68,7 +66,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +81,6 @@ public class BallerinaDocGenerator {
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static final PrintStream out = System.out;
 
-    private static final String BSOURCE_FILE_EXT = ".bal";
     private static final String MODULE_CONTENT_FILE = "Module.md";
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
@@ -101,7 +97,6 @@ public class BallerinaDocGenerator {
     public static void generateApiDocs(String sourceRoot, String output, String moduleFilter, boolean isNative,
                                        boolean offline, String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
-        List<Link> primitives = primitives();
 
         // generate module docs
         Map<String, ModuleDoc> docsMap = generateModuleDocsMap(sourceRoot, moduleFilter, isNative, sources, offline);
@@ -146,14 +141,14 @@ public class BallerinaDocGenerator {
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
 
-        // All available module names
-        List<String> moduleNames = new ArrayList<>(docsMap.keySet());
-
         // Module level doc resources
         Map<String, List<Path>> resources = new HashMap<>();
 
         // Generate project model
         Project project = new Project();
+        project.name = "";
+        project.description = "";
+        project.version = "0.0.0";
         project.organization = BallerinaDocDataHolder.getInstance().getOrgName();
         project.modules = moduleDocList.stream().map(moduleDoc -> {
 
@@ -165,7 +160,7 @@ public class BallerinaDocGenerator {
 
             // populate module constructs
             sortModuleConstructs(moduleDoc.bLangPackage);
-            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage, moduleNames);
+            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
 
             // collect module's doc resources
             resources.put(module.id, moduleDoc.resources);
@@ -185,15 +180,19 @@ public class BallerinaDocGenerator {
         }
 
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
-        String recordTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "record");
-        String objectTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "object");
-        String clientTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "client");
-        String listenerTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "listener");
-        String functionsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "functions");
-        String constantsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "constants");
-        String typesTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "types");
-        String annotationsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "annotations");
-        String errorsTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "errors");
+        String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
+        String objectTemplateName = System.getProperty(BallerinaDocConstants.OBJECT_TEMPLATE_NAME_KEY, "object");
+        String clientTemplateName = System.getProperty(BallerinaDocConstants.CLIENT_TEMPLATE_NAME_KEY, "client");
+        String listenerTemplateName = System.getProperty(BallerinaDocConstants.LISTENER_TEMPLATE_NAME_KEY,
+                "listener");
+        String functionsTemplateName = System.getProperty(BallerinaDocConstants.FUNCTIONS_TEMPLATE_NAME_KEY,
+                "functions");
+        String constantsTemplateName = System.getProperty(BallerinaDocConstants.CONSTANTS_TEMPLATE_NAME_KEY,
+                "constants");
+        String typesTemplateName = System.getProperty(BallerinaDocConstants.TYPES_TEMPLATE_NAME_KEY, "types");
+        String annotationsTemplateName = System.getProperty(BallerinaDocConstants.ANNOTATIONS_TEMPLATE_NAME_KEY,
+                "annotations");
+        String errorsTemplateName = System.getProperty(BallerinaDocConstants.ERRORS_TEMPLATE_NAME_KEY, "errors");
 
         // Generate module pages
         for (Module module : project.modules) {
@@ -209,7 +208,7 @@ public class BallerinaDocGenerator {
 
                 // Create module index page
                 ModulePageContext modulePageContext = new ModulePageContext(module, project, "../",
-                        "API Docs - " +project.organization + module.id );
+                        "API Docs - " + project.organization + module.id);
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
@@ -219,7 +218,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(recordsDir));
                     for (Record record : module.records) {
                         RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
-                                "../../","API Docs - Record : " + record.name );
+                                "../../", "API Docs - Record : " + record.name);
                         String recordFilePath = recordsDir + File.separator + record.name + HTML;
                         Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
                     }
@@ -231,7 +230,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(objectsDir));
                     for (Object object : module.objects) {
                         ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                "../../","API Docs - Object : " + object.name );
+                                "../../", "API Docs - Object : " + object.name);
                         String objectFilePath = objectsDir + File.separator + object.name + HTML;
                         Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
                     }
@@ -243,7 +242,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(clientsDir));
                     for (Client client : module.clients) {
                         ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
-                                "../../","API Docs - Client : " + client.name );
+                                "../../", "API Docs - Client : " + client.name);
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
                     }
@@ -255,7 +254,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(listenersDir));
                     for (Listener listener : module.listeners) {
                         ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
-                                "../../","API Docs - Listener : " + listener.name );
+                                "../../", "API Docs - Listener : " + listener.name);
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
@@ -264,16 +263,16 @@ public class BallerinaDocGenerator {
                 // Create pages for functions
                 if (!module.functions.isEmpty()) {
                     String functionsFile = modDir + File.separator + "functions" + HTML;
-                    FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions, module, project,
-                            "../","API Docs - Functions : " + module.id );
+                    FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions,
+                            module, project, "../", "API Docs - Functions : " + module.id);
                     Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
                 }
 
                 // Create pages for constants
                 if (!module.constants.isEmpty()) {
                     String constantsFile = modDir + File.separator + "constants" + HTML;
-                    ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants, module, project,
-                            "../","API Docs - Constants : " + module.id );
+                    ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants,
+                            module, project, "../", "API Docs - Constants : " + module.id);
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
@@ -281,15 +280,15 @@ public class BallerinaDocGenerator {
                 if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
-                            "../","API Docs - Types : " + module.id );
+                            "../", "API Docs - Types : " + module.id);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
 
                 // Create pages for annotations
                 if (!module.annotations.isEmpty()) {
                     String annotationsFile = modDir + File.separator + "annotations" + HTML;
-                    AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations, module, project,
-                            "../","API Docs - Annotations : " + module.id );
+                    AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations,
+                            module, project, "../", "API Docs - Annotations : " + module.id);
                     Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
                 }
 
@@ -297,7 +296,7 @@ public class BallerinaDocGenerator {
                 if (!module.errors.isEmpty()) {
                     String errorsFile = modDir + File.separator + "errors" + HTML;
                     ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
-                            "../","API Docs - Errors : " + module.id );
+                            "../", "API Docs - Errors : " + module.id);
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
 
@@ -350,23 +349,7 @@ public class BallerinaDocGenerator {
                 out.println("docerina: successfully copied project resources into " + resourcesDir);
             }
         }
-//
-//        try {
-//            // Generate module-list.html file which prints the list of processed packages
-//            String pkgListTemplateName = System.getProperty(BallerinaDocConstants.MODULE_LIST_TEMPLATE_NAME_KEY,
-//                    "module-list");
-//
-//            String pkgListFilePath = output + File.separator + "module-list" + HTML;
-//            Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
-//        } catch (IOException e) {
-//            out.println(String.format("docerina: failed to create the module-list.html. Cause: %s", e.getMessage()));
-//            log.error("Failed to create the module-list.html file.", e);
-//        }
-//
-//        if (BallerinaDocUtils.isDebugEnabled()) {
-//            out.println("docerina: successfully generated the module-list HTML file.");
-//        }
-//
+
         try {
             String zipPath = System.getProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
             if (zipPath != null) {
@@ -569,27 +552,6 @@ public class BallerinaDocGenerator {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
                 Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
-    }
-
-    private static List<Link> primitives() {
-        List<String> primitives = BallerinaDocUtils.loadPrimitivesDescriptions(true);
-        List<Link> primitiveLinks = new ArrayList<>();
-        for (String type : primitives) {
-            primitiveLinks.add(new Link(new Caption(type), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF.concat(""
-                    + ".html#" + type), true));
-        }
-        return primitiveLinks;
-    }
-
-    private static String refinePackagePath(BLangPackage bLangPackage) {
-        if (bLangPackage == null) {
-            return "";
-        }
-
-        if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
-            return bLangPackage.getPosition().getSource().pkgID.sourceFileName.getValue();
-        }
-        return bLangPackage.packageID.getName().getValue();
     }
 
 }

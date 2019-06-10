@@ -30,10 +30,11 @@ configurations {
 }
 
 dependencies {
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-system')
     implementation project(':ballerina-io')
@@ -57,13 +58,16 @@ dependencies {
     implementation project(':ballerina-socket')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-filepath')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-activemq-artemis')
+    implementation project(':ballerina-jwt')
+    implementation project(':ballerina-ldap')
+    implementation project(':ballerina-oauth2')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
 
-    implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
@@ -90,6 +94,18 @@ dependencies {
     baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile 'org.slf4j:slf4j-jdk14'

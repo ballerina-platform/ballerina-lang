@@ -45,14 +45,28 @@ import org.slf4j.LoggerFactory;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createProducer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.PRODUCER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.PRODUCER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "addressName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "AddressConfiguration"),
-                @Argument(name = "rate", type = TypeKind.INT)
+                @Argument(
+                        name = "addressName",
+                        type = TypeKind.STRING
+                ),
+                @Argument(
+                        name = "config",
+                        type = TypeKind.RECORD,
+                        structType = "AddressConfiguration"
+                ),
+                @Argument(
+                        name = "rate",
+                        type = TypeKind.INT
+                )
         }
 )
 public class CreateProducer implements NativeCallableUnit {
@@ -74,7 +88,9 @@ public class CreateProducer implements NativeCallableUnit {
             boolean autoCreated = ((BBoolean) configObj.get(ArtemisConstants.AUTO_CREATED)).booleanValue();
 
             int rate = ArtemisUtils.getIntFromLong(context.getIntArgument(0), ArtemisConstants.RATE, logger);
-            ClientSession session = ArtemisUtils.getClientSessionFromBMap(producerObj);
+            @SuppressWarnings(ArtemisConstants.UNCHECKED)
+            BMap<String, BValue> sessionObj = (BMap<String, BValue>) producerObj.get(ArtemisConstants.SESSION);
+            ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
 
             if (autoCreated) {
                 ClientSession.AddressQuery addressQuery = session.addressQuery(addressName);
@@ -85,10 +101,12 @@ public class CreateProducer implements NativeCallableUnit {
                 }
             }
             ClientProducer producer = session.createProducer(addressName, rate);
+            producerObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
+                                      sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
-            ArtemisUtils.throwBallerinaException("Error occurred while creating the producer.", context, ex, logger);
+            ArtemisUtils.throwException("Error occurred while creating the producer.", context, ex, logger);
         }
     }
 

@@ -45,6 +45,7 @@ public class ASMUtil {
     public static final String FUNCTION_DESC = "Ljava/util/function/Function;";
     public static final String STRING_DESC = "Ljava/lang/String;";
     public static final String METHOD_TYPE_DESC = "Ljava/lang/invoke/MethodType;";
+    public static final String MAP_VALUE_DESC = "Lorg/ballerinalang/jvm/values/MapValue;";
 
     public static BMap<String, BValue> newObject(Context context, String type) {
 

@@ -724,7 +724,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLAccessExpr xmlIndexAccessExpr) {
+    public void visit(BLangXMLAccessExpr xmlAccessExpr) {
         throw new AssertionError();
     }
 

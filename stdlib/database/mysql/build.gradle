@@ -25,9 +25,12 @@ dependencies {
     
     // transitive
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
+    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
+//    implementation project(':ballerina-lang')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-sql')

@@ -21,9 +21,69 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.io.util.JBallerinaTestInitializer"/>
+    </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.io.*"/>
-        </packages>
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.stdlib.io.bytes.AsyncReadWriteTest">
+                <methods>
+                    <exclude name="writeBytes"/>
+                </methods>
+            </class>
+
+            <class name="org.ballerinalang.stdlib.io.bytes.BytesInputOutputBufferTest">
+                <methods>
+                    <exclude name="fileStreamCopyTest"/>
+                    <exclude name="writeBytesToFile"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.stdlib.io.characters.AsyncReadWriteTest">
+                <methods>
+                    <exclude name="writeCharacters"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.stdlib.io.characters.CharacterInputOutputBufferTest">
+                <methods>
+                    <exclude name="writeCharacters"/>
+                </methods>
+            </class>
+            <!--<class name="org.ballerinalang.stdlib.io.data.DataChannelTest"/>-->
+            <!--<class name="org.ballerinalang.stdlib.io.data.DataInputOutputTest"/>-->
+            <class name="org.ballerinalang.stdlib.io.records.AsyncReadWriteTest">
+                <methods>
+                    <exclude name="writeRecords"/>
+                </methods>
+            </class>
+            <!--<class name="org.ballerinalang.stdlib.io.records.CsvChannelTest"/>-->
+            <class name="org.ballerinalang.stdlib.io.records.RecordInputOutputTest">
+                <methods>
+                    <exclude name="writeRecords"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.stdlib.io.IOPrintTest">
+                <methods>
+                    <exclude name="testConnectorPrintAndPrintln"/>
+                    <exclude name="testFormatBooleanFalse"/>
+                    <exclude name="testFormatBooleanTrue"/>
+                    <exclude name="testFormatDecimal"/>
+                    <exclude name="testFormatDecimalWithPadding"/>
+                    <exclude name="testFormatFloat"/>
+                    <exclude name="testFormatFloatWithPadding"/>
+                    <exclude name="testFormatHex"/>
+                    <exclude name="testFormatIntArray"/>
+                    <exclude name="testFormatLiteralPercentChar"/>
+                    <exclude name="testFormatString"/>
+                    <exclude name="testFormatStringWithPadding"/>
+                    <exclude name="testSprintfForNilInputFloat"/>
+                    <exclude name="testFunctionPointerPrintAndPrintln"/>
+                    <exclude name="testSprintfIllegalFormatConversion"/>
+                    <exclude name="testSprintfInvalidFormatSpecifier"/>
+                    <exclude name="testSprintfMix"/>
+                </methods>
+            </class>
+            <!--<class name="org.ballerinalang.stdlib.io.IOTest"/>-->
+        </classes>
     </test>
 </suite>

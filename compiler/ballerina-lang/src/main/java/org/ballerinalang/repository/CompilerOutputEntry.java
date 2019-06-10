@@ -34,6 +34,7 @@ public interface CompilerOutputEntry {
      */
     enum Kind {
         SRC("src"),
+        BIR("bir"),
         OBJ("obj"),
         ROOT("/");
 

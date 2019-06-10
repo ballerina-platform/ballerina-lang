@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,6 +38,7 @@ import java.nio.channels.ServerSocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
@@ -67,6 +69,9 @@ public class InitServer extends BlockingNativeCallableUnit {
             serviceEndpoint.addNativeData(LISTENER_CONFIG, endpointConfig);
             int port = (int) context.getIntArgument(0);
             serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
+            final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
+            long timeout = ((BInteger) readTimeoutBValue).intValue();
+            serviceEndpoint.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
             return;

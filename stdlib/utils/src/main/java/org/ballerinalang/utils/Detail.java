@@ -19,6 +19,8 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
@@ -42,5 +44,9 @@ public class Detail extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BValue refRegVal = context.getRefArgument(0);
         context.setReturnValues(((BError) refRegVal).getDetails());
+    }
+
+    public static Object detail(Strand strand, ErrorValue value) {
+        return value.getDetails();
     }
 }

@@ -46,8 +46,7 @@ public type TypeParser object {
     public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
     public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
     public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
-    public int TYPE_TAG_XML_ATTRIBUTES = TYPE_TAG_ANNOTATION + 1;
-    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_XML_ATTRIBUTES + 1;
+    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_ANNOTATION + 1;
     public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
     public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
     public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;
@@ -57,12 +56,13 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
+    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
+    public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
 
-    public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
     public int TYPE_TAG_SELF = 50;
+    
 
-    BType[] compositeStack = [];
+    BType?[] compositeStack = [];
     int compositeStackI = 0;
 
     public function __init(BirChannelReader reader) {
@@ -70,6 +70,12 @@ public type TypeParser object {
     }
 
     public function parseType() returns BType {
+        self.compositeStack = [];
+        self.compositeStackI = 0;
+        return self.parseTypeInternal();
+    }
+    
+    function parseTypeInternal() returns BType {
         var typeTag = self.reader.readInt8();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
@@ -83,12 +89,16 @@ public type TypeParser object {
             return TYPE_INT;
         } else if (typeTag == self.TYPE_TAG_BYTE){
             return TYPE_BYTE;
+        } else if (typeTag == self.TYPE_TAG_DECIMAL){
+            return TYPE_DECIMAL;
         } else if (typeTag == self.TYPE_TAG_FLOAT){
             return TYPE_FLOAT;
         } else if (typeTag == self.TYPE_TAG_STRING){
             return TYPE_STRING;
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
+        } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
+            return TYPE_DESC;
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -97,6 +107,10 @@ public type TypeParser object {
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
             return self.parseMapType();
+        } else if (typeTag == self.TYPE_TAG_TABLE){
+            return self.parseTableType();
+        } else if (typeTag == self.TYPE_TAG_STREAM){
+            return self.parseStreamType();
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
@@ -109,42 +123,80 @@ public type TypeParser object {
             return self.parseFutureType();
         } else if (typeTag == self.TYPE_TAG_JSON){
             return TYPE_JSON;
+        } else if (typeTag == self.TYPE_TAG_XML){
+            return TYPE_XML;
         } else if (typeTag == self.TYPE_TAG_SELF){
             int selfIndex = self.reader.readInt32();
-            Self t = {bType: self.compositeStack[self.compositeStackI - 1]};
+            Self t = {bType: getType(self.compositeStack[selfIndex])};
             return t;
+        } else if(typeTag == self.TYPE_TAG_FINITE) {
+            return self.parseFiniteType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
     }
 
     function parseArrayType() returns BArrayType {
-        return { state:self.parseArrayState(), eType:self.parseType() };
+        BArrayType obj = { state:self.parseArrayState(), size:self.reader.readInt32(), eType:TYPE_NIL }; // Dummy eType until actual eType is read
+        obj.eType = self.parseTypeInternal();
+        return obj;
     }
 
     function parseMapType() returns BMapType {
-        return { constraint:self.parseType() };
+        BMapType obj = { constraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.constraint = self.parseTypeInternal();
+        return obj;
+    }
+
+    function parseTableType() returns BTableType {
+        BTableType obj = { tConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.tConstraint = self.parseTypeInternal();
+        return obj;
+    }
+
+    function parseStreamType() returns BStreamType {
+        BStreamType obj = { sConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.sConstraint = self.parseTypeInternal();
+        return obj;
     }
 
     function parseFutureType() returns BFutureType {
-        return { returnType:self.parseType() };
+        BFutureType obj = { returnType:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.returnType = self.parseTypeInternal();
+        return obj;
     }
 
     function parseUnionType() returns BUnionType {
-        return { members:self.parseTypes() };
+        BUnionType obj = { members:[] }; 
+        obj.members = self.parseTypes();
+        return obj;
     }
 
     function parseTupleType() returns BTupleType {
-        return { tupleTypes:self.parseTypes() };
+        BTupleType obj = { tupleTypes:[] }; 
+        obj.tupleTypes = self.parseTypes();
+        return obj;
     }
 
     function parseInvokableType() returns BInvokableType {
-        return { paramTypes:self.parseTypes(), retType: self.parseType() };
+        BInvokableType obj = { paramTypes:[], retType: TYPE_NIL }; 
+        obj.paramTypes = self.parseTypes();
+        obj.retType = self.parseTypeInternal();
+        return obj;
     }
 
     function parseRecordType() returns BRecordType {
-        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
-                    restFieldType: self.parseType(), fields: self.parseRecordFields() };
+        BRecordType obj = { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
+                    restFieldType: TYPE_NIL, fields: [],
+                    initFunction: {funcType: {}, visibility: VISIBILITY_PRIVATE } };
+        self.compositeStack[self.compositeStackI] = obj;
+        self.compositeStackI = self.compositeStackI + 1;
+        obj.restFieldType = self.parseTypeInternal();
+        obj.fields = self.parseRecordFields();
+        obj.initFunction = self.parseRecordInitFunction();
+        self.compositeStack[self.compositeStackI] = ();
+        self.compositeStackI = self.compositeStackI - 1;
+        return obj;
     }
 
     function parseRecordFields() returns BRecordField?[] {
@@ -158,11 +210,26 @@ public type TypeParser object {
         return fields;
     }
 
-    function parseRecordField() returns BRecordField {
-        return {name:{value:self.reader.readStringCpRef()}, typeValue:self.parseType()};
+    function parseRecordInitFunction() returns BAttachedFunction {
+        var funcName = self.reader.readStringCpRef();
+        var visibility = parseVisibility(self.reader);
+
+        var funcType = self.parseTypeInternal();
+        if (funcType is BInvokableType) {
+            return {name:{value:funcName},visibility:visibility,funcType: funcType};
+        } else {
+            error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
+            panic err;
+        }
     }
 
-    function parseObjectType() returns BObjectType {
+    function parseRecordField() returns BRecordField {
+        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
+    }
+
+    function parseObjectType() returns BType {
+        // Below is a temp fix, need to fix this properly by using type tag
+        boolean isService = self.reader.readInt8() == 1;
         BObjectType obj = { name: { value: self.reader.readStringCpRef() },
             isAbstract: self.reader.readBoolean(),
             fields: [],
@@ -171,6 +238,12 @@ public type TypeParser object {
         self.compositeStackI = self.compositeStackI + 1;
         obj.fields = self.parseObjectFields();
         obj.attachedFunctions = self.parseObjectAttachedFunctions();
+        self.compositeStack[self.compositeStackI] = ();
+        self.compositeStackI = self.compositeStackI - 1;
+        if (isService) {
+            BServiceType bServiceType = {oType: obj};
+            return bServiceType;
+        }
         return obj;
 
     }
@@ -183,12 +256,13 @@ public type TypeParser object {
             var funcName = self.reader.readStringCpRef();
             var visibility = parseVisibility(self.reader);
 
-            var typeTag = self.reader.readInt8();
-            if(typeTag != self.TYPE_TAG_INVOKABLE ){
-                error err = error("expected invokable type tag (" + self.TYPE_TAG_INVOKABLE + ") but found " + typeTag);
+            var funcType = self.parseTypeInternal();
+            if (funcType is BInvokableType) {
+                attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType: funcType};
+            } else {
+                error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
                 panic err;
             }
-            attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
             c = c + 1;
         }
 
@@ -208,25 +282,27 @@ public type TypeParser object {
     }
 
     function parseObjectField() returns BObjectField {
-        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseType()};
+        return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseTypeInternal()};
     }
 
     function parseErrorType() returns BErrorType {
-        BErrorType err = {reasonType:TYPE_ANYDATA, detailType:TYPE_ANYDATA};
+        BErrorType err = {reasonType:TYPE_NIL, detailType:TYPE_NIL};
         self.compositeStack[self.compositeStackI] = err;
         self.compositeStackI = self.compositeStackI + 1;
-        err.reasonType = self.parseType();
-        err.detailType = self.parseType();
+        err.reasonType = self.parseTypeInternal();
+        err.detailType = self.parseTypeInternal();
+        self.compositeStack[self.compositeStackI] = ();
+        self.compositeStackI = self.compositeStackI - 1;
         return err;
     }
 
-    function parseTypes() returns BType[] {
+    function parseTypes() returns BType?[] {
         int count = self.reader.readInt32();
         int i = 0;
 
-        BType[] types = [];
+        BType?[] types = [];
         while (i < count) {
-            types[types.length()] = self.parseType();
+            types[types.length()] = self.parseTypeInternal();
             i = i + 1;
         }
         return types;
@@ -243,5 +319,33 @@ public type TypeParser object {
         }
         error err = error("unknown array state tag " + b);
         panic err;
+    }
+
+    function parseFiniteType() returns BFiniteType {
+        BFiniteType finiteType = {name: { value: self.reader.readStringCpRef()}, values:[]};
+        int size = self.reader.readInt32();
+        int c = 0;
+        while c < size {
+            BType valueType = self.parseTypeInternal();
+            finiteType.values[c] = self.getValue(valueType);
+            c = c + 1;
+        }
+        return finiteType;
+    }
+
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+        if (valueType is BTypeInt) {
+            return self.reader.readIntCpRef();
+        } else if (valueType is BTypeByte) {
+            return self.reader.readByteCpRef();
+        } else if (valueType is BTypeString) {
+            return self.reader.readStringCpRef();
+        } else if (valueType is BTypeBoolean) {
+            return self.reader.readInt8() == 1;
+        } else if (valueType is BTypeFloat) {
+            return self.reader.readFloatCpRef();
+        } else if (valueType is BTypeNil) {
+            return ();
+        }
     }
 };

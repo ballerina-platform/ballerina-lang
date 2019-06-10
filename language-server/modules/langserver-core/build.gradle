@@ -24,6 +24,9 @@ configurations {
     dependency {
         transitive false
     }
+    index
+    libs
+    langserverResources
 }
 
 dependencies {
@@ -126,14 +129,19 @@ task pathingJar(type: Jar) {
     }
 }
 
+task clearPathingJar(type: Delete) {
+    delete pathingJar.archiveFile
+}
+
 task generateIndex(type: JavaExec) {
     dependsOn pathingJar
+    dependsOn createBalHome
     outputs.dir("$buildDir/lib/tools/lang-server/resources")
     outputs.cacheIf { true }
     systemProperty("ballerina.home", "$buildDir")
     classpath = files(pathingJar.archivePath) + sourceSets.main.output
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
-
+    finalizedBy 'clearPathingJar'
     // Uncomment the following to run the index generator in the debug mode while build
     // debug = true
 }
@@ -146,11 +154,9 @@ task createZip(type: Zip) {
 }
 
 artifacts {
-    dist createZip
-}
-
-build {
-    dependsOn createZip
+    dist file: file(createZip.archiveFile), builtBy: createZip
+    libs configurations.dependency.files
+    langserverResources file: file("$buildDir/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
 test {
@@ -159,4 +165,9 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+createJavadoc {
+    // TODO: remove following, it fails at org.eclipse currently
+    exclude "**"
 }

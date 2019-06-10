@@ -20,6 +20,13 @@ public const int INS_BRANCH = 3;
 public const int INS_RETURN = 4;
 public const int INS_ASYNC_CALL = 5;
 public const int INS_WAIT = 6;
+public const int INS_FP_CALL = 7;
+public const int INS_WK_RECEIVE = 8;
+public const int INS_WK_SEND = 9;
+public const int INS_FLUSH = 10;
+public const int INS_LOCK = 11;
+public const int INS_UNLOCK = 12;
+public const int INS_WAIT_ALL = 13;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;
@@ -40,15 +47,52 @@ public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
 public const int INS_FP_LOAD = 36;
 
+public const int INS_NEW_XML_ELEMENT = 37;
+public const int INS_NEW_XML_TEXT = 38;
+public const int INS_NEW_XML_COMMENT = 39;
+public const int INS_NEW_XML_PI = 40;
+public const int INS_NEW_XML_SEQ = 41;
+public const int INS_NEW_XML_QNAME = 42;
+public const int INS_NEW_STRING_XML_QNAME = 43;
+public const int INS_XML_SEQ_STORE = 44;
+public const int INS_XML_SEQ_LOAD = 45;
+public const int INS_XML_LOAD = 46;
+public const int INS_XML_LOAD_ALL = 47;
+public const int INS_XML_ATTRIBUTE_LOAD = 48;
+public const int INS_XML_ATTRIBUTE_STORE = 49;
+
+public const int INS_NEW_TABLE = 50;
+public const int INS_NEW_TYPEDESC = 51;
+public const int INS_NEW_STREAM = 52;
+
 // Binary expression related instructions.
-public const int INS_ADD = 50;
-public const int INS_SUB = 51;
-public const int INS_MUL = 52;
-public const int INS_DIV = 53;
-public const int INS_MOD = 54;
-public const int INS_EQUAL = 55;
-public const int INS_NOT_EQUAL = 56;
-public const int INS_GREATER_THAN = 57;
-public const int INS_GREATER_EQUAL = 58;
-public const int INS_LESS_THAN = 59;
-public const int INS_LESS_EQUAL = 60;
+public const int INS_ADD = 61;
+public const int INS_SUB = 62;
+public const int INS_MUL = 63;
+public const int INS_DIV = 64;
+public const int INS_MOD = 65;
+public const int INS_EQUAL = 66;
+public const int INS_NOT_EQUAL = 67;
+public const int INS_GREATER_THAN = 68;
+public const int INS_GREATER_EQUAL = 69;
+public const int INS_LESS_THAN = 70;
+public const int INS_LESS_EQUAL = 71;
+public const int INS_AND = 72;
+public const int INS_OR = 73;
+public const int INS_REF_EQUAL = 74;
+public const int INS_REF_NOT_EQUAL = 75;
+public const int INS_CLOSED_RANGE = 76;
+public const int INS_HALF_OPEN_RANGE = 77;
+
+// Unary expression related instructions.
+public const int INS_TYPEOF = 80;
+public const int INS_NOT = 81;
+public const int INS_NEGATE = 82;
+
+// Bitwise operation related instructions
+public const int INS_BITWISE_AND = 83;
+public const int INS_BITWISE_OR = 84;
+public const int INS_BITWISE_XOR = 85;
+public const int INS_BITWISE_LEFT_SHIFT = 86;
+public const int INS_BITWISE_RIGHT_SHIFT = 87;
+public const int INS_BITWISE_UNSIGNED_RIGHT_SHIFT = 88;

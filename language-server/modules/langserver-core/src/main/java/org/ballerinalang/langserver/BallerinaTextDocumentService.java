@@ -19,20 +19,20 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.LSReferencesException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -97,8 +97,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -156,13 +158,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
             try {
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                        CompletionCustomErrorStrategy.class,
-                                                                        false);
+                CompletionUtil.getPrunedSource(context);
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, null, false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
-                CompletionSubRuleParser.parse(context);
                 completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -331,7 +331,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<Either<Command, CodeAction>> commands = new ArrayList<>();
+            List<CodeAction> actions = new ArrayList<>();
             TextDocumentIdentifier identifier = params.getTextDocument();
             String fileUri = identifier.getUri();
             try {
@@ -354,31 +354,34 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Test generation suggested only when no code diagnosis exists, inside a bal project,
                     inside a module, not inside /tests folder
                      */
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
                                                                          documentManager, lsCompiler));
                 }
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
+                    LSContext context = new LSServiceOperationContext();
+                    context.put(ExecuteCommandKeys.LS_COMPILER_KEY, lsCompiler);
+                    context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
                     diagnostics.forEach(diagnostic -> {
                         if (line == diagnostic.getRange().getStart().getLine()) {
-                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
+                            actions.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, context));
                         }
                     });
                 }
 
                 // Add commands base on node type
                 if (topLevelNodeType != null) {
-                    commands.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
+                    actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
-                return commands;
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while retrieving code actions" + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return commands;
             }
+            return actions.stream().map(
+                    (Function<CodeAction, Either<Command, CodeAction>>) Either::forRight).collect(Collectors.toList());
         });
     }
 
@@ -559,9 +562,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Range changesRange = changeEvent.getRange();
                     documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
                 }
-                // Update code lenses
-                List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
-                CodeLensUtil.updateCachedCodeLenses(lenses, changes);
+                // Update code lenses only if in incremental synchronization mode (if the language client is using
+                // incremental synchronization, range of content changes should not be null).
+                // Todo - Revisit after adding codelens support for full sync mode.
+                if (changes.get(changes.size() - 1).getRange() != null) {
+                    List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
+                    CodeLensUtil.updateCachedCodeLenses(lenses, changes);
+                }
                 // Schedule diagnostics
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(compilationPath, () -> {

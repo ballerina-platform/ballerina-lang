@@ -112,7 +112,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
             BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, moduleFilter, nativeSource,
                     offline, sources);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("failed to generate api docs: " + sourceRootPath.toString(), e);
         }
     }
 

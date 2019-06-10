@@ -6,14 +6,14 @@
   "source": "function/source/matchStatementSuggestions4.bal",
   "items": [
     {
-      "label":"extractBasicAuthHeaderValue(req)",
+      "label":"extractAuthorizationHeaderValue(req)",
       "kind":"Function",
       "detail":"Snippet",
       "documentation":{
-        "left":"Extracts the basic authentication header value from the request.\n"
+        "left":"Extracts the Authorization header value from the request.\n"
       },
       "sortText":"120",
-      "insertText":"extractBasicAuthHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText":"extractAuthorizationHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -39,14 +39,14 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"invokeEndpoint(path,outRequest,requestAction,httpClient)",
+      "label":"invokeEndpoint(path,outRequest,requestAction,httpClient,verb)",
       "kind":"Function",
       "detail":"Snippet",
       "documentation":{
         "left":"The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider."
       },
       "sortText":"120",
-      "insertText":"invokeEndpoint(path,outRequest,requestAction,httpClient) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText":"invokeEndpoint(path,outRequest,requestAction,httpClient,verb) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
     },
     {

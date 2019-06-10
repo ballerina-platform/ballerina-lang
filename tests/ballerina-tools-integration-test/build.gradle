@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     ballerinaTools
+    jballerinaTools
     testUtilsJar {
         transitive false
     }
@@ -33,11 +34,13 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-launcher')   
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    implementation 'org.slf4j:slf4j-jdk14'
 
     testCompile 'org.awaitility:awaitility'
     testCompile 'commons-io:commons-io'
     testCompile 'org.testng:testng'
     ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+    jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     ballerina project(path: ':ballerina', configuration: 'resourceFiles')
     testUtilsJar project(path: ':ballerina-test-utils', configuration: 'shadow')
     testUtilsBal project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -47,10 +50,12 @@ test {
     maxParallelForks = 1
     forkEvery=500
     // make sure ballerina tools zip is built before test run
-    dependsOn = [":ballerina-tools:build", ":ballerina-integration-test:test", ":examples-test:test"]
+    dependsOn = [":ballerina-tools:build", ":jballerina-tools:build", ":ballerina-integration-test:test", 
+                 ":examples-test:test"]
 
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
+    systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'integration.test.utils.service.file', configurations.testUtilsBal.asPath
@@ -60,6 +65,11 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 description = 'Ballerina - Tools Integration Test'

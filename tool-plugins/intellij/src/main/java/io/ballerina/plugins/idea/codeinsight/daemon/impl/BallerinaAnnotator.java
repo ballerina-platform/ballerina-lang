@@ -104,16 +104,23 @@ public class BallerinaAnnotator implements Annotator {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.SYMBOLIC_STRING_LITERAL) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START
-                    || elementType == BallerinaTypes.XML_TEMPLATE_TEXT
-                    || elementType == BallerinaTypes.XML_TAG_EXPRESSION_START
+            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_DOUBLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_PI_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_COMMENT_TEMPLATE_TEXT) {
                 annotateExpressionTemplateStart(element, holder);
-            } else if (elementType == BallerinaTypes.EXPRESSION_END) {
-                annotateStringLiteralTemplateEnd(element, holder);
+            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START) {
+                TextRange textRange = element.getTextRange();
+                int startOffset = textRange.getStartOffset() + element.getText().indexOf('$');
+                // Highlights xml plain text.
+                TextRange newTextRange2 = new TextRange(textRange.getStartOffset(), startOffset);
+                Annotation annotation2 = holder.createInfoAnnotation(newTextRange2, null);
+                annotation2.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+                // Highlights interpolation start($).
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT

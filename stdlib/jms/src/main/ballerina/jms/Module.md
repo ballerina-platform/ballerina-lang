@@ -6,16 +6,11 @@ ActiveMQ.
 The module provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
 supported by this module:
 
-- QueueReceiver
-- TopicSubscriber
-- DurableTopicSubscriber
-- SimpleQueueReceiver
-- SimpleTopicSubscriber
-- SimpleDurableTopicSubscriber
+- QueueListener
+- TopicListener
+- DurableTopicListener
 - QueueSender
 - TopicPublisher
-- SimpleQueueSender
-- SimpleTopicPublisher
 
 The endpoints prefixed with `Simple` will automatically create a JMS connection and a JMS session when the endpoint is
 initialized. For other endpoints, the developer must explicitly provide a properly initialized JMS Session.
@@ -31,12 +26,11 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-listener jms:SimpleQueueReceiver consumerEP = new({
+listener jms:QueueListener consumerEP = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName: "MyQueue"
-});
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, queueName = "MyQueue");
 
 // Bind the created consumer to the listener service.
 service jmsListener on consumerEP {
@@ -61,12 +55,11 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a topic publisher.
-jms:SimpleTopicPublisher topicPublisher = new({
+jms:TopicPublisher topicPublisher = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    topicPattern: "BallerinaTopic"
-});
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, topicPattern = "MyTopic");
 
 public function main(string... args) {
     // Create a text message.
@@ -174,7 +167,7 @@ jms:Session jmsSession = new(conn, {
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
-listener jms:TopicSubscriber subscriberEndpoint = new(jmsSession, topicPattern = "MyTopic");
+listener jms:TopicListener subscriberEndpoint = new(jmsSession, topicPattern = "MyTopic");
 
 service jmsListener on subscriberEndpoint {
     resource function onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {
