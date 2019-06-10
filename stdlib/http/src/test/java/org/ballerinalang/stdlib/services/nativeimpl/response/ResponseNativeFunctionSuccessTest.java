@@ -78,8 +78,8 @@ public class ResponseNativeFunctionSuccessTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/services/nativeimpl/response/in-response-native-function.bal";
-        result = BCompileUtil.compileAndSetup(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        result = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test

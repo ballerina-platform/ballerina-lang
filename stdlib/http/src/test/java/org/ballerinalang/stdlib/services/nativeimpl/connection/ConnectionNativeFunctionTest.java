@@ -22,6 +22,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -40,7 +41,7 @@ public class ConnectionNativeFunctionTest {
     @BeforeClass
     public void setup() {
         String filePath = "test-src/services/nativeimpl/connection/connection-native-function.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, filePath);
+        serviceResult = BCompileUtil.compile(filePath);
     }
 
     @Test(description = "Test whether the headers and status codes are set correctly.")
