@@ -161,6 +161,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -272,7 +273,8 @@ public class BIRGen extends BLangNodeVisitor {
         ConstValue constantValue = getConstValue(value, valueType);
 
         // Create a new constant info object.
-        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type, constantValue);
+        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type,
+                                                  constantValue);
         birConstant.constValue = constantValue;
 
         // Add the constant to the package.
@@ -312,8 +314,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, astFunc.receiver.type, workerName,
-                    astFunc.sendsToThis.size(), taintTable);
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, astFunc.receiver.type,
+                                      workerName, astFunc.sendsToThis.size(), taintTable);
         } else {
             Name funcName = getFuncName(astFunc.symbol);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type,
@@ -425,9 +427,9 @@ public class BIRGen extends BLangNodeVisitor {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
         //TODO is it good to send nill type? fix
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags, annSymbol.attachPoints,
-                annSymbol.attachedType == null ? symTable.noType : annSymbol.attachedType.type);
-
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags,
+                                                 annSymbol.attachPoints, annSymbol.attachedType == null ?
+                                                         symTable.noType : annSymbol.attachedType.type);
         this.env.enclPkg.annotations.add(birAnn);
     }
 
@@ -586,8 +588,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags, varNode.symbol.type,
-                this.env.nextGlobalVarId(names), VarScope.GLOBAL, VarKind.GLOBAL);
+        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
+                                                                  varNode.symbol.type, this.env.nextGlobalVarId(names),
+                                                                  VarScope.GLOBAL, VarKind.GLOBAL);
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.env.globalVarMap.put(varNode.symbol, birVarDcl);
