@@ -20,14 +20,11 @@ package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Resource level dispatchers handler for HTTP protocol.
@@ -39,7 +36,7 @@ public class HttpResourceDispatcher {
         String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
         String subPath = (String) inboundRequest.getProperty(HttpConstants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
-        Map<String, String> resourceArgumentValues = new HashMap<>();
+        HttpResourceArguments resourceArgumentValues = new HttpResourceArguments();
         try {
             HttpResource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, inboundRequest);
             if (resource != null) {

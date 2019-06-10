@@ -80,6 +80,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

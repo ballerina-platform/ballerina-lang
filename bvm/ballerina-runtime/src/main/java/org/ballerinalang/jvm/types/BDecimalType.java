@@ -33,8 +33,8 @@ class BDecimalType extends BType {
      *
      * @param typeName string name of the type
      */
-    BDecimalType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BigDecimal.class);
+    BDecimalType(String typeName, BPackage pkg) {
+        super(typeName, pkg, BigDecimal.class);
     }
 
     @Override

@@ -890,6 +890,11 @@ public class CommonUtil {
     }
 
     public static boolean isInvalidSymbol(BSymbol symbol) {
+        // TODO: this is a temp hack to avoid NPE. fix this properly.
+        if (symbol == null) {
+            return true;
+        }
+
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())

@@ -52,6 +52,7 @@ public class LastIndexOf extends BlockingNativeCallableUnit {
     }
 
     public static long lastIndexOf(Strand strand, String value, String subString) {
+        StringUtils.checkForNull(value, subString);
         return value.lastIndexOf(subString);
     }
 }

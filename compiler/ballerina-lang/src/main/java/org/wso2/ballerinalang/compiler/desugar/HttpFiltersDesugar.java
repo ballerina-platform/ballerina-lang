@@ -349,7 +349,7 @@ public class HttpFiltersDesugar {
         foreach.collection = filtersField;
         foreach.isDeclaredWithVar = false;
         foreach.varType = filterType;
-        BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
+        BMapType mapType = new BMapType(TypeTags.MAP, filterType, symTable.mapType.tsymbol);
         foreach.resultType = mapType;
         foreach.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 

@@ -566,7 +566,7 @@ public class ConstrainedMapTest {
     @Test(description = "Test inherent type violation with nil value.",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
-                  "invalid map insertion: expected value of type 'string', found 'null'\"\\}.*")
+                  "invalid map insertion: expected value of type 'string', found '\\(\\)'\"\\}.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }

@@ -25,6 +25,7 @@ dependencies {
 //    implementation project(':ballerina-lang')
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.testng:testng'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {

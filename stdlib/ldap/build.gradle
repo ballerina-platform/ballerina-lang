@@ -18,12 +18,14 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-dependencies {
-    baloCreat project(':lib-creator-milestone')
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+dependencies {
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-utils')
@@ -31,6 +33,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-runtime-api')
     implementation 'commons-logging:commons-logging'
+    implementation 'org.apache.commons:commons-lang3'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
