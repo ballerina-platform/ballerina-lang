@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -43,8 +43,7 @@ public class ProducesConsumesAnnotationTest {
 
     @BeforeClass()
     public void setup() {
-        compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
+        compileResult = BCompileUtil.compile("test-src/services/dispatching/produces-consumes-test.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
