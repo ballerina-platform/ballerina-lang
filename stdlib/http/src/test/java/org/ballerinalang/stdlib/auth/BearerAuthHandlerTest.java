@@ -34,7 +34,7 @@ import java.nio.file.Paths;
 /**
  * Bearer auth header authentication handler testcase.
  */
-public class BearerAuthHeaderAuthnHandlerTest {
+public class BearerAuthHandlerTest {
 
     private CompileResult compileResult;
 
@@ -43,7 +43,7 @@ public class BearerAuthHeaderAuthnHandlerTest {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         compileResult = BCompileUtil.compile(
-                sourceRoot.resolve("bearer-auth-header-authn-handler-test.bal").toString());
+                sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
     }
 
     @Test(description = "Test case for bearer auth header interceptor canHandle method, without the bearer auth header")

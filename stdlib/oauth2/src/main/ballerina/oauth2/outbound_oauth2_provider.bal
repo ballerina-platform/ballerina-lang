@@ -43,8 +43,8 @@ public type OutboundOAuth2Provider object {
             refreshToken: "",
             expiryTime: 0
         };
-
     }
+    // TODO: test cache behaviour
 
     # Generate token for OAuth2 authentication.
     #

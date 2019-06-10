@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/http;
 
 auth:InboundBasicAuthProvider basicAuthProvider02 = new;
-http:BasicAuthHeaderHandler basicAuthHandler02 = new(basicAuthProvider02);
+http:BasicAuthHandler basicAuthHandler02 = new(basicAuthProvider02);
 
 // Listener with valid scope
 listener http:Listener listener02_1 = new(9091, config = {

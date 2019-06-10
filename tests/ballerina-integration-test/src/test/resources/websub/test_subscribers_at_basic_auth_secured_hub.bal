@@ -23,7 +23,7 @@ import ballerina/websub;
 listener websub:Listener websubEP = new websub:Listener(8484);
 
 auth:OutboundBasicAuthProvider basicAuthProvider1 = new({ username: "tom", password: "1234" });
-http:BasicAuthHeaderHandler basicAuthHandler1 = new(basicAuthProvider1);
+http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
@@ -45,7 +45,7 @@ service websubSubscriber on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider2 = new({ username: "tom", password: "4321" });
-http:BasicAuthHeaderHandler basicAuthHandler2 = new(basicAuthProvider2);
+http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
 
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
@@ -66,7 +66,7 @@ service websubSubscriberTwo on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider3 = new({ username: "mary", password: "xyz" });
-http:BasicAuthHeaderHandler basicAuthHandler3 = new(basicAuthProvider3);
+http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
 
 @websub:SubscriberServiceConfig {
     path: "/websubThree",
@@ -87,7 +87,7 @@ service websubSubscriberThree on websubEP {
 }
 
 auth:OutboundBasicAuthProvider basicAuthProvider4 = new({ username: "tom", password: "1234" });
-http:BasicAuthHeaderHandler basicAuthHandler4 = new(basicAuthProvider4);
+http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
 
 @websub:SubscriberServiceConfig {
     path: "/websubFour",

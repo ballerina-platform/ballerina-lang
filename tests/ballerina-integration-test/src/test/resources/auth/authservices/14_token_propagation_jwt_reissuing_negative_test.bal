@@ -26,7 +26,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider14_1 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderHandler jwtAuthHandler14_1 = new(jwtAuthProvider14_1);
+http:BearerAuthHandler jwtAuthHandler14_1 = new(jwtAuthProvider14_1);
 
 listener http:Listener listener14_1 = new(9109, config = {
     auth: {
@@ -52,7 +52,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider14_2 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler jwtAuthHandler14_2 = new(jwtAuthProvider14_2);
+http:BearerAuthHandler jwtAuthHandler14_2 = new(jwtAuthProvider14_2);
 
 http:Client nyseEP14 = new("https://localhost:9110", config = {
     auth: {
@@ -90,7 +90,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider14_3 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderHandler jwtAuthHandler14_3 = new(jwtAuthProvider14_3);
+http:BearerAuthHandler jwtAuthHandler14_3 = new(jwtAuthProvider14_3);
 
 listener http:Listener listener14_2 = new(9110, config = {
         auth: {

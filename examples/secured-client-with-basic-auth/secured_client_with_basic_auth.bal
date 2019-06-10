@@ -11,8 +11,8 @@ auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({
     password: "1234"
 });
 
-// Create a Basic auth header handler with the created Basic auth provider.
-http:BasicAuthHeaderHandler outboundBasicAuthHandler =
+// Create a Basic auth handler with the created Basic auth provider.
+http:BasicAuthHandler outboundBasicAuthHandler =
                                             new(outboundBasicAuthProvider);
 
 http:Client httpEndpoint = new("https://localhost:9090", config = {
@@ -38,8 +38,7 @@ public function main() {
 
 // Defines the sample backend service, secured with Basic auth authentication.
 auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
-http:BasicAuthHeaderHandler inboundBasicAuthHandler =
-                                            new(inboundBasicAuthProvider);
+http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 listener http:Listener ep  = new(9090, config = {
     auth: {
         authHandlers: [inboundBasicAuthHandler]

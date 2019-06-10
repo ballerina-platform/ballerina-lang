@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/jwt;
 
 auth:InboundBasicAuthProvider basicAuthProvider11_1 = new;
-http:BasicAuthHeaderHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
+http:BasicAuthHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
 
 listener http:Listener listener11_1 = new(9103, config = {
     auth: {
@@ -45,7 +45,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler jwtAuthHandler11_2 = new(jwtAuthProvider11_2);
+http:BearerAuthHandler jwtAuthHandler11_2 = new(jwtAuthProvider11_2);
 
 http:Client nyseEP03 = new("https://localhost:9104", config = {
     auth: {
@@ -83,7 +83,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);
+http:BearerAuthHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);
 
 listener http:Listener listener11_2 = new(9104, config = {
     auth: {

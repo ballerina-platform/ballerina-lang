@@ -20,7 +20,7 @@ import ballerina/jwt;
 
 // token propagation is set to false by default
 auth:InboundBasicAuthProvider basicAuthProvider10 = new;
-http:BasicAuthHeaderHandler basicAuthHandler10 = new(basicAuthProvider10);
+http:BasicAuthHandler basicAuthHandler10 = new(basicAuthProvider10);
 
 listener http:Listener listener10_1 = new(9101, config = {
     auth: {
@@ -68,7 +68,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
     }
 });
 
-http:BearerAuthHeaderHandler jwtAuthHandler10 = new(jwtAuthProvider10);
+http:BearerAuthHandler jwtAuthHandler10 = new(jwtAuthProvider10);
 
 listener http:Listener listener10_2 = new(9102, config = {
     auth: {

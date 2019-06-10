@@ -14,7 +14,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
         clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa"
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler1 = new(oauth2Provider1);
+http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
 
 http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
     auth: {
@@ -41,7 +41,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler2 = new(oauth2Provider2);
+http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
 
 http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
     auth: {
@@ -68,7 +68,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler3 = new(oauth2Provider3);
+http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
 
 http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", config = {
     auth: {

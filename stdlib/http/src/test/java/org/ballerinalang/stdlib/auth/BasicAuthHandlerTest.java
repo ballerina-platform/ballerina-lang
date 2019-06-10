@@ -34,7 +34,7 @@ import java.nio.file.Paths;
 /**
  * Basic auth header authentication handler testcase.
  */
-public class BasicAuthHeaderAuthnHandlerTest {
+public class BasicAuthHandlerTest {
 
     private CompileResult compileResult;
 
@@ -42,7 +42,7 @@ public class BasicAuthHeaderAuthnHandlerTest {
     public void setup() throws IOException {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-auth-header-authn-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-auth-handler-test.bal").toString());
     }
 
     @Test(description = "Test case for basic auth header interceptor canHandle method, without the basic auth header")

@@ -21,7 +21,7 @@ auth:OutboundBasicAuthProvider basicAuthProvider = new({
     username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
     password: "9205371918321623741"
 });
-http:BasicAuthHeaderHandler basicAuthHandler = new(basicAuthProvider);
+http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:9196/oauth2/token/introspect",
@@ -32,7 +32,7 @@ oauth2:IntrospectionServerConfig introspectionServerConfig = {
     }
 };
 oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
-http:BearerAuthHeaderHandler oauth2AuthnHandler21 = new(oauth2Provider21);
+http:BearerAuthHandler oauth2AuthnHandler21 = new(oauth2Provider21);
 
 listener http:Listener listener21 = new(9116, config = {
     auth: {

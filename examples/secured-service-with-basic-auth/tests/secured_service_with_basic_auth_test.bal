@@ -22,7 +22,7 @@ function testFunc() {
 function testAuthSuccess() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "tom", password: "password1" });
-    http:BasicAuthHeaderHandler outboundBasicAuthHandler1 = new(outboundBasicAuthProvider1);
+    http:BasicAuthHandler outboundBasicAuthHandler1 = new(outboundBasicAuthProvider1);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             authHandler: outboundBasicAuthHandler1
@@ -41,7 +41,7 @@ function testAuthSuccess() {
 function testAuthnFailure() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "tom", password: "password" });
-    http:BasicAuthHeaderHandler outboundBasicAuthHandler2 = new(outboundBasicAuthProvider2);
+    http:BasicAuthHandler outboundBasicAuthHandler2 = new(outboundBasicAuthProvider2);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             authHandler: outboundBasicAuthHandler2
@@ -60,7 +60,7 @@ function testAuthnFailure() {
 function testAuthzFailure() {
     // Create client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "dick", password: "password2" });
-    http:BasicAuthHeaderHandler outboundBasicAuthHandler3 = new(outboundBasicAuthProvider3);
+    http:BasicAuthHandler outboundBasicAuthHandler3 = new(outboundBasicAuthProvider3);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             authHandler: outboundBasicAuthHandler3

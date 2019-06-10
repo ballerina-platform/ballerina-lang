@@ -28,7 +28,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler1 = new(oauth2Provider1);
+http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
 http:Client clientEP1 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler1
@@ -45,7 +45,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler2 = new(oauth2Provider2);
+http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
 http:Client clientEP2 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler2
@@ -63,7 +63,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler3 = new(oauth2Provider3);
+http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
 http:Client clientEP3 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler3
@@ -81,7 +81,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider4 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler4 = new(oauth2Provider4);
+http:BearerAuthHandler oauth2Handler4 = new(oauth2Provider4);
 http:Client clientEP4 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler4
@@ -100,7 +100,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler5 = new(oauth2Provider5);
+http:BearerAuthHandler oauth2Handler5 = new(oauth2Provider5);
 http:Client clientEP5 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler5
@@ -123,7 +123,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider6 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler6 = new(oauth2Provider6);
+http:BearerAuthHandler oauth2Handler6 = new(oauth2Provider6);
 http:Client clientEP6 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler6
@@ -146,7 +146,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider7 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler7 = new(oauth2Provider7);
+http:BearerAuthHandler oauth2Handler7 = new(oauth2Provider7);
 http:Client clientEP7 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler7
@@ -164,7 +164,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider8 = new({
         scopes: ["token-scope1", "token-scope2"]
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler8 = new(oauth2Provider8);
+http:BearerAuthHandler oauth2Handler8 = new(oauth2Provider8);
 http:Client clientEP8 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler8
@@ -178,7 +178,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider9 = new({
         accessToken: "2YotnFZFEjr1zCsicMWpAA"
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler9 = new(oauth2Provider9);
+http:BearerAuthHandler oauth2Handler9 = new(oauth2Provider9);
 http:Client clientEP9 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler9
@@ -192,7 +192,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider10 = new({
         accessToken: "invalid_access_token"
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler10 = new(oauth2Provider10);
+http:BearerAuthHandler oauth2Handler10 = new(oauth2Provider10);
 http:Client clientEP10 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler10
@@ -213,7 +213,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider11 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler11 = new(oauth2Provider11);
+http:BearerAuthHandler oauth2Handler11 = new(oauth2Provider11);
 http:Client clientEP11 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler11
@@ -228,7 +228,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider12 = new({
         retryRequest: false
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler12 = new(oauth2Provider12);
+http:BearerAuthHandler oauth2Handler12 = new(oauth2Provider12);
 http:Client clientEP12 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler12
@@ -250,7 +250,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler13 = new(oauth2Provider13);
+http:BearerAuthHandler oauth2Handler13 = new(oauth2Provider13);
 http:Client clientEP13 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler13
@@ -271,7 +271,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider14 = new({
         }
     }
 });
-http:BearerAuthHeaderHandler oauth2Handler14 = new(oauth2Provider14);
+http:BearerAuthHandler oauth2Handler14 = new(oauth2Provider14);
 http:Client clientEP14 = new("https://localhost:9195", config = {
     auth: {
         authHandler: oauth2Handler14

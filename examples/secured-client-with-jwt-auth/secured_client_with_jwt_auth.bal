@@ -10,9 +10,8 @@ import ballerina/runtime;
 // the outbound authentication.
 jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
 
-// Create a Bearer auth header handler with the created JWT auth provider.
-http:BearerAuthHeaderHandler outboundJwtAuthHandler =
-                                                new(outboundJwtAuthProvider);
+// Create a Bearer auth handler with the created JWT auth provider.
+http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
 
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
@@ -57,8 +56,7 @@ jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
         password: "ballerina"
     }
 });
-http:BearerAuthHeaderHandler inboundJwtAuthHandler =
-                                                new(inboundJwtAuthProvider);
+http:BearerAuthHandler inboundJwtAuthHandler = new(inboundJwtAuthProvider);
 listener http:Listener ep = new(9090, config = {
     auth: {
         authHandlers: [inboundJwtAuthHandler]

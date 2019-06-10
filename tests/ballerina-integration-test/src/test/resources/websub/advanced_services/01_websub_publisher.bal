@@ -27,14 +27,14 @@ const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
 auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
-http:BasicAuthHeaderHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
+http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
 
 auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({ username: "peter", password: "pqr" });
-http:BasicAuthHeaderHandler outboundBasicAuthHandler = new(outboundBasicAuthProvider);
+http:BasicAuthHandler outboundBasicAuthHandler = new(outboundBasicAuthProvider);
 
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {

@@ -15,42 +15,41 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/crypto;
 import ballerina/http;
 
-function testCanHandleHttpBearerAuthWithoutHeader() returns boolean {
+function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
     CustomAuthProvider customAuthProvider = new;
-    http:BearerAuthHeaderAuthnHandler handler = new(customAuthProvider);
+    http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
-    string bearerAuthHeaderValue = "123Bearer xxxxxx";
-    inRequest.setHeader("123Authorization", bearerAuthHeaderValue);
+    string basicAuthHeaderValue = "123Basic xxxxxx";
+    inRequest.setHeader("123Authorization", basicAuthHeaderValue);
     return handler.canHandle(inRequest);
 }
 
-function testCanHandleHttpBearerAuth() returns boolean {
+function testCanHandleHttpBasicAuth() returns boolean {
     CustomAuthProvider customAuthProvider = new;
-    http:BearerAuthHeaderAuthnHandler handler = new(customAuthProvider);
+    http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
-    string bearerAuthHeaderValue = "Bearer xxxxxx";
-    inRequest.setHeader("Authorization", bearerAuthHeaderValue);
+    string basicAuthHeaderValue = "Basic xxxxxx";
+    inRequest.setHeader("Authorization", basicAuthHeaderValue);
     return handler.canHandle(inRequest);
 }
 
-function testHandleHttpBearerAuthFailure() returns boolean|error {
+function testHandleHttpBasicAuthFailure() returns boolean|error {
     CustomAuthProvider customAuthProvider = new;
-    http:BearerAuthHeaderAuthnHandler handler = new(customAuthProvider);
+    http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
-    string bearerAuthHeaderValue = "Bearer YW1pbGE6cHFy";
-    inRequest.setHeader("Authorization", bearerAuthHeaderValue);
+    string basicAuthHeaderValue = "Basic YW1pbGE6cHFy";
+    inRequest.setHeader("Authorization", basicAuthHeaderValue);
     return handler.handle(inRequest);
 }
 
-function testHandleHttpBearerAuth() returns boolean|error {
+function testHandleHttpBasicAuth() returns boolean|error {
     CustomAuthProvider customAuthProvider = new;
-    http:BearerAuthHeaderAuthnHandler handler = new(customAuthProvider);
+    http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
-    string bearerAuthHeaderValue = "Bearer aXN1cnU6eHh4";
-    inRequest.setHeader("Authorization", bearerAuthHeaderValue);
+    string basicAuthHeaderValue = "Basic aXN1cnU6eHh4";
+    inRequest.setHeader("Authorization", basicAuthHeaderValue);
     return handler.handle(inRequest);
 }
 
