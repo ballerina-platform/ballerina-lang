@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -1072,7 +1073,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
                 null, env.scope.owner);
 
-        BRecordTypeSymbol detailRecordSym = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+        Name detailName = names.fromString("synthetic$error$detail");
+        BRecordTypeSymbol detailRecordSym = Symbols.createRecordSymbol(0, detailName, env.enclPkg.symbol.pkgID,
                 null, errorTSymbol);
 
         List<BField> fields = new ArrayList<>();
@@ -1151,6 +1153,10 @@ public class TypeChecker extends BLangNodeVisitor {
         detailRecType.sealed = false;
         detailRecType.restFieldType = restFieldType;
         detailRecordSym.type = detailRecType;
+        detailRecordSym.scope = new Scope(detailRecordSym);
+        for (BField field : fields) {
+            detailRecordSym.scope.define(field.name, field.symbol);
+        }
 
         BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, detailRecType);
         resultType = errorType;
@@ -2647,7 +2653,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (ctorType.detailType.tag == TypeTags.RECORD) {
             BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
             BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
-            if (recordType == null) {
+            if (resultType == symTable.semanticError) {
                 return;
             }
 
@@ -2658,7 +2664,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
-            for (BLangNamedArgsExpression errorDetailArg : getProvidedErrorDetails(iExpr, reasonArgGiven)) {
+            List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
+            if (providedErrorDetails == null) {
+                // error in provided error details
+                return;
+            }
+            for (BLangNamedArgsExpression errorDetailArg : providedErrorDetails) {
                 checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
             }
         }
@@ -2713,13 +2724,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void setErrorReasonParam(BLangInvocation iExpr, boolean reasonArgGiven, BErrorType ctorType) {
-        if (reasonArgGiven) {
-            if (ctorType.reasonType.getKind() == TypeKind.FINITE) {
-                BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
-                BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
-                iExpr.requiredArgs.add(reasonExpr);
-                return;
-            }
+        if (!reasonArgGiven && ctorType.reasonType.getKind() == TypeKind.FINITE) {
+            BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
+            BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
+            iExpr.requiredArgs.add(reasonExpr);
+            return;
         }
         iExpr.requiredArgs.add(iExpr.argExprs.get(0));
         iExpr.argExprs.remove(0);
@@ -2739,9 +2748,9 @@ public class TypeChecker extends BLangNodeVisitor {
                                                     BRecordType targetErrorDetailsType) {
         List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, reasonArgGiven);
         if (namedArgs == null) {
+            // error in provided error details
             return null;
         }
-
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, null, targetErrorDetailsType.tsymbol.pkgID,
                 symTable.recordType, null);
@@ -2771,7 +2780,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr, boolean reasonArgGiven) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for (int i = reasonArgGiven ? 1: 0; i < iExpr.argExprs.size(); i++) {
+        for (int i = reasonArgGiven ? 1 : 0; i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
             checkExpr(argExpr, env);
             if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {

@@ -224,6 +224,7 @@ public type TypeParser object {
         int size = self.readInt32();
         int c = 0;
         BRecordField?[] fields = [];
+        io:println("size" + size);
         while c < size {
             fields[c] = self.parseRecordField();
             c = c + 1;

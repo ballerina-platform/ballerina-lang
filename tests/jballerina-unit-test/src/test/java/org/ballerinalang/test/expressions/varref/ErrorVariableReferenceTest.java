@@ -97,8 +97,6 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple")
-    @Ignore // todo: enable when tuple ref var is added to jBallerina
-    // (issue: https://github.com/ballerina-platform/ballerina-lang/issues/15520)
     public void testErrorInTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.length, 5);
@@ -110,7 +108,6 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
-    @Ignore // enable when tuple ref var is added to jBallerina
     public void testErrorInTupleWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.length, 5);
@@ -122,7 +119,6 @@ public class ErrorVariableReferenceTest {
     }
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
-    @Ignore // enable when tuple ref var is added to jBallerina
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);

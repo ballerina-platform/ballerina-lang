@@ -1,4 +1,4 @@
-//import ballerina/runtime;
+import ballerina/runtime;
 
 function errorConstructReasonTest() returns (error, error, error, string, any, string) {
     error er1 = error("error1");
@@ -70,9 +70,9 @@ public function testErrorWithErrorConstructor() returns string {
     return errorData.data;
 }
 
-//function getCallStackTest() returns runtime:CallStackElement[] {
-//    return runtime:getCallStack();
-//}
+function getCallStackTest() returns runtime:CallStackElement[] {
+    return runtime:getCallStack();
+}
 
 function testConsecutiveTraps() returns (string, string) {
     error? e1 = trap generatePanic();
@@ -206,4 +206,4 @@ public function insertMemberToMap(map<any|error> mapVal, string index, any|error
 }
 
 const string reasonA = "ErrNo-1";
-type UserDefErrorTwo error<reasonA, map<string>>;
+type UserDefErrorTwoA error<reasonA, map<string>>;

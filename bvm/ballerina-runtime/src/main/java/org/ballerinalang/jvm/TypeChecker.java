@@ -750,16 +750,6 @@ public class TypeChecker {
             return true;
         }
 
-        return checkIsLikeTypeStructural(sourceValue, targetType, unresolvedValues, sourceType);
-    }
-
-    public static boolean checkIsLikeTypeStructural(Object sourceValue, BType targetType) {
-        BType sourceType = getType(sourceValue);
-        return checkIsLikeTypeStructural(sourceValue, targetType, new ArrayList<>(), sourceType);
-    }
-
-    private static boolean checkIsLikeTypeStructural(Object sourceValue, BType targetType,
-                                                     List<TypeValuePair> unresolvedValues, BType sourceType) {
         switch (targetType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues);
@@ -775,6 +765,8 @@ public class TypeChecker {
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
+            case TypeTags.ERROR_TAG:
+                return checkIsLikeErrorType(sourceValue, (BErrorType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
@@ -782,21 +774,9 @@ public class TypeChecker {
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
                         .anyMatch(type -> checkIsLikeType(sourceValue, type, unresolvedValues));
-            case TypeTags.ERROR_TAG:
-                return checkIsLikeErrorType(sourceValue, sourceType, (BErrorType) targetType, unresolvedValues);
             default:
                 return false;
         }
-    }
-
-    private static boolean checkIsLikeErrorType(Object sourceValue, BType sourceType, BErrorType targetType,
-                                                List<TypeValuePair> unresolvedValues) {
-        if (sourceType.getTag() != TypeTags.ERROR_TAG) {
-            return false;
-        }
-        Object details = ((ErrorValue) sourceValue).getDetails();
-        BType targetDetailType = targetType.getDetailType();
-        return  checkIsLikeTypeStructural(details, targetDetailType, unresolvedValues, getType(details));
     }
 
     @SuppressWarnings("unchecked")
@@ -1039,6 +1019,17 @@ public class TypeChecker {
         BErrorType bErrorType = (BErrorType) sourceType;
         return checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes) &&
                 checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+    }
+
+    private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
+        BType sourceType = getType(sourceValue);
+        if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
+                targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     private static boolean isAnydata(BType type) {

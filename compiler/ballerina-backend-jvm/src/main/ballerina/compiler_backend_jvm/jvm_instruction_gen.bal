@@ -734,10 +734,7 @@ type InstructionGenerator object {
     function generateArrayValueLoad(bir:FieldAccess inst) {
         self.loadVar(inst.rhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
-        bir:BType bType = inst.rhsOp.variableDcl.typeValue;
-        if (bType is bir:BArrayType) {
-            bType = bType.eType;
-        }
+        bir:BType bType = inst.lhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
@@ -795,18 +792,6 @@ type InstructionGenerator object {
         loadType(self.mv, typeTestIns.typeValue);
 
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
-        self.storeToVar(typeTestIns.lhsOp.variableDcl);
-    }
-
-    function generateIsLikeIns(bir:TypeTest typeTestIns) {
-        // load source value
-        self.loadVar(typeTestIns.rhsOp.variableDcl);
-
-        // load targetType
-        loadType(self.mv, typeTestIns.typeValue);
-
-        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsLikeTypeStructural",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
