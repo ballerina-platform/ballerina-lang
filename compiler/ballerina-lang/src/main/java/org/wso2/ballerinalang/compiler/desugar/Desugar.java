@@ -2127,7 +2127,8 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if (varRefExpr.lhsVar) {
+        if ((varRefExpr.lhsVar && types.isValueType(genVarRefExpr.type))
+                || genVarRefExpr.symbol.name.equals(IGNORE)) { //TODO temp fix to get this running in bvm
             genVarRefExpr.lhsVar = varRefExpr.lhsVar;
             result = genVarRefExpr;
             return;

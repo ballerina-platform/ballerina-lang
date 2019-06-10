@@ -35,6 +35,18 @@
             </run>
         </groups>
         <packages>
+            <package name="org.ballerinalang.test.vm.*"/>
+            <package name="org.ballerinalang.test.annotations.*"/>
+            <package name="org.ballerinalang.test.imports.*"/>
+            <package name="org.ballerinalang.test.parser.*"/>
+            <package name="org.ballerinalang.test.privacy.*"/>
+            <package name="org.ballerinalang.test.dataflow.*"/>
+            <package name="org.ballerinalang.test.variable.shadowing.*"/>
+            <package name="org.ballerinalang.test.net.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
+            <package name="org.ballerinalang.test.access.*"/>
+            <package name="org.ballerinalang.test.structs.*"/>
+            
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -104,9 +116,6 @@
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
             <!--Built in methods-->
-            <class name="org.ballerinalang.test.expressions.builtinoperations.LengthOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"/>
-
             <class name="org.ballerinalang.test.expressions.conversion.NativeConversionWithStampTypesTest"/>
 
             <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
@@ -189,7 +198,7 @@
             <!--</class>-->
             <!--<class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">-->
                 <!--<methods>-->
-                    <!--TODO:convert within while returns empty-->
+                    <!--&lt;!&ndash;TODO:convert within while returns empty&ndash;&gt;-->
                     <!--<exclude name="largeForkCreationTest"/>-->
                 <!--</methods>-->
             <!--</class>-->
@@ -198,6 +207,7 @@
             <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>-->
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
