@@ -7,7 +7,7 @@ serialized json Output:
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -18,7 +18,7 @@ serialized json Output:
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -27,9 +27,9 @@ serialized json Output:
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -37,7 +37,7 @@ serialized json Output:
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -48,7 +48,7 @@ serialized json Output:
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -81,7 +81,7 @@ serialized json Output:
 			"statementList": [{
 				"nodeKind": "variableDefinitionStatement",
 				"tokenList": [{
-					"tokenType": 16,
+					"tokenType": 54,
 					"text": "int",
 					"startPos": 1,
 					"endPos": 3,
@@ -89,7 +89,7 @@ serialized json Output:
 					"index": 6,
 					"whiteSpace": "\n"
 				}, {
-					"tokenType": 5,
+					"tokenType": 45,
 					"text": "=",
 					"startPos": 7,
 					"endPos": 7,
@@ -97,7 +97,7 @@ serialized json Output:
 					"index": 8,
 					"whiteSpace": " "
 				}, {
-					"tokenType": 6,
+					"tokenType": 2,
 					"text": ";",
 					"startPos": 15,
 					"endPos": 15,
@@ -109,7 +109,7 @@ serialized json Output:
 				"varIdentifier": {
 					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 7,
+						"tokenType": 46,
 						"text": "a",
 						"startPos": 5,
 						"endPos": 5,
@@ -122,7 +122,7 @@ serialized json Output:
 				"expression": {
 					"nodeKind": "binaryExpression",
 					"tokenList": [{
-						"tokenType": 4,
+						"tokenType": 12,
 						"text": "+",
 						"startPos": 11,
 						"endPos": 11,
@@ -134,7 +134,7 @@ serialized json Output:
 					"leftExpr": {
 						"nodeKind": "variableReferenceIdentifier",
 						"tokenList": [{
-							"tokenType": 7,
+							"tokenType": 46,
 							"text": "b",
 							"startPos": 9,
 							"endPos": 9,
@@ -147,7 +147,7 @@ serialized json Output:
 					"rightExpr": {
 						"nodeKind": "unaryExpressionNode",
 						"tokenList": [{
-							"tokenType": 53,
+							"tokenType": 13,
 							"text": "-",
 							"startPos": 13,
 							"endPos": 13,
@@ -159,7 +159,7 @@ serialized json Output:
 						"uExpression": {
 							"nodeKind": "integerLiteral",
 							"tokenList": [{
-								"tokenType": 10,
+								"tokenType": 47,
 								"text": "2",
 								"startPos": 14,
 								"endPos": 14,

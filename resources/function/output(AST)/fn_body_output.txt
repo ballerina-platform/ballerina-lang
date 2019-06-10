@@ -7,7 +7,7 @@ serialized json output:
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -18,7 +18,7 @@ serialized json output:
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -27,9 +27,9 @@ serialized json output:
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 14,
 				"endPos": 14,
@@ -37,7 +37,7 @@ serialized json output:
 				"index": 3,
 				"whiteSpace": " "
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 15,
 				"endPos": 15,
@@ -48,7 +48,7 @@ serialized json output:
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -81,7 +81,7 @@ serialized json output:
 			"statementList": [{
 				"nodeKind": "variableDefinitionStatement",
 				"tokenList": [{
-					"tokenType": 16,
+					"tokenType": 54,
 					"text": "int",
 					"startPos": 1,
 					"endPos": 3,
@@ -89,7 +89,7 @@ serialized json output:
 					"index": 6,
 					"whiteSpace": "\n"
 				}, {
-					"tokenType": 6,
+					"tokenType": 2,
 					"text": ";",
 					"startPos": 6,
 					"endPos": 6,
@@ -101,7 +101,7 @@ serialized json output:
 				"varIdentifier": {
 					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 7,
+						"tokenType": 46,
 						"text": "a",
 						"startPos": 5,
 						"endPos": 5,

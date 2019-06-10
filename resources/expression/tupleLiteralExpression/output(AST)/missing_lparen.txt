@@ -3,13 +3,13 @@ int a = b + c);
 }
 
 serialized json output;
- ERROR [sachini/parserModule] - 0:-1 : invalid operator token
- ERROR [sachini/parserModule] - LPAREN inserted
+ERROR [sachini/parserModule] - 0:-1 : invalid tuple literal, missing '('
+ERROR [sachini/parserModule] - LPAREN inserted
 
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -20,7 +20,7 @@ serialized json output;
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -29,9 +29,9 @@ serialized json output;
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -39,7 +39,7 @@ serialized json output;
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -50,7 +50,7 @@ serialized json output;
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -81,53 +81,53 @@ serialized json output;
 				"whiteSpace": "\n"
 			}],
 			"statementList": [{
-				"nodeKind": "errorNode",
-				"tokenList": [],
-				"errorStatement": {
-					"nodeKind": "variableDefinitionStatement",
+				"nodeKind": "variableDefinitionStatement",
+				"tokenList": [{
+					"tokenType": 54,
+					"text": "int",
+					"startPos": 1,
+					"endPos": 3,
+					"lineNumber": 2,
+					"index": 6,
+					"whiteSpace": "\n"
+				}, {
+					"tokenType": 45,
+					"text": "=",
+					"startPos": 7,
+					"endPos": 7,
+					"lineNumber": 2,
+					"index": 8,
+					"whiteSpace": " "
+				}, {
+					"tokenType": 2,
+					"text": ";",
+					"startPos": 15,
+					"endPos": 15,
+					"lineNumber": 2,
+					"index": 13,
+					"whiteSpace": null
+				}],
+				"valueKind": "int",
+				"varIdentifier": {
+					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 16,
-						"text": "int",
-						"startPos": 1,
-						"endPos": 3,
+						"tokenType": 46,
+						"text": "a",
+						"startPos": 5,
+						"endPos": 5,
 						"lineNumber": 2,
-						"index": 6,
-						"whiteSpace": "\n"
-					}, {
-						"tokenType": 5,
-						"text": "=",
-						"startPos": 7,
-						"endPos": 7,
-						"lineNumber": 2,
-						"index": 8,
+						"index": 7,
 						"whiteSpace": " "
-					}, {
-						"tokenType": 6,
-						"text": ";",
-						"startPos": 15,
-						"endPos": 15,
-						"lineNumber": 2,
-						"index": 13,
-						"whiteSpace": null
 					}],
-					"valueKind": "int",
-					"varIdentifier": {
-						"nodeKind": "variableReferenceIdentifier",
-						"tokenList": [{
-							"tokenType": 7,
-							"text": "a",
-							"startPos": 5,
-							"endPos": 5,
-							"lineNumber": 2,
-							"index": 7,
-							"whiteSpace": " "
-						}],
-						"varIdentifier": "a"
-					},
-					"expression": {
+					"varIdentifier": "a"
+				},
+				"expression": {
+					"nodeKind": "failedExpression",
+					"tokenList": [],
+					"errorExpression": {
 						"nodeKind": "tupleLiteralNode",
 						"tokenList": [{
-							"tokenType": 3,
+							"tokenType": 7,
 							"text": ")",
 							"startPos": 14,
 							"endPos": 14,
@@ -135,7 +135,7 @@ serialized json output;
 							"index": 12,
 							"whiteSpace": null
 						}, {
-							"tokenType": 2,
+							"tokenType": 6,
 							"text": "(",
 							"startPos": -1,
 							"endPos": -1,
@@ -146,7 +146,7 @@ serialized json output;
 						"tupleExprList": [{
 							"nodeKind": "binaryExpression",
 							"tokenList": [{
-								"tokenType": 4,
+								"tokenType": 12,
 								"text": "+",
 								"startPos": 11,
 								"endPos": 11,
@@ -158,7 +158,7 @@ serialized json output;
 							"leftExpr": {
 								"nodeKind": "variableReferenceIdentifier",
 								"tokenList": [{
-									"tokenType": 7,
+									"tokenType": 46,
 									"text": "b",
 									"startPos": 9,
 									"endPos": 9,
@@ -171,7 +171,7 @@ serialized json output;
 							"rightExpr": {
 								"nodeKind": "variableReferenceIdentifier",
 								"tokenList": [{
-									"tokenType": 7,
+									"tokenType": 46,
 									"text": "c",
 									"startPos": 13,
 									"endPos": 13,

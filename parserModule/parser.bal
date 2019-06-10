@@ -127,14 +127,16 @@ type Parser object {
 
                 return insertAssign;
             } else {
-                int[] exprPanic = [SEMICOLON, RBRACE];
+                int[] exprPanic = [SEMICOLON, RBRACE, EOF];
                 while (panicMode) {
                     if (self.LAToken(1) == exprPanic[0]) {
                         panicMode = false;
                         break;
-                    } else if (self.LAToken(1) == exprPanic[1]) {
+                    } else if (self.LAToken(1) == exprPanic[1] && self.LookaheadToken(1).whiteSpace == "\n") {
                         break;
-                    }
+                    }else if (self.LAToken(1) == exprPanic[2]) {
+					 	break;
+				 	}
 
                     Token currToken1 = self.parserBuffer.consumeToken();
                     self.errTokens[self.errCount] = currToken1;
@@ -150,48 +152,63 @@ type Parser object {
                     whiteSpace: ""
                 };
             }
-        } else if (rule == "function") {
-            if (mToken == RBRACE) {
-                Token insertRbrace = self.insertToken(mToken);
-                insertRbrace.text = "}";
+        }
+        //else if (rule == "function") {
+        //    if (mToken == RBRACE) {
+        //        Token insertRbrace = self.insertToken(mToken);
+        //        insertRbrace.text = "}";
+		//
+        //        return insertRbrace;
+        //    } else if (mToken == LBRACE) {
+        //        Token insertLbrace = self.insertToken(mToken);
+        //        insertLbrace.text = "{";
+		//
+        //        return insertLbrace;
+        //    } else {
+        //        int[] functionPanic = [RBRACE, EOF];
+        //        while (panicMode) {
+        //            if (self.LAToken(1) == functionPanic[0]) {
+        //                panicMode = false;
+        //            } else if (self.LAToken(1) == functionPanic[1]) {
+        //                return {
+        //                    tokenType: PARSER_ERROR_TOKEN,
+        //                    text: "<unexpected " + tokenNames[self.LAToken(1)] + ">",
+        //                    startPos: -1,
+        //                    endPos: -1,
+        //                    lineNumber: 0,
+        //                    index: -1,
+        //                    whiteSpace: ""
+        //                };
+        //            }
+        //            Token currToken1 = self.parserBuffer.consumeToken();
+        //            self.errTokens[self.errCount] = currToken1;
+        //            self.errCount += 1;
+		//
+        //        }
+        //        return {
+        //            tokenType: PARSER_ERROR_TOKEN,
+        //            text: "<unexpected Token: Expected " + tokenNames[mToken] + ">",
+        //            startPos: -1,
+        //            endPos: -1,
+        //            lineNumber: 0,
+        //            index: -1,
+        //            whiteSpace: ""
+        //        };
+        //    }
+        //}
+         else if (rule == "blockNode"){
+        	if (mToken == RBRACE) {
+				Token insertRbrace = self.insertToken(mToken);
+				insertRbrace.text = "}";
 
-                return insertRbrace;
-            } else if (mToken == LBRACE) {
-                Token insertLbrace = self.insertToken(mToken);
-                insertLbrace.text = "{";
+				return insertRbrace;
+			} else if (mToken == LBRACE) {
+				Token insertLbrace = self.insertToken(mToken);
+				insertLbrace.text = "{";
 
-                return insertLbrace;
-            } else {
-                int[] functionPanic = [RBRACE, EOF];
-                while (panicMode) {
-                    if (self.LAToken(1) == functionPanic[0]) {
-                        panicMode = false;
-                    } else if (self.LAToken(1) == functionPanic[1]) {
-                        return {
-                            tokenType: PARSER_ERROR_TOKEN,
-                            text: "<unexpected " + tokenNames[self.LAToken(1)] + ">",
-                            startPos: -1,
-                            endPos: -1,
-                            lineNumber: 0,
-                            index: -1,
-                            whiteSpace: ""
-                        };
-                    }
-                    Token currToken1 = self.parserBuffer.consumeToken();
-                    self.errTokens[self.errCount] = currToken1;
-                    self.errCount += 1;
+				return insertLbrace;
+			}
 
-                }
-                return {
-                    tokenType: PARSER_ERROR_TOKEN,
-                    text: "<unexpected Token: Expected " + tokenNames[mToken] + ">",
-                    startPos: -1,
-                    endPos: -1,
-                    lineNumber: 0,
-                    index: -1,
-                    whiteSpace: ""
-                };
-            }
         } else if (rule == "functionSignature") {
                 int[] functionSignaturePanic = [LBRACE, RBRACE, EOF];
 
@@ -223,15 +240,7 @@ type Parser object {
                 if (self.LAToken(1) == statementPanic[0]) {
                     panicMode = false;
                 } else if (self.LAToken(1) == statementPanic[1]) {
-                    return {
-                        tokenType: PARSER_ERROR_TOKEN,
-                        text: "<unexpected " + tokenNames[self.LAToken(1)] + ">",
-                        startPos: -1,
-                        endPos: -1,
-                        lineNumber: 0,
-                        index: -1,
-                        whiteSpace: ""
-                    };
+                    break;
                 }
                 Token currToken1 = self.parserBuffer.consumeToken();
                 self.errTokens[self.errCount] = currToken1;
@@ -323,7 +332,7 @@ type Parser object {
 				tokenList: [identifier],
 				identifier: identifier.text
 			};
-            //error recovery for lParen and rParen : token insertion
+            //error recovery for lParen and rParen : panic error recovery
             Token lParen = self.matchToken(LPAREN, FN_SIGNATURE_NODE);
             if(lParen.endPos == -1 ){
             	ErrorFunctionSignatureNode signature1 = {
@@ -382,7 +391,7 @@ type Parser object {
         int pos = 0;
 
         //token insertion if lBrace is mismatched
-        Token lBrace = self.matchToken(LBRACE, FUNCTION_NODE);
+        Token lBrace = self.matchToken(LBRACE, BLOCK_NODE);
         //if the lbrace is inserted, set the errorRecovered true, otherwise the statement will be errorStatment
         self.errorRecovered = true;
         while (self.LAToken(1) != RBRACE) {
@@ -395,7 +404,7 @@ type Parser object {
             pos += 1;
         }
         //Token insertion if rBrace not found
-        Token rBrace = self.matchToken(RBRACE, FUNCTION_NODE);
+        Token rBrace = self.matchToken(RBRACE, BLOCK_NODE);
         if (rBrace.endPos == -1 || lBrace.endPos == -1) {
             ErrorBlockNode erNode = {
 				nodeKind: ER_BLOCK_NODE,
@@ -627,89 +636,169 @@ type Parser object {
                 isExpr = self.parseExpression2();
 
                 if (isExpr == false) {
-                    //recovered = false;
                     self.errorRecovered = false;
                 }
             }
         }
-
 
         //if the expression stack contains any operators, build the expressions based on the operators
-        while (self.oprStack.peek() != -1) {
-            Token operator = self.oprStack.pop();
-
-            if (operator.tokenType == LPAREN) {
-                log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing ')'");
-                self.invalidOccurence = true;
-
-                OperatorKind opKind = self.matchOperatorType(operator);
-                ExpressionNode expr2 = self.expStack.pop();
-                ExpressionNode expr1 = self.expStack.pop();
-                BinaryExpressionNode bExpr = {
-                    nodeKind: BINARY_EXP_NODE,
-                    tokenList: [operator],
-                    operatorKind: opKind,
-                    leftExpr: expr1,
-                    rightExpr: expr2
-                };
-                self.expStack.push(bExpr);
-            //build the unary expressions
-            } else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {
-                OperatorKind opKind3 = self.matchOperatorType(operator);
-
-                if (self.expOperand == true) {
-                    self.expOperand = false;
-                    log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
-                    self.invalidOccurence = true;
-                    UnaryExpressionNode uExpression = {
-                        nodeKind: UNARY_EXPRESSION_NODE,
-                        tokenList: [operator],
-                        operatorKind: opKind3,
-                        uExpression: ()
-                    };
-                    self.expStack.push(uExpression);
-                } else {
-                    ExpressionNode expr3 = self.expStack.pop();
-                    UnaryExpressionNode uExpression = {
-                        nodeKind: UNARY_EXPRESSION_NODE,
-                        tokenList: [operator],
-                        operatorKind: opKind3,
-                        uExpression: expr3
-                    };
-                    self.expStack.push(uExpression);
-                }
-            } else {
-                OperatorKind opKind = self.matchOperatorType(operator);
-                ExpressionNode expr2 = self.expStack.pop();
-                ExpressionNode expr1 = self.expStack.pop();
-                if (expr1 is ()) {
-                    //recovered = false;
-                    self.errorRecovered = false;
-                    log:printError(operator.lineNumber + ":" + operator.startPos +
-                    " : invalid binary expression, binary RHS expression not found");
-                    BinaryExpressionNode bExpr = {
-                        nodeKind: BINARY_EXP_NODE,
-                        tokenList: [operator],
-                        operatorKind: opKind,
-                        leftExpr: expr2,
-                        rightExpr: expr1
-                    };
-                    self.expStack.push(bExpr);
-                } else {
-                    BinaryExpressionNode bExpr = {
-                        nodeKind: BINARY_EXP_NODE,
-                        tokenList: [operator],
-                        operatorKind: opKind,
-                        leftExpr: expr1,
-                        rightExpr: expr2
-                    };
-                    self.expStack.push(bExpr);
-                }
-            }
-        }
+        self.buildFinalExpr();
         //pop the final expression from the expr stack
         ExpressionNode exp2 = self.expStack.pop();
         return exp2;
+    }
+
+    #build the expression based on the operators remain in the operator stack
+    function buildFinalExpr(){
+    	//tuple expression list
+		ExpressionNode?[] tupleList = [];
+		//list to keep track of commas
+		Token[] commaList = [];
+    	while (self.oprStack.peek() != -1) {
+			Token operator = self.oprStack.pop();
+
+			if (operator.tokenType == LPAREN) {
+				log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing ')'");
+				self.invalidOccurence = true;
+
+				commaList[self.separatorCount] = operator;
+                                   self.separatorCount += 1;
+
+                ExpressionNode exprComma = self.expStack.pop();
+                tupleList[self.tupleListPos] = exprComma;
+                self.tupleListPos += 1;
+                //reversing the array so that the expressions in the tuple list will be in proper order
+                tupleList = self.reverseTupleList(tupleList);
+				//int reverseCount = 0;
+				//while (reverseCount < tupleList.length() / 2) {
+				//	ExpressionNode temp = tupleList[reverseCount];
+				//	tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
+				//	tupleList[tupleList.length() - reverseCount - 1] = temp;
+				//	reverseCount += 1;
+				//}
+                TupleLiteralNode tupleLNode = {
+					nodeKind: TUPLE_LITERAL_NODE,
+					tokenList: commaList,
+					tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+				};
+				self.expStack.push(tupleLNode);
+				self.tupleListPos = 0;
+
+			//build the unary expressions
+			} else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {
+				//unary_minus and unary_plus token types are converted to ADD and SUB tokenType
+                self.convertToValidOp(operator);
+				OperatorKind opKind3 = self.matchOperatorType(operator);
+
+				if (self.expOperand == true) {
+					self.expOperand = false;
+					log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
+					self.invalidOccurence = true;
+					UnaryExpressionNode uExpression = {
+						nodeKind: UNARY_EXPRESSION_NODE,
+						tokenList: [operator],
+						operatorKind: opKind3,
+						uExpression: ()
+					};
+					self.expStack.push(uExpression);
+				} else {
+					ExpressionNode expr3 = self.expStack.pop();
+					UnaryExpressionNode uExpression = {
+						nodeKind: UNARY_EXPRESSION_NODE,
+						tokenList: [operator],
+						operatorKind: opKind3,
+						uExpression: expr3
+					};
+					self.expStack.push(uExpression);
+				}
+			}
+			else if (operator.tokenType == COMMA) {
+				 if (self.expOperand == true) {
+					 log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
+					 //token deletion without calling the method as the comma token is already consumed and pushed to the opr stack
+					 self.errTokens[self.errCount] = operator;
+					 self.errCount += 1;
+					 self.invalidOccurence = true;
+					 continue;
+				 }
+
+				 self.invalidOccurence = true;
+				 self.errorRecovered = false;
+				 commaList[self.separatorCount] = operator;
+				 self.separatorCount += 1;
+
+				 ExpressionNode exprComma = self.expStack.pop();
+				 tupleList[self.tupleListPos] = exprComma;
+				 self.tupleListPos += 1;
+			 }
+			else {
+				OperatorKind opKind = self.matchOperatorType(operator);
+				ExpressionNode expr2 = self.expStack.pop();
+				ExpressionNode expr1 = self.expStack.pop();
+				if (expr1 is ()) {
+					self.errorRecovered = false;
+					log:printError(operator.lineNumber + ":" + operator.startPos +
+					" : invalid binary expression, binary RHS expression not found");
+					BinaryExpressionNode bExpr = {
+						nodeKind: BINARY_EXP_NODE,
+						tokenList: [operator],
+						operatorKind: opKind,
+						leftExpr: expr2,
+						rightExpr: expr1
+					};
+					self.expStack.push(bExpr);
+				} else {
+					BinaryExpressionNode bExpr = {
+						nodeKind: BINARY_EXP_NODE,
+						tokenList: [operator],
+						operatorKind: opKind,
+						leftExpr: expr1,
+						rightExpr: expr2
+					};
+					self.expStack.push(bExpr);
+				}
+			}
+		}
+		//here only comma separated expression is found, missing lParen and rParen
+		if(self.tupleListPos  > 0){
+			Token lastOperator = commaList[commaList.length() - 1];
+			log:printError(lastOperator.lineNumber + ":" + lastOperator.startPos + " : invalid tuple literal expression");
+			ExpressionNode exprComma = self.expStack.pop();
+			tupleList[self.tupleListPos] = exprComma;
+			self.tupleListPos += 1;
+			tupleList = self.reverseTupleList(tupleList);
+			TupleLiteralNode tupleLNode = {
+				nodeKind: TUPLE_LITERAL_NODE,
+				tokenList: commaList,
+				tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+			};
+			self.expStack.push(tupleLNode);
+
+		}
+		self.separatorCount = 0;
+		self.tupleListPos = 0;
+    }
+
+	# reversing the tupleList so that the expressions in the tuple list will be in proper order.
+ 	# +return - ExpressionNode?[]
+    function reverseTupleList(ExpressionNode?[] tupleList) returns ExpressionNode?[]{
+    	int reverseCount = 0;
+		while (reverseCount < tupleList.length() / 2) {
+			ExpressionNode temp = tupleList[reverseCount];
+			tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
+			tupleList[tupleList.length() - reverseCount - 1] = temp;
+			reverseCount += 1;
+		}
+		return tupleList;
+    }
+
+    function convertToValidOp(Token operator){
+    	if(operator.tokenType == UNARY_MINUS){
+			operator.tokenType = SUB;
+		}else if (operator.tokenType == UNARY_PLUS){
+			operator.tokenType = ADD;
+		}
+
     }
 
     //helper function to build the expression
@@ -821,6 +910,9 @@ type Parser object {
                     //build unary expressions, and push it to the expression stack
                     if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {// unary operators
                         self.priorOperator = false;
+                        //unary_minus and unary_plus token types are converted to ADD and SUB tokenType
+                        self.convertToValidOp(operator);
+
                         OperatorKind opKind3 = self.matchOperatorType(operator);
                         ExpressionNode expr3 = self.expStack.pop();
                         UnaryExpressionNode uExpression = {
@@ -869,7 +961,7 @@ type Parser object {
                 Token operator = self.oprStack.pop();
                 if (operator.tokenType == PARSER_ERROR_TOKEN) {
                     //considering only possible option to return parser error token would be a missing lparen
-                    log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid operator token");
+                    log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing '('");
                     Token insertlParen = self.insertToken(LPAREN);
                     insertlParen.text = "(";
                     self.oprStack.push(insertlParen);
@@ -893,6 +985,9 @@ type Parser object {
                     self.tupleListPos += 1;
                     continue;
                 } else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) { // unary operators
+
+                	//unary_minus and unary_plus token types are converted to ADD and SUB tokenType
+                    self.convertToValidOp(operator);
                     OperatorKind opKind3 = self.matchOperatorType(operator);
                     if (self.expOperand == true) {
                         self.expOperand = false;
@@ -966,20 +1061,22 @@ type Parser object {
                 tupleList[self.tupleListPos] = parenExpr;
                 self.tupleListPos += 1;
                 //reversing the array so that the expressions in the tuple list will be in proper order
-                int reverseCount = 0;
-                while (reverseCount < tupleList.length() / 2) {
-                    ExpressionNode temp = tupleList[reverseCount];
-                    tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
-                    tupleList[tupleList.length() - reverseCount - 1] = temp;
-                    reverseCount += 1;
-                }
-
+                tupleList = self.reverseTupleList(tupleList);
+                //int reverseCount = 0;
+                //while (reverseCount < tupleList.length() / 2) {
+                //    ExpressionNode temp = tupleList[reverseCount];
+                //    tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
+                //    tupleList[tupleList.length() - reverseCount - 1] = temp;
+                //    reverseCount += 1;
+                //}
+				//io:println(tupleList);
                 TupleLiteralNode tupleLNode = {
                     nodeKind: TUPLE_LITERAL_NODE,
                     tokenList: commaList,
                     tupleExprList:<ExpressionNode[]>(tupleList.freeze())
                 };
                 self.expStack.push(tupleLNode);
+                self.tupleListPos =0;
             }
 
             self.separatorCount = 0;

@@ -2,39 +2,6 @@ function
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 1:8: expected IDENTIFIER; found 'EOF'
-
-{
-	"nodeKind": "package",
-	"tokenList": [{
-		"tokenType": 9,
-		"text": "EOF",
-		"startPos": 8,
-		"endPos": 8,
-		"lineNumber": 1,
-		"index": 2,
-		"whiteSpace": null
-	}],
-	"definitionList": [{
-		"nodeKind": "errorNode",
-		"errorFunction": {
-			"nodeKind": "function",
-			"tokenList": [{
-				"tokenType": 15,
-				"text": "function",
-				"startPos": 1,
-				"endPos": 8,
-				"lineNumber": 1,
-				"index": 1,
-				"whiteSpace": null
-			}],
-			"fnSignature": null,
-			"blockNode": null
-		}
-	}]
-}
-
-Updated AST:
 
 ERROR [sachini/parserModule] - 1:8: expected IDENTIFIER; found 'EOF'
 ERROR [sachini/parserModule] - 1:8: expected LBRACE; found 'EOF'
@@ -65,42 +32,34 @@ ERROR [sachini/parserModule] - RBRACE inserted
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignature",
+			"nodeKind": "errorFunctionSignature",
 			"tokenList": [],
 			"functionIdentifier": {
-				"nodeKind": "errorNode",
+				"nodeKind": "errorIdentifier",
 				"tokenList": [],
-				"errorIdentifier": {
-					"nodeKind": "identifier",
-					"tokenList": [],
-					"identifier": null
-				}
+				"identifier": null
 			}
 		},
 		"blockNode": {
-			"nodeKind": "errorNode",
-			"tokenList": [],
-			"errorBlockNode": {
-				"nodeKind": "blockNode",
-				"tokenList": [{
-					"tokenType": 0,
-					"text": "{",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
-				}, {
-					"tokenType": 1,
-					"text": "}",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
-				}],
-				"statementList": []
-			}
+			"nodeKind": "errorFunctionBody",
+			"tokenList": [{
+				"tokenType": 0,
+				"text": "{",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}, {
+				"tokenType": 1,
+				"text": "}",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}],
+			"statementList": []
 		}
 	}]
 }

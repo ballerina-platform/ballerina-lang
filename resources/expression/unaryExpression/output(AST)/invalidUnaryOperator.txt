@@ -8,7 +8,7 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -19,7 +19,7 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -28,9 +28,9 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -38,7 +38,7 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -49,7 +49,7 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -80,61 +80,61 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 				"whiteSpace": "\n"
 			}],
 			"statementList": [{
-				"nodeKind": "errorNode",
+				"nodeKind": "variableDefinitionStatement",
 				"tokenList": [{
-					"tokenType": 19,
-					"text": "/",
-					"startPos": 9,
-					"endPos": 9,
+					"tokenType": 54,
+					"text": "int",
+					"startPos": 1,
+					"endPos": 3,
 					"lineNumber": 2,
-					"index": 9,
+					"index": 6,
+					"whiteSpace": "\n"
+				}, {
+					"tokenType": 45,
+					"text": "=",
+					"startPos": 7,
+					"endPos": 7,
+					"lineNumber": 2,
+					"index": 8,
 					"whiteSpace": " "
+				}, {
+					"tokenType": 2,
+					"text": ";",
+					"startPos": 11,
+					"endPos": 11,
+					"lineNumber": 2,
+					"index": 11,
+					"whiteSpace": null
 				}],
-				"errorStatement": {
-					"nodeKind": "variableDefinitionStatement",
+				"valueKind": "int",
+				"varIdentifier": {
+					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 16,
-						"text": "int",
-						"startPos": 1,
-						"endPos": 3,
+						"tokenType": 46,
+						"text": "a",
+						"startPos": 5,
+						"endPos": 5,
 						"lineNumber": 2,
-						"index": 6,
-						"whiteSpace": "\n"
-					}, {
-						"tokenType": 5,
-						"text": "=",
-						"startPos": 7,
-						"endPos": 7,
-						"lineNumber": 2,
-						"index": 8,
+						"index": 7,
 						"whiteSpace": " "
-					}, {
-						"tokenType": 6,
-						"text": ";",
-						"startPos": 11,
-						"endPos": 11,
-						"lineNumber": 2,
-						"index": 11,
-						"whiteSpace": null
 					}],
-					"valueKind": "int",
-					"varIdentifier": {
+					"varIdentifier": "a"
+				},
+				"expression": {
+					"nodeKind": "failedExpression",
+					"tokenList": [{
+						"tokenType": 14,
+						"text": "/",
+						"startPos": 9,
+						"endPos": 9,
+						"lineNumber": 2,
+						"index": 9,
+						"whiteSpace": " "
+					}],
+					"errorExpression": {
 						"nodeKind": "variableReferenceIdentifier",
 						"tokenList": [{
-							"tokenType": 7,
-							"text": "a",
-							"startPos": 5,
-							"endPos": 5,
-							"lineNumber": 2,
-							"index": 7,
-							"whiteSpace": " "
-						}],
-						"varIdentifier": "a"
-					},
-					"expression": {
-						"nodeKind": "variableReferenceIdentifier",
-						"tokenList": [{
-							"tokenType": 7,
+							"tokenType": 46,
 							"text": "b",
 							"startPos": 10,
 							"endPos": 10,

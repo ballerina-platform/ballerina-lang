@@ -3,13 +3,13 @@ int a = (b,);
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
+ ERROR [sachini/parserModule] - 2:11 : missing expression after comma
 
 
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -20,7 +20,7 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -29,9 +29,9 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -39,7 +39,7 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -50,7 +50,7 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -81,61 +81,61 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 				"whiteSpace": "\n"
 			}],
 			"statementList": [{
-				"nodeKind": "errorNode",
+				"nodeKind": "variableDefinitionStatement",
 				"tokenList": [{
-					"tokenType": 24,
-					"text": ",",
-					"startPos": 11,
-					"endPos": 11,
+					"tokenType": 54,
+					"text": "int",
+					"startPos": 1,
+					"endPos": 3,
 					"lineNumber": 2,
-					"index": 11,
+					"index": 6,
+					"whiteSpace": "\n"
+				}, {
+					"tokenType": 45,
+					"text": "=",
+					"startPos": 7,
+					"endPos": 7,
+					"lineNumber": 2,
+					"index": 8,
+					"whiteSpace": " "
+				}, {
+					"tokenType": 2,
+					"text": ";",
+					"startPos": 13,
+					"endPos": 13,
+					"lineNumber": 2,
+					"index": 13,
 					"whiteSpace": null
 				}],
-				"errorStatement": {
-					"nodeKind": "variableDefinitionStatement",
+				"valueKind": "int",
+				"varIdentifier": {
+					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 16,
-						"text": "int",
-						"startPos": 1,
-						"endPos": 3,
+						"tokenType": 46,
+						"text": "a",
+						"startPos": 5,
+						"endPos": 5,
 						"lineNumber": 2,
-						"index": 6,
-						"whiteSpace": "\n"
-					}, {
-						"tokenType": 5,
-						"text": "=",
-						"startPos": 7,
-						"endPos": 7,
-						"lineNumber": 2,
-						"index": 8,
+						"index": 7,
 						"whiteSpace": " "
-					}, {
-						"tokenType": 6,
-						"text": ";",
-						"startPos": 13,
-						"endPos": 13,
+					}],
+					"varIdentifier": "a"
+				},
+				"expression": {
+					"nodeKind": "failedExpression",
+					"tokenList": [{
+						"tokenType": 3,
+						"text": ",",
+						"startPos": 11,
+						"endPos": 11,
 						"lineNumber": 2,
-						"index": 13,
+						"index": 11,
 						"whiteSpace": null
 					}],
-					"valueKind": "int",
-					"varIdentifier": {
-						"nodeKind": "variableReferenceIdentifier",
-						"tokenList": [{
-							"tokenType": 7,
-							"text": "a",
-							"startPos": 5,
-							"endPos": 5,
-							"lineNumber": 2,
-							"index": 7,
-							"whiteSpace": " "
-						}],
-						"varIdentifier": "a"
-					},
-					"expression": {
+					"errorExpression": {
 						"nodeKind": "tupleLiteralNode",
 						"tokenList": [{
-							"tokenType": 3,
+							"tokenType": 7,
 							"text": ")",
 							"startPos": 12,
 							"endPos": 12,
@@ -143,7 +143,7 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 							"index": 12,
 							"whiteSpace": null
 						}, {
-							"tokenType": 2,
+							"tokenType": 6,
 							"text": "(",
 							"startPos": 9,
 							"endPos": 9,
@@ -154,7 +154,7 @@ ERROR [sachini/parserModule] - 2:11 : missing expression prior to the comma
 						"tupleExprList": [{
 							"nodeKind": "variableReferenceIdentifier",
 							"tokenList": [{
-								"tokenType": 7,
+								"tokenType": 46,
 								"text": "b",
 								"startPos": 10,
 								"endPos": 10,

@@ -3,64 +3,11 @@ function foo
 serialized json output:
 
 ERROR [sachini/parserModule] - 1:12: expected LPAREN; found 'EOF'
-
-
-{
-	"nodeKind": "package",
-	"tokenList": [{
-		"tokenType": 9,
-		"text": "EOF",
-		"startPos": 12,
-		"endPos": 12,
-		"lineNumber": 1,
-		"index": 3,
-		"whiteSpace": null
-	}],
-	"definitionList": [{
-		"nodeKind": "errorNode",
-		"tokenList": [],
-		"errorFunction": {
-			"nodeKind": "function",
-			"tokenList": [{
-				"tokenType": 15,
-				"text": "function",
-				"startPos": 1,
-				"endPos": 8,
-				"lineNumber": 1,
-				"index": 1,
-				"whiteSpace": null
-			}],
-			"fnSignature": {
-				"nodeKind": "functionSignatureNode",
-				"functionIdentifier": {
-					"nodeKind": "identifier",
-					"tokenList": [{
-						"tokenType": 7,
-						"text": "foo",
-						"startPos": 10,
-						"endPos": 12,
-						"lineNumber": 1,
-						"index": 2,
-						"whiteSpace": " "
-					}],
-					"identifier": "foo"
-				}
-			},
-			"blockNode": null
-		}
-	}]
-}
-
-Updated AST :
-
-ERROR [sachini/parserModule] - 1:12: expected LPAREN; found 'EOF'
-ERROR [sachini/parserModule] - LPAREN inserted
-ERROR [sachini/parserModule] - 1:12: expected RPAREN; found 'EOF'
-ERROR [sachini/parserModule] - RPAREN inserted
 ERROR [sachini/parserModule] - 1:12: expected LBRACE; found 'EOF'
 ERROR [sachini/parserModule] - LBRACE inserted
 ERROR [sachini/parserModule] - 1:12: expected RBRACE; found 'EOF'
 ERROR [sachini/parserModule] - RBRACE inserted
+
 
 {
 	"nodeKind": "package",
@@ -85,66 +32,42 @@ ERROR [sachini/parserModule] - RBRACE inserted
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "errorNode",
+			"nodeKind": "errorFunctionSignature",
 			"tokenList": [],
-			"errorFunctionSignature": {
-				"nodeKind": "functionSignature",
+			"functionIdentifier": {
+				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 6,
-					"text": "(",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
-				}, {
-					"tokenType": 7,
-					"text": ")",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
+					"tokenType": 46,
+					"text": "foo",
+					"startPos": 10,
+					"endPos": 12,
+					"lineNumber": 1,
+					"index": 2,
+					"whiteSpace": " "
 				}],
-				"functionIdentifier": {
-					"nodeKind": "identifier",
-					"tokenList": [{
-						"tokenType": 46,
-						"text": "foo",
-						"startPos": 10,
-						"endPos": 12,
-						"lineNumber": 1,
-						"index": 2,
-						"whiteSpace": " "
-					}],
-					"identifier": "foo"
-				}
+				"identifier": "foo"
 			}
 		},
 		"blockNode": {
-			"nodeKind": "errorNode",
-			"tokenList": [],
-			"errorBlockNode": {
-				"nodeKind": "blockNode",
-				"tokenList": [{
-					"tokenType": 0,
-					"text": "{",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
-				}, {
-					"tokenType": 1,
-					"text": "}",
-					"startPos": -1,
-					"endPos": -1,
-					"lineNumber": 0,
-					"index": -1,
-					"whiteSpace": ""
-				}],
-				"statementList": []
-			}
+			"nodeKind": "errorFunctionBody",
+			"tokenList": [{
+				"tokenType": 0,
+				"text": "{",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}, {
+				"tokenType": 1,
+				"text": "}",
+				"startPos": -1,
+				"endPos": -1,
+				"lineNumber": 0,
+				"index": -1,
+				"whiteSpace": ""
+			}],
+			"statementList": []
 		}
 	}]
 }

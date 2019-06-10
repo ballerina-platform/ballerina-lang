@@ -9,7 +9,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -20,7 +20,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -29,9 +29,9 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -39,7 +39,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -50,7 +50,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -81,53 +81,53 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 				"whiteSpace": "\n"
 			}],
 			"statementList": [{
-				"nodeKind": "errorNode",
-				"tokenList": [],
-				"errorStatement": {
-					"nodeKind": "variableDefinitionStatement",
+				"nodeKind": "variableDefinitionStatement",
+				"tokenList": [{
+					"tokenType": 54,
+					"text": "int",
+					"startPos": 1,
+					"endPos": 3,
+					"lineNumber": 2,
+					"index": 6,
+					"whiteSpace": "\n"
+				}, {
+					"tokenType": 45,
+					"text": "=",
+					"startPos": 7,
+					"endPos": 7,
+					"lineNumber": 2,
+					"index": 8,
+					"whiteSpace": " "
+				}, {
+					"tokenType": 2,
+					"text": ";",
+					"startPos": 15,
+					"endPos": 15,
+					"lineNumber": 2,
+					"index": 13,
+					"whiteSpace": null
+				}],
+				"valueKind": "int",
+				"varIdentifier": {
+					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 16,
-						"text": "int",
-						"startPos": 1,
-						"endPos": 3,
+						"tokenType": 46,
+						"text": "a",
+						"startPos": 5,
+						"endPos": 5,
 						"lineNumber": 2,
-						"index": 6,
-						"whiteSpace": "\n"
-					}, {
-						"tokenType": 5,
-						"text": "=",
-						"startPos": 7,
-						"endPos": 7,
-						"lineNumber": 2,
-						"index": 8,
+						"index": 7,
 						"whiteSpace": " "
-					}, {
-						"tokenType": 6,
-						"text": ";",
-						"startPos": 15,
-						"endPos": 15,
-						"lineNumber": 2,
-						"index": 13,
-						"whiteSpace": null
 					}],
-					"valueKind": "int",
-					"varIdentifier": {
-						"nodeKind": "variableReferenceIdentifier",
+					"varIdentifier": "a"
+				},
+				"expression": {
+					"nodeKind": "failedExpression",
+					"tokenList": [],
+					"errorExpression": {
+						"nodeKind": "tupleLiteralNode",
 						"tokenList": [{
-							"tokenType": 7,
-							"text": "a",
-							"startPos": 5,
-							"endPos": 5,
-							"lineNumber": 2,
-							"index": 7,
-							"whiteSpace": " "
-						}],
-						"varIdentifier": "a"
-					},
-					"expression": {
-						"nodeKind": "binaryExpression",
-						"tokenList": [{
-							"tokenType": 2,
+							"tokenType": 6,
 							"text": "(",
 							"startPos": 9,
 							"endPos": 9,
@@ -135,12 +135,10 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 							"index": 9,
 							"whiteSpace": " "
 						}],
-						"operatorKind": "invalidOperator",
-						"leftExpr": null,
-						"rightExpr": {
+						"tupleExprList": [{
 							"nodeKind": "binaryExpression",
 							"tokenList": [{
-								"tokenType": 4,
+								"tokenType": 12,
 								"text": "+",
 								"startPos": 12,
 								"endPos": 12,
@@ -152,7 +150,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 							"leftExpr": {
 								"nodeKind": "variableReferenceIdentifier",
 								"tokenList": [{
-									"tokenType": 7,
+									"tokenType": 46,
 									"text": "b",
 									"startPos": 10,
 									"endPos": 10,
@@ -165,7 +163,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 							"rightExpr": {
 								"nodeKind": "variableReferenceIdentifier",
 								"tokenList": [{
-									"tokenType": 7,
+									"tokenType": 46,
 									"text": "c",
 									"startPos": 14,
 									"endPos": 14,
@@ -175,7 +173,7 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 								}],
 								"varIdentifier": "c"
 							}
-						}
+						}]
 					}
 				}
 			}]
