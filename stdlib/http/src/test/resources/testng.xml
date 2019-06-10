@@ -64,6 +64,9 @@ under the License.
                     <exclude name="testErrorReturn"></exclude>
                 </methods>
             </class>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
         </classes>
     </test>
 </suite>
