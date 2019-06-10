@@ -102,6 +102,10 @@ public abstract class BType {
         return typeName;
     }
 
+    public String getQualifiedName() {
+        return pkg == null ? typeName : pkg.toString() + ":" + typeName;
+    }
+
     public BPackage getPackage() {
         return pkg;
     }

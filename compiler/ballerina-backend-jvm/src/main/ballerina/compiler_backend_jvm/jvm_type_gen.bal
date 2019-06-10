@@ -245,11 +245,11 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     // TODO: get it from the type
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(recordType.moduleId.org);
+    mv.visitLdcInsn(recordType.moduleId.name);
+    mv.visitLdcInsn(recordType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef.visibility);
@@ -357,11 +357,11 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     // Load package path
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef.visibility);
@@ -546,11 +546,11 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     // Load package
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    // TODO : Load package version properly
-    mv.visitLdcInsn("0.0.0");
+    mv.visitLdcInsn(errorType.moduleId.org);
+    mv.visitLdcInsn(errorType.moduleId.name);
+    mv.visitLdcInsn(errorType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>", 
-                        io:sprintf("(L%s;L%s;)V", STRING_VALUE, STRING_VALUE), false);
+                        io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
     // Load reason and details type
     loadType(mv, errorType.reasonType);
