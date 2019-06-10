@@ -163,7 +163,7 @@ public abstract class BIRNode {
      */
     public static class BIRGlobalVariableDcl extends BIRVariableDcl {
         /**
-         * Value represents Flags
+         * Value represents Flags.
          */
         public int flags;
 
@@ -212,7 +212,7 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Value represents flags
+         * Value represents flags.
          */
         public int flags;
 
@@ -431,7 +431,7 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Value represents flags
+         * Value represents flags.
          */
         public int flags;
 
