@@ -44,7 +44,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 # + mv - method visitor
 # + typeDefs - array of type definitions
 public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, BalToJVMIndexMap indexMap,
-                                            string pkgName, string pkgVersion) {
+                                            string pkgName) {
     string fieldName;
     string typePkgName = ".";
     if (pkgName != "") {
@@ -57,13 +57,13 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
-            createRecordType(mv, bType, typeDef, typePkgName, pkgVersion);
+            createRecordType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef, typePkgName, pkgVersion);
+            createObjectType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BServiceType) {
-            createObjectType(mv, bType.oType, typeDef, typePkgName, pkgVersion);
+            createObjectType(mv, bType.oType, typeDef, typePkgName);
         } else if (bType is bir:BErrorType) {
-            createErrorType(mv, bType, typeDef.name.value, typePkgName, pkgVersion);
+            createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
             continue;
@@ -232,8 +232,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 # + mv - method visitor
 # + recordType - record type
 # + name - name of the record
-function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef, string pkgName,
-                            string pkgVersion) {
+function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef, string pkgName) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
     mv.visitInsn(DUP);
@@ -246,10 +245,11 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     // TODO: get it from the type
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    mv.visitLdcInsn(pkgVersion);
+    mv.visitLdcInsn(recordType.moduleId.org);
+    mv.visitLdcInsn(recordType.moduleId.name);
+    mv.visitLdcInsn(recordType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef.visibility);
@@ -345,8 +345,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + mv - method visitor
 # + objectType - object type
 # + name - name of the object
-function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName,
-                            string pkgVersion) {
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
@@ -358,10 +357,11 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     // Load package path
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    mv.visitLdcInsn(pkgVersion);
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                            "(Ljava/lang/String;Ljava/lang/String;)V", false);
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
     int flag = getVisibilityFlag(typeDef.visibility);
@@ -535,8 +535,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 # + mv - method visitor
 # + errorType - error type
 # + name - name of the error
-function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName,
-                            string pkgVersion) {
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName) {
     // Create the error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);
     mv.visitInsn(DUP);
@@ -547,10 +546,11 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     // Load package
     mv.visitTypeInsn(NEW, PACKAGE_TYPE);
     mv.visitInsn(DUP);
-    mv.visitLdcInsn(pkgName);
-    mv.visitLdcInsn(pkgVersion);
+    mv.visitLdcInsn(errorType.moduleId.org);
+    mv.visitLdcInsn(errorType.moduleId.name);
+    mv.visitLdcInsn(errorType.moduleId.modVersion);
     mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>", 
-                        io:sprintf("(L%s;L%s;)V", STRING_VALUE, STRING_VALUE), false);
+                        io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
     // Load reason and details type
     loadType(mv, errorType.reasonType);

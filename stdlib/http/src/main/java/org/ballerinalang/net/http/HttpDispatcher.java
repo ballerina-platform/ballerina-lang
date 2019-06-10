@@ -85,7 +85,7 @@ public class HttpDispatcher {
                     servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
-                inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                inboundReqMsg.setHttpStatusCode(404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
                         validatedUri.getRawPath());
             }
@@ -197,7 +197,7 @@ public class HttpDispatcher {
                                                                    signatureParams.getEntityBody());
             paramValues[paramValues.length - 1] = true;
         } catch (BallerinaException ex) {
-            httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
+            httpCarbonMessage.setHttpStatusCode(Integer.parseInt(HttpConstants.HTTP_BAD_REQUEST));
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
         }
         return paramValues;

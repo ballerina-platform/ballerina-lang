@@ -49,7 +49,7 @@ public class Head extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
-        outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        outboundReqMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
         return outboundReqMsg;
     }
 
@@ -59,7 +59,7 @@ public class Head extends AbstractHTTPAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(clientObj, path, requestObj);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
         DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
         // Execute the operation
         executeNonBlockingAction(dataContext, false);

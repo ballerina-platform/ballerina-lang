@@ -22,7 +22,6 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
@@ -94,8 +93,7 @@ public class VersioningDispatchingTest {
         HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(errorMessage, "Message body null");
@@ -137,8 +135,7 @@ public class VersioningDispatchingTest {
         HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(errorMessage, "Message body null");
@@ -172,8 +169,7 @@ public class VersioningDispatchingTest {
         HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(errorMessage, "Message body null");
@@ -188,8 +184,7 @@ public class VersioningDispatchingTest {
         HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(errorMessage, "Message body null");
