@@ -156,28 +156,28 @@ function testUpdateAttributeWithQName_1() returns (xml) {
     return x1;
 }
 
-function testGetAttributeWithString() returns (string, string, string) {
+function testGetAttributeWithString() returns (string?, string?, string?) {
     xmlns "http://sample.com/wso2/f";
     var x1 = xml `<root xmlns:ns4="http://sample.com/wso2/f" xmlns:ns0="http://sample.com/wso2/e" foo1="bar1" ns0:foo2="bar2" ns4:foo3="bar3"/>`;
     return (x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/eee}foo2"]);
 }
 
-function testGetAttributeWithoutLocalname() returns (string) {
+function testGetAttributeWithoutLocalname() returns (string?) {
     var x1 = xml `<root xmlns:ns4="http://sample.com/wso2/f" xmlns="http://sample.com/wso2/e" foo1="bar1" ns4:foo3="bar3"/>`;
     return x1@["{http://sample.com/wso2/e}"];
 }
 
-function testGetAttributeWithEmptyNamespace() returns (string, string) {
+function testGetAttributeWithEmptyNamespace() returns (string?, string?) {
     var x1 = xml `<root xmlns:ns4="http://sample.com/wso2/f" xmlns="http://sample.com/wso2/e" foo1="bar1" ns4:foo3="bar3"/>`;
     return (x1@["{}foo1"], x1@["foo1"]);
 }
 
-function testGetNamespaceAsAttribute() returns (string) {
+function testGetNamespaceAsAttribute() returns (string?) {
     var x1 = xml `<root xmlns:ns4="http://sample.com/wso2/f" xmlns="http://sample.com/wso2/e" foo1="bar1" ns4:foo3="bar3"/>`;
     return x1@["{http://sample.com/wso2/e}ns4"];
 }
 
-function testGetAttributeWithQName() returns (string, string, string) {
+function testGetAttributeWithQName() returns (string?, string?, string?) {
     var x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" ns3:foo2="bar2"/>`;
     xmlns "http://sample.com/wso2/f" as ns4;
     return (x1@[ns0:foo1], x1@[ns4:foo2], x1@[ns1:foo2]);
@@ -261,13 +261,13 @@ function testSetAttributes() returns (xml) {
     return x;
 }
 
-function testGetAttributeFromSingletonSeq() returns (string) {
+function testGetAttributeFromSingletonSeq() returns (string?) {
     var x1 = xml `<root><child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/></root>`;
     xml x2 = x1.*;
     return x2@["{http://wso2.com/}foo"];
 }
 
-function testGetAttributeFromLiteral() returns (string) {
+function testGetAttributeFromLiteral() returns (string?) {
     xmlns "http://sample.com/wso2/a1" as ns0;
     
     xml x = xml `<root ns0:id="5"/>`;

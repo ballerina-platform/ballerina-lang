@@ -859,14 +859,28 @@ function cleanupObjectTypeName(string typeName) returns string {
     }
 }
 
-function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
-    if (callIns.isVirtual) {
-        return false;
+function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) returns boolean {
+    string methodName;
+    string orgName;
+    string moduleName;
+
+    if (callIns is bir:Call) {
+        if (callIns.isVirtual) {
+            return false; 
+        }
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else if (callIns is bir:AsyncCall) {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
     }
 
-    string methodName = callIns.name.value;
-    string orgName = callIns.pkgID.org;
-    string moduleName = callIns.pkgID.name;
     string key = getPackageName(orgName, moduleName) + methodName;
 
     if (birFunctionMap.hasKey(key)) {

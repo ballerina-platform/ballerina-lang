@@ -53,7 +53,6 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -678,7 +677,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
-        httpCaller.addNativeData(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -688,10 +687,9 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, localHost);
             local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
-        httpCaller.addNativeData(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
-                                 inboundMsg.getProperty(HttpConstants.PROTOCOL));
-        httpCaller.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
+        httpCaller.set(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
         httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
 
@@ -705,10 +703,10 @@ public class HttpUtil {
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = inboundResponseMsg.getHttpStatusCode();
-        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
-        inboundResponse
-                .set(RESPONSE_REASON_PHRASE_FIELD, new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
+        int statusCode = (Integer) inboundResponseMsg.getHttpStatusCode();
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,

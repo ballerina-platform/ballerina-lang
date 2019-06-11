@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langserver.symbols;
 
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -74,7 +74,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolKind symbolKind = SymbolKind.Function;
 
-        if (UtilSymbolKeys.NEW_KEYWORD_KEY.equals(funcNode.name.value) || funcNode.getBody() == null) {
+        if (CommonKeys.NEW_KEYWORD_KEY.equals(funcNode.name.value) || funcNode.getBody() == null) {
             return;
         }
         this.addSymbol(funcNode, funcNode.symbol, symbolKind);
