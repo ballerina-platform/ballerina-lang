@@ -48,6 +48,7 @@ public class HashCode extends BlockingNativeCallableUnit {
     }
 
     public static long hashCode(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.hashCode();
     }
 }

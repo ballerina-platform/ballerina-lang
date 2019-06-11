@@ -202,7 +202,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
     }
 
-    @Test(description = "Test concurrent map access.")
+    @Test(description = "Test concurrent map access.", groups = "brokenOnJBallerina")
     public void testMapConcurrentAccess() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapConcurrentAccess", args);

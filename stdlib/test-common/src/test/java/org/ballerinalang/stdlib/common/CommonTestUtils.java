@@ -19,8 +19,8 @@
 package org.ballerinalang.stdlib.common;
 
 import org.apache.commons.logging.Log;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 
 import java.net.URISyntaxException;

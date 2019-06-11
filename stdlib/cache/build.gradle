@@ -17,12 +17,17 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 description = 'Ballerina - Cache'
 
 dependencies {
-
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -34,6 +39,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-launcher')
@@ -42,26 +48,18 @@ dependencies {
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
     testCompile project(':ballerina-utils')
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+createBalo {
+    jvmTarget = 'true'
 }
 
-configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }

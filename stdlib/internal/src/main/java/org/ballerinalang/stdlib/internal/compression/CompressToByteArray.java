@@ -17,6 +17,9 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -79,6 +82,21 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
                         "Error occurred when compressing "
                                 + e.getMessage()));
+            }
+        }
+    }
+
+    public static Object compressToByteArray(Strand strand, ObjectValue dirObj) {
+        Path dirPath = (Path) dirObj.getNativeData(Constants.PATH_DEFINITION_NAME);
+        if (!dirPath.toFile().exists()) {
+            return CompressionUtils.createCompressionError("Path of the folder to be " +
+                    "compressed is not available: " + dirPath);
+        } else {
+            try {
+                return new ArrayValue(compressToBlob(dirPath));
+            } catch (IOException e) {
+                return CompressionUtils.createCompressionError("Error occurred when compressing "
+                                + e.getMessage());
             }
         }
     }

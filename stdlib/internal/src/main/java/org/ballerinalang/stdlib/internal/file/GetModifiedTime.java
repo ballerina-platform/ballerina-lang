@@ -21,6 +21,10 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -85,5 +89,27 @@ public class GetModifiedTime extends BlockingNativeCallableUnit {
             log.error(msg, e);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
+    }
+
+    public static Object getModifiedTime(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        MapValue<String, BValue> lastModifiedStruct;
+        try {
+            FileTime lastModified = Files.getLastModifiedTime(path);
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
+            lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(), getTimeStructInfo(),
+                    lastModified.toMillis(), zonedDateTime.getZone().toString());
+            return lastModifiedStruct;
+        } catch (IOException | SecurityException e) {
+            String msg;
+            if (e instanceof IOException) {
+                msg = "Error in reading file: " + path;
+            } else {
+                msg = "Read permission denied for file: " + path;
+            }
+            log.error(msg, e);
+            return BallerinaErrors.createError(msg);
+        }
+
     }
 }

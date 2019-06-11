@@ -22,6 +22,8 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -67,5 +69,19 @@ public class AddHeader extends BlockingNativeCallableUnit {
         }
         httpHeaders.add(headerName, headerValue);
         context.setReturnValues();
+    }
+
+    public static void addHeader(Strand strand, ObjectValue entityObj, String headerName, String headerValue) {
+        if (headerName == null || headerValue == null) {
+            return;
+        }
+        HttpHeaders httpHeaders;
+        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+        } else {
+            httpHeaders = new DefaultHttpHeaders();
+            entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
+        }
+        httpHeaders.add(headerName, headerValue);
     }
 }

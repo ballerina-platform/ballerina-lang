@@ -18,9 +18,14 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 
@@ -36,15 +41,24 @@ public class Patch extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        // Execute the operation
+//        Execute the operation
         executeNonBlockingAction(dataContext, false);
     }
 
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PATCH);
         return outboundRequestMsg;
     }
 
+    public static Object nativePatch(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
+        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PATCH);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
+        executeNonBlockingAction(dataContext, false);
+        return null;
+    }
 }

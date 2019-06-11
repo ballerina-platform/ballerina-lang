@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.services.session;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.stdlib.utils.CookieUtils;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

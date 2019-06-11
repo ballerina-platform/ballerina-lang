@@ -22,6 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -57,6 +60,16 @@ public class GetMediaType extends BlockingNativeCallableUnit {
             context.setReturnValues(mediaType);
         } catch (Throwable e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+        }
+    }
+
+    public static Object getMediaType(Strand strand, String contentType) {
+        try {
+            ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
+            return mediaType;
+        } catch (Throwable e) {
+            return MimeUtil.createError(e.getMessage());
         }
     }
 }

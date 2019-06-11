@@ -276,7 +276,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.bType);
             println(";");
         } else if (ins is NewStream) {
             print(tabs);
@@ -304,7 +304,17 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            print(ins.typeDef.name.value);
+            var typeDefRef = ins.typeDefRef;
+            if (typeDefRef is TypeDef) {
+                print(typeDefRef.name.value);
+            } else {
+                print(typeDefRef.externalPkg.org);
+                print("/");
+                print(typeDefRef.externalPkg.name);
+                print(" ");
+
+                print(typeDefRef.name.value);
+            }
             println(";");
         } else if (ins is NewError) {
             print(tabs);
@@ -555,7 +565,7 @@ type TypeEmitter object {
         } else if (typeVal is BFiniteType) {
             print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
-            self.emitErrorType(typeVal, tabs);
+            //self.emitErrorType(typeVal, tabs);
         }
     }
 

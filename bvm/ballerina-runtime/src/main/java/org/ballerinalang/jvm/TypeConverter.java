@@ -95,7 +95,14 @@ public class TypeConverter {
                 throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
             }
             return ((DecimalValue) sourceVal).intValue();
+        } else if (sourceVal instanceof String) {
+            try {
+                return Integer.parseInt((String) sourceVal);
+            } catch (NumberFormatException e) {
+                throw errorFunc.get();
+            }
         }
+
         throw errorFunc.get();
     }
 
@@ -113,22 +120,48 @@ public class TypeConverter {
                 throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeFloat);
             }
             return ((DecimalValue) sourceVal).floatValue();
+        } else if (sourceVal instanceof String) {
+            try {
+                return Double.parseDouble((String) sourceVal);
+            } catch (NumberFormatException e) {
+                throw errorFunc.get();
+            }
         }
+
         throw errorFunc.get();
     }
 
     static boolean anyToBoolean(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
-            return (Long) sourceVal != 0;
+            long val = (Long) sourceVal;
+            if (val != 1 && val != 0) {
+                throw errorFunc.get();
+            }
+            return val != 0;
         } else if (sourceVal instanceof Double) {
+            double val = (Double) sourceVal;
+            if (val != 1.0 && val != 0.0) {
+                throw errorFunc.get();
+            }
             return (Double) sourceVal != 0.0;
         } else if (sourceVal instanceof Byte) {
-            return (Byte) sourceVal != 0;
+            byte val = (Byte) sourceVal;
+            if (val != 1 && val != 0) {
+                throw errorFunc.get();
+            }
+            return val != 0;
         } else if (sourceVal instanceof Boolean) {
             return (boolean) sourceVal;
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).booleanValue();
+        } else if (sourceVal instanceof String) {
+            try {
+                return Boolean.parseBoolean((String) sourceVal);
+            } catch (NumberFormatException e) {
+                throw errorFunc.get();
+            }
         }
+
         throw errorFunc.get();
     }
 
@@ -164,7 +197,14 @@ public class TypeConverter {
                 throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
             }
             return ((DecimalValue) sourceVal).byteValue();
+        } else if (sourceVal instanceof String) {
+            try {
+                return Byte.parseByte((String) sourceVal);
+            } catch (NumberFormatException e) {
+                throw errorFunc.get();
+            }
         }
+
         throw errorFunc.get();
     }
 
@@ -179,7 +219,10 @@ public class TypeConverter {
             return Boolean.toString((Boolean) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).stringValue();
+        } else if (sourceVal instanceof String) {
+            return (String) sourceVal;
         }
+
         throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeString);
     }
 

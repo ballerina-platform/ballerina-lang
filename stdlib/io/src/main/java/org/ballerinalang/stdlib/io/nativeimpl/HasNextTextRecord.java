@@ -102,20 +102,15 @@ public class HasNextTextRecord implements NativeCallableUnit {
 
     public static Object hasNext(Strand strand, ObjectValue channel) {
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
-            //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-            NonBlockingCallback callback = new NonBlockingCallback(strand);
-
             DelimitedRecordChannel textRecordChannel =
                     (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(callback);
+            EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
             HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
                                                                                        eventContext);
             Register register = EventRegister.getFactory().register(hasNextEvent, HasNextTextRecord::getResponse);
             eventContext.setRegister(register);
             register.submit();
-            //TODO : Remove callback once strand non-blocking support is given
-            callback.sync();
-            return callback.getReturnValue();
+            return null;
         }
         return false;
     }
@@ -128,7 +123,6 @@ public class HasNextTextRecord implements NativeCallableUnit {
      */
     private static EventResult getResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Boolean response = result.getResponse();
         callback.setReturnValues(response);

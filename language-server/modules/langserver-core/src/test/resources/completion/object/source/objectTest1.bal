@@ -6,9 +6,6 @@ type testObject object {
     public function __init() {
         
     }
-
-    
-    function testFunction ();
 };
 
 type testEmptyObject object {

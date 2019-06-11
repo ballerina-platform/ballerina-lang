@@ -19,12 +19,12 @@
 package org.ballerinalang.stdlib.auth;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,19 +49,19 @@ public class InboundBasicAuthProviderTest {
     public void setup() throws IOException {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", BALLERINA_CONF);
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("inbound_basic_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
-        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", secretFile);
         String secretCopyFile = "secret-copy.txt";
-        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", "config", secretCopyFile);
+        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", secretCopyFile);
         copySecretFile(secretFilePath.toString(), secretCopyFilePath.toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretFilePath.toString()),
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyFilePath.toString()),
                 ballerinaConfPath.toString(), null);
     }
 

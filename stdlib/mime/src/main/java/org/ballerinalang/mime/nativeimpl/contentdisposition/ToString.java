@@ -20,6 +20,8 @@ package org.ballerinalang.mime.nativeimpl.contentdisposition;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -60,5 +62,18 @@ public class ToString extends BlockingNativeCallableUnit {
             }
         }
         context.setReturnValues(new BString(dispositionBuilder.toString()));
+    }
+
+    public static String toString(Strand strand, ObjectValue contentDispositionObj) {
+        StringBuilder dispositionBuilder = new StringBuilder();
+        if (contentDispositionObj != null) {
+            String disposition = String.valueOf(contentDispositionObj.get(DISPOSITION_FIELD));
+            if (!disposition.isEmpty()) {
+                dispositionBuilder.append(disposition);
+                dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder,
+                        contentDispositionObj);
+            }
+        }
+        return dispositionBuilder.toString();
     }
 }

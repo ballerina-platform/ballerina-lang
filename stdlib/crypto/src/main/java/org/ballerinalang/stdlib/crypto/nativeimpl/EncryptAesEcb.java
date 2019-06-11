@@ -47,7 +47,7 @@ public class EncryptAesEcb extends BlockingNativeCallableUnit {
                 -1);
     }
 
-    public static Object encryptAesEcb(Strand strand, Object padding, ArrayValue inputValue, ArrayValue keyValue) {
+    public static Object encryptAesEcb(Strand strand, ArrayValue inputValue, ArrayValue keyValue,  Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,

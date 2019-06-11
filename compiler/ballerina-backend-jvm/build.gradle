@@ -45,7 +45,7 @@ task createBalx(type: JavaExec) {
     dependsOn createBalHome
     main 'org.ballerinalang.compiler.backend.jvm.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
 
     args(balFiles, "compiler_backend_jvm", "$buildDir/generated-balx/compiler_backend_jvm.balx")
 
