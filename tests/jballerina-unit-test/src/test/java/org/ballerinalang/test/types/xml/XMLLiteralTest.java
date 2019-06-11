@@ -382,9 +382,9 @@ public class XMLLiteralTest {
 
     @Test
     public void testServiceLevelXML() {
-        CompileResult result = BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
+        BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
+        HttpCarbonMessage response = Services.invoke(9090, cMsg);
         Assert.assertNotNull(response);
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
