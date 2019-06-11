@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -100,7 +101,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     }
 
     private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
-        List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+        List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
@@ -132,7 +133,6 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             }
 
             try {
-
                 BPackageSymbolDTO dto = new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
                         .setName(realPkgName)
                         .setOrgName(realOrgName)
@@ -169,7 +169,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     }
 
     private void fillSymbolsInPackageOnFallback(List<CompletionItem> completionItems, LSContext ctx, String pkgName) {
-        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol
                         && symbolInfo.getScopeEntry().symbol.pkgID.getName().getValue().equals(pkgName))
@@ -189,7 +189,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     }
 
     private void fillVisibleObjectsAndPackages(List<CompletionItem> completionItems, LSContext ctx) {
-        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = visibleSymbols.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                 .collect(Collectors.toList());

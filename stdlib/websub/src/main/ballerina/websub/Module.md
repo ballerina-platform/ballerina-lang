@@ -43,10 +43,10 @@ A WebSub compliant hub based on the Ballerina Message Broker is also available. 
 
 ##### Enabling Basic Auth support for the hub
 
-The Ballerina WebSub Hub can be secured by enforcing authentication (Basic Authentication) and optionally authorization. 
-`AuthProvider` and `authConfig` need to be specified for the hub listener and service respectively. If the 
-`authStoreProvider` of the `AuthProvider` is set as "http:CONFIG_AUTH_STORE", usernames and passwords for authentication and scopes for authorization would be read from a config toml file.
-A user can specify `AuthProvider` as follows and set it to the `hubListenerConfig` record passed when starting the hub.
+The Ballerina WebSub Hub can be secured by enforcing authentication (Basic Authentication) and (optionally) authorization. 
+The `AuthProvider` and `authConfig` need to be specified for the hub listener and service respectively. If the 
+`authStoreProvider` of the `AuthProvider` is set as "http:CONFIG_AUTH_STORE", usernames and passwords for authentication and scopes for authorization would be read from a config TOML file.
+A user can specify `AuthProvider` as follows and set it to the `hubListenerConfig` record, which is passed when starting the hub.
 
 ``` ballerina
 http:AuthProvider basicAuthProvider = {
@@ -66,12 +66,12 @@ http:ServiceEndpointConfiguration hubListenerConfig = {
 
 var val = websub:startHub(new http:Listener (9191, config =  hubListenerConfig));
 ```
-In addition to the `AuthProvider` for listener, a user also has to specify the `authConfig` properties at service 
+In addition to the `AuthProvider` for the listener, a user also has to specify the `authConfig` properties at the service 
 config level. 
 
  
-It can be populated by providing `authConfig` via a toml formatted file under the `b7a.websub.hub.auth` alias.
-Recognized users can also be mentioned in the same file which permits auth providers to read. 
+It can be populated by providing the `authConfig` via a TOML file under the `b7a.websub.hub.auth` alias.
+Recognized users can also be mentioned in the same file, which permits the auth providers to read it. 
 
 ```
 ["b7a.websub.hub.auth"]
@@ -85,7 +85,7 @@ password="1234"
 scopes="scope1"
 ```
 
-Once the hub is secured over basic auth, a subscriber should provide the relevant `auth` config in the 
+Once the hub is secured using basic auth, a subscriber should provide the relevant `auth` config in the 
 `subscriptionClientConfig` field of the subscriber service annotation.
 
 ```ballerina

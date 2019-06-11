@@ -19,8 +19,9 @@ package org.ballerinalang.langserver.completions.builder;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -163,7 +164,7 @@ public final class BFunctionCompletionItemBuilder {
         if (bInvokableSymbol.kind == null
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
-            List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
+            List<String> funcArguments = FunctionGenerator.getFuncArguments(bInvokableSymbol);
             if (!funcArguments.isEmpty()) {
                 int funcArgumentsCount = funcArguments.size();
                 for (int itr = 0; itr < funcArgumentsCount; itr++) {
@@ -266,7 +267,7 @@ public final class BFunctionCompletionItemBuilder {
                     || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
                 typeName = tSymbol.getName().getValue();
             } else {
-                typeName = CommonUtil.getLastItem(nameComps).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                typeName = CommonUtil.getLastItem(nameComps).getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
 
