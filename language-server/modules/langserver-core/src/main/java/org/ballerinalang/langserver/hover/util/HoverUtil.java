@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -76,22 +76,22 @@ public class HoverUtil {
         BSymbol filteredBSymbol;
         switch (hoverContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY)) {
             case ContextConstants.FUNCTION: {
-                BInvokableSymbol bInvokableSymbol = bPackageSymbol.scope.entries.entrySet()
+                BInvokableSymbol bInvokableSymbol = bPackageSymbol.scope.entries.values()
                         .stream()
-                        .filter(entry -> {
-                            String[] symbolNameComponents = entry.getValue().symbol.getName().getValue().split("\\.");
-                            return entry.getValue().symbol instanceof BInvokableSymbol
+                        .filter(scopeEntry -> {
+                            String[] symbolNameComponents = scopeEntry.symbol.getName().getValue().split("\\.");
+                            return scopeEntry.symbol instanceof BInvokableSymbol
                                     && symbolNameComponents.length > 0
                                     && symbolNameComponents[symbolNameComponents.length - 1]
                                     .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY));
                         })
-                        .map(entry -> (BInvokableSymbol) entry.getValue().symbol).findFirst().orElse(null);
+                        .map(scopeEntry -> (BInvokableSymbol) scopeEntry.symbol).findFirst().orElse(null);
 
                 if (bInvokableSymbol == null) {
                     // Check within the attached functions of the objects
-                    List<BObjectTypeSymbol> objectTypeSymbols = bPackageSymbol.scope.entries.entrySet().stream()
-                            .filter(entry -> entry.getValue().symbol instanceof BObjectTypeSymbol)
-                            .map(entry -> (BObjectTypeSymbol) entry.getValue().symbol)
+                    List<BObjectTypeSymbol> objectTypeSymbols = bPackageSymbol.scope.entries.values().stream()
+                            .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol)
+                            .map(scopeEntry -> (BObjectTypeSymbol) scopeEntry.symbol)
                             .collect(Collectors.toList());
                     bInvokableSymbol = getMatchingObjectFunction(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY),
                             objectTypeSymbols, hoverContext);
@@ -103,29 +103,29 @@ public class HoverUtil {
             case ContextConstants.OBJECT:
             case ContextConstants.RECORD:
             case ContextConstants.TYPE_DEF: {
-                filteredBSymbol = bPackageSymbol.scope.entries.entrySet().stream()
-                        .filter(entry -> entry.getValue().symbol instanceof BTypeSymbol
-                                && entry.getValue().symbol.getName().getValue()
+                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
+                        .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
+                                && scopeEntry.symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(entry -> (BTypeSymbol) entry.getValue().symbol)
+                        .map(scopeEntry -> (BTypeSymbol) scopeEntry.symbol)
                         .findFirst().orElse(null);
                 break;
             }
             case ContextConstants.ENDPOINT: {
-                filteredBSymbol = bPackageSymbol.scope.entries.entrySet().stream()
-                        .filter(entry -> entry.getValue().symbol instanceof BEndpointVarSymbol
-                                && entry.getValue().symbol.getName().getValue()
+                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
+                        .filter(scopeEntry -> scopeEntry.symbol instanceof BEndpointVarSymbol
+                                && scopeEntry.symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(entry -> (BEndpointVarSymbol) entry.getValue().symbol)
+                        .map(scopeEntry -> (BEndpointVarSymbol) scopeEntry.symbol)
                         .findFirst().orElse(null);
                 break;
             }
             case ContextConstants.VARIABLE: {
-                filteredBSymbol = bPackageSymbol.scope.entries.entrySet().stream()
-                        .filter(entry -> entry.getValue().symbol instanceof BVarSymbol
-                                && entry.getValue().symbol.getName().getValue()
+                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
+                        .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
+                                && scopeEntry.symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(entry -> (BVarSymbol) entry.getValue().symbol)
+                        .map(scopeEntry -> (BVarSymbol) scopeEntry.symbol)
                         .findFirst().orElse(null);
                 break;
             }
@@ -374,7 +374,7 @@ public class HoverUtil {
             wsSet.toArray(wsArray);
             Arrays.sort(wsArray);
             int lengthToNameStart = 0;
-            if (wsArray[0].getPrevious().equals(UtilSymbolKeys.RESOURCE_KEYWORD_KEY)) {
+            if (wsArray[0].getPrevious().equals(CommonKeys.RESOURCE_KEYWORD_KEY)) {
                 lengthToNameStart += wsArray[0].getPrevious().length()
                         + wsArray[1].getPrevious().length() + wsArray[1].getWs().length() + wsArray[2].getWs().length();
             } else {
@@ -414,11 +414,6 @@ public class HoverUtil {
                     wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
                     wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
             int serviceTypeLength = 0;
-// TODO: 11/28/18 Fix with the latest Service Changes
-//            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
-//            for (Whitespace w : ws) {
-//                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
-//            }
             position.sCol += (serviceTypeLength + serviceKeywordLength);
             position.eCol = position.sCol + serviceNode.name.value.length();
         }
@@ -476,7 +471,7 @@ public class HoverUtil {
                 } else {
                     position.sCol += packagePrefixLen + bTypeSymbol.name.value.length() + beforeIdentifierWSLength;
                 }
-            } else if (typeNode != null && typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
+            } else if (typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
                 int arraySpecifierSymbolLength = 2;
                 int arraySpecifierLength = arraySpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
                 position.sCol += ((BArrayType) typeNode.type).eType.tsymbol.name.value.length() + arraySpecifierLength +

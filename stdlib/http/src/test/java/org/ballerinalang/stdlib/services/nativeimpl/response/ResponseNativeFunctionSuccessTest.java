@@ -36,7 +36,6 @@ import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -78,8 +77,8 @@ public class ResponseNativeFunctionSuccessTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/services/nativeimpl/response/in-response-native-function.bal";
-        result = BCompileUtil.compileAndSetup(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        result = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test
@@ -174,7 +173,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         String payload = "ballerina";
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
-        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
         BHttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         BMap<String, BValue> entity =
@@ -198,7 +197,7 @@ public class ResponseNativeFunctionSuccessTest {
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
-        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
         BHttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         BMap<String, BValue> entity =
@@ -239,7 +238,7 @@ public class ResponseNativeFunctionSuccessTest {
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);
 
-        inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
+        inResponseMsg.setHttpStatusCode(200);
         BMap<String, BValue> entity =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BMap<String, BValue> mediaType =
@@ -594,7 +593,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 203);
+        Assert.assertEquals((int) response.getHttpStatusCode(), 203);
     }
 
     @Test

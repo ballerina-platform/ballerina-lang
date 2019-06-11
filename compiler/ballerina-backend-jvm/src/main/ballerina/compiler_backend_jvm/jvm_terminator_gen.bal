@@ -764,10 +764,18 @@ type TerminatorGenerator object {
         int wrkResultIndex = self.getJVMIndexOfVarRef(tempVar);
         self.mv.visitVarInsn(ASTORE, wrkResultIndex);
 
+        jvm:Label jumpAfterReceive = new;
+        self.mv.visitVarInsn(ALOAD, wrkResultIndex);
+        self.mv.visitJumpInsn(IFNULL, jumpAfterReceive);
+
+        jvm:Label withinReceiveSuccess = new;
+        self.mv.visitLabel(withinReceiveSuccess);
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         generateVarStore(self.mv, ins.lhsOp.variableDcl, currentPackageName, self.getJVMIndexOfVarRef(ins.lhsOp.variableDcl));
+
+        self.mv.visitLabel(jumpAfterReceive);
     }
 
     function genFlushIns(bir:Flush ins, string funcName, int localVarOffset) {
@@ -852,14 +860,28 @@ function cleanupObjectTypeName(string typeName) returns string {
     }
 }
 
-function isExternStaticFunctionCall(bir:Call callIns) returns boolean {
-    if (callIns.isVirtual) {
-        return false;
+function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) returns boolean {
+    string methodName;
+    string orgName;
+    string moduleName;
+
+    if (callIns is bir:Call) {
+        if (callIns.isVirtual) {
+            return false; 
+        }
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else if (callIns is bir:AsyncCall) {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
+    } else {
+        methodName = callIns.name.value;
+        orgName = callIns.pkgID.org;
+        moduleName = callIns.pkgID.name;
     }
 
-    string methodName = callIns.name.value;
-    string orgName = callIns.pkgID.org;
-    string moduleName = callIns.pkgID.name;
     string key = getPackageName(orgName, moduleName) + methodName;
 
     if (birFunctionMap.hasKey(key)) {

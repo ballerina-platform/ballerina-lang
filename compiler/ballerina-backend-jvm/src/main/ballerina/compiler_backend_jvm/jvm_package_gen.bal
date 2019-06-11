@@ -110,6 +110,8 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         return;
     }
 
+    addBuiltinImports(moduleId, module);
+
     // generate imported modules recursively
     foreach var mod in module.importModules {
         generatePackage(importModuleToModuleId(mod), jarFile, false);
@@ -441,9 +443,35 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
      return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
 }
 
-function generateBuiltInPackages(bir:BIRContext birContext, JarFile jarFile) {
-    bir:ModuleID utilsId = {org : "ballerina", name : "utils", modVersion : ""};
-    bir:ModuleID builtinId = {org : "ballerina", name : "builtin", modVersion : ""};
-    generatePackage(utilsId, jarFile, false);
-    generatePackage(builtinId, jarFile, false);
+function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
+
+    // Add the builtin and utils modules to the imported list of modules
+    bir:ImportModule builtinModule = {modOrg : {value:"ballerina"}, 
+                                      modName : {value:"builtin"}, 
+                                      modVersion : {value:""}};
+
+    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"}, 
+                                      modName : {value:"utils"}, 
+                                      modVersion : {value:""}};
+
+    if (isSameModule(moduleId, builtinModule)) {
+        return;
+    }
+
+    if (isSameModule(moduleId, utilsModule)) {
+        module.importModules[module.importModules.length()] = builtinModule;
+        return;
+    }
+
+    module.importModules[module.importModules.length()] = utilsModule;
+}
+
+function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {
+    if (moduleId.org != importModule.modOrg.value) {
+        return false;
+    } else if (moduleId.name != importModule.modName.value) {
+        return false;
+    } else {
+        return moduleId.modVersion == importModule.modVersion.value;
+    }
 }

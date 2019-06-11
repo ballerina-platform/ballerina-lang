@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -32,9 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Represent an error in ballerina.
@@ -130,12 +126,13 @@ public class ErrorValue extends RuntimeException implements RefValue {
     public String getPrintableStackTrace() {
         String errorMsg = getErrorMessage();
         StringBuilder sb = new StringBuilder();
+        sb.append(errorMsg);
         // Append function/action/resource name with package path (if any)
         StackTraceElement[] stackTrace = this.getStackTrace();
         if (stackTrace.length == 0) {
             return sb.toString();
         }
-        sb.append(errorMsg).append("\n\tat ");
+        sb.append("\n\tat ");
         // print first element
         printStackElement(sb, stackTrace[0], "");
         for (int i = 1; i < stackTrace.length; i++) {

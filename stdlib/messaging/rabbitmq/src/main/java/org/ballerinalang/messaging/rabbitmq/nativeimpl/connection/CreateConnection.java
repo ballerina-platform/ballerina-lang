@@ -46,7 +46,9 @@ public class CreateConnection extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> connectionConfig = (BMap<String, BValue>) context.getRefArgument(1);
         Connection connection = ConnectionUtils.createConnection(connectionConfig);
         connectionBObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);

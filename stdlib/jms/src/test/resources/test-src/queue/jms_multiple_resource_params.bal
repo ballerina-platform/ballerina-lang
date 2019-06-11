@@ -16,7 +16,7 @@
 
 import ballerina/jms;
 
-listener jms:QueueReceiver consumerEndpoint = new({
+listener jms:QueueListener consumerEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon"
             + "?brokerlist='tcp://localhost:5672'",

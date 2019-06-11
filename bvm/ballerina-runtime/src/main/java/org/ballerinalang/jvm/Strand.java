@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,6 +50,7 @@ public class Strand {
     public boolean blockedOnExtern;
     public ChannelDetails[] channelDetails;
     private Map<String, Object> globalProps;
+    public boolean cancel;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;

@@ -452,11 +452,12 @@ public type DirectTokenRefreshConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
+// TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
 # The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+//# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

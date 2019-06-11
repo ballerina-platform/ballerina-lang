@@ -42,7 +42,7 @@ service echoServer on server {
 ```
 
 ### TCP Client endpoints
-Client endpoints are used to connect to and interact with a socket server. The client can only send the data to the server. Client's `callbackService` needs to retrieve the data from the server and do multiple requests/responses between client and the server.
+Client endpoints are used to connect to and interact with a socket server. The client can only send the data to the server. The client's `callbackService` needs to retrieve the data from the server and do multiple requests/responses between the client and the server.
 
 ```ballerina
 import ballerina/io;
@@ -103,7 +103,7 @@ function getString(byte[] content) returns string | error {
 }
 ```
 ### UDP Client endpoints
-This is a Ballerina UDP client sample. `sendTo` and `receiveFrom` action available to interact with remote UDP host.
+This is a Ballerina UDP client sample. The `sendTo` and `receiveFrom` actions are available to interact with the remote UDP host.
 
 ```ballerina
 import ballerina/io;

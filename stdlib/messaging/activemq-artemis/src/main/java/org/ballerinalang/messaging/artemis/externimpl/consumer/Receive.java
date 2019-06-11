@@ -73,7 +73,7 @@ public class Receive extends BlockingNativeCallableUnit {
             ClientMessage clientMessage = consumer.receive(timeInMilliSeconds);
             BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
                     context, ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, ArtemisConstants.MESSAGE_OBJ);
-            messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
+            ArtemisUtils.populateMessageObj(clientMessage, transactionContext, messageObj);
             if (autoAck) {
                 clientMessage.acknowledge();
                 if (transactionContext != null) {
