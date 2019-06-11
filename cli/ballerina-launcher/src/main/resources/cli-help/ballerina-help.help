@@ -36,6 +36,7 @@ DESCRIPTION
          test       Test Ballerina program
          version    Print Ballerina version
          encrypt    Encrypt sensitive data
+         format     Format ballerina source code
 
 OPTIONS
      Ballerina help takes no command line options 

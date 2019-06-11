@@ -1,0 +1,57 @@
+NAME
+    Ballerina Format - Format ballerina source files according to
+    the default Ballerina style guide.
+    https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide
+
+SYNOPSIS
+    ballerina format [ballerinaFile|moduleName] [-ow|--over-write]
+
+DESCRIPTION
+    Format Ballerina source files according to the ballerina style guide.
+
+    Formatting can be performed on Ballerina project, on a Ballerina Module,
+    on a Ballerina file.
+
+    Formatted content will be written on to the original files and will ask
+    for confirmation before proceeding to replace the original content.
+
+    If Ballerina sources contains syntax errors they will be notified and
+    formatting won't proceed until they are fixed.
+
+SUB COMMANDS
+    ballerina format
+        Format the all ballerina source files available in the given ballerina project.
+        This command should be executed from the ballerina project root.
+
+    ballerina format <moduleName>
+        Format the all ballerina source files available in the given module. This command
+        should be executed from the ballerina project root.
+
+    ballerina format <ballerinaFile>
+        Format the given ballerina file to match the default Ballerina style guide.
+        Formatted source will replace the given files content with user consent.
+
+OPTIONS
+    -ow
+    --over-write
+        By providing this option user can over write the original file content without blocked by consent message.
+        CAUTION: This process is not reversible unless your file is under a VCS.
+            If you don't want your original source file content to be replaced with
+            Formatted code please do not use this command.
+
+    -h
+    --help
+        Show help file for the format command.
+
+EXAMPLES
+    Format Ballerina project
+    $ ballerina format
+
+    Format Ballerina module
+    $ ballerina format module1
+
+    Format Ballerina file
+    $ ballerina format hello.bal
+
+    Overwrite without confirmation
+    $ ballerina format -ow

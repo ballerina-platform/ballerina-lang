@@ -68,6 +68,7 @@ dependencies {
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
+    dist project(':ballerina-format')
     dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
