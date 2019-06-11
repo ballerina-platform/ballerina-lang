@@ -40,6 +40,7 @@ public class GlobalVarServicePkgTest {
 
     CompileResult result;
     private static final String MOCK_ENDPOINT_NAME = "globalVarEP";
+    private static final int MOCK_ENDPOINT_PORT = 9090;
     private static final String PKG_NAME = "globalvar.pkg.srvc";
     private static final String ORG_PKG_NAME = "globalvar.pkg.main/" + PKG_NAME;
 
@@ -51,7 +52,7 @@ public class GlobalVarServicePkgTest {
     @Test(description = "Test accessing global variables in other packages")
     public void testAccessingGlobalVarInOtherPackages() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/defined", "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap) bJson).get("glbVarInt").stringValue(), "22343");
@@ -62,7 +63,7 @@ public class GlobalVarServicePkgTest {
     @Test(description = "Test assigning global variable from other package when defining")
     public void testAssignGlobalVarFromOtherPkgWhenDefining() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-from-other-pkg", "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloat1":6342.234234}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -72,7 +73,7 @@ public class GlobalVarServicePkgTest {
     @Test(description = "Test assigning function invocation from same package")
     public void testAssigningFuncInvFromSamePkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-same-pkg", "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFunc":423277.72343}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -82,7 +83,7 @@ public class GlobalVarServicePkgTest {
     @Test(description = "Test assigning function invocation from different package")
     public void testAssigningFuncInvFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-diff-pkg", "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarPkgFunc":8876}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -93,7 +94,7 @@ public class GlobalVarServicePkgTest {
     public void testAssigningGlobalVarToServiceVarFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
                                                                   "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarString":"stringval"}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -102,13 +103,13 @@ public class GlobalVarServicePkgTest {
 
     @Test(description = "Test change global var in different package and access it")
     public void testChangeAndAccessGlobalVarInDiffPkg() {
-        HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg",
-                                                                        "GET");
-        Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsgChange);
+        HTTPTestRequest cMsgChange =
+                MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg", "GET");
+        Services.invoke(MOCK_ENDPOINT_PORT, cMsgChange);
 
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-second-pkg/get-changed-resource-level",
-                                                                  "GET");
-        HttpCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        HTTPTestRequest cMsg =
+                MessageUtils.generateHTTPMessage("/globalvar-second-pkg/get-changed-resource-level", "GET");
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"changeVarFloat":345432.454}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
