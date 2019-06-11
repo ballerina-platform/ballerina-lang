@@ -51,7 +51,7 @@ public class BLangExceptionHelper {
      * @param reason The reason to set as error reason
      * @param operation Operation that executed
      * @param e Throwable to handle
-     * @return 
+     * @return Error value
      */
     public static ErrorValue getJsonError(String reason, String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
