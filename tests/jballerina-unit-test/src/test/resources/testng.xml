@@ -151,14 +151,16 @@
             <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-
-            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
-                <methods>
-                    <exclude name="testInMapLiteral" />
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
+
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/> 
+            <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
+            <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
+            <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
 <!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
 
             <!--<class name="org.ballerinalang.test.worker.BasicForkTest"/>-->
