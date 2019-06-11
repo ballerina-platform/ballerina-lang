@@ -115,7 +115,7 @@ public type Lexer object {
                         whiteSpace: self.wpStack.getWhiteSpace()
                     };
                 }
-            } else if (currChar == singleQuoteSym) {
+            } else if (currChar == singleQuoteSym) {//quoted string literal
                 string str = currChar;
                 //empty string literal - ex:""
                 if (self.buffer.lookAhead() == singleQuoteSym) {

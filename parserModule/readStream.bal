@@ -4,11 +4,11 @@ import ballerina/log;
 public function main() {
 	PackageNode? parsedFile = parseFile("inputFile.txt");
 	if(parsedFile is PackageNode){
-		json|error j = json.convert(parsedFile);
-		   if (j is json) {
-		       io:println(j);
-		   }
-		//io:println(parsedFile);
+		//json|error j = json.convert(parsedFile);
+		//   if (j is json) {
+		//       io:println(j);
+		//   }
+		io:println(parsedFile);
 	}
 }
 
