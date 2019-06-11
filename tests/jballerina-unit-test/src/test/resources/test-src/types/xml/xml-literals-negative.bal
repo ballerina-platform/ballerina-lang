@@ -44,7 +44,7 @@ function foo() {
 
 function getAttributesFromNonXml() {
     map<any> m = {};
-    string s = m@["foo"];
+    string? s = m@["foo"];
 }
 
 function updateAttributesMap() {
@@ -62,7 +62,7 @@ function undefinedNamespace() {
     if (true) {
         xmlns "http://wso2.com/" as ns0;
     }
-    string s = x@[ns0:foo];
+    string? s = x@[ns0:foo];
 }
 
 function defineEmptyNamespace() {

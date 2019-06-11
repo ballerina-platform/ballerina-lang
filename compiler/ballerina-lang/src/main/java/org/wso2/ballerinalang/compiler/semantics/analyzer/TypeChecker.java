@@ -2294,7 +2294,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexExpr, env, symTable.stringType);
 
         if (indexExpr.type.tag == TypeTags.STRING) {
-            actualType = symTable.stringType;
+            actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
         }
 
         xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));

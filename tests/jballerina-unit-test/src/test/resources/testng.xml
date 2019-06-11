@@ -46,7 +46,7 @@
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-
+            
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -77,6 +77,14 @@
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectAttachedFunctionPointerTest" >
+                <methods>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer1"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer2"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer3"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer4"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
                     <!-- Fails due to link error at runtime -->
@@ -212,6 +220,16 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+
+            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
+                <methods>
+                    <exclude name="testServiceLevelXML"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
             <class name="org.ballerinalang.test.error.ErrorTest" />
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest"/>
             <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
