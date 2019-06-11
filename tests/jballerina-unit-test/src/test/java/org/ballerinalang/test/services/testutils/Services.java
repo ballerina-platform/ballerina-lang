@@ -50,7 +50,7 @@ public class Services {
     }
 
     @Deprecated
-    public static HttpCarbonMessage invoke(CompileResult compileResult, String pkgName, String endpointName,
+    public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                            HTTPTestRequest request) {
         throw new UnsupportedOperationException();
     }

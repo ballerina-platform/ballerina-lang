@@ -77,6 +77,14 @@
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectAttachedFunctionPointerTest" >
+                <methods>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer1"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer2"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer3"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer4"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
                     <!-- Fails due to link error at runtime -->
