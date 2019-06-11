@@ -290,7 +290,8 @@ function computeLockNameFromString(string varName) returns string {
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
     bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
                                 modVersion: importModule.modVersion.value};
-    return birContext.lookupBIRModule(moduleId);
+    var moduleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId(moduleId.name, moduleId.modVersion), moduleId.name);
+    return bir:populateBIRModuleFromBinary(moduleBytes);
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {

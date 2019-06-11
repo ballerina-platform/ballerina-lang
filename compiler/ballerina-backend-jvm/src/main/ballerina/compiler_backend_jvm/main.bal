@@ -31,17 +31,18 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
+internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
 
 public function main(string... args) {
-    string birHome = args[0];
+    birHome = new(untaint args[0]);
     string progName = args[1];
     string pathToEntryMod = args[2];
     boolean dumpBir = boolean.convert(args[2]);
-    writeJarFile(generateJarBinary(progName, birHome, pathToEntryMod, dumpBir), progName, pathToEntryMod);
+    writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, pathToEntryMod);
 }
 
-function generateJarBinary(string progName, string birHome, string pathToEntryMod, boolean dumpBir) returns JarFile {
+function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
     io:println("Reading bir of ", progName);
 
     bir:BIRContext birContext = new;
@@ -57,8 +58,8 @@ function generateJarBinary(string progName, string birHome, string pathToEntryMo
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
-    byte[] utilsModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId(birHome, "utils", "0.0.0"), "utils");
-    byte[] builtinModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId(birHome, "builtin", "0.0.0"), "builtin");
+    byte[] utilsModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId("utils", "0.0.0"), "utils");
+    byte[] builtinModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId("builtin", "0.0.0"), "builtin");
 
     bir:Package utilsMod = bir:populateBIRModuleFromBinary(utilsModuleBytes);
     bir:Package builtinMod = bir:populateBIRModuleFromBinary(builtinModuleBytes);
@@ -67,7 +68,7 @@ function generateJarBinary(string progName, string birHome, string pathToEntryMo
     generateImportedPackage(builtinMod, jarEntries);
 
     foreach var importModule in entryMod.importModules {
-        string pathToLib = getBaloPathFromModuleId(birHome, importModule.modName.value, importModule.modVersion.value);
+        string pathToLib = getBaloPathFromModuleId(importModule.modName.value, importModule.modVersion.value);
         moduleBytes = bir:decompressSingleFileToBlob(pathToLib, importModule.modName.value);
         bir:Package module = bir:populateBIRModuleFromBinary(moduleBytes);
         generateImportedPackage(module, jarEntries);
@@ -80,10 +81,9 @@ function generateJarBinary(string progName, string birHome, string pathToEntryMo
     return jarFile;
 }
 
-function getBaloPathFromModuleId(string birHome, string moduleName, string modVersion) returns string {
-    internal:Path path = new(birHome);
-    string pathToBalo = path.resolve("lib", "repo", "ballerina", moduleName, modVersion).getPathValue();
-    return pathToBalo;
+public function getBaloPathFromModuleId(string moduleName, string modVersion) returns string {
+    string moduleVersion = modVersion == "" ? "0.0.0" : modVersion;
+    return birHome.resolve("lib", "repo", "ballerina", moduleName, moduleVersion).getPathValue();
 }
 
 function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
