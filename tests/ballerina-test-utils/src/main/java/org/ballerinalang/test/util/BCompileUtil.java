@@ -56,7 +56,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -581,18 +580,6 @@ public class BCompileUtil {
         }
 
         byte[] compiledJar = (byte[]) result.get();
-//        try {
-//            Name name = bLangPackage.packageID.name;
-//            if (name == null || name.value == null || name.value.equals("") || name.value.equals(".")) {
-//                name = new Name("rand-" + Math.random());
-//            }
-//            Files.write(Paths.get(
-//                    "/Users/dhananjaya/Desktop/balJar/" + name + ".jar"),
-//                    compiledJar,
-//                    StandardOpenOption.CREATE);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                 bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);

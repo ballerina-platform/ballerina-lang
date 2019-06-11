@@ -212,16 +212,7 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
-            <class name="org.ballerinalang.test.error.ErrorTest" >
-                <methods>
-                    <!-- un-identified error -->
-                    <exclude name="testOneLinePanic" />
-                    <exclude name="errorTrapTest" />
-                    <exclude name="testConsecutiveTraps" />
-                    <!-- JBallerina ErrorValue and BallerinaException are not unified yet-->
-                    <exclude name="testUnspecifiedErrorDetailFrozenness" />
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.error.ErrorTest" />
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest"/>
             <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
             <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest">
