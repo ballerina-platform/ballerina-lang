@@ -1,5 +1,5 @@
 function foo(){
-int a  = 2 + (3*5);
+int a = 2 + (3*5);
 }
 
 serialized json output:
@@ -91,16 +91,16 @@ serialized json output:
 				}, {
 					"tokenType": 45,
 					"text": "=",
-					"startPos": 8,
-					"endPos": 8,
+					"startPos": 7,
+					"endPos": 7,
 					"lineNumber": 2,
 					"index": 8,
 					"whiteSpace": " "
 				}, {
 					"tokenType": 2,
 					"text": ";",
-					"startPos": 19,
-					"endPos": 19,
+					"startPos": 18,
+					"endPos": 18,
 					"lineNumber": 2,
 					"index": 16,
 					"whiteSpace": null
@@ -124,8 +124,8 @@ serialized json output:
 					"tokenList": [{
 						"tokenType": 12,
 						"text": "+",
-						"startPos": 12,
-						"endPos": 12,
+						"startPos": 11,
+						"endPos": 11,
 						"lineNumber": 2,
 						"index": 10,
 						"whiteSpace": " "
@@ -136,8 +136,8 @@ serialized json output:
 						"tokenList": [{
 							"tokenType": 47,
 							"text": "2",
-							"startPos": 10,
-							"endPos": 10,
+							"startPos": 9,
+							"endPos": 9,
 							"lineNumber": 2,
 							"index": 9,
 							"whiteSpace": " "
@@ -149,16 +149,16 @@ serialized json output:
 						"tokenList": [{
 							"tokenType": 7,
 							"text": ")",
-							"startPos": 18,
-							"endPos": 18,
+							"startPos": 17,
+							"endPos": 17,
 							"lineNumber": 2,
 							"index": 15,
 							"whiteSpace": null
 						}, {
 							"tokenType": 6,
 							"text": "(",
-							"startPos": 14,
-							"endPos": 14,
+							"startPos": 13,
+							"endPos": 13,
 							"lineNumber": 2,
 							"index": 11,
 							"whiteSpace": " "
@@ -168,8 +168,8 @@ serialized json output:
 							"tokenList": [{
 								"tokenType": 15,
 								"text": "*",
-								"startPos": 16,
-								"endPos": 16,
+								"startPos": 15,
+								"endPos": 15,
 								"lineNumber": 2,
 								"index": 13,
 								"whiteSpace": null
@@ -180,8 +180,8 @@ serialized json output:
 								"tokenList": [{
 									"tokenType": 47,
 									"text": "3",
-									"startPos": 15,
-									"endPos": 15,
+									"startPos": 14,
+									"endPos": 14,
 									"lineNumber": 2,
 									"index": 12,
 									"whiteSpace": null
@@ -193,8 +193,8 @@ serialized json output:
 								"tokenList": [{
 									"tokenType": 47,
 									"text": "5",
-									"startPos": 17,
-									"endPos": 17,
+									"startPos": 16,
+									"endPos": 16,
 									"lineNumber": 2,
 									"index": 14,
 									"whiteSpace": null

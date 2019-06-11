@@ -57,8 +57,8 @@ TupleLiteral
 	Sample source code:
 	```ballerina
 	function foo(){
-		int a  = 2 + (3*5);
-	}
+    	int a = 2 + (3*5);
+    }
 	```
 
 2. Run the `ballerina run parserModule` command from the <PROJECT_ROOT_DIRECTORY>
@@ -70,7 +70,7 @@ Sample serialized json output:
 {
 	"nodeKind": "package",
 	"tokenList": [{
-		"tokenType": 9,
+		"tokenType": 51,
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
@@ -81,7 +81,7 @@ Sample serialized json output:
 	"definitionList": [{
 		"nodeKind": "function",
 		"tokenList": [{
-			"tokenType": 15,
+			"tokenType": 53,
 			"text": "function",
 			"startPos": 1,
 			"endPos": 8,
@@ -90,9 +90,9 @@ Sample serialized json output:
 			"whiteSpace": null
 		}],
 		"fnSignature": {
-			"nodeKind": "functionSignatureNode",
+			"nodeKind": "functionSignature",
 			"tokenList": [{
-				"tokenType": 2,
+				"tokenType": 6,
 				"text": "(",
 				"startPos": 13,
 				"endPos": 13,
@@ -100,7 +100,7 @@ Sample serialized json output:
 				"index": 3,
 				"whiteSpace": null
 			}, {
-				"tokenType": 3,
+				"tokenType": 7,
 				"text": ")",
 				"startPos": 14,
 				"endPos": 14,
@@ -111,7 +111,7 @@ Sample serialized json output:
 			"functionIdentifier": {
 				"nodeKind": "identifier",
 				"tokenList": [{
-					"tokenType": 7,
+					"tokenType": 46,
 					"text": "foo",
 					"startPos": 10,
 					"endPos": 12,
@@ -144,26 +144,26 @@ Sample serialized json output:
 			"statementList": [{
 				"nodeKind": "variableDefinitionStatement",
 				"tokenList": [{
-					"tokenType": 16,
+					"tokenType": 54,
 					"text": "int",
 					"startPos": 5,
 					"endPos": 7,
 					"lineNumber": 2,
 					"index": 6,
-					"whiteSpace": "\n"
+					"whiteSpace": "\n\t"
 				}, {
-					"tokenType": 5,
+					"tokenType": 45,
 					"text": "=",
-					"startPos": 12,
-					"endPos": 12,
+					"startPos": 11,
+					"endPos": 11,
 					"lineNumber": 2,
 					"index": 8,
 					"whiteSpace": " "
 				}, {
-					"tokenType": 6,
+					"tokenType": 2,
 					"text": ";",
-					"startPos": 23,
-					"endPos": 23,
+					"startPos": 22,
+					"endPos": 22,
 					"lineNumber": 2,
 					"index": 16,
 					"whiteSpace": null
@@ -172,7 +172,7 @@ Sample serialized json output:
 				"varIdentifier": {
 					"nodeKind": "variableReferenceIdentifier",
 					"tokenList": [{
-						"tokenType": 7,
+						"tokenType": 46,
 						"text": "a",
 						"startPos": 9,
 						"endPos": 9,
@@ -185,10 +185,10 @@ Sample serialized json output:
 				"expression": {
 					"nodeKind": "binaryExpression",
 					"tokenList": [{
-						"tokenType": 4,
+						"tokenType": 12,
 						"text": "+",
-						"startPos": 16,
-						"endPos": 16,
+						"startPos": 15,
+						"endPos": 15,
 						"lineNumber": 2,
 						"index": 10,
 						"whiteSpace": " "
@@ -197,10 +197,10 @@ Sample serialized json output:
 					"leftExpr": {
 						"nodeKind": "integerLiteral",
 						"tokenList": [{
-							"tokenType": 10,
+							"tokenType": 47,
 							"text": "2",
-							"startPos": 14,
-							"endPos": 14,
+							"startPos": 13,
+							"endPos": 13,
 							"lineNumber": 2,
 							"index": 9,
 							"whiteSpace": " "
@@ -210,18 +210,18 @@ Sample serialized json output:
 					"rightExpr": {
 						"nodeKind": "tupleLiteralNode",
 						"tokenList": [{
-							"tokenType": 3,
+							"tokenType": 7,
 							"text": ")",
-							"startPos": 22,
-							"endPos": 22,
+							"startPos": 21,
+							"endPos": 21,
 							"lineNumber": 2,
 							"index": 15,
 							"whiteSpace": null
 						}, {
-							"tokenType": 2,
+							"tokenType": 6,
 							"text": "(",
-							"startPos": 18,
-							"endPos": 18,
+							"startPos": 17,
+							"endPos": 17,
 							"lineNumber": 2,
 							"index": 11,
 							"whiteSpace": " "
@@ -229,10 +229,10 @@ Sample serialized json output:
 						"tupleExprList": [{
 							"nodeKind": "binaryExpression",
 							"tokenList": [{
-								"tokenType": 20,
+								"tokenType": 15,
 								"text": "*",
-								"startPos": 20,
-								"endPos": 20,
+								"startPos": 19,
+								"endPos": 19,
 								"lineNumber": 2,
 								"index": 13,
 								"whiteSpace": null
@@ -241,10 +241,10 @@ Sample serialized json output:
 							"leftExpr": {
 								"nodeKind": "integerLiteral",
 								"tokenList": [{
-									"tokenType": 10,
+									"tokenType": 47,
 									"text": "3",
-									"startPos": 19,
-									"endPos": 19,
+									"startPos": 18,
+									"endPos": 18,
 									"lineNumber": 2,
 									"index": 12,
 									"whiteSpace": null
@@ -254,10 +254,10 @@ Sample serialized json output:
 							"rightExpr": {
 								"nodeKind": "integerLiteral",
 								"tokenList": [{
-									"tokenType": 10,
+									"tokenType": 47,
 									"text": "5",
-									"startPos": 21,
-									"endPos": 21,
+									"startPos": 20,
+									"endPos": 20,
 									"lineNumber": 2,
 									"index": 14,
 									"whiteSpace": null
@@ -271,6 +271,7 @@ Sample serialized json output:
 		}
 	}]
 }
+
 
 ```
 

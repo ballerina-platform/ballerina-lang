@@ -402,8 +402,8 @@ type WhiteSpaceStack object {
 
         if (self.top != 0) {
             while (self.top > 0) {
-                space = self.pop();
-            //space = self.wpStack.pop() + space;
+                //space = self.pop();
+            space = self.pop() + space;
             }
             return space;
         }

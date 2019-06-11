@@ -127,14 +127,15 @@ type Parser object {
 
                 return insertAssign;
             } else {
-                int[] exprPanic = [SEMICOLON, RBRACE, EOF];
+                int[] exprPanic = [ASSIGN,SEMICOLON, RBRACE, EOF];
                 while (panicMode) {
-                    if (self.LAToken(1) == exprPanic[0]) {
-                        panicMode = false;
+                	if(self.LAToken(1) == exprPanic[0]){
+                		break;
+                	} else if (self.LAToken(1) == exprPanic[1]) {
                         break;
-                    } else if (self.LAToken(1) == exprPanic[1] && self.LookaheadToken(1).whiteSpace == "\n") {
+                    } else if (self.LAToken(1) == exprPanic[2] && self.LookaheadToken(1).whiteSpace == "\n") {
                         break;
-                    }else if (self.LAToken(1) == exprPanic[2]) {
+                    }else if (self.LAToken(1) == exprPanic[3]) {
 					 	break;
 				 	}
 
@@ -455,128 +456,267 @@ type Parser object {
     }
 
     #Variable definition statement
-    #    | <valueTypeName> IDENTIFIER SEMICOLON // int a;
-    #    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
+	#    | <valueTypeName> IDENTIFIER SEMICOLON // int a;
+	#    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
 	# +return - VariableDefinitionStatementNode
-    function parseVariableDefinitionStatementNode() returns VariableDefStNode {
+	function parseVariableDefinitionStatementNode() returns VariableDefStNode {
 
-        Token valueTypeTkn = self.parseValueTypeName();
-        //it is not necessary to check the validity of the value type since we only call this method if its a valid value type name???
-        ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
-        Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
+		Token valueTypeTkn = self.parseValueTypeName();
+		//it is not necessary to check the validity of the value type since we only call this method if its a valid value type name???
+		ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
+		Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
 
-        if (identifier.tokenType == PARSER_ERROR_TOKEN) {
-            ErrorVarRefIdentifierNode errorVarRef = {
+		if (identifier.tokenType == PARSER_ERROR_TOKEN) {
+			ErrorVarRefIdentifierNode vRef = {
 				nodeKind: ER_VAR_DEF_IDENTIFIER_NODE,
 				tokenList: self.errTokens,
 				varIdentifier: ()
 			};
-            if (self.LAToken(1) == SEMICOLON) {
-                Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+			self.resetErrorFlag();
 
-                VariableDefinitionStatementNode vDef = {
-                    nodeKind: VAR_DEF_STATEMENT_NODE,
-                    tokenList: [valueTypeTkn, semiC],
-                    valueKind: valueKind1,
-                    varIdentifier: errorVarRef,
-                    expression: ()
-                };
-                self.errTokens = [];
-                self.errorRecovered = true;
-                return vDef;
-            } else {
-                VariableDefinitionStatementNode vDef2 = {
-                    nodeKind: VAR_DEF_STATEMENT_NODE,
-                    tokenList: [valueTypeTkn],
-                    valueKind: valueKind1,
-                    varIdentifier: errorVarRef,
-                    expression: ()
-                };
-                self.errTokens = [];
-                self.errorRecovered = true;
-                return vDef2;
-            }
-        }
+			if (self.LAToken(1) == SEMICOLON) {
+				Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
 
-        VarRefIdentifier vRef = {
-            nodeKind: VAR_REF_NODE,
-            tokenList: [identifier],
-            varIdentifier: identifier.text
-        };
-
-
-        if (self.LAToken(1) == SEMICOLON) {
-            Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
-            VariableDefinitionStatementNode vDef = {
-                nodeKind: VAR_DEF_STATEMENT_NODE,
-                tokenList: [valueTypeTkn, semiC],
-                valueKind: valueKind1,
-                varIdentifier: vRef,
-                expression: ()
-            };
-
-            return vDef;
-        } else {
-            //token insertion if token assign is mismatched
-            Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
-            ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
-            //if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
-            if (exprNode is ()) {
-                log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
-                self.errorRecovered = false;
-            }
-            if (self.errorRecovered == false || self.invalidOccurence == true) {
-                ErrorExpressionNode erNode = {
-                	nodeKind: ER_EXPRESSION_NODE,
-                	tokenList:self.errTokens,
-                	errorExpression:exprNode
-                };
-                self.errTokens = [];
-                self.errorRecovered = true;
-                self.invalidOccurence = false;
-                Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
-                if(semiC2.endPos == -1){
-                	io:println("asd");
-                	 ErrorVarDefStatementNode errSt = {
-                	 	nodeKind: ER_VAR_DEF_STATEMENT_NODE,
-						tokenList: [valueTypeTkn, assign, semiC2],
-						valueKind: valueKind1,
-						varIdentifier: vRef,
-						expression: erNode
-                	 };
-                	 self.errTokens = [];
-                     self.errorRecovered = true;
-                	return errSt;
-                } else {
-                	VariableDefinitionStatementNode vDef2 = {
-						nodeKind: VAR_DEF_STATEMENT_NODE,
-						tokenList: [valueTypeTkn, assign, semiC2],
-						valueKind: valueKind1,
-						varIdentifier: vRef,
-						expression: erNode
-					};
-					return vDef2;
-                }
-
-
-			} else{
-				//token insertion if semicolon is mismatched
-				Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
-				VariableDefinitionStatementNode vDef2 = {
+				VariableDefinitionStatementNode vDef = {
 					nodeKind: VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn,assign, semiC2],
+					tokenList: [valueTypeTkn, semiC],
 					valueKind: valueKind1,
 					varIdentifier: vRef,
-					expression: exprNode
+					expression: ()
+				};
+				self.resetErrorFlag();
+				return vDef;
+
+			} else if (self.LAToken(1) != ASSIGN) {
+				VariableDefinitionStatementNode vDef2 = {
+					nodeKind: VAR_DEF_STATEMENT_NODE,
+					tokenList: [valueTypeTkn],
+					valueKind: valueKind1,
+					varIdentifier: vRef,
+					expression: ()
+				};
+				self.resetErrorFlag();
+				return vDef2;
+			} else {
+				VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef,valueTypeTkn,valueKind1);
+				return vStatementNode;
+			}
+		}
+
+		VarRefIdentifier vRef = {
+			nodeKind: VAR_REF_NODE,
+			tokenList: [identifier],
+			varIdentifier: identifier.text
+		};
+
+
+		if (self.LAToken(1) == SEMICOLON) {
+			Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+			VariableDefinitionStatementNode vDef = {
+				nodeKind: VAR_DEF_STATEMENT_NODE,
+				tokenList: [valueTypeTkn, semiC],
+				valueKind: valueKind1,
+				varIdentifier: vRef,
+				expression: ()
+			};
+			self.resetErrorFlag();
+			return vDef;
+
+		} else {
+			VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef,valueTypeTkn,valueKind1);
+			return vStatementNode;
+		}
+	}
+
+	# reset the errCount, and set error recovered to True, once an error is recovered
+	function resetErrorFlag(){
+		self.errCount = 0;
+		self.errTokens = [];
+		self.errorRecovered = true;
+	}
+
+
+
+    function parseVarDefExpr(VariableReferenceNode vRef,  Token valueTypeTkn, ValueKind valueKind1 ) returns VariableDefStNode{
+    	//token insertion if token assign is mismatched
+		Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
+		ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
+		//if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
+		if (exprNode is ()) {
+			log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
+			self.errorRecovered = false;
+		}
+		if (self.errorRecovered == false || self.invalidOccurence == true) {
+			ErrorExpressionNode erNode = {
+				nodeKind: ER_EXPRESSION_NODE,
+				tokenList:self.errTokens,
+				errorExpression:exprNode
+			};
+			self.resetErrorFlag();
+			self.invalidOccurence = false;
+			Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+			if(semiC2.endPos == -1){
+
+				 ErrorVarDefStatementNode errSt = {
+					nodeKind: ER_VAR_DEF_STATEMENT_NODE,
+					tokenList: [valueTypeTkn, assign, semiC2],
+					valueKind: valueKind1,
+					varIdentifier: vRef,
+					expression: erNode
 				 };
-				 self.errTokens = [];
-                 self.errorRecovered = true;
+				 self.resetErrorFlag();
+				return errSt;
+			} else {
+				VariableDefinitionStatementNode vDef2 = {
+					nodeKind: VAR_DEF_STATEMENT_NODE,
+					tokenList: [valueTypeTkn, assign, semiC2],
+					valueKind: valueKind1,
+					varIdentifier: vRef,
+					expression: erNode
+				};
 				return vDef2;
 			}
 
 
+		} else{
+			//token insertion if semicolon is mismatched
+			Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
+			VariableDefinitionStatementNode vDef2 = {
+				nodeKind: VAR_DEF_STATEMENT_NODE,
+				tokenList: [valueTypeTkn,assign, semiC2],
+				valueKind: valueKind1,
+				varIdentifier: vRef,
+				expression: exprNode
+			 };
+			 self.resetErrorFlag();
+			return vDef2;
 		}
-	}
+    }
+
+
+    //#Variable definition statement
+    //#    | <valueTypeName> IDENTIFIER SEMICOLON // int a;
+    //#    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
+	//# +return - VariableDefinitionStatementNode
+    //function parseVariableDefinitionStatementNode() returns VariableDefStNode {
+	//
+    //    Token valueTypeTkn = self.parseValueTypeName();
+    //    //it is not necessary to check the validity of the value type since we only call this method if its a valid value type name???
+    //    ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
+    //    Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
+	//
+    //    if (identifier.tokenType == PARSER_ERROR_TOKEN) {
+    //        ErrorVarRefIdentifierNode errorVarRef = {
+	//			nodeKind: ER_VAR_DEF_IDENTIFIER_NODE,
+	//			tokenList: self.errTokens,
+	//			varIdentifier: ()
+	//		};
+    //        if (self.LAToken(1) == SEMICOLON) {
+    //            Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+	//
+    //            VariableDefinitionStatementNode vDef = {
+    //                nodeKind: VAR_DEF_STATEMENT_NODE,
+    //                tokenList: [valueTypeTkn, semiC],
+    //                valueKind: valueKind1,
+    //                varIdentifier: errorVarRef,
+    //                expression: ()
+    //            };
+    //            self.errTokens = [];
+    //            self.errorRecovered = true;
+    //            return vDef;
+    //        } else {
+    //            VariableDefinitionStatementNode vDef2 = {
+    //                nodeKind: VAR_DEF_STATEMENT_NODE,
+    //                tokenList: [valueTypeTkn],
+    //                valueKind: valueKind1,
+    //                varIdentifier: errorVarRef,
+    //                expression: ()
+    //            };
+    //            self.errTokens = [];
+    //            self.errorRecovered = true;
+    //            return vDef2;
+    //        }
+    //    }
+	//
+    //    VarRefIdentifier vRef = {
+    //        nodeKind: VAR_REF_NODE,
+    //        tokenList: [identifier],
+    //        varIdentifier: identifier.text
+    //    };
+	//
+	//
+    //    if (self.LAToken(1) == SEMICOLON) {
+    //        Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+    //        VariableDefinitionStatementNode vDef = {
+    //            nodeKind: VAR_DEF_STATEMENT_NODE,
+    //            tokenList: [valueTypeTkn, semiC],
+    //            valueKind: valueKind1,
+    //            varIdentifier: vRef,
+    //            expression: ()
+    //        };
+	//
+    //        return vDef;
+    //    } else {
+    //        //token insertion if token assign is mismatched
+    //        Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
+    //        ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
+    //        //if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
+    //        if (exprNode is ()) {
+    //            log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
+    //            self.errorRecovered = false;
+    //        }
+    //        if (self.errorRecovered == false || self.invalidOccurence == true) {
+    //            ErrorExpressionNode erNode = {
+    //            	nodeKind: ER_EXPRESSION_NODE,
+    //            	tokenList:self.errTokens,
+    //            	errorExpression:exprNode
+    //            };
+    //            self.errTokens = [];
+    //            self.errorRecovered = true;
+    //            self.invalidOccurence = false;
+    //            Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+    //            if(semiC2.endPos == -1){
+    //            	io:println("asd");
+    //            	 ErrorVarDefStatementNode errSt = {
+    //            	 	nodeKind: ER_VAR_DEF_STATEMENT_NODE,
+	//					tokenList: [valueTypeTkn, assign, semiC2],
+	//					valueKind: valueKind1,
+	//					varIdentifier: vRef,
+	//					expression: erNode
+    //            	 };
+    //            	 self.errTokens = [];
+    //                 self.errorRecovered = true;
+    //            	return errSt;
+    //            } else {
+    //            	VariableDefinitionStatementNode vDef2 = {
+	//					nodeKind: VAR_DEF_STATEMENT_NODE,
+	//					tokenList: [valueTypeTkn, assign, semiC2],
+	//					valueKind: valueKind1,
+	//					varIdentifier: vRef,
+	//					expression: erNode
+	//				};
+	//				return vDef2;
+    //            }
+	//
+	//
+	//		} else{
+	//			//token insertion if semicolon is mismatched
+	//			Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
+	//			VariableDefinitionStatementNode vDef2 = {
+	//				nodeKind: VAR_DEF_STATEMENT_NODE,
+	//				tokenList: [valueTypeTkn,assign, semiC2],
+	//				valueKind: valueKind1,
+	//				varIdentifier: vRef,
+	//				expression: exprNode
+	//			 };
+	//			 self.errTokens = [];
+    //             self.errorRecovered = true;
+	//			return vDef2;
+	//		}
+	//
+	//
+	//	}
+	//}
 
     #continue statement
     #|CONTINUE SEMICOLON

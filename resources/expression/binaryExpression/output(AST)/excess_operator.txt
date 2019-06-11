@@ -151,7 +151,7 @@ ERROR [sachini/parserModule] - 2:12 : missing unary expression
 						"rightExpr": {
 							"nodeKind": "unaryExpressionNode",
 							"tokenList": [{
-								"tokenType": 29,
+								"tokenType": 12,
 								"text": "+",
 								"startPos": 12,
 								"endPos": 12,
