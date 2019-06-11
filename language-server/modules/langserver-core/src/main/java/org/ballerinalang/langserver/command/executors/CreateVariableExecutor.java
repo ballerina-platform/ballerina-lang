@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -168,7 +169,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             }
         };
 
-        String variableType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+        String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
                                                                                   functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);

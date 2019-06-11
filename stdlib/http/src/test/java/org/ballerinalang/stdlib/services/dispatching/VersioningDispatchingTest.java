@@ -25,8 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -42,27 +41,24 @@ import java.nio.file.Paths;
  */
 public class VersioningDispatchingTest {
 
-    private CompileResult result1, result2, result3;
-    private static final String MOCK_ENDPOINT_NAME = "passthruEP";
+    private static final int MOCK_ENDPOINT_1_PORT = 9090;
+    private static final int MOCK_ENDPOINT_2_PORT = 9091;
+    private static final int MOCK_ENDPOINT_3_PORT = 9092;
     private static final String PKG_NAME = "abc.xyz";
-    private static final String VERSION1 = "1.5.2";
-    private static final String VERSION2 = "0.0.0";
-    private static final String VERSION3 = "xxx";
 
     @BeforeClass
     public void setup() {
-        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching", "versioning");
-        result1 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
-        result2 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
-        result3 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
+        Path sourceRoot = Paths.get("test-src", "services", "dispatching", "versioning");
+        BCompileUtil.compile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
+        BCompileUtil.compile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
+        BCompileUtil.compile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
     }
 
     @Test(description = "Test dispatching with version template, no version allow and match major configs",
           dataProvider = "defaultService")
     public void testWithVersionTemplateNoVersionAllowMatchMajor(String path) {
         HTTPTestRequest request = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -83,7 +79,7 @@ public class VersioningDispatchingTest {
     public void testWithVersionTemplate() {
         String path = "/1.5/bar/go";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -94,7 +90,7 @@ public class VersioningDispatchingTest {
     @Test(description = "Test dispatching with form param without annotation", dataProvider = "onlyTemplate")
     public void testWithVersionTemplateNegative(String path) {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
@@ -116,7 +112,7 @@ public class VersioningDispatchingTest {
     @Test(description = "Test dispatching with form param without annotation", dataProvider = "allowNoVersion")
     public void testWithAllowNoVersion(String path) {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -136,7 +132,7 @@ public class VersioningDispatchingTest {
     public void testWithAllowNoVersionNegative() {
         String path = "/hello3/v1/bar/go";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
@@ -150,7 +146,7 @@ public class VersioningDispatchingTest {
     @Test(description = "Test dispatching with form param without annotation", dataProvider = "matchMajor")
     public void testWithmatchMajorVersion(String path) {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -170,7 +166,7 @@ public class VersioningDispatchingTest {
     public void testWithmatchMajorVersionNegative() {
         String path = "/hello4/bar/go";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
@@ -185,7 +181,7 @@ public class VersioningDispatchingTest {
     public void testWithoutVersionSegmentNegative() {
         String path = "/hello5/v0.0/bar/go";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
@@ -199,7 +195,7 @@ public class VersioningDispatchingTest {
     @Test(description = "Test dispatching with empty version", dataProvider = "emptyVersionService")
     public void testWithEmptyVersion(String path) {
         HTTPTestRequest request = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result2, PKG_NAME, VERSION2, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_2_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -219,7 +215,7 @@ public class VersioningDispatchingTest {
     @Test(description = "Test dispatching with single version", dataProvider = "singleVersionService")
     public void testWithOnlyMajorPackageVersion(String path) {
         HTTPTestRequest request = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(result3, PKG_NAME, VERSION3, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_3_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
