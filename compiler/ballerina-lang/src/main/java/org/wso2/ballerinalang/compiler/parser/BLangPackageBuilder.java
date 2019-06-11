@@ -364,8 +364,6 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> bindingPatternIdentifierWS = new Stack<>();
 
-    private Stack<ErrorVarType> errorVarTypeStack = new Stack<>();
-
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
     private SymbolTable symTable;
@@ -716,8 +714,7 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier,
-                          boolean isVarAvailBeforeReason, boolean isVarAvailBeforeRest) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
@@ -726,15 +723,6 @@ public class BLangPackageBuilder {
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, restIdentifier, false);
-        }
-
-        if (this.errorVarTypeStack.peek() == ErrorVarType.IN_MATCH) {
-            if (reasonIdentifier != null && !isVarAvailBeforeReason) {
-                dlog.error(pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN, reasonIdentifier);
-            }
-            if (restIdentifier != null && !isVarAvailBeforeRest) {
-                dlog.error(pos, DiagnosticCode.INVALID_ERROR_REST_BINDING_PATTERN, restIdentifier);
-            }
         }
     }
 
@@ -2597,7 +2585,6 @@ public class BLangPackageBuilder {
     }
 
     void startMatchStmtPattern() {
-        this.errorVarTypeStack.push(ErrorVarType.IN_MATCH);
         startBlock();
     }
 
@@ -2611,7 +2598,6 @@ public class BLangPackageBuilder {
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
-        this.errorVarTypeStack.pop();
     }
 
     void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, boolean isTypeGuardPresent) {
@@ -3732,20 +3718,5 @@ public class BLangPackageBuilder {
             keyValue.keyExpr = varRef;
         }
         waitCollectionStack.peek().keyValuePairs.add(keyValue);
-    }
-
-    void indicateStartVariableDef() {
-        this.errorVarTypeStack.push(ErrorVarType.DESTRUCTURE);
-    }
-
-    void indicateEndVariableDef() {
-        ErrorVarType var = this.errorVarTypeStack.pop();
-        if (var != ErrorVarType.DESTRUCTURE) {
-            throw new IllegalStateException();
-        }
-    }
-
-    private enum ErrorVarType {
-        DESTRUCTURE, IN_MATCH
     }
 }

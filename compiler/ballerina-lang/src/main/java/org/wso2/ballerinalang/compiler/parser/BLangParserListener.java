@@ -863,19 +863,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean isVarBeforeReason = ctx.VAR() != null;
         String reasonIdentifier = ctx.Identifier().getText();
         DiagnosticPos currentPos = getCurrentPos(ctx);
 
         String restIdentifier = null;
-        boolean isVarBeforeRest = false;
         if (ctx.errorRestBindingPattern() != null) {
             restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
-            isVarBeforeRest = ctx.errorRestBindingPattern().VAR() != null;
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier,
-                isVarBeforeReason, isVarBeforeRest);
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier);
     }
 
     @Override
@@ -1095,15 +1091,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
-        this.pkgBuilder.indicateEndVariableDef();
-    }
-
-    @Override
-    public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.indicateStartVariableDef();
     }
 
     @Override
@@ -1482,7 +1469,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.startForeachStatement();
-        this.pkgBuilder.indicateStartVariableDef();
     }
 
     @Override
@@ -1506,7 +1492,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addForeachStatementWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
         }
-        this.pkgBuilder.indicateEndVariableDef();
     }
 
     @Override

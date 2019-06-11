@@ -23,13 +23,13 @@ type ClosedFoo record {|
 function testErrorPattern1() returns string {
     any|error a = 13;
     match a {
-        var error (var reason, ...var rest) => return "A";
-        var error (var reason, detail = detail) => return "A"; // unreachable
+        var error (reason, ... rest) => return "A";
+        var error (reason, detail = detail) => return "A"; // unreachable
     }
 
     match a {
-        var error (var reason, detail = detail) => return "A";
-        var error (var reason) => return "A"; // unreachable
+        var error (reason, detail = detail) => return "A";
+        var error (reason) => return "A"; // unreachable
     }
     return "Default";
 }
@@ -38,14 +38,14 @@ function testErrorPattern2() returns string {
     error <string, ClosedFoo> err = error("Err Code 1", s = "error");
 
     match err {
-        var error (var reason, ...var rest) => return "A";
-        var error (var reason, s = s) => return "A"; // unreachable
+        var error (reason, ...rest) => return "A";
+        var error (reason, s = s) => return "A"; // unreachable
     }
 
     match err {
-        var error (var reason, s = s) => return "A";
-        var error (var reason, s = s, ...var rest) => return "A"; // unknown field 'detail' in record type 'ClosedFoo'
-        var error (var reason, s = s) => return "A"; // unreachable
+        var error (reason, s = s) => return "A";
+        var error (reason, s = s, ...rest) => return "A"; // unknown field 'detail' in record type 'ClosedFoo'
+        var error (reason, s = s) => return "A"; // unreachable
     }
     return "Default";
 }
@@ -54,13 +54,13 @@ function testErrorPattern3() returns string {
     error <string, ClosedFoo> err = error("Err Code 1", s = "error");
 
     match err {
-        var error (var reason, ...var rest) => return "A";
-        var error (var reason, s = _) => return "A"; // unreachable
+        var error (reason, ...rest) => return "A";
+        var error (reason, s = _) => return "A"; // unreachable
     }
 
     match err {
-        var error (var reason, ...var rest) => return "A";
-        var error (var reason) => return "A"; // unreachable
+        var error (reason, ...rest) => return "A";
+        var error (reason) => return "A"; // unreachable
     }
     return "Default";
 }
@@ -73,13 +73,13 @@ function testErrorPattern5() returns string {
     error <string, OpenedFoo> err = error("Err Code 1", message = "error");
     any|error a = err;
     match a {
-        var error (var reason, message = message, ...var rest) => return "A";
-        var error (var reason, extra = extra) => return "A"; // unreachable
+        var error (reason, message = message, ...rest) => return "A";
+        var error (reason, extra = extra) => return "A"; // unreachable
     }
 
     match a {
-        var error (var reason, message = message, ...var rest) => return "A";
-        var error (var reason, message = message) => return "A"; // unreachable
+        var error (reason, message = message, ...rest) => return "A";
+        var error (reason, message = message) => return "A"; // unreachable
     }
     return "Default";
 }

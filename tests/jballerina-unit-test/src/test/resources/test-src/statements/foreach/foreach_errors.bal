@@ -40,7 +40,7 @@ function testArrayWithErrors() returns (string, string, string) {
     foreach var error(reason3) in errorArray {
         result3 += reason3 + ":";
     }
-    foreach error<string, map<string|boolean>> error(reason4, ... var _) in errorArray {
+    foreach error<string, map<string|boolean>> error(reason4, ..._) in errorArray {
         result3 += reason4 + ":";
     }
     return (result1, result2, result3);
@@ -74,7 +74,7 @@ function testMapWithErrors() returns (string, string, string) {
     foreach var (key, error(reason3)) in errMap {
         result3 += reason3 + ":";
     }
-    foreach (string, error<string, map<string|boolean>>) (key, error(reason4, ...var _)) in errMap {
+    foreach (string, error<string, map<string|boolean>>) (key, error(reason4, ..._)) in errMap {
         result3 += reason4 + ":";
     }
     return (result1, result2, result3);

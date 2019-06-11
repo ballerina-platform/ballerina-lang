@@ -33,7 +33,7 @@ type ReasonRecTup record {
 function testBasicErrorMatch() returns string {
     error <string, map<string>> err1 = error("Error Code", message = "Msg");
     match err1 {
-        var error(var reason, message = m) => return reason + ":" + <string>m;
+        var error(reason, message = m) => return reason + ":" + <string>m;
     }
     return "Default";
 }
@@ -41,11 +41,10 @@ function testBasicErrorMatch() returns string {
 function testErrorRestParamMatch(int errorNo) returns string {
     error err1 = selectError(errorNo);
     match err1 {
-        var error(var reason, message = m) => return <string>m;
-        var error(var reason, message = m, x = x) => return io:sprintf("%s", x);
-        var error(var reason, message = m, blah = x) => return <string>x;
-        var error(var reason, message = m, blah = x, ...var rest) => return reason + io:sprintf("%s", rest);
-        //var error(var _, ...var rest) => return "Matched with error : {{ " + io:sprintf("%s", rest);
+        var error(reason, message = m) => return <string>m;
+        var error(reason, message = m, x = x) => return io:sprintf("%s", x);
+        var error(reason, message = m, blah = x) => return <string>x;
+        var error(reason, message = m, blah = x, ...rest) => return reason + io:sprintf("%s", rest);
     }
     return "Default";
 }
@@ -73,7 +72,7 @@ function testBasicErrorMatch2() returns string {
     (string, map<any>)|error t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
-        var error(var reason, message = message) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
+        var error(reason, message = message) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
     }
     return "Default";
 }
@@ -83,7 +82,7 @@ function testBasicErrorMatch3() returns string {
     (string, map<any>)|error <string> t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
-        var error(var reason) => return "Matched with error : " + reason;
+        var error(reason) => return "Matched with error : " + reason;
     }
     return "Default";
 }
@@ -104,7 +103,7 @@ function testBasicErrorMatch4() returns string[] {
 
 function foo(ER1|ER2 t1) returns string {
     match t1 {
-        var error (var _, fatal = fatal, message = message) => {
+        var error ( _, fatal = fatal, message = message) => {
             if fatal is boolean {
                 return "Matched with boolean : " + fatal;
             } else if message is string {
@@ -130,8 +129,8 @@ function testBasicErrorMatch5() returns string[] {
 function foo2(any|error f) returns string {
     match f {
         var { fatal } => return "Matched with a record : " + <boolean>fatal;
-        var error (var reason) => return "Matched with an error : " + reason;
-        var error (var reason, ...var _) => return "Matched with an error : " + reason + " {}";
+        var error (reason) => return "Matched with an error : " + reason;
+        var error (reason, ..._) => return "Matched with an error : " + reason + " {}";
     }
     return "Default";
 }
@@ -139,8 +138,8 @@ function foo2(any|error f) returns string {
 function foo3(any|error f) returns string {
     match f {
         var { fatal } => return "Matched with a record : " + <boolean>fatal;
-        var error (var reason) => return "Matched with an error 1: " + reason;
-        var error (var reason, message = message) => return "Matched with an error : " + reason + ", message = " + <string>message;
+        var error (reason) => return "Matched with an error 1: " + reason;
+        var error (reason, message = message) => return "Matched with an error : " + reason + ", message = " + <string>message;
     }
     return "Default";
 }
@@ -161,7 +160,7 @@ function panik() returns string {
 function foo4(any|error a) returns string {
     match a {
         "value" => return "Matched with string";
-        var error (var reason, message = message) => return "Matched with an error: reason = " + reason + ", message = " + <string>message;
+        var error (reason, message = message) => return "Matched with an error: reason = " + reason + ", message = " + <string>message;
     }
     return "Default";
 }
@@ -176,7 +175,7 @@ function foo5(any|error e) returns string {
     match e {
         var (a, b) => return "Matched with tuple var";
         var { a, b } => return "Matched with record var";
-        var error (var reason, ...var _) => return "Matched with error reason = " + <string>reason;
+        var error (reason, ..._) => return "Matched with error reason = " + <string>reason;
         var x => {
             if x is any {
                 return "Matched nothing : " + <string>x;
@@ -201,7 +200,7 @@ function testBasicErrorMatch7() returns string[] {
 function foo6(any|error f) returns string {
     match f {
         var { fatal } => return "Matched with a record : " + <boolean>fatal;
-        var error (var reason, message = message) => return "Matched with an error : " + reason + <string>message;
+        var error (reason, message = message) => return "Matched with an error : " + reason + <string>message;
     }
     return "Default";
 }
@@ -222,7 +221,7 @@ function testFiniteTypedReasonVariable() returns string[] {
 
 function matching(error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolean>> a) returns string {
     match a {
-        var error(var reason, message = message, fatal = fatal) => return "reason = " + reason + ", message = " + <string>message + ", fatal = " + (<boolean>fatal ? "true" : "false");
+        var error(reason, message = message, fatal = fatal) => return "reason = " + reason + ", message = " + <string>message + ", fatal = " + (<boolean>fatal ? "true" : "false");
         var x => return "Failed";
     }
 }

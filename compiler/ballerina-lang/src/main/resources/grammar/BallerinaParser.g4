@@ -410,11 +410,11 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS VAR? Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
     ;
 
 errorRestBindingPattern
-    : ELLIPSIS VAR? Identifier
+    : ELLIPSIS Identifier
     ;
 
 errorDetailBindingPattern
