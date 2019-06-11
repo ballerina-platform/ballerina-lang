@@ -57,6 +57,7 @@
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
@@ -116,29 +117,6 @@
 
             <!--Built in methods-->
             <class name="org.ballerinalang.test.expressions.conversion.NativeConversionWithStampTypesTest"/>
-
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.AnydataStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.ArrayStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.JSONStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.MapStampInbuiltFunctionTest">
-                <!-- Fails because of cyclic record type issue-->
-                <methods>
-                    <exclude name="testStampRecordToMapWithCyclicValueReferences"/>
-                    <exclude name="testStampRecordToRecordWithCyclicValueReferences"/>
-                </methods>
-            </class>
-
-            <class name="org.ballerinalang.test.expressions.stamp.RecordStampInbuiltFunctionTest">
-                <!-- Fails because of optional fields not implemented-->
-                <methods>
-                    <exclude name="testStampRecordToRecordWithOptionalFields"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.stamp.StampInbuiltFunctionNegativeTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
 
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
                 <methods>
