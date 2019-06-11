@@ -18,8 +18,10 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.BatchUpdateStatement;
+import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -50,18 +52,12 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class BatchUpdate extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
-            SQLDatasource datasource = retrieveDatasource(context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        String query = context.getStringArgument(0);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeBatchUpdate(context, datasource, query, parameters);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement batchUpdateStatement = new BatchUpdateStatement(context, datasource, query, parameters, callback);
+        batchUpdateStatement.execute();
     }
 }

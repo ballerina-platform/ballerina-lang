@@ -18,8 +18,10 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.SQLStatement;
+import org.ballerinalang.database.sql.statement.UpdateStatement;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -50,19 +52,14 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class Update extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-            SQLDatasource datasource = retrieveDatasource(context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        String query = context.getStringArgument(0);
+        BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement updateStatement = new UpdateStatement(context, datasource, query, keyColumns, parameters,
+                callback);
+        updateStatement.execute();
     }
 }
