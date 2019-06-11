@@ -39,6 +39,13 @@
       "detail": "Keyword",
       "insertText": "listener ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

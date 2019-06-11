@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.test.services.testutils;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -35,7 +33,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
 
     private volatile Semaphore executionWaitSem;
     private HttpCarbonMessage requestMessage;
-    private BValue request;
+    private Object request;
 
     private HttpCarbonMessage responseMsg;
     private int timeOut = 120;
@@ -51,26 +49,18 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         Integer carbonStatusCode = requestMessage.getHttpStatusCode();
         int statusCode = (carbonStatusCode == null) ? 500 : carbonStatusCode;
         String errorMsg = getAggregatedRootErrorMessages(error);
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
         this.executionWaitSem.release();
     }
 
-    public void setRequestStruct(BValue request) {
+    public void setRequestStruct(Object request) {
         this.request = request;
     }
-
-//    @Override
-//    public void notifyReply(BValue... response) {
-//        //TODO check below line
-//        HttpCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
-//        this.responseMsg = responseMessage;
-//        this.executionWaitSem.release();
-//    }
 
     public void sync() {
         try {
@@ -89,7 +79,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
         return responseMsg;
     }
 
-    private static String getAggregatedRootErrorMessages(BError error) {
+    private static String getAggregatedRootErrorMessages(ErrorValue error) {
         return error.getReason();
     }
 }

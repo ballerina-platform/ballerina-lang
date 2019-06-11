@@ -1086,6 +1086,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
                     keyRegIndex, rhsOp));
+            return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);

@@ -33,11 +33,11 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
@@ -83,16 +83,14 @@ public class Forward extends AbstractHTTPAction {
         return outboundRequestMsg;
     }
 
-    public static void nativeForward(Strand strand, ObjectValue clientObj, String url, MapValue config, String path,
-                                     ObjectValue requestObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        String serviceUri = clientObj.get(CLIENT_ENDPOINT_SERVICE_URI).toString();
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(serviceUri, path, requestObj);
-        DataContext dataContext = new DataContext(strand, callback, clientObj, requestObj, outboundRequestMsg);
-        // Execute the operation
+    public static Object nativeForward(Strand strand, String url, MapValue config, String path,
+                                       ObjectValue requestObj) {
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, path, requestObj);
+        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
+        return null;
     }
 
     protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, String path,

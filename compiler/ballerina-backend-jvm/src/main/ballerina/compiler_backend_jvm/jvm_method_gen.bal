@@ -1499,7 +1499,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     if (isPackage) {
         fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
     } else {
-        fv = cw.visitField(ACC_PROTECTED, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }
     fv.visitEnd();
 }
