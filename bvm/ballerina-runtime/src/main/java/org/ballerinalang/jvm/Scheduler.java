@@ -70,7 +70,7 @@ public class Scheduler {
     /**
      * Items that are due for unblock, but not yet actually in blocked list.
      */
-    private volatile List<Strand> unblockedList = Collections.synchronizedList(new ArrayList<>());
+    private List<Strand> unblockedList = Collections.synchronizedList(new ArrayList<>());
 
     private static final boolean DEBUG = false;
 
