@@ -21,9 +21,10 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BError;
@@ -84,7 +85,7 @@ public class ToXML extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object toXML(Object json, MapValueImpl<?, ?> options) {
+    public static Object toXML(Strand strand, Object json, MapValue<?, ?> options) {
         try {
             if (json == null) {
                 ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR,

@@ -21,6 +21,9 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -88,7 +91,49 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
         }
     }
 
+    public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
+        ObjectValue byteChannelObj;
+        try {
+            byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
+            populateEntityWithByteChannel(entityObj);
+            Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
+            if (byteChannel != null) {
+                byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+                return byteChannelObj;
+            } else {
+                if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
+                    return MimeUtil.createError("Byte channel is not available but " +
+                                                        "payload can be obtain either as xml, json, string or byte[] " +
+                                                        "type");
+                } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
+                        getBodyPartArray(entityObj).size() != 0) {
+                    return MimeUtil.createError(
+                            "Byte channel is not available since payload contains a set of body parts");
+                } else {
+                    return MimeUtil.createError("Byte channel is not available as payload");
+                }
+            }
+        } catch (Throwable e) {
+            return MimeUtil.createError(
+                    "Error occurred while constructing byte channel from entity body : " + e.getMessage());
+        }
+    }
+
     private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
+        if (httpCarbonMessage == null) {
+            return;
+        }
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+
+        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
+        if (contentLength > 0) {
+            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+        }
+    }
+
+    private static void populateEntityWithByteChannel(ObjectValue entity) {
         HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage == null) {
             return;

@@ -18,11 +18,10 @@
 
 package org.ballerinalang.stdlib.services.dispatching;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
@@ -34,29 +33,28 @@ import java.nio.file.Paths;
  */
 public class VersioningNegativeTest {
 
-    private static final String MOCK_ENDPOINT_NAME = "passthruEP";
+    private static final int MOCK_ENDPOINT_1_PORT = 9090;
+    private static final int MOCK_ENDPOINT_2_PORT = 9091;
+    private static final int MOCK_ENDPOINT_3_PORT = 9092;
     private static final String PKG_NAME = "pqr.stv";
-    private String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-    private Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching", "versioning");
+    private Path sourceRoot = Paths.get("test-src", "services", "dispatching", "versioning");
 
     @Test(description = "Test dispatching with invalid version segments",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testInvalidVersionSegmentsNegative() {
-        CompileResult result = BServiceUtil
-                .setupProgramFile(sourceRoot.resolve("negativecase1").toString(), PKG_NAME);
+        BCompileUtil.compile(sourceRoot.resolve("negativecase1").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello1/v2.4/bar/go", "GET");
-        Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        Services.invoke(MOCK_ENDPOINT_1_PORT, cMsg);
     }
 
     @Test(description = "Test dispatching with minor version",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testWithMinorVersionTemplateNegative() {
-        CompileResult result = BServiceUtil
-                .setupProgramFile(sourceRoot.resolve("negativecase2").toString(), PKG_NAME);
+        BCompileUtil.compile(sourceRoot.resolve("negativecase2").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello6/v1.4/go", "GET");
-        Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        Services.invoke(MOCK_ENDPOINT_2_PORT, cMsg);
     }
 
     @Test(description = "Test dispatching with minor version",
@@ -64,9 +62,8 @@ public class VersioningNegativeTest {
           expectedExceptionsMessageRegExp = ".*Service registration failed: two services have the same basePath : " +
                   "'/echo/v2/bar'.*")
     public void testRegisteringTwoServicedsWithSameBasePath() {
-        CompileResult result = BServiceUtil
-                .setupProgramFile(sourceRoot.resolve("negativecase3").toString(), PKG_NAME);
+        BCompileUtil.compile(sourceRoot.resolve("negativecase3").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/v2.4/bar", "GET");
-        Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+        Services.invoke(MOCK_ENDPOINT_3_PORT, cMsg);
     }
 }

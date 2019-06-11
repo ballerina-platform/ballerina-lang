@@ -25,6 +25,7 @@ import org.ballerinalang.BLangProgramRunner;
  *
  * @since 0.94
  */
+@Deprecated
 public class BServiceUtil {
 
     /**

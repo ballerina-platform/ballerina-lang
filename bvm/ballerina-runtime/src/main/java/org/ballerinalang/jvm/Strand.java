@@ -23,11 +23,10 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,7 +40,7 @@ public class Strand {
     public boolean yield;
     public Object[] frames;
     public int resumeIndex;
-    public Future future;
+    public Object returnValue;
     public boolean blocked;
     public List<Strand> blockedOn;
     public Scheduler scheduler;
@@ -51,12 +50,14 @@ public class Strand {
     public boolean blockedOnExtern;
     public ChannelDetails[] channelDetails;
     private Map<String, Object> globalProps;
+    public boolean cancel;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
+        this.globalProps = new HashMap<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent) {
@@ -65,6 +66,7 @@ public class Strand {
         this.wdChannels = new WDChannels();
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new ChannelDetails[0];
+        this.globalProps = new HashMap<>();
     }
 
     public Strand(Scheduler scheduler, Map<String, Object> properties) {
@@ -89,7 +91,7 @@ public class Strand {
     }
 
     public void setReturnValues(Object returnValue) {
-        this.future = CompletableFuture.completedFuture(returnValue);
+        this.returnValue = returnValue;
     }
 
     public Object getProperty(String key) {

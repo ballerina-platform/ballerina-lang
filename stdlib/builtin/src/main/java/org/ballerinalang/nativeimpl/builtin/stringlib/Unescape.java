@@ -50,6 +50,7 @@ public class Unescape extends BlockingNativeCallableUnit {
     }
 
     public static String unescape(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.replace("\\", "");
     }
 }

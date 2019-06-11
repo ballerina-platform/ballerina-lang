@@ -23,13 +23,23 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
-            <package name="org.ballerinalang.stdlib.mime.*"/>
-        </packages>
+
+        <classes>
+            <class name="org.ballerinalang.stdlib.mime.HeaderTest"/>
+            <class name="org.ballerinalang.stdlib.mime.MimeUtilityFunctionTest">
+                <methods>
+                    <exclude name="testGetJsonDataSource"/>
+                    <exclude name="testGetBaseTypeOnMediaType"/>
+                    <exclude name="testToStringOnMediaType"/>
+                    <exclude name="testToStringOnContentDisposition"/>
+                </methods>
+            </class>
+        </classes>
     </test>
 </suite>

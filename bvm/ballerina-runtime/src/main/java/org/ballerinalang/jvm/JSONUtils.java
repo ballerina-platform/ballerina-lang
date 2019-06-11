@@ -28,11 +28,11 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 
@@ -153,7 +153,7 @@ public class JSONUtils {
 
         try {
             ((MapValueImpl<String, Object>) json).put(elementName, element);
-        } catch (BLangFreezeException e) {
+        } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
@@ -203,9 +203,9 @@ public class JSONUtils {
 
         try {
             return Lists.get((ArrayValue) jsonArray, index);
-        } catch (BallerinaException e) {
-            if (e.getDetail() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+        } catch (ErrorValue e) {
+            if (e.getDetails() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetails());
             }
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
@@ -235,7 +235,7 @@ public class JSONUtils {
 
         try {
             Lists.add((ArrayValue) json, index, element);
-        } catch (BLangFreezeException e) {
+        } catch (ErrorValue e) {
             throw e;
         } catch (BallerinaException e) {
             throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR, e.getDetail());

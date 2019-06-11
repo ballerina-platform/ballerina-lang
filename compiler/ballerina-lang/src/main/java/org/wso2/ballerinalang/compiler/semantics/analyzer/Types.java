@@ -543,7 +543,7 @@ public class Types {
         }
 
         if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
-            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target);
+            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
             return false;
         }
@@ -630,11 +630,17 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target) {
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
-        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
+                isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -827,20 +833,6 @@ public class Types {
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
-        // Both records should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        // If both records are private, they should be in the same package.
-        if (!Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
-            return false;
-        }
-
         // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
