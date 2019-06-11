@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -132,6 +133,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return (ArrayValue) get(key);
     }
 
+    public long getDefaultableIntValue(String key) {
+        if (get(key) != null) {
+            return getIntValue(key);
+        }
+        return 0;
+    }
+
     /**
      * Retrieve the value for the given key from map.
      * A {@link BallerinaException} will be thrown if the key does not exists.
@@ -168,10 +176,24 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V put(K key, V value) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState());
+            try {
+                if (freezeStatus.getState() != State.UNFROZEN) {
+                    handleInvalidUpdate(freezeStatus.getState());
+                }
+                return super.put(key, value);
+            } catch (BLangFreezeException e) {
+                // we would only reach here for record or map, not for object
+                String errMessage = "";
+                switch (getType().getTag()) {
+                    case TypeTags.RECORD_TYPE_TAG:
+                        errMessage = "Invalid update of record field: ";
+                        break;
+                    case TypeTags.MAP_TAG:
+                        errMessage = "Invalid map insertion: ";
+                        break;
+                }
+                throw BallerinaErrors.createError(e.getMessage(), errMessage + e.getDetail());
             }
-            return super.put(key, value);
         } finally {
             writeLock.unlock();
         }
@@ -208,6 +230,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    /**
+     * Returns the hash code value for map value object.
+     *
+     * @return returns hashcode value.
+     */
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+    
     /**
      * Remove an item from the map.
      *
@@ -421,6 +453,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public synchronized void attemptFreeze(Status freezeStatus) {
+        if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
+        }
+
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
             super.values().forEach(val -> {

@@ -543,7 +543,7 @@ public class Types {
         }
 
         if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
-            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target);
+            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
             return false;
         }
@@ -630,11 +630,17 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target) {
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
-        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
+                isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -709,8 +715,9 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
+            // Source param types should be contravariant with target param types
             if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
+                    && !isAssignable(target.paramTypes.get(i), source.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -721,6 +728,7 @@ public class Types {
             return false;
         }
 
+        // Source return type should be covariant with target return type
         return isAssignable(source.retType, target.retType, unresolvedTypes);
     }
 
@@ -769,45 +777,62 @@ public class Types {
     }
 
     public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, List<TypePair> unresolvedTypes) {
-        // Both objects should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        // If both objects are private, they should be in the same package.
-        if (!Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
-            return false;
-        }
+        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
+        BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
+        int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
 
         // RHS type should have at least all the fields as well attached functions of LHS type.
-        if (lhsType.fields.size() > rhsType.fields.size()) {
+        if (lhsType.fields.size() > rhsType.fields.size() || lhsAttachedFuncCount > rhsAttachedFuncCount) {
             return false;
         }
 
-        return !Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
-                checkPrivateObjectEquivalency(lhsType, rhsType, unresolvedTypes) :
-                checkPublicObjectEquivalency(lhsType, rhsType, unresolvedTypes);
+        // The LHS type cannot have any private members. 
+        if (lhsType.getFields().stream().anyMatch(field -> Symbols.isPrivate(field.symbol)) ||
+                lhsFuncs.stream().anyMatch(func -> Symbols.isPrivate(func.symbol))) {
+            return false;
+        }
+
+        Map<Name, BField> rhsFields =
+                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
+
+        for (BField lhsField : lhsType.fields) {
+            BField rhsField = rhsFields.get(lhsField.name);
+            if (rhsField == null || !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol)
+                    || !isAssignable(rhsField.type, lhsField.type)) {
+                return false;
+            }
+        }
+
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
+            if (rhsFunc == null || !isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int getObjectFuncCount(BObjectTypeSymbol sym) {
+        // If an explicit initializer is available, it could mean,
+        // 1) User explicitly defined an initializer
+        // 2) The object type is coming from an already compiled source, hence the initializer is already set.
+        //    If it's coming from a compiled binary, the attached functions list of the symbol would already contain
+        //    the initializer in it.
+        if (sym.initializerFunc != null && sym.attachedFuncs.contains(sym.initializerFunc)) {
+            return sym.attachedFuncs.size() - 1;
+        }
+        return sym.attachedFuncs.size();
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
-        // Both records should be public or private.
-        // Get the XOR of both flags(masks)
-        // If both are public, then public bit should be 0;
-        // If both are private, then public bit should be 0;
-        // The public bit is on means, one is public, and the other one is private.
-        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        // If both records are private, they should be in the same package.
-        if (!Symbols.isPublic(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
-            return false;
-        }
-
         // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
@@ -1597,38 +1622,6 @@ public class Types {
         }
     };
 
-    private boolean checkPrivateObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                  List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields =
-                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
-        for (BField lhsField : lhsType.fields) {
-            BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type)) {
-                return false;
-            }
-        }
-
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
-        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
-        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
-        if (lhsAttachedFuncCount > rhsFuncs.size()) {
-            return false;
-        }
-
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
-                continue;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
@@ -1655,56 +1648,6 @@ public class Types {
                 fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
     }
 
-    private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                 List<TypePair> unresolvedTypes) {
-        Map<Name, BField> rhsFields =
-                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
-
-        // Check the whether there is any private fields in RHS type
-        if (rhsType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol))) {
-            return false;
-        }
-
-        for (BField lhsField : lhsType.fields) {
-            BField rhsField = rhsFields.get(lhsField.name);
-            if (rhsField == null || !Symbols.isPublic(lhsField.symbol) || !isAssignable(rhsField.type, lhsField.type)) {
-                return false;
-            }
-        }
-
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
-        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
-        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
-        if (lhsAttachedFuncCount > rhsFuncs.size()) {
-            return false;
-        }
-
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
-                continue;
-            }
-
-            if (!Symbols.isPublic(lhsFunc.symbol)) {
-                return false;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
-            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
-                return false;
-            }
-        }
-
-        // Check for private attached function of the RHS type
-        for (BAttachedFunction rhsFunc : rhsFuncs) {
-            if (!Symbols.isPublic(rhsFunc.symbol)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
                                                        List<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
@@ -1712,6 +1655,15 @@ public class Types {
                 .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
+        if (Symbols.isPrivate(lhsSym)) {
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
+        } else if (Symbols.isPublic(lhsSym)) {
+            return Symbols.isPublic(rhsSym);
+        }
+        return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {

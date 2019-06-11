@@ -19,14 +19,12 @@ import ballerina/io;
 
 public type FuncBodyParser object {
     BirChannelReader reader;
-    TypeParser typeParser;
     map<VariableDcl> localVarMap;
     map<VariableDcl> globalVarMap;
     TypeDef?[] typeDefs;
 
-    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, TypeDef?[] typeDefs) {
+    public function __init(BirChannelReader reader, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, TypeDef?[] typeDefs) {
         self.reader = reader;
-        self.typeParser = typeParser;
         self.localVarMap = localVarMap;
         self.globalVarMap = globalVarMap;
         self.typeDefs = typeDefs;
@@ -70,10 +68,11 @@ public type FuncBodyParser object {
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
             kind = INS_KIND_MAP_LOAD;
+            boolean except = self.reader.readBoolean();
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp, except:except};
             return mapLoad;
         } else if (kindTag == INS_OBJECT_STORE) {
             kind = INS_KIND_OBJECT_STORE;
@@ -97,27 +96,28 @@ public type FuncBodyParser object {
             FieldAccess arrayLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return arrayLoad;
         } else if (kindTag == INS_NEW_ARRAY) {
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_ARRAY;
             var lhsOp = self.parseVarRef();
             var sizeOp = self.parseVarRef();
             NewArray newArray = {pos:pos, kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newArray;
         } else if (kindTag == INS_NEW_MAP) {
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_MAP;
+            TypeRef? typeRef = self.parseRecordTypeRef();
             var lhsOp = self.parseVarRef();
-            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
+            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeRef:typeRef, bType:bType};
             return newMap;
         } else if (kindTag == INS_NEW_STREAM) {
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_STREAM;
             var lhsOp = self.parseVarRef();
             var nameOp = self.parseVarRef();
             NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, nameOp: nameOp, typeValue: bType };
             return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_TABLE;
             var lhsOp = self.parseVarRef();
             var columnsOp = self.parseVarRef();
@@ -128,10 +128,8 @@ public type FuncBodyParser object {
             indexColOp, keyColOp: keyColOp, typeValue: bType };
             return newTable;
         } else if (kindTag == INS_NEW_INST) {
-            var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
-            var lhsOp = self.parseVarRef();
-            NewInstance newInst = {pos:pos, kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
+            NewInstance newInst = {pos:pos, kind:kind, typeDefRef: self.parseTypeDefRef(), lhsOp: self.parseVarRef()};
             return newInst;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
@@ -141,27 +139,29 @@ public type FuncBodyParser object {
             return typeCast;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             TypeTest typeTest = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeTest;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
-            int | string | boolean | float value = 0;
-            if (bType is BTypeInt || bType is BTypeByte) {
+            int | string | boolean | float | byte value = 0;
+            if (bType is BTypeInt) {
                 value = self.reader.readIntCpRef();
+            } else if (bType is BTypeByte) {
+                value = self.reader.readByteCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
             } else if (bType is BTypeDecimal) {
@@ -181,10 +181,12 @@ public type FuncBodyParser object {
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
             kind = INS_KIND_NEW_ERROR;
+            var typeValue = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();
-            NewError newError = {pos:pos, kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            NewError newError = {pos:pos, kind:kind, typeValue:typeValue, lhsOp:lhsOp, reasonOp:reasonOp, 
+                                 detailsOp:detailsOp};
             return newError;
         } else if (kindTag == INS_NEW_XML_ELEMENT) {
             kind = INS_KIND_NEW_XML_ELEMENT;
@@ -287,7 +289,7 @@ public type FuncBodyParser object {
             var numVars = self.reader.readInt32();
             int i = 0;
             while (i < numVars) {
-                var dcl = parseVariableDcl(self.reader, self.typeParser);
+                var dcl = parseVariableDcl(self.reader);
                 params[i] = dcl;
                 i += 1;
             }
@@ -308,20 +310,11 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_NEW_TYPEDESC) {
             kind = INS_KIND_NEW_TYPEDESC;
             var lhsOp = self.parseVarRef();
-            var bType = self.typeParser.parseType();
+            var bType = self.reader.readTypeCpRef();
             NewTypeDesc newTypeDesc = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newTypeDesc;
-        }  else if (kindTag == INS_TERNARY) {
-            kind = INS_KIND_TERNARY;
-            var lhsOp = self.parseVarRef();
-            var conditionOp = self.parseVarRef();
-            var thenOp = self.parseVarRef();
-            var elseOp = self.parseVarRef();
-            Ternary ternary = {pos:pos, kind:kind, lhsOp:lhsOp, conditionOp:conditionOp, thenOp:thenOp, 
-                               elseOp:elseOp};
-            return ternary;
         } else if (kindTag == INS_NEGATE) {
-            kind = INS_KIND_NOT;
+            kind = INS_KIND_NEGATE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
             UnaryOp typeofNode = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
@@ -329,6 +322,28 @@ public type FuncBodyParser object {
         } else {
             return self.parseBinaryOpInstruction(kindTag, pos);
         }
+    }
+
+    public function parseTypeDefRef() returns TypeDef|TypeRef {
+        var isExternalDef = self.reader.readBoolean();
+        if (isExternalDef) {
+            TypeRef typeRef = {externalPkg: self.reader.readModuleIDCpRef(),
+                               name: {value: self.reader.readStringCpRef()}};
+            return typeRef;
+        } else {
+            return self.findTypeDef(self.reader.readInt32());
+        }
+    }
+
+    public function parseRecordTypeRef() returns TypeRef? {
+        var isExternalDef = self.reader.readBoolean();
+        if (isExternalDef) {
+            TypeRef typeRef = {externalPkg: self.reader.readModuleIDCpRef(),
+                               name: {value: self.reader.readStringCpRef()}};
+            return typeRef;
+        }
+
+        return;
     }
 
     public function parseTerminator() returns Terminator {
@@ -408,8 +423,28 @@ public type FuncBodyParser object {
                 i += 1;
             }
             VarRef lhsOp = self.parseVarRef();
-            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp};
+            BasicBlock thenBB = self.parseBBRef();
+            Wait waitIns = {pos:pos, exprList:exprs, kind:kind, lhsOp:lhsOp, thenBB:thenBB};
             return waitIns;
+        } else if (kindTag == INS_WAIT_ALL) {
+            TerminatorKind kind = TERMINATOR_WAIT_ALL;
+            var lhsOp = self.parseVarRef();
+            int length = self.reader.readInt32();
+            string[] keys = [];
+            int futureIndex = 0;
+            while (futureIndex < length) {
+                keys[futureIndex] = self.reader.readStringCpRef();
+                futureIndex += 1;
+            }
+            futureIndex = 0;
+            VarRef?[] futures = [];
+            while (futureIndex < length) {
+                futures[futureIndex] = self.parseVarRef();
+                futureIndex += 1;
+            }
+            BasicBlock thenBB = self.parseBBRef();
+            WaitAll waitAll = {pos:pos, kind:kind, keys:keys, futures:futures, lhsOp:lhsOp, thenBB:thenBB};
+            return waitAll;
         } else if (kindTag == INS_FLUSH) {
             TerminatorKind kind = TERMINATOR_FLUSH;
             ChannelDetail[] channels = getWorkerChannels(self.reader);
@@ -493,6 +528,13 @@ public type FuncBodyParser object {
     }
 
     public function parseVarRef() returns VarRef {
+        boolean ignoreVariable = self.reader.readBoolean();
+        if (ignoreVariable) {
+            var bType = self.reader.readTypeCpRef();
+            VariableDcl decl = { kind: VAR_KIND_ARG, varScope: VAR_SCOPE_FUNCTION, name: { value: "_" } };
+            return { typeValue: bType, variableDcl: decl };
+        }
+
         VarKind kind = parseVarKind(self.reader);
         VarScope varScope = parseVarScope(self.reader);
         string varName = self.reader.readStringCpRef();
@@ -529,10 +571,6 @@ public type FuncBodyParser object {
             kind = BINARY_LESS_THAN;
         } else if (kindTag == INS_LESS_EQUAL){
             kind = BINARY_LESS_EQUAL;
-        } else if (kindTag == INS_AND){
-            kind = BINARY_AND;
-        } else if (kindTag == INS_OR){
-            kind = BINARY_OR;
         } else if (kindTag == INS_REF_EQUAL){
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){
@@ -541,6 +579,18 @@ public type FuncBodyParser object {
             kind = BINARY_CLOSED_RANGE;
         } else if (kindTag == INS_HALF_OPEN_RANGE) {
             kind = BINARY_HALF_OPEN_RANGE;
+        } else if (kindTag == INS_BITWISE_AND) {
+            kind = BINARY_BITWISE_AND;
+        } else if (kindTag == INS_BITWISE_OR) {
+            kind = BINARY_BITWISE_OR;
+        } else if (kindTag == INS_BITWISE_XOR) {
+            kind = BINARY_BITWISE_XOR;
+        } else if (kindTag == INS_BITWISE_LEFT_SHIFT) {
+            kind = BINARY_BITWISE_LEFT_SHIFT;
+        } else if (kindTag == INS_BITWISE_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_RIGHT_SHIFT;
+        } else if (kindTag == INS_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            kind = BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
@@ -595,9 +645,9 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
     }
 }
 
-public function parseVariableDcl(BirChannelReader reader, TypeParser typeParser) returns VariableDcl {
+public function parseVariableDcl(BirChannelReader reader) returns VariableDcl {
     VarKind kind = parseVarKind(reader);
-    var typeValue = typeParser.parseType();
+    var typeValue = reader.readTypeCpRef();
     var name = reader.readStringCpRef();
     VariableDcl dcl = {
         typeValue: typeValue,

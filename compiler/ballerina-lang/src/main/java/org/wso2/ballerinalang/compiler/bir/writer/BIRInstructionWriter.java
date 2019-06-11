@@ -32,11 +32,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLProcIns;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TernaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
@@ -142,6 +143,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             expr.accept(this);
         }
         waitEntry.lhsOp.accept(this);
+        addCpAndWriteString(waitEntry.thenBB.id.value);
     }
 
     public void visit(BIRTerminator.Flush entry) {
@@ -179,6 +181,16 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.WaitAll waitAll) {
+        writePosition(waitAll.pos);
+        buf.writeByte((waitAll.kind.getValue()));
+        waitAll.lhsOp.accept(this);
+        buf.writeInt(waitAll.keys.size());
+        waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        waitAll.valueExprs.forEach(val -> val.accept(this));
+        addCpAndWriteString(waitAll.thenBB.id.value);
+    }
+
     // Non-terminating instructions
 
     public void visit(BIRNonTerminator.Move birMove) {
@@ -192,10 +204,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birCall.pos);
         buf.writeByte(birCall.kind.getValue());
         PackageID calleePkg = birCall.calleePkg;
-        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
-        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
-        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(calleePkg);
         buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
@@ -216,10 +225,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birAsyncCall.pos);
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
-        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
-        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
-        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(calleePkg);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
         buf.writeInt(birAsyncCall.args.size());
@@ -271,14 +277,18 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         writePosition(birConstantLoad.pos);
         buf.writeByte(birConstantLoad.kind.getValue());
-        typeWriter.visitType(birConstantLoad.type);
+        writeType(birConstantLoad.type);
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
+                break;
+            case TypeTags.BYTE:
+                // TODO: birConstantLoad.value should return an Integer. This is a temporary fix
+                int byteValue = ((Number) birConstantLoad.value).intValue();
+                buf.writeInt(cp.addCPEntry(new ByteCPEntry(byteValue)));
                 break;
             case TypeTags.BOOLEAN:
                 // Not adding to constant pool as it increases the size (bit vs integer)
@@ -303,21 +313,34 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewStructure birNewStructure) {
         writePosition(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
-        typeWriter.visitType(birNewStructure.type);
+        writeType(birNewStructure.type);
+        buf.writeBoolean(birNewStructure.isExternalDef);
+        if (birNewStructure.isExternalDef) {
+            assert birNewStructure.externalPackageId != null;
+            buf.writeInt(addPkgCPEntry(birNewStructure.externalPackageId));
+            buf.writeInt(addStringCPEntry(birNewStructure.recordName));
+        }
         birNewStructure.lhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         writePosition(newInstance.pos);
         buf.writeByte(newInstance.kind.getValue());
-        buf.writeInt(newInstance.def.index);
+        buf.writeBoolean(newInstance.isExternalDef);
+        if (newInstance.isExternalDef) {
+            assert newInstance.externalPackageId != null;
+            buf.writeInt(addPkgCPEntry(newInstance.externalPackageId));
+            buf.writeInt(addStringCPEntry(newInstance.objectName));
+        } else {
+            buf.writeInt(newInstance.def.index);
+        }
         newInstance.lhsOp.accept(this);
     }
 
     public void visit(NewArray birNewArray) {
         writePosition(birNewArray.pos);
         buf.writeByte(birNewArray.kind.getValue());
-        typeWriter.visitType(birNewArray.type);
+        writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);
     }
@@ -325,6 +348,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
+        if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
+            buf.writeBoolean(birFieldAccess.except);
+        }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
         birFieldAccess.rhsOp.accept(this);
@@ -338,9 +364,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        buf.writeByte(birIsLike.kind.getValue());
         writePosition(birIsLike.pos);
-        typeWriter.visitType(birIsLike.type);
+        buf.writeByte(birIsLike.kind.getValue());
+        writeType(birIsLike.type);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
@@ -348,7 +374,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
         writePosition(birTypeTest.pos);
         buf.writeByte(birTypeTest.kind.getValue());
-        typeWriter.visitType(birTypeTest.type);
+        writeType(birTypeTest.type);
         birTypeTest.lhsOp.accept(this);
         birTypeTest.rhsOp.accept(this);
     }
@@ -356,7 +382,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewTable newTable) {
         writePosition(newTable.pos);
         buf.writeByte(newTable.kind.getValue());
-        typeWriter.visitType(newTable.type);
+        writeType(newTable.type);
         newTable.lhsOp.accept(this);
         newTable.columnsOp.accept(this);
         newTable.dataOp.accept(this);
@@ -367,22 +393,29 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewStream newStream) {
         writePosition(newStream.pos);
         buf.writeByte(newStream.kind.getValue());
-        typeWriter.visitType(newStream.type);
+        writeType(newStream.type);
         newStream.lhsOp.accept(this);
         newStream.nameOp.accept(this);
     }
 
     // Operands
     public void visit(BIROperand birOperand) {
-        buf.writeByte(birOperand.variableDcl.kind.getValue());
-        buf.writeByte(birOperand.variableDcl.scope.getValue());
-        // TODO use the integer index of the variable.
-        addCpAndWriteString(birOperand.variableDcl.name.value);
+        if (birOperand.variableDcl.ignoreVariable) {
+            buf.writeBoolean(true);
+            writeType(birOperand.variableDcl.type);
+        } else {
+            buf.writeBoolean(false);
+            buf.writeByte(birOperand.variableDcl.kind.getValue());
+            buf.writeByte(birOperand.variableDcl.scope.getValue());
+            // TODO use the integer index of the variable.
+            addCpAndWriteString(birOperand.variableDcl.name.value);
+        }
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
         writePosition(birNewError.pos);
         buf.writeByte(birNewError.kind.getValue());
+        writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);
@@ -394,10 +427,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         fpLoad.lhsOp.accept(this);
 
         PackageID pkgId = fpLoad.pkgId;
-        int orgCPIndex = addStringCPEntry(pkgId.orgName.value);
-        int nameCPIndex = addStringCPEntry(pkgId.name.value);
-        int versionCPIndex = addStringCPEntry(pkgId.version.value);
-        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = addPkgCPEntry(pkgId);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
 
@@ -409,7 +439,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(fpLoad.params.size());
         fpLoad.params.forEach(param -> {
             buf.writeByte(param.kind.getValue());
-            typeWriter.visitType(param.type);
+            writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
 
@@ -487,17 +517,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(newTypeDesc.pos);
         buf.writeByte(newTypeDesc.kind.getValue());
         newTypeDesc.lhsOp.accept(this);
-        typeWriter.visitType(newTypeDesc.type);
-    }
-
-    @Override
-    public void visit(TernaryOp ternaryOp) {
-        writePosition(ternaryOp.pos);
-        buf.writeByte(ternaryOp.kind.getValue());
-        ternaryOp.lhsOp.accept(this);
-        ternaryOp.conditionOp.accept(this);
-        ternaryOp.thenOp.accept(this);
-        ternaryOp.elseOp.accept(this);
+        writeType(newTypeDesc.type);
     }
 
     // Positions
@@ -529,7 +549,18 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(string));
     }
 
+    private int addPkgCPEntry(PackageID packageID) {
+        int orgCPIndex = addStringCPEntry(packageID.orgName.value);
+        int nameCPIndex = addStringCPEntry(packageID.name.value);
+        int versionCPIndex = addStringCPEntry(packageID.version.value);
+        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+    }
+
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new CPEntry.StringCPEntry(value));
+    }
+
+    private void writeType(BType type) {
+        buf.writeInt(cp.addShapeCPEntry(type));
     }
 }

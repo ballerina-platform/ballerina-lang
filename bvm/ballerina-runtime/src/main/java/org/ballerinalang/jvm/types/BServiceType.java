@@ -23,7 +23,7 @@ package org.ballerinalang.jvm.types;
  */
 public class BServiceType extends BType {
 
-    public BServiceType(String typeName, String pkgPath) {
+    public BServiceType(String typeName, BPackage pkgPath) {
         super(typeName, pkgPath, BServiceType.class);
     }
 

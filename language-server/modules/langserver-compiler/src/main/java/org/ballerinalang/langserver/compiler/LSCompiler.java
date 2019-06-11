@@ -218,11 +218,14 @@ public class LSCompiler {
         PackageID pkgID;
         String relativeFilePath;
 
+        // If the source file does not exist inside a ballerina module.
         if (pkgName.isEmpty()) {
             Path fileNamePath = sourceDoc.getPath().getFileName();
             relativeFilePath = fileNamePath == null ? "" : fileNamePath.toString();
             pkgID = new PackageID(relativeFilePath);
             pkgName = relativeFilePath;
+            // No need to compile the full project for a file which is not inside a module.
+            compileFullProject = false;
         } else {
             relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
                     .toString();
@@ -234,7 +237,7 @@ public class LSCompiler {
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining(".")));
-        if (sourceDoc.hasProjectRepo() && compileFullProject && !sourceRoot.isEmpty()) {
+        if (compileFullProject && !sourceRoot.isEmpty() && sourceDoc.hasProjectRepo()) {
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
             List<BLangPackage> projectPackages = compiler.compilePackages(false);
             packages.addAll(projectPackages);
@@ -253,27 +256,6 @@ public class LSCompiler {
         }
         return packages;
     }
-
-//    private BallerinaFile compileModule(String moduleName, LSContext context,
-//                                        CompilerContext compilerContext, String relativeFilePath,
-//                                        Class<? extends ANTLRErrorStrategy> errStrategy, String sourceRoot,
-//                                        String uri) {
-//        DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
-//        List<Diagnostic> diagnostics = new ArrayList<>();
-//        if (diagnosticListener instanceof CollectDiagnosticListener) {
-//            diagnostics = ((CollectDiagnosticListener) diagnosticListener).getDiagnostics();
-//        }
-//        Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
-//                                                       errStrategy);
-//        // Check for compilerCache, If exists; return cached BallerinaFile.
-//        boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, uri));
-//        try {
-//            BLangPackage bLangPackage = compiler.compile(moduleName);
-//            return new BallerinaFile(bLangPackage, diagnostics, isProjectDir, compilerContext);
-//        } catch (RuntimeException e) {
-//            return new BallerinaFile(null, diagnostics, isProjectDir, compilerContext);
-//        }
-//    }
 
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));

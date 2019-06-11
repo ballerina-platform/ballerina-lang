@@ -18,10 +18,20 @@ import ballerina/artemis;
 import ballerina/io;
 
 public function testSimpleTransactionSend() {
-    artemis:Producer prod = new({host:"localhost", port:61616}, "example");
+    artemis:Producer prod = new({host: "localhost", port: 61616}, "example");
     send(prod);
     transaction {
         send(prod);
+    }
+}
+
+public function testErringSend() {
+    artemis:Producer prod = new({host: "localhost", port: 61616}, "example3");
+    send(prod);
+    transaction {
+        send(prod);
+        error err = error("Failed during send");
+        panic err;
     }
 }
 
@@ -29,15 +39,15 @@ public function testTransactionSend() {
     artemis:Connection con = new("tcp://localhost:61616");
     artemis:Session session = new(con);
     artemis:Producer prod = new(session, "example2");
-    send(prod);
     transaction {
+        send(prod);
         send(prod);
     }
 }
 
 function send(artemis:Producer prod) {
     var err = prod->send("Example ");
-    if(err is error) {
+    if (err is error) {
         io:println("Error occurred sending message");
     }
 }

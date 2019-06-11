@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
@@ -55,7 +56,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         }
 
         completionItems.addAll(addTopLevelItems(ctx));
-        completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+        completionItems.addAll(getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
 
         ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;
@@ -78,7 +79,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         if (serviceToken.isPresent()) {
             return Optional.ofNullable(this.getProvider(BallerinaParser.ServiceDefinitionContext.class));
         }
-        Optional<String> subRule = this.getSubrule(lhsTokens);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 

@@ -53,6 +53,7 @@ public class ExchangeDelete extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         String exchangeName = context.getStringArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,

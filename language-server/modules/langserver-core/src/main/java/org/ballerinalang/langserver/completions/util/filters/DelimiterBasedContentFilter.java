@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.util.filters;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -63,30 +64,32 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         List<CommonToken> defaultTokens = lhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
-        String delimiter = CommonUtil.getLastItem(defaultTokens).getText();
-        String symbolToken = defaultTokens.get(defaultTokens.size() - 2).getText();
+        List<Integer> defaultTokenTypes = defaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        int delimiter = getDelimiterTokenType(defaultTokens);
+        String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText();
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-        boolean isWorkerReceive = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter);
-        boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
+        boolean isWorkerReceive = BallerinaParser.LARROW == delimiter;
+        boolean isActionInvocation = BallerinaParser.RARROW == delimiter
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
-        boolean isWorkerSend = !isActionInvocation && UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter);
+        boolean isWorkerSend = !isActionInvocation && BallerinaParser.RARROW == delimiter;
 
-        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter) || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
-                || isActionInvocation) {
-            returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
-                    visibleSymbols));
+        if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || isActionInvocation) {
+            returnSymbolsInfoList.addAll(FilterUtils.filterVariableEntriesOnDelimiter(ctx, symbolToken, delimiter,
+                    defaultTokens, defaultTokenTypes.lastIndexOf(delimiter)));
         } else if (isWorkerSend || isWorkerReceive) {
             List<SymbolInfo> filteredList = visibleSymbols.stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BFutureType
                     && ((BFutureType) symbolInfo.getScopeEntry().symbol.type).workerDerivative)
                     .collect(Collectors.toList());
             returnSymbolsInfoList.addAll(filteredList);
-        } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
+        } else if (BallerinaParser.COLON == delimiter) {
             // We are filtering the package functions, actions and the types
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList = this.getActionsFunctionsAndTypes(ctx,
-                    symbolToken, delimiter);
+                    symbolToken, delimiter, defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
             if (filteredList.isLeft()) {
                 return Either.forLeft(filteredList.getLeft());
             }
@@ -104,7 +107,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
-            LSContext context, String pkgName, String delimiter) {
+            LSContext context, String pkgName, int delimiter, List<CommonToken> defaultTokens, int delimIndex) {
 
         LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
         // Extract the package symbol
@@ -137,7 +140,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             
             if (result.isEmpty()) {
                 // There is no package entry found in the index.
-                return this.filterSymbolsOnFallback(context, pkgName, delimiter);
+                return this.filterSymbolsOnFallback(context, pkgName, delimiter, defaultTokens, delimIndex);
             } else {
                 // Package entry found in the index. content is searched LSIndex.
                 HashMap<Integer, ArrayList<CompletionItem>> completionMap = new HashMap<>();
@@ -188,15 +191,30 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             }
         } catch (LSIndexException e) {
             logger.warn("Error retrieving Completion Items from Index DB.");
-            return this.filterSymbolsOnFallback(context, pkgName, delimiter);
+            return this.filterSymbolsOnFallback(context, pkgName, delimiter, defaultTokens, delimIndex);
         }
     }
     
     private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSContext context,
-                                                                                   String pkgName, String delimiter) {
-        List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        List<SymbolInfo> filteredSymbols = FilterUtils.getInvocationAndFieldSymbolsOnVar(context, pkgName,
-                delimiter, visibleSymbols);
+                                                                                   String pkgName, int delimiter,
+                                                                                   List<CommonToken> defaultTokens,
+                                                                                   int delimIndex) {
+        List<SymbolInfo> filteredSymbols = FilterUtils.filterVariableEntriesOnDelimiter(context, pkgName, delimiter,
+                defaultTokens, delimIndex);
         return Either.forRight(filteredSymbols);
+    }
+
+    private int getDelimiterTokenType(List<CommonToken> defaultTokens) {
+        for (int i = defaultTokens.size() - 1; i >= 0; i--) {
+            CommonToken commonToken = defaultTokens.get(i);
+            int tokenType = commonToken.getType();
+            if (tokenType == BallerinaParser.DOT || tokenType == BallerinaParser.RARROW
+                    || tokenType == BallerinaParser.LARROW || tokenType == BallerinaParser.COLON
+                    || tokenType == BallerinaParser.NOT) {
+                return tokenType;
+            }
+        }
+
+        return -1;
     }
 }

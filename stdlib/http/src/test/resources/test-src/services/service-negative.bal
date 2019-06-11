@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-listener http:MockListener echoEP = new(9090);
+listener http:MockListener echoEP = new(9091);
 
 service FooService on echoEP {
 
@@ -30,13 +30,13 @@ service FooService on echoEP {
     }
 
     function test5 (string dummyParam) {
-        worker w1 {
-            var a = "a";
-            a -> w2;
-        }
-        worker w2 {
-            var b = "b";
-            b -> w1;
-        }
+        //worker w1 {
+        //    var a = "a";
+        //    a -> w2;
+        //}
+        //worker w2 {
+        //    var b = "b";
+        //    b -> w1;
+        //}
     }
 }

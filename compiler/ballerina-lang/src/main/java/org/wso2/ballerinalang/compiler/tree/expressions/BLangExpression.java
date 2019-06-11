@@ -52,4 +52,6 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public boolean typeChecked;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
+
+    public boolean ignoreExpression;
 }

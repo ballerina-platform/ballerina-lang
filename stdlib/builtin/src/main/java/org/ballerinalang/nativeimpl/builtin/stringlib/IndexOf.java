@@ -52,6 +52,7 @@ public class IndexOf extends BlockingNativeCallableUnit {
     }
 
     public static long indexOf(Strand strand, String value, String subString) {
+        StringUtils.checkForNull(value, subString);
         return value.indexOf(subString);
     }
 }

@@ -20,6 +20,9 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -79,6 +82,26 @@ public class Delete extends BlockingNativeCallableUnit {
             log.error(msg, ex);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
+    }
+
+    public static Object delete(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        try {
+            Files.walk(path)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            if (Files.exists(path)) {
+                String msg = "File/Directory could not be properly deleted: " + path;
+                log.error(msg);
+                return BallerinaErrors.createError(msg);
+            }
+        } catch (IOException ex) {
+            String msg = "IO error occurred while deleting file/directory: " + path;
+            log.error(msg, ex);
+            return BallerinaErrors.createError(msg);
+        }
+        return null;
     }
     
 }

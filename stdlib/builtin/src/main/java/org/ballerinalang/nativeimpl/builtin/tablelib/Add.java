@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
@@ -57,12 +58,11 @@ public class Add extends BlockingNativeCallableUnit {
         }
     }
 
-    public static void add(Strand strand, TableValue table, MapValueImpl<?, ?> data) {
+    public static Object add(Strand strand, TableValue table, Object data) {
         try {
-            table.performAddOperation((MapValueImpl<String, Object>) data);
-        } catch (BLangFreezeException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(e.getMessage(),
-                    "Failed to add data to the table: " + e.getDetail());
+            return table.performAddOperation((MapValueImpl<String, Object>) data);
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }
     }
 }

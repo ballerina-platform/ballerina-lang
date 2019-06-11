@@ -20,6 +20,11 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -78,5 +83,35 @@ public class GetXml extends AbstractGetPayloadHandler {
             createErrorAndNotify(context, callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
+    }
+
+    public static Object getXml(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        XMLValue result = null;
+        try {
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                if (dataSource instanceof XMLValue) {
+                    result = (XMLValue) dataSource;
+                } else {
+                    // Build the XML from string representation of the payload.
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = XMLFactory.parse(payload);
+                }
+                return result;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructXmlDataSource(entityObj);
+                updateDataSource(entityObj, result);
+            } else {
+                callback = new NonBlockingCallback(strand);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
+            }
+        } catch (Exception ex) {
+            return createErrorAndNotify(callback,
+                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
+        }
+        return result;
     }
 }

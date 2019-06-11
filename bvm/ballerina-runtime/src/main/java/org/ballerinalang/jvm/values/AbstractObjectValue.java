@@ -61,6 +61,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
+    public HashMap<String, Object> getNativeData() {
+        return nativeData;
+    }
+
+    @Override
     public long getIntValue(String fieldName) {
         return (long) get(fieldName);
     }

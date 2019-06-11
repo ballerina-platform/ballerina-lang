@@ -163,8 +163,9 @@ public class NotSoBasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue((((BInteger) vals[0]).intValue() == 10) || ((BInteger) vals[0]).intValue() == 5);
-        int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
-        Assert.assertTrue((result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 5) ||
-                (result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 10));
+        // Not applicable for jBallerina
+//        int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
+//        Assert.assertTrue((result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 5) ||
+//                (result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 10));
     }
 }

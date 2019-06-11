@@ -45,13 +45,13 @@ function simpleValueConvert(typedesc convertType, any value) returns anydata|err
 #
 # + value - Value to be frozen
 # + return - Frozen value
-function freeze(anydata value) returns anydata|error = external;
+function freeze(any|error value) returns anydata|error = external;
 
 # Check freeze status of given value.
 #
 # + value - Value to check freeze status
 # + return - True for a frozen value
-function isFrozen(anydata value) returns boolean = external;
+function isFrozen(any|error value) returns boolean = external;
 
 # Get the reason phrase of an error value.
 #

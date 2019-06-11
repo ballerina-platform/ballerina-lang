@@ -18,10 +18,8 @@
 
 package org.ballerinalang.jvm.streams;
 
-import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
-
-import java.util.function.Consumer;
 
 /**
  * The {@link DefaultStreamSubscription} represents a stream subscription in Ballerina.
@@ -31,17 +29,18 @@ import java.util.function.Consumer;
 public class DefaultStreamSubscription extends StreamSubscription {
 
     private StreamValue stream;
-    private Consumer functionPointer;
+    private FPValue<Object[], Object> functionPointer;
 
-    DefaultStreamSubscription(StreamValue stream, Consumer functionPointer,
+    DefaultStreamSubscription(StreamValue stream, FPValue<Object[], Object> functionPointer,
                               StreamSubscriptionManager streamSubscriptionManager) {
         super(streamSubscriptionManager);
         this.stream = stream;
         this.functionPointer = functionPointer;
     }
 
-    public void execute(RefValue value) {
-        functionPointer.accept(value);
+    public void execute(Object[] fpParams) {
+        //Cannot use scheduler, as the order of events should be preserved
+        functionPointer.accept(fpParams);
     }
 
     public StreamValue getStream() {

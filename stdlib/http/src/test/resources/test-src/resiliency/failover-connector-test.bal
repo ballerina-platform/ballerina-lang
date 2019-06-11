@@ -129,7 +129,9 @@ public type MockClient client object {
         return httpConnectorError;
     }
 
-    public remote function get(string path, http:Request req) returns http:Response|error {
+    public remote function get(string path,
+                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
+                                                                                        returns http:Response|error {
         http:Response response = new;
         var result = handleFailoverScenario(counter);
         if (result is http:Response) {

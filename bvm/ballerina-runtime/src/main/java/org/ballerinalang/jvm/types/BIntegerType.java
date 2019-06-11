@@ -30,8 +30,8 @@ class BIntegerType extends BType {
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Integer.class);
+    BIntegerType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Integer.class);
     }
 
     @Override

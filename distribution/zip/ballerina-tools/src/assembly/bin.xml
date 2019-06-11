@@ -74,6 +74,12 @@
             </directory>
             <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/composer-library-zip/composer-library-${project.version}
+            </directory>
+            <outputDirectory>lib/tools/composer-library/</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
