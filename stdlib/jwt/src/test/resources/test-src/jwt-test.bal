@@ -20,7 +20,7 @@ import ballerina/time;
 
 function testIssueJwt(string keyStorePath) returns (string)|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtIssuerConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -42,7 +42,7 @@ function testIssueJwt(string keyStorePath) returns (string)|error {
 
 function testIssueJwtWithSingleAud(string keyStorePath) returns (string)|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtIssuerConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -64,7 +64,7 @@ function testIssueJwtWithSingleAud(string keyStorePath) returns (string)|error {
 
 function testIssueJwtWithSingleAudAndAudAsArray(string keyStorePath) returns (string)|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtIssuerConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina",
@@ -87,7 +87,7 @@ function testIssueJwtWithSingleAudAndAudAsArray(string keyStorePath) returns (st
 
 function testValidateJwt(string jwtToken, string trustStorePath) returns boolean|error {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
-    jwt:JWTValidatorConfig config = {
+    jwt:JwtValidatorConfig config = {
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: ["ballerinaSamples"],
@@ -105,7 +105,7 @@ function testValidateJwt(string jwtToken, string trustStorePath) returns boolean
 
 function testIssueJwtWithNoIssOrSub(string keyStorePath) returns (string)|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtIssuerConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -125,7 +125,7 @@ function testIssueJwtWithNoIssOrSub(string keyStorePath) returns (string)|error 
 
 function testIssueJwtWithNoAudOrSub(string keyStorePath) returns (string)|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig config = {
+    jwt:JwtIssuerConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -146,7 +146,7 @@ function testIssueJwtWithNoAudOrSub(string keyStorePath) returns (string)|error 
 
 function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns boolean|error {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
-    jwt:JWTValidatorConfig config = {
+    jwt:JwtValidatorConfig config = {
         certificateAlias: "ballerina",
         audience: ["ballerinaSamples"],
         clockSkew: 60,

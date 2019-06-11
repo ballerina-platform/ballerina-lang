@@ -17,33 +17,33 @@
 import ballerina/crypto;
 import ballerina/jwt;
 
-function testJwtAuthenticatorCreationWithCache(string trustStorePath) returns (jwt:JWTAuthProvider) {
+function testJwtAuthenticatorCreationWithCache(string trustStorePath) returns (jwt:InboundJwtAuthProvider) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
-    jwt:JWTAuthProviderConfig jwtConfig = {
+    jwt:InboundJwtAuthProviderConfig jwtConfig = {
         issuer: "wso2",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
-    jwt:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
+    jwt:InboundJwtAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }
 
 function testAuthenticationSuccess(string jwtToken, string trustStorePath) returns (boolean|error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
-    jwt:JWTAuthProviderConfig jwtConfig = {
+    jwt:InboundJwtAuthProviderConfig jwtConfig = {
         issuer: "wso2",
         audience: ["ballerina"],
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
-    jwt:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
+    jwt:InboundJwtAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider.authenticate(jwtToken);
 }
 
 function generateJwt(jwt:JwtHeader header, jwt:JwtPayload payload, string keyStorePath) returns string|error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JWTIssuerConfig issuerConfig = {
+    jwt:JwtIssuerConfig issuerConfig = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -51,6 +51,6 @@ function generateJwt(jwt:JwtHeader header, jwt:JwtPayload payload, string keySto
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, jwt:JWTValidatorConfig config) returns jwt:JwtPayload|error {
+function verifyJwt(string jwt, jwt:JwtValidatorConfig config) returns jwt:JwtPayload|error {
     return jwt:validateJwt(jwt, config);
 }
