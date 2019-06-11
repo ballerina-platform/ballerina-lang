@@ -484,6 +484,12 @@ public class BRunUtil {
                 String objName = type.tsymbol.getName().getValue();
 
                 ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackagePath, objName);
+                BMap<String, BValue> objVal = (BMap) value;
+                for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
+                    BValue entryVal = entry.getValue();
+                    Object jvmVal = entryVal == null ? null : getJVMValue(entryVal.getType(), entryVal);
+                    jvmObject.set(entry.getKey(), jvmVal);
+                }
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;
