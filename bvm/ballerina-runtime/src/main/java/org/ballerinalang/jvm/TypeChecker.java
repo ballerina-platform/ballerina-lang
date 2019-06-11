@@ -618,9 +618,9 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage().name).orElse(""),
-                            Optional.ofNullable(rhsField.type.getPackage().name).orElse(""),
-                            lhsField.flags, rhsField.flags) ||
+                !isInSameVisibilityRegion(lhsField.type.getPackage() == null ? "" : lhsField.type.getPackage().name,
+                                          rhsField.type.getPackage() == null ? "" : rhsField.type.getPackage().name,
+                                          lhsField.flags, rhsField.flags) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
