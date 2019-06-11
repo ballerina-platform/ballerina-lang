@@ -16,7 +16,7 @@
 
 
 # Represents record separator of the CSV file.
-public const string CSV_RECORD_SEPERATOR = "\n";
+public const string CSV_RECORD_SEPARATOR = "\n";
 
 
 # Represents colon separator which should be used to identify colon separated files.
@@ -33,13 +33,13 @@ public type WritableCSVChannel object {
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
-    # + channel - ChracterChannel which will represent the content in the CSV
+    # + channel - The CharacterChannel, which will represent the content in the CSV file
     # + fs - Field separator which will separate between the records in the CSV
     public function __init(WritableCharacterChannel characterChannel, Separator fs = ",") {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }
