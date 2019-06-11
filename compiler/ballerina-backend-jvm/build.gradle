@@ -58,7 +58,7 @@ task copyBalx(type: Copy, dependsOn: createBalx) {
     into "$buildDir/generated-balx/"
 }
 
-task createCorrectFolderStructure(type: Copy, dependsOn: createBalx) {
+task createCorrectFolderStructure(type: Copy, dependsOn: copyBalx) {
     configurations.baloOldImpl.each {
         from file("$buildDir/../src/main/ballerina/.ballerina/repo/ballerina/compiler_backend_jvm/compiler_backend_jvm.zip")
         into "$buildDir/generated-balo/repo/ballerina/compiler_backend_jvm/0.0.0"
@@ -72,7 +72,14 @@ task copyBaloToPack(type: Copy, dependsOn: createCorrectFolderStructure) {
     }
 }
 
-task copyNativesToPack(type: Copy, dependsOn: copyBaloToPack) {
+task copyBalxToPack(type: Copy, dependsOn: copyBaloToPack) {
+    configurations.baloOldImpl.each {
+        from file("$buildDir/generated-balx")
+        into it.path + '/bin'
+    }
+}
+
+task copyNativesToPack(type: Copy, dependsOn: copyBalxToPack) {
     configurations.baloOldImpl.each {
         from "$buildDir/libs/"
         into it.path + '/bre/lib'
@@ -89,5 +96,5 @@ jar {
 }
 
 artifacts.add('genBalo', file("$buildDir/generated-balo/")) {
-    builtBy('createCorrectFolderStructure')
+    builtBy('copyNativesToPack')
 }

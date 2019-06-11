@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -105,16 +106,35 @@ public class BuilderUtils {
         if (jvmTarget) {
             outStream.println();
             compiler.write(bLangPackage, targetPath);
-            String ballerinaHome = System.getenv(BALLERINA_HOME);
-            ProcessBuilder balProcess = new ProcessBuilder("ballerina", "run", "compiler_backend_jvm.balx",
-                    ballerinaHome, "test", sourceRootPath.resolve("target").toString(), "true");
+            Path ballerinaHome = Paths.get(System.getenv(BALLERINA_HOME));
+            // TODO: use .bat for windows.
+            String[] commands = {
+                    "sh",
+                    "ballerina",
+                    "run",
+                    "compiler_backend_jvm.balx",
+                    ballerinaHome.toString(),
+                    "test",
+                    Paths.get("").toAbsolutePath().resolve("target").toString(),
+                    "true"
+            };
+            ProcessBuilder balProcess = new ProcessBuilder(commands);
             balProcess.inheritIO();
-            balProcess.environment().put(BALLERINA_HOME, Paths.get(ballerinaHome, "build").toString());
-            balProcess.directory(sourceRootPath.getParent().resolve("build").resolve("bin").toFile());
+
+            balProcess.environment().put(BALLERINA_HOME, ballerinaHome.resolve("build").toString());
+            balProcess.environment().put("UPDATE_CLASSPATH", "true");
+//            balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
+            balProcess.directory(ballerinaHome.resolve("build").resolve("bin").toFile());
             try {
-                balProcess.start();
+                Process process = balProcess.start();
+                boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
+                if (!processEnded) {
+                    throw new BLangRuntimeException("failed to generate jar file.");
+                }
             } catch (IOException e) {
                 throw new BLangRuntimeException("could not start compiler_backend_jvm.balx", e);
+            } catch (InterruptedException e) {
+                // do nothing
             }
             return;
         }

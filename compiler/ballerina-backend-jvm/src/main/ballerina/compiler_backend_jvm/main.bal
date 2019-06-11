@@ -38,7 +38,7 @@ public function main(string... args) {
     string progName = args[1];
     string pathToEntryMod = args[2];
     boolean dumpBir = boolean.convert(args[2]);
-    writeJarFile(generateJarBinary(progName, birHome, pathToEntryMod, dumpBir), progName, birHome);
+    writeJarFile(generateJarBinary(progName, birHome, pathToEntryMod, dumpBir), progName, pathToEntryMod);
 }
 
 function generateJarBinary(string progName, string birHome, string pathToEntryMod, boolean dumpBir) returns JarFile {
@@ -86,9 +86,9 @@ function getBaloPathFromModuleId(string birHome, string moduleName, string modVe
     return pathToBalo;
 }
 
-function writeJarFile(JarFile jarFile, string fileName, string birHome) {
+function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
     io:println("Writing jar file for ", fileName);
-    writeExecutableJarToFile(jarFile, fileName, birHome);
+    writeExecutableJarToFile(jarFile, fileName, targetPath);
 }
 
-function writeExecutableJarToFile(JarFile jarFile, string fileName, string birHome) = external;
+function writeExecutableJarToFile(JarFile jarFile, string fileName, string targetPath) = external;

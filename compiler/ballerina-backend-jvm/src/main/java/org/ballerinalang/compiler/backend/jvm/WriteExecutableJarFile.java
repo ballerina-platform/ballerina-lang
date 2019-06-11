@@ -53,7 +53,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
         args = {
                 @Argument(name = "jarFile", type = RECORD),
                 @Argument(name = "fileName", type = STRING),
-                @Argument(name = "birHome", type = STRING),
+                @Argument(name = "targetPath", type = STRING),
         }
 )
 public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
@@ -66,11 +66,11 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
         BValue jarFile = context.getRefArgument(0);
         String fileName = context.getStringArgument(0);
-        String balHome = context.getStringArgument(1);
+        String targetPath = context.getStringArgument(1);
         Map<String, BValue> jarEntries = ((BMap<String, BValue>) jarFile).getMap();
         try {
             byte[] jarInBytes = getJarContent(jarEntries);
-            SourceDirectory sourceDirectory = new FileSystemProjectDirectory(Paths.get(balHome));
+            SourceDirectory sourceDirectory = new FileSystemProjectDirectory(Paths.get(targetPath).getParent());
             String jarFilename = cleanupExecFileName(fileName);
             sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(jarInBytes), jarFilename);
         } catch (IOException e) {
