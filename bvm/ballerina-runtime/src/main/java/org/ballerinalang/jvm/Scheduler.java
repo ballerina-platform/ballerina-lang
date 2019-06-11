@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,12 +65,12 @@ public class Scheduler {
      * Scheduler items that are blocked but the blocker is not known.
      * List key is the own strand.
      */
-    private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
+    private Map<Strand, SchedulerItem> blockedOnUnknownList = new ConcurrentHashMap<>();
 
     /**
      * Items that are due for unblock, but not yet actually in blocked list.
      */
-    private List<Strand> unblockedList = new ArrayList<>();
+    private volatile List<Strand> unblockedList = Collections.synchronizedList(new ArrayList<>());
 
     private static final boolean DEBUG = false;
 
