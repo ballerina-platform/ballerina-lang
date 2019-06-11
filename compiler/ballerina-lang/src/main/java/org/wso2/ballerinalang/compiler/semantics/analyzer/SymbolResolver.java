@@ -200,10 +200,8 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
-        // It is allowed to have a constructor symbol with the same name as a type def.
-        // todo: if symbol is ctor then other must be type symbol, check and rewrite below line.
-        if (symbol.tag == SymTag.ERROR_CONSTRUCTOR && foundSym.tag != SymTag.ERROR_CONSTRUCTOR
-        || symbol.tag != SymTag.ERROR_CONSTRUCTOR && foundSym.tag == SymTag.ERROR_CONSTRUCTOR) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.ERROR_CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
             return true;
         }
 

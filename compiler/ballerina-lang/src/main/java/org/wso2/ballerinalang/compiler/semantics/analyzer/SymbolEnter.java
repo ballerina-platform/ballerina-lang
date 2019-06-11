@@ -602,11 +602,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
-        // constructors are only defined for named types.
-        defineConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            // constructors are only defined for named types.
+            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
     }
 
-    private void defineConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+    private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.ERROR_CONSTRUCTOR,
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.CONSTRUCTOR;
