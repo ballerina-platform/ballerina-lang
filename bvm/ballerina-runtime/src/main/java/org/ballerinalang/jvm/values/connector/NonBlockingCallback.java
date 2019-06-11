@@ -31,7 +31,6 @@ public class NonBlockingCallback {
 
     private static final Logger log = LoggerFactory.getLogger(NonBlockingCallback.class);
     private final Strand strand;
-    private Object returnValue = null;
 
     public NonBlockingCallback(Strand strand) {
         strand.yield = true;
@@ -41,22 +40,18 @@ public class NonBlockingCallback {
     }
 
     public void notifySuccess() {
+        log.debug("Notify success");
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void notifyFailure(ErrorValue error) {
-        this.returnValue = error;
-        strand.setReturnValues(getReturnValue());
+        log.debug("Notify error");
+        strand.setReturnValues(error);
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void setReturnValues(Object returnValue) {
-        this.returnValue = returnValue;
-        //TODO : Replace following with callback.setReturnValues() once strand non-blocking support is given
+        log.debug("Populate return values");
         strand.setReturnValues(returnValue);
-    }
-
-    public Object getReturnValue() {
-        return returnValue;
     }
 }

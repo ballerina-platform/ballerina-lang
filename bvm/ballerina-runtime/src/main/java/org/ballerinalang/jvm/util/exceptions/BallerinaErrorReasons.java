@@ -57,5 +57,5 @@ public class BallerinaErrorReasons {
 
     public static final String STACK_OVERFLOW_ERROR = BALLERINA_PREFIX.concat("StackOverflow");
 
-    public static final String FUTURE_CANCELLED = BALLERINA_PREFIX.concat("future is already cancelled");
+    public static final String FUTURE_CANCELLED = "future is already cancelled";
 }

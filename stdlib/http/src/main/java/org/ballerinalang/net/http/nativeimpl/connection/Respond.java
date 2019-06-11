@@ -127,7 +127,7 @@ public class Respond extends ConnectionAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
