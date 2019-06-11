@@ -51,20 +51,21 @@ public class BLangExceptionHelper {
      * @param reason The reason to set as error reason
      * @param operation Operation that executed
      * @param e Throwable to handle
+     * @return 
      */
-    public static void handleJsonException(String reason, String operation, Throwable e) {
+    public static ErrorValue getJsonError(String reason, String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw BallerinaErrors.createError(reason,
-                                  "Failed to " + operation + ": " + ((BallerinaException) e).getDetail());
+            return BallerinaErrors.createError(reason,
+                    "failed to " + operation + ": " + ((BallerinaException) e).getDetail());
         } else if (e instanceof BLangFreezeException) {
-            throw BallerinaErrors.createError(reason,
-                    "Failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
+            return BallerinaErrors.createError(reason,
+                    "failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
         } else if (e.getCause() != null) {
-            throw BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
+            return BallerinaErrors.createError(reason, "failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getMessage());
+            return BallerinaErrors.createError(reason, "failed to " + operation + ": " + e.getMessage());
         }
     }
 

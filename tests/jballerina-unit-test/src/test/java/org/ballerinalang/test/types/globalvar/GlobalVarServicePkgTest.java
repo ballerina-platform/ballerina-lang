@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -45,7 +45,7 @@ public class GlobalVarServicePkgTest {
 
     @BeforeClass
     public void setup() {
-        result = BServiceUtil.setupProgramFile(this, "test-src/statements/variabledef/", PKG_NAME);
+        result = BCompileUtil.compile("test-src/statements/variabledef/", PKG_NAME);
     }
 
     @Test(description = "Test accessing global variables in other packages")

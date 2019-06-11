@@ -97,10 +97,8 @@ public class ToXML extends BlockingNativeCallableUnit {
             String arrayEntryTag = options.get(XML_OPTIONS_ARRAY_ENTRY_TAG).toString();
             return org.ballerinalang.jvm.JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+            return BLangExceptionHelper.getJsonError(BallerinaErrorReasons.JSON_OPERATION_ERROR, "convert json to xml",
                     e);
         }
-
-        return null;
     }
 }
