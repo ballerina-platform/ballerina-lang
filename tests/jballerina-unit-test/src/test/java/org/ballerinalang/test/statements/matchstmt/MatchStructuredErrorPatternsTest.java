@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -140,6 +141,25 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         Assert.assertEquals(results.getString(++i), "reason = Error One, message = msgOne, fatal = true");
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
+    }
+
+    @Test(description = "TestMatchingErrorRestParameter")
+    public void testErrorRestParameterMatch() {
+        BInteger[] args0 = { new BInteger(0) };
+        BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
+        Assert.assertEquals(returns0[0].stringValue(), "Msg of error-0");
+
+        BInteger[] args1 = { new BInteger(1) };
+        BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
+        Assert.assertEquals(returns1[0].stringValue(), "(\"x\", 1)");
+
+        BInteger[] args2 = { new BInteger(2) };
+        BValue[] returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);
+        Assert.assertEquals(returns2[0].stringValue(), "x");
+
+        BInteger[] args3 = { new BInteger(3) };
+        BValue[] returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
+        Assert.assertEquals(returns3[0].stringValue(), "Error Code{\"foo\":\"foo\"}");
     }
 
     @Test(description = "Test pattern will not be matched 2")

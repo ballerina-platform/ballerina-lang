@@ -2682,6 +2682,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
+        if (iExpr.argExprs.isEmpty()) {
+            return false;
+        }
+
         BLangExpression firstErrorArg = iExpr.argExprs.get(0);
         // if present, error reason should be the first and only positional argument to error constructor.
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {

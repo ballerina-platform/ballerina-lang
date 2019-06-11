@@ -253,4 +253,22 @@ public class ErrorTest {
                 { "testErrorConstrWithConstLiteralForConstReason" }
         };
     }
+
+    @Test()
+    public void errorReasonInferenceTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonInference");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
+                "{\"arg1\":\"arg1-1\", \"arg2\":\"arg2-2\"}");
+    }
+
+    @Test()
+    public void errorReasonSubtypeTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonSubType");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[1]).getReason(), "ErrorNo-2");
+        Assert.assertEquals(((BError) returns[2]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[3]).getReason(), "ErrorNo-2");
+    }
 }

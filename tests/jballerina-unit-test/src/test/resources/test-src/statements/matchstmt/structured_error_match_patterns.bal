@@ -38,23 +38,34 @@ function testBasicErrorMatch() returns string {
     return "Default";
 }
 
-function testErrorRestParamMatch() returns string {
-    map<string> m1 = { m: "bhah" };
-    var x1 = m1["m"];
-    //error <string, map<string>> err1 = error("Error Code", message = "Msg");
-    Message mes = { a: "Hello" };
-    //error<string, ReasonRecTup> err1 = error("Error Code", message = mes, x = ("x", 1));
-    //error<string, ReasonRec> err1 = error("Error Code", message = mes, x = "x");
-    error <string, map<string>> err1 = error("Error Code", message = "message", blah = "bb", foo = "foo");
+function testErrorRestParamMatch(int errorNo) returns string {
+    error err1 = selectError(errorNo);
     match err1 {
-        //var error(var reason, message = m) => return <string>m.a;
         var error(var reason, message = m) => return <string>m;
-        var error(var reason, message = m, x = x) => return <string>x;
+        var error(var reason, message = m, x = x) => return io:sprintf("%s", x);
         var error(var reason, message = m, blah = x) => return <string>x;
-        var error(var reason, message = m, blah = x, ...var rest) => return "Matched with error : " + reason + io:sprintf("%s", rest);
-        //var error(_, ...var rest) => return "Matched with error : {{ " + io:sprintf("%s", rest);
+        var error(var reason, message = m, blah = x, ...var rest) => return reason + io:sprintf("%s", rest);
+        //var error(var _, ...var rest) => return "Matched with error : {{ " + io:sprintf("%s", rest);
     }
     return "Default";
+}
+
+function selectError(int errorNo) returns error {
+    map<string> m1 = { m: "bhah" };
+    var x1 = m1["m"];
+    error <string, map<string>> err0 = error("Error Code", message = "Msg of error-0");
+    Message mes = { a: "Hello" };
+    error<string, ReasonRecTup> err1 = error("Error Code", message = mes, x = ("x", 1));
+    error<string, ReasonRec> err2 = error("Error Code", message = mes, x = "x");
+    error <string, map<string>> err3 = error("Error Code", message = "message", blah = "bb", foo = "foo");
+
+    match (errorNo) {
+        0 => return err0;
+        1 => return err1;
+        2 => return err2;
+        3 => return err3;
+    }
+    return error("Just Error");
 }
 
 function testBasicErrorMatch2() returns string {
