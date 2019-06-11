@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
@@ -40,7 +40,7 @@ public class PanicStatementContextProvider extends LSCompletionProvider {
 
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-        List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> symbolInfoList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = symbolInfoList.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BErrorType)
                 .collect(Collectors.toList());

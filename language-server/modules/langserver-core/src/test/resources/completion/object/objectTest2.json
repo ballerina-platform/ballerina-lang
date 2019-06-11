@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 1,
+    "character": 19
+  },
+  "source": "object/source/objectTest2.bal",
+  "items": [
+    {
+      "label": "abstract",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "abstract ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

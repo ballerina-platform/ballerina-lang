@@ -40,6 +40,8 @@ public class ItemResolverConstants {
     public static final String LOCK = "lock";
     public static final String ON = "on";
     public static final String NEW = "new";
+    public static final String CLIENT = "client";
+    public static final String ABSTRACT = "abstract";
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
