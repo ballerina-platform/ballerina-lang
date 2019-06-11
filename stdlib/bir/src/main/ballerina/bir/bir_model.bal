@@ -59,6 +59,7 @@ public type Function record {|
     Visibility visibility = "PACKAGE_PRIVATE";
     ChannelDetail[] workerChannels;
     BType? receiverType;
+    boolean restParamExist;
 |};
 
 public type BasicBlock record {|
