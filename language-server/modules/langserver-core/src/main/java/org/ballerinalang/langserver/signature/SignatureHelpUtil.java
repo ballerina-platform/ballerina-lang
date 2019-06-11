@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -108,18 +109,17 @@ public class SignatureHelpUtil {
      * @return {@link SignatureHelp}    Signature help for the completion
      */
     public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext ctx) {
-        String delimiter = ctx.get(SignatureKeys.ITEM_DELIMITER);
+        int delimiter = ctx.get(SignatureKeys.ITEM_DELIMITER);
         String idAgainst = ctx.get(SignatureKeys.IDENTIFIER_AGAINST);
         String funcName = ctx.get(SignatureKeys.CALLABLE_ITEM_NAME);
-        List<SymbolInfo> visibleSymbols = ctx.get(SignatureKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> functions;
 
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         
-        if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
-            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols, false);
-        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY))) {
+        if (!idAgainst.isEmpty() && (BallerinaParser.DOT == delimiter || BallerinaParser.COLON == delimiter)) {
+            functions = FilterUtils.filterVariableEntriesOnDelimiter(ctx, idAgainst, delimiter, null, -1, false);
+        } else if (!idAgainst.isEmpty() && BallerinaParser.RARROW == delimiter) {
             functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {
             functions = visibleSymbols;
@@ -219,7 +219,7 @@ public class SignatureHelpUtil {
     private static void setItemInfo(String line, int startPosition, LSServiceOperationContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
-        StringBuilder delimiter = new StringBuilder();
+        int delimiter = -1;
         while (counter > 0) {
             char c = line.charAt(counter);
             if (!(Character.isLetterOrDigit(c)
@@ -227,18 +227,20 @@ public class SignatureHelpUtil {
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 if (">".equals(String.valueOf(c)) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
-                    delimiter.append(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY);
+                    delimiter = BallerinaParser.RARROW;
                     counter--;
-                } else {
-                    delimiter.append(c);
+                } else if (String.valueOf(c).equals(".")) {
+                    delimiter = BallerinaParser.DOT;
+                } else if (String.valueOf(c).equals(":")) {
+                    delimiter = BallerinaParser.COLON;
                 }
-                captureIdentifierAgainst(line, counter, signatureContext, delimiter.toString());
+                captureIdentifierAgainst(line, counter, signatureContext, delimiter);
                 break;
             }
             counter--;
         }
         signatureContext.put(SignatureKeys.CALLABLE_ITEM_NAME, callableItemName);
-        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter.toString());
+        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter);
     }
 
     /**
@@ -246,14 +248,14 @@ public class SignatureHelpUtil {
      * @param line              Current line being evaluated
      * @param startPosition     Evaluation start position
      * @param signatureContext  Signature help context
+     * @param delimiter Delimiter token type
      */
     private static void captureIdentifierAgainst(String line, int startPosition,
-                                                 LSServiceOperationContext signatureContext, String delimiter) {
+                                                 LSServiceOperationContext signatureContext, int delimiter) {
         int counter = startPosition;
         String identifier = "";
-        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
-                || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
-                || UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)) {
+        if (BallerinaParser.DOT == delimiter || BallerinaParser.COLON == delimiter
+                || BallerinaParser.RARROW == delimiter) {
             counter--;
             while (counter > 0) {
                 char c = line.charAt(counter);

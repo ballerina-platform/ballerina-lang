@@ -19,12 +19,12 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -54,10 +54,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * Create an empty xml sequence.
      */
     public XMLSequence() {
-        sequence = new ArrayValue();
+        sequence = new ArrayValue(new BArrayType(BTypes.typeXML), 0);
     }
 
-    /**
+    /**q
      * Initialize a {@link XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
      *
      * @param sequence xml object
@@ -277,7 +277,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).setChildren(seq);
@@ -295,7 +295,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).addChildren(seq);
@@ -326,7 +326,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
-            throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
+            throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
         }
 
         if (startIndex == -1) {
@@ -342,7 +342,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (startIndex > endIndex) {
-            throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
+            throw BallerinaErrors.createError("invalid indices: " + startIndex + " < " + endIndex);
         }
 
         int j = 0;
@@ -371,7 +371,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        return new XMLSequence(new ArrayValue(descendants.toArray(new XMLValue[descendants.size()]), BTypes.typeXML));
+        XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
+        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
     }
 
     // Methods from Datasource impl
@@ -443,7 +444,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         Object[] copiedVals = new Object[(int) sequence.size()];
-        refs.put(this, new XMLSequence(new ArrayValue(copiedVals, BTypes.typeXML)));
+        refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((XMLValue<?>) sequence.getRefValue(i)).copy(refs);
         }
@@ -455,7 +456,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> getItem(int index) {
-        return (XMLValue<?>) this.sequence.getRefValue(index);
+        try {
+            return (XMLValue<?>) this.sequence.getRefValue(index);
+        } catch (Exception e) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -465,8 +470,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public int size() {
         int size = 0;
         for (int i = 0; i < this.sequence.size; i++) {
-            RefValue refValue = (RefValue) sequence.getRefValue(i);
-            if ((refValue.getType().getTag() == TypeTags.XML_TAG)) {
+            Object refValue = sequence.getRefValue(i);
+            if (refValue instanceof XMLValue) {
                 XMLValue xmlItem = (XMLValue) refValue;
                 size += xmlItem.size();
             } else {
@@ -495,7 +500,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).removeAttribute(qname);
@@ -510,7 +515,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).removeChildren(qname);

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 
 /**
  * Completion Item Resolver for the Definition Context.
@@ -98,7 +99,7 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                 function x
             and exclude the 
              */
-            return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+            return context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                     .map(symbolInfo -> {
                         BSymbol symbol = symbolInfo.getScopeEntry().symbol;
@@ -114,7 +115,7 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
     private List<CompletionItem> getObjectAttachedFunctions(LSContext context, List<CommonToken> lhsDefaultTokens) {
         String objectName = lhsDefaultTokens.get(1).getText();
         List<CompletionItem> completionItems = new ArrayList<>();
-        Optional<BObjectTypeSymbol> filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+        Optional<BObjectTypeSymbol> filtered = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;

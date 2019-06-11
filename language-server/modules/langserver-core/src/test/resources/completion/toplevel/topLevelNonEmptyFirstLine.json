@@ -14,6 +14,13 @@
     },
     {
       "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",

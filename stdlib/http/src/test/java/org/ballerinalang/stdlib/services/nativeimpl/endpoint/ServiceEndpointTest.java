@@ -26,7 +26,6 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,14 +39,13 @@ import java.net.UnknownHostException;
  * Test cases for ballerina/http.ServiceEndpoint.
  */
 public class ServiceEndpointTest {
-    private CompileResult serviceResult;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
     private static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
+    private static final int SERVICE_EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
         String filePath = "test-src/services/nativeimpl/endpoint/service-endpoint-test.bal";
-        serviceResult = BCompileUtil.compile(filePath);
+        BCompileUtil.compile(filePath);
     }
 
     @Test(description = "Test the protocol value of ServiceEndpoint struct within a service")
@@ -55,7 +53,7 @@ public class ServiceEndpointTest {
         String protocolValue = "http";
         String path = "/hello/protocol";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(SERVICE_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 200);
@@ -72,7 +70,7 @@ public class ServiceEndpointTest {
         String expectedPort = "9090";
         String expectedMessage = "{\"local\":{\"host\":\"" + expectedHost + "\", \"port\":9090}}";
 
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(SERVICE_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals((int) response.getHttpStatusCode(), 200);

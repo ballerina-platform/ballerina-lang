@@ -55,7 +55,6 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -706,10 +705,10 @@ public class HttpUtil {
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = inboundResponseMsg.getHttpStatusCode();
-        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
-        inboundResponse
-                .set(RESPONSE_REASON_PHRASE_FIELD, new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
+        int statusCode = (Integer) inboundResponseMsg.getHttpStatusCode();
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,

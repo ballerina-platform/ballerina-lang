@@ -78,6 +78,14 @@
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectAttachedFunctionPointerTest" >
+                <methods>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer1"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer2"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer3"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer4"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.object.ObjectTest" >
                 <methods>
                     <!-- Fails due to link error at runtime -->
@@ -152,27 +160,9 @@
 
             <!--<class name="org.ballerinalang.test.worker.BasicForkTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.BasicWorkerTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForAnyActionsTest">-->
-                <!--<methods>-->
-                    <!--<exclude name="waitTest13"/>-->
-                    <!--<exclude name="waitTest23"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForAllActionsTest">-->
-                <!--<methods>-->
-                    <!--<exclude name="waitTest16"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerTest">-->
-                <!--<methods>-->
-                    <!--&lt;!&ndash;TODO:Fix trap and future.cancel()&ndash;&gt;-->
-                    <!--<exclude name="receiveWithTrap"/>-->
-                    <!--<exclude name="receiveWithCheckAndTrap"/>-->
-                    <!--<exclude name="receiveWithTrapForDefault"/>-->
-                    <!--<exclude name="receiveDefaultWithCheckAndTrap"/>-->
-                    <!--<exclude name="workerWithFutureTest1"/>-->
-                <!--</methods>-->
-            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>-->
+            <!--<class name="org.ballerinalang.test.worker.WorkerTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.WorkerInActionTest">-->
                 <!--<methods>-->
@@ -185,9 +175,7 @@
             <!--<class name="org.ballerinalang.test.worker.WorkerFailTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForOneActionsTest">-->
-                <!--<methods><exclude name="waitTest9"/></methods>-->
-            <!--</class>-->
+            <!--<class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>-->
             <!--<class name="org.ballerinalang.test.worker.StackOverflowTest">-->
                 <!--<methods>-->
@@ -233,6 +221,16 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+
+            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
+                <methods>
+                    <exclude name="testServiceLevelXML"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
         </classes>
     </test>
 </suite>

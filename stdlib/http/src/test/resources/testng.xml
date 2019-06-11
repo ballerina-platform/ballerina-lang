@@ -24,7 +24,7 @@ under the License.
     <!--This listener is only meant to be used for debugging purposes. 
     Hence it's disabled by default to avoid causing problems in Travis due to the volume of logs this may generate.-->
     <!--<listeners>-->
-        <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
+    <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
     <!--</listeners>-->
 
     <listeners>
@@ -64,6 +64,15 @@ under the License.
                     <exclude name="testErrorReturn"></exclude>
                 </methods>
             </class>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.promise.PushPromiseNativeFunctionTest"/>
         </classes>
     </test>
 </suite>
