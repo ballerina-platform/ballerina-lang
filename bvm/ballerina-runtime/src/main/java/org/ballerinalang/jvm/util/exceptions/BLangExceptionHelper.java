@@ -58,14 +58,14 @@ public class BLangExceptionHelper {
         // along with the error message.
         if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
             return BallerinaErrors.createError(reason,
-                    "failed to " + operation + ": " + ((BallerinaException) e).getDetail());
+                    "Failed to " + operation + ": " + ((BallerinaException) e).getDetail());
         } else if (e instanceof BLangFreezeException) {
             return BallerinaErrors.createError(reason,
-                    "failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
+                    "Failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
         } else if (e.getCause() != null) {
-            return BallerinaErrors.createError(reason, "failed to " + operation + ": " + e.getCause().getMessage());
+            return BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            return BallerinaErrors.createError(reason, "failed to " + operation + ": " + e.getMessage());
+            return BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getMessage());
         }
     }
 
