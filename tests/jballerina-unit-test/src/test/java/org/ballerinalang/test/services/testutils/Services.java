@@ -19,19 +19,16 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.BHTTPServicesRegistry;
-import org.ballerinalang.net.http.BHttpDispatcher;
-import org.ballerinalang.net.http.BHttpResource;
-import org.ballerinalang.net.http.BHttpUtil;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpDispatcher;
+import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -40,15 +37,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
-
 /**
  * This contains test utils related to Ballerina service invocations.
  *
  * @since 0.8.0
  */
 public class Services {
-
 
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
@@ -62,20 +56,18 @@ public class Services {
 
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        ProgramFile programFile = compileResult.getProgFile();
-        BMap<String, BValue> connectorEndpoint =
-                BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
-
-        BHTTPServicesRegistry httpServicesRegistry =
-                (BHTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance().getHttpServicesRegistry();
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
-        BHttpResource resource = null;
+        HttpResource resource = null;
         try {
-            resource = BHttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         } catch (BallerinaException ex) {
-            BHttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+            // throwing an error here to terminate the flow. This should be properly implemented if
+            // testing error scenarios are needed.
+            throw new BallerinaConnectorException(ex.getMessage());
         }
+
         if (resource == null) {
             return callback.getResponseMsg();
         }
@@ -86,10 +78,12 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = BHttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
         callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+
+        ObjectValue service = resource.getParentService().getBalService();
+        Executor.submit(service, resource.getName(), callback, properties, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();
