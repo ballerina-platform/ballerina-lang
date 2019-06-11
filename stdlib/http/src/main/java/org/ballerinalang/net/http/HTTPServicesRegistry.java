@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -113,8 +114,9 @@ public class HTTPServicesRegistry {
             String basePath = httpService.getBasePath();
             if (servicesByBasePath.containsKey(basePath)) {
                 String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
-                throw new BallerinaException("Service registration failed: two services have the same basePath : '" +
-                                                     basePath + errorMessage);
+                throw BallerinaErrors.createError(
+                        "Service registration failed: two services have the same basePath : '" +
+                                basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
             String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(),

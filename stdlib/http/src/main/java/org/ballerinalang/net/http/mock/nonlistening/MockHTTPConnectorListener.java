@@ -20,13 +20,16 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * HTTP connector mock listener for Ballerina testing.
  */
 public class MockHTTPConnectorListener {
 
     private static MockHTTPConnectorListener testListener = new MockHTTPConnectorListener();
-    private HTTPServicesRegistry httpServicesRegistry;
+    private Map<Integer, HTTPServicesRegistry> listenerServicesRegistries = new HashMap<>();
 
     private MockHTTPConnectorListener() {
     }
@@ -35,11 +38,11 @@ public class MockHTTPConnectorListener {
         return testListener;
     }
 
-    public HTTPServicesRegistry getHttpServicesRegistry() {
-        return httpServicesRegistry;
+    public HTTPServicesRegistry getHttpServicesRegistry(int listenerPort) {
+        return listenerServicesRegistries.get(listenerPort);
     }
 
-    public void setHttpServicesRegistry(HTTPServicesRegistry httpServicesRegistry) {
-        this.httpServicesRegistry = httpServicesRegistry;
+    public void setHttpServicesRegistry(int listenerPort, HTTPServicesRegistry httpServicesRegistry) {
+        listenerServicesRegistries.put(listenerPort, httpServicesRegistry);
     }
 }
