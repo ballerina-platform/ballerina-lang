@@ -23,7 +23,7 @@ import ballerina/encoding;
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
 # + audienceAsArray - Always represent audience as an array (even when there is single audience)
-public type JWTIssuerConfig record {|
+public type JwtIssuerConfig record {|
     crypto:KeyStore keyStore?;
     string keyAlias?;
     string keyPassword?;
@@ -31,15 +31,15 @@ public type JWTIssuerConfig record {|
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JWTIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# in the `JwtIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
 # + config - JWT issuer config record
 # + return - JWT token string or an error if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? config) returns (string|error) {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns (string|error) {
     boolean audienceAsArray = false;
-    if (config is JWTIssuerConfig) {
+    if (config is JwtIssuerConfig) {
         audienceAsArray = config.audienceAsArray;
     }
     string jwtHeader = check buildHeaderString(header);
@@ -48,7 +48,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? 
     if (header.alg == NONE) {
         return (jwtAssertion);
     } else {
-        if (config is JWTIssuerConfig) {
+        if (config is JwtIssuerConfig) {
             var keyStore = config["keyStore"];
             var keyAlias = config["keyAlias"];
             var keyPassword = config["keyPassword"];
@@ -73,7 +73,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? 
                 return prepareError("Signing JWT requires keyStore, keyAlias and keyPassword.");
             }
         } else {
-            return prepareError("Signing JWT requires JWTIssuerConfig with keystore information.");
+            return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
         }
     }
 }

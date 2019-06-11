@@ -89,7 +89,7 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        JWTValidatorConfig jwtValidatorConfig = populateJWTValidatorConfig(self.jwtAuthProviderConfig);
+        JwtValidatorConfig jwtValidatorConfig = populateJwtValidatorConfig(self.jwtAuthProviderConfig);
         var payload = validateJwt(credential, jwtValidatorConfig);
         if (payload is JwtPayload) {
             setAuthenticationContext(payload, credential);
@@ -101,8 +101,8 @@ public type InboundJwtAuthProvider object {
     }
 };
 
-function populateJWTValidatorConfig(InboundJwtAuthProviderConfig jwtAuthProviderConfig) returns JWTValidatorConfig {
-    JWTValidatorConfig jwtValidatorConfig = { clockSkew: jwtAuthProviderConfig.clockSkew };
+function populateJwtValidatorConfig(InboundJwtAuthProviderConfig jwtAuthProviderConfig) returns JwtValidatorConfig {
+    JwtValidatorConfig jwtValidatorConfig = { clockSkew: jwtAuthProviderConfig.clockSkew };
     var issuer = jwtAuthProviderConfig["issuer"];
     if (issuer is string) {
         jwtValidatorConfig.issuer = issuer;

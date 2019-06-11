@@ -84,7 +84,7 @@ function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns
         jti: system:uuid(),
         aud: jwtIssuerConfig.audience
     };
-    JWTIssuerConfig issuerConfig = {
+    JwtIssuerConfig issuerConfig = {
         keyStore: jwtIssuerConfig.keyStore,
         keyAlias: jwtIssuerConfig.keyAlias,
         keyPassword: jwtIssuerConfig.keyPassword
