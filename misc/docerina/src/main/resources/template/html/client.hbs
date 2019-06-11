@@ -12,7 +12,7 @@
                 <ul>
                     {{#each module.clients}}
                         <li>
-                            <a href="#{{name}}">{{name}}</a>
+                            <a href="{{name}}.html">{{name}}</a>
                         </li>
                     {{/each}}
                 </ul>
@@ -32,7 +32,7 @@
                     <ul>
                         {{#each module.clients}}
                             <li>
-                                <a href="#{{name}}">{{name}}</a>
+                                <a href="{{name}}.html">{{name}}</a>
                             </li>
                         {{/each}}
                     </ul>
@@ -45,9 +45,7 @@
     </div>
 
     <div class="content-wrapper pusher">
-        <div>
-            <a class="toc item"> <img src="../html-template-resources/images/menu.svg"></a>
-        </div>
+        {{> mobMenu }}
         <div class="main-wrapper">
             <h1>Clients : <span class="clients">{{ client.name }}</span> </h1>
             <p>{{{ client.description }}}</p>
