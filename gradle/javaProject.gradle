@@ -182,3 +182,11 @@ task createJavadoc(type: Javadoc) {
 check {
     dependsOn createJavadoc
 }
+
+publishing {
+    publications {
+        mavenJava {
+            from components.java
+        }
+    }
+}

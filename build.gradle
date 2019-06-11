@@ -8,11 +8,9 @@ plugins {
     id 'net.researchgate.release' version '2.6.0'
 }
 
-def proVersion = project.version
-
 allprojects {
-    group = 'org.ballerinalang'
-    version = proVersion
+    group = project.group
+    version = project.version
 
     task printPath {
         doLast{
@@ -28,20 +26,19 @@ subprojects {
             mavenJava(MavenPublication) {
                 groupId project.group
                 artifactId project.name
-                version = proVersion
-
+                version = project.version
             }
         }
         repositories {
             maven {
                 if(project.version.endsWith('-SNAPSHOT')) {
-                    url "http://maven.wso2.org/nexus/content/repositories/snapshots/"
+                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
                 } else {
-                    url "http://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
                 }
                 credentials {
-                    username project.sonatypeUsername
-                    password project.sonatypePassword
+                    username System.getenv("NEXUS_USERNAME")
+                    password System.getenv("NEXUS_PASSWORD")
                 }
             }
         }

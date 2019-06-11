@@ -75,3 +75,20 @@ artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
 }
 
 artifacts.add('balSource', file("src/main/ballerina/"))
+
+task assembleArtifact(type: Zip) {
+    dependsOn createBalo
+    archiveName "$project.name-ballerina-binary-repo.zip"
+    destinationDir file("$buildDir/bal-repos/")
+    from "build/generated-balo/"
+    description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
+    outputs.dir("$buildDir/bal-repos/")
+}
+
+publishing {
+    publications {
+        mavenJava {
+            artifact source: assembleArtifact, classifier: "ballerina-binary-repo", extension: 'zip'
+        }
+    }
+}
