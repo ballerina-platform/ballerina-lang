@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.streams.nativeimpl;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -42,8 +42,7 @@ public class BallerinaStreamsV2CountingPatternTest {
         notPatternTests = BCompileUtil.compile("test-src/native/streamingv2-native-simple-counting-pattern-test.bal");
     }
 
-    @Test(description = "Test // A[2..4] -> B, select a[1].id as aId, b[0].id as bId, 0 as cID pattern query.",
-            enabled = false)
+    @Test(description = "Test // A[2..4] -> B, select a[1].id as aId, b[0].id as bId, 0 as cID pattern query.")
     public void runPatternQuery1() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery1");
         Assert.assertNotNull(outputEvents);

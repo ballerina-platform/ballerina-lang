@@ -68,6 +68,8 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-launcher')
 
+    implementation 'com.h2database:h2'
+
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-time')
