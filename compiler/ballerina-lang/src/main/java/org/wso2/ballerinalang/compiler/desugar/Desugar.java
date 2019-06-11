@@ -2136,6 +2136,7 @@ public class Desugar extends BLangNodeVisitor {
         // If the the variable is not used in lhs, and if the current type or original type
         // is a value type, then add a conversion if required. This is done
         // to unbox or box a narrowed type.
+        genVarRefExpr.lhsVar = varRefExpr.lhsVar;
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
         genVarRefExpr.ignoreExpression = varRefExpr.ignoreExpression;
