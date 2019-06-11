@@ -29,4 +29,8 @@
         <Class name="org.ballerinalang.database.sql.SQLDatasourceUtils"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.database.sql.statement"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+    </Match>
 </FindBugsFilter>

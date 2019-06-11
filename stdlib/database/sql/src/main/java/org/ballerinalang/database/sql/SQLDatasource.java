@@ -20,6 +20,7 @@ package org.ballerinalang.database.sql;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -155,6 +156,10 @@ public class SQLDatasource implements BValue {
 
     public void releaseMutex() {
         mutex.release();
+    }
+
+    public void executeStatement(SQLStatement sqlStatement) {
+        sqlStatement.execute();
     }
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
