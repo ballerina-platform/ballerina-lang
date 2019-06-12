@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
