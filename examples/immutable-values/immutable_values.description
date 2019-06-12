@@ -1,12 +1,12 @@
-// Ballerina allows making values immutable, or read-only.
+// Ballerina allows making values immutable or read-only.
 //
-// A value of type `anydata` can be made immutable by calling the `.freeze()` built-in method on it. A successful
+// A value of the type `anydata` can be made immutable by calling the `.freeze()` built-in method on it. A successful
 // freeze attempt would return the value with the frozen flag set. Calling freeze on structures would deeply
 // freeze all elements.
 //
-// Freeze is also defined on values that may be of type `anydata` at run time (e.g., `any`, unions consisting of
-// `anydata` and `non-anydata` types). If a `non-anydata` value is found, the freeze attempt would return an error.
+// Freeze is also defined on values that may be of the type `anydata` during the runtime (e.g., `any`, unions consisting of
+// `anydata`, and `non-anydata` types). If a `non-anydata` value is found, the freeze attempt would return an error.
 //
 // The built-in method `.isFrozen()` could be used to check if a value is frozen.
 //
-// Attempts to modify a frozen value would cause panic.
+// Attempts to modify a frozen value would cause panicking.
