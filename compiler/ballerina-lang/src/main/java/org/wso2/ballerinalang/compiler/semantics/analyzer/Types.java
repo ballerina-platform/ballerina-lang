@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -82,7 +83,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -97,21 +97,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_
  */
 public class Types {
 
-    /**
-     * @since 0.94
-     */
-    public enum RecordKind {
-        STRUCT("struct"),
-        MAP("map"),
-        JSON("json");
-
-        public String value;
-
-        RecordKind(String value) {
-            this.value = value;
-        }
-    }
-
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
 
@@ -120,8 +105,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-
-    private Stack<BType> typeStack;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -138,7 +121,6 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.typeStack = new Stack<>();
         this.names = Names.getInstance(context);
     }
 
@@ -538,6 +520,14 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+
+        // TypeParams are not validated here. Just their compatibility.
+        if (source.tag == TypeTags.TYPE_PARAM) {
+            source = ((BTypeParamType) source).constraint;
+        }
+        if (target.tag == TypeTags.TYPE_PARAM) {
+            target = ((BTypeParamType) target).constraint;
+        }
         if (isSameType(source, target)) {
             return true;
         }
@@ -1453,6 +1443,13 @@ public class Types {
 
         @Override
         public BSymbol visit(BServiceType t, BType s) {
+
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
+        public BSymbol visit(BTypeParamType t, BType s) {
+
             return symTable.notFoundSymbol;
         }
     };
@@ -1618,6 +1615,13 @@ public class Types {
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
+
+            return s == t;
+        }
+
+        @Override
+        public Boolean visit(BTypeParamType t, BType s) {
+
             return s == t;
         }
     };

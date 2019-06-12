@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -119,7 +120,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -599,7 +599,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
-
+        if (typeDefinition.annAttachments.stream()
+                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+            // TODO : Clean this and label param. Not a nice way to handle this.
+            //  TypeParam is built-in annotation, and limited only within lang.* modules.
+            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+                BTypeSymbol typeParamSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags,
+                        typeDefSymbol.name, typeDefSymbol.pkgID, null, typeDefSymbol.owner);
+                typeParamSymbol.flags |= Flags.TYPE_PARAM;
+                typeParamSymbol.type = new BTypeParamType(typeDefSymbol.type, typeParamSymbol);
+                typeDefSymbol = typeParamSymbol;
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
     }

@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -36,6 +38,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
@@ -56,11 +61,11 @@ public class SymbolEnv {
 
     public BLangInvokableNode enclInvokable;
 
-    public BLangForkJoin forkJoin;
-
     public BVarSymbol enclVarSym;
 
     public SymbolEnv enclEnv;
+
+    public List<TypeParamEntry> typeParamsEntries;
 
     public boolean logErrors;
 
@@ -75,10 +80,10 @@ public class SymbolEnv {
         this.enclAnnotation = null;
         this.enclService = null;
         this.enclInvokable = null;
-        this.forkJoin = null;
         this.enclEnv = null;
         this.enclVarSym = null;
         this.logErrors = true;
+        this.typeParamsEntries = null;
     }
 
     public void copyTo(SymbolEnv target) {
@@ -87,7 +92,6 @@ public class SymbolEnv {
         target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
-        target.forkJoin = this.forkJoin;
         target.enclVarSym = this.enclVarSym;
         target.logErrors = this.logErrors;
         target.enclEnv = this;
@@ -171,13 +175,6 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createForkJoinSymbolEnv(BLangForkJoin node, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
-        env.copyTo(symbolEnv);
-        symbolEnv.forkJoin = node;
-        return symbolEnv;
-    }
-
     public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
@@ -228,6 +225,16 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createInvocationEnv(BLangNode node, SymbolEnv env) {
+
+        Scope scope = new Scope(env.scope.owner);
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        symbolEnv.envCount = 0;
+        env.copyTo(symbolEnv);
+        symbolEnv.typeParamsEntries = new ArrayList<>();
+        return symbolEnv;
+    }
+
     public static SymbolEnv createTypeNarrowedEnv(BLangNode node, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
@@ -264,6 +271,23 @@ public class SymbolEnv {
         symbolEnv.enclPkg = this.enclPkg;
         symbolEnv.envCount = this.envCount;
         return symbolEnv;
+    }
+
+    /**
+     * Data holder for storing typeParams.
+     *
+     * @since JB 1.0.0
+     */
+    public static class TypeParamEntry {
+
+        public BTypeParamType typeParam;
+        public BType boundType;
+
+        public TypeParamEntry(BTypeParamType typeParam, BType boundType) {
+
+            this.typeParam = typeParam;
+            this.boundType = boundType;
+        }
     }
 
     // Private functions

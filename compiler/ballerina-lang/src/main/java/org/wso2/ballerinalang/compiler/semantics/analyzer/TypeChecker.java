@@ -173,6 +173,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
     private ConstantValueChecker constantValueChecker;
+    private TypeParamAnalyzer typeParamAnalyzer;
 
     /**
      * Expected types or inherited types.
@@ -203,6 +204,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantValueChecker = ConstantValueChecker.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1336,10 +1338,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = iExpr.expr.type;
 
-        if (isSafeNavigable(iExpr, varRefType)) {
-            varRefType = getSafeType(varRefType, iExpr);
-        }
-
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
                 // Invoking a function bound to an object
@@ -1355,12 +1353,6 @@ public class TypeChecker extends BLangNodeVisitor {
             default:
                 checkLangLibMethodInvocationExpr(iExpr, varRefType);
                 break;
-        }
-
-        if (iExpr.symbol != null) {
-            iExpr.originalType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
-        } else {
-            iExpr.originalType = iExpr.type;
         }
     }
 
@@ -2547,6 +2539,33 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
+
+        BType actualType = symTable.semanticError;
+        if (epType == symTable.semanticError || epType.tag != TypeTags.OBJECT
+                || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
+            resultType = actualType;
+            return;
+        }
+
+        final BVarSymbol epSymbol = (BVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
+
+        Name remoteFuncQName = names
+                .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
+        Name actionName = names.fromIdNode(iExpr.name);
+        BSymbol remoteFuncSymbol = symResolver
+                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
+                        remoteFuncQName, SymTag.FUNCTION);
+        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
+            resultType = actualType;
+            return;
+        }
+        iExpr.symbol = remoteFuncSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
     private void checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
 
         Name funcName = names.fromString(iExpr.name.value);
@@ -2557,15 +2576,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         iExpr.symbol = funcSymbol;
+        SymbolEnv enclEnv = this.env;
+        this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         checkInvocationParamAndReturnType(iExpr);
+        this.env = enclEnv;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (iExpr.expr != null) {
-            actualType = getAccessExprFinalType(iExpr, actualType);
-        }
-
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
@@ -2634,22 +2652,25 @@ public class TypeChecker extends BLangNodeVisitor {
         checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
 
+        BType retType = typeParamAnalyzer.getReturnTypeParams(env, invocableSymbol.type.getReturnType());
         if (iExpr.async) {
-            return this.generateFutureType(invocableSymbol);
+            return this.generateFutureType(invocableSymbol, retType);
         } else {
-            return getSafeType(invocableSymbol.type, iExpr).getReturnType();
+            return retType;
         }
     }
 
-    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
-        BType retType = invocableSymbol.type.getReturnType();
+    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
+
         boolean isWorkerStart = invocableSymbol.name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX);
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<BType> requiredParamTypes) {
         for (int i = 0; i < requiredArgExprs.size(); i++) {
-            checkExpr(requiredArgExprs.get(i), this.env, requiredParamTypes.get(i));
+            BType expectedType = requiredParamTypes.get(i);
+            checkExpr(requiredArgExprs.get(i), this.env, expectedType);
+            typeParamAnalyzer.checkForTypeParams(requiredArgExprs.get(i).type, env, expectedType);
         }
     }
 
@@ -2666,6 +2687,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             checkExpr(expr, this.env, varSym.type);
+            typeParamAnalyzer.checkForTypeParams(expr.type, env, varSym.type);
         }
     }
 
@@ -2682,58 +2704,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (BLangExpression arg : restArgExprs) {
-            checkExpr(arg, this.env, ((BArrayType) restParam.type).eType);
+            BType restType = ((BArrayType) restParam.type).eType;
+            checkExpr(arg, this.env, restType);
+            typeParamAnalyzer.checkForTypeParams(arg.type, env, restType);
         }
-    }
-
-    private BSymbol checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
-        Name funcName = names.fromString(iExpr.name.value);
-
-        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
-
-        if (funcSymbol == symTable.notFoundSymbol) {
-            funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
-            if (funcSymbol == symTable.notFoundSymbol || funcSymbol == symTable.invalidUsageSymbol) {
-                resultType = symTable.semanticError;
-                return funcSymbol;
-            }
-        }
-
-        iExpr.builtinMethodInvocation = true;
-        iExpr.builtInMethod = function;
-        iExpr.symbol = funcSymbol;
-
-        checkInvocationParamAndReturnType(iExpr);
-        if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
-            types.setImplicitCastExpr(iExpr, resultType, expType);
-        }
-        return funcSymbol;
-    }
-
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
-        BType actualType = symTable.semanticError;
-        if (epType == symTable.semanticError || epType.tag != TypeTags.OBJECT
-                || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
-            resultType = actualType;
-            return;
-        }
-
-        final BVarSymbol epSymbol = (BVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
-
-        Name remoteFuncQName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
-        Name actionName = names.fromIdNode(iExpr.name);
-        BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
-                        remoteFuncQName, SymTag.FUNCTION);
-        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
-            resultType = actualType;
-            return;
-        }
-        iExpr.symbol = remoteFuncSymbol;
-        checkInvocationParamAndReturnType(iExpr);
     }
 
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
@@ -3034,9 +3008,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
-        if (!isSafeNavigableExpr(accessExpr)) {
-            return actualType;
-        }
 
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.originalType = actualType;
@@ -3085,11 +3056,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return false;
-    }
-
-    private boolean isSafeNavigableExpr(BLangAccessExpression accessExpr) {
-        return !(accessExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) accessExpr).builtinMethodInvocation
-                && ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
@@ -3561,7 +3527,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        BType varType = getSafeType(varSymbol.type, iExpr);
+        BType varType = varSymbol.type;
         if (varType.tag != TypeTags.INVOKABLE) {
             return symTable.notFoundSymbol;
         }

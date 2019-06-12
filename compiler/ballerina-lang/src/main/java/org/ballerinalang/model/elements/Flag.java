@@ -113,4 +113,8 @@ public enum Flag {
      * Indicates flagged node is a constant node.
      */
     CONSTANT,
+    /**
+     * Indicates flagged node is a paramType.
+     */
+    TYPE_PARAM
 }

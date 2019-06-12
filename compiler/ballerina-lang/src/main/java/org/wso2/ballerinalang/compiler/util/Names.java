@@ -74,6 +74,7 @@ public class Names {
     public static final Name QUESTION_MARK = new Name("?");
     public static final Name ORG_NAME_SEPARATOR = new Name("/");
     public static final Name VERSION_SEPARATOR = new Name(":");
+    public static final Name ANNOTATION_TYPE_PARAM = new Name("typeParam");
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");

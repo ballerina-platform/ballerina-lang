@@ -63,6 +63,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BServiceType t, T s);
 
+    R visit(BTypeParamType t, T s);
+
     default R visit(BIntermediateCollectionType t, T s) {
         throw new AssertionError();
     }

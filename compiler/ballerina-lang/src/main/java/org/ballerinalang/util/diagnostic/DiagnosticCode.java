@@ -408,8 +408,12 @@ public enum DiagnosticCode {
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
 
-    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal");
+    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal"),
 
+    // Type Param related error codes.
+    TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
+
+    ;
     private String value;
 
     DiagnosticCode(String value) {

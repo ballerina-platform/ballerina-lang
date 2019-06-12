@@ -2299,11 +2299,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
 
-        if (safeNavigate(iExpr)) {
-            result = rewriteExpr(rewriteSafeNavigationExpr(iExpr));
-            return;
-        }
-
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
@@ -3314,7 +3309,6 @@ public class Desugar extends BLangNodeVisitor {
                 InstructionCodes.ITR_NEXT);
 
         nextInvocation.type = foreach.nillableResultType;
-        nextInvocation.originalType = foreach.nillableResultType;
         return nextInvocation;
     }
 
@@ -4575,9 +4569,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (safeNavigateType(accessExpr.expr.type)) {
-            if (accessExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) accessExpr).builtinMethodInvocation) {
-                return isSafeNavigationAllowedBuiltinInvocation((BLangInvocation) accessExpr);
-            }
             return true;
         }
 
@@ -4697,19 +4688,6 @@ public class Desugar extends BLangNodeVisitor {
             this.successPattern.body = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(matchStmt));
         }
         this.successPattern = successPattern;
-    }
-
-    private boolean isSafeNavigationAllowedBuiltinInvocation(BLangInvocation iExpr) {
-        if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
-            if (iExpr.expr.type.tag == TypeTags.UNION && iExpr.expr.type.isNullable()) {
-                BUnionType unionType = (BUnionType) iExpr.expr.type;
-                return unionType.getMemberTypes().size() == 2 && unionType.getMemberTypes().stream()
-                        .noneMatch(type -> type.tag != TypeTags.NIL && types.isValueType(type));
-            }
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
-            return false;
-        }
-        return true;
     }
 
     private BLangMatchTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,

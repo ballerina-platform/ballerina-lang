@@ -48,6 +48,7 @@ public class Flags {
     public static final int SERVICE = RESOURCE << 1;
     public static final int LISTENER = SERVICE << 1;
     public static final int LAMBDA = LISTENER << 1;
+    public static final int TYPE_PARAM = LAMBDA << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -115,6 +116,8 @@ public class Flags {
                     break;
                 case LAMBDA:
                     mask |= LAMBDA;
+                case TYPE_PARAM:
+                    mask |= TYPE_PARAM;
                     break;
             }
         }
@@ -185,6 +188,8 @@ public class Flags {
                     break;
                 case LAMBDA:
                     flagVal = LAMBDA;
+                case TYPE_PARAM:
+                    flagVal = TYPE_PARAM;
                     break;
                 default:
                     continue;

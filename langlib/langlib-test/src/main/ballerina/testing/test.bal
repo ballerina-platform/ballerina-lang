@@ -14,19 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO: Fix me.
-int i = 10;
 
-@typeParam
-type Type1 any|error;
+function test1 () {
+  //string a = "";
+  //_ = a.toString();
 
-@typeParam
-type Type2 any|error;
-
-public function first(Type1[] x, Type2 y) returns (Type1,Type2) {
-    return (x[0],y);
-}
-
-public function second(any[] y) returns any{
-    return y[1];
+  float[] x = [];
+  int y = 10;
+  (float,int) zz = x.first(y);
 }
