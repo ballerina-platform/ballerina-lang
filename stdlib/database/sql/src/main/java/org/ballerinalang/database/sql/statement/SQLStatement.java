@@ -22,7 +22,11 @@ package org.ballerinalang.database.sql.statement;
  *
  * @since 1.0.0
  */
-public interface SQLStatement {
+public interface SQLStatement extends Runnable {
+
+    default void run() {
+        this.execute();
+    }
 
     void execute();
 }

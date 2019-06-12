@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Connection;
@@ -35,7 +36,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.XADataSource;
@@ -56,6 +62,7 @@ public class SQLDatasource implements BValue {
     private AtomicInteger clientCounter = new AtomicInteger(0);
     private Semaphore mutex = new Semaphore(1);
     private boolean poolShutdown = false;
+    private ExecutorService intermediateWorkerPool;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
         this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
@@ -123,11 +130,6 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-    public void closeConnectionPool() {
-        hikariDataSource.close();
-        poolShutdown = true;
-    }
-
     public boolean isGlobalDatasource() {
         return globalDatasource;
     }
@@ -145,6 +147,7 @@ public class SQLDatasource implements BValue {
         if (!poolShutdown) {
             if (clientCounter.decrementAndGet() == 0) {
                 closeConnectionPool();
+                shutDownIntermediateThreadPool();
             }
         }
         releaseMutex();
@@ -159,7 +162,16 @@ public class SQLDatasource implements BValue {
     }
 
     public void executeStatement(SQLStatement sqlStatement) {
-        sqlStatement.execute();
+        intermediateWorkerPool.submit(sqlStatement);
+    }
+
+    private void closeConnectionPool() {
+        hikariDataSource.close();
+        poolShutdown = true;
+    }
+
+    private void shutDownIntermediateThreadPool() {
+        intermediateWorkerPool.shutdown();
     }
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
@@ -242,7 +254,12 @@ public class SQLDatasource implements BValue {
                 });
             }
             hikariDataSource = new HikariDataSource(config);
+            ThreadFactory threadFactory = new BLangThreadFactory(
+                    "BLangDatabaseIntermediatePool-" + config.getPoolName());
+            intermediateWorkerPool = new ThreadPoolExecutor(config.getMaximumPoolSize(), config.getMaximumPoolSize(),
+                    config.getIdleTimeout(), TimeUnit.MINUTES, new LinkedBlockingDeque<>(), threadFactory);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutDownIntermediateThreadPool));
         } catch (Throwable t) {
             String message = "error in sql connector configuration:" + t.getMessage();
             if (t.getCause() != null) {
