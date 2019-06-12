@@ -156,7 +156,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     RequestError requestError = {errorMessage:msg};
     var resPayload = json.convert(requestError);
     if (resPayload is json) {
-        res.setJsonPayload(untaint resPayload);
+        res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);
         if (resResult is error) {
             log:printError("Could not send Bad Request error response to caller", err = resResult);

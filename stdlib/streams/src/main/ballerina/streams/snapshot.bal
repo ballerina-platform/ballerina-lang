@@ -103,7 +103,7 @@ function createReadableCharacterChannel(string filePath, string encoding) return
     io:ReadableCharacterChannel? rch = ();
     io:ReadableByteChannel|error byteChannel = trap io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = <@untainted io:ReadableCharacterChannel> new io:ReadableCharacterChannel(byteChannel, encoding);
     }
     return rch;
 }
@@ -116,7 +116,7 @@ function createWritableCharacterChannel(string filePath, string encoding) return
     io:WritableCharacterChannel? wch = ();
     io:WritableByteChannel|error byteChannel = trap io:openWritableFile(filePath);
     if (byteChannel is io:WritableByteChannel) {
-        wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+        wch = <@untainted io:WritableCharacterChannel> new io:WritableCharacterChannel(byteChannel, encoding);
     }
     return wch;
 }

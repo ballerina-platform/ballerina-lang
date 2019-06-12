@@ -60,7 +60,7 @@ public type H2HubPersistenceStore object {
         sql:Parameter para4 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.leaseSeconds };
         sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.createdAt };
 
-        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, <untainted sql:Parameter> para1, <untainted sql:Parameter> para2);
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully removed " + ret.updatedRowCount + " entries for existing subscription");
         } else {
@@ -68,8 +68,8 @@ public type H2HubPersistenceStore object {
             log:printError("Error occurred deleting subscription data: " + errCause);
         }
 
-        ret = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
-                                                    untaint para3, untaint para4, untaint para5);
+        ret = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, <untainted sql:Parameter> para1, <untainted sql:Parameter> para2,
+                                                    <untainted sql:Parameter> para3, <untainted sql:Parameter> para4, <untainted sql:Parameter> para5);
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for subscription");
         } else {
@@ -84,7 +84,7 @@ public type H2HubPersistenceStore object {
     public function removeSubscription(SubscriptionDetails subscriptionDetails) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.topic };
         sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.callback };
-        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, <untainted sql:Parameter> para1, <untainted sql:Parameter> para2);
 
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for unsubscription");

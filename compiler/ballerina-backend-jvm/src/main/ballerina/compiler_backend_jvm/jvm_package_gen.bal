@@ -43,11 +43,11 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
         generateImportedPackage(importedPkg, pkgEntries);
     }
 
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
+    string orgName = <@untainted string> module.org.value;
+    string moduleName = <@untainted string> module.name.value;
 
     // TODO: need to get bal source file name for class name mapping
-    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
+    string moduleClass = getModuleLevelClassName(orgName, moduleName, moduleName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -93,10 +93,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 public function generateEntryPackage(bir:Package module, string sourceFileName, map<byte[]> pkgEntries,
         map<string> manifestEntries) {
 
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
+    string orgName = <@untainted string> module.org.value;
+    string moduleName = <@untainted string> module.name.value;
 
-    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
+    string moduleClass = getModuleLevelClassName(orgName, moduleName, sourceFileName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;

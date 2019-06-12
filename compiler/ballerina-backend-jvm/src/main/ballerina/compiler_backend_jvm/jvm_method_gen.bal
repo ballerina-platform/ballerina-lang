@@ -19,7 +19,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
-    string funcName = cleanupFunctionName(untaint func.name.value);
+    string funcName = cleanupFunctionName(<@untainted string> func.name.value);
 
     int returnVarRefIndex = -1;
 
@@ -555,7 +555,7 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
         if (func is bir:Function && func.name.value == "main") {
-            userMainFunc = untaint func;
+            userMainFunc = <@untainted bir:Function> func;
             break;
         }
     }
@@ -802,7 +802,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     foreach var func in pkg.functions {
-        var currentFunc = getFunction(untaint func);
+        var currentFunc = getFunction(<@untainted bir:Function>  func);
         var frameClassName = pkgName + cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT_VALUE, ());

@@ -59,9 +59,9 @@ public type ChannelReader object {
 
 
     public function readString() returns string {
-        var stringLen = untaint self.readInt32();
+        var stringLen = <@untainted int> self.readInt32();
         if (stringLen > 0){
-            var (strBytes, strLen) = check self.byteChannel.read(untaint stringLen);
+            var (strBytes, strLen) = check self.byteChannel.read(<@untainted int> stringLen);
             return encoding:byteArrayToString(strBytes);
         } else {
             return "";

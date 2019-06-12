@@ -167,7 +167,7 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
         }
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
+    var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
     if (response is http:Response) {
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
@@ -195,7 +195,7 @@ public remote function Client.notifyUpdate(string topic, map<string>? headers = 
         }
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
+    var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
     if (response is http:Response) {
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
