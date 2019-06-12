@@ -883,6 +883,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorBindingNode();
+    }
+
+    @Override
+    public void exitErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String restIdentifier = null;
+        if (ctx.restMatchPattern() != null) {
+            restIdentifier = ctx.restMatchPattern().Identifier().getText();
+        }
+
+        String reasonIdentifier = null;
+        if (ctx.simpleMatchPattern() != null) {
+            reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
+        }
+
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, restIdentifier);
+    }
+
+    @Override
     public void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx) {
         String bindingVarName = null;
         if (ctx.bindingPattern() != null && ctx.bindingPattern().Identifier() != null) {
@@ -1454,7 +1481,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.bindingPattern() != null) {
+        if (ctx.bindingPattern() != null || ctx.errorMatchPattern() != null) {
             boolean isTypeGuardPresent = ctx.IF() != null;
             this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
             return;

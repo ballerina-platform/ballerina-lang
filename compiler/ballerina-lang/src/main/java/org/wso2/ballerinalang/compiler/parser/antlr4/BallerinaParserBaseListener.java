@@ -1084,6 +1084,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1091,6 +1115,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRestMatchPattern(BallerinaParser.RestMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRestMatchPattern(BallerinaParser.RestMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimpleMatchPattern(BallerinaParser.SimpleMatchPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimpleMatchPattern(BallerinaParser.SimpleMatchPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

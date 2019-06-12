@@ -225,3 +225,12 @@ function matching(error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolea
         var x => return "Failed";
     }
 }
+
+function testErrorMatchPattern() returns string {
+    error <string, map<string>> err1 = error("Error Code", message = "Msg");
+    match err1 {
+        var error(reason) => return reason;
+        error(var reason, message = m, ... var rest) => return reason + ":" + <string>m;
+    }
+    return "Default";
+}

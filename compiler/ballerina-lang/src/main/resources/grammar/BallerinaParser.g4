@@ -396,6 +396,7 @@ matchStatement
 matchPatternClause
     :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 bindingPattern
@@ -413,12 +414,30 @@ errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
     ;
 
+errorMatchPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    ;
+
+errorArgListMatchPattern
+    :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
 errorRestBindingPattern
-    : ELLIPSIS Identifier
+    :   ELLIPSIS Identifier
+    ;
+
+restMatchPattern
+    :   ELLIPSIS VAR Identifier
+    ;
+
+simpleMatchPattern
+    :   VAR? Identifier
     ;
 
 errorDetailBindingPattern
-    : Identifier ASSIGN bindingPattern
+    :   Identifier ASSIGN bindingPattern
     ;
 
 tupleBindingPattern
