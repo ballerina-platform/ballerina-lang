@@ -772,17 +772,9 @@ public class BRunUtil {
                 bvmValue = new BString((String) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
-                BigDecimal decimalValue;
-                DecimalValueKind decimalValueKind;
-                if (value instanceof BigDecimal) {
-                    decimalValue = (BigDecimal) value;
-                    decimalValueKind = DecimalValueKind.OTHER;
-                } else {
-                    decimalValue = ((DecimalValue) value).value();
-                    decimalValueKind = ((DecimalValue) value).valueKind;
-                }
-                bvmValue = new BDecimal(decimalValue.toString(),
-                                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValueKind.name()));
+                DecimalValue decimalValue = (DecimalValue) value;
+                bvmValue = new BDecimal(decimalValue.value().toString(),
+                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValue.valueKind.name()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
