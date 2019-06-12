@@ -299,4 +299,14 @@ public class WorkerTest {
         Assert.assertEquals(returns[0].getType().getName(), "Rec");
         Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
     }
+
+    @Test
+    public void innerWorkerPanicTest() {
+        try {
+            BRunUtil.invoke(result, "panicFunc");
+            Assert.fail("Worker did not panic");
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
+        }
+    }
 }
