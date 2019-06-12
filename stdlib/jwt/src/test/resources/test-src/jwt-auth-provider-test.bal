@@ -17,7 +17,7 @@
 import ballerina/crypto;
 import ballerina/jwt;
 
-function testJwtAuthenticatorCreationWithCache(string trustStorePath) returns (jwt:InboundJwtAuthProvider) {
+function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwtAuthProvider {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:InboundJwtAuthProviderConfig jwtConfig = {
         issuer: "wso2",
@@ -29,7 +29,7 @@ function testJwtAuthenticatorCreationWithCache(string trustStorePath) returns (j
     return jwtAuthProvider;
 }
 
-function testAuthenticationSuccess(string jwtToken, string trustStorePath) returns (boolean|error) {
+function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns boolean|error {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:InboundJwtAuthProviderConfig jwtConfig = {
         issuer: "wso2",
