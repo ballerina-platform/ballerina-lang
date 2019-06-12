@@ -67,6 +67,7 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.UriMatrixParametersMatchTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
