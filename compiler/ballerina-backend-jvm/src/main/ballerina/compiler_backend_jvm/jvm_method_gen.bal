@@ -84,7 +84,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     // we cannot set this during strand creation, because function call do not have this info.
     mv.visitVarInsn(ALOAD, localVarOffset);
     loadChannelDetails(mv, func.workerChannels);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
