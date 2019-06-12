@@ -609,9 +609,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.ERROR_CONSTRUCTOR,
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
-        symbol.kind = SymbolKind.CONSTRUCTOR;
+        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);

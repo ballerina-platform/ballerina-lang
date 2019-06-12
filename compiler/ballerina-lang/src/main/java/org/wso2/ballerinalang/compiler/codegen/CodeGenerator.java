@@ -1262,11 +1262,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
-            if (iExpr.symbol.type.tag == TypeTags.ERROR) {
-                generateErrorConstructorInvocation(iExpr);
-                return;
-            }
+        if (iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            generateErrorConstructorInvocation(iExpr);
+            return;
         }
 
         Operand[] operands = getFuncOperands(iExpr);

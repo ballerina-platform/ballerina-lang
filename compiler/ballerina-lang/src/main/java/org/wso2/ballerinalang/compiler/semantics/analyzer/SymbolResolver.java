@@ -201,7 +201,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbol.tag == SymTag.ERROR_CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
             return true;
         }
 

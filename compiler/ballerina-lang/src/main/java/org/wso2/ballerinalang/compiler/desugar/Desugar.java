@@ -2484,10 +2484,8 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
-            if (iExpr.symbol.type.tag == TypeTags.ERROR) {
-                result = rewriteErrorConstructor(iExpr);
-            }
+        if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            result = rewriteErrorConstructor(iExpr);
         }
 
         // Reorder the arguments to match the original function signature.

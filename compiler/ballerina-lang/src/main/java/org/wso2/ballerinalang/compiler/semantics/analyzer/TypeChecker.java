@@ -2641,7 +2641,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BErrorType lhsErrorType = (BErrorType) expType;
         BConstructorSymbol ctorSymbol = (BConstructorSymbol) symResolver.lookupSymbol(env, lhsErrorType.tsymbol.name,
-                SymTag.ERROR_CONSTRUCTOR);
+                SymTag.CONSTRUCTOR);
         BErrorType ctorType = (BErrorType) ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {

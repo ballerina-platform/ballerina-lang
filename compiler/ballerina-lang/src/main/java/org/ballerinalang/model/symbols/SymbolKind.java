@@ -52,5 +52,5 @@ public enum SymbolKind {
     SCOPE,
     OTHER,
 
-    CONSTRUCTOR
+    ERROR_CONSTRUCTOR
 }

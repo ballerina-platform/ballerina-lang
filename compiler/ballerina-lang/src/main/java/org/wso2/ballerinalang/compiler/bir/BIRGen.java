@@ -623,11 +623,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.symbol.kind == SymbolKind.CONSTRUCTOR) {
-            if (invocationExpr.symbol.type.tag == TypeTags.ERROR) {
-                createErrorConstructorInvocation(invocationExpr);
-                return;
-            }
+        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            createErrorConstructorInvocation(invocationExpr);
+            return;
         }
         createCall(invocationExpr, false);
     }
