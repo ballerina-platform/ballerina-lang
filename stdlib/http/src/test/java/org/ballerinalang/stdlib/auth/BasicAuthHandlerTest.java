@@ -27,7 +27,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,7 +38,7 @@ public class BasicAuthHandlerTest {
     private CompileResult compileResult;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-auth-handler-test.bal").toString());
