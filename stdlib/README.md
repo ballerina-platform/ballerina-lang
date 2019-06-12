@@ -3,7 +3,7 @@
 The parser is implemented following the LL(K) recursive Descent parsing pattern. This pattern analyses the syntactic structure using k>1 lookahead tokens.
 
 **Token Structure**
-```json
+```
 Token record {
     int tokenType;
     string text;
@@ -296,14 +296,14 @@ To execute the Unit tests, run the following command from the <PROJECT_ROOT_DIRE
  
  serialized JSON outputs for the unit tests can be found below.
  
-1. [function rule](resources/function/output(AST)).
+1. [function rule](stdlib/resources/function/output(AST)).
 
-2. [variable definition statement rule](resources/statements/variableDefinitionStatement/output(AST)).
+2. [variable definition statement rule](stdlib/resources/statements/variableDefinitionStatement/output(AST)).
 
-3. [binary expression rule](resources/expression/binaryExpression/output(AST)).
+3. [binary expression rule](stdlib/resources/expression/binaryExpression/output(AST)).
 
-4. [tuple literal expression rule](resources/expression/tupleLiteralExpression/output(AST)).
+4. [tuple literal expression rule](stdlib/resources/expression/tupleLiteralExpression/output(AST)).
 
-5. [unary expression rule](resources/expression/unaryExpression/output(AST)). 
+5. [unary expression rule](stdlib/resources/expression/unaryExpression/output(AST)). 
  
  
