@@ -62,6 +62,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
 public class BinaryFileWriter {
     private static final CompilerContext.Key<BinaryFileWriter> BINARY_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
+    private static final String JAVA_IO_TMP_DIR = "java.io.tmpdir";
     private static PrintStream outStream = System.out;
 
     private final CodeGenerator codeGenerator;
@@ -121,7 +122,7 @@ public class BinaryFileWriter {
 
         if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.symbol.birPackageFile != null) {
             String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
-            Path destDirPath = ensureAndGetTargetDirPath(); // create a target folder ro write bir
+            Path destDirPath = createAndGetTempDir(packageNode); // bir will be written to a temp directory.
             try {
                 addFileBirContent(cleanupExecFileName(fileName, BLANG_COMPILED_PKG_BIR_EXT),
                         packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
@@ -200,20 +201,24 @@ public class BinaryFileWriter {
 
     // private methods
 
-    private Path ensureAndGetTargetDirPath() {
-        Path targetPath = Paths.get(ProjectDirConstants.TARGET_DIR_NAME);
-        if (!Files.exists(targetPath)) {
-            createDirectory(targetPath);
+    private Path createAndGetTempDir(BLangPackage packageNode) {
+        Path tempDir = Paths.get(System.getProperty(JAVA_IO_TMP_DIR))
+                .resolve(packageNode.packageID.orgName.value)
+                .resolve(packageNode.packageID.version.value)
+                .resolve(packageNode.packageID.name.value);
+
+        if (!Files.exists(tempDir)) {
+            createDirectory(tempDir);
         }
 
-        return targetPath;
+        return tempDir;
     }
 
-    private void createDirectory(Path targetPath) {
+    private void createDirectory(Path tempDir) {
         try {
-            Files.createDirectory(targetPath);
+            Files.createDirectories(tempDir);
         } catch (IOException e) {
-            throw new BLangCompilerException("failed create directory '" + targetPath.toString() + "'");
+            throw new BLangCompilerException("failed create directory '" + tempDir.toString() + "'", e);
         }
     }
 

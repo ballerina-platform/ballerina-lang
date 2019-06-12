@@ -102,8 +102,10 @@ public class RepoUtils {
         return PRODUCTION_URL;
     }
 
-    public static Path getLibDir() {
-        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
+    public static Path getLibDir(boolean useMainSystemRepo) {
+        return useMainSystemRepo ?
+                Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).getParent().resolve("lib") :
+                Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }
 
     /**

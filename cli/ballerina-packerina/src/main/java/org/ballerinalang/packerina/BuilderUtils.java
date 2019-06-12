@@ -59,6 +59,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  */
 public class BuilderUtils {
     private static final String BALLERINA_HOME = "BALLERINA_HOME";
+    private static final String UPDATE_CLASSPATH = "UPDATE_CLASSPATH";
     private static PrintStream outStream = System.out;
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
@@ -107,6 +108,9 @@ public class BuilderUtils {
         if (jvmTarget) {
             outStream.println();
             compiler.write(bLangPackage, targetPath);
+            if (!bLangPackage.symbol.entryPointExists) {
+                return;
+            }
             Path ballerinaHome = Paths.get(System.getenv(BALLERINA_HOME));
             // TODO: use .bat for windows.
             String[] commands = {
@@ -116,8 +120,12 @@ public class BuilderUtils {
                     "compiler_backend_jvm.balx",
                     ballerinaHome.toString(),
                     cleanUpFilename(targetPath),
-                    Paths.get("").toAbsolutePath().resolve("target").toString(),
-                    "true"
+                    Paths.get(System.getProperty("java.io.tmpdir"))
+                            .resolve(bLangPackage.packageID.orgName.value)
+                            .resolve(bLangPackage.packageID.version.value)
+                            .resolve(bLangPackage.packageID.name.value).toString(),
+                    Paths.get("").toAbsolutePath().toString(),
+                    String.valueOf(dumpBIR)
             };
             ProcessBuilder balProcess = new ProcessBuilder(commands);
             balProcess.inheritIO();
@@ -125,7 +133,7 @@ public class BuilderUtils {
             // ballerina.home is set to pack dash
             balProcess.environment().put(BALLERINA_HOME, ballerinaHome.resolve("build").toString());
             // update classpath env variable will tell the ballerina sh to pick the jars from the main pack
-            balProcess.environment().put("UPDATE_CLASSPATH", "true");
+            balProcess.environment().put(UPDATE_CLASSPATH, "true");
 //            balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
             balProcess.directory(ballerinaHome.resolve("build").resolve("bin").toFile());
             try {

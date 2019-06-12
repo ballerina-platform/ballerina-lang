@@ -70,7 +70,7 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
         Map<String, BValue> jarEntries = ((BMap<String, BValue>) jarFile).getMap();
         try {
             byte[] jarInBytes = getJarContent(jarEntries);
-            SourceDirectory sourceDirectory = new FileSystemProjectDirectory(Paths.get(targetPath).getParent());
+            SourceDirectory sourceDirectory = new FileSystemProjectDirectory(Paths.get(targetPath));
             String jarFilename = cleanupExecFileName(fileName);
             sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(jarInBytes), jarFilename);
         } catch (IOException e) {

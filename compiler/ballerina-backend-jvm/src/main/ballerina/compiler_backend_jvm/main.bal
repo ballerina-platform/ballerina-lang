@@ -38,15 +38,16 @@ public function main(string... args) {
     birHome = new(untaint args[0]);
     string progName = args[1];
     string pathToEntryMod = args[2];
-    boolean dumpBir = boolean.convert(args[2]);
-    writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, pathToEntryMod);
+    string targetPath = args[3];
+    boolean dumpBir = boolean.convert(args[4]);
+
+    currentBIRContext = createBIRContext(pathToEntryMod, birHome.getPathValue());
+    writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, targetPath);
 }
 
 function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
     io:println("Reading bir of ", progName);
 
-    bir:BIRContext birContext = new;
-    currentBIRContext = birContext;
     byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
     bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
 
@@ -58,19 +59,10 @@ function generateJarBinary(string progName, string pathToEntryMod, boolean dumpB
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
-    byte[] utilsModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId("utils", "0.0.0"), "utils");
-    byte[] builtinModuleBytes = bir:decompressSingleFileToBlob(getBaloPathFromModuleId("builtin", "0.0.0"), "builtin");
-
-    bir:Package utilsMod = bir:populateBIRModuleFromBinary(utilsModuleBytes);
-    bir:Package builtinMod = bir:populateBIRModuleFromBinary(builtinModuleBytes);
-
-    generateImportedPackage(utilsMod, jarEntries);
-    generateImportedPackage(builtinMod, jarEntries);
+    generateBuiltInPackages(currentBIRContext, jarEntries);
 
     foreach var importModule in entryMod.importModules {
-        string pathToLib = getBaloPathFromModuleId(importModule.modName.value, importModule.modVersion.value);
-        moduleBytes = bir:decompressSingleFileToBlob(pathToLib, importModule.modName.value);
-        bir:Package module = bir:populateBIRModuleFromBinary(moduleBytes);
+        bir:Package module = lookupModule(importModule, currentBIRContext);
         generateImportedPackage(module, jarEntries);
         compiledPkgCache[module.org.value + module.name.value] = module;
     }
@@ -92,3 +84,5 @@ function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
 }
 
 function writeExecutableJarToFile(JarFile jarFile, string fileName, string targetPath) = external;
+
+function createBIRContext(string sourceDir, string balHome) returns bir:BIRContext = external;

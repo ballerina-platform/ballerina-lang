@@ -31,11 +31,9 @@ import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FileUtils;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -86,8 +84,8 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
 
         BValue[] args = new BValue[4];
         args[0] = new BBoolean(dumpBIR);
-        args[1] = BIRModuleUtils.createBIRContext(programFile, PackageCache.getInstance(context),
-                Names.getInstance(context));
+//        args[1] = BIRModuleUtils.createBIRContext(programFile, PackageCache.getInstance(context),
+//                Names.getInstance(context));
         args[2] = BIRModuleUtils.createModuleID(programFile, packageID.orgName.value,
                 packageID.name.value, packageID.version.value, packageID.isUnnamed,
                 packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
