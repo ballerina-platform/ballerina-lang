@@ -905,7 +905,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
     foreach var value in finiteType.values {
         mv.visitInsn(DUP);
-        mv.visitLdcInsn(value);
+
+        if (value is ()) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            mv.visitLdcInsn(value);
+        }
 
         if (value is int) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
