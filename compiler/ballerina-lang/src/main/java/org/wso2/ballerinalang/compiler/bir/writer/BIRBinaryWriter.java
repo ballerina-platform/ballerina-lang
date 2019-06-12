@@ -143,8 +143,8 @@ public class BIRBinaryWriter {
             buf.writeByte(birGlobalVar.kind.getValue());
             // Name
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
-            // Visibility
-            buf.writeByte(birGlobalVar.visibility.value());
+            // Flags
+            buf.writeInt(birGlobalVar.flags);
 
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
@@ -156,8 +156,8 @@ public class BIRBinaryWriter {
         insWriter.writePosition(typeDef.pos);
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
-        // Visibility
-        buf.writeByte(typeDef.visibility.value());
+        // Flags
+        buf.writeInt(typeDef.flags);
         writeType(buf, typeDef.type);
     }
 
@@ -174,13 +174,8 @@ public class BIRBinaryWriter {
         insWriter.writePosition(birFunction.pos);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
-        // Function definition or a declaration
-        // Non-zero value means this is a function declaration e.g. extern function
-        buf.writeByte(birFunction.isDeclaration ? 1 : 0);
-        buf.writeByte(birFunction.isInterface ? 1 : 0);
-        buf.writeByte(birFunction.isRemote ? 1 : 0);
-        // Visibility
-        buf.writeByte(birFunction.visibility.value());
+        // Flags
+        buf.writeInt(birFunction.flags);
 
         // Function type as a CP Index
         writeType(buf, birFunction.type);
@@ -291,7 +286,7 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
 
-        buf.writeByte(birAnnotation.visibility.value());
+        buf.writeInt(birAnnotation.flags);
 
         buf.writeInt(birAnnotation.attachPoints.size());
         for (AttachPoint attachPoint : birAnnotation.attachPoints) {
@@ -318,7 +313,7 @@ public class BIRBinaryWriter {
     private void writeConstant(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRConstant birConstant) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
-        buf.writeByte(birConstant.visibility.value());
+        buf.writeInt(birConstant.flags);
         writeType(buf, birConstant.type);
         writeConstValue(buf, typeWriter, birConstant.constValue);
     }

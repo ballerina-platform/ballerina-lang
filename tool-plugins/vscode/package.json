@@ -259,13 +259,15 @@
             ]
         }
     },
-    "main": "./out/src/extension",
+    "main": "./dist/extension",
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "vscode:prepublish": "webpack --mode production",
+        "compile": "webpack --mode none",
+        "watch": "webpack --mode none --watch --info-verbosity verbose",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "update-version": "node ./scripts/update-version.js",
+        "test-compile": "tsc -p ./",
+        "test-disabled": "npm run test-compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package"
     },
@@ -297,11 +299,14 @@
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
+        "ts-loader": "^6.0.2",
         "ts-node": "^8.0.3",
         "tslint": "^5.14.0",
         "typescript": "^3.3.4000",
         "vsce": "^1.59.0",
         "vscode": "1.1.21",
-        "vscode-debugadapter-testsupport": "^1.34.0"
+        "vscode-debugadapter-testsupport": "^1.34.0",
+        "webpack": "^4.33.0",
+        "webpack-cli": "^3.3.3"
     }
 }

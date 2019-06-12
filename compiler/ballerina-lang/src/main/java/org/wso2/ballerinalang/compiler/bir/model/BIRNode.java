@@ -165,17 +165,14 @@ public abstract class BIRNode {
      */
     public static class BIRGlobalVariableDcl extends BIRVariableDcl {
         /**
-         * Visibility of this variable.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value represents Flags.
          */
-        public Visibility visibility;
+        public int flags;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, Visibility visibility, BType type,
+        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
                                     Name name, VarScope scope, VarKind kind) {
             super(pos, type, name, scope, kind);
-            this.visibility = visibility;
+            this.flags = flags;
         }
 
         @Override
@@ -217,27 +214,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Indicate whether this is a function definition or a declaration.
+         * Value represents flags.
          */
-        public boolean isDeclaration;
-
-        /**
-         * Indicate whether this is a function definition or an interface.
-         */
-        public boolean isInterface;
-
-        /**
-         * Indicate whether this is a remote function or not.
-         */
-        public boolean isRemote;
-
-        /**
-         * Visibility of this function.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
-         */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Type of this function. e.g., (int, int) returns (int).
@@ -310,11 +289,11 @@ public abstract class BIRNode {
          */
         public TaintTable taintTable;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
+        public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, BType receiverType,
                            Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
             this.parameters = new LinkedHashMap<>();
@@ -372,13 +351,7 @@ public abstract class BIRNode {
 
         public List<BIRFunction> attachedFuncs;
 
-        /**
-         * Visibility of this type definition.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
-         */
-        public Visibility visibility;
+        public int flags;
 
         public BType type;
 
@@ -388,11 +361,11 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility,
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags,
                                  BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
         }
@@ -460,12 +433,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Visibility of this annotation.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value represents flags.
          */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Attach points, this is needed only in compiled symbol enter as it is.
@@ -477,11 +447,11 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(DiagnosticPos pos, Name name, Visibility visibility,
+        public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
                              Set<AttachPoint> points, BType annotationType) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.attachPoints = points;
             this.annotationType = annotationType;
         }
@@ -505,12 +475,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Visibility of this constant.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value for the Flags.
          */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Type of the constant.
@@ -522,11 +489,11 @@ public abstract class BIRNode {
          */
         public ConstValue constValue;
 
-        public BIRConstant(DiagnosticPos pos, Name name, Visibility visibility,
+        public BIRConstant(DiagnosticPos pos, Name name, int flags,
                              BType type, ConstValue constValue) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.constValue = constValue;
         }

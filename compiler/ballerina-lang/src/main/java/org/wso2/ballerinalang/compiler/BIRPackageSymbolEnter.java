@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.bir.model.VisibilityFlags;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -326,13 +325,7 @@ public class BIRPackageSymbolEnter {
         skipPosition(dataInStream); // Position details are skipped
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
-        int flags = 0;
-
-        flags = dataInStream.readByte() == 1 ? flags | Flags.NATIVE : flags;
-        flags = dataInStream.readByte() == 1 ? flags | Flags.INTERFACE : flags;
-        flags = dataInStream.readByte() == 1 ? flags | Flags.REMOTE : flags;
-
-        flags = visibilityAsMask(flags, dataInStream.readByte());
+        int flags = dataInStream.readInt();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
@@ -387,27 +380,11 @@ public class BIRPackageSymbolEnter {
         dataInStream.readInt();
     }
 
-    private int visibilityAsMask(int flags, byte visibility) {
-        switch (visibility) {
-            case VisibilityFlags.PACKAGE_PRIVATE:
-                return flags;
-            case VisibilityFlags.PRIVATE:
-                return flags | Flags.PRIVATE;
-            case VisibilityFlags.PUBLIC:
-                return flags | Flags.PUBLIC;
-            case VisibilityFlags.OPTIONAL:
-                return flags | Flags.OPTIONAL;
-        }
-        return flags;
-    }
-
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         skipPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
-        int flags = 0;
-
-        flags = visibilityAsMask(flags, dataInStream.readByte());
+        int flags = dataInStream.readInt();
 
         BType type = readBType(dataInStream);
 
@@ -454,8 +431,7 @@ public class BIRPackageSymbolEnter {
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
 
-        int flags = 0;
-        flags = visibilityAsMask(flags, dataInStream.readByte());
+        int flags = dataInStream.readInt();
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -479,8 +455,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
-        int flags = 0;
-        flags = visibilityAsMask(flags, dataInStream.readByte());
+        int flags = dataInStream.readInt();
         BType finiteType = readBType(dataInStream);
         BType valueType = readBType(dataInStream);
 
@@ -529,7 +504,7 @@ public class BIRPackageSymbolEnter {
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
-        int flags = visibilityAsMask(0, dataInStream.readByte());
+        int flags = dataInStream.readInt();
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
@@ -735,8 +710,7 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = 0;
-                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
+                        int fieldFlags = inputStream.readInt();
                         BType fieldType = readTypeFromCp();
                         BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
@@ -748,8 +722,7 @@ public class BIRPackageSymbolEnter {
 
                     // read record init function
                     String recordInitFuncName = getStringCPEntryValue(inputStream);
-                    int recordInitFuncFlags = 0;
-                    recordInitFuncFlags = visibilityAsMask(recordInitFuncFlags, inputStream.readByte());
+                    int recordInitFuncFlags = inputStream.readInt();
                     BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
                     Name initFuncName = names.fromString(recordInitFuncName);
                     boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
@@ -881,9 +854,8 @@ public class BIRPackageSymbolEnter {
                     break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
-                    int visibility = 0;
-                    visibility = visibilityAsMask(visibility, inputStream.readByte());
-                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, visibility,
+                    int flags = inputStream.readInt();
+                    BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags,
                             names.fromString(finiteTypeName), env.pkgSymbol.pkgID, null, env.pkgSymbol);
                     symbol.scope = new Scope(symbol);
                     BFiniteType finiteType = new BFiniteType(symbol);
@@ -919,8 +891,7 @@ public class BIRPackageSymbolEnter {
                     int fieldCount = inputStream.readInt();
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = 0;
-                        fieldFlags = visibilityAsMask(fieldFlags, inputStream.readByte());
+                        int fieldFlags = inputStream.readInt();
                         BType fieldType = readTypeFromCp();
                         BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 objectSymbol.pkgID, fieldType, objectSymbol.scope.owner);
@@ -966,7 +937,7 @@ public class BIRPackageSymbolEnter {
 
         private void ignoreAttachedFunc() throws IOException {
             getStringCPEntryValue(inputStream);
-            inputStream.readByte();
+            inputStream.readInt();
             readTypeFromCp();
         }
     }

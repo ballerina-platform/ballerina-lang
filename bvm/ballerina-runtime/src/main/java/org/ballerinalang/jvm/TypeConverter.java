@@ -237,6 +237,8 @@ public class TypeConverter {
             return (boolean) sourceVal ? DecimalValue.valueOf(1) : DecimalValue.valueOf(0);
         } else if (sourceVal instanceof String) {
             return new DecimalValue((String) sourceVal);
+        } else if (sourceVal instanceof DecimalValue) {
+            return (DecimalValue) sourceVal;
         }
 
         throw errorFunc.get();
