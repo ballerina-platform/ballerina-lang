@@ -151,11 +151,11 @@ function testIncompatibleImplicitConversion() returns int|error {
     return int.convert(operationReq.toInt);
 }
 
-function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
+function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer|error {
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    Engineer e =  Engineer.convert(p); // Cyclic value will be check with isLikeType method.
+    Engineer|error e =  trap Engineer.convert(p); // Cyclic value will be check with isLikeType method.
     return e;
 }
 
@@ -163,7 +163,7 @@ function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    json j =  check json.convert(p); // Cyclic value will be check with isLikeType method.
+    json j =  check trap json.convert(p); // Cyclic value will be check with isLikeType method.
     return j;
 }
 
@@ -173,7 +173,7 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     p.parent = p2;
     anydata a = p;
     basicMatch(a);
-    map<anydata> m =  check map<anydata>.convert(p); // Cyclic value will be check when stamping the value.
+    map<anydata> m =  check trap map<anydata>.convert(p); // Cyclic value will be check when stamping the value.
     return m;
 }
 
