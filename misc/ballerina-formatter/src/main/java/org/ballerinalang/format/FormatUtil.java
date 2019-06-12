@@ -93,45 +93,46 @@ public class FormatUtil {
                 if (FormatUtil.isBalFile(argList.get(0))) {
                     ballerinaFilePath = argList.get(0);
                     Path filePath = Paths.get(ballerinaFilePath);
-                    if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
-                        String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
-                        String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-                        if ("".equals(packageName)) {
-                            Path path = filePath.getFileName();
-                            if (path != null) {
-                                packageName = path.toString();
-                            }
-                        }
-                        BLangPackage bLangPackage = compileFile(Paths.get(sourceRoot), packageName);
+                    if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
+                        throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
+                    }
 
-                        // If there is no compilation error continue the process.
-                        if (!bLangPackage.diagCollector.hasErrors()) {
-                            BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().get(0);
-                            String formattedSourceCode = format(compilationUnit);
-                            if (overWriteFile) {
-                                FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
-                                outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
-                            } else {
-                                outStream.println(Messages.getConfirmationMessage());
-                                Scanner userInput = new Scanner(System.in, "UTF-8");
-                                boolean wait = true;
-                                while (wait) {
-                                    String input = userInput.nextLine();
-                                    if (input != null) {
-                                        if (input.equals("y")) {
-                                            FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
-                                            outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
-                                            wait = false;
-                                        } else {
-                                            outStream.println(Messages.getCancelMessage());
-                                            wait = false;
-                                        }
-                                    }
+                    String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
+                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+                    if ("".equals(packageName)) {
+                        Path path = filePath.getFileName();
+                        if (path != null) {
+                            packageName = path.toString();
+                        }
+                    }
+                    BLangPackage bLangPackage = compileFile(Paths.get(sourceRoot), packageName);
+
+                    // If there are compilation errors do not continue the process.
+                    if (bLangPackage.diagCollector.hasErrors()) {
+                        return;
+                    }
+                    BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().get(0);
+                    String formattedSourceCode = format(compilationUnit);
+                    if (overWriteFile) {
+                        FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
+                        outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
+                    } else {
+                        outStream.println(Messages.getConfirmationMessage());
+                        Scanner userInput = new Scanner(System.in, "UTF-8");
+                        boolean wait = true;
+                        while (wait) {
+                            String input = userInput.nextLine();
+                            if (input != null) {
+                                if (input.equals("y")) {
+                                    FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
+                                    outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
+                                    wait = false;
+                                } else {
+                                    outStream.println(Messages.getCancelMessage());
+                                    wait = false;
                                 }
                             }
                         }
-                    } else {
-                        throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
                 } else if (Files.isRegularFile(Paths.get(argList.get(0)))) {
                     // If file is a regular file but not a ballerina source file
@@ -141,37 +142,7 @@ public class FormatUtil {
                     moduleName = argList.get(0);
 
                     // Check whether the module dir exists.
-                    if (FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
-                        // Check whether the given directory is not in a ballerina project.
-                        if (FormatUtil.notABallerinaProject(sourceRootPath)) {
-                            throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
-                        }
-                        BLangPackage bLangPackage = FormatUtil
-                                .compileModule(sourceRootPath, moduleName);
-
-                        // If there is no compilation error continue the process.
-                        if (!bLangPackage.diagCollector.hasErrors()) {
-                            if (overWriteFile) {
-                                iterateAndFormat(bLangPackage, sourceRootPath);
-                            } else {
-                                outStream.println(Messages.getConfirmationMessage());
-                                Scanner userInput = new Scanner(System.in, "UTF-8");
-                                boolean wait = true;
-                                while (wait) {
-                                    String input = userInput.nextLine();
-                                    if (input != null) {
-                                        if (input.equals("y")) {
-                                            iterateAndFormat(bLangPackage, sourceRootPath);
-                                            wait = false;
-                                        } else {
-                                            outStream.println(Messages.getCancelMessage());
-                                            wait = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
+                    if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
                         // If module directory doesn't exist and contains a "."
                         // throw a exception to say file or module doesn't exist.
                         // Else throw a exception to say module doesn't exist.
@@ -182,26 +153,21 @@ public class FormatUtil {
                             throw LauncherUtils.createLauncherException(Messages.getNoModuleFound(moduleName));
                         }
                     }
-                }
-            } else {
-                // Check whether the given source root is not
-                if (FormatUtil.notABallerinaProject(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
-                }
 
-                List<BLangPackage> packages = FormatUtil.compileProject(sourceRootPath);
-                boolean noCompilationError = true;
-                for (BLangPackage bLangPackage : packages) {
-                    if (bLangPackage.diagCollector.hasErrors()) {
-                        noCompilationError = false;
-                        break;
+                    // Check whether the given directory is not in a ballerina project.
+                    if (FormatUtil.notABallerinaProject(sourceRootPath)) {
+                        throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
                     }
-                }
-                if (noCompilationError) {
+                    BLangPackage bLangPackage = FormatUtil
+                            .compileModule(sourceRootPath, moduleName);
+
+                    // If there are no compilation errors do not continue the process.
+                    if (bLangPackage.diagCollector.hasErrors()) {
+                        return;
+                    }
+
                     if (overWriteFile) {
-                        for (BLangPackage bLangPackage : packages) {
-                            iterateAndFormat(bLangPackage, sourceRootPath);
-                        }
+                        iterateAndFormat(bLangPackage, sourceRootPath);
                     } else {
                         outStream.println(Messages.getConfirmationMessage());
                         Scanner userInput = new Scanner(System.in, "UTF-8");
@@ -210,14 +176,53 @@ public class FormatUtil {
                             String input = userInput.nextLine();
                             if (input != null) {
                                 if (input.equals("y")) {
-                                    for (BLangPackage bLangPackage : packages) {
-                                        iterateAndFormat(bLangPackage, sourceRootPath);
-                                    }
+                                    iterateAndFormat(bLangPackage, sourceRootPath);
                                     wait = false;
                                 } else {
                                     outStream.println(Messages.getCancelMessage());
                                     wait = false;
                                 }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Check whether the given source root is not
+                if (FormatUtil.notABallerinaProject(sourceRootPath)) {
+                    throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
+                }
+
+                List<BLangPackage> packages = FormatUtil.compileProject(sourceRootPath);
+                boolean hasCompilationErrors = false;
+                for (BLangPackage bLangPackage : packages) {
+                    if (bLangPackage.diagCollector.hasErrors()) {
+                        hasCompilationErrors = true;
+                        break;
+                    }
+                }
+                if (hasCompilationErrors) {
+                    return;
+                }
+
+                if (overWriteFile) {
+                    for (BLangPackage bLangPackage : packages) {
+                        iterateAndFormat(bLangPackage, sourceRootPath);
+                    }
+                } else {
+                    outStream.println(Messages.getConfirmationMessage());
+                    Scanner userInput = new Scanner(System.in, "UTF-8");
+                    boolean wait = true;
+                    while (wait) {
+                        String input = userInput.nextLine();
+                        if (input != null) {
+                            if (input.equals("y")) {
+                                for (BLangPackage bLangPackage : packages) {
+                                    iterateAndFormat(bLangPackage, sourceRootPath);
+                                }
+                                wait = false;
+                            } else {
+                                outStream.println(Messages.getCancelMessage());
+                                wait = false;
                             }
                         }
                     }
@@ -348,7 +353,7 @@ public class FormatUtil {
         JsonObject model = modelElement.getAsJsonObject();
         FormattingSourceGen.build(model, "CompilationUnit");
 
-        // Format the given ast.
+        // Format the given AST.
         FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
         formattingUtil.accept(model);
 
@@ -357,7 +362,7 @@ public class FormatUtil {
 
     private static void iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath)
             throws IOException, JSONGenerationException {
-        // Iterate compilation units and format
+        // Iterate compilation units and format.
         for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             formatAndWrite(compilationUnit, sourceRootPath);
         }

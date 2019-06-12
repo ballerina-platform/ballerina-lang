@@ -284,7 +284,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-format</artifactId>
+            <artifactId>ballerina-formatter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

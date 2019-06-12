@@ -23,7 +23,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-format</artifactId>
+    <artifactId>ballerina-formatter</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - formatting tool</name>
 
