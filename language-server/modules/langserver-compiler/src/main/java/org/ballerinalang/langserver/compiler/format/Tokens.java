@@ -104,4 +104,5 @@ public class Tokens {
     public static final String ONABORT = "onabort";
     public static final String ONCOMMIT = "oncommit";
     public static final String TRAP = "trap";
+    public static final String NEW = "new";
 }

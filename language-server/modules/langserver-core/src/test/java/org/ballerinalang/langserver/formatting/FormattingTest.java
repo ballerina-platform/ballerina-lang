@@ -151,6 +151,7 @@ public class FormattingTest {
                 {"expectedInvocation.bal", "invocation.bal"},
                 {"expectedTypeDesc.bal", "typeDesc.bal"},
                 {"expectedAnonObject.bal", "anonObject.bal"},
+                {"expectedTypeInitExpr.bal", "typeInitExpr.bal"},
         };
     }
 
