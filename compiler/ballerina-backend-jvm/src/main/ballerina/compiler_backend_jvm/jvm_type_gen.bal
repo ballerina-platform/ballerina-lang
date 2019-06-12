@@ -252,8 +252,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    int flag = getVisibilityFlag(typeDef.visibility);
-    mv.visitLdcInsn(flag);
+    mv.visitLdcInsn(typeDef.flags);
     mv.visitInsn(L2I);
 
     // Load 'sealed' flag
@@ -316,8 +315,7 @@ function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    int flag = getVisibilityFlag(field.visibility);
-    mv.visitLdcInsn(flag);
+    mv.visitLdcInsn(field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -364,8 +362,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    int flag = getVisibilityFlag(typeDef.visibility);
-    mv.visitLdcInsn(flag);
+    mv.visitLdcInsn(typeDef.flags);
     mv.visitInsn(L2I);
 
     // initialize the object
@@ -373,16 +370,6 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
             io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
             false);
     return;
-}
-
-function getVisibilityFlag(bir:Visibility visibility) returns int {
-    if (visibility == bir:VISIBILITY_PUBLIC) {
-        return BAL_PUBLIC;
-    } else if (visibility == bir:VISIBILITY_OPTIONAL) {
-        return BAL_OPTIONAL;
-    } else {
-        return 0;
-    }
 }
 
 # Add the field type information to an object type. The object type is assumed
@@ -434,12 +421,7 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (field.visibility == "PACKAGE_PRIVATE") {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -514,12 +496,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     loadType(mv, attachedFunc.funcType);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (attachedFunc.visibility == "PACKAGE_PRIVATE") {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(attachedFunc.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
