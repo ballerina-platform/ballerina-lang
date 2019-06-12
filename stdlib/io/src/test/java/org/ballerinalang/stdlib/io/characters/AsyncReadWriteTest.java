@@ -52,7 +52,7 @@ public class AsyncReadWriteTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Tests reading characters through the async io framework")

@@ -41,7 +41,7 @@ public class CharacterInputOutputBufferTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Read characters which does not fit to the fixed buffer limit")

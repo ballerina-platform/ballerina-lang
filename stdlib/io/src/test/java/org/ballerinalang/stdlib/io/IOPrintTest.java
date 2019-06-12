@@ -123,7 +123,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConnectorPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
@@ -136,7 +136,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFunctionPointerPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
@@ -230,7 +230,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatBooleanFalse() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BBoolean(false));
@@ -239,7 +239,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "false");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatDecimal() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(65));
@@ -248,7 +248,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "65");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatFloat() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BFloat(3.25));
@@ -267,7 +267,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), name);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatHex() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(57005));
@@ -308,7 +308,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "       He");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatFloatWithPadding() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BFloat(123456789.9876543));
@@ -317,7 +317,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "123456789.9877");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatDecimalWithPadding() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(12345));
@@ -336,7 +336,7 @@ public class IOPrintTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*", enabled = false)
     public void testSprintfIllegalFormatConversion() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
@@ -344,7 +344,7 @@ public class IOPrintTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSprintfMix() {
         BValue[] args = {new BString("the %s jumped over the %s, %d times"),
                 new BString("cow"), new BString("moon"), new BInteger(2)};
