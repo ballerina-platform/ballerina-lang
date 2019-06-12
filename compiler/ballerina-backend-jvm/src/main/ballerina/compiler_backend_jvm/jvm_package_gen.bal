@@ -385,7 +385,6 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:BType bType = typeDef.typeValue;
 
         if (bType is bir:BObjectType || bType is bir:BRecordType) {
-            // string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
             string key = getModuleLevelClassName(orgName, moduleName, typeDef.name.value);
             typeDefMap[key] = typeDef;
         }
