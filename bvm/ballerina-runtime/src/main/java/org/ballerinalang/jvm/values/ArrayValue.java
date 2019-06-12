@@ -180,11 +180,12 @@ public class ArrayValue implements RefValue, CollectionValue {
             case TypeTags.BYTE_TAG:
                 byteValues = (byte[]) newArrayInstance(Byte.TYPE);
                 break;
+            case TypeTags.XML_TAG:
+                refValues = (Object[]) newArrayInstance(Object.class);
+                break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
-                if (size > 0) {
-                    Arrays.fill(refValues, elementType.getZeroValue());
-                }
+                Arrays.fill(refValues, elementType.getZeroValue());
         }
     }
 
