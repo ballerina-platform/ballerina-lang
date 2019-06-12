@@ -75,6 +75,7 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.promise.PushPromiseNativeFunctionTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
         </classes>
     </test>
 </suite>
