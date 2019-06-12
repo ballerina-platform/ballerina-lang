@@ -372,11 +372,8 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
 }
 
 # Create a runtime type instance for the service.
-#
-# + mv - method visitor
-# + objectType - object type
-# + name - name of the object
-function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
+function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName,
+                           bir:TypeDef|bir:TypeRef? typeDefRef = (), int? strandIndex = ()) {
     // Create the object type
     mv.visitTypeInsn(NEW, SERVICE_TYPE);
     mv.visitInsn(DUP);
@@ -399,9 +396,23 @@ function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir
     mv.visitInsn(L2I);
 
     // initialize the object
-    mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
-        io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
-        false);
+    if (strandIndex is int) {
+        string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME : 
+                                lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+        mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+        mv.visitVarInsn(ALOAD, strandIndex);
+        loadExternalOrLocalType(mv, <bir:TypeDef|bir:TypeRef> typeDefRef);
+        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE);
+        mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+                           io:sprintf("(L%s;L%s;IL%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, MAP_VALUE, STRAND,
+                                                                    SERVICE_TYPE),
+                           false);
+    } else {
+        mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+                           io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
+                           false);
+    }
 }
 
 # Add the field type information to an object type. The object type is assumed

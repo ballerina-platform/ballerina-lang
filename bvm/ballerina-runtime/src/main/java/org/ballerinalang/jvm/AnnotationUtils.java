@@ -20,8 +20,10 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BServiceType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 
 /**
@@ -48,13 +50,30 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG || type.getTag() == TypeTags.SERVICE_TAG) {
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObjectType objectType = (BObjectType) type;
             for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
                 annotationKey = attachedFunction.getAnnotationKey();
                 if (globalAnnotMap.containsKey(annotationKey)) {
                     attachedFunction.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
                 }
+            }
+        }
+    }
+
+    public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
+        String annotationKey = bType.getAnnotationKey();
+        if (globalAnnotMap.containsKey(annotationKey)) {
+            bType.setAnnotations((MapValue<String, Object>)
+                                         ((FPValue) globalAnnotMap.get(annotationKey)).apply(new Object[]{strand}));
+        }
+
+        for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
+            annotationKey = attachedFunction.getAnnotationKey();
+            if (globalAnnotMap.containsKey(annotationKey)) {
+                attachedFunction.setAnnotations((MapValue<String, Object>)
+                                                        ((FPValue) globalAnnotMap.get(annotationKey))
+                                                                .apply(new Object[]{strand}));
             }
         }
     }

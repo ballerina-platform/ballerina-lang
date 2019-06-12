@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -156,8 +157,7 @@ public class AnnotationDesugar {
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFunction.body.pos;
 
-                addInvocationToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target, pkgID,
-                                              owner);
+                addLambdaToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target);
 
                 int index = calculateIndex(initFunction.body.stmts, service);
                 for (BLangStatement stmt : target.stmts) {
@@ -185,7 +185,12 @@ public class AnnotationDesugar {
 //                String identifier = (function.attachedFunction || function.attachedOuterFunction) ?
 //                        function.symbol.name.value : function.name.value;
                 String identifier = function.symbol.name.value;
-                addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
+
+                if (function.receiver.type instanceof BServiceType) {
+                    addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
+                } else {
+                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
+                }
 
                 int index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
                 for (BLangStatement stmt : target.stmts) {
@@ -540,11 +545,24 @@ public class AnnotationDesugar {
         addInvocationToMap(annotationMap, identifier, lambdaFunction, target, packageID, owner);
     }
 
+    private void addLambdaToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+                                           BLangBlockStmt target) {
+        addLambdaToMap(annotationMap, identifier, lambdaFunction, target);
+    }
+
     private void addInvocationToMap(BLangSimpleVariable map, String identifier, BLangLambdaFunction lambdaFunction,
                                     BLangBlockStmt target, PackageID packageID, BSymbol owner) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction, packageID, owner);
         addAnnotValueAssignmentToMap(map, identifier, target, annotFuncInvocation);
+    }
+
+    private void addLambdaToMap(BLangSimpleVariable map, String identifier, BLangLambdaFunction lambdaFunction,
+                                BLangBlockStmt target) {
+        // create: $annotation_data["identifier"] = $annot_func$;
+        addAnnotValueAssignmentToMap(map, identifier, target,
+                                     ASTBuilderUtil.createVariableRef(lambdaFunction.pos,
+                                                                      lambdaFunction.function.symbol));
     }
 
     private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier, BLangBlockStmt target,

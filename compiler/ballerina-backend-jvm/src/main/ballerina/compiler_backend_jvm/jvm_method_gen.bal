@@ -498,7 +498,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
-                instGen.generateObjectNewIns(inst);
+                instGen.generateObjectNewIns(inst, localVarOffset);
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(inst);
@@ -1363,7 +1363,7 @@ function generateAnnotLoad(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string
         string name = typeDef.name.value;
         bir:BType bType = typeDef.typeValue;
 
-        if (bType is bir:BFiniteType) {
+        if (bType is bir:BFiniteType || bType is bir:BServiceType) {
             continue;
         }
 

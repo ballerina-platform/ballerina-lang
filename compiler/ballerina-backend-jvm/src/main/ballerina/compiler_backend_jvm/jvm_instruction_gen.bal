@@ -807,7 +807,7 @@ type InstructionGenerator object {
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    function generateObjectNewIns(bir:NewInstance objectNewIns) {
+    function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
         string className = self.currentPackageName;
@@ -817,16 +817,18 @@ type InstructionGenerator object {
         className = className + cleanupTypeName(typeDef.name.value);
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
-        loadExternalOrLocalType(self.mv, typeDefRef);
+
+        bir:BType typeValue = typeDef.typeValue;
+        if (typeValue is bir:BServiceType) {
+            // For services, create a new type for each new service value. TODO: do only for local vars
+            createServiceType(self.mv, typeValue.oType, typeDef, self.currentPackageName, typeDefRef = typeDefRef,
+                              strandIndex = strandIndex);
+        } else {
+            loadExternalOrLocalType(self.mv, typeDefRef);
+        }
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
-
-        if (typeDef.typeValue is bir:BServiceType) {
-            // For services, load annots here since annots maybe processed before the completion of init
-            //  (e.g., __attach for global service variables)
-            loadAnnots(self.mv, self.currentPackageName, typeDef);
-        }
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {
