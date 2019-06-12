@@ -49,7 +49,6 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
