@@ -50,6 +50,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -114,14 +115,16 @@ public class BuilderUtils {
                     "run",
                     "compiler_backend_jvm.balx",
                     ballerinaHome.toString(),
-                    "test",
+                    cleanUpFilename(targetPath),
                     Paths.get("").toAbsolutePath().resolve("target").toString(),
                     "true"
             };
             ProcessBuilder balProcess = new ProcessBuilder(commands);
             balProcess.inheritIO();
 
+            // ballerina.home is set to pack dash
             balProcess.environment().put(BALLERINA_HOME, ballerinaHome.resolve("build").toString());
+            // update classpath env variable will tell the ballerina sh to pick the jars from the main pack
             balProcess.environment().put("UPDATE_CLASSPATH", "true");
 //            balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
             balProcess.directory(ballerinaHome.resolve("build").resolve("bin").toFile());
@@ -283,5 +286,13 @@ public class BuilderUtils {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
         return context;
+    }
+
+    private static String cleanUpFilename(String updatedFileName) {
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0,
+                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+        return updatedFileName;
     }
 }
