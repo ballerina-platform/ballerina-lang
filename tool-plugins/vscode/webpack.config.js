@@ -30,7 +30,10 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
+            loader: 'ts-loader',
+            options: {
+              logLevel: "info"
+            }
           }
         ]
       }

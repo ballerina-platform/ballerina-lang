@@ -263,7 +263,7 @@
     "scripts": {
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
-        "watch": "webpack --mode none --watch",
+        "watch": "webpack --mode none --watch --info-verbosity verbose",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
