@@ -74,8 +74,8 @@ import static org.ballerinalang.stdlib.utils.MultipartUtils.createNestedPartRequ
 public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
 
-    private CompileResult result, serviceResult, channelResult;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private CompileResult result, channelResult;
+    private static final int EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
@@ -83,8 +83,8 @@ public class MultipartEncoderTest {
         String sourceFilePath = "test-src/multipart/dummy.bal";
         result = BCompileUtil.compile(sourceFilePath);
         String sourceFilePathForServices = "test-src/multipart/multipart-response.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePathForServices);
-        channelResult = BCompileUtil.compileAndSetup("test-src/multipart/bytechannel-base64.bal");
+        BCompileUtil.compile(sourceFilePathForServices);
+        channelResult = BCompileUtil.compile("test-src/multipart/bytechannel-base64.bal");
     }
 
     @Test(description = "Test whether the body parts get correctly encoded for multipart/mixed")
@@ -186,7 +186,7 @@ public class MultipartEncoderTest {
     public void testMultipartsInOutResponse() {
         String path = "/multipart/encode_out_response";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
@@ -206,7 +206,7 @@ public class MultipartEncoderTest {
     public void testNestedPartsInOutResponse() {
         String path = "/multipart/nested_parts_in_outresponse";
         HTTPTestRequest inRequestMsg = createNestedPartRequest(path);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
