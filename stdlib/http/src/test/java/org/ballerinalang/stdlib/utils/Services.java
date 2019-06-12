@@ -91,7 +91,8 @@ public class Services {
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Executor.submit(service, resource.getName(), callback, properties, signatureParams);
+        Executor.submit(httpServicesRegistry.getScheduler(), service, resource.getName(), callback, properties,
+                        signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

@@ -65,7 +65,7 @@ public class Executor {
 
         //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
         if (scheduler == null) {
-            scheduler = new Scheduler(4);
+            scheduler = new Scheduler(4, false);
             scheduler.start();
         }
         Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
