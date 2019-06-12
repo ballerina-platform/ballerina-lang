@@ -19,7 +19,8 @@ package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -32,7 +33,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
 
@@ -96,6 +96,9 @@ public class ParseHeader extends BlockingNativeCallableUnit {
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;
         try {
+            if (headerValue == null) {
+                throw new BLangNullReferenceException(PARSER_ERROR + "header value cannot be null");
+            }
             if (headerValue.contains(COMMA)) {
                 headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
             }
@@ -106,11 +109,11 @@ public class ParseHeader extends BlockingNativeCallableUnit {
                 value = HeaderUtil.getHeaderValue(value);
             }
             ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
-            contentTuple.add(0, value);
+            contentTuple.add(0, (Object) value);
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
             return contentTuple;
         } catch (BLangNullReferenceException ex) {
-            errMsg = PARSER_ERROR + "header value cannot be null";
+            errMsg = ex.getMessage();
         } catch (BallerinaException ex) {
             errMsg = PARSER_ERROR + ex.getMessage();
         }

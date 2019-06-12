@@ -421,12 +421,7 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (field.flags == 0) {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -501,12 +496,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     loadType(mv, attachedFunc.funcType);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (attachedFunc.flags == 0) {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(attachedFunc.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",

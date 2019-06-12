@@ -452,7 +452,7 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg,
-                "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
+                "Failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
 
     @Test(description = "Convert a string to json")

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -137,10 +138,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                     edits.add(addPackage(pkgName, packageNode, context));
                 }
             };
-            returnType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
-            returnValue = CommonUtil.FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
+            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
+            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
                                                                            "    return {%1};");
-            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
+            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
                                                                                    functionNode);
             if (arguments != null) {
                 funcArgs = String.join(", ", arguments);
@@ -149,7 +150,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        String editText = CommonUtil.FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
+        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);

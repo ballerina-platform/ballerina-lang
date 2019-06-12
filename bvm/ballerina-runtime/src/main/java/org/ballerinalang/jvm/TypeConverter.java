@@ -234,6 +234,8 @@ public class TypeConverter {
             return (DecimalValue) sourceVal;
         } else if (sourceVal instanceof String) {
             return new DecimalValue((String) sourceVal);
+        } else if (sourceVal instanceof DecimalValue) {
+            return (DecimalValue) sourceVal;
         }
 
         throw errorFunc.get();

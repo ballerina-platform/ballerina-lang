@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -40,7 +41,7 @@ import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN
  */
 public class DataContext {
     private Strand strand = null;
-    private ObjectValue clientObj = null;
+    private HttpClientConnector clientConnector = null;
     private ObjectValue requestObj = null;
     private NonBlockingCallback callback = null;
     private Context context = null;
@@ -53,23 +54,21 @@ public class DataContext {
         this.correlatedMessage = correlatedMessage;
     }
 
-    public DataContext(Strand strand, ObjectValue clientObj, ObjectValue requestObj,
-                       HttpCarbonMessage outboundRequestMsg) {
-        this.strand = strand;
-        this.clientObj = clientObj;
-        this.requestObj = requestObj;
-        this.correlatedMessage = outboundRequestMsg;
-        this.callback = null;
-    }
-
-    public DataContext(Strand strand, NonBlockingCallback callback, ObjectValue clientObj,
-                       ObjectValue requestObj,
-                       HttpCarbonMessage outboundRequestMsg) {
+    public DataContext(Strand strand, HttpClientConnector clientConnector, NonBlockingCallback callback,
+                       ObjectValue requestObj, HttpCarbonMessage outboundRequestMsg) {
         this.strand = strand;
         this.callback = callback;
-        this.clientObj = clientObj;
+        this.clientConnector = clientConnector;
         this.requestObj = requestObj;
         this.correlatedMessage = outboundRequestMsg;
+    }
+
+    public DataContext(Strand strand, NonBlockingCallback callback, HttpCarbonMessage inboundRequestMsg) {
+        this.strand = strand;
+        this.callback = callback;
+        this.clientConnector = null;
+        this.requestObj = null;
+        this.correlatedMessage = inboundRequestMsg;
     }
 
     public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
@@ -122,8 +121,8 @@ public class DataContext {
         return correlatedMessage;
     }
 
-    public ObjectValue getClientObj() {
-        return clientObj;
+    public HttpClientConnector getClientConnector() {
+        return clientConnector;
     }
 
     public ObjectValue getRequestObj() {

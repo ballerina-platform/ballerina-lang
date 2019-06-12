@@ -16,7 +16,7 @@
 
 # Format which will be used to represent the CSV.
 #
-# DEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field
+# DEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field
 #           separator and record separator.
 #
 # CSV - Field separator would be "," and the record separator would be new line.

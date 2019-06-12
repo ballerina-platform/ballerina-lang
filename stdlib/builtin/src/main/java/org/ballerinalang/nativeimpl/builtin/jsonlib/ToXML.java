@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BError;
@@ -85,7 +85,7 @@ public class ToXML extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object toXML(Strand strand, Object json, MapValueImpl<?, ?> options) {
+    public static Object toXML(Strand strand, Object json, MapValue<?, ?> options) {
         try {
             if (json == null) {
                 ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR,
@@ -97,10 +97,8 @@ public class ToXML extends BlockingNativeCallableUnit {
             String arrayEntryTag = options.get(XML_OPTIONS_ARRAY_ENTRY_TAG).toString();
             return org.ballerinalang.jvm.JSONToXMLConverter.convertToXML(json, attributePrefix, arrayEntryTag);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+            return BLangExceptionHelper.getJsonError(BallerinaErrorReasons.JSON_OPERATION_ERROR, "convert json to xml",
                     e);
         }
-
-        return null;
     }
 }
