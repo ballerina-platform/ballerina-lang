@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -136,7 +135,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BFiniteType bFiniteType) {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        buff.writeByte(getVisibility(tsymbol).value());
+        buff.writeInt(tsymbol.flags);
         buff.writeInt(bFiniteType.valueSpace.size());
         for (BLangExpression valueLiteral : bFiniteType.valueSpace) {
             if (!(valueLiteral instanceof BLangLiteral)) {
@@ -262,13 +261,13 @@ public class BIRTypeWriter implements TypeVisitor {
             String fieldName = entry.getKey().value;
             if (symbol != initializerFunc.symbol) {
                 buff.writeInt(addStringCPEntry(fieldName));
-                buff.writeByte(getVisibility(symbol).value());
+                buff.writeInt(symbol.flags);
                 writeTypeCpIndex(symbol.type);
             }
         }
 
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeByte(getVisibility(initializerFunc.symbol).value());
+        buff.writeInt(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
     }
 
@@ -300,7 +299,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
-            buff.writeByte(getVisibility(field.symbol).value());
+            buff.writeInt(field.symbol.flags);
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
@@ -328,7 +327,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-        buff.writeByte(getVisibility(attachedFunc.symbol).value());
+        buff.writeInt(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
 
@@ -360,16 +359,6 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private int addByteCPEntry(int value) {
         return cp.addCPEntry(new ByteCPEntry(value));
-    }
-
-    private Visibility getVisibility(BSymbol symbol) {
-        if (Symbols.isPublic(symbol)) {
-            return Visibility.PUBLIC;
-        } else if (Symbols.isPrivate(symbol)) {
-            return Visibility.PRIVATE;
-        } else {
-            return Visibility.PACKAGE_PRIVATE;
-        }
     }
 
     private void writeValue(Object value, BType typeOfValue) {

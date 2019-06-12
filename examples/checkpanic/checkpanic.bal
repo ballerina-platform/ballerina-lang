@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// `parse()` takes a `string` argument and attempts to convert it to an `int`.
+// The `parse()` function takes a `string` argument and attempts to convert it to an `int`.
 function parse(string num) returns int|error {
     return int.convert(num);
 }
