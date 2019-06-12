@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.entity;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class MimeWithHttpTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/entity/mime-with-http.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        serviceResult = BCompileUtil.compile(sourceFilePath);
         compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
