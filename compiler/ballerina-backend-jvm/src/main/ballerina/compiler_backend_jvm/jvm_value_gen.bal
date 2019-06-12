@@ -193,7 +193,6 @@ public type ObjectGenerator object {
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
-
                 // load self
                 mv.visitVarInsn(ALOAD, 0);
 
@@ -214,13 +213,11 @@ public type ObjectGenerator object {
                 }
 
                 mv.visitMethodInsn(INVOKESTATIC, className, getName(func), methodSig, false);
-
                 if (retType is () || retType is bir:BTypeNil) {
                     mv.visitInsn(ACONST_NULL);
                 } else {
                     addBoxInsn(mv, retType);
                 }
-
                 mv.visitInsn(ARETURN);
             } else {
                 // use index access, since retType can be nil.
@@ -246,13 +243,11 @@ public type ObjectGenerator object {
                 }
 
                 mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
-
                 if (retType is () || retType is bir:BTypeNil) {
                     mv.visitInsn(ACONST_NULL);
                 } else {
                     addBoxInsn(mv, retType);
                 }
-
                 mv.visitInsn(ARETURN);
             }
             i += 1;
@@ -263,7 +258,7 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] objectFields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                 io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
@@ -273,6 +268,7 @@ public type ObjectGenerator object {
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
+        bir:BObjectField?[] fields = objectFields.clone();
         sorter.sortByHash(fields);
 
         jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
@@ -296,17 +292,24 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] objectFields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT),
-                (), ());
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
-
         int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
         jvm:Label defaultCaseLabel = new jvm:Label();
+
+        // code gen type checking for inserted value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", 
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
+        bir:BObjectField?[] fields = objectFields.clone();
         sorter.sortByHash(fields);
 
         jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
@@ -320,7 +323,7 @@ public type ObjectGenerator object {
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitVarInsn(ALOAD, 2);
+            mv.visitVarInsn(ALOAD, valueRegIndex);
             addUnboxInsn(mv, field.typeValue);
             mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
             mv.visitInsn(RETURN);

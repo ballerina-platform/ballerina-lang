@@ -49,7 +49,7 @@ function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
     if (key is bir:TypeDef) {
         return key;
     } else {
-        string className = typeRefToClassName(key) + "/" + key.name.value;
+        string className = typeRefToClassName(key, key.name.value);
         var typeDef = typeDefMap[className];
         if (typeDef is bir:TypeDef) {
             return typeDef;
@@ -237,16 +237,16 @@ function computeLockNameFromString(string varName) returns string {
 }
 
 function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
-        string orgName = modId.org;
-        string moduleName = modId.name;
+    string orgName = modId.org;
+    string moduleName = modId.name;
 
-        var pkgFromCache = compiledPkgCache[orgName + moduleName];
-        if (pkgFromCache is bir:Package) {
-            return (pkgFromCache, true);
-        }
-        var parsedPkg = currentBIRContext.lookupBIRModule(modId);
-        compiledPkgCache[orgName + moduleName] = parsedPkg;
-        return (parsedPkg, false);
+    var pkgFromCache = compiledPkgCache[orgName + moduleName];
+    if (pkgFromCache is bir:Package) {
+        return (pkgFromCache, true);
+    }
+    var parsedPkg = currentBIRContext.lookupBIRModule(modId);
+    compiledPkgCache[orgName + moduleName] = parsedPkg;
+    return (parsedPkg, false);
 
 }
 
@@ -385,7 +385,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:BType bType = typeDef.typeValue;
 
         if (bType is bir:BObjectType || bType is bir:BRecordType) {
-            string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
+            // string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
+            string key = getModuleLevelClassName(orgName, moduleName, typeDef.name.value);
             typeDefMap[key] = typeDef;
         }
 
@@ -411,8 +412,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
                                                                         versionValue, result);
                 } else {
-                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                                        lookupKey);
+                    error err = error("native function not available: " + pkgName + lookupKey);
                     panic err;
                 }
             }

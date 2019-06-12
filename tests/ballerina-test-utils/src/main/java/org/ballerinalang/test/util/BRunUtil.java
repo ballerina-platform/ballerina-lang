@@ -44,6 +44,7 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BMapType;
@@ -918,7 +919,16 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
                 return BTypes.typeAnydata;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
-                return BTypes.typeError;
+                org.ballerinalang.jvm.types.BErrorType errorType = (org.ballerinalang.jvm.types.BErrorType) jvmType;
+                if (errorType == org.ballerinalang.jvm.types.BTypes.typeError) {
+                    return BTypes.typeError;
+                }
+
+                BType reasonType = getBVMType(errorType.reasonType, selfTypeStack);
+                BType detailType = getBVMType(errorType.detailType, selfTypeStack);
+                BErrorType bvmErrorType =
+                        new BErrorType(errorType.getName(), reasonType, detailType, errorType.getPackage().name);
+                return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType = new BRecordType(null, recordType.getName(),
@@ -957,7 +967,7 @@ public class BRunUtil {
                 BObjectType bvmObjectType =
                         new BObjectType(null, objectType.getName(), objectType.getPackage().getName(),
                                         objectType.flags);
-                Map<String, BField> objectFields = new HashMap<>();
+                LinkedHashMap<String, BField> objectFields = new LinkedHashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
                     if (selfTypeStack.contains(field)) {
                         continue;
