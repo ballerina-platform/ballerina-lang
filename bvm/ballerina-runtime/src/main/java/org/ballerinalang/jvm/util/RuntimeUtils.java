@@ -26,6 +26,8 @@
 
  /**
   * Util methods required for jBallerina runtime.
+  *
+  * @since 0.995.0
   */
  public class RuntimeUtils {
 
