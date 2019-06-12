@@ -65,9 +65,9 @@ public class InboundBasicAuthProviderTest {
                 ballerinaConfPath.toString(), null);
     }
 
-    @Test(description = "Test case for creating file based userstore")
-    public void testCreateConfigAuthProvider() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateConfigAuthProvider");
+    @Test(description = "Test case for creating inbound basic auth provider")
+    public void testCreateInboundAuthProvider() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateInboundBasicAuthProvider");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BMap);
     }

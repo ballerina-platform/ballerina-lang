@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/encoding;
 
-function testCreateConfigAuthProvider() returns auth:InboundBasicAuthProvider {
+function testCreateInboundBasicAuthProvider() returns auth:InboundBasicAuthProvider {
     auth:InboundBasicAuthProvider basicAuthProvider = new;
     return basicAuthProvider;
 }
