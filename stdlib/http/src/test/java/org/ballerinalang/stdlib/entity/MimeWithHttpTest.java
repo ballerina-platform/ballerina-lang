@@ -36,13 +36,11 @@ import org.testng.annotations.Test;
 public class MimeWithHttpTest {
     private static final Logger LOG = LoggerFactory.getLogger(MimeWithHttpTest.class);
 
-    private CompileResult serviceResult;
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/entity/mime-with-http.bal";
-        serviceResult = BCompileUtil.compile(sourceFilePath);
         compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
