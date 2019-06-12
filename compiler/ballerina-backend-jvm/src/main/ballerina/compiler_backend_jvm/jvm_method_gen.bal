@@ -1064,6 +1064,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
             bir:BType pType = getType(paramType);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, paramIndex + 1);
+            // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
             if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
                 // load VarArgs array
                 mv.visitVarInsn(ALOAD, 0);
@@ -1169,7 +1170,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex+1) {
+        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
             addUnboxInsn(mv, pType);
         } else {
             castFromString(pType, mv);
