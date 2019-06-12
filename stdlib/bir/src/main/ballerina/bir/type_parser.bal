@@ -212,7 +212,7 @@ public type TypeParser object {
         BRecordType obj = { moduleId:self.cp.packages[self.readInt32()], name:{value:self.readStringCpRef()},
                                 sealed:self.readBoolean(),
                     restFieldType: TYPE_NIL, fields: [],
-                    initFunction: {funcType: {}, visibility: VISIBILITY_PRIVATE } };
+                    initFunction: {funcType: {}, flags: PRIVATE } };
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
@@ -233,11 +233,11 @@ public type TypeParser object {
 
     function parseRecordInitFunction() returns BAttachedFunction {
         var funcName = self.readStringCpRef();
-        var visibility = self.parseVisibility();
+        int flags = self.readInt32();
 
         var funcType = self.parseTypeCpRef();
         if (funcType is BInvokableType) {
-            return {name:{value:funcName},visibility:visibility,funcType: funcType};
+            return {name:{value:funcName},flags:flags,funcType: funcType};
         } else {
             error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
             panic err;
@@ -245,7 +245,7 @@ public type TypeParser object {
     }
 
     function parseRecordField() returns BRecordField {
-        return {name:{value:self.readStringCpRef()}, visibility:self.parseVisibility(), typeValue:self.parseTypeCpRef()};
+        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
     }
 
     function parseObjectType() returns BType {
@@ -292,11 +292,11 @@ public type TypeParser object {
 
     function readAttachFunction() returns BAttachedFunction {
         var funcName = self.readStringCpRef();
-        var visibility = self.parseVisibility();
+        int flags = self.readInt32();
 
         var funcType = self.parseTypeCpRef();
         if (funcType is BInvokableType) {
-            return {name:{value:funcName},visibility:visibility,funcType: funcType};
+            return {name:{value:funcName},flags:flags,funcType: funcType};
         } else {
             error err = error("expected invokable type but found " + io:sprintf("%s", funcType));
             panic err;
@@ -315,7 +315,7 @@ public type TypeParser object {
     }
 
     function parseObjectField() returns BObjectField {
-        return {name:{value:self.readStringCpRef()}, visibility:self.parseVisibility(), typeValue:self.parseTypeCpRef()};
+        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
     }
 
     function parseErrorType() returns BErrorType {
@@ -354,7 +354,7 @@ public type TypeParser object {
 
     function parseFiniteType() returns BFiniteType {
         BFiniteType finiteType = {name: { value: self.readStringCpRef()},
-                                    visibility:self.parseVisibility(), values:[]};
+                                    flags:self.readInt32(), values:[]};
         int size = self.readInt32();
         int c = 0;
         while c < size {
@@ -402,22 +402,6 @@ public type TypeParser object {
     public function readByteCpRef() returns byte {
         var byteCpIndex = self.readInt32();
         return self.cp.bytes[byteCpIndex];
-    }
-
-    // TODO: remove duplicate function with the same name
-    private function parseVisibility() returns Visibility {
-        var b = self.readInt8();
-        if (b == 0) {
-            return "PACKAGE_PRIVATE";
-        } else if (b == 1) {
-            return "PRIVATE";
-        } else if (b == 2) {
-            return "PUBLIC";
-        } else if (b == 3) {
-            return "OPTIONAL";
-        }
-        error err = error("unknown variable visiblity tag " + b);
-            panic err;
     }
 
     private function readBoolean() returns boolean {

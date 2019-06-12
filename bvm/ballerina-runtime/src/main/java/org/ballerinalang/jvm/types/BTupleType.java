@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.ArrayValue;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,12 +47,12 @@ public class BTupleType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new ArrayValue(this);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override

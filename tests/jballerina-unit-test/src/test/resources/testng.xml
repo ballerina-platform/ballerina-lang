@@ -67,6 +67,17 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
+            <package name="org.ballerinalang.test.types.anydata.*"/>
+            <package name="org.ballerinalang.test.statements.arrays.*"/>
+            <package name="org.ballerinalang.test.statements.assign.*"/>
+            <package name="org.ballerinalang.test.statements.block.*"/>
+            <package name="org.ballerinalang.test.statements.breakstatement.*"/>
+            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
+            <package name="org.ballerinalang.test.statements.continuestatement.*"/>
+            <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
+            <package name="org.ballerinalang.test.statements.vardeclr.*"/>
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -193,6 +204,10 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+            <class name="org.ballerinalang.test.record.ClosedRecordOptionalFieldsTest"/>
+            <class name="org.ballerinalang.test.record.OpenRecordOptionalFieldsTest"/>
+            <class name="org.ballerinalang.test.record.RecordAccessWithIndexTest"/>
+            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest"/>
 
             <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
             <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
