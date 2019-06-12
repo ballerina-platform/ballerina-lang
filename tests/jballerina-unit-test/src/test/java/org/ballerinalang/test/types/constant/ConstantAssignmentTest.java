@@ -41,13 +41,13 @@ public class ConstantAssignmentTest {
 
     @BeforeClass
     public void setup() {
+        setEnv("env_var", "test");
         positiveCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment-negative.bal");
     }
 
     @Test(description = "Test accessing constant evaluated by an expression.")
     public void testConstantAssignmentExpression() {
-        setEnv("env_var", "test");
         BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstant");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "test");
@@ -97,7 +97,6 @@ public class ConstantAssignmentTest {
 
     @Test(description = "Test accessing constant evaluated by another already defined constant.")
     public void testConstantAssignmentViaConstant() {
-        setEnv("env_var", "test");
         BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "testdummyballerina is awesome");

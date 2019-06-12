@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -501,17 +502,20 @@ public class JSONUtils {
      * @param json JSON to be converted
      * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
      */
-    private static BigDecimal jsonNodeToDecimal(Object json) {
+    private static DecimalValue jsonNodeToDecimal(Object json) {
+        BigDecimal decimal = null;
         if (json instanceof Integer) {
-            return new BigDecimal(((Integer) json).longValue());
+            decimal = new BigDecimal(((Integer) json).longValue());
         } else if (json instanceof Float) {
-            return new BigDecimal(((Float) json).floatValue());
+            decimal = new BigDecimal(((Float) json).floatValue());
         } else if (json instanceof Float) {
-            return (BigDecimal) json;
+            decimal = (BigDecimal) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeDecimal, getTypeName(json));
         }
+
+        return new DecimalValue(decimal);
     }
 
     /**

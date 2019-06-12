@@ -558,7 +558,8 @@ public class BRunUtil {
                             jvmArray.add(i, array.getFloat(i));
                             break;
                         case TypeTags.JSON_TAG:
-                            jvmArray.add(i, array.getRefValue(i));
+                            BRefType refValue = array.getRefValue(i);
+                            jvmArray.add(i, getJVMValue(refValue.getType(), refValue));
                             break;
                         default:
                             throw new RuntimeException("Function signature type '" + type + "' is not supported");
