@@ -1289,12 +1289,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
         setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
-        List<BType> memberTypes = tupleDeStmt.varRef.expressions
-                .stream().map(v -> symTable.noType)
-                .collect(Collectors.toList());
-        expType = new BTupleType(memberTypes);
-        typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
-        checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef, tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
+        BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
+        if (type.tag != TypeTags.SEMANTIC_ERROR) {
+            checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
+                    tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
+        }
     }
 
     @Override

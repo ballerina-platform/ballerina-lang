@@ -24,7 +24,7 @@ function testWhileScope(int number) returns (int) {
     return i;
 }
 
-function testWhileScopeWithIf() returns (int, float) {
+function testWhileScopeWithIf() returns [int, float] {
     float[] values = [];
     string operator;
     float sum = 0.0;
@@ -49,7 +49,7 @@ function testWhileScopeWithIf() returns (int, float) {
         sum = sum + values[j];
         j = j + 1;
     }
-    return (j, sum);
+    return [j, sum];
 }
 
 function testWhileStmtWithoutBraces(int x, int y) returns (int) {
@@ -63,7 +63,7 @@ function testWhileStmtWithoutBraces(int x, int y) returns (int) {
     return z;
 }
 
-function testWhileStmtWithDefaultValues() returns (int, string, float) {
+function testWhileStmtWithDefaultValues() returns [int, string, float] {
     int count = 0;
     int fi = 0;
     string fs = "";
@@ -80,5 +80,5 @@ function testWhileStmtWithDefaultValues() returns (int, string, float) {
         ff = f;
         count += 1;
     }
-    return (fi, fs, ff);
+    return [fi, fs, ff];
 }
