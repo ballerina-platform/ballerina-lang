@@ -25,7 +25,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
 
-    implementation project(':ballerina-builtin')
     implementation project(':ballerina-config')
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
@@ -93,12 +92,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
-}
-
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute module("org.ballerinalang:ballerina-core:0.992.0-m1") with project(":ballerina-core")
-    }
 }
 
 description = 'Ballerina - Unit Test Module'

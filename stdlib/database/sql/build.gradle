@@ -26,10 +26,10 @@ dependencies {
 
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator-milestone')
-    implementation project(':ballerina-builtin')
     implementation project(':ballerina-core')
 //    implementation project(':ballerina-lang')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-builtin')
 
     implementation 'com.zaxxer:HikariCP'
 }

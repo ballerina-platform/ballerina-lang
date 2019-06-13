@@ -54,12 +54,6 @@ dependencies {
 
 }
 
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute module("org.ballerinalang:ballerina-lang:0.992.0-m1") with project(":ballerina-lang")
-    }
-}
-
 jar {
     enabled = false
     dependsOn(shadowJar { classifier = null })

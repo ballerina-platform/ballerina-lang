@@ -595,8 +595,8 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     loadType(mv, errorType.reasonType);
 
     // initialize the error type
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE,
-            PACKAGE_TYPE,  BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>",
+                            io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, BTYPE), false);
 }
 
 function typeRefToClassName(bir:TypeRef typeRef) returns string{
