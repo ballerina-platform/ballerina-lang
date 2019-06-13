@@ -88,7 +88,7 @@ public class Services {
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Scheduler scheduler = httpServicesRegistry.getScheduler();
+        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
         Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
