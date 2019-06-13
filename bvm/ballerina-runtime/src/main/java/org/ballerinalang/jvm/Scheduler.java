@@ -306,7 +306,7 @@ public class Scheduler {
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
-        ChannelDetails[] channels = item.future.strand.channelDetails;
+        Set<ChannelDetails> channels = item.future.strand.channelDetails;
         if (DEBUG) {
             debugLog("notifying channels:" + channels.toString());
         }
