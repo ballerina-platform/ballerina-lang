@@ -78,29 +78,46 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable <DebugAdapterDescriptor> {
         return new Promise(function(resolve, reject) {
             // launch debugger
-            const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
 
-            let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
-            // Ensure that start script can be executed
-            if (isUnix()) {
-                child_process.exec("chmod +x " + startScriptPath);
-            } else {
-                startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
-            }
+            // TODO: update this code to ballerina launch
+            // const ballerinaCommand = "java -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=y -jar hello_world.jar"
+            const balProcess = child_process.spawn('java', 
+                ['-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=y', '-jar', 'hello_world.jar'], {
+                cwd: "/Users/pahan/workspace/jballerina/samples"
+            });
 
-            console.info("Found debug adapter {} with args {}", startScriptPath);
-            const serverProcess = child_process.spawn(startScriptPath);
-
-            serverProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Debug server started')) {
-                    resolve(new DebugAdapterServer(4711));
+            balProcess.stdout.on('data', (data) => {
+                if (data.toString().includes('Listening for transport dt_socket')) {
+                    BallerinaDebugAdapterDescriptorFactory.launchAdopter(resolve, reject);
                 }
+                console.log(data.toString())
             });
-            
-            serverProcess.stderr.on('data', (data) => {
-                console.log(`stderr: ${data}`);
-                reject(data);
+            balProcess.stderr.on('data', (data) => {
+                console.log(data.toString())
             });
+        });
+    }
+    static launchAdopter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
+        const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
+
+        let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
+        // Ensure that start script can be executed
+        if (isUnix()) {
+            child_process.exec("chmod +x " + startScriptPath);
+        } else {
+            startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+        }
+        const serverProcess = child_process.spawn(startScriptPath);
+        console.info("Found debug adapter {} with args {}", startScriptPath);
+        serverProcess.stdout.on('data', (data) => {
+            if (data.toString().includes('Debug server started')) {
+                resolve(new DebugAdapterServer(4711));
+            }
+        });
+        
+        serverProcess.stderr.on('data', (data) => {
+            console.log(`stderr: ${data}`);
+            reject(data);
         });
     }
 }
