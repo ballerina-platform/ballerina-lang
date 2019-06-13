@@ -19,7 +19,6 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
@@ -48,7 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  */
 public class Services {
 
-    private static String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
+    private static final String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
 
     @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
