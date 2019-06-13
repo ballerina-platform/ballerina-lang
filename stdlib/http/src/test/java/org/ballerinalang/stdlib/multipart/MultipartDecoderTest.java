@@ -39,7 +39,6 @@ import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -57,14 +56,15 @@ import java.util.Base64;
  * @since 0.963.0
  */
 public class MultipartDecoderTest {
-    private CompileResult channelResult;
+    private CompileResult bvmResult, compileResult, channelResult;
     private static final int EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        BCompileUtil.compile(sourceFilePath);
+        compileResult = BCompileUtil.compile(sourceFilePath);
         channelResult = BCompileUtil.compile("test-src/multipart/bytechannel-base64.bal");
+        bvmResult = BCompileUtil.compileOnBVM("test-src/multipart/bytechannel-base64.bal");
     }
 
     @Test(description = "Test sending a multipart request as multipart/mixed with multiple body parts")
@@ -217,7 +217,7 @@ public class MultipartDecoderTest {
     @Test
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(channelResult);
+        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(bvmResult);
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
