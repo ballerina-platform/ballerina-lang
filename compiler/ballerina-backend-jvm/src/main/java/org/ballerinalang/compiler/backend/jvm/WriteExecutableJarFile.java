@@ -58,7 +58,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
 )
 public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
-    private static final String JAR_ENTRIES = "jarEntries";
+    private static final String PKG_ENTRIES = "pkgEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
 
     @Override
@@ -109,10 +109,10 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (JarOutputStream target = new JarOutputStream(baos, manifest)) {
 
-            if (!entries.containsKey(JAR_ENTRIES)) {
+            if (!entries.containsKey(PKG_ENTRIES)) {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
-            Map<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
+            Map<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(PKG_ENTRIES)).getMap();
             for (String entryName : jarEntries.keySet()) {
                 byte[] entryContent = ((BValueArray) jarEntries.get(entryName)).getBytes();
                 JarEntry entry = new JarEntry(entryName);

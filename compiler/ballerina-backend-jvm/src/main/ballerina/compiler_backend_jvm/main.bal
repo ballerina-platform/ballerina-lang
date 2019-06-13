@@ -45,10 +45,12 @@ public function main(string... args) {
     writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, targetPath);
 }
 
-function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
-            returns JarFile {
-    currentBIRContext = birContext;
-    var (entryMod, _) = lookupModule(entryModId);
+function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
+
+    byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
+    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
+
+    compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
     if (dumpBir) {
        bir:BirEmitter emitter = new(entryMod);
@@ -56,46 +58,16 @@ function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:Modul
     }
 
     JarFile jarFile = {};
-    generatePackage(entryModId, jarFile, true);
+    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value), jarFile, true);
 
     return jarFile;
 }
 
-//function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
-//    io:println("Reading bir of ", progName);
-//
-//    byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
-//    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
-//
-//    if (dumpBir) {
-//       bir:BirEmitter emitter = new(entryMod);
-//       emitter.emitPackage();
-//    }
-//
-//    map<byte[]> jarEntries = {};
-//    map<string> manifestEntries = {};
-//
-//    generateBuiltInPackages(currentBIRContext, jarEntries);
-//
-//    foreach var importModule in entryMod.importModules {
-//        bir:Package module = lookupModule(importModule, currentBIRContext);
-//        generateImportedPackage(module, jarEntries);
-//        compiledPkgCache[module.org.value + module.name.value] = module;
-//    }
-//
-//    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
-//
-//    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
-//    return jarFile;
-//}
-
-public function getBaloPathFromModuleId(string moduleName, string modVersion) returns string {
-    string moduleVersion = modVersion == "" ? "0.0.0" : modVersion;
-    return birHome.resolve("lib", "repo", "ballerina", moduleName, moduleVersion).getPathValue();
+public function createModuleId(string orgName, string moduleName, string moduleVersion) returns bir:ModuleID {
+    return { org: orgName, name: moduleName, modVersion: moduleVersion, isUnnamed: false, sourceFilename: moduleName };
 }
 
 function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
-    io:println("Writing jar file for ", fileName);
     writeExecutableJarToFile(jarFile, fileName, targetPath);
 }
 
