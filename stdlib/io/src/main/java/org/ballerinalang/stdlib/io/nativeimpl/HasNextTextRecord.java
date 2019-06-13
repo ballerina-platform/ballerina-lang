@@ -76,7 +76,6 @@ public class HasNextTextRecord implements NativeCallableUnit {
             Register register = EventRegister.getFactory().register(hasNextEvent, HasNextTextRecord::getResponse);
             eventContext.setRegister(register);
             register.submit();
-            return false;
         }
         return false;
     }
