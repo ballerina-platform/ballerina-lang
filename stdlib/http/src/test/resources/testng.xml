@@ -55,7 +55,12 @@ under the License.
         </packages>
         <classes>
             <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
-            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest"/>
+            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
+                <methods>
+                    <exclude name="testErrorReturn"></exclude>
+                    <exclude name="testGetString"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
