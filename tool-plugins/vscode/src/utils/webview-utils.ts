@@ -1,6 +1,6 @@
 import { Uri, ExtensionContext } from "vscode";
 import { join } from "path";
-import { ballerinaExtInstance } from "src/core";
+import { ballerinaExtInstance } from "../core";
 
 export function getWebViewResourceRoot(): string {
     return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 
