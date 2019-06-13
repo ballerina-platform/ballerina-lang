@@ -221,7 +221,7 @@ public class IOPrintTest {
 
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatBooleanTrue() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BBoolean(true));
@@ -276,7 +276,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "dead");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatIntArray() {
         BValueArray fArgs = new BValueArray();
         BValueArray arr = new BValueArray(BTypes.typeInt);
@@ -290,7 +290,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "[111, 222, 333]");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatLiteralPercentChar() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("test"));
@@ -299,7 +299,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "% test");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatStringWithPadding() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("Hello Ballerina"));
@@ -359,7 +359,7 @@ public class IOPrintTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*illegal format conversion 'f != \\(\\)'.*")
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'f != \\(\\)'.*", enabled = false)
     public void testSprintfForNilInputFloat() {
         BRunUtil.invoke(compileResult, "testSprintfNilFloat");
     }
