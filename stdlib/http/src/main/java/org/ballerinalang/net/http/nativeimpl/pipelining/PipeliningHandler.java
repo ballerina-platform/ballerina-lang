@@ -169,7 +169,7 @@ public class PipeliningHandler {
      * @return a boolean indicating whether the pipelining is required
      */
     public static boolean pipeliningRequired(HttpCarbonMessage request) {
-        String httpVersion = (String) request.getProperty(Constants.HTTP_VERSION);
+        String httpVersion = request.getHttpVersion();
         return request.isPipeliningEnabled() && request.isKeepAlive() &&
                 Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion);
     }

@@ -58,7 +58,7 @@ public class SetHeader extends BlockingNativeCallableUnit {
         context.setReturnValues();
     }
 
-    public static void execute(Strand strand, ObjectValue pushPromiseObj, String headerName, String headerValue) {
+    public static void setHeader(Strand strand, ObjectValue pushPromiseObj, String headerName, String headerValue) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         http2PushPromise.setHeader(headerName, headerValue);

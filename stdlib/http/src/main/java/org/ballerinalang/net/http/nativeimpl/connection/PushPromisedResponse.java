@@ -89,7 +89,7 @@ public class PushPromisedResponse extends ConnectionAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
@@ -102,8 +102,6 @@ public class PushPromisedResponse extends ConnectionAction {
         HttpUtil.prepareOutboundResponse(connectionObj, inboundRequestMsg, outboundResponseMsg, outboundResponseObj);
         pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg,
                 http2PushPromise);
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 
     private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,

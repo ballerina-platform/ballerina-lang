@@ -58,7 +58,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
         WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketHandshaker);
-
+        if (wsService == null) {
+            return;
+        }
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
             webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,

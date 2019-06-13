@@ -74,26 +74,24 @@ function workerSendFromDefault() returns int{
 
     return (wait w1) + 1;
 }
-// TODO: Fails with "ClassFormatError: Illegal exception table range when generating class"
-// TODO: Ref : https://gitlab.ow2.org/asm/asm/issues/316048
-//public function receiveWithTrap() returns error|int {
-//    worker w1 {
-//      int i = 2;
-//      if(true) {
-//           error err = error("err", { message: "err msg" });
-//           panic err;
-//      }
-//      i -> w2;
-//    }
 
-//    worker w2 returns error|int {
-//      error|int  j = trap <- w1;
-//      return j;
-//    }
+public function receiveWithTrap() returns error|int {
+   worker w1 {
+     int i = 2;
+     if(true) {
+          error err = error("err", { message: "err msg" });
+          panic err;
+     }
+     i -> w2;
+   }
 
-//    return wait w2;
-//}
+   worker w2 returns error|int {
+     error|int  j = trap <- w1;
+     return j;
+   }
 
+   return wait w2;
+}
 
 public function receiveWithCheck() returns error|int {
     worker w1 returns boolean|error{
@@ -223,24 +221,24 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
     sq -> w1;
     wait w1;
 }
-// TODO : fix trap for worker actions
-//public function receiveWithCheckAndTrap() returns error|int {
-//    worker w1 {
-//        int i = 2;
-//        if(true) {
-//            error err = error("error: err from panic");
-//            panic err;
-//        }
-//        i -> w2;
-//    }
 
-//    worker w2 returns error|int {
-//        error|int  j = check trap <- w1;
-//        return j;
-//    }
+public function receiveWithCheckAndTrap() returns error|int {
+   worker w1 {
+       int i = 2;
+       if(true) {
+           error err = error("error: err from panic");
+           panic err;
+       }
+       i -> w2;
+   }
 
-//    return wait w2;
-//}
+   worker w2 returns error|int {
+       error|int  j = check trap <- w1;
+       return j;
+   }
+
+   return wait w2;
+}
 
 public function receiveWithCheckForDefault() returns boolean|error {
     worker w1 returns boolean|error {
@@ -256,35 +254,34 @@ public function receiveWithCheckForDefault() returns boolean|error {
     error|int j = check <- w1;
     return wait w1;
 }
-// TODO:fix trap
-//public function receiveWithTrapForDefault() returns error|int {
-//    worker w1 returns int {
-//        int i = 2;
-//        if(true) {
-//            error err = error("error: err from panic");
-//            panic err;
-//        }
-//        i -> default;
-//        return i;
-//    }
+public function receiveWithTrapForDefault() returns error|int {
+   worker w1 returns int {
+       int i = 2;
+       if(true) {
+           error err = error("error: err from panic");
+           panic err;
+       }
+       i -> default;
+       return i;
+   }
 
-//    error|int  j = trap <- w1;
-//    return wait w1;
-//}
-// TODO:fix trap
-//public function receiveDefaultWithCheckAndTrap() returns error|int {
-//    worker w1 {
-//        int i = 2;
-//        if(true) {
-//            error err = error("error: err from panic");
-//            panic err;
-//        }
-//        i -> default;
-//    }
+   error|int  j = trap <- w1;
+   return wait w1;
+}
 
-//    error|int j = check trap <- w1;
-//    return j;
-//}
+public function receiveDefaultWithCheckAndTrap() returns error|int {
+   worker w1 {
+       int i = 2;
+       if(true) {
+           error err = error("error: err from panic");
+           panic err;
+       }
+       i -> default;
+   }
+
+   error|int j = check trap <- w1;
+   return j;
+}
 
 int rs = 0;
 public function sameStrandMultipleInvocation() {
@@ -364,10 +361,10 @@ public function testComplexType() returns Rec {
 
 // First cancel the future and then wait
 public function workerWithFutureTest1() returns int {
-    future<int> f1 = start add(5, 5);
+    future<int> f1 = start add2(5, 5);
     worker w1 {
       int i = 40;
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {
@@ -387,7 +384,7 @@ public function workerWithFutureTest2() returns int {
       int i = 40;
       // Delay the execution of worker w1
       runtime:sleep(200);
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {
@@ -402,7 +399,7 @@ public function workerWithFutureTest3() returns int {
     future<int> f1 = start add(10, 8);
     worker w1 {
       int i = 40;
-      boolean cancelled = f1.cancel();
+      f1.cancel();
     }
 
     worker w2 returns int {
@@ -424,4 +421,37 @@ function waitFor() {
    while (l < 99999) {
     l = l +1;
    }
+}
+
+function add2(int i, int j) returns int {
+   int l = 0;
+   while (l < 99999) {
+     l = singleAdd(l);
+   }
+   return i + j;
+}
+
+function singleAdd(int num) returns int{
+   return num +1;
+}
+
+function innerWorkerPanicTest() {
+   worker w1 {
+       int k = <- default;
+   }
+
+   panicFunc();
+
+   10 -> w1;
+}
+
+function panicFunc() {
+    worker w5 {
+       if (true) {
+           error e = error("worker w5 panic");
+           panic e;
+       }
+       10 -> default;
+    }
+    int k = <- w5;
 }

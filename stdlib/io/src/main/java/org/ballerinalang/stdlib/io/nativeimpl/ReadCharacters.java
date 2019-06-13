@@ -117,19 +117,14 @@ public class ReadCharacters implements NativeCallableUnit {
     }
 
     public static Object read(Strand strand, ObjectValue channel, long numberOfCharacters) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
                 IOConstants.CHARACTER_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
         Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharacterResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -140,7 +135,6 @@ public class ReadCharacters implements NativeCallableUnit {
      */
     private static EventResult readCharacterResponse(EventResult<String, EventContext> result) {
         EventContext eventContext = result.getContext();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {

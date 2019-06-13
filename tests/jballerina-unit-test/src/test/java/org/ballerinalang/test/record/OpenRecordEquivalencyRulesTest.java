@@ -185,4 +185,30 @@ public class OpenRecordEquivalencyRulesTest {
     public void testORToORRestFieldToRestField2() {
         BRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField2");
     }
+
+    @Test(description = "Closed record to open record with RHS type being a public typedesc")
+    public void testCRToORHeterogeneousTypedescEq() {
+        BValue[] returns = BRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq");
+        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25, address:\"Colombo, Sri Lanka\"}");
+    }
+
+    @Test(description = "Closed record to open record with LHS type being a public typedesc")
+    public void testCRToORHeterogeneousTypedescEq2() {
+        BValue[] returns = BRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq2");
+        assertEquals(returns[0].stringValue(),
+                     "{name:\"John Doe\", age:25, address:\"Colombo, Sri Lanka\", weight:70.0}");
+    }
+
+    @Test(description = "RHS and LHS open with RHS type being a public typedesc")
+    public void testORToORHeterogeneousTypedescEq1() {
+        BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq3");
+        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25, address:\"Colombo, Sri Lanka\"}");
+    }
+
+    @Test(description = "RHS and LHS open with LHS type being a public typedesc")
+    public void testORToORHeterogeneousTypedescEq2() {
+        BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq4");
+        assertEquals(returns[0].stringValue(),
+                     "{name:\"John Doe\", age:25, address:\"Colombo, Sri Lanka\"}");
+    }
 }

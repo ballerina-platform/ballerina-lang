@@ -21,11 +21,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -205,7 +205,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 try {
                     char formatSpecifier = format.charAt(j);
                     //TODO : Recheck following casting
-                    RefValue ref = (RefValue) args.getRefValue(k);
+                    Object ref = args.getRefValue(k);
                     switch (formatSpecifier) {
                         case 'b':
                         case 'B':

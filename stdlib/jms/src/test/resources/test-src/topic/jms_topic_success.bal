@@ -16,7 +16,7 @@
 
 import ballerina/jms;
 
-listener jms:TopicSubscriber subscriberEndpoint = new({
+listener jms:TopicListener subscriberEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon?"
             + "brokerlist='tcp://localhost:5672'",

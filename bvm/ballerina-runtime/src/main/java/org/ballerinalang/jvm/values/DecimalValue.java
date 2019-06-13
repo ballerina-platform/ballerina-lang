@@ -416,11 +416,20 @@ public class DecimalValue {
         return this.stringValue();
     }
 
+    public static DecimalValue valueOf(int value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
     public static DecimalValue valueOf(long value) {
-        return new DecimalValue(String.valueOf(value));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 
     public static DecimalValue valueOf(double value) {
-        return new DecimalValue(String.valueOf(value));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128));
+    }
+
+    public static DecimalValue valueOf(boolean value) {
+        return new DecimalValue(value ? BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN) :
+                                        BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 }

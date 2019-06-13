@@ -72,6 +72,7 @@ public class Substring extends BlockingNativeCallableUnit {
     }
 
     public static String substring(Strand strand, String value, long startIndex, long endIndex) {
+        StringUtils.checkForNull(value);
         if (startIndex != (int) startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);

@@ -90,12 +90,20 @@ public abstract class BType {
         return false;
     }
 
+    public boolean isNilable() {
+        return false;
+    }
+
     public int hashCode() {
         return (pkg.getName() + ":" + typeName).hashCode();
     }
 
     public String getName() {
         return typeName;
+    }
+
+    public String getQualifiedName() {
+        return pkg == null ? typeName : pkg.toString() + ":" + typeName;
     }
 
     public BPackage getPackage() {

@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -56,5 +58,11 @@ public class IsDirectory extends BlockingNativeCallableUnit {
         BMap<String, BValue> pathStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         context.setReturnValues(new BBoolean(Files.isDirectory(path)));
+    }
+
+    public static boolean isDirectory(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        return Files.isDirectory(path);
+
     }
 }

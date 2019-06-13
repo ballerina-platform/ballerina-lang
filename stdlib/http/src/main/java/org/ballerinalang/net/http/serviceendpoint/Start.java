@@ -96,14 +96,13 @@ public class Start extends AbstractHttpNativeFunction {
         serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
     }
 
-    public static Object start(Strand strand, ObjectValue listener) {
+    public static void start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(listener);
 
         if (!isConnectorStarted(listener)) {
             startServerConnector(listener, httpServicesRegistry, webSocketServicesRegistry);
         }
-        return null;
     }
 
     private static void startServerConnector(ObjectValue serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,

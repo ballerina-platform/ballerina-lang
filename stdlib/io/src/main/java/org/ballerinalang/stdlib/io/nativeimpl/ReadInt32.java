@@ -100,18 +100,13 @@ public class ReadInt32 implements NativeCallableUnit {
     }
 
     public static Object readInt32(Strand strand, ObjectValue dataChannelObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.BIT_32, eventContext);
         Register register = EventRegister.getFactory().register(event, ReadInt32::readChannelResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**

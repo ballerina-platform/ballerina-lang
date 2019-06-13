@@ -74,14 +74,12 @@ public class Promise extends ConnectionAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj,
                 HttpUtil.createHttpPushPromise(pushPromiseObj));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
-        //TODO : Temporary block the call. Remove this callback once the support is available
-        callback.sync();
     }
 }

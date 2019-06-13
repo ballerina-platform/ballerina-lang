@@ -42,10 +42,14 @@ import org.slf4j.LoggerFactory;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "createConsumer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONSUMER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS)
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.CONSUMER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        )
 )
 public class CreateConsumer extends BlockingNativeCallableUnit {
     private static final Logger logger = LoggerFactory.getLogger(CreateConsumer.class);

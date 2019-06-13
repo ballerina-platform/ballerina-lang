@@ -39,4 +39,13 @@
          return name;
      }
 
+     @Override
+     public int hashCode() {
+         return name.hashCode();
+     }
+
+     @Override
+     public boolean equals(Object o) {
+         return (o instanceof ChannelDetails) && (((ChannelDetails) o).name.equals(this.name));
+     }
  }

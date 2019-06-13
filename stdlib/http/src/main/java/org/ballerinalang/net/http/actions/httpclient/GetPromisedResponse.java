@@ -67,19 +67,15 @@ public class GetPromisedResponse extends AbstractHTTPAction {
     }
 
     public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        DataContext dataContext = new DataContext(strand, callback, clientObj, pushPromiseObj, null);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand),
+                                                  pushPromiseObj, null);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
     }
 
     private static class BPushResponseListener implements HttpClientConnectorListener {

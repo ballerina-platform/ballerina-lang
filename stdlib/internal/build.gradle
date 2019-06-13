@@ -31,7 +31,6 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-io')
 	implementation project(':ballerina-encoding')
-	implementation project(':lib-creator')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-file')
 	implementation project(':ballerina-log-api')

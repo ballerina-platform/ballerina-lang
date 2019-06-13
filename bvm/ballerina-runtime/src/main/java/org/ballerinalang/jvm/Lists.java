@@ -20,10 +20,14 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
-
-import java.math.BigDecimal;
 
 /**
  * Common utility methods used for List manipulation.
@@ -45,7 +49,7 @@ public class Lists {
             case TypeTags.FLOAT_TAG:
                 return new Double(array.getFloat(index));
             case TypeTags.DECIMAL_TAG:
-                return new BigDecimal(array.getRefValue(index).toString());
+                return array.getRefValue(index);
             case TypeTags.INT_TAG:
                 return new Long((int) array.getInt(index));
             case TypeTags.STRING_TAG:
@@ -56,6 +60,22 @@ public class Lists {
     }
 
     public static void add(ArrayValue array, long index, Object refType) {
+
+        BType elementType = array.elementType;
+
+        if (array.getType().getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) array.getType();
+            if (isTupleIndexWithinRange(tupleType, index)) {
+                elementType = tupleType.getTupleTypes().get((int) index);
+            }
+        }
+
+        if (elementType != null && !TypeChecker.checkIsType(refType, elementType)) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
+                            elementType, (refType != null) ? TypeChecker.getType(refType) : BTypes.typeNull));
+        }
+
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             array.add(index, refType);
             return;
@@ -68,8 +88,10 @@ public class Lists {
             case TypeTags.FLOAT_TAG:
                 array.add(index, ((Double) refType).doubleValue());
                 return;
-            case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
+                array.add(index, ((Integer) refType).byteValue());
+                return;
+            case TypeTags.INT_TAG:
                 array.add(index, ((Long) refType).longValue());
                 return;
             case TypeTags.STRING_TAG:
@@ -78,5 +100,9 @@ public class Lists {
             default:
                 array.add(index, refType);
         }
+    }
+
+    private static boolean isTupleIndexWithinRange(BTupleType tuple, long index) {
+        return index >= 0 && index < tuple.getTupleTypes().size();
     }
 }

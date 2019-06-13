@@ -78,18 +78,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // generate method body
     int k = 1;
-    boolean isVoidFunc = false;
-    if (func.typeValue.retType is bir:BTypeNil) {
-        isVoidFunc = true;
-        k = 0;
-    }
 
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
     mv.visitVarInsn(ALOAD, localVarOffset);
     loadChannelDetails(mv, func.workerChannels);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+
+    // panic if this strand is cancelled
+    checkStrandCancelled(mv, localVarOffset);
 
     bir:FunctionParam?[] functionParams = [];
     bir:VariableDcl?[] localVars = func.localVars;
@@ -122,13 +120,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
 
-    if (!isVoidFunc) {
-        bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-        returnVarRefIndex = indexMap.getIndex(varDcl);
-        bir:BType returnType = func.typeValue.retType;
-        genDefaultValue(mv, returnType, returnVarRefIndex);
-    }
-
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = func.typeValue.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
+    
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
@@ -451,11 +447,13 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-        // start a try block if current block is trapped
-        if (isTrapped) {
+        // Cases will be generate between instructions and terminator of the basic block. So if basic block is 
+        // trapped we need to generate two try catches as for instructions and terminator. 
+        if (isTrapped && insCount > 0) {
             endLabel = new;
             handlerLabel = new;
             jumpLabel = new;
+            // start try for instructions.
             errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         while (m < insCount) {
@@ -552,30 +550,38 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             m += 1;
         }
 
-        bir:Terminator terminator = bb.terminator;
-        // close the started try block with a catch statement if current block is trapped.
-        // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
-        if (isTrapped && !(terminator is bir:Call)) {
+        // close the started try block with a catch statement for instructions.
+        if (isTrapped && insCount > 0) {
             errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
+        bir:Terminator terminator = bb.terminator;
         if (!isArg) {
             mv.visitIntInsn(BIPUSH, j);
             mv.visitVarInsn(ISTORE, stateVarIndex);
         }
 
         // process terminator
+        boolean isTerminatorTrapped = false;
         if (!isArg || (isArg && !(terminator is bir:Return))) {
-            generateDiagnosticPos(terminator.pos, mv);
-            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
-                processAnnotation(mv, module.typeDefs, currentPackageName);
+            if (isTrapped && !(terminator is bir:GOTO)) {
+                isTerminatorTrapped = true;
+                endLabel = new;
+                handlerLabel = new;
+                jumpLabel = new;
+                // start try for terminator if current block is trapped.
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
-            termGen.genTerminator(terminator, func, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
-                                    localVarOffset, returnVarRefIndex);
+            generateDiagnosticPos(terminator.pos, mv);
+            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
+            if (isTerminatorTrapped) {
+                // close the started try block with a catch statement for terminator.
+                errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            }
         }
-
+        
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
@@ -583,17 +589,47 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 currentEE = errorEntries[errorEntryCnt];
             }
         }
+        
+        var thenBB = terminator["thenBB"];
+        if (thenBB is bir:BasicBlock) {
+            genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
+        }
         j += 1;
     }
 }
 
+function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName, 
+                        int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+    jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
+    mv.visitJumpInsn(IFNE, yieldLabel);
+
+    // goto thenBB
+    jvm:Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+    mv.visitJumpInsn(GOTO, gotoLabel);
+}
+
 function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, string lambdaName) {
     bir:BType? lhsType;
+    string orgName;
+    string moduleName;
+    string funcName; 
     if (ins is bir:AsyncCall) {
         lhsType = ins.lhsOp.typeValue;
+        orgName = ins.pkgID.org;
+        moduleName = ins.pkgID.name;
+        funcName = ins.name.value;
     } else {
         lhsType = ins.lhsOp.typeValue;
+        orgName = ins.pkgID.org;
+        moduleName = ins.pkgID.name;
+        funcName = ins.name.value;
     }
+
+    string lookupKey = getPackageName(orgName, moduleName) + funcName;
+    string jvmClass = lookupFullQualifiedClassName(lookupKey);
+    boolean isExternFunction = isBIRFunctionExtern(lookupKey);
 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
@@ -624,7 +660,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     }
 
     mv.visitCode();
-
     // load strand as first arg
     // strand and other args are in a object[] param. This param comes after closure maps.
     // hence the closureMapsCount is equal to the array's param index.
@@ -633,8 +668,31 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
+    if (isExternStaticFunctionCall(ins)) {
+        jvm:Label blockedOnExternLabel = new;
+
+        mv.visitInsn(DUP);
+
+        mv.visitFieldInsn(GETFIELD, STRAND, "blockedOnExtern", "Z");
+        mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOnExtern", "Z");
+
+        if (!isVoid) {
+            mv.visitInsn(DUP);
+
+            mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
+            mv.visitInsn(ARETURN);   
+        } else {
+            mv.visitInsn(RETURN);
+        }
+
+        mv.visitLabel(blockedOnExternLabel);
+    }
+
     bir:BType?[] paramBTypes = [];
-    string funcName; 
     if (ins is bir:AsyncCall) {
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
@@ -648,11 +706,12 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
-            addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
-            paramBTypes[paramIndex -1] = "boolean";
-            paramIndex += 1;
+            if (!isExternFunction) {
+                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+                paramBTypes[paramIndex -1] = "boolean";
+                paramIndex += 1;
+            }
         }
-        funcName = ins.name.value;
     } else {
         //load closureMaps
         int i = 0;
@@ -675,14 +734,15 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramIndex += 1;
             i += 1;
 
-            addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
-            paramBTypes[paramIndex -1] = "boolean";
-            paramIndex += 1;
+            if (!isExternFunction) {
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+                paramBTypes[paramIndex -1] = "boolean";
+                paramIndex += 1;
+            }   
         }
-        funcName = ins.name.value;
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, className, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
+    mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount), false);
     
     if (isVoid) {
         mv.visitInsn(RETURN);
@@ -690,6 +750,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         addBoxInsn(mv, returnType);
         mv.visitInsn(ARETURN);
     }
+
     mv.visitMaxs(0,0);
     mv.visitEnd();
 }
@@ -1243,7 +1304,8 @@ function getModuleStartFuncName(bir:Package module) returns string {
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        var (importedPkg, isFromCache) = lookupModule(importModuleToModuleId(mod));
+
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string startFuncName = cleanupFunctionName(getModuleStartFuncName(importedPkg));
@@ -1339,7 +1401,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
-    currentClass = frameClassName;
+    currentClass = untaint frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 
@@ -1437,7 +1499,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     if (isPackage) {
         fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
     } else {
-        fv = cw.visitField(ACC_PROTECTED, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }
     fv.visitEnd();
 }
@@ -1528,7 +1590,7 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
 }
 
 function isExternFunc(bir:Function func) returns boolean {
-    return func.isDeclaration;
+    return (func.flags & bir:NATIVE) == bir:NATIVE;
 }
 
 function getVarRef(bir:VarRef? varRef) returns bir:VarRef {
@@ -1577,4 +1639,15 @@ function getFunctions(bir:Function?[]? functions) returns bir:Function?[] {
         error err = error(io:sprintf("Invalid functions: %s", functions));
         panic err;
     }
+}
+
+function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, STRAND, "cancel", "Z");
+    jvm:Label notCancelledLabel = new;
+    mv.visitJumpInsn(IFEQ, notCancelledLabel);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
+    mv.visitInsn(ATHROW);
+    
+    mv.visitLabel(notCancelledLabel);
 }

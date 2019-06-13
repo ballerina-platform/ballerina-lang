@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
@@ -30,6 +31,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -117,28 +119,46 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public ArrayValue(BType type) {
-        this.arrayType = type;
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType arrayType = (BArrayType) type;
-            this.elementType = arrayType.getElementType();
-            if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
-                this.size = maxArraySize = arrayType.getSize();
-            }
-            initArrayValues(this.elementType);
-        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
-            BTupleType tupleType = (BTupleType) type;
-            this.size = maxArraySize = tupleType.getTupleTypes().size();
-            refValues = (Object[]) newArrayInstance(Object.class);
-            AtomicInteger counter = new AtomicInteger(0);
-            tupleType.getTupleTypes()
-                    .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
-        } else if (type.getTag() == TypeTags.UNION_TAG) {
-            BUnionType unionType = (BUnionType) type;
-            this.size = maxArraySize = unionType.getMemberTypes().size();
-            unionType.getMemberTypes().forEach(this::initArrayValues);
+        if (type.getTag() == TypeTags.INT_TAG) {
+            intValues = (long[]) newArrayInstance(Long.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
+            booleanValues = (boolean[]) newArrayInstance(Boolean.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.BYTE_TAG) {
+            byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.FLOAT_TAG) {
+            floatValues = (double[]) newArrayInstance(Double.TYPE);
+            setArrayElementType(type);
+        } else if (type.getTag() == TypeTags.STRING_TAG) {
+            stringValues = (String[]) newArrayInstance(String.class);
+            Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+            setArrayElementType(type);
         } else {
-            refValues = (Object[]) newArrayInstance(Object.class);
-            Arrays.fill(refValues, type.getEmptyValue());
+            this.arrayType = type;
+            if (type.getTag() == TypeTags.ARRAY_TAG) {
+                BArrayType arrayType = (BArrayType) type;
+                this.elementType = arrayType.getElementType();
+                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                    this.size = maxArraySize = arrayType.getSize();
+                }
+                initArrayValues(this.elementType);
+            } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+                BTupleType tupleType = (BTupleType) type;
+                this.size = maxArraySize = tupleType.getTupleTypes().size();
+                refValues = (Object[]) newArrayInstance(Object.class);
+                AtomicInteger counter = new AtomicInteger(0);
+                tupleType.getTupleTypes()
+                        .forEach(memType -> refValues[counter.getAndIncrement()] = memType.getEmptyValue());
+            } else if (type.getTag() == TypeTags.UNION_TAG) {
+                BUnionType unionType = (BUnionType) type;
+                this.size = maxArraySize = unionType.getMemberTypes().size();
+                unionType.getMemberTypes().forEach(this::initArrayValues);
+            } else {
+                refValues = (Object[]) newArrayInstance(Object.class);
+                Arrays.fill(refValues, type.getEmptyValue());
+            }
         }
     }
 
@@ -159,6 +179,9 @@ public class ArrayValue implements RefValue, CollectionValue {
                 break;
             case TypeTags.BYTE_TAG:
                 byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+                break;
+            case TypeTags.XML_TAG:
+                refValues = (Object[]) newArrayInstance(Object.class);
                 break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
@@ -544,6 +567,8 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (value != null) {
                 sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
                         : value.toString());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();
@@ -554,7 +579,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     public byte[] getBytes() {
-        return byteValues.clone();
+        byte[] bytes = new byte[this.size];
+        System.arraycopy(byteValues, 0, bytes, 0, this.size);
+        return bytes;
     }
 
     public String[] getStringArray() {
@@ -595,9 +622,11 @@ public class ArrayValue implements RefValue, CollectionValue {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {
@@ -624,6 +653,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         if ((int) index < 0 || index >= maxArraySize) {
+            if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                        RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            }
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -664,8 +697,12 @@ public class ArrayValue implements RefValue, CollectionValue {
      */
     private void handleFrozenArrayValue() {
         synchronized (this) {
-            if (this.freezeStatus.getState() != State.UNFROZEN) {
-                FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+            try {
+                if (this.freezeStatus.getState() != State.UNFROZEN) {
+                    FreezeUtils.handleInvalidUpdate(freezeStatus.getState());
+                }
+            } catch (BLangFreezeException e) {
+                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
             }
         }
     }
@@ -678,7 +715,8 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if ((requestedCapacity) - currentArraySize >= 0) {
+        if ((requestedCapacity) - currentArraySize > 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) this.arrayType).getState() == ArrayState.UNSEALED) {
             // Here the growth rate is 1.5. This value has been used by many other languages
             int newArraySize = currentArraySize + (currentArraySize >> 1);
 
@@ -708,10 +746,20 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.freezeStatus = freezeStatus;
         if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
-                Object refValue = this.getRefValue(i);
-                ((RefValue) refValue).attemptFreeze(freezeStatus);
+                Object value = this.getRefValue(i);
+                if (value instanceof RefValue) {
+                    ((RefValue) value).attemptFreeze(freezeStatus);
+                }
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
     }
     
     private boolean isBasicType(BType type) {

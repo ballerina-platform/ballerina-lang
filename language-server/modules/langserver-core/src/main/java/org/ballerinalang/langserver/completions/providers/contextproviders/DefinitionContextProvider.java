@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -78,12 +79,13 @@ public class DefinitionContextProvider extends LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
         completionItems.add(getStaticItem(context, Snippet.KW_ANNOTATION));
+        completionItems.add(getStaticItem(context, Snippet.KW_FUNCTION));
         return completionItems;
     }
 
     private List<CompletionItem> getTypesAndPackages(LSContext ctx) {
         List<CompletionItem> completionItems =
-                new ArrayList<>(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+                new ArrayList<>(this.getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
         return completionItems;

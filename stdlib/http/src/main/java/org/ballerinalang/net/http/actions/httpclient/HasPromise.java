@@ -61,18 +61,13 @@ public class HasPromise extends AbstractHTTPAction {
     }
 
     public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.hasPushPromise(responseHandle).
-                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(callback));
-        //TODO This is temporary fix to handle non blocking call
-        callback.sync();
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(new NonBlockingCallback(strand)));
     }
 
     private static class BPromiseAvailabilityCheckListener implements HttpClientConnectorListener {
@@ -102,7 +97,6 @@ public class HasPromise extends AbstractHTTPAction {
 
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
-            //TODO remove this call back
             callback.setReturnValues(isPromiseAvailable);
             callback.notifySuccess();
         }

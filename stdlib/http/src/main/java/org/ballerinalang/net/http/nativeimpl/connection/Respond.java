@@ -49,7 +49,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executeBPipeliningLogic;
@@ -94,7 +93,7 @@ public class Respond extends ConnectionAction {
 
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
-            outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
+            outboundResponseMsg.setHttpStatusCode(HttpResponseStatus.NOT_MODIFIED.code());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
             outboundResponseMsg.waitAndReleaseAllEntities();
@@ -128,7 +127,7 @@ public class Respond extends ConnectionAction {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, null, null, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
@@ -139,7 +138,7 @@ public class Respond extends ConnectionAction {
 
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
-            outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
+            outboundResponseMsg.setHttpStatusCode(HttpResponseStatus.NOT_MODIFIED.code());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
             outboundResponseMsg.waitAndReleaseAllEntities();
@@ -163,8 +162,6 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg);
             }
-            //TODO : Temporary block the call. Remove this callback once the support is available
-            callback.sync();
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
             log.debug("Couldn't complete outbound response", e);

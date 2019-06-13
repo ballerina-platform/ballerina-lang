@@ -64,7 +64,7 @@ public class Utils {
 
     // valid resource count is set to to because the init function is also received as
     // an attached function.
-    private static final int VALID_RESOURCE_COUNT = 2;
+    private static final int VALID_RESOURCE_COUNT = 1;
 
     private static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);

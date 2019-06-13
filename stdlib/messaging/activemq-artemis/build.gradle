@@ -17,29 +17,37 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
     baloCreat project(':lib-creator')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
     implementation project(':ballerina-io')
     implementation project(':ballerina-builtin')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-filepath')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-system')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
     implementation 'org.apache.activemq:artemis-core-client'
 
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     testCompile 'org.testng:testng'
-
 }
 
 description = 'Ballerina - ActiveMQ Artemis'

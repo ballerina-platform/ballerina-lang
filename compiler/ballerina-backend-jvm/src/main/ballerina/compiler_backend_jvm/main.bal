@@ -21,8 +21,8 @@ import ballerina/reflect;
 import ballerina/internal;
 
 public type JarFile record {|
-    map<string> manifestEntries;
-    map<byte[]> jarEntries;
+    map<string> manifestEntries = {};
+    map<byte[]> pkgEntries = {};
 |};
 
 public type JavaClass record {|
@@ -45,33 +45,49 @@ public function main(string... args) {
     writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, targetPath);
 }
 
-function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
-    io:println("Reading bir of ", progName);
-
-    byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
-    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
+function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
+            returns JarFile {
+    currentBIRContext = birContext;
+    var (entryMod, _) = lookupModule(entryModId);
 
     if (dumpBir) {
        bir:BirEmitter emitter = new(entryMod);
        emitter.emitPackage();
     }
 
-    map<byte[]> jarEntries = {};
-    map<string> manifestEntries = {};
+    JarFile jarFile = {};
+    generatePackage(entryModId, jarFile, true);
 
-    generateBuiltInPackages(currentBIRContext, jarEntries);
-
-    foreach var importModule in entryMod.importModules {
-        bir:Package module = lookupModule(importModule, currentBIRContext);
-        generateImportedPackage(module, jarEntries);
-        compiledPkgCache[module.org.value + module.name.value] = module;
-    }
-
-    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
-
-    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
     return jarFile;
 }
+
+//function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
+//    io:println("Reading bir of ", progName);
+//
+//    byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
+//    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
+//
+//    if (dumpBir) {
+//       bir:BirEmitter emitter = new(entryMod);
+//       emitter.emitPackage();
+//    }
+//
+//    map<byte[]> jarEntries = {};
+//    map<string> manifestEntries = {};
+//
+//    generateBuiltInPackages(currentBIRContext, jarEntries);
+//
+//    foreach var importModule in entryMod.importModules {
+//        bir:Package module = lookupModule(importModule, currentBIRContext);
+//        generateImportedPackage(module, jarEntries);
+//        compiledPkgCache[module.org.value + module.name.value] = module;
+//    }
+//
+//    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
+//
+//    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
+//    return jarFile;
+//}
 
 public function getBaloPathFromModuleId(string moduleName, string modVersion) returns string {
     string moduleVersion = modVersion == "" ? "0.0.0" : modVersion;

@@ -19,10 +19,6 @@
 package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartBDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -38,6 +34,10 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.MultipartUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

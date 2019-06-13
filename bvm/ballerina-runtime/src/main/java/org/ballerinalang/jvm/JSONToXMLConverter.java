@@ -23,6 +23,8 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -72,7 +74,7 @@ public class JSONToXMLConverter {
             xml = omElementArrayList.get(0);
         } else {
             // There is a multi rooted node and create xml sequence from it
-            ArrayValue elementsSeq = new ArrayValue();
+            ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
             int count = omElementArrayList.size();
             for (int i = 0; i < count; i++) {
                 elementsSeq.add(i, omElementArrayList.get(i));

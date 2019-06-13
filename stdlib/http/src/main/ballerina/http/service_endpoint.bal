@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
@@ -66,12 +65,10 @@ public type Listener object {
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    # + return - An `error` if there is any error occurred during the service start process or else nil
-    function start() returns error? = external;
+    function start() = external;
 
     # Stops the registered service.
-    # + return - An `error` if there is any error occurred during the service stop process or else nil
-    function stop() returns error? = external;
+    function stop() = external;
 };
 
 public function Listener.init(ServiceEndpointConfiguration c) {

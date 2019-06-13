@@ -82,6 +82,36 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get abstract keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAbstractKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ABSTRACT, "abstract ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get client keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClientKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CLIENT, "client ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get external keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getExternalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Break statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -129,6 +159,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getImportKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.IMPORT, "import ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Function Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFunctionKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FUNCTION, "function ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 

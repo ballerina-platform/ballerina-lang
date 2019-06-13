@@ -68,10 +68,11 @@ public type FuncBodyParser object {
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
             kind = INS_KIND_MAP_LOAD;
+            boolean except = self.reader.readBoolean();
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp, except:except};
             return mapLoad;
         } else if (kindTag == INS_OBJECT_STORE) {
             kind = INS_KIND_OBJECT_STORE;
@@ -180,10 +181,12 @@ public type FuncBodyParser object {
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
             kind = INS_KIND_NEW_ERROR;
+            var typeValue = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();
-            NewError newError = {pos:pos, kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            NewError newError = {pos:pos, kind:kind, typeValue:typeValue, lhsOp:lhsOp, reasonOp:reasonOp, 
+                                 detailsOp:detailsOp};
             return newError;
         } else if (kindTag == INS_NEW_XML_ELEMENT) {
             kind = INS_KIND_NEW_XML_ELEMENT;
@@ -568,10 +571,6 @@ public type FuncBodyParser object {
             kind = BINARY_LESS_THAN;
         } else if (kindTag == INS_LESS_EQUAL){
             kind = BINARY_LESS_EQUAL;
-        } else if (kindTag == INS_AND){
-            kind = BINARY_AND;
-        } else if (kindTag == INS_OR){
-            kind = BINARY_OR;
         } else if (kindTag == INS_REF_EQUAL){
             kind = BINARY_REF_EQUAL;
         } else if (kindTag == INS_REF_NOT_EQUAL){

@@ -72,8 +72,19 @@ public type ObjectGenerator object {
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
+        self.createLambdas(cw);
+        
         cw.visitEnd();
         return cw.toByteArray();
+    }
+
+    private function createLambdas(jvm:ClassWriter cw) {
+        // generate lambdas created during generating methods
+        foreach var (name, call) in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
+        }
+        // clear the lambdas
+        lambdas = {};
     }
 
     private function createObjectFields(jvm:ClassWriter cw, bir:BObjectField?[] fields) {
@@ -121,13 +132,14 @@ public type ObjectGenerator object {
 
         int funcNameRegIndex = 2;
 
-       // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-       // mv.visitLdcInsn(objClassName + " - ");
-       // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+        // Uncomment to get some debug information at runtime
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitLdcInsn(objClassName + " - ");
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
 
-       // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-       // mv.visitVarInsn(ALOAD, funcNameRegIndex);
-       // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitVarInsn(ALOAD, funcNameRegIndex);
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         jvm:Label defaultCaseLabel = new jvm:Label();
 
@@ -333,7 +345,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
-        currentClass = className;
+        currentClass = untaint className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;

@@ -53,6 +53,7 @@ public class EqualsIgnoreCase extends BlockingNativeCallableUnit {
     }
 
     public static boolean equalsIgnoreCase(Strand strand, String value, String other) {
+        StringUtils.checkForNull(value, other);
         return value.equalsIgnoreCase(other);
     }
 }
