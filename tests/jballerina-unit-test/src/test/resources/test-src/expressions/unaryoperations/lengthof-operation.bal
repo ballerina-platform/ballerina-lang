@@ -59,7 +59,7 @@ function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
     return (arr.length());
 }
 
-function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (int,int,int) {
+function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns [int,int,int] {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -69,7 +69,7 @@ function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (i
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return ((arr.length()), (brr.length()), (crr.length()));
+    return [(arr.length()), (brr.length()), (crr.length())];
 }
 
 function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int) {
@@ -143,17 +143,17 @@ function lengthOfMapEmpty (int x, int y) returns (int) {
     return length;
 }
 
-function lengthOfString() returns (int, int, int) {
+function lengthOfString() returns [int, int, int] {
     string foo = "hello world";
     int l1 = foo.length();
     string s1 = "John";
     int l2 = s1.length();
     string s2 =string `Hello ${"John"}`;
     int l3 = s2.length();
-    return (l1, l2, l3);
+    return [l1, l2, l3];
 }
 
-function lengthOfBlob() returns (int, int) {
+function lengthOfBlob() returns [int, int] {
     string s1 = "Hello";
 	byte[] b1 = s1.toByteArray("UTF-8");
     int l1 = b1.length();
@@ -162,7 +162,7 @@ function lengthOfBlob() returns (int, int) {
     byte[] b2 = s2.toByteArray("UTF-8");
     int l2 = b2.length();
     
-    return (l1, l2);
+    return [l1, l2];
 }
 
 function lengthOfNullString() returns (int) {

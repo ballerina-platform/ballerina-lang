@@ -4,16 +4,16 @@ final var globalFinalInt = 10;
 final string globalFinalString = "hello";
 
 
-public function testFinalAccess() returns (int, int, int, int) {
+public function testFinalAccess() returns [int, int, int, int] {
     int v1 = globalFinalInt;
     int v2 = bar:getGlobalBarInt();
-    return (v1, v2, globalFinalInt, bar:getGlobalBarInt());
+    return [v1, v2, globalFinalInt, bar:getGlobalBarInt()];
 }
 
-public function testFinalStringAccess() returns (string, string, string, string) {
+public function testFinalStringAccess() returns [string, string, string, string] {
     string v1 = globalFinalString;
     string v2 = bar:getGlobalBarString();
-    return (v1, v2, globalFinalString, bar:getGlobalBarString());
+    return [v1, v2, globalFinalString, bar:getGlobalBarString()];
 }
 
 public function testFinalFieldAsParameter() returns (int) {

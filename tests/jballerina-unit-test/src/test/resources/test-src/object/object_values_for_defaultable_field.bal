@@ -2,9 +2,9 @@
 int resValue = 0;
 string stringResVal = "";
 
-public function passValueForDefaultableObjectField () returns (int, string) {
+public function passValueForDefaultableObjectField () returns [int, string] {
     Person p = new Person(age = 50, name = "passed in name value");
-    return (resValue, stringResVal);
+    return [resValue, stringResVal];
 }
 
 type Person object {
