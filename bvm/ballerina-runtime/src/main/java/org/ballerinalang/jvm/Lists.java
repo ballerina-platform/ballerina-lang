@@ -29,8 +29,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 
-import java.math.BigDecimal;
-
 /**
  * Common utility methods used for List manipulation.
  *
@@ -51,7 +49,7 @@ public class Lists {
             case TypeTags.FLOAT_TAG:
                 return new Double(array.getFloat(index));
             case TypeTags.DECIMAL_TAG:
-                return new BigDecimal(array.getRefValue(index).toString());
+                return array.getRefValue(index);
             case TypeTags.INT_TAG:
                 return new Long((int) array.getInt(index));
             case TypeTags.STRING_TAG:

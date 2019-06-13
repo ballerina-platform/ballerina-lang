@@ -1590,7 +1590,7 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
 }
 
 function isExternFunc(bir:Function func) returns boolean {
-    return func.isDeclaration;
+    return (func.flags & bir:NATIVE) == bir:NATIVE;
 }
 
 function getVarRef(bir:VarRef? varRef) returns bir:VarRef {

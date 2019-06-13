@@ -6,7 +6,34 @@
         {
             "type": "npm",
             "script": "watch",
-            "problemMatcher": "$tsc-watch",
+            "problemMatcher": {
+                "owner": "typescript",
+                "source": "ts",
+                "applyTo": "closedDocuments",
+                "fileLocation": "absolute",
+                "severity": "error",
+                "pattern": [
+                    {
+                        "regexp": "\\[tsl\\] ERROR in (.*)?\\((\\d+),(\\d+)\\)",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3
+                    },
+                    {
+                        "regexp": "\\s*TS\\d+:\\s*(.*)",
+                        "message": 1
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": {
+                        "regexp": "Compilation (.*?)starting…"
+                    },
+                    "endsPattern": {
+                        "regexp": "Compilation (.*?)finished"
+                    }
+                }
+            },
             "isBackground": true,
             "presentation": {
                 "reveal": "never"

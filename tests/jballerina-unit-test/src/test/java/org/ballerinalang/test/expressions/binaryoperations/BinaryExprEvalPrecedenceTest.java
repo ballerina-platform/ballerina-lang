@@ -39,8 +39,7 @@ public class BinaryExprEvalPrecedenceTest {
         result = BCompileUtil.compile("test-src/expressions/binaryoperations/binary-expr-precedence.bal");
     }
 
-    @Test(groups = "brokenOnJBallerina",
-            description = "Test binary OR expression with left most expr evaluated to true expression.")
+    @Test(description = "Test binary OR expression with left most expr evaluated to true expression.")
     public void testBinaryOrExprWithLeftMostExprTrue() {
         boolean one = true;
         boolean two = false;
@@ -69,8 +68,7 @@ public class BinaryExprEvalPrecedenceTest {
         BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
     }
 
-    @Test(groups = "brokenOnJBallerina",
-            description = "Test binary AND expression with left most expr evaluated to false expression.")
+    @Test(description = "Test binary AND expression with left most expr evaluated to false expression.")
     public void testBinaryAndExprWithLeftMostExprTrue() {
         boolean one = false;
         boolean two = false;

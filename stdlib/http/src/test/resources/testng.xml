@@ -67,12 +67,19 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.UriMatrixParametersMatchTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.promise.PushPromiseNativeFunctionTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
+            <class name="org.ballerinalang.stdlib.entity.EntityBodyWithCharsetTest"/>
+            <class name="org.ballerinalang.stdlib.entity.MimeWithHttpTest"/>
         </classes>
     </test>
 </suite>
