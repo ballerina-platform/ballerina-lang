@@ -1008,7 +1008,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
 }
 
 function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
-                            string initClass) {
+                            string initClass, boolean serviceEPAvailable) {
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
@@ -1025,9 +1025,15 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
 
-    if (hasInitFunction(pkg)) {
+    if (serviceEPAvailable) {
+        mv.visitInsn(ICONST_1);
+    } else {
+        mv.visitInsn(ICONST_0);
+    }
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+
+if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
