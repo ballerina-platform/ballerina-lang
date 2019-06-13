@@ -65,7 +65,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                         <rect className="frame"
                             x={bBox.x - config.statement.expanded.margin}
                             y={bBox.y + config.statement.height / 2}
-                            width={bBox.w + config.statement.expanded.margin}
+                            width={bBox.w}
                             height={bBox.h - config.statement.expanded.footer - (config.statement.height / 2)}/>
                         <rect className="name-background"
                             x={bBox.statement.x - config.statement.expanded.labelGutter}
@@ -78,7 +78,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             {bBox.statement.text}
                         </text>
                         <text className="collapser"
-                            x={bBox.statement.x + bBox.w - 30}
+                            x={bBox.statement.x + bBox.w - 30 - config.statement.expanded.margin}
                             y={bBox.statement.y + config.statement.height + 5}
                             onClick={onClickClose}>
                             {getCodePoint("up")}

@@ -2,6 +2,7 @@ import {  Function as BalFunction, Invocation } from "@ballerina/ast-model";
 import * as _ from "lodash";
 
 export class ExpandContext {
+    public labelText: string = "";
     public expandedSubTree: BalFunction | undefined;
     public expandedSubTreeDocUri: string = ""; // The uri of the bal file where the definition is in
     public expandableNode: Invocation;

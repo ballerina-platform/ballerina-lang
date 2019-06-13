@@ -78,6 +78,11 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
 
         for (BLangPackage module : modules) {
             JsonObject jsonModule = new JsonObject();
+
+            if (module.symbol == null) {
+                continue;
+            }
+
             jsonModule.addProperty("name", module.symbol.name.value);
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 

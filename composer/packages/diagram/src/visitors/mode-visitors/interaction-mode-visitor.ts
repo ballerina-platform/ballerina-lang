@@ -1,6 +1,6 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Return, VariableDef, Visitor } from "@ballerina/ast-model";
-import { FunctionViewState, StmntViewState } from "../../view-model/index";
+    Invocation, Return, VariableDef, Visitor, Service } from "@ballerina/ast-model";
+import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 
 const currentState: {
     topLevelNode?: ASTNode | undefined,
@@ -19,6 +19,10 @@ export const visitor: Visitor = {
         }
     },
 
+    endVisitService(node: Service) {
+        node.viewState.hidden = false;
+    },
+
     endVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
         if (!viewState.isExpandedFunction) {
@@ -30,7 +34,10 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        node.parent.viewState.hidden = true;
+        if (node.parent.viewState.hidden !== false) {
+            // if its already set to false that means its already checked for visibility
+            node.parent.viewState.hidden = true;
+        }
         currentState.blocks.push(node.parent);
         currentState.currentBlock = node.parent;
     },
@@ -43,6 +50,20 @@ export const visitor: Visitor = {
         if (visitedNode && !visitedNode.viewState.hidden && currentState.currentBlock) {
             currentState.currentBlock.viewState.hidden = false;
         }
+
+        let hiddenSet = false;
+
+        node.statements.forEach((stmt) => {
+            if (stmt.viewState.hidden) {
+                if (!hiddenSet) {
+                    hiddenSet = true;
+                    stmt.viewState.hidden = false;
+                    stmt.viewState.hiddenBlock = true;
+                }
+            } else {
+                hiddenSet = false;
+            }
+        });
     },
 
     beginVisitVariableDef(node: VariableDef) {
@@ -64,6 +85,7 @@ export const visitor: Visitor = {
     },
 
     beginVisitAssignment(node: Assignment) {
+        node.viewState.hidden = true;
         currentState.statement = node;
     },
 
@@ -102,6 +124,9 @@ export const visitor: Visitor = {
             ASTUtil.traversNode(expandedSubTree, visitor);
             if (!expandedSubTree.viewState.hidden) {
                 currentStatement.viewState.hidden = false;
+                if (currentBlock) {
+                    currentBlock.viewState.hidden = false;
+                }
             }
         }
     }

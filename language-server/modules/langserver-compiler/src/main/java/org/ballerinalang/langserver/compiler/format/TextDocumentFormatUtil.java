@@ -341,7 +341,12 @@ public class TextDocumentFormatUtil {
         }
 
         JsonArray part = new JsonArray();
-        part.add(symbol.name.value);
+        if (symbol.name == null) {
+            part.add((JsonElement) null);
+        } else {
+            part.add(symbol.name.value);
+        }
+
         if (symbol.kind == null) {
             part.add((JsonElement) null);
         } else {

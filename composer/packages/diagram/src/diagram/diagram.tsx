@@ -1,8 +1,8 @@
-import { ASTUtil, CompilationUnit } from "@ballerina/ast-model";
+import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { ProjectAST } from "@ballerina/lang-service";
 import React from "react";
 import { DefaultConfig } from "../config/default";
-import { CompilationUnitViewState } from "../view-model/index";
+import { CompilationUnitViewState, ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
@@ -19,10 +19,11 @@ export interface CommonDiagramProps {
     height?: number;
     width?: number;
     zoom: number;
+    fitToWidthOrHeight: boolean;
     mode: DiagramMode;
 }
 export interface DiagramProps extends CommonDiagramProps {
-    ast?: CompilationUnit;
+    ast?: ASTNode;
     projectAst?: ProjectAST;
 }
 
@@ -45,6 +46,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     public render() {
         const { ast, width, height, projectAst } = this.props;
+
+        if (!ast || !projectAst || !DiagramUtils.isDrawable(ast)) {
+            return null;
+        }
+
         const children: React.ReactNode[] = [];
 
         // use default width/height if not provided
@@ -55,50 +61,33 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         cuViewState.container.w = diagramWidth;
         cuViewState.container.h = diagramHeight;
 
-        if (ast && projectAst) {
-            // Initialize AST node view state
-            ASTUtil.traversNode(ast, initVisitor);
-            setProjectAST(projectAst);
-            ASTUtil.traversNode(ast, invocationVisitor);
-            if (this.props.mode === DiagramMode.INTERACTION) {
-                ASTUtil.traversNode(ast, interactionModeVisitor);
-            } else {
-                ASTUtil.traversNode(ast, statementModeVisitor);
-            }
-            // Set width and height to toplevel node.
-            ast.viewState = cuViewState;
-            // Calculate dimention of AST Nodes.
-            ASTUtil.traversNode(ast, sizingVisitor);
-            // Calculate positions of the AST Nodes.
-            ASTUtil.traversNode(ast, positioningVisitor);
-            // Get React components for AST Nodes.
-            children.push(DiagramUtils.getComponents(ast.topLevelNodes));
-        }
-
-        let zoomDiff;
-
-        if (cuViewState.bBox.w > diagramWidth) {
-            const decrease = cuViewState.bBox.w - diagramWidth;
-            const descresePercentage = decrease / cuViewState.bBox.w * 100;
-
-            diagramHeight = cuViewState.bBox.h - (cuViewState.bBox.h / 100 * descresePercentage);
-            zoomDiff = descresePercentage;
+        // Initialize AST node view state
+        ASTUtil.traversNode(ast, initVisitor);
+        setProjectAST(projectAst);
+        ASTUtil.traversNode(ast, invocationVisitor);
+        if (this.props.mode === DiagramMode.INTERACTION) {
+            ASTUtil.traversNode(ast, interactionModeVisitor);
         } else {
-            const increase = diagramWidth - cuViewState.bBox.w;
-            const increasePercentage = increase / cuViewState.bBox.w * 100;
-
-            diagramHeight = cuViewState.bBox.h + (cuViewState.bBox.h / 100 * increasePercentage);
-            zoomDiff = increasePercentage;
+            ASTUtil.traversNode(ast, statementModeVisitor);
         }
-
-        diagramWidth = cuViewState.bBox.w - (cuViewState.bBox.w / 100 * zoomDiff);
+        // Calculate dimention of AST Nodes.
+        ASTUtil.traversNode(ast, sizingVisitor);
+        // Calculate positions of the AST Nodes.
+        ASTUtil.traversNode(ast, positioningVisitor);
+        // Get React components for AST Nodes.
+        children.push(DiagramUtils.getComponents(ast));
 
         return <DiagramContext.Provider value={this.createContext({
-            h: diagramHeight,
-            w: diagramWidth
+            h: (ast.viewState as ViewState).bBox.h,
+            w: (ast.viewState as ViewState).bBox.w
         })}>
             <div className="diagram-container" ref={this.containerRef}>
-                <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
+                <SvgCanvas
+                    width = {(ast.viewState as ViewState).bBox.w}
+                    height = {(ast.viewState as ViewState).bBox.h}
+                    zoom = {this.props.zoom}
+                    fitToWidthOrHeight = {this.props.fitToWidthOrHeight}
+                >
                     {children}
                 </SvgCanvas>
             </div>

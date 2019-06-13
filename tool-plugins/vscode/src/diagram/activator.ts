@@ -24,9 +24,6 @@ import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -97,22 +94,6 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		changeActiveEditorDisposable.dispose();
 	});
 }
-
-function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
-		if (currentPath !== os.homedir()) {
-			return currentPath;
-		}
-	}
-
-	if (currentPath === root) {
-		return;
-	}
-
-	return getSourceRoot(
-		path.dirname(currentPath), root);
-}
-
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
