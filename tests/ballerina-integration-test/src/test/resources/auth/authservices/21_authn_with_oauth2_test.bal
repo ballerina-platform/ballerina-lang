@@ -34,7 +34,7 @@ oauth2:IntrospectionServerConfig introspectionServerConfig = {
 oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
 http:BearerAuthHandler oauth2Handler21 = new(oauth2Provider21);
 
-listener http:Listener listener21 = new(9116, config = {
+listener http:Listener listener21 = new(9117, config = {
     auth: {
         authHandlers: [oauth2Handler21]
     },

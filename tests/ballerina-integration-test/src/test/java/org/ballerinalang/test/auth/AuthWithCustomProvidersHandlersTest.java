@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for authentication with custom handlers.
+ * Test cases for authentication with inbound/outbound custom providers and handlers.
  */
 @Test(groups = "auth-test")
 public class AuthnWithCustomHandlersTest extends AuthBaseTest {
