@@ -384,7 +384,7 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4);
+            Scheduler scheduler = new Scheduler(4, false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {

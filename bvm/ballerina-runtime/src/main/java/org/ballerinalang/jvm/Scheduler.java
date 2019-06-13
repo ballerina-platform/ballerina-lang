@@ -94,10 +94,6 @@ public class Scheduler {
     private final int numThreads;
     private static final Set<SchedulerItem> COMPLETED = Collections.emptySet();
 
-    public Scheduler(int numThreads) {
-        this.numThreads = numThreads;
-    }
-
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
@@ -281,7 +277,7 @@ public class Scheduler {
                     Strand justCompleted = item.future.strand;
                     Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
-                        debugLog(item + " complected");
+                        debugLog(item + " completed");
                     }
                     synchronized (justCompleted) {
                         cleanUp(justCompleted);
@@ -478,6 +474,6 @@ class SchedulerItem {
 
     @Override
     public String toString() {
-        return String.valueOf(future.strand.hashCode());
+        return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
     }
 }
