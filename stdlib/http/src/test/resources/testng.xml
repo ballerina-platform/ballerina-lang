@@ -50,8 +50,8 @@ under the License.
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>-->
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
-            <!--<package name="org.ballerinalang.stdlib.auth.*"/>
-            <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
+            <package name="org.ballerinalang.stdlib.connectionpool.*"/>
+            <!--<package name="org.ballerinalang.stdlib.auth.*"/> -->
         </packages>
         <classes>
             <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
