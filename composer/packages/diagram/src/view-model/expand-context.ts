@@ -1,7 +1,5 @@
-import {  ASTKindChecker, ASTNode, Function as BalFunction, Invocation } from "@ballerina/ast-model";
-import { ProjectAST } from "@ballerina/lang-service";
+import {  Function as BalFunction, Invocation } from "@ballerina/ast-model";
 import * as _ from "lodash";
-import { FunctionViewState } from "./function";
 
 export class ExpandContext {
     public expandedSubTree: BalFunction | undefined;

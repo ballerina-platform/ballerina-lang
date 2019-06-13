@@ -1,6 +1,6 @@
 import {
-    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Function as BalFunction, Invocation, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend, If
+    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, ExpressionStatement,
+    Function as BalFunction, If, Invocation, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { ProjectAST } from "@ballerina/lang-service";
 import _ from "lodash";

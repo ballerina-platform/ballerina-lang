@@ -76,12 +76,13 @@ export const Statement: React.StatelessComponent<{
                 />;
             }
         }
+
         return (
             <g>
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {!viewState.hiddenBlock &&
+                {!viewState.hiddenBlock && /*!viewState.hidden &&*/
                     <g className="statement"
                     >
                         {viewState.isAction && !viewState.isReturn

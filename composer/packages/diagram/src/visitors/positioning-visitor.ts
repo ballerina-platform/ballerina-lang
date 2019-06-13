@@ -83,11 +83,11 @@ class PositioningVisitor implements Visitor {
         let visibleEndpoints: VisibleEndpoint[] = [];
         if (node.VisibleEndpoints) {
             visibleEndpoints = node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
-            if (!(node.viewState as FunctionViewState).isExpandedFunction) {
+            if (!(node.viewState as FunctionViewState).isExpandedFunction && !node.resource) {
                 node.VisibleEndpoints.forEach((ep) => {
                     // Find of one of the visible endpoints is actually a parameter to the function
-                    if (node.allParams) {
-                        node.allParams.forEach((p, i) => {
+                    if (node.parameters) {
+                        node.parameters.forEach((p, i) => {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;

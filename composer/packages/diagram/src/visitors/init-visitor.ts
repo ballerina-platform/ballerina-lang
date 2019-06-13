@@ -1,18 +1,15 @@
 import {
-    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Function as BalFunction, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend, If
+    Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
+    If, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
-import { ProjectAST } from "@ballerina/lang-service";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
-import { ExpandContext } from "../view-model/expand-context";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
 
 let visibleEndpoints: VisibleEndpoint[] = [];
 let envEndpoints: VisibleEndpoint[] = [];
-let projectAST: ProjectAST;
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
@@ -22,60 +19,6 @@ function initStatement(node: ASTNode) {
     // the same statement may be expanded inside some functions but not in others
     (node.viewState as StmntViewState).expandContext = undefined;
 }
-
-// // This function processes endpoint parameters of expanded functions
-// // so that actions to these parameters can be drawn to the original endpoint passed to them
-// function handleEndpointParams(expandContext: ExpandContext) {
-//     const invocation = expandContext.expandableNode;
-//     const expandedFunction = expandContext.expandedSubTree;
-//     if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.parameters) {
-//         return;
-//     }
-
-//     const params = expandedFunction.parameters;
-
-//     expandedFunction.VisibleEndpoints.forEach((ep) => {
-//         // Find of one of the visible endpoints is actually a parameter to the function
-//         params.forEach((p, i) => {
-//             if (ASTKindChecker.isVariable(p)) {
-//                 if (p.name.value === ep.name) {
-//                     // visible endpoint is a parameter
-//                     const arg = invocation.argumentExpressions[i];
-//                     if (ASTKindChecker.isSimpleVariableRef(arg)) {
-//                         // This parameter actually refers to an endpoint with name in arg.variableName
-//                         (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
-//                     }
-//                 }
-//             }
-//         });
-//     });
-// }
-
-// function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
-//     if (viewState.expandContext) {
-//         return;
-//     }
-
-//     if (ASTKindChecker.isInvocation(expression)) {
-//             viewState.expandContext = new ExpandContext(expression, projectAST);
-//     } else if (ASTKindChecker.isCheckExpr(expression) &&
-//         ASTKindChecker.isInvocation(expression.expression)) {
-//             viewState.expandContext = new ExpandContext(expression.expression, projectAST);
-//     }
-
-//     if (!(viewState.expandContext && viewState.expandContext.expandedSubTree)) {
-//         return;
-//     }
-//     const expandedFunction = viewState.expandContext.expandedSubTree;
-//     expandedFunction.viewState = new FunctionViewState();
-//     expandedFunction.viewState.isExpandedFunction = true;
-//     ASTUtil.traversNode(expandedFunction, visitor);
-//     handleEndpointParams(viewState.expandContext);
-// }
-
-// export function setProjectAST(ast: ProjectAST) {
-//     projectAST = ast;
-// }
 
 export const visitor: Visitor = {
 
@@ -105,12 +48,11 @@ export const visitor: Visitor = {
         }
         const parentNode = (parent as (If | BalFunction));
         if (parentNode.VisibleEndpoints) {
-            const visibleEndpoints = parentNode.VisibleEndpoints;
-            envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
+            const parentsVisibleEndpoints = parentNode.VisibleEndpoints;
+            envEndpoints = envEndpoints.filter((ep) => (!parentsVisibleEndpoints.includes(ep)));
         }
     },
 
-    // tslint:disable-next-line:ban-types
     beginVisitFunction(node: BalFunction) {
         if (node.VisibleEndpoints) {
             visibleEndpoints = [...node.VisibleEndpoints, ...visibleEndpoints];
@@ -167,28 +109,14 @@ export const visitor: Visitor = {
         if (ASTUtil.isActionInvocation(node)) {
             return;
         }
-
-        // const viewState = node.viewState as StmntViewState;
-        // if (ASTKindChecker.isInvocation(node.expression) && !viewState.expandContext) {
-        //     handleExpanding(node.expression, viewState);
-        // }
     },
 
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
-
-        // if (ASTUtil.isActionInvocation(node)) {
-        //     return;
-        // }
-
-        // if (ASTKindChecker.isVariable(node.variable) && node.variable.initialExpression) {
-        //     handleExpanding(node.variable.initialExpression, node.viewState as StmntViewState);
-        // }
     },
 
     endVisitAssignment(node: Assignment) {
         initStatement(node);
-        // handleExpanding(node.expression, node.viewState as StmntViewState);
     },
 
     beginVisitVisibleEndpoint(node: VisibleEndpoint) {
