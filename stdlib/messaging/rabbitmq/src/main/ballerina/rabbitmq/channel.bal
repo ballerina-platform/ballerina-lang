@@ -48,9 +48,9 @@ public type Channel client object {
     # Actively declare a non-autodelete, non-durable exchange with no extra arguments,
     # If the arguments are specifed, then the exchange is declared accordingly.
     #
-    # + config - Holds parameters required to declare an exchange.
+    # + exchangeConfig - Holds parameters required to declare an exchange.
     # + return - Returns an error if an I/O error is encountered or nil if successful.
-    public remote function exchangeDeclare(ExchangeConfiguration config) returns error? = external;
+    public remote function exchangeDeclare(ExchangeConfiguration exchangeConfig) returns error? = external;
 
     # Binds a queue to an exchange with the given binding key.
     #
@@ -80,7 +80,6 @@ public type Channel client object {
     # + return - Returns error if an I/O error is encountered or nil if successful.
     public remote function queueDelete(string queueName, boolean? ifUnused = (), boolean? ifEmpty = ())
                                             returns error? = external;
-
     # Deletes an exchange.
     #
     # + exchange - The name of the exchange.
@@ -110,6 +109,11 @@ public type Channel client object {
     # + closeMessage - A message indicating the reason for closing the channel.
     # + return - Returns an `error` if an I/O problem is encountered.
     public function abortChannel(int? closeCode = (), string? closeMessage = ()) returns error? = external;
+
+    # Retrieve the Connection which carries this channel.
+    #
+    # + return - RabbitMQ Connection object or error if an I/O problem is encountered.
+    public function getConnection() returns Connection | error = external;
 };
 
 # Holds the parameters used to declare a queue.

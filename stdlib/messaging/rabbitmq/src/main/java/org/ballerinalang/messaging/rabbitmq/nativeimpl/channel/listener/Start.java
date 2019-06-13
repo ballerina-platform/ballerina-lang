@@ -33,6 +33,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -62,7 +64,8 @@ import java.util.concurrent.CountDownLatch;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class Start extends BlockingNativeCallableUnit {
-
+    private boolean autoAck;
+    private RabbitMQTransactionContext rabbitMQTransactionContext;
     @Override
     public void execute(Context context) {
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
@@ -71,6 +74,8 @@ public class Start extends BlockingNativeCallableUnit {
         BMap<String, BValue> channelObj =
                 (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObj.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<Service> services =
                 (ArrayList<Service>) channelListObject.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
@@ -83,7 +88,6 @@ public class Start extends BlockingNativeCallableUnit {
             String queueName = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_NAME).getStringValue();
             Resource onMessageResource = service.getResources()[0];
             String ackMode = value.getStringField(RabbitMQConstants.ACK_MODE);
-            boolean autoAck;
             switch (ackMode) {
                 case RabbitMQConstants.AUTO_ACKMODE:
                     autoAck = true;
@@ -103,7 +107,7 @@ public class Start extends BlockingNativeCallableUnit {
                             exception);
                 }
             }
-            receiveMessages(onMessageResource, channel, queueName, autoAck);
+            receiveMessages(onMessageResource, channel, queueName);
         }
     }
 
@@ -113,11 +117,10 @@ public class Start extends BlockingNativeCallableUnit {
      * @param resource Ballerina resource function.
      * @param message  Message content to be dispatched to the resource function.
      */
-    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag,
-                                 boolean autoAck) {
+    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Executor.submit(resource, new RabbitMQResourceCallback(countDownLatch), null, null,
-                getMessageBMap(resource, message, channel, deliveryTag, autoAck));
+                getMessageBMap(resource, message, channel, deliveryTag));
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -131,10 +134,8 @@ public class Start extends BlockingNativeCallableUnit {
      * @param resource  Ballerina resource function.
      * @param channel   RabbitMQ Channel object.
      * @param queueName Name of the queue messages are consumed from.
-     * @param autoAck   True if the server should consider messages acknowledged once delivered;
-     *                  false if the server should expect explicit acknowledgements.
      */
-    private void receiveMessages(Resource resource, Channel channel, String queueName, boolean autoAck) {
+    private void receiveMessages(Resource resource, Channel channel, String queueName) {
         try {
             channel.basicConsume(queueName, autoAck,
                     new DefaultConsumer(channel) {
@@ -143,7 +144,7 @@ public class Start extends BlockingNativeCallableUnit {
                                                    Envelope envelope,
                                                    AMQP.BasicProperties properties,
                                                    byte[] body) throws IOException {
-                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag(), autoAck);
+                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag());
                         }
                     });
         } catch (IOException exception) {
@@ -159,8 +160,7 @@ public class Start extends BlockingNativeCallableUnit {
      * @param channel  RabbitMQ Channel object.
      * @return Ballerina RabbitMQ message BValue.
      */
-    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag,
-                                  boolean autoAck) {
+    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag) {
         ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
                 programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.MESSAGE_OBJECT);
@@ -168,6 +168,10 @@ public class Start extends BlockingNativeCallableUnit {
         messageObj.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         messageObj.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
         messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
+        if (!Objects.isNull(rabbitMQTransactionContext)) {
+            messageObj.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT, rabbitMQTransactionContext);
+        }
+        messageObj.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
         return messageObj;
     }
 
