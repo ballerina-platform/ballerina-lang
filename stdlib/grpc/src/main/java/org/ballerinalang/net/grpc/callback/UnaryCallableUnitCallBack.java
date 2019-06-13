@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
@@ -68,7 +68,7 @@ public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
     }
     
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         handleFailure(requestSender, error);
         super.notifyFailure(error);
     }

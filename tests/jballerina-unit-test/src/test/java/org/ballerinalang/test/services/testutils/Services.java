@@ -56,7 +56,8 @@ public class Services {
 
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance().getHttpServicesRegistry();
+        HTTPServicesRegistry httpServicesRegistry =
+                MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(9009);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;

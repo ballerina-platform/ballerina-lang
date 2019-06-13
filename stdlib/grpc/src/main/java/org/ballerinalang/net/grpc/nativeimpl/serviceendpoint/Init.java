@@ -16,12 +16,11 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.ServicesRegistry;
@@ -52,21 +51,24 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class Init extends AbstractGrpcNativeFunction {
-    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    
+
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        long port = context.getIntArgument(0);
-        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
-        ServerConnector httpServerConnector =
-                HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
-
-        ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
-        serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
-        serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
-        context.setReturnValues();
     }
+
+    public static Object init(Strand strand, ObjectValue listenerObject, long port, MapValue configValue) {
+        ListenerConfiguration configuration = getListenerConfig(port, configValue);
+        try {
+            ServerConnector httpServerConnector =
+                    HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
+            ServicesRegistry.Builder servicesRegistryBuilder = new ServicesRegistry.Builder();
+            listenerObject.addNativeData(SERVER_CONNECTOR, httpServerConnector);
+            listenerObject.addNativeData(SERVICE_REGISTRY_BUILDER, servicesRegistryBuilder);
+            return null;
+        } catch (Exception e) {
+            // TODO: Add proper error object.
+            return BallerinaErrors.createError("{ballerina/grpc}INTERNAL_ERROR");
+        }
+    }
+
 }

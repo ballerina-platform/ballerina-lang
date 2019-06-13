@@ -16,8 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,16 +52,10 @@ public class Start extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
-        if (!isConnectorStarted(serviceEndpoint)) {
-            startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
-        }
-        context.setReturnValues();
     }
 
-    private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry) {
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+    private static void startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
+        ServerConnector serverConnector = getServerConnector(listener);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
 
@@ -72,6 +66,14 @@ public class Start extends AbstractGrpcNativeFunction {
             throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
                     + "': " + ex.getMessage(), ex);
         }
-        serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+        listener.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+    }
+
+    public static void start(Strand strand, ObjectValue listener) {
+        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listener);
+
+        if (!isConnectorStarted(listener)) {
+            startServerConnector(listener, servicesRegistryBuilder.build());
+        }
     }
 }

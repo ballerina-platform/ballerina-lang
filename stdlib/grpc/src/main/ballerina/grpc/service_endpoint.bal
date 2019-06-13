@@ -55,10 +55,13 @@ public type Listener object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        self.init(self.port, self.config);
+        error? err = self.init(self.port, self.config);
+        if (err is error) {
+            panic err;
+        }
     }
 
-    function init(int port, ServiceEndpointConfiguration config) = external;
+    function init(int port, ServiceEndpointConfiguration config) returns error? = external;
 
 
     function register(service serviceType, string? name) returns error? = external;
