@@ -222,23 +222,22 @@ public class Scheduler {
                     } else {
                         item.blockedOn().forEach(blockedOn -> {
                             synchronized (blockedOn) {
-                                blockedList.compute(blockedOn, (sameAsBlockedOn, blocked) -> {
-                                    if (blocked == COMPLETED) {
-                                        if (DEBUG) {
-                                            debugLog(item + " blocked and freed on " + blockedOn.hashCode());
-                                        }
-                                        reschedule(item);
-                                    } else {
-                                        if (blocked == null) {
-                                            blocked = new HashSet<>();
-                                        }
-                                        if (DEBUG) {
-                                            debugLog(item + " blocked on wait for " + blockedOn.hashCode());
-                                        }
-                                        blocked.add(item);
+                                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
+                                if (blocked == COMPLETED) {
+                                    if (DEBUG) {
+                                        debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                     }
-                                    return blocked;
-                                });
+                                    reschedule(item);
+                                } else {
+                                    if (blocked == null) {
+                                        blocked = new HashSet<>();
+                                        blockedList.put(blockedOn, blocked);
+                                    }
+                                    if (DEBUG) {
+                                        debugLog(item + " blocked on wait for " + blockedOn.hashCode());
+                                    }
+                                    blocked.add(item);
+                                }
                             }
                         });
                     }
@@ -250,7 +249,7 @@ public class Scheduler {
                     }
                     break;
                 case RUNNABLE:
-                    synchronized (item.future) {
+                    synchronized (item.future.strand) {
                         item.future.result = result;
                         item.future.isDone = true;
                         item.future.panic = panic;
@@ -363,13 +362,14 @@ public class Scheduler {
     }
 
     public void release(List<Strand> blockedOnList, Strand strand) {
-        blockedOnList.forEach(blockedOn ->
-            blockedList.computeIfPresent(blockedOn, (sameAsBlockedOn, blocked) -> {
-                blocked.removeIf(item -> item.future.strand == strand);
-                return blocked;
-            })
-        );
-
+        for (Strand blockedOn : blockedOnList) {
+            synchronized (blockedOn) {
+                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
+                if (blocked != null) {
+                    blocked.removeIf(item -> item.future.strand == strand);
+                }
+            }
+        }
     }
 }
 
