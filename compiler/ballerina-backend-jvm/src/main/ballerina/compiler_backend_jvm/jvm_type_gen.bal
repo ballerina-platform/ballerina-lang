@@ -373,7 +373,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
 
 # Create a runtime type instance for the service.
 function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName,
-                           bir:TypeDef|bir:TypeRef? typeDefRef = (), int? strandIndex = ()) {
+                           int? strandIndex = ()) {
     // Create the object type
     mv.visitTypeInsn(NEW, SERVICE_TYPE);
     mv.visitInsn(DUP);
@@ -401,13 +401,32 @@ function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir
                                 lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+
         mv.visitVarInsn(ALOAD, strandIndex);
-        loadExternalOrLocalType(mv, <bir:TypeDef|bir:TypeRef> typeDefRef);
+
+        loadExternalOrLocalType(mv, typeDef);
         mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE);
+
+        bir:BAttachedFunction?[] attachedFunctions = objectType.attachedFunctions;
+        mv.visitLdcInsn(attachedFunctions.length());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
+        int i = 0;
+        foreach var attachedFunc in attachedFunctions {
+            if (attachedFunc is bir:BAttachedFunction) {
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(i);
+                mv.visitInsn(L2I);
+
+                createObjectAttachedFunction(mv, attachedFunc, objectType, pkgName);
+                mv.visitInsn(AASTORE);
+                i += 1;
+            }
+        }
         mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
-                           io:sprintf("(L%s;L%s;IL%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, MAP_VALUE, STRAND,
-                                                                    SERVICE_TYPE),
-                           false);
+            io:sprintf("(L%s;L%s;IL%s;L%s;L%s;[L%s;)V", STRING_VALUE, PACKAGE_TYPE, MAP_VALUE, STRAND,
+                SERVICE_TYPE, ATTACHED_FUNCTION),
+            false);
     } else {
         mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
                            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),

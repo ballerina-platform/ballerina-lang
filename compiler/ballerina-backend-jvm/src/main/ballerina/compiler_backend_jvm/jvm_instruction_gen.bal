@@ -821,8 +821,7 @@ type InstructionGenerator object {
         bir:BType typeValue = typeDef.typeValue;
         if (typeValue is bir:BServiceType) {
             // For services, create a new type for each new service value. TODO: do only for local vars
-            createServiceType(self.mv, typeValue.oType, typeDef, self.currentPackageName, typeDefRef = typeDefRef,
-                              strandIndex = strandIndex);
+            createServiceType(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex = strandIndex);
         } else {
             loadExternalOrLocalType(self.mv, typeDefRef);
         }
