@@ -27,6 +27,7 @@ import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -71,5 +72,9 @@ public class TestEntityUtils {
                 MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_POST, payload);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
         entity.addNativeData(TRANSPORT_MESSAGE, inRequestMsg);
+    }
+
+    public static Object getMessageDataSource(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(MESSAGE_DATA_SOURCE);
     }
 }
