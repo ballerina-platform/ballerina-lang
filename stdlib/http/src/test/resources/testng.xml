@@ -80,6 +80,7 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.entity.EntityBodyWithCharsetTest"/>
             <class name="org.ballerinalang.stdlib.entity.MimeWithHttpTest"/>
+            <class name="org.ballerinalang.stdlib.resiliency.FailoverConnectorTest"/>
         </classes>
     </test>
 </suite>
