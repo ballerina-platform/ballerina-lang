@@ -3,7 +3,7 @@ import { IBallerinaLangClient } from "@ballerina/lang-service";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 
-export enum DiagramMode { ACTION, DEFAULT }
+export enum DiagramMode { INTERACTION, STATEMENT, ACTION, DEFAULT }
 
 export interface IDiagramContext {
     ast: ASTNode | undefined;

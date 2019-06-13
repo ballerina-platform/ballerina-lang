@@ -4,9 +4,10 @@ import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
-import { setActionViewStatus, visitor as actionViewVisitor } from "../visitors/action-view";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
+import { visitor as interactionModeVisitor } from "../visitors/mode-visitors/interaction-mode-visitor";
+import { visitor as statementModeVisitor } from "../visitors/mode-visitors/statement-mode-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
@@ -47,8 +48,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const children: React.ReactNode[] = [];
 
         // use default width/height if not provided
-        let diagramWidth = width ? width : DefaultConfig.canvas.width;
-        let diagramHeight = height ? height : DefaultConfig.canvas.height;
+        let diagramWidth = width !== undefined ? width : DefaultConfig.canvas.width;
+        let diagramHeight = height !== undefined ? height : DefaultConfig.canvas.height;
 
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
         cuViewState.container.w = diagramWidth;
@@ -59,9 +60,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             ASTUtil.traversNode(ast, initVisitor);
             setProjectAST(projectAst);
             ASTUtil.traversNode(ast, invocationVisitor);
-            // Action view visitor
-            setActionViewStatus(this.state.currentMode === DiagramMode.ACTION);
-            ASTUtil.traversNode(ast, actionViewVisitor);
+            if (this.props.mode === DiagramMode.INTERACTION) {
+                ASTUtil.traversNode(ast, interactionModeVisitor);
+            } else {
+                ASTUtil.traversNode(ast, statementModeVisitor);
+            }
             // Set width and height to toplevel node.
             ast.viewState = cuViewState;
             // Calculate dimention of AST Nodes.

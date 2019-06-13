@@ -61,7 +61,10 @@ class SizingVisitor implements Visitor {
     }
 
     public beginVisitIf(node: If) {
-        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (!node.viewState.hidden) {
+            node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        }
+
         if (node.VisibleEndpoints) {
             this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
         }
@@ -140,11 +143,11 @@ class SizingVisitor implements Visitor {
         if (this.endpointHolder) {
             const endpoints = this.endpointHolder.filter((ep) => (!ep.caller));
 
-            if (node.VisibleEndpoints) {
+            if (!node.resource && node.VisibleEndpoints) {
                 node.VisibleEndpoints.forEach((ep) => {
                     // Find of one of the visible endpoints is actually a parameter to the function
-                    if (node.allParams) {
-                        node.allParams.forEach((p, i) => {
+                    if (node.parameters) {
+                        node.parameters.forEach((p, i) => {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
@@ -296,6 +299,12 @@ class SizingVisitor implements Visitor {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
+        if (node.viewState.hidden) {
+            viewState.bBox.w = 0;
+            viewState.bBox.h = 0;
+            return;
+        }
+
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.condition.bottomMargin
@@ -438,7 +447,7 @@ class SizingVisitor implements Visitor {
             // find the endpoint view state
             const epName = ASTUtil.getEndpointName(action as Invocation);
 
-            let endpoint = this.findActualEP(this.endpointHolder.find((el: VisibleEndpoint) => el.name === epName));
+            const endpoint = this.findActualEP(this.endpointHolder.find((el: VisibleEndpoint) => el.name === epName));
 
             if (endpoint) {
                 viewState.endpoint = endpoint.viewState;
@@ -483,27 +492,8 @@ class SizingVisitor implements Visitor {
         }
 
         let expandedFnWidth = expandedBody.w + expandedBody.leftMargin;
-        // const workers = expandedFn.body.statements.filter((element) => ASTUtil.isWorker(element));
 
-        // workers.forEach((worker) => {
-        //     const variable: Variable = ((worker as VariableDef).variable as Variable);
-        //     const lambda: Lambda = (variable.initialExpression as Lambda);
-        //     const fnVS = lambda.functionNode.body!.viewState as BlockViewState;
-        //     const leftMargin = fnVS.bBox.leftMargin > 0 ? fnVS.bBox.leftMargin : 60;
-        //     expandedFnWidth += (fnVS.bBox.w + leftMargin);
-        // });
-
-        debugger;
         expandedFnWidth += expandedFnViewState.workerWidth;
-
-        // let visibleEndpoints = [];
-        // if (expandedFn.VisibleEndpoints) {
-        //     visibleEndpoints = expandedFn.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
-        //     visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-        //         endpoint.viewState.bBox.w = config.lifeLine.width;
-        //         expandedFnWidth += (endpoint.viewState.bBox.w + config.lifeLine.gutter.h);
-        //     });
-        // }
 
         expandedFnWidth += expandedFnViewState.endpointsWidth;
         expandedFnWidth += sizes.rightMargin;
