@@ -19,8 +19,8 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
@@ -48,7 +49,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  */
 public class Services {
 
-    private static String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
+    private static final String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
 
     @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
@@ -92,7 +93,9 @@ public class Services {
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Executor.submit(service, resource.getName(), callback, properties, signatureParams);
+        Scheduler scheduler = httpServicesRegistry.getScheduler();
+        Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
+        Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();
