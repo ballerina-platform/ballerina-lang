@@ -292,7 +292,7 @@ public class IterableCodeDesugar {
         foreachStmt.variableDefinitionNode = variableDef;
         BType paramType = ctx.getFirstOperation().inputType;
         foreachStmt.varType = paramType;
-        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        BMapType mapType = new BMapType(TypeTags.MAP, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
         foreachStmt.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 
@@ -345,7 +345,7 @@ public class IterableCodeDesugar {
         foreachStmt.variableDefinitionNode = variableDef;
         BType paramType = ctx.getFirstOperation().inputType;
         foreachStmt.varType = paramType;
-        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        BMapType mapType = new BMapType(TypeTags.MAP, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
         foreachStmt.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 

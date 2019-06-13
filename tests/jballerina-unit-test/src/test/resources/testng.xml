@@ -91,6 +91,7 @@
             <package name="org.ballerinalang.test.enum.*" />
             <!-- <package name="org.ballerinalang.test.loc.*" /> -->
             <package name="org.ballerinalang.test.packaging.*" />
+            <package name="org.ballerinalang.test.types.xml.*" />
         </packages>
 
         <classes>
@@ -191,16 +192,6 @@
             <class name="org.ballerinalang.test.record.OpenRecordOptionalFieldsTest"/>
             <class name="org.ballerinalang.test.record.RecordAccessWithIndexTest"/>
             <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest"/>
-
-            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
-                <methods>
-                    <exclude name="testServiceLevelXML"></exclude>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
         </classes>
     </test>
 </suite>
