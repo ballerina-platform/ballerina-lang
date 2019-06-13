@@ -370,17 +370,6 @@ public class Message {
         return MessageRegistry.getInstance().getMessageDescriptor(messageName);
     }
 
-//    @Override
-//    public String toString() {
-//        StringBuilder payload = new StringBuilder("Message : ");
-//        if (bMessage != null) {
-//            payload.append("{ ").append(bMessage.stringValue()).append(" }");
-//        } else {
-//            payload.append("null");
-//        }
-//        return payload.toString();
-//    }
-
     @SuppressWarnings("unchecked")
     void writeTo(com.google.protobuf.CodedOutputStream output)
             throws java.io.IOException {
