@@ -89,7 +89,7 @@ public type ChannelListener object {
 # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
 public type RabbitMQServiceConfig record {|
     QueueConfiguration queueConfig;
-    AcknowledgementMode ackMode = AUTO_ACK;
+    AcknowledgementMode ackMode = CLIENT_ACK;
     int prefetchCount?;
     int prefetchSize?;
 |};
