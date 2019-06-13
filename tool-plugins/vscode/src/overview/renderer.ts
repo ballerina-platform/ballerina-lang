@@ -72,6 +72,7 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                             langClient: getLangClient()
                         }
                     };
+                    console.log(ballerinaComposer)
                     const diagram = ballerinaComposer.renderOverview(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
                         diagram.updateAST();

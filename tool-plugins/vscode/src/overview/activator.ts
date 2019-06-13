@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as _ from 'lodash';
 
 import { BallerinaExtension, ExtendedLangClient } from 'src/core';
-import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, TextEditor, 
+import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
 import {render} from './renderer';
@@ -46,7 +46,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             overviewPanel = window.createWebviewPanel(
                 'projectOverview',
                 'Project Overview',
-                { viewColumn: ViewColumn.Two, preserveFocus: true } ,
+                { viewColumn: ViewColumn.One, preserveFocus: true } ,
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true,

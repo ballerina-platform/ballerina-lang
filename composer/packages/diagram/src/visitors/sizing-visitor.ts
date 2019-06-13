@@ -172,10 +172,9 @@ class SizingVisitor implements Visitor {
                 }
             });
         }
-
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
             + defaultWorker.bBox.w + endpointWidth + workerWidth;
-        body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
+        body.w = config.panel.padding.left + lifeLinesWidth;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
@@ -470,6 +469,7 @@ class SizingVisitor implements Visitor {
             // add space for the expander
             viewState.bBox.w += 10;
             if (viewState.expandContext.expandedSubTree) {
+                viewState.expandContext.labelText = source;
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
@@ -496,7 +496,7 @@ class SizingVisitor implements Visitor {
         expandedFnWidth += expandedFnViewState.workerWidth;
 
         expandedFnWidth += expandedFnViewState.endpointsWidth;
-        expandedFnWidth += sizes.rightMargin;
+        expandedFnWidth += sizes.rightMargin + sizes.margin;
 
         const expandedFnHeight = expandedFnViewState.containsOtherLifelines ?
             expandedDefaultWorker.h : expandedBody.h;

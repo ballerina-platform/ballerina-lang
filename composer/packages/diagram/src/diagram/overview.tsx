@@ -1,44 +1,56 @@
-import { CompilationUnit } from "@ballerina/ast-model";
+import { ASTNode } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
-import React, { createRef } from "react";
-import { Dropdown, DropdownItemProps, List, ListItemProps, Menu } from "semantic-ui-react";
+import React from "react";
+import { DropdownItemProps, List, ListItemProps } from "semantic-ui-react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
+import { DiagramUtils } from "./diagram-utils";
+import { TopMenu } from "./top-menu";
+
+const modes = [
+    {
+        text: "Interaction",
+        type: DiagramMode.INTERACTION
+    },
+    {
+        text: "Statements",
+        type: DiagramMode.STATEMENT
+    },
+];
 
 export interface OverviewProps extends CommonDiagramProps {
     langClient: IBallerinaLangClient;
     sourceRoot: string;
-    initialCollapsedModules: {
-        [name: string]: {
-            collapsed: boolean,
-            collapsedFunctions: string[]
-        }
-    };
 }
 export interface OverviewState {
     modules: ProjectAST;
-    collapsedModules: {
-        [name: string]: {
-            collapsed: boolean,
-            collapsedFunctions: string[]
-        }
-    };
+    selectedConstruct?: {
+        moduleName: string;
+        constructName: string;
+    } | undefined;
     mode: DiagramMode;
     modeText: string;
+    fitToWidthOrHeight: boolean;
+    zoom: number;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
-    private containerRef = createRef<HTMLDivElement>();
-
     constructor(props: OverviewProps) {
         super(props);
-        this.handleModuleClick = this.handleModuleClick.bind(this);
         this.handleModeChange = this.handleModeChange.bind(this);
+        this.handleConstructClick = this.handleConstructClick.bind(this);
+        this.handleBackClick = this.handleBackClick.bind(this);
+        this.handleFitClick = this.handleFitClick.bind(this);
+        this.handleZoomIn = this.handleZoomIn.bind(this);
+        this.handleZoomOut = this.handleZoomOut.bind(this);
+        this.handleConstructNameSelect = this.handleConstructNameSelect.bind(this);
+        this.handleModuleNameSelect = this.handleModuleNameSelect.bind(this);
         this.state = {
-            collapsedModules: props.initialCollapsedModules,
+            fitToWidthOrHeight: true,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
+            zoom: 0,
         };
     }
 
@@ -57,89 +69,193 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public render() {
         const { modules } = this.state;
+
+        if (!this.state.selectedConstruct) {
+            return this.renderModulesList();
+        }
+
+        const selectedModule = this.state.selectedConstruct.moduleName;
+        const selectedConstruct = this.state.selectedConstruct.constructName;
+        const moduleList = this.getModuleList();
+
+        const moduleNames: string[] = [];
+        const constructNames: string[] = [];
+        let selectedAST;
+
+        moduleList.forEach((module) => {
+            moduleNames.push(module.name);
+
+            if (selectedModule === module.name) {
+                module.nodes.forEach((node) => {
+                    const nodeName = (node as any).name.value;
+                    constructNames.push(nodeName);
+
+                    if (selectedConstruct && (nodeName === selectedConstruct)) {
+                        selectedAST = node;
+                    }
+                });
+            }
+        });
+
         return (
             <div>
-                <Menu fixed={"top"}>
-                    <Menu.Item>
-                    <Dropdown text={this.state.modeText}>
-                        <Dropdown.Menu>
-                            <Dropdown.Item
-                                text="Interaction"
-                                value={DiagramMode.INTERACTION}
-                                onClick={this.handleModeChange}/>
-                            <Dropdown.Item
-                                text="Statement"
-                                value={DiagramMode.STATEMENT}
-                                onClick={this.handleModeChange}/>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    </Menu.Item>
-                </Menu>
-                <div style={{margin: "50px 15px 0px"}} ref={this.containerRef}>
-                    <List relaxed divided>
-                        {Object.keys(modules).map((moduleName) => {
-                            const module = modules[moduleName];
-                            return (
-                                <List.Item key={module.name} onClick={this.handleModuleClick}
-                                    data={{name: module.name}}>
-                                    <List.Content>
-                                        <List.Header as="a">{module.name}</List.Header>
-                                        {this.state.collapsedModules[module.name] &&
-                                        this.state.collapsedModules[module.name].collapsed &&
-                                        Object.keys(module.compilationUnits).map((cUnitName) => {
-                                            const cUnit = module.compilationUnits[cUnitName];
-                                            const ast = cUnit.ast;
-                                            return <Diagram ast={ast as CompilationUnit}
-                                                zoom={1} height={0} width={1000}
-                                                mode={this.state.mode} projectAst={modules}></Diagram>;
-                                        })}
-                                    </List.Content>
-                                </List.Item>
-                            );
-                        })}
-                    </List>
+                <TopMenu
+                    modes={modes}
+                    moduleNames={moduleNames}
+                    constructNames={constructNames}
+                    handleModeChange={this.handleModeChange}
+                    selectedModeText={this.state.modeText}
+                    handleBackClick={this.handleBackClick}
+                    handleFitClick={this.handleFitClick}
+                    handleZoomIn={this.handleZoomIn}
+                    handleZoomOut={this.handleZoomOut}
+                    fitActive={this.state.fitToWidthOrHeight}
+                    selectedModuleName={selectedModule}
+                    selectedConstructName={selectedConstruct}
+                    handleConstructNameSelect={this.handleConstructNameSelect}
+                    handleModuleNameSelect={this.handleModuleNameSelect}
+                />
+                <div style={{margin: "80px 15px 5px"}}>
+                <Diagram ast={selectedAST}
+                    projectAst={modules}
+                    zoom={this.state.zoom} height={0} width={1000}
+                    fitToWidthOrHeight={this.state.fitToWidthOrHeight}
+                    mode={this.state.mode}>
+                </Diagram>
                 </div>
             </div>
         );
     }
 
-    private handleModuleClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, props: ListItemProps) {
-        this.setState((state) => {
-            let collapsedModule = state.collapsedModules[props.data.name];
+    private renderModulesList() {
+        const modules = this.getModuleList();
 
-            if (!collapsedModule) {
-                collapsedModule = {
-                    collapsed: true,
-                    collapsedFunctions: [],
-                };
-            } else {
-                collapsedModule.collapsed = !collapsedModule.collapsed;
+        return <div style={{margin: "15px"}}>
+            <List relaxed divided>
+                {modules.map((module) => (
+                    <List.Item key={module.name}>
+                        <List.Content>
+                            <List.Header as="a">{module.name}</List.Header>
+                            <div>
+                                { this.renderConstructsList(module) }
+                            </div>
+                        </List.Content>
+                    </List.Item>)
+                )}
+            </List>
+        </div>;
+    }
+
+    private renderConstructsList(module: { name: string; nodes: ASTNode[]; }) {
+        return (
+            <List bulleted>
+                {module.nodes.filter((node) => (DiagramUtils.isDrawable(node)))
+                    .map((node) => {
+                        const nodeName = (node as any).name.value;
+                        return (
+                            <List.Item
+                                key={nodeName}
+                                data={{ moduleName: module.name, constructName: nodeName }}
+                                onClick={this.handleConstructClick}
+                            >
+                                <List.Content>
+                                    <List.Header as="a">{(node as any).name.value}</List.Header>
+                                </List.Content>
+                            </List.Item>
+                        );
+                    })}
+            </List>
+        );
+    }
+
+    private getModuleList(): Array<{name: string, nodes: ASTNode[]}> {
+        const { modules } = this.state;
+        const moduleList: Array<{name: string, nodes: ASTNode[]}>  = [];
+
+        Object.keys(modules).map((moduleName) => {
+            const module = modules[moduleName];
+            const newModule: {name: string, nodes: ASTNode[]} = { name: module.name, nodes: [] };
+
+            Object.keys(module.compilationUnits).forEach((cUnitName) => {
+                const cUnit = module.compilationUnits[cUnitName];
+
+                cUnit.ast.topLevelNodes.forEach((node) => {
+                    if ((node as any).ws && DiagramUtils.isDrawable(node)) {
+                        newModule.nodes.push(node as ASTNode);
+                    }
+                });
+            });
+
+            moduleList.push(newModule);
+        });
+
+        return moduleList;
+    }
+
+    private handleConstructClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, props: ListItemProps) {
+        this.setState({
+            selectedConstruct: {
+                constructName: props.data.constructName,
+                moduleName: props.data.moduleName,
             }
-
-            return {
-                collapsedModules: {
-                    ...state.collapsedModules,
-                    [props.data.name]: collapsedModule,
-                }
-            };
         });
     }
 
     private handleModeChange(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
-        if (props.value === DiagramMode.INTERACTION) {
-            this.setState({
-                mode: DiagramMode.INTERACTION,
-                modeText: "Interaction",
-            });
+        this.setState({
+            mode: props.data.type,
+            modeText: props.data.text,
+        });
+    }
+
+    private handleBackClick() {
+        this.setState({
+            selectedConstruct: undefined,
+        });
+    }
+
+    private handleFitClick() {
+        this.setState((state) => ({
+            fitToWidthOrHeight: !state.fitToWidthOrHeight,
+            zoom: 0,
+        }));
+    }
+
+    private handleZoomIn() {
+        this.setState((state) => ({
+            fitToWidthOrHeight: false,
+            zoom: state.zoom + 1,
+        }));
+    }
+
+    private handleZoomOut() {
+        this.setState((state) => ({
+            fitToWidthOrHeight: false,
+            zoom: state.zoom - 1,
+        }));
+    }
+
+    private handleModuleNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
+        const moduleList = this.getModuleList();
+        const selectedModule = moduleList.find((module) => (module.name === props.data.name));
+        if (!selectedModule) {
             return;
         }
 
-        if (props.value === DiagramMode.STATEMENT) {
-            this.setState({
-                mode: DiagramMode.STATEMENT,
-                modeText: "Statement",
-            });
-            return;
-        }
+        this.setState({
+            selectedConstruct: {
+                constructName: (selectedModule.nodes[0] as any).name.value,
+                moduleName: props.data.name,
+            }
+        });
+    }
+
+    private handleConstructNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
+        this.setState((state) => ({
+            selectedConstruct: {
+                ...state.selectedConstruct!,
+                constructName: props.data.name,
+            }
+        }));
     }
 }

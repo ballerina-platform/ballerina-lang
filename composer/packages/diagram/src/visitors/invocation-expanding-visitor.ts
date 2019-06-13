@@ -52,13 +52,21 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
     }
 
     const expandedFunctionOriginalNode = getExpandedSubTree(invocation);
-    if (!expandedFunctionOriginalNode ||
-        (expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded) {
+    if (!expandedFunctionOriginalNode) {
         return;
     }
 
-    const expandedFunction = _.cloneDeep(expandedFunctionOriginalNode);
+    if (!expandedFunctionOriginalNode.viewState) {
+        expandedFunctionOriginalNode.viewState = new FunctionViewState();
+    }
+
+    if ((expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded) {
+        // This function is already expanded. This means this is a recursive call. Stop expanding
+        return;
+    }
+
     (expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded = true;
+    const expandedFunction = _.cloneDeep(expandedFunctionOriginalNode);
     ASTUtil.traversNode(expandedFunction, initVisitor);
     expandedFunction.viewState.isExpandedFunction = true;
     (expandedFunction.viewState as FunctionViewState).soroundingVisibleEndpoints = [...envEndpoints];
@@ -71,11 +79,12 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
 
 function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
 
-    if (!invocation.definition) {
+    const definition = (invocation as any).definition;
+    if (!definition) {
         return;
     }
 
-    const defLink: string[][] = invocation.definition.slice().reverse();
+    const defLink: string[][] = definition.slice().reverse();
 
     if (defLink[0][0] !== "builtin") {
         return;
@@ -93,9 +102,22 @@ function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
         const cUnit = module.compilationUnits[cUnitName];
         cUnit.ast.topLevelNodes.forEach((n) => {
             const node = n as ASTNode;
+
             if (ASTKindChecker.isFunction(node)) {
                 if (node.name.value === defLink[2][0]) {
                     funcNode = node;
+                }
+                return;
+            }
+
+            if (ASTKindChecker.isTypeDefinition(node) && (defLink[2][1] === "OBJECT")) {
+                if (node.name.value !== defLink[2][0]) {
+                    return;
+                }
+
+                if ((ASTKindChecker.isObjectType(node.typeNode) && defLink[3][1] === "FUNCTION")) {
+                    funcNode = node.typeNode.functions.find((fnode) => (
+                        `${defLink[2][0]}.${fnode.name.value}` === defLink[3][0]));
                 }
             }
         });
