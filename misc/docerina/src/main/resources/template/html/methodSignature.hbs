@@ -1,1 +1,9 @@
-<p><a href="#{{name}}"><b>{{name}} </b></a>({{{paramSummary parameters}}}) {{#if returnParameters }}<b>returns </b>{{{returnParamSummary returnParameters}}}{{/if}}<br></p>
+<p>
+    <a href="#{{name}}"><b>{{name}} </b></a>
+    ({{{paramSummary parameters}}}) 
+    {{#if returnParameters }}
+        <span class="return-class">
+            <b> returns </b>{{{returnParamSummary returnParameters}}}
+        </span>
+    {{/if}}<br>
+</p>

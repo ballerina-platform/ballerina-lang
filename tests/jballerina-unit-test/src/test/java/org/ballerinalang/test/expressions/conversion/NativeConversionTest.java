@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
@@ -371,7 +372,7 @@ public class NativeConversionTest {
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
 
         BValueArray array = (BValueArray) anyArrayStruct.get("a");
-        Assert.assertEquals(array.getType().toString(), "int[]");
+        Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "int");
         Assert.assertEquals(array.getInt(0), 4);
         Assert.assertEquals(array.getInt(1), 3);
         Assert.assertEquals(array.getInt(2), 9);
@@ -384,7 +385,7 @@ public class NativeConversionTest {
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
         BValueArray array = (BValueArray) anyArrayStruct.get("a");
 
-        Assert.assertEquals(array.getType().toString(), "string[]");
+        Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "string");
         Assert.assertEquals(array.getString(0), "a");
         Assert.assertEquals(array.getString(1), "b");
         Assert.assertEquals(array.getString(2), "c");
