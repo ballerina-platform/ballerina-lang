@@ -59,11 +59,7 @@ under the License.
                     <exclude name="testSignatureWithMismatchedBodyParam"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
-                <methods>
-                    <exclude name="testErrorReturn"></exclude>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
