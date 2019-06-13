@@ -84,7 +84,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     // we cannot set this during strand creation, because function call do not have this info.
     mv.visitVarInsn(ALOAD, localVarOffset);
     loadChannelDetails(mv, func.workerChannels);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "channelDetails", io:sprintf("[L%s;", CHANNEL_DETAILS));
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
@@ -1064,7 +1064,17 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
             bir:BType pType = getType(paramType);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            generateParamCast(argArrayIndex, pType, mv);
+            // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
+            if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
+                // load VarArgs array
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitIntInsn(BIPUSH, argArrayIndex);
+                loadType(mv, pType);
+                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "createVarArgsArray", 
+                    io:sprintf("([L%s;IL%s;)L%s;", STRING_VALUE, ARRAY_TYPE, ARRAY_VALUE), false);
+            } else {
+                generateParamCast(argArrayIndex, pType, mv);
+            }
             mv.visitInsn(AASTORE);
             paramIndex += 1;
 
@@ -1160,7 +1170,11 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        castFromString(pType, mv);
+        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
+            addUnboxInsn(mv, pType);
+        } else {
+            castFromString(pType, mv);
+        }
         paramIndex += 1;
     }
 
