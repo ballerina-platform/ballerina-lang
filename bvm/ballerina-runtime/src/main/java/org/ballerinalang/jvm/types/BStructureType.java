@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public abstract class BStructureType extends AnnotatableType {
 
-    private Map<String, BField> fields;
+    protected Map<String, BField> fields;
     public int flags;
 
     /**

@@ -31,19 +31,19 @@ class BByteType extends BType {
      * @param typeName string name of the type
      */
     BByteType(String typeName, BPackage pkg) {
-        super(typeName, pkg, Byte.class);
+        super(typeName, pkg, Integer.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getZeroValue() {
-        return (V) new Byte((byte) 0);
+        return (V) new Integer(0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getEmptyValue() {
-        return (V) new Byte((byte) 0);
+        return (V) new Integer(0);
     }
 
     @Override

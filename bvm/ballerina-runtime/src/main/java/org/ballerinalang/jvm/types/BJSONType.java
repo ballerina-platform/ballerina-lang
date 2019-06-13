@@ -48,7 +48,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<>();
+        return (V) new MapValueImpl<>(this);
     }
 
     @Override
@@ -59,5 +59,9 @@ public class BJSONType extends BType {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj) && obj instanceof BJSONType;
+    }
+
+    public boolean isNilable() {
+        return true;
     }
 }
