@@ -41,6 +41,7 @@ import java.io.PrintStream;
 /**
  * Test Native functions in ballerina/io.
  */
+@Test(enabled = false)
 public class IOPrintTest {
 
     private CompileResult compileResult;
