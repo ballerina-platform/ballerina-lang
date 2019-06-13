@@ -56,13 +56,13 @@ import java.util.Base64;
  * @since 0.963.0
  */
 public class MultipartDecoderTest {
-    private CompileResult bvmResult, compileResult, channelResult;
+    private CompileResult bvmResult, channelResult;
     private static final int EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        compileResult = BCompileUtil.compile(sourceFilePath);
+        BCompileUtil.compile(sourceFilePath);
         channelResult = BCompileUtil.compile("test-src/multipart/bytechannel-base64.bal");
         bvmResult = BCompileUtil.compileOnBVM("test-src/multipart/bytechannel-base64.bal");
     }
