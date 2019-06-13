@@ -39,6 +39,12 @@ public class BLangConstants {
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+
+    public static final String EMPTY = "";
+    public static final String ANON_ORG = "$anon";
+    public static final String DOT = ".";
+    public static final String ORG_NAME_SEPARATOR = "/";
+    public static final String VERSION_SEPARATOR = ":";
     
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
@@ -69,7 +75,6 @@ public class BLangConstants {
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
-    public static final String ORG_NAME_SEPARATOR = "/";
     public static final String USER_HOME = "user.home";
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;

@@ -47,7 +47,6 @@ function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:Modul
     }
 
     JarFile jarFile = {};
-    generateBuiltInPackages(birContext, jarFile);
     generatePackage(entryModId, jarFile, true);
 
     return jarFile;

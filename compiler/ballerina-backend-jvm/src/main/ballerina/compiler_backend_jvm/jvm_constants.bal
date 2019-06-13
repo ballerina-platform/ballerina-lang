@@ -254,6 +254,8 @@ const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

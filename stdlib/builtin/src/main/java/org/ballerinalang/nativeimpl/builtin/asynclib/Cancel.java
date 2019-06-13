@@ -17,12 +17,12 @@ package org.ballerinalang.nativeimpl.builtin.asynclib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function future.cancel().
@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "builtin",
         functionName = "future.cancel",
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class Cancel extends BlockingNativeCallableUnit {
@@ -39,7 +38,11 @@ public class Cancel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFuture future = (BFuture) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(future.cancel()));
+        future.cancel();
+    }
+
+    public static void cancel(Strand strand, FutureValue futureValue) {
+        futureValue.cancel();
     }
     
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -60,7 +61,7 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
             return this.getProvider(BallerinaParser.VariableDefinitionStatementContext.class).getCompletions(ctx);
         }
 
-        completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+        completionItems.addAll(this.getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
         completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
 

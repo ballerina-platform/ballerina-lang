@@ -1,0 +1,4 @@
+// Artemis data binding helps access payload through the last resource 
+// parameter. `string`, `json`, `xml`, `byte[]`, `record`, `map<string>`, `map<int>`, 
+// `map<float>`, `map<byte>`, `map<byte[]>` and `map<boolean>` are supported as
+// parameter types.

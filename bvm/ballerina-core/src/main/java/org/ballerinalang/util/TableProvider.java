@@ -49,8 +49,8 @@ public class TableProvider {
     private int indexID;
 
     private TableProvider() {
-        tableID = 0;
-        indexID = 0;
+        tableID = 99999; // using some large number here to avoid table id clash with jBallerina tests
+        indexID = 99999; // using some large number here to avoid table id clash with jBallerina tests
     }
 
     public static TableProvider getInstance() {

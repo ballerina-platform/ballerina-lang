@@ -62,7 +62,8 @@ public class CheckEntityBodyAvailability extends BlockingNativeCallableUnit {
                         lengthHeaderCheck(requestStruct) || EntityBodyHandler.checkEntityBodyAvailability(entity)));
     }
 
-    public static boolean checkEntityBodyAvailability(Strand strand, ObjectValue requestObj, ObjectValue entityObj) {
+    public static boolean checkEntityBodyAvailability(Strand strand, ObjectValue requestObj) {
+        ObjectValue entityObj = (ObjectValue) requestObj.get(REQUEST_ENTITY_FIELD);
         return lengthHeaderCheck(requestObj) || EntityBodyHandler.checkEntityBodyAvailability(entityObj);
     }
 

@@ -67,17 +67,14 @@ public class GetNextPromise extends AbstractHTTPAction {
     }
 
     public static void getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        DataContext dataContext = new DataContext(strand, callback, clientObj, handleObj, null);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
+                                                  null);
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
-        clientConnector.getNextPushPromise(responseHandle).
-                setPushPromiseListener(new PromiseListener(dataContext));
+        clientConnector.getNextPushPromise(responseHandle).setPushPromiseListener(new PromiseListener(dataContext));
     }
 
     private static class BPromiseListener implements HttpClientConnectorListener {

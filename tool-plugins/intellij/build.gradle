@@ -59,13 +59,9 @@ intellij {
     // alternativeIdePath localIdePath
 }
 
-apply plugin: 'de.undercouch.download'
-task downloadPsiViewerPlugin() {
-    download {
-        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
-        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
-        onlyIfNewer true
-    }
+task downloadPsiViewerPlugin(type: Download) {
+    src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+    dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
 }
 
 apply plugin: "jacoco"

@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
@@ -29,7 +30,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +53,7 @@ public class QueueBind extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
         String queueName = context.getStringArgument(0);
         String exchangeName = context.getStringArgument(1);
@@ -61,9 +62,9 @@ public class QueueBind extends BlockingNativeCallableUnit {
                 Channel.class, context);
         try {
             ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
-        } catch (BallerinaException exception) {
+        } catch (RabbitMQConnectorException exception) {
             LOGGER.error("I/O exception while binding the queue", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);
         }
     }
 }

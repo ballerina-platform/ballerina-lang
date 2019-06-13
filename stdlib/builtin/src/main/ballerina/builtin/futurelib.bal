@@ -14,18 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-# Checks if the given future is done.
-#
-# + return - true if the future is done; false otherwise
-public function future<any>.isDone() returns boolean = external;
-
-# Checks if the given future is cancelled.
-#
-# + return - true if the future is cancelled; false otherwise
-public function future<any>.isCancelled() returns boolean = external;
-
 # Cancels the given future.
 #
 # + return - true if the future was cancelled; false otherwise
-public function future<any>.cancel() returns boolean = external;
+public function future<any>.cancel() = external;

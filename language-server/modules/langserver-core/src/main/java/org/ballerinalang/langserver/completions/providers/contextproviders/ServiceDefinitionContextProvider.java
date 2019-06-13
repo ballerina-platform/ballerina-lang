@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -85,7 +86,7 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
             }
             case BallerinaParser.NEW: {
                 List<SymbolInfo> filteredSymbols =
-                        this.filterListenerTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+                        this.filterListenerTypes(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
                 completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItems.addAll(this.getPackagesCompletionItems(context));
                 break;

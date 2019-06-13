@@ -46,7 +46,7 @@ public type PackageParser object {
 
     public function skipAnnotation() {
         _ = self.reader.readInt32();
-        _ = self.reader.readInt8();
+        _ = self.reader.readInt32();
         _ = self.reader.readInt32();
         _ = self.reader.readTypeCpRef();
     }
@@ -94,13 +94,16 @@ public type PackageParser object {
         FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
-        var isDeclaration = self.reader.readBoolean();
-        var isInterface = self.reader.readBoolean();
-        _ = self.reader.readBoolean(); //Read and ignore remote flag
-        var visibility = parseVisibility(self.reader);
+        int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
+
+        // Need to track a rest param Exist
+        boolean restParamExist = self.reader.readBoolean();
+        if (restParamExist) {
+            _ = self.reader.readInt32();
+        }
 
         BType? receiverType = ();
         boolean hasReceiverType = self.reader.readBoolean();
@@ -159,9 +162,7 @@ public type PackageParser object {
         return {
             pos: pos,
             name: { value: name },
-            isDeclaration: isDeclaration,
-            isInterface:isInterface,
-            visibility: visibility,
+            flags: flags,
             localVars: dcls,
             basicBlocks: basicBlocks,
             params: params,
@@ -170,7 +171,8 @@ public type PackageParser object {
             argsCount: argsCount,
             typeValue: sig,
             workerChannels:workerChannels,
-            receiverType : receiverType
+            receiverType : receiverType,
+            restParamExist : restParamExist
         };
     }
 
@@ -187,10 +189,6 @@ public type PackageParser object {
         while (j < defaultableParamCount) {
             _ = self.reader.readInt32();
             j += 1;
-        }
-        boolean restParamExist = self.reader.readBoolean();
-        if (restParamExist) {
-            _ = self.reader.readInt32();
         }
     }
 
@@ -281,9 +279,9 @@ public type PackageParser object {
     function parseTypeDef() returns TypeDef {
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         string name = self.reader.readStringCpRef();
-        Visibility visibility = parseVisibility(self.reader);
+        int flags = self.reader.readInt32();
         var bType = self.reader.readTypeCpRef();
-        return { pos:pos, name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: () };
+        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       
@@ -293,9 +291,9 @@ public type PackageParser object {
         while i < numGlobalVars {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
-            Visibility visibility = parseVisibility(self.reader);
+            int flags = self.reader.readInt32();
             var typeValue = self.reader.readTypeCpRef();
-            GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, visibility:visibility};
+            GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[i] = dcl;
             self.globalVarMap[name] = dcl;
             i = i + 1;
@@ -352,26 +350,6 @@ public function parseVarScope(BirChannelReader reader) returns VarScope {
     }
     error err = error("unknown var scope tag " + b);
     panic err;
-}
-
-public function parseVisibility(ChannelReader|BirChannelReader reader) returns Visibility {
-    int b = 0;
-    if (reader is BirChannelReader) {
-        b = reader.readInt8();
-    } else {
-        b = reader.readInt8();
-    }
-    if (b == 0) {
-        return "PACKAGE_PRIVATE";
-    } else if (b == 1) {
-        return "PRIVATE";
-    } else if (b == 2) {
-        return "PUBLIC";
-    } else if (b == 3) {
-        return "OPTIONAL";
-    }
-    error err = error("unknown variable visiblity tag " + b);
-        panic err;
 }
 
 public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPos {

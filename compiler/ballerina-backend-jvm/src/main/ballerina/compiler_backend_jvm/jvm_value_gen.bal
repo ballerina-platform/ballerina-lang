@@ -72,8 +72,19 @@ public type ObjectGenerator object {
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
+        self.createLambdas(cw);
+        
         cw.visitEnd();
         return cw.toByteArray();
+    }
+
+    private function createLambdas(jvm:ClassWriter cw) {
+        // generate lambdas created during generating methods
+        foreach var [name, call] in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
+        }
+        // clear the lambdas
+        lambdas = {};
     }
 
     private function createObjectFields(jvm:ClassWriter cw, bir:BObjectField?[] fields) {
