@@ -82,7 +82,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')

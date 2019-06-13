@@ -228,17 +228,6 @@
         </classes>
     </test>
 
-    <test name="ballerina-jms-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
-        </classes>
-    </test>
-
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>

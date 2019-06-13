@@ -1,3 +1,0 @@
-// This example shows how to send a JMS message, consumed by the JMS listener service,
-// to an HTTP endpoint. A text payload from the JMS broker is expected and that payload is then
-// forwarded to an HTTP endpoint.

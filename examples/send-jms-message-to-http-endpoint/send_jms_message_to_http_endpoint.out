@@ -1,8 +1,0 @@
-# Start the Artemis message broker.
-# Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to the <BALLERINA_HOME>/bre/lib directory.
-
-# To start the service, navigate to the directory that contains the
-# `.bal` file, and use the `ballerina run` command.
-$ ballerina run send_jms_message_to_http_endpoint.bal
-2018-06-14 15:43:04,283 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090

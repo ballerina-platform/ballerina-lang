@@ -118,12 +118,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -448,7 +442,6 @@
                                 ballerina-internal,
                                 ballerina-io,
                                 ballerina-jvm,
-                                ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
@@ -579,11 +572,6 @@
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-io-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
                                 <!--<resource>-->

@@ -105,10 +105,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
         </dependency>
         <dependency>
@@ -245,10 +241,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observability</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.jms</groupId>
-            <artifactId>javax.jms-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
@@ -485,12 +477,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-log-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -710,12 +696,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -909,7 +889,6 @@
                                 ballerina-http,
                                 ballerina-internal,
                                 ballerina-io,
-                                ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
@@ -1033,11 +1012,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-io-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
