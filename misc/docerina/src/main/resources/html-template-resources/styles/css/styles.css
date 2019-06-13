@@ -303,6 +303,14 @@ body .content-wrapper .constants .method-list {
 }
 body .content-wrapper .constants .method-list p {
   line-height: 30px;
+  display: flex !important;
+}
+body .content-wrapper .constants .method-list p .param-name {
+  align-items: flex-start;
+  padding-right: 5px;
+}
+body .content-wrapper .constants .method-list p .param-details {
+  align-items: flex-start;
 }
 body .content-wrapper .constants .method-list a {
   color: #464646;
@@ -478,10 +486,11 @@ body .content-wrapper .module-desc {
 }
 .navi-wrapper .version,
 .navi-wrapper-sidebar .version {
-  float: right;
-  margin-right: 1.2em;
+  text-align: right;
+  margin-right: 7.2em;
   margin-top: -0.8em;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
+  margin-right: 6em;
 }
 .navi-wrapper:hover,
 .navi-wrapper-sidebar:hover {
@@ -557,7 +566,7 @@ a.toc.item {
 }
 @media only screen and (max-width: 999px) {
   .main-wrapper {
-    width: 90% !important ;
+    width: 90% !important;
   }
 }
 @media only screen and (max-width: 915px) {
@@ -579,6 +588,10 @@ a.toc.item {
   .main-wrapper {
     width: 90% !important;
   }
+  body .content-wrapper {
+    height: auto !important;
+    overflow-y: visible !important;
+  }
   .ui.fixed.menu {
     display: none !important;
   }
@@ -591,10 +604,11 @@ a.toc.item {
   }
   a.toc.item {
     width: 12px;
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 11px;
     opacity: 0.5;
+    display: block;
   }
   .logo {
     width: 120px;
@@ -602,9 +616,6 @@ a.toc.item {
   }
   .navi-wrapper {
     display: none !important;
-  }
-  a.toc.item {
-    display: block;
   }
   .navi-wrapper-content {
     width: 250px !important;
@@ -614,6 +625,17 @@ a.toc.item {
   }
   .navi-wrapper-sidebar {
     width: 259px;
+    height: auto !important;
+    overflow: visible !important;
+    z-index: 0;
+    font-size: 0.65em;
+  }
+  .navi-wrapper-sidebar .primary-list h3 {
+    font-size: 2.5em !important;
+  }
+  .navi-wrapper-sidebar .primary-list ul li {
+    line-height: 32px;
+    font-size: 2.1em !important;
   }
   .fourteen.wide.column.content-wrapper.pusher {
     width: 100% !important;
@@ -623,5 +645,22 @@ a.toc.item {
   }
   .pushable > .pusher:after {
     background-color: rgba(0, 0, 0, 0);
+  }
+  .pushable {
+    height: 100vh;
+    overflow-x: hidden;
+    padding: 0 !important;
+    z-index: 1000;
+    margin-left: -15px;
+  }
+  .ui.vertical.sidebar.menu.left.uncover.visible {
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    z-index: 0;
+  }
+  .pushable > .pusher {
+    z-index: 1000;
+    margin-left: 4px;
+    padding-left: 35px;
   }
 }
