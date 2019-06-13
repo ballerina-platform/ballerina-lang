@@ -137,7 +137,7 @@ function testBatchUpdate() returns string {
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters() returns string {
+function testInvalidArrayofQueryParameters() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",

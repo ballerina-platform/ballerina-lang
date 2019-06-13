@@ -74,6 +74,12 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
+
+    </test>
+    <test name="TaintCheckingTests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest"></class>
+        </classes>
     </test>
     <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >

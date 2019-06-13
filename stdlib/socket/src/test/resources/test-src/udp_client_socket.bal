@@ -32,7 +32,7 @@ function echo(string msg) returns string {
         var (content, length, address) = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted string> str;
         } else {
             io:println(str.detail().message);
         }
@@ -51,7 +51,7 @@ function contentReceive() returns string {
         var (content, length, address) = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted string> str;
         } else {
             io:println(str.detail().message);
         }
@@ -70,7 +70,7 @@ function contentReceiveWithLength() returns string {
         var (content, length, address) = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted string> str;
         } else {
             io:println(str.detail().message);
         }

@@ -205,7 +205,7 @@ function testGeneratedKeyWithColumn() returns int {
     return generatedID;
 }
 
-function testSelectData() returns string {
+function testSelectData() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -219,7 +219,7 @@ function testSelectData() returns string {
     return firstName;
 }
 
-function testSelectIntFloatData() returns (int, int, float, float, decimal) {
+function testSelectIntFloatData() returns @tainted (int, int, float, float, decimal) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -251,7 +251,7 @@ function testSelectIntFloatData() returns (int, int, float, float, decimal) {
     return (int_type, long_type, float_type, double_type, decimal_type);
 }
 
-function testQueryParameters() returns string {
+function testQueryParameters() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -265,7 +265,7 @@ function testQueryParameters() returns string {
     return firstName;
 }
 
-function testQueryParameters2() returns string {
+function testQueryParameters2() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -346,7 +346,7 @@ function testInsertTableDataWithParameters3() returns int {
     return insertCount;
 }
 
-function testArrayofQueryParameters() returns string {
+function testArrayofQueryParameters() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -373,7 +373,7 @@ function testArrayofQueryParameters() returns string {
     return firstName;
 }
 
-function testBoolArrayofQueryParameters() returns int {
+function testBoolArrayofQueryParameters() returns @tainted int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -407,7 +407,7 @@ function testBoolArrayofQueryParameters() returns int {
     return value;
 }
 
-function testBlobArrayQueryParameter() returns int {
+function testBlobArrayQueryParameter() returns @tainted int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -482,7 +482,7 @@ function testINParameters() returns int {
     return insertCount;
 }
 
-function testBlobInParameter() returns (int, byte[]) {
+function testBlobInParameter() returns @tainted (int, byte[]) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -515,7 +515,7 @@ function testBlobInParameter() returns (int, byte[]) {
     return (insertCount, blobVal);
 }
 
-function testINParametersWithDirectValues() returns (int, int, float, float, boolean, string, decimal, decimal, float) {
+function testINParametersWithDirectValues() returns @tainted (int, int, float, float, boolean, string, decimal, decimal, float) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -562,7 +562,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
     return (i, l, f, d, b, s, n, dec, real);
 }
 
-function testINParametersWithDirectVariables() returns (int, int, float,
+function testINParametersWithDirectVariables() returns @tainted (int, int, float,
         float, boolean, string, decimal, decimal, float) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
@@ -804,7 +804,7 @@ function testBatchUpdateWithVariables() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithFailure() returns (int[], int) {
+function testBatchUpdateWithFailure() returns @tainted (int[], int) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -994,7 +994,7 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[], CustomerFullName[]) {
+function testSelectLoadToMemory() returns @tainted (CustomerFullName[], CustomerFullName[], CustomerFullName[]) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1031,7 +1031,7 @@ function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[
     return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose() returns (CustomerFullName[], CustomerFullName[], error?) {
+function testLoadToMemorySelectAfterTableClose() returns @tainted (CustomerFullName[], CustomerFullName[], error?) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -1075,7 +1075,7 @@ function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns Cu
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns (int) {
+             returns @tainted (int) {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",

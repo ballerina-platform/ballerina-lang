@@ -80,7 +80,7 @@ function echo(string msg) returns string {
         if (length > 0) {
             var str = getString(content);
             if (str is string) {
-                returnStr = untaint str;
+                returnStr = <@untainted string> str;
             } else {
                 io:println(str.detail().message);
             }

@@ -107,7 +107,7 @@ public remote function Client.unsubscribe(SubscriptionChangeRequest unsubscripti
                               redirectCount);
 }
 
-public remote function Client.registerTopic(string topic) returns error? {
+public remote function Client.registerTopic(string topic) returns @tainted error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -128,7 +128,7 @@ public remote function Client.registerTopic(string topic) returns error? {
     return;
 }
 
-public remote function Client.unregisterTopic(string topic) returns error? {
+public remote function Client.unregisterTopic(string topic) returns @tainted error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -150,7 +150,7 @@ public remote function Client.unregisterTopic(string topic) returns error? {
 }
 
 public remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                      string? contentType = (), map<string>? headers = ()) returns error? {
+                                      string? contentType = (), map<string>? headers = ()) returns @tainted error? {
 
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
@@ -184,7 +184,7 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
     return;
 }
 
-public remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+public remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns @tainted error? {
     http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;

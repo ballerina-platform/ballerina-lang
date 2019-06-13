@@ -159,7 +159,7 @@ function testWriteFile(string pathValue) returns error? {
     string absolutePath = filePath.getPathValue();
     io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
     var result = byteChannel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
-    return byteChannel.close();
+    return <@untainted error?> byteChannel.close();
 }
 
 function testReadFile(string pathValue) returns boolean {

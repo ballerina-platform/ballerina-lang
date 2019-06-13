@@ -69,8 +69,8 @@ public function main(string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint boolean.convert(args[10]);
-    boolean nightlyBuild = untaint boolean.convert(args[11]);
+    isBuild = <@untainted boolean> boolean.convert(args[10]);
+    boolean nightlyBuild = <@untainted boolean> boolean.convert(args[11]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -119,7 +119,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = centralEndpoint -> get(untaint versionRange, message=req);
+    var result = centralEndpoint -> get(<@untainted string> versionRange, message=req);
     if (result is http:Response) {
         httpResponse = result;
     } else {
@@ -179,7 +179,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
 
-            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
+            io:WritableByteChannel wch = io:openWritableFile(<@untainted string> destArchivePath);
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;

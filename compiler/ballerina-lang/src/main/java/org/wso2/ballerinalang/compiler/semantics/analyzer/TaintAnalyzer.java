@@ -1756,6 +1756,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             invNode.symbol.taintTable = taintTable;
+            checkReturnTaintedAnnotation(invNode, taintTable);
         }
         return false;
     }
@@ -1769,8 +1770,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             topLevelFunctionAllParamsUntaintedAnalysis = true;
         }
         analyzeReturnTaintedStatus(taintTable, invokableNode, symbolEnv, ALL_UNTAINTED_TABLE_ENTRY_INDEX, 0, 0);
+
         if (currTopLevelFunction == invokableNode) {
             topLevelFunctionAllParamsUntaintedAnalysis = false;
+        }
+    }
+
+    // todo: write what this do, and why
+    private void checkReturnTaintedAnnotation(BLangInvokableNode invokableNode,
+                                              Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+        TaintRecord taintRecord = taintedStatusBasedOnAnnotations.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
+        if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
+                && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
+                && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
+            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
+                    invokableNode.name.getValue());
+            stopAnalysis = true;
         }
     }
 

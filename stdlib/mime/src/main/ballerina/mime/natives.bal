@@ -149,7 +149,7 @@ public type Entity object {
     # Gets the content type of entity.
     #
     # + return - Content type as a `string`
-    public function getContentType() returns string {
+    public function getContentType() returns @tainted string {
         string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
@@ -168,7 +168,7 @@ public type Entity object {
     # Gets the content ID of entity.
     #
     # + return - Content ID as a `string`
-    public function getContentId() returns string {
+    public function getContentId() returns @tainted string {
         string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
             contentId = self.getHeader(CONTENT_ID);
@@ -188,7 +188,7 @@ public type Entity object {
     # Gets the content length of entity.
     #
     # + return - Content length as an `int`
-    public function getContentLength() returns int|error {
+    public function getContentLength() returns @tainted int|error {
         string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
             contentLength = self.getHeader(CONTENT_LENGTH);

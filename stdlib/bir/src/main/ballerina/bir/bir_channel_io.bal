@@ -56,11 +56,11 @@ public type BirChannelReader object {
     // following methods "proxied" since ballerina doesn't support obj inheritance yet
 
     public function readBoolean() returns boolean {
-        return self.reader.readBoolean();
+        return <@untainted boolean> self.reader.readBoolean();
     }
 
     public function readInt8() returns int {
-        return self.reader.readInt8();
+        return <@untainted int> self.reader.readInt8();
     }
 
     public function readInt32() returns int {
@@ -77,6 +77,6 @@ public type BirChannelReader object {
     }
 
     public function readByteArray(int len) returns byte[] {
-        return self.reader.readByteArray(len);
+        return <@untainted byte[]> self.reader.readByteArray(len);
     }
 };

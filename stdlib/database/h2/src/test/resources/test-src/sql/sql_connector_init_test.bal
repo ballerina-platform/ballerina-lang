@@ -32,7 +32,7 @@ sql:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSourc
 map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-function testConnectionPoolProperties1() returns json {
+function testConnectionPoolProperties1() returns @tainted json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -48,7 +48,7 @@ function testConnectionPoolProperties1() returns json {
     return j;
 }
 
-function testConnectionPoolProperties2() returns (json) {
+function testConnectionPoolProperties2() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -64,7 +64,7 @@ function testConnectionPoolProperties2() returns (json) {
     return j;
 }
 
-function testConnectionPoolProperties3() returns (json) {
+function testConnectionPoolProperties3() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -80,7 +80,7 @@ function testConnectionPoolProperties3() returns (json) {
 }
 
 
-function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
+function testConnectorWithDefaultPropertiesForListedDB() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -121,7 +121,7 @@ function testConnectorWithWorkers() returns (json) {
     return wait w1;
 }
 
-function testConnectorWithDataSourceClass() returns (json) {
+function testConnectorWithDataSourceClass() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -138,7 +138,7 @@ function testConnectorWithDataSourceClass() returns (json) {
     return j;
 }
 
-function testConnectorWithDataSourceClassAndProps() returns (json) {
+function testConnectorWithDataSourceClassAndProps() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -155,7 +155,7 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
     return j;
 }
 
-function testConnectorWithDataSourceClassWithoutURL() returns (json) {
+function testConnectorWithDataSourceClassWithoutURL() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -171,7 +171,7 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
     return j;
 }
 
-function testConnectorWithDataSourceClassURLPriority() returns (json) {
+function testConnectorWithDataSourceClassURLPriority() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -190,7 +190,7 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
 }
 
 
-function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
+function testPropertiesGetUsedOnlyIfDataSourceGiven() returns @tainted (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",

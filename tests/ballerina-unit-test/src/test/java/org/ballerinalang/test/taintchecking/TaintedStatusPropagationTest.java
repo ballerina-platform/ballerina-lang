@@ -32,6 +32,7 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testReturn() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/returns.bal");
+
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
