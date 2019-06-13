@@ -30,27 +30,35 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.compiler.CompilerOptionName.*;
 
 /**
  * OpenApi related utility classes.
  */
 
 public class OpenApiConverterUtils {
+
+    private static final PrintStream outStream = System.err;
+
     /**
      * This method will generate ballerina string from openapi definition. Since ballerina service definition is super
      * set of openapi definition we will take both openapi and ballerina definition and merge openapi changes to
@@ -177,6 +185,81 @@ public class OpenApiConverterUtils {
     }
 
     /**
+     * This method will compile a given ballerina package, find the service name and compile it to generate
+     * an OpenApi contract
+     *
+     * @param moduleName - Module Name of the service residing in
+     * @param serviceName - Service name
+     * @param output - Output location
+     * @throws OpenApiConverterException - Converter exceptions
+     */
+    public static void generateOAS3DefinitionFromModule(String moduleName, String serviceName, Path output)
+            throws OpenApiConverterException  {
+        BLangPackage pkg;
+        BLangService service;
+
+        try {
+            pkg =  compileModule(Paths.get(System.getProperty("user.dir")), moduleName);
+        } catch (Exception e) {
+            throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+        }
+
+        if (pkg == null) {
+            throw LauncherUtils.createLauncherException("The provided package is not valid.");
+        }
+
+        service = pkg.services.stream()
+                    .filter(bLangService -> serviceName.equals(bLangService.getName().getValue()))
+                    .findAny()
+                    .orElse(null);
+
+        if (service == null) {
+            throw LauncherUtils.createLauncherException("Couldn't find " + serviceName + " service in the " +
+                    "provided module. Please check that there is a service in the module.");
+        }
+
+
+        BLangCompilationUnit topCompilationUnit = pkg.getCompilationUnits().stream()
+                .filter(bLangCompilationUnit -> bLangCompilationUnit.getName().equals(service.pos.src.cUnitName))
+                .findAny()
+                .orElse(null);
+
+        if (topCompilationUnit == null) {
+            throw new OpenApiConverterException("Please check if input source is valid and complete.");
+        }
+
+
+        String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
+        String openApiAlias = getAlias(topCompilationUnit, Constants.OPENAPI_PACKAGE_NAME);
+        OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, openApiAlias);
+        List<BLangSimpleVariable> endpoints = new ArrayList<>();
+        Swagger openapi = getOpenApiDefinition(new Swagger(), openApiServiceMapper, serviceName, topCompilationUnit,
+                endpoints);
+        String openApiSource = openApiServiceMapper.generateOpenApiString(openapi);
+        SwaggerConverter converter = new SwaggerConverter();
+        SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(openApiSource);
+
+        if (result.getMessages().size() > 0) {
+            throw new OpenApiConverterException("Please check if input source is valid and complete");
+        }
+
+        if(checkOASFileExists(serviceName + ConverterConstants.YAML_EXTENSION, output)) {
+            throw LauncherUtils.createLauncherException("The output location already contains " +
+                    "an OpenApi Contract named " + serviceName + ConverterConstants.YAML_EXTENSION);
+        }
+
+        String openApiResource =  Yaml.pretty(converter.convert(result).getOpenAPI());
+
+        try {
+            writeFile(output.resolve(serviceName + ConverterConstants.YAML_EXTENSION), openApiResource);
+
+            outStream.println("The OpenApi Contract was successfully generated at " + output.toRealPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
      * {@code outPath} in OpenApi format.
      *
@@ -193,6 +276,10 @@ public class OpenApiConverterUtils {
 
         String openApiSource = generateOpenApiDefinitions(balSource, serviceName);
         writeFile(outPath.resolve(openApiName), openApiSource);
+    }
+
+    private static boolean checkOASFileExists(String fileName, Path exportLocation) {
+        return Files.exists(exportLocation.resolve(fileName));
     }
 
     private static String readFromFile(Path servicePath) throws IOException {
@@ -255,5 +342,39 @@ public class OpenApiConverterUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Compile only a ballerina module.
+     *
+     * @param sourceRoot source root
+     * @param moduleName name of the module to be compiled
+     * @return {@link BLangPackage} ballerina package
+     */
+    private static BLangPackage compileModule(Path sourceRoot, String moduleName) {
+        CompilerContext context = getCompilerContext(sourceRoot);
+        Compiler compiler = Compiler.getInstance(context);
+        return compiler.compile(moduleName);
+    }
+
+    /**
+     * Get prepared compiler context.
+     *
+     * @param sourceRootPath ballerina compilable source root path
+     * @return {@link CompilerContext} compiler context
+     */
+    private static CompilerContext getCompilerContext(Path sourceRootPath) {
+        CompilerPhase compilerPhase = CompilerPhase.DEFINE;
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(OFFLINE, Boolean.toString(false));
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(SKIP_TESTS, Boolean.toString(false));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
+        options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
+
+        return context;
     }
 }

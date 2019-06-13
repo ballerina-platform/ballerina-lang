@@ -28,7 +28,6 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Class to implement "openapi" command for ballerina.
@@ -36,14 +35,21 @@ import java.util.Locale;
  */
 @CommandLine.Command(name = "openapi",
             description = "generate client/service using OpenApi definition or exports openapi file for a Ballerina"
-                    + " Service")
+                    + " Service", subcommands = {
+        OpenApiGenServiceCmd.class,
+        OpenApiGenClientCmd.class,
+        OpenApiGenContractCmd.class
+})
 public class OpenApiCmd implements BLauncherCmd {
-    private static final String genclient = "GEN-CLIENT";
+    //private static final String genclient = "GEN-CLIENT";
     private static final String genservice = "GEN-SERVICE";
-    private static final String export = "EXPORT";
+    //private static final String export = "EXPORT";
     private static final String CMD_NAME = "openapi";
 
     private static final PrintStream outStream = System.err;
+
+    @CommandLine.Parameters(index = "0", split = ":")
+    private List<String> moduleMap;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -52,12 +58,13 @@ public class OpenApiCmd implements BLauncherCmd {
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @CommandLine.Option(names = { "-m", "--module" },
+    @CommandLine.Option(split = ":", names = { "<module>:<service>", "--module" },
             description = "module name to be used in the generated source files")
     private String srcPackage;
 
-    @CommandLine.Option(names = { "-s", "--service" }, description = "Name of the service to export. "
-            + "This will extract a service with the specified name in the .bal file")
+    @CommandLine.Option(split = ":", names = { "<service>", "--service" },
+            description = "Name of the service to export. his will extract a service with the specified name in the " +
+                    ".bal file")
     private String serviceName;
 
     @CommandLine.Option(names = { "-h", "--help" }, hidden = true)
@@ -68,16 +75,13 @@ public class OpenApiCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-        if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
-            outStream.println(commandUsageInfo);
-            return;
-        }
 
-        if (argList == null || argList.size() < 2) {
+        /*f (argList == null || argList.size() < 2) {
             throw LauncherUtils.createUsageExceptionWithHelp("action and a input file should be provided. "
                     + "Ex: ballerina openapi gen-client openapi_file");
         }
+
+
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
         StringBuilder msg = new StringBuilder("successfully ");
 
@@ -99,7 +103,7 @@ public class OpenApiCmd implements BLauncherCmd {
                         "Only following actions(genservice, client) are " + "supported in openapi command");
         }
         msg.append(" for input file - " + argList.get(1));
-        outStream.println(msg.toString());
+        outStream.println(msg.toString());*/
     }
 
     @Override
@@ -115,12 +119,32 @@ public class OpenApiCmd implements BLauncherCmd {
     public void printUsage(StringBuilder stringBuilder) {
     }
 
+
     private void generateFromOpenApi(String targetLanguage) {
         CodeGenerator generator = new CodeGenerator();
-        generator.setSrcPackage(srcPackage);
+
+        if (targetLanguage.equals("GEN_SERVICE")) {
+            if (!argList.get(1).contains(":")) {
+                throw LauncherUtils.createUsageExceptionWithHelp("A module name is mandatory to generate" +
+                        " the service. \nE.g: ballerina openapi " + genservice + " <modulename>:" +
+                        "<servicename>");
+            } else if (argList.get(1).contains(":") && argList.get(1).split(":")[0].isEmpty()) {
+                throw LauncherUtils.createUsageExceptionWithHelp("A module name is mandatory to generate" +
+                        " the service. \nE.g: ballerina openapi " + genservice + " <modulename>:" +
+                        "<servicename>");
+            }
+
+            generator.setSrcPackage(argList.get(1).split(":")[0]);
+        } else {
+            if (argList.get(1).contains(":") && !argList.get(1).split(":")[0].isEmpty()) {
+                generator.setSrcPackage(argList.get(1).split(":")[0]);
+            } else {
+                generator.setSrcPackage("");
+            }
+        }
 
         try {
-            generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);
+            generator.generate(GenType.valueOf(targetLanguage), argList.get(2), output);
         } catch (Exception e) {
             throw LauncherUtils.createLauncherException(
                     "Error occurred when generating " + targetLanguage + " for " + "openapi file at " + argList.get(1)
@@ -142,11 +166,8 @@ public class OpenApiCmd implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
+    public void setParentCmdParser(CommandLine parentCmdParser) { }
 
     @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-
-    }
+    public void setSelfCmdParser(CommandLine selfCmdParser) { }
 }
