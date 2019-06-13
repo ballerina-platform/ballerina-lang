@@ -511,10 +511,22 @@ public class CommonUtil {
             annotationStart.append(pkgAlias).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
-            annotationStart.append(annotationSymbol.getName().getValue()).append(" ")
-                    .append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR)
-                    .append("\t").append("${1}").append(LINE_SEPARATOR)
-                    .append(CommonKeys.CLOSE_BRACE_KEY);
+            annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
+                    .append(LINE_SEPARATOR);
+            List<BField> requiredFields = new ArrayList<>();
+            if (annotationSymbol.attachedType.type instanceof BRecordType) {
+                requiredFields = getRecordRequiredFields(((BRecordType) annotationSymbol.attachedType.type));
+                List<String> insertTexts = new ArrayList<>();
+                requiredFields.forEach(field -> {
+                    String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
+                    insertTexts.add(fieldInsertionText);
+                });
+                annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
+            }
+            if (requiredFields.isEmpty()) {
+                annotationStart.append("\t").append("${1}").append(LINE_SEPARATOR);
+            }
+            annotationStart.append(CommonKeys.CLOSE_BRACE_KEY);
         } else {
             annotationStart.append(annotationSymbol.getName().getValue());
         }
@@ -641,22 +653,9 @@ public class CommonUtil {
     public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
         List<CompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
-            BType fieldType = field.getType();
-            StringBuilder insertText = new StringBuilder(field.getName().getValue() + ": ");
-            if (fieldType instanceof BRecordType) {
-                insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
-            } else if (fieldType instanceof BArrayType) {
-                insertText.append("[").append("${1}").append("]");
-            } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
-                insertText.append("\"").append("${1}").append("\"");
-            } else {
-                insertText.append("${1:").append(getDefaultValueForType(field.getType())).append("}");
-                if (field.getType() instanceof BFiniteType || field.getType() instanceof BUnionType) {
-                    insertText.append(getFiniteAndUnionTypesComment(field.getType()));
-                }
-            }
+            String insertText = getRecordFieldCompletionInsertText(field, 0);
             CompletionItem fieldItem = new CompletionItem();
-            fieldItem.setInsertText(insertText.toString());
+            fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(field.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
@@ -975,6 +974,52 @@ public class CommonUtil {
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
 
         return new BallerinaParser(commonTokenStream);
+    }
+    
+    private static List<BField> getRecordRequiredFields(BRecordType recordType) {
+        return recordType.fields.stream()
+                .filter(field -> (field.symbol.flags & Flags.REQUIRED) == Flags.REQUIRED)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the completion item insert text for a BField.
+     *
+     * @param bField BField to evaluate
+     * @return {@link String} Insert text
+     */
+    private static String getRecordFieldCompletionInsertText(BField bField, int tabOffset) {
+        BType fieldType = bField.getType();
+        StringBuilder insertText = new StringBuilder(bField.getName().getValue() + ": ");
+        if (fieldType instanceof BRecordType) {
+            List<BField> requiredFields = getRecordRequiredFields((BRecordType) fieldType);
+            if (requiredFields.isEmpty()) {
+                insertText.append("{").append("${1}}");
+                return insertText.toString();
+            }
+            insertText.append("{").append(LINE_SEPARATOR);
+            int tabCount = tabOffset;
+            for (BField requiredField : requiredFields) {
+                insertText.append(String.join("", Collections.nCopies(tabCount + 1, "\t")))
+                        .append(getRecordFieldCompletionInsertText(requiredField, tabCount))
+                        .append(String.join("", Collections.nCopies(tabCount, "\t")))
+                        .append(LINE_SEPARATOR);
+                tabCount++;
+            }
+            insertText.append(String.join("", Collections.nCopies(tabOffset, "\t")))
+                    .append("}").append(LINE_SEPARATOR);
+        } else if (fieldType instanceof BArrayType) {
+            insertText.append("[").append("${1}").append("]");
+        } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
+            insertText.append("\"").append("${1}").append("\"");
+        } else {
+            insertText.append("${1:").append(getDefaultValueForType(bField.getType())).append("}");
+            if (bField.getType() instanceof BFiniteType || bField.getType() instanceof BUnionType) {
+                insertText.append(getFiniteAndUnionTypesComment(bField.getType()));
+            }
+        }
+
+        return insertText.toString();
     }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
