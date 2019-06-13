@@ -48,6 +48,9 @@ public class MockHTTPConnectorListener {
         listenerServicesRegistries.put(listenerPort, new RegistryHolder(httpServicesRegistry, endpointConfig));
     }
 
+    /**
+     * Holder class to hold registry and the endpoint config.
+     */
     public static class RegistryHolder {
         public final HTTPServicesRegistry registry;
         public final MapValue endpointConfig;
