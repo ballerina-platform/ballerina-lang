@@ -89,6 +89,7 @@ public class Symbols {
         return typeSymbol;
     }
 
+    @Deprecated
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int maskedPoints, Name name,
                                                            PackageID pkgID, BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, maskedPoints, pkgID, type, owner);
