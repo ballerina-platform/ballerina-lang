@@ -1,25 +1,50 @@
 import { Uri, ExtensionContext } from "vscode";
 import { join } from "path";
+import { ballerinaExtInstance } from "src/core";
 
-export function getWebViewResourceRoot(context: ExtensionContext): Uri {
-    return Uri.file(join(context.extensionPath, 'resources')).with({ scheme: 'vscode-resource' });
+export function getWebViewResourceRoot(): string {
+    return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 
+        'resources'));
 }
 
-export function getNodeModulesRoot(context: ExtensionContext): Uri {
-    return Uri.file(join(context.extensionPath, 'node_modules')).with({ scheme: 'vscode-resource' });
+export function getNodeModulesRoot(): string {
+    return getVSCodeResourceURI(join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 
+        'node_modules'));
 }
 
+export function getVSCodeResourceURI(filePath: string): string {
+    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString();
+}
 
-export function getLibraryWebViewContent(context: ExtensionContext,
-        body: string, scripts: string, styles: string, bodyCss?: string, isAPIDesigner?: boolean) {
+export interface WebViewOptions {
+    jsFiles?: string[];
+    cssFiles?: string[];
+    body: string;
+    scripts: string;
+    styles: string;
+    bodyCss?: string;
+}
 
-    const resourceRoot = getWebViewResourceRoot(context).toString();
-    const composerResourcesRoot = process.env.COMPOSER_DEBUG === "true" 
-                ? process.env.COMPOSER_DEV_HOST
-                : `${resourceRoot}/composer`;
-    const jsModule = isAPIDesigner ? 'apiEditor' : 'composer';
+export function getLibraryWebViewContent(options: WebViewOptions) {
+    const {
+        jsFiles,
+        cssFiles,
+        body,
+        scripts,
+        styles,
+        bodyCss 
+    } = options;
 
-    const nodeModulesRoot = getNodeModulesRoot(context).toString();
+    const resourceRoot = getWebViewResourceRoot();
+    const nodeModulesRoot = getNodeModulesRoot();
+    const externalScripts = jsFiles 
+        ? jsFiles.map(jsFile => 
+            '<script charset="UTF-8" onload="loadedScript();" src="' + jsFile +'"></script>')
+        : [];
+    const externalStyles = cssFiles 
+        ? cssFiles.map(cssFile => 
+            '<link rel="stylesheet" type="text/css" href="' + cssFile + '" />') 
+        : [];
 
     return `
             <!DOCTYPE html>
@@ -28,9 +53,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
                 <meta charset="utf-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
-                <link rel="stylesheet" type="text/css" href="${composerResourcesRoot}/themes/ballerina-default.min.css">
-                <link rel="stylesheet" type="text/css" href="${resourceRoot}/composer/font/font/font-ballerina.css">
-                ${process.env.COMPOSER_DEBUG === "true" ? '<script src="http://localhost:8097"></script>' : ''}
+                ${externalStyles}
                 <style>
                     /* use this class for loader that are shown until the module js is loaded */
                     .root-loader {
@@ -51,9 +74,36 @@ export function getLibraryWebViewContent(context: ExtensionContext,
                 <script charset="UTF-8" src="${nodeModulesRoot}/mousetrap/mousetrap.min.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/undo-redo.js"></script>
-                <script charset="UTF-8" src="${resourceRoot}/composer/font/codepoints.js"></script>
-                <script charset="UTF-8" onload="loadedScript();" src="${composerResourcesRoot}/${jsModule}.js"></script>
+                ${externalScripts}
             </body>
             </html>
         `;
+}
+
+export function getComposerPath(): string {
+    return process.env.COMPOSER_DEBUG === "true" 
+        ? process.env.COMPOSER_DEV_HOST as string
+        : join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
+}
+
+export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
+    return [
+        getVSCodeResourceURI(join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js')),
+        getVSCodeResourceURI(join(getComposerPath(), 'font', 'codepoints.js')),
+        process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
+    ];
+}
+
+export function getComposerCSSFiles(): string[] {
+    return [
+        getVSCodeResourceURI(join(getComposerPath(), 'themes', 'ballerina-default.min.css')),
+        getVSCodeResourceURI(join(getComposerPath(), 'font', 'font', 'font-ballerina.css'))
+    ];
+}
+
+export function getComposerWebViewOptions(): Partial<WebViewOptions> {
+    return {
+        jsFiles: getComposerJSFiles(),
+        cssFiles: getComposerCSSFiles()
+    };
 }
