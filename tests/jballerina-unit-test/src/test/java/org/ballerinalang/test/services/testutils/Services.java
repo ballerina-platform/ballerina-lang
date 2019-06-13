@@ -63,7 +63,7 @@ public class Services {
 
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(registryHolder.registry, request);
+            resource = HttpDispatcher.findResource(registryHolder.getRegistry(), request);
         } catch (BallerinaException ex) {
             // throwing an error here to terminate the flow. This should be properly implemented if
             // testing error scenarios are needed.
@@ -82,7 +82,7 @@ public class Services {
         }
 
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
-                request, registryHolder.endpointConfig);
+                request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();

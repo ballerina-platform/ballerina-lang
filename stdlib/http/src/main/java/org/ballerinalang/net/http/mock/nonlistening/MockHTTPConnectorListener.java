@@ -52,12 +52,20 @@ public class MockHTTPConnectorListener {
      * Holder class to hold registry and the endpoint config.
      */
     public static class RegistryHolder {
-        public final HTTPServicesRegistry registry;
-        public final MapValue endpointConfig;
+        private final HTTPServicesRegistry registry;
+        private final MapValue endpointConfig;
 
         public RegistryHolder(HTTPServicesRegistry registry, MapValue endpointConfig) {
             this.registry = registry;
             this.endpointConfig = endpointConfig;
+        }
+
+        public HTTPServicesRegistry getRegistry() {
+            return registry;
+        }
+
+        public MapValue getEndpointConfig() {
+            return endpointConfig;
         }
     }
 }

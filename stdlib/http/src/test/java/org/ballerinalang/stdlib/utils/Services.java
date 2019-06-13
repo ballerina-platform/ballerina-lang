@@ -70,7 +70,7 @@ public class Services {
         request.setCallback(callback);
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(registryHolder.registry, request);
+            resource = HttpDispatcher.findResource(registryHolder.getRegistry(), request);
         } catch (BallerinaException ex) {
             HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
@@ -88,7 +88,7 @@ public class Services {
         // Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
         // (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
-                request, registryHolder.endpointConfig);
+                request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
