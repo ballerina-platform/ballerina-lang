@@ -258,7 +258,7 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "3.250000");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFormatString() {
         String name = "John";
         BValueArray fArgs = new BValueArray();
@@ -328,7 +328,7 @@ public class IOPrintTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
+            expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*", enabled = false)
     public void testSprintfInvalidFormatSpecifier() {
         BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
