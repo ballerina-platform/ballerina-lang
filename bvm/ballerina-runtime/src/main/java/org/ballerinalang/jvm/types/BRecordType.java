@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Map;
@@ -63,13 +65,27 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        MapValue<String, Object> implicitInitValue = new MapValueImpl<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    Object value = entry.getValue().getFieldType().getZeroValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
+        return (V) implicitInitValue;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<>(this);
+        MapValue<String, Object> implicitInitValue = new MapValueImpl<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    Object value = entry.getValue().getFieldType().getEmptyValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
+        return (V) implicitInitValue;
     }
 
     @Override

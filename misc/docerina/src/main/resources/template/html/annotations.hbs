@@ -4,8 +4,7 @@
 {{> head }}
 
 <body>
-<div class="ui grid">
-    <div class="navi-wrapper two wide column">
+    <div class="navi-wrapper">
         <div class="navi-wrapper-content">
             {{> logo }}
             <div class="primary-list">
@@ -24,7 +23,29 @@
         </div>
     </div>
 
-    <div class="fourteen wide column content-wrapper">
+    <div class="ui vertical sidebar menu">
+        <div class="navi-wrapper-sidebar">
+            <div class="navi-wrapper-content">
+                {{> logo }}
+                <div class="primary-list">
+                    <h3>Annotations</h3>
+                    <ul>
+                        {{#each module.annotations}}
+                            <li>
+                                <a href="#{{name}}">{{name}}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+                <div class="ui divider"></div>
+                {{> currentModule }}
+                {{> allModules }}
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper pusher">
+        {{> mobMenu }}
         <div class="main-wrapper">
             <h1>Annotations</h1>
             <div class="annotations">
@@ -32,7 +53,7 @@
                     {{#each annotations}}
                         <div class="params-listing">
                             <ul>
-                                <li><b>{{ name }}</b><span class="type">{{#if type}}{{{ typeName
+                                <li><b>{{ name }}</b><span class="type">{{#if type}} {{{ typeName
                                         type }}}{{/if}}</span> {{ attachmentPoints }}</li>
                                 <li>
                                     {{{ description }}}
@@ -44,5 +65,6 @@
             </div>
         </div>
     </div>
-</div>
 </body>
+
+{{> footer }}

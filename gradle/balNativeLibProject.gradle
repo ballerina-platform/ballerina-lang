@@ -82,6 +82,23 @@ task copySelfToTestBalHome(type: Copy) {
     into "$buildDir/ballerina-home/test/lib"
 }
 
+task assembleArtifact(type: Zip) {
+    dependsOn createBalo
+    archiveName "$project.name-ballerina-binary-repo.zip"
+    destinationDir file("$buildDir/bal-repos/")
+    from "build/generated-balo/"
+    description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
+    outputs.dir("$buildDir/bal-repos/")
+}
+
 test {
     dependsOn copySelfToTestBalHome
+}
+
+publishing {
+    publications {
+        mavenJava {
+            artifact source: assembleArtifact, classifier: "ballerina-binary-repo", extension: 'zip'
+        }
+    }
 }

@@ -325,7 +325,7 @@ function testSetChildren() returns (xml, boolean, boolean, xml) {
     return (x1, isEmpty, isSingleton, x1.*);
 }
 
-function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string) {
+function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string?) {
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
@@ -343,7 +343,7 @@ function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, 
     return (x1, isEmpty, isSingleton, x1.*, x5@["citizen"]);
 }
 
-function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
@@ -362,7 +362,7 @@ function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boole
     return (x1, isEmpty, isSingleton, x5@["citizen"]);
 }
 
-function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
@@ -383,7 +383,7 @@ function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, 
     return (x1, isEmpty, isSingleton, x5@[pre:citizen]);
 }
 
-function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test" as ns0;
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
@@ -401,7 +401,7 @@ function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, stri
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
 
-function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test/code" as ns0;
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
@@ -419,7 +419,7 @@ function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean,
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
 
-function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test/code";
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
@@ -437,7 +437,7 @@ function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, 
     return (x1, isEmpty, isSingleton, x5@["citizen"]);
 }
 
-function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test" as ns0;
     xmlns "http://sample.com/test/code" as pre;
 
@@ -457,7 +457,7 @@ function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, bool
     return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
 }
 
-function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolean, string) {
+function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolean, string?) {
     xmlns "http://sample.com/test" as ns0;
     xmlns "http://sample.com/test/code" as pre;
 

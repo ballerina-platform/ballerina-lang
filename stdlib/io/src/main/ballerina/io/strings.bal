@@ -44,7 +44,7 @@ public type StringReader object {
 
     # Reads characters from the given string.
     #
-    # + nCharacters - read specifc number of characters
+    # + nCharacters - read specific number of characters
     # + return - string or an error
     public function readChar(int nCharacters) returns string|error? {
         return self.charChannel.read(nCharacters);

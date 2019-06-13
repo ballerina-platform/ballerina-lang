@@ -180,6 +180,9 @@ public class ArrayValue implements RefValue, CollectionValue {
             case TypeTags.BYTE_TAG:
                 byteValues = (byte[]) newArrayInstance(Byte.TYPE);
                 break;
+            case TypeTags.XML_TAG:
+                refValues = (Object[]) newArrayInstance(Object.class);
+                break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
                 Arrays.fill(refValues, elementType.getZeroValue());
@@ -564,6 +567,8 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (value != null) {
                 sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
                         : value.toString());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();
@@ -617,9 +622,11 @@ public class ArrayValue implements RefValue, CollectionValue {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {
@@ -708,7 +715,8 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if ((requestedCapacity) - currentArraySize >= 0) {
+        if ((requestedCapacity) - currentArraySize > 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) this.arrayType).getState() == ArrayState.UNSEALED) {
             // Here the growth rate is 1.5. This value has been used by many other languages
             int newArraySize = currentArraySize + (currentArraySize >> 1);
 

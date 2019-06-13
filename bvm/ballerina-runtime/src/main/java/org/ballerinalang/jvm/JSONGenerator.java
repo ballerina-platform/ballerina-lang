@@ -294,13 +294,13 @@ public class JSONGenerator {
                 this.writeBoolean(((Boolean) json).booleanValue());
                 break;
             case TypeTags.FLOAT_TAG:
-                this.writeNumber(((Float) json).floatValue());
+                this.writeNumber(((Number) json).doubleValue());
                 break;
             case TypeTags.DECIMAL_TAG:
                 this.writeNumber((BigDecimal) json);
                 break;
             case TypeTags.INT_TAG:
-                this.writeNumber(((Long) json).longValue());
+                this.writeNumber(((Number) json).longValue());
                 break;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:

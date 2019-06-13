@@ -47,4 +47,8 @@ public class BNullType extends BType {
     public int getTag() {
         return TypeTags.NULL_TAG;
     }
+
+    public boolean isNilable() {
+        return true;
+    }
 }

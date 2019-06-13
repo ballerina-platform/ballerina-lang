@@ -32,14 +32,7 @@ under the License.
 
         <classes>
             <class name="org.ballerinalang.stdlib.mime.HeaderTest"/>
-            <class name="org.ballerinalang.stdlib.mime.MimeUtilityFunctionTest">
-                <methods>
-                    <exclude name="testGetJsonDataSource"/>
-                    <exclude name="testGetBaseTypeOnMediaType"/>
-                    <exclude name="testToStringOnMediaType"/>
-                    <exclude name="testToStringOnContentDisposition"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.mime.MimeUtilityFunctionTest"/>
         </classes>
     </test>
 </suite>
