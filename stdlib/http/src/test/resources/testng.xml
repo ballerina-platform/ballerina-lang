@@ -40,8 +40,8 @@ under the License.
             </run>
         </groups>
         <packages>
-            <!--<package name="org.ballerinalang.stdlib.entity.*"/>
-            <package name="org.ballerinalang.stdlib.multipart.*"/>
+            <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!--<package name="org.ballerinalang.stdlib.multipart.*"/>
             <package name="org.ballerinalang.stdlib.services.basics.*"/> -->
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
@@ -54,11 +54,7 @@ under the License.
             <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
-                <methods>
-                    <exclude name="testSignatureWithMismatchedBodyParam"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
@@ -75,8 +71,6 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
-            <class name="org.ballerinalang.stdlib.entity.EntityBodyWithCharsetTest"/>
-            <class name="org.ballerinalang.stdlib.entity.MimeWithHttpTest"/>
         </classes>
     </test>
 </suite>
