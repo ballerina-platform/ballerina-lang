@@ -22,12 +22,12 @@ import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -56,14 +56,14 @@ public class Services {
     }
 
     public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
-        HTTPServicesRegistry httpServicesRegistry =
+        RegistryHolder registryHolder =
                 MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
 
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(registryHolder.registry, request);
         } catch (BallerinaException ex) {
             // throwing an error here to terminate the flow. This should be properly implemented if
             // testing error scenarios are needed.
@@ -81,7 +81,8 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
+                request, registryHolder.endpointConfig);
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
