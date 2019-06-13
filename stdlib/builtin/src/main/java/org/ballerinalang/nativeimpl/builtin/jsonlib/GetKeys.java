@@ -76,9 +76,8 @@ public class GetKeys extends BlockingNativeCallableUnit {
 
             return org.ballerinalang.jvm.JSONUtils.getKeys(json);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+            throw BLangExceptionHelper.getJsonError(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
                     e);
         }
-        return null;
     }
 }

@@ -1034,7 +1034,7 @@ function testImplicitConversionToDecimal() returns map<any>|error {
 
 function testImplicitConversionToBoolean() returns map<any>|error {
     json operationReq = {"fromString": "true", "fromInt": 0, "fromFloat":0.0};
-    any fromByte = <byte> 5;
+    any fromByte = <byte> 1;
     anydata fromDecimal = 23.456d;
     any fromBoolean = false;
     boolean a = check boolean.convert(operationReq.fromInt);

@@ -1,3 +1,3 @@
-// Ballerina natively supports Java Message Service (JMS). In this example,
-// a JMS queue receiver is created. Here Connection and Session are created
+// Natively, Ballerina supports Java Message Service (JMS). In this example,
+// a JMS queue receiver is created. Here, the Connection and Session are created
 // explicitly to allow reusability.

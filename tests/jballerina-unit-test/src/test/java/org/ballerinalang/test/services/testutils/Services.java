@@ -19,7 +19,7 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -30,7 +30,6 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;
@@ -44,22 +43,24 @@ import java.util.Map;
  */
 public class Services {
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
-        return invokeNew(compileResult, ".", Names.EMPTY.value, endpointName, request);
+        throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
-                                              HTTPTestRequest request) {
-        return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
+                                           HTTPTestRequest request) {
+        throw new UnsupportedOperationException();
     }
 
-    public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
-                                              String endpointName, HTTPTestRequest request) {
+    public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
         HTTPServicesRegistry httpServicesRegistry =
-                MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(9009);
+                MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
+
         HttpResource resource = null;
         try {
             resource = HttpDispatcher.findResource(httpServicesRegistry, request);
