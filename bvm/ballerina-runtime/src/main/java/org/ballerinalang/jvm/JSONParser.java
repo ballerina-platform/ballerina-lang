@@ -73,7 +73,7 @@ public class JSONParser {
         try {
             return parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
         } catch (IOException e) {
-            throw new BallerinaException("Error in parsing JSON data: " + e.getMessage(), e);
+            throw BallerinaErrors.createError("Error in parsing JSON data: " + e.getMessage());
         }
     }
 

@@ -69,10 +69,8 @@ public class ToString extends BlockingNativeCallableUnit {
         try {
             return json.toString();
         } catch (Throwable e) {
-            BLangExceptionHelper.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
+            throw BLangExceptionHelper.getJsonError(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json",
                     e);
         }
-
-        return null;
     }
 }

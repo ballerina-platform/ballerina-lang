@@ -31,6 +31,7 @@ configurations {
 
 npmBuild() {
     PatternSet patternSet = new PatternSet();
+    patternSet.exclude("**/dist/**");
 	patternSet.exclude("**/out/**");
     patternSet.exclude("**/*.vsix/**");
     patternSet.exclude("**/coverage/**");
@@ -40,6 +41,7 @@ npmBuild() {
 
     dependsOn(':composer-library:build')
     outputs.dir("out")
+    outputs.dir("dist")
     outputs.cacheIf { true } 
 
     doFirst {

@@ -324,3 +324,11 @@ project.afterEvaluate {
             }
         }
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createZip, extension: 'zip'
+        }
+    }
+}

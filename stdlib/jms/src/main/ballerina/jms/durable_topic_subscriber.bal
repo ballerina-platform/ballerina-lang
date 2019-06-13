@@ -16,10 +16,10 @@
 
 import ballerina/log;
 
-# JMS DurableTopicListener endpoint
+# The JMS DurableTopicListener endpoint.
 #
-# + consumerActions - Object that handles network operations related to the subscriber
-# + session - Session of the topic listener
+# + consumerActions - The object, which handles the network operations related to the subscriber.
+# + session - Session of the topic listener.
 public type DurableTopicListener object {
 
     *AbstractListener;
@@ -27,12 +27,12 @@ public type DurableTopicListener object {
     public DurableTopicSubscriberCaller consumerActions = new;
     public Session? session;
 
-    # Initialize DurableTopicListener endpoint.
+    # Initializes the DurableTopicListener endpoint.
     #
-    # + c - The JMS Session object or Configurations related to the receiver
-    # + topicPattern - Name or the pattern of the topic subscription
-    # + messageSelector - JMS selector statement
-    # + identifier - Unique identifier for the subscription
+    # + c - The JMS session object or the configurations related to the receiver.
+    # + topicPattern - Name or the pattern of the topic subscription.
+    # + messageSelector - The JMS selector statement.
+    # + identifier - The unique identifier for the subscription.
     public function __init(Session | ReceiverEndpointConfiguration c, string topicPattern, string identifier, string messageSelector = "") {
         if (c is Session) {
             self.session = c;
@@ -53,11 +53,11 @@ public type DurableTopicListener object {
         }
     }
 
-    # Binds the durable topic subscriber endpoint to a service
+    # Binds the durable topic subscriber endpoint to a service.
     #
-    # + serviceType - Type descriptor of the service
-    # + name - The name of the service
-    # + return - Nil or error upon failure to register listener
+    # + serviceType - Type descriptor of the service.
+    # + name - The name of the service.
+    # + return - Returns nil or an error upon failure to register the listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.registerListener(serviceType, self.consumerActions, name);
     }
@@ -67,24 +67,24 @@ public type DurableTopicListener object {
     function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector)
         returns error? = external;
 
-    # Starts the endpoint. Function is ignored by the subscriber endpoint
+    # Starts the endpoint. The function is ignored by the subscriber endpoint.
     #
-    # + return - Nil or error upon failure to start
+    # + return - Returns nil or an error upon failure to start.
     public function __start() returns error? {
         return self.start();
     }
     private function start() returns error? = external;
 
-    # Return the subscrber caller actions
+    # Returns the subscrber caller actions.
     #
-    # + return - DurableTopicListener actions handler
+    # + return - DurableTopicListener actions handler.
     public function getCallerActions() returns DurableTopicSubscriberCaller {
         return self.consumerActions;
     }
 
-    # Ends consuming messages from the DurableTopicListener
+    # Stops consuming messages from the DurableTopicListener.
     #
-    # + return - Nil or error upon failure to close subscriber
+    # + return - Returns nil or an error upon failure to close the subscriber.
     public function __stop() returns error? {
         return self.closeSubscriber(self.consumerActions);
     }
@@ -92,18 +92,18 @@ public type DurableTopicListener object {
     function closeSubscriber(DurableTopicSubscriberCaller actions) returns error? = external;
 };
 
-# Caller actions related to DurableTopicSubscriber
+# Caller actions related to  the DurableTopicSubscriber.
 public type DurableTopicSubscriberCaller client object {
 
-    # Acknowledges a received message
+    # Acknowledges a received message.
     #
-    # + message - JMS message to be acknowledged
-    # + return - Error upon failure to acknowledge the received message
+    # + message - The JMS message to be acknowledged.
+    # + return - The error returned upon failure to acknowledge the received message.
     public remote function acknowledge(Message message) returns error? = external;
 
-    # Synchronously receive a message from the JMS provider
+    # Synchronously receives a message from the JMS provider.
     #
-    # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nil if the timeout exceeds, returns an error upon JMS provider internal error
+    # + timeoutInMilliSeconds - Time to wait until a message is received.
+    # + return - Returns a message or nil if the timeout exceeds, or returns an error upon an internal error of the JMS provider.
     public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 };

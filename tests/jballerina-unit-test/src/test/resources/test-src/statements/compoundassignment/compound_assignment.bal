@@ -178,8 +178,14 @@ function testIntFloatCompoundAssignmentAddition() returns (float){
 function testXMLAttributeWithCompoundAssignment() returns (string){
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@[ns0:foo1] = "bar1";
-    x1@[ns0:foo1] += "bar2";
-    return x1@[ns0:foo1];
+    var result = x1@[ns0:foo1];
+
+    if (result is string) {
+        result += "bar2";
+        return result;
+    }
+
+    return "";
 }
 
 function testCompoundAssignmentAdditionRecursive() returns (int){

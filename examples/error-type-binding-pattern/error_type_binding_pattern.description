@@ -1,2 +1,2 @@
-// Error typed binding patterns are used in declaring and defining new variables by destructuring an `error` value.
-// The error type binding pattern statement must have an assignment expression on the right hand side.
+// Error-type binding patterns are used in declaring and defining new variables by destructuring an `error` value.
+// The error-type binding pattern statement must have an assignment expression on the right hand side.
