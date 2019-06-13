@@ -315,7 +315,8 @@ public class MimeUtil {
      */
     public static ObjectValue parseMediaType(ObjectValue mediaType, String contentType) {
         try {
-            MapValueImpl<String, String> parameterMap = new MapValueImpl<>();
+            MapValueImpl<String, String> parameterMap =
+                    new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
             String suffix, primaryType, subType;
 
             if (contentType != null) {

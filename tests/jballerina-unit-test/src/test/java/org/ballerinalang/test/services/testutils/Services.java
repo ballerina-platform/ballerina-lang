@@ -19,7 +19,10 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
+
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -36,12 +39,16 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+
 /**
  * This contains test utils related to Ballerina service invocations.
  *
  * @since 0.8.0
  */
 public class Services {
+
+    private static String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
 
     @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
@@ -81,7 +88,7 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
@@ -99,5 +106,9 @@ public class Services {
         }
         request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
+    }
+
+    private static MapValue<?, ?> getEndpointConfig() {
+        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, SERVICE_EP_CONFIG_TYPE_NAME);
     }
 }
