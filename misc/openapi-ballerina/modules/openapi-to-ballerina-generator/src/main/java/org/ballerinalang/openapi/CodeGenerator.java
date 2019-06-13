@@ -25,10 +25,13 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.google.common.base.Strings;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
@@ -37,11 +40,13 @@ import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,6 +58,8 @@ import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 public class CodeGenerator {
     private String srcPackage;
     private String modelPackage;
+
+    private static final PrintStream outStream = System.err;
 
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
@@ -72,9 +79,19 @@ public class CodeGenerator {
      */
     public void generate(GenType type, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
+
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
             throw new BallerinaOpenApiException("Output path is not a valid ballerina project directory. Use "
                     + "'ballerina init' to generate a new project");
+        }
+
+        //Check if the selected path is a ballerina root for service generation
+        //TODO check with team for root check
+        if (type.equals(GenType.GEN_SERVICE) &&
+                Strings.isNullOrEmpty(LSCompilerUtil.findProjectRoot(System.getProperty("user.dir")))) {
+            throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
+                    "from the project root. If you like to start with a new project use `ballerina init` command to " +
+                    "create a new project.");
         }
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
@@ -113,6 +130,7 @@ public class CodeGenerator {
         // Therefore value set to modelPackage is ignored here
         BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
                 .modelPackage(srcPackage);
+        definitionContext.setDefinitionPath(definitionPath);
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
@@ -217,6 +235,14 @@ public class CodeGenerator {
                 filePath = srcPath.resolve(file.getFileName());
                 CodegenUtils.writeFile(filePath, file.getContent());
             }
+        }
+
+        //This will print the generated files to the console
+        outStream.println("The service generation process is complete. Following files were created. \n" +
+                "src/ \n-" + srcPackage);
+        Iterator<GenSrcFile> iterator = sources.iterator();
+        while (iterator.hasNext()) {
+            outStream.println("--" + iterator.next().getFileName());
         }
     }
 
