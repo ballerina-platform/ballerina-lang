@@ -113,6 +113,7 @@ public class BRunUtil {
      * @param functionName  Name of the function to invoke
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invokeStateful(compileResult, functionName, args);
@@ -126,6 +127,7 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
@@ -141,6 +143,7 @@ public class BRunUtil {
      * @param functionName  Name of the function to invoke
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName, String functionName) {
         BValue[] args = {};
         return invokeStateful(compileResult, packageName, functionName, args);
@@ -155,6 +158,7 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
                                           String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
