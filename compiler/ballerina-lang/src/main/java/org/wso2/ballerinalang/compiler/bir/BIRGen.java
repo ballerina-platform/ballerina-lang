@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
@@ -1065,22 +1066,22 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
-        generateArrayLiteral(astArrayLiteralExpr);
+        generateListConstructorExpr(astArrayLiteralExpr);
     }
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
-        generateGroupOrTupleLiteral(tupleLiteral);
+        generateListConstructorExpr(tupleLiteral);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        generateGroupOrTupleLiteral(groupExpr);
+        groupExpr.expression.accept(this);
     }
 
     @Override
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
-        generateArrayLiteral(jsonArrayLiteralExpr);
+        generateListConstructorExpr(jsonArrayLiteralExpr);
     }
 
     @Override
@@ -1749,85 +1750,45 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private void generateArrayLiteral(BLangArrayLiteral astArrayLiteralExpr) {
+    private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
         // Emit create array instruction
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayLiteralExpr.type, this.env.nextLocalVarId(names),
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(listConstructorExpr.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        long size = astArrayLiteralExpr.type.tag == TypeTags.ARRAY &&
-                ((BArrayType) astArrayLiteralExpr.type).state != BArrayState.UNSEALED
-                        ? (long) ((BArrayType) astArrayLiteralExpr.type).size
-                        : -1L;
+        long size = -1L;
+        if (listConstructorExpr.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) listConstructorExpr.type).state != BArrayState.UNSEALED) {
+            size = (long) ((BArrayType) listConstructorExpr.type).size;
+        } else if (listConstructorExpr.type.tag == TypeTags.TUPLE) {
+            size = listConstructorExpr.exprs.size();
+        }
 
         BLangLiteral literal = new BLangLiteral();
-        literal.pos = astArrayLiteralExpr.pos;
+        literal.pos = listConstructorExpr.pos;
         literal.value = size;
         literal.type = symTable.intType;
         literal.accept(this);
         BIROperand sizeOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.NewArray(astArrayLiteralExpr.pos, astArrayLiteralExpr.type, toVarRef, sizeOp));
+        emit(new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.type, toVarRef, sizeOp));
 
         // Emit instructions populate initial array values;
-        for (int i = 0; i < astArrayLiteralExpr.exprs.size(); i++) {
-            BLangExpression argExpr = astArrayLiteralExpr.exprs.get(i);
+        for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
+            BLangExpression argExpr = listConstructorExpr.exprs.get(i);
             argExpr.accept(this);
             BIROperand exprIndex = this.env.targetOperand;
 
             BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = astArrayLiteralExpr.pos;
+            indexLiteral.pos = listConstructorExpr.pos;
             indexLiteral.value = (long) i;
             indexLiteral.type = symTable.intType;
             indexLiteral.accept(this);
             BIROperand arrayIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astArrayLiteralExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
+            emit(new BIRNonTerminator.FieldAccess(listConstructorExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
                     arrayIndex, exprIndex));
-        }
-        this.env.targetOperand = toVarRef;
-    }
-
-    private void generateGroupOrTupleLiteral(BLangExpression expr) {
-        List<BLangExpression> expressions = new ArrayList<>();
-        if (expr.getKind() == NodeKind.GROUP_EXPR) {
-            expressions.add(((BLangGroupExpr)expr).expression);
-        } else {
-            expressions.addAll(((BLangTupleLiteral)expr).exprs);
-        }
-
-        // Emit create array instruction
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(expr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        long size = expressions.size();
-
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = expr.pos;
-        literal.value = size;
-        literal.type = symTable.intType;
-        literal.accept(this);
-        BIROperand sizeOp = this.env.targetOperand;
-
-        emit(new BIRNonTerminator.NewArray(expr.pos, expr.type, toVarRef, sizeOp));
-
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < expressions.size(); i++) {
-            BLangExpression argExpr = expressions.get(i);
-            argExpr.accept(this);
-            BIROperand exprIndex = this.env.targetOperand;
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = expr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            indexLiteral.accept(this);
-            BIROperand arrayIndex = this.env.targetOperand;
-
-            emit(new FieldAccess(expr.pos, InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
     }

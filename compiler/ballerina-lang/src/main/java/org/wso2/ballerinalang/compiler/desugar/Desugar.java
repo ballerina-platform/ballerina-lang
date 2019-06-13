@@ -1967,21 +1967,21 @@ public class Desugar extends BLangNodeVisitor {
         if (listConstructor.type.tag == TypeTags.TUPLE) {
             expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.type);
             result = rewriteExpr(expr);
-            return;
-        } else if (listConstructor.type.tag == TypeTags.ARRAY) {
-            expr = new BLangArrayLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.type);
-            result = rewriteExpr(expr);
-            return;
         } else if (listConstructor.type.tag == TypeTags.JSON) {
             expr = new BLangJSONArrayLiteral(listConstructor.exprs, new BArrayType(listConstructor.type));
             result = rewriteExpr(expr);
-            return;
         } else if (getElementType(listConstructor.type).tag == TypeTags.JSON) {
             expr = new BLangJSONArrayLiteral(listConstructor.exprs, listConstructor.type);
             result = rewriteExpr(expr);
-            return;
+        } else if (listConstructor.type.tag == TypeTags.TYPEDESC) {
+            final BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = listConstructor.typedescType;
+            typedescExpr.type = symTable.typeDesc;
+            result = rewriteExpr(typedescExpr);
+        } else {
+            expr = new BLangArrayLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.type);
+            result = rewriteExpr(expr);
         }
-        result = listConstructor;
     }
 
     @Override

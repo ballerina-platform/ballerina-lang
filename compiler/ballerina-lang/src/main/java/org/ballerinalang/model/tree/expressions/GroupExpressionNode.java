@@ -17,7 +17,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * Expression of (expression , expression).
+ * Expression of (expression).
  *
  * @since 1.0
  */

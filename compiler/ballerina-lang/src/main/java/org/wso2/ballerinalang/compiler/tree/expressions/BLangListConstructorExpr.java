@@ -57,8 +57,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
 
     @Override
     public String toString() {
-        String s = Arrays.toString(exprs.toArray());
-        return "[" + s.substring(1, s.length() - 1) + ']';
+        return Arrays.toString(exprs.toArray());
     }
 
     /**

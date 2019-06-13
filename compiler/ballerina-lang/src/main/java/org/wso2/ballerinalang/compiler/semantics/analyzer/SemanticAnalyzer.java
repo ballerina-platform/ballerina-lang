@@ -535,6 +535,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleVariable varNode) {
 
         if (varNode.isDeclaredWithVar) {
+            List<BType> memberTypes = varNode.memberVariables
+                    .stream().map(v -> symTable.noType)
+                    .collect(Collectors.toList());
+            expType = new BTupleType(memberTypes);
             handleDeclaredWithVar(varNode);
             return;
         }
@@ -581,7 +585,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void handleDeclaredWithVar(BLangVariable variable) {
         BLangExpression varRefExpr = variable.expr;
-        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, symTable.noType);
+        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
 
         if (varRefExpr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation iterableInv = (BLangInvocation) varRefExpr;
@@ -1285,7 +1289,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
         setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
-        typeChecker.checkExpr(tupleDeStmt.expr, this.env);
+        List<BType> memberTypes = tupleDeStmt.varRef.expressions
+                .stream().map(v -> symTable.noType)
+                .collect(Collectors.toList());
+        expType = new BTupleType(memberTypes);
+        typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
         checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef, tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
     }
 
@@ -2177,11 +2185,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean validateVariableDefinition(BLangExpression expr) {
         // following cases are invalid.
-        // var a = [ x, y, ... ];
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.LIST_CONSTRUCTOR_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
+        if (kind == RECORD_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
                 && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
