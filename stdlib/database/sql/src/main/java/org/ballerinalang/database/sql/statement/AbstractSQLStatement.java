@@ -309,7 +309,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return sqlType;
     }
 
-
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
@@ -1192,7 +1191,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return timeZoneOffSet;
     }
 
-
     private void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType,
             Calendar utcCalendar) {
         Time val = null;
@@ -1267,7 +1265,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
         return new Time(calendar.getTimeInMillis());
     }
-
 
     private void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         byte[] val = getByteArray(value);
