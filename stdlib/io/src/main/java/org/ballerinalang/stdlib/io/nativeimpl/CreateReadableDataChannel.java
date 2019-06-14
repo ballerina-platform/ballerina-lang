@@ -104,9 +104,9 @@ public class CreateReadableDataChannel extends BlockingNativeCallableUnit {
         }
     }
 
-    public static void init(Strand strand, ObjectValue dataChannelObj, ObjectValue byteChannelObj, String order) {
+    public static void init(Strand strand, ObjectValue dataChannelObj, ObjectValue byteChannelObj, Object order) {
         try {
-            ByteOrder byteOrder = getByteOrder(order);
+            ByteOrder byteOrder = getByteOrder((String) order);
             Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelObj.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
