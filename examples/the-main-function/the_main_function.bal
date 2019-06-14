@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// The `main` function can perform a math operation. The first parameter `operation`
+// The `main` function performs a math operation. The first parameter `operation`
 // represents the math operation while the second parameter `initialValue` is a default
 // parameter with the default value `0` representing the base value upon which the operation
 // should be performed. The other parameter `values` represent the additional arguments.
