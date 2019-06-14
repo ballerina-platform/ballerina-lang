@@ -829,6 +829,7 @@ public class BRunUtil {
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key), bvmValueMap));
                 }
+                bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
             case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
                 TableValue jvmTable = (TableValue) value;
