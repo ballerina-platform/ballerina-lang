@@ -20,8 +20,8 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { BallerinaExtension } from '../core';
-import { WebViewRPCHandler } from '../utils';
+import { BallerinaExtension, ballerinaExtInstance } from '../core';
+import { WebViewRPCHandler, getComposerPath, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
@@ -69,10 +69,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		'ballerinaDiagram',
 		"Ballerina Diagram",
 		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
-		{
-			enableScripts: true,
-			retainContextWhenHidden: true,
-		}
+		getCommonWebViewOptions()
 	);
 
 	diagramViewPanel.iconPath = {
