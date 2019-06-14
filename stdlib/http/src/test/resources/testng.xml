@@ -47,11 +47,11 @@ under the License.
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
             <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>
             <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.stdlib.resiliency.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>-->
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <!--<package name="org.ballerinalang.stdlib.auth.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
+            <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
@@ -62,6 +62,7 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>
+                    <exclude name="testGetString"></exclude>
                 </methods>
             </class>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>

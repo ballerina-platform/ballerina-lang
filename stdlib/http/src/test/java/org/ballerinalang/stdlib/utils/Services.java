@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.utils;
 
 
 import io.netty.handler.codec.http.HttpContent;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,6 +38,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -85,13 +87,13 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        // Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
-        // (MapValue) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG));
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Executor.submit(service, resource.getName(), callback, properties, signatureParams);
+        Scheduler scheduler = httpServicesRegistry.getScheduler();
+        Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
+        Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();
