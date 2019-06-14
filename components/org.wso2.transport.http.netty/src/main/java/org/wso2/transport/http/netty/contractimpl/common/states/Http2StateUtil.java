@@ -339,7 +339,8 @@ public class Http2StateUtil {
      * @param http2ClientChannel the client channel related to the handler
      * @param outboundMsgHolder  the outbound message holder
      */
-    public static void onPushPromiseRead(Http2PushPromise http2PushPromise, Http2ClientChannel http2ClientChannel,
+    public static void onPushPromiseRead(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                                         Http2ClientChannel http2ClientChannel,
                                          OutboundMsgHolder outboundMsgHolder) {
         int streamId = http2PushPromise.getStreamId();
         int promisedStreamId = http2PushPromise.getPromisedStreamId();
@@ -356,6 +357,12 @@ public class Http2StateUtil {
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         http2PushPromise.setOutboundMsgHolder(outboundMsgHolder);
         outboundMsgHolder.addPromise(http2PushPromise);
+
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onStreamInit(ctx, promisedStreamId)) {
+                return;
+            }
+        }
     }
 
     /**

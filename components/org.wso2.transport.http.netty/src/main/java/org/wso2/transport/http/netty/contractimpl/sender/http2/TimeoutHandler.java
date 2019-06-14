@@ -37,6 +37,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
+
 /**
  * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
  */
@@ -61,12 +66,16 @@ public class TimeoutHandler implements Http2DataEventListener {
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
         }
+        setTimerTask(ctx, streamId, outboundMsgHolder);
+        return true;
+    }
+
+    private void setTimerTask(ChannelHandlerContext ctx, int streamId, OutboundMsgHolder outboundMsgHolder) {
         if (outboundMsgHolder != null) {
             outboundMsgHolder.setLastReadWriteTime(ticksInNanos());
             timerTasks.put(streamId,
-                    schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos));
+                           schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos));
         }
-        return true;
     }
 
     @Override
@@ -145,52 +154,90 @@ public class TimeoutHandler implements Http2DataEventListener {
     private class IdleTimeoutTask implements Runnable {
 
         private ChannelHandlerContext ctx;
-        private OutboundMsgHolder msgHolder;
         private int streamId;
 
         IdleTimeoutTask(ChannelHandlerContext ctx, int streamId) {
             this.ctx = ctx;
             this.streamId = streamId;
-            this.msgHolder = http2ClientChannel.getInFlightMessage(streamId);
         }
 
         @Override
         public void run() {
-            long nextDelay = idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
+            OutboundMsgHolder msgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            OutboundMsgHolder promiseHolder = http2ClientChannel.getPromisedMessage(streamId);
+
+            if (msgHolder != null) {
+                runTimeOutLogic(msgHolder, true);
+            } else if (promiseHolder != null) {
+                runTimeOutLogic(promiseHolder, false);
+            }
+        }
+
+        private void runTimeOutLogic(OutboundMsgHolder msgHolder, boolean primary) {
+            long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
                 closeStream(streamId, ctx);
-                if (msgHolder.getResponse() != null) {
-                    handleIncompleteInboundResponse();
-                } else if (msgHolder.isRequestWritten()) {
-                    msgHolder.getResponseFuture().notifyHttpListener(
-                            new EndpointTimeOutException(
-                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                if (primary) {
+                    handlePrimaryResponseTimeout(msgHolder);
                 } else {
-                    msgHolder.getResponseFuture().notifyHttpListener(
-                            new EndpointTimeOutException(
-                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
-                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                    handlePushResponseTimeout(msgHolder);
                 }
-                http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));
             }
         }
 
-        private void handleIncompleteInboundResponse() {
+        private void handlePrimaryResponseTimeout(OutboundMsgHolder msgHolder) {
+            if (msgHolder.getResponse() != null) {
+                handleIncompleteResponse(msgHolder, true);
+            } else {
+                notifyTimeoutError(msgHolder, true);
+            }
+            http2ClientChannel.removeInFlightMessage(streamId);
+        }
+
+        private void handlePushResponseTimeout(OutboundMsgHolder promiseHolder) {
+            if (promiseHolder.getPushResponse(streamId) != null) {
+                handleIncompleteResponse(promiseHolder, false);
+            } else {
+                notifyTimeoutError(promiseHolder, false);
+            }
+            http2ClientChannel.removePromisedMessage(streamId);
+        }
+
+        private void handleIncompleteResponse(OutboundMsgHolder msgHolder, boolean primary) {
             LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(
-                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY)));
+            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(getErrorMessage(primary))));
             msgHolder.getResponse().addHttpContent(lastHttpContent);
-            LOG.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
+            LOG.warn(getErrorMessage(primary));
+        }
+
+        private String getErrorMessage(boolean primary) {
+            return primary ? IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY :
+                    IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {
             Http2TargetHandler clientOutboundHandler =
                     (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
             clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+        }
+
+        private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
+            if (primary) {
+                msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+            } else {
+                msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+            }
+        }
+
+        private long getNextDelay(OutboundMsgHolder msgHolder) {
+            return idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
         }
     }
 
