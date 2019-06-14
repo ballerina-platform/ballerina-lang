@@ -132,6 +132,9 @@
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
                 <include>org.ballerinalang:ballerina-nats:jar</include>
+                <include>org.ballerinalang:ballerina-jwt:jar</include>
+                <include>org.ballerinalang:ballerina-ldap:jar</include>
+                <include>org.ballerinalang:ballerina-oauth2:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-runtime:jar</include>
