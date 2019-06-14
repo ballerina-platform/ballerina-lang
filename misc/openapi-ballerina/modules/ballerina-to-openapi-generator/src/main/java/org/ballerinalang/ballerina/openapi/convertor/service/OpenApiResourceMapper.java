@@ -45,7 +45,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -226,7 +226,7 @@ public class OpenApiResourceMapper {
             Map<String, BLangExpression> attrs = ConverterUtils.listToMap(bLiteral.getKeyValuePairs());
 
             if (attrs.containsKey(ConverterConstants.ATTR_VALUE)) {
-                BLangArrayLiteral valueArr = (BLangArrayLiteral) attrs.get(ConverterConstants.ATTR_VALUE);
+                BLangListConstructorExpr valueArr = (BLangListConstructorExpr) attrs.get(ConverterConstants.ATTR_VALUE);
 
                 if (valueArr.getExpressions().size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
@@ -262,7 +262,7 @@ public class OpenApiResourceMapper {
      */
     private void createHeadersModel(BLangExpression annotationExpression, Response response) {
         if (null != annotationExpression) {
-            BLangArrayLiteral headerArray = (BLangArrayLiteral) annotationExpression;
+            BLangListConstructorExpr headerArray = (BLangListConstructorExpr) annotationExpression;
 
             for (ExpressionNode headersValue : headerArray.getExpressions()) {
                 List<BLangRecordKeyValue> headerList = ((BLangRecordLiteral) headersValue).getKeyValuePairs();
@@ -349,7 +349,8 @@ public class OpenApiResourceMapper {
     private void createParametersModel(BLangExpression annotationExpression, Operation operation) {
         if (annotationExpression != null) {
             List<Parameter> parameters = new LinkedList<>();
-            List<? extends ExpressionNode> paramExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
+            List<? extends ExpressionNode> paramExprs = ((BLangListConstructorExpr) annotationExpression)
+                    .getExpressions();
 
             for (ExpressionNode expr : paramExprs) {
                 List<BLangRecordKeyValue> paramList = ((BLangRecordLiteral) expr).getKeyValuePairs();
@@ -487,7 +488,8 @@ public class OpenApiResourceMapper {
      */
     private void createTagModel(BLangExpression annotationExpression, Operation operation) {
         if (null != annotationExpression) {
-            List<? extends ExpressionNode> tagExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
+            List<? extends ExpressionNode> tagExprs = ((BLangListConstructorExpr) annotationExpression)
+                    .getExpressions();
             List<String> tags = new LinkedList<>();
             for (ExpressionNode expr : tagExprs) {
                 if (expr instanceof BLangLiteral) {
@@ -524,7 +526,7 @@ public class OpenApiResourceMapper {
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES)) {
                 List<String> consumes = new LinkedList<>();
-                BLangArrayLiteral consumesArray = (BLangArrayLiteral) attributes
+                BLangListConstructorExpr consumesArray = (BLangListConstructorExpr) attributes
                         .get(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
 
                 for (ExpressionNode expr : consumesArray.getExpressions()) {
@@ -542,7 +544,7 @@ public class OpenApiResourceMapper {
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES)) {
                 List<String> produces = new LinkedList<>();
-                BLangArrayLiteral producesArray = (BLangArrayLiteral) attributes
+                BLangListConstructorExpr producesArray = (BLangListConstructorExpr) attributes
                         .get(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
 
                 for (ExpressionNode expr : producesArray.getExpressions()) {
@@ -585,7 +587,7 @@ public class OpenApiResourceMapper {
             Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
             if (recordsMap.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)
                     && recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_METHODS) != null) {
-                List<? extends ExpressionNode> methodsValue = ((BLangArrayLiteral) recordsMap
+                List<? extends ExpressionNode> methodsValue = ((BLangListConstructorExpr) recordsMap
                         .get(HttpConstants.ANN_RESOURCE_ATTR_METHODS)).getExpressions();
                 for (ExpressionNode expr : methodsValue) {
                     httpMethods.add(ConverterUtils.getStringLiteralValue((BLangLiteral) expr));

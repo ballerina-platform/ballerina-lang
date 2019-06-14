@@ -178,7 +178,8 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarDeclarationWithArrayInit() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "array element type 'float|int' does not have an implicit initial value, use 'float|int?'", 2, 17);
+        BAssertUtil.validateError(res, 0, "array element type 'float|int' does not have an " +
+                "implicit initial value, use 'float|int?'", 2, 17);
     }
 
     @Test
