@@ -61,7 +61,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         } else if (bType is bir:BObjectType) {
             createObjectType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BServiceType) {
-            createObjectType(mv, bType.oType, typeDef, typePkgName);
+            createServiceType(mv, bType.oType, typeDef, typePkgName);
         } else if (bType is bir:BErrorType) {
             createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
@@ -370,6 +370,39 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
             io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
             false);
     return;
+}
+
+# Create a runtime type instance for the service.
+#
+# + mv - method visitor
+# + objectType - object type
+# + typeDef - type definition of the service
+# + pkgName - name of the module the service belongs to
+function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
+    mv.visitTypeInsn(NEW, SERVICE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    string name = typeDef.name.value;
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+
+    // Load flags
+    mv.visitLdcInsn(typeDef.flags);
+    mv.visitInsn(L2I);
+
+    // Initialize the object
+    mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+        io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
+        false);
 }
 
 # Add the field type information to an object type. The object type is assumed
