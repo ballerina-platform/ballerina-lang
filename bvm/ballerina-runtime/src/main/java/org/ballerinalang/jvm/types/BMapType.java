@@ -73,12 +73,12 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new MapValueImpl<String, V>();
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<String, V>();
+        return getZeroValue();
     }
 
     @Override

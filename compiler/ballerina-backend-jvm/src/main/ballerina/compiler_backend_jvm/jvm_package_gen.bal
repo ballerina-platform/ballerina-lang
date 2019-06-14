@@ -150,13 +150,13 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
                                                         cleanupBalExt(mainFunc.pos.sourceFileName));
                 }
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
                 if (mainFunc is bir:Function) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
                 generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
-                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
         } else {

@@ -44,7 +44,7 @@ public class AsyncReadWriteTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Read into fixed byte[] using async io framework")
