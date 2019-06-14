@@ -174,8 +174,8 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate \\{\"message\":\"modification not " +
-                    "allowed on frozen value\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate \\{\"message\":" +
+                    "\"failed to set element to json: modification not allowed on frozen value\"\\}.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
@@ -549,7 +549,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "modification not allowed on frozen value");
+                            "failed to set element to json: modification not allowed on frozen value");
     }
 
     @Test

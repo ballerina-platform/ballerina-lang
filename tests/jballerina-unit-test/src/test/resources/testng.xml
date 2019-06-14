@@ -57,6 +57,8 @@
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
@@ -67,6 +69,17 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
+            <package name="org.ballerinalang.test.types.anydata.*"/>
+            <package name="org.ballerinalang.test.statements.arrays.*"/>
+            <package name="org.ballerinalang.test.statements.assign.*"/>
+            <package name="org.ballerinalang.test.statements.block.*"/>
+            <package name="org.ballerinalang.test.statements.breakstatement.*"/>
+            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
+            <package name="org.ballerinalang.test.statements.continuestatement.*"/>
+            <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
+            <package name="org.ballerinalang.test.statements.vardeclr.*"/>
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -127,31 +140,6 @@
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
-            <!--Built in methods-->
-            <class name="org.ballerinalang.test.expressions.conversion.NativeConversionWithStampTypesTest"/>
-
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.AnydataStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.ArrayStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.JSONStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.MapStampInbuiltFunctionTest">
-                <!-- Fails because of cyclic record type issue-->
-                <methods>
-                    <exclude name="testStampRecordToMapWithCyclicValueReferences"/>
-                    <exclude name="testStampRecordToRecordWithCyclicValueReferences"/>
-                </methods>
-            </class>
-
-            <class name="org.ballerinalang.test.expressions.stamp.RecordStampInbuiltFunctionTest">
-                <!-- Fails because of optional fields not implemented-->
-                <methods>
-                    <exclude name="testStampRecordToRecordWithOptionalFields"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.stamp.StampInbuiltFunctionNegativeTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
 
@@ -164,44 +152,44 @@
             <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
 <!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
 
-            <!--<class name="org.ballerinalang.test.worker.BasicForkTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.BasicWorkerTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerInActionTest">-->
-                <!--<methods>-->
-                    <!--<exclude name="testConnectorAction1"/>-->
-                    <!--<exclude name="testConnectorAction2"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerFlushTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerFailTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.StackOverflowTest">-->
-                <!--<methods>-->
-                    <!--&lt;!&ndash;TODO:Need to improve error detail transformation, java errors get returned&ndash;&gt;-->
-                    <!--<exclude name="recursiveFunction"/>-->
-                    <!--<exclude name="testStackOverflowInFunction"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">-->
-                <!--<methods>-->
-                    <!--&lt;!&ndash;TODO:convert within while returns empty&ndash;&gt;-->
-                    <!--<exclude name="largeForkCreationTest"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>-->
-            <!--<class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>-->
+            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
+                <methods>
+                    <exclude name="testConnectorAction1"/>
+                    <exclude name="testConnectorAction2"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
+            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest">
+                <methods>
+                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
+                    <exclude name="recursiveFunction"/>
+                    <exclude name="testStackOverflowInFunction"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
+                <methods>
+                    <!--TODO:convert within while returns empty-->
+                    <exclude name="largeForkCreationTest"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
+            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>

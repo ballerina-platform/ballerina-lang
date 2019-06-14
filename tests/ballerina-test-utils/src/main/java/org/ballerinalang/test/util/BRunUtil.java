@@ -338,6 +338,7 @@ public class BRunUtil {
                     break;
                 case TypeTags.UNION_TAG:
                 case TypeTags.ANY_TAG:
+                case TypeTags.FINITE_TYPE_TAG:
                 case TypeTags.JSON_TAG:
                     typeClazz = Object.class;
                     break;
@@ -350,6 +351,9 @@ public class BRunUtil {
                     break;
                 case TypeTags.OBJECT_TYPE_TAG:
                     typeClazz = ObjectValue.class;
+                    break;
+                case TypeTags.NULL_TAG:
+                    typeClazz = Object.class;
                     break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
@@ -380,12 +384,16 @@ public class BRunUtil {
                         throw new org.ballerinalang.util.exceptions
                                 .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
+                    if (t instanceof StackOverflowError) {
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                    }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null);
+            Scheduler scheduler = new Scheduler(4, false);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
@@ -441,7 +449,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType), array.size());
+                ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -460,7 +468,9 @@ public class BRunUtil {
                             jvmArray.add(i, array.getFloat(i));
                             break;
                         default:
-                            throw new RuntimeException("Function signature type '" + type + "' is not supported");
+                            BRefType<?> refValue = array.getRefValue(i);
+                            jvmArray.add(i, getJVMValue(refValue.getType(), refValue));
+                            break;
                     }
                 }
                 return jvmArray;
@@ -468,6 +478,7 @@ public class BRunUtil {
             case TypeTags.JSON_TAG:
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
+            case TypeTags.FINITE_TYPE_TAG:
                 return getJVMValue(value.getType(), value);
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
@@ -635,7 +646,7 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
-                return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.size);
             case TypeTags.MAP_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BMapType mapType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BMapType) type;
@@ -710,7 +721,7 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
-                return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.getSize());
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
                 org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstrainedType());
@@ -766,8 +777,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),
-                                        org.ballerinalang.model.util.DecimalValueKind
-                                                .valueOf(decimalValue.valueKind.name()));
+                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValue.valueKind.name()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
@@ -819,6 +829,7 @@ public class BRunUtil {
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key), bvmValueMap));
                 }
+                bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
             case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
                 TableValue jvmTable = (TableValue) value;
@@ -837,7 +848,8 @@ public class BRunUtil {
 
                 jvmTable.close();
                 jvmTable.finalize();
-                bvmValue = new BTable(new BTableType(constraintType), null, null, data);
+                bvmValue = new BTable(new BTableType(constraintType), null,
+                        (BValueArray) getBVMValue(jvmTable.getPrimaryKeys()), data);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
@@ -976,8 +988,12 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
-                return new BFiniteType(jvmType.getName(), jvmType.getPackage() == null ?
-                        null : jvmType.getPackage().name);
+                org.ballerinalang.jvm.types.BFiniteType jvmBFiniteType =
+                        (org.ballerinalang.jvm.types.BFiniteType) jvmType;
+                BFiniteType bFiniteType = new BFiniteType(jvmBFiniteType.getName(),
+                        jvmBFiniteType.getPackage() == null ? null : jvmType.getPackage().name);
+                jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
+                return bFiniteType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

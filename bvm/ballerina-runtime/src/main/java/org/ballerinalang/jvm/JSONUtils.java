@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 
@@ -237,7 +238,18 @@ public class JSONUtils {
         try {
             Lists.add((ArrayValue) json, index, element);
         } catch (ErrorValue e) {
-            throw e;
+            Object errorDetails = e.getDetails();
+            if (errorDetails != null) {
+                if (TypeChecker.getType(errorDetails).getTag() == TypeTags.MAP_TAG &&
+                        ((MapValue) errorDetails).containsKey(BallerinaErrors.ERROR_MESSAGE_FIELD)) {
+                    throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
+                            ((MapValue) errorDetails).get(BallerinaErrors.ERROR_MESSAGE_FIELD));
+                }
+                throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
+                        e.getDetails());
+            }
+            throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR,
+                    e.getMessage());
         } catch (BallerinaException e) {
             throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR, e.getDetail());
         } catch (Throwable t) {

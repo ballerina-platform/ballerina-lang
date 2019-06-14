@@ -119,7 +119,7 @@ public class ArrayFillTest {
 
     @Test
     public void testDecimalArrayFill() {
-        final BigDecimal value = new BigDecimal(23.45);
+        final BigDecimal value = new BigDecimal("23.45");
         BValue[] args = new BValue[]{new BInteger(index), new BDecimal(value)};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testDecimalArrayFill", args);
         BValueArray decimalArr = (BValueArray) returns[0];

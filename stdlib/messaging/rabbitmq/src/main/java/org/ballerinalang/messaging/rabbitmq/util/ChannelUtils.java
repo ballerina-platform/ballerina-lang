@@ -296,7 +296,7 @@ public class ChannelUtils {
      * @return True if the message was acknowledged already, and false otherwise.
      */
     public static boolean validateMultipleAcknowledgements(BMap<String, BValue> messageObject) {
-        return messageObject.getNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS) != null;
+        return (Boolean) messageObject.getNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS);
     }
 
     /**

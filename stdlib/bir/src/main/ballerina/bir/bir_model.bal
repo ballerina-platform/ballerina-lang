@@ -57,6 +57,7 @@ public type Function record {|
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
     BType? receiverType;
+    boolean restParamExist;
 |};
 
 public type BasicBlock record {|
