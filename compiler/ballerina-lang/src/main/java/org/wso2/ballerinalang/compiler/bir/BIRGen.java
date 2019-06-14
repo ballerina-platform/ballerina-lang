@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
-import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -152,7 +151,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -253,11 +251,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
-        Visibility visibility = getVisibility(astTypeDefinition.symbol);
-
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
-                                                          visibility,
+                                                          astTypeDefinition.symbol.flags,
                                                           astTypeDefinition.typeNode.type,
                                                           new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -269,7 +265,6 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangConstant astConstant) {
         BConstantSymbol constantSymbol = astConstant.symbol;
         Name constName = constantSymbol.name;
-        Visibility visibility = getVisibility(constantSymbol);
         BType type = constantSymbol.type;
         BType valueType = constantSymbol.literalValueType;
 
@@ -278,7 +273,8 @@ public class BIRGen extends BLangNodeVisitor {
         ConstValue constantValue = getConstValue(value, valueType);
 
         // Create a new constant info object.
-        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, visibility, type, constantValue);
+        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type,
+                                                  constantValue);
         birConstant.constValue = constantValue;
 
         // Add the constant to the package.
@@ -305,7 +301,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction astFunc) {
-        Visibility visibility = getVisibility(astFunc.symbol);
         BInvokableType type = astFunc.symbol.getType();
 
         boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
@@ -319,11 +314,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type, astFunc.receiver.type, workerName,
-                    astFunc.sendsToThis.size(), taintTable);
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, astFunc.receiver.type,
+                                      workerName, astFunc.sendsToThis.size(), taintTable);
         } else {
             Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, visibility, type,
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type,
                     astFunc.receiver != null ? astFunc.receiver.type : null, workerName,
                     astFunc.sendsToThis.size(), taintTable);
         }
@@ -336,9 +331,6 @@ public class BIRGen extends BLangNodeVisitor {
             i++;
         }
 
-        birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
-        birFunc.isInterface = astFunc.interfaceFunction;
-        birFunc.isRemote = Symbols.isFlagOn(astFunc.symbol.flags, Flags.REMOTE);
         birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
@@ -364,7 +356,7 @@ public class BIRGen extends BLangNodeVisitor {
             addRestParam(birFunc, astFunc.restParam);
         }
 
-        if (birFunc.isInterface || birFunc.isDeclaration) {
+        if (astFunc.interfaceFunction || Symbols.isNative(astFunc.symbol)) {
             this.env.clear();
             return;
         }
@@ -434,11 +426,10 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
-        Visibility visibility = getVisibility(astAnnotation.symbol);
         //TODO is it good to send nill type? fix
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, visibility, annSymbol.attachPoints,
-                annSymbol.attachedType == null ? symTable.noType : annSymbol.attachedType.type);
-
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags,
+                                                 annSymbol.attachPoints, annSymbol.attachedType == null ?
+                                                         symTable.noType : annSymbol.attachedType.type);
         this.env.enclPkg.annotations.add(birAnn);
     }
 
@@ -597,10 +588,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        Visibility visibility = getVisibility(varNode.symbol);
-
-        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, visibility, varNode.symbol.type,
-                this.env.nextGlobalVarId(names), VarScope.GLOBAL, VarKind.GLOBAL);
+        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
+                                                                  varNode.symbol.type, this.env.nextGlobalVarId(names),
+                                                                  VarScope.GLOBAL, VarKind.GLOBAL);
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.env.globalVarMap.put(varNode.symbol, birVarDcl);
@@ -1127,7 +1117,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructFieldAccessExpr astStructFieldAccessExpr) {
-        generateMappingAccess(astStructFieldAccessExpr);
+        generateMappingAccess(astStructFieldAccessExpr, astStructFieldAccessExpr.except);
     }
 
     @Override
@@ -1137,7 +1127,7 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
 
-        generateMappingAccess(astJSONFieldAccessExpr);
+        generateMappingAccess(astJSONFieldAccessExpr, false);
     }
 
     @Override
@@ -1564,13 +1554,13 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAccessExpr xmlAccessExpr) {
-        generateMappingAccess(xmlAccessExpr);
+        generateMappingAccess(xmlAccessExpr, false);
     }
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr);
+            generateMappingAccess(xmlAttributeAccessExpr, false);
             return;
         }
 
@@ -1677,15 +1667,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private Visibility getVisibility(BSymbol symbol) {
-        if (Symbols.isPublic(symbol)) {
-            return Visibility.PUBLIC;
-        } else if (Symbols.isPrivate(symbol)) {
-            return Visibility.PRIVATE;
-        } else {
-            return Visibility.PACKAGE_PRIVATE;
-        }
-    }
 
     private void emit(BIRInstruction instruction) {
         this.env.enclBB.instructions.add(instruction);
@@ -1910,7 +1891,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
-    private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr) {
+    private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr, boolean except) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
@@ -1959,7 +1940,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_LOAD;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
-                    varRefRegIndex));
+                    varRefRegIndex, except));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

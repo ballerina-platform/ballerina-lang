@@ -148,7 +148,7 @@ public class Stamp extends BlockingNativeCallableUnit {
                 ((RefValue) valueToBeStamped).stamp(targetType, new ArrayList<>());
             }
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
+            throw BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.STAMP_ERROR,
                                                e.getDetail());
         }
         return valueToBeStamped;

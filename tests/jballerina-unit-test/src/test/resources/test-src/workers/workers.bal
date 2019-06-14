@@ -434,3 +434,24 @@ function add2(int i, int j) returns int {
 function singleAdd(int num) returns int{
    return num +1;
 }
+
+function innerWorkerPanicTest() {
+   worker w1 {
+       int k = <- default;
+   }
+
+   panicFunc();
+
+   10 -> w1;
+}
+
+function panicFunc() {
+    worker w5 {
+       if (true) {
+           error e = error("worker w5 panic");
+           panic e;
+       }
+       10 -> default;
+    }
+    int k = <- w5;
+}

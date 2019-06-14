@@ -23,6 +23,7 @@ import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,6 +34,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 /**
  * Creates a RabbitMQ AMQ Channel.
@@ -64,6 +67,11 @@ public class CreateChannel extends BlockingNativeCallableUnit {
         try {
             Channel channel = ChannelUtils.createChannel(connection);
             channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+            RabbitMQTransactionContext rabbitMQTransactionContext = new RabbitMQTransactionContext(channelBObject,
+                    UUID.randomUUID().toString());
+            channelBObject.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
+                    rabbitMQTransactionContext);
+            rabbitMQTransactionContext.handleTransactionBlock(context);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while creating the channel", exception);
             RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);

@@ -112,6 +112,11 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+    @Override
+    public String toString() {
+        return stringValue();
+    }
+
     public String stringValue() {
         String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
         StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
@@ -368,6 +373,10 @@ public class TableValue implements RefValue, CollectionValue {
             return 0;
         }
         return tableProvider.getRowCount(tableName);
+    }
+
+    public ArrayValue getPrimaryKeys() {
+        return this.primaryKeys;
     }
 
     /**

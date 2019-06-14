@@ -162,17 +162,18 @@ public class HttpDispatcher {
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         Object[] paramValues = new Object[signatureParams.getParamCount() * 2];
-        paramValues[0] = httpCaller;
-        paramValues[1] = true;
-        paramValues[2] = inRequest;
-        paramValues[3] = true;
+        int paramIndex = 0;
+        paramValues[paramIndex++] = httpCaller;
+        paramValues[paramIndex++] = true;
+        paramValues[paramIndex++] = inRequest;
+        paramValues[paramIndex++] = true;
         if (signatureParams.getParamCount() == 2) {
             return paramValues;
         }
 
         HttpResourceArguments resourceArgumentValues =
                 (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
-        for (int i = 0; i < signatureParams.getPathParams().size(); i = i + 2) {
+        for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
             //No need for validation as validation already happened at deployment time,
             //only string parameters can be found here.
             //TODO : fix argumentValue order issue
@@ -185,8 +186,8 @@ public class HttpDispatcher {
                     // application deal with the value.
                 }
             }
-            paramValues[i + 4] = argumentValue;
-            paramValues[i + 5] = true;
+            paramValues[paramIndex++] = argumentValue;
+            paramValues[paramIndex++] = true;
         }
 
         if (signatureParams.getEntityBody() == null) {
