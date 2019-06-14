@@ -20,9 +20,7 @@ package org.ballerinalang.database.sql;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -30,13 +28,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
-import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,31 +37,19 @@ import java.nio.charset.Charset;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.sql.XAConnection;
-import javax.transaction.xa.XAResource;
 
 /**
  * Class contains utility methods for SQL Connector operations.
@@ -79,137 +58,7 @@ import javax.transaction.xa.XAResource;
  */
 public class SQLDatasourceUtils {
 
-    public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final String POOL_MAP_KEY = UUID.randomUUID().toString();
-
-    public void checkAndObserveSQLError(Context context, String message) {
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> {
-            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
-            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
-        });
-    }
-
-    /**
-     * This will close database connection, statement and result sets.
-     *
-     * @param resultSets   SQL result sets
-     * @param stmt SQL statement
-     * @param conn SQL connection
-     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
-     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
-     * of externally.
-     */
-    public static void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
-            boolean connectionClosable) {
-        try {
-            if (resultSets != null) {
-                for (ResultSet rs : resultSets) {
-                    if (rs != null && !rs.isClosed()) {
-                        rs.close();
-                    }
-                }
-            }
-            cleanupResources(stmt, conn, connectionClosable);
-        } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * This will close database connection, statement and the resultset.
-     *
-     * @param rs   SQL resultset
-     * @param stmt SQL statement
-     * @param conn SQL connection
-     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
-     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
-     * of externally.
-     */
-    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
-        try {
-            if (rs != null && !rs.isClosed()) {
-                rs.close();
-            }
-            cleanupResources(stmt, conn, connectionClosable);
-        } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * This will close database connection and statement.
-     *
-     * @param stmt SQL statement
-     * @param conn SQL connection
-     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
-     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
-     * of externally.
-     */
-    public static void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
-        try {
-            if (stmt != null && !stmt.isClosed()) {
-                stmt.close();
-            }
-            if (conn != null && !conn.isClosed() && connectionClosable) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * This method will return equal ballerina data type for SQL type.
-     *
-     * @param sqlType SQL type in column
-     * @return TypeKind that represent respective ballerina type.
-     */
-    private static TypeKind getColumnType(int sqlType) {
-        switch (sqlType) {
-        case Types.ARRAY:
-            return TypeKind.ARRAY;
-        case Types.CHAR:
-        case Types.VARCHAR:
-        case Types.LONGVARCHAR:
-        case Types.NCHAR:
-        case Types.NVARCHAR:
-        case Types.LONGNVARCHAR:
-        case Types.CLOB:
-        case Types.NCLOB:
-        case Types.DATE:
-        case Types.TIME:
-        case Types.TIMESTAMP:
-        case Types.TIMESTAMP_WITH_TIMEZONE:
-        case Types.TIME_WITH_TIMEZONE:
-        case Types.ROWID:
-            return TypeKind.STRING;
-        case Types.TINYINT:
-        case Types.SMALLINT:
-        case Types.INTEGER:
-        case Types.BIGINT:
-            return TypeKind.INT;
-        case Types.BIT:
-        case Types.BOOLEAN:
-            return TypeKind.BOOLEAN;
-        case Types.NUMERIC:
-        case Types.DECIMAL:
-            return TypeKind.DECIMAL;
-        case Types.REAL:
-        case Types.FLOAT:
-        case Types.DOUBLE:
-            return TypeKind.FLOAT;
-        case Types.BLOB:
-        case Types.BINARY:
-        case Types.VARBINARY:
-        case Types.LONGVARBINARY:
-            return TypeKind.BLOB;
-        case Types.STRUCT:
-            return TypeKind.RECORD;
-        default:
-            return TypeKind.NONE;
-        }
-    }
 
     /**
      * This will retrieve the string value for the given clob.
@@ -335,40 +184,6 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    public static BError getSQLConnectorError(Context context, Throwable throwable, String messagePrefix) {
-        String detailedErrorMessage =
-            throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        return getSQLConnectorError(context, messagePrefix + detailedErrorMessage);
-    }
-
-    public static BError getSQLConnectorError(Context context, String detailedErrorMessage) {
-        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
-                .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME,
-                        detailedErrorMessage);
-        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.DATABASE_ERROR_CODE,
-                sqlClientErrorDetailRecord);
-    }
-
-    public static void handleErrorOnTransaction(Context context) {
-        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-        if (transactionLocalContext == null) {
-            return;
-        }
-        SQLDatasourceUtils.notifyTxMarkForAbort(context, transactionLocalContext);
-    }
-
-    private static void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
-        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
-        String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-
-        transactionLocalContext.markFailure();
-        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
-            return;
-        }
-        TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
-                transactionBlockId);
-    }
-
     public static BMap<String, BValue> createServerBasedDBClient(Context context, String dbType,
             BMap<String, BValue> clientEndpointConfig, String urlOptions,
             BMap<String, BRefType> globalPoolOptions) {
@@ -451,6 +266,35 @@ public class SQLDatasourceUtils {
         return createSQLClient(context, sqlDatasourceParams);
     }
 
+    public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
+            BMap<String, BRefType> dbOptions) {
+        StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
+        dbOptions.getMap().forEach((key, value) -> {
+            if (isSupportedDbOptionType(value)) {
+                dbOptionsStringJoiner
+                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + value.value());
+            } else {
+                throw new BallerinaException("Unsupported type for the db option: " + key);
+            }
+        });
+        return dbOptionsStringJoiner.toString();
+    }
+
+
+    public static BError getSQLConnectorError(Context context, Throwable throwable, String messagePrefix) {
+        String detailedErrorMessage =
+                throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        return getSQLConnectorError(context, messagePrefix + detailedErrorMessage);
+    }
+
+    public static BError getSQLConnectorError(Context context, String detailedErrorMessage) {
+        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
+                .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME,
+                        detailedErrorMessage);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.DATABASE_ERROR_CODE,
+                sqlClientErrorDetailRecord);
+    }
+
     protected static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
             BMap<String, BRefType> poolOptions) {
         return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
@@ -459,6 +303,17 @@ public class SQLDatasourceUtils {
     protected static void addDatasourceContainer(BMap<String, BRefType> poolOptions,
             ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
+    }
+
+    protected static boolean isSupportedDbOptionType(BValue value) {
+        boolean supported = false;
+        if (value != null) {
+            int typeTag = value.getType().getTag();
+            supported = (typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG
+                    || typeTag == TypeTags.BOOLEAN_TAG || typeTag == TypeTags.DECIMAL_TAG
+                    || typeTag == TypeTags.BYTE_TAG);
+        }
+        return supported;
     }
 
     private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
@@ -648,107 +503,5 @@ public class SQLDatasourceUtils {
             dateString.append("0");
         }
         dateString.append(calendar.get(Calendar.DAY_OF_MONTH));
-    }
-
-    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
-        List<ColumnDefinition> columnDefs = new ArrayList<>();
-        Set<String> columnNames = new HashSet<>();
-        ResultSetMetaData rsMetaData = rs.getMetaData();
-        int cols = rsMetaData.getColumnCount();
-        for (int i = 1; i <= cols; i++) {
-            String colName = rsMetaData.getColumnLabel(i);
-            if (columnNames.contains(colName)) {
-                String tableName = rsMetaData.getTableName(i).toUpperCase(Locale.getDefault());
-                colName = tableName + "." + colName;
-            }
-            int colType = rsMetaData.getColumnType(i);
-            TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
-            columnNames.add(colName);
-        }
-        return columnDefs;
-    }
-
-    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isSelectQuery)
-            throws SQLException {
-        Connection conn;
-        boolean isInTransaction = context.isInTransaction();
-        // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
-        // it to use a normal database connection. This is because,
-        // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
-        // which has an open result set on top of it
-        // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
-        // result set is fully iterated, it won't be possible to perform rest of the operations inside the transaction
-        // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
-        // (XA or general transactions)
-        // 4. However for call operations, despite of the fact that they could output resultsets
-        // (as OUT params or return values) we do not use a separate connection, because,
-        // call operations can contain UPDATE actions as well inside the procedure which may require to happen in the
-        // same scope as any other individual UPDATE actions
-        if (!isInTransaction || isSelectQuery) {
-            conn = datasource.getSQLConnection();
-            return conn;
-        } else {
-            //This is when there is an infected transaction block. But this is not participated to the transaction
-            //since the action call is outside of the transaction block.
-            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
-                conn = datasource.getSQLConnection();
-                return conn;
-            }
-        }
-        String connectorId = retrieveConnectorId(context);
-        boolean isXAConnection = datasource.isXAConnection();
-        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-        String globalTxId = transactionLocalContext.getGlobalTransactionId();
-        String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
-        if (txContext == null) {
-            if (isXAConnection) {
-                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                XAResource xaResource = xaConn.getXAResource();
-                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
-                conn = xaConn.getConnection();
-                txContext = new SQLTransactionContext(conn, xaResource);
-            } else {
-                conn = datasource.getSQLConnection();
-                conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn);
-            }
-            transactionLocalContext.registerTransactionContext(connectorId, txContext);
-            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
-        } else {
-            conn = ((SQLTransactionContext) txContext).getConnection();
-        }
-        return conn;
-    }
-
-    public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
-            BMap<String, BRefType> dbOptions) {
-        StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
-        dbOptions.getMap().forEach((key, value) -> {
-            if (isSupportedDbOptionType(value)) {
-                dbOptionsStringJoiner
-                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + value.value());
-            } else {
-                throw new BallerinaException("Unsupported type for the db option: " + key);
-            }
-        });
-        return dbOptionsStringJoiner.toString();
-    }
-
-    protected static boolean isSupportedDbOptionType(BValue value) {
-        boolean supported = false;
-        if (value != null) {
-            int typeTag = value.getType().getTag();
-            supported = (typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG
-                    || typeTag == TypeTags.BOOLEAN_TAG || typeTag == TypeTags.DECIMAL_TAG
-                    || typeTag == TypeTags.BYTE_TAG);
-        }
-        return supported;
-    }
-
-    private static String retrieveConnectorId(Context context) {
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
     }
 }

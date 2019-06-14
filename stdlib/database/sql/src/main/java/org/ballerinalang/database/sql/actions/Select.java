@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.database.sql.statement.SelectStatement;
@@ -54,7 +53,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class Select extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
         String query = context.getStringArgument(0);
         BStructureType structType = getStructType(context, 1);
         boolean loadSQLTableToMemory = context.getBooleanArgument(0);
@@ -63,7 +62,7 @@ public class Select extends AbstractSQLAction {
         SQLDatasource datasource = retrieveDatasource(context);
 
         SQLStatement selectStatement = new SelectStatement(context, datasource, query, parameters, structType,
-                loadSQLTableToMemory, callback);
+                loadSQLTableToMemory);
         selectStatement.execute();
 
     }

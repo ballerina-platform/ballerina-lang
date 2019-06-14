@@ -33,4 +33,8 @@
         <Package name="org.ballerinalang.database.sql.statement"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.database.sql.statement"/>
+        <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+    </Match>
 </FindBugsFilter>

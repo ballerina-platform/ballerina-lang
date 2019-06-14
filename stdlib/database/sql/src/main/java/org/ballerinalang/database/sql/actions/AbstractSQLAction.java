@@ -18,9 +18,9 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTypeDescValue;
@@ -31,11 +31,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.8.0
  */
-public abstract class AbstractSQLAction implements NativeCallableUnit {
-
-    public boolean isBlocking() {
-        return false;
-    }
+public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     protected BStructureType getStructType(Context context, int index) {
         BStructureType structType = null;

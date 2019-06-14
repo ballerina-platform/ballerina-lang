@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.statement;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
@@ -27,7 +26,6 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.TableResourceManager;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -50,17 +48,15 @@ public class SelectStatement extends AbstractSQLStatement {
     private final BValueArray parameters;
     private final BStructureType structType;
     private final boolean loadSQLTableToMemory;
-    private final CallableUnitCallback callback;
 
     public SelectStatement(Context context, SQLDatasource datasource, String query, BValueArray parameters,
-                           BStructureType structType, boolean loadSQLTableToMemory, CallableUnitCallback callback) {
+                           BStructureType structType, boolean loadSQLTableToMemory) {
         this.context = context;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
         this.structType = structType;
         this.loadSQLTableToMemory = loadSQLTableToMemory;
-        this.callback = callback;
     }
 
     @Override
@@ -71,13 +67,13 @@ public class SelectStatement extends AbstractSQLStatement {
         ResultSet rs = null;
         try {
             BValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, true);
+            conn = getDatabaseConnection(context, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             rs = stmt.executeQuery();
             TableResourceManager rm = new TableResourceManager(conn, stmt, true);
-            List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
+            List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
             if (loadSQLTableToMemory) {
                 CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
                 cachedRowSet.populate(rs);
@@ -88,13 +84,11 @@ public class SelectStatement extends AbstractSQLStatement {
             }
             context.setReturnValues(constructTable(rm, context, rs, structType, columnDefinitions,
                     datasource.getDatabaseProductName()));
-            callback.notifySuccess();
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupResources(rs, stmt, conn, true);
+            cleanupResources(rs, stmt, conn, true);
             BError error = SQLDatasourceUtils.getSQLConnectorError(context, e, "execute query failed: ");
             context.setReturnValues(error);
-            callback.notifySuccess();
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
+            handleErrorOnTransaction(context);
             checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
         }
     }

@@ -21,12 +21,14 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
+import org.ballerinalang.database.sql.SQLTransactionContext;
 import org.ballerinalang.database.table.BCursorTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -48,6 +50,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -61,21 +67,29 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
+
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAResource;
 
 import static org.ballerinalang.database.sql.Constants.PARAMETER_DIRECTION_FIELD;
 import static org.ballerinalang.database.sql.Constants.PARAMETER_SQL_TYPE_FIELD;
@@ -180,6 +194,77 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
         }
         return direction;
+    }
+
+    protected List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
+        List<ColumnDefinition> columnDefs = new ArrayList<>();
+        Set<String> columnNames = new HashSet<>();
+        ResultSetMetaData rsMetaData = rs.getMetaData();
+        int cols = rsMetaData.getColumnCount();
+        for (int i = 1; i <= cols; i++) {
+            String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase(Locale.getDefault());
+                colName = tableName + "." + colName;
+            }
+            int colType = rsMetaData.getColumnType(i);
+            TypeKind mappedType = getColumnType(colType);
+            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
+            columnNames.add(colName);
+        }
+        return columnDefs;
+    }
+
+    /**
+     * This method will return equal ballerina data type for SQL type.
+     *
+     * @param sqlType SQL type in column
+     * @return TypeKind that represent respective ballerina type.
+     */
+    private TypeKind getColumnType(int sqlType) {
+        switch (sqlType) {
+            case Types.ARRAY:
+                return TypeKind.ARRAY;
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.NCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGNVARCHAR:
+            case Types.CLOB:
+            case Types.NCLOB:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
+                return TypeKind.STRING;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                return TypeKind.INT;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return TypeKind.BOOLEAN;
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                return TypeKind.DECIMAL;
+            case Types.REAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return TypeKind.FLOAT;
+            case Types.BLOB:
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return TypeKind.BLOB;
+            case Types.STRUCT:
+                return TypeKind.RECORD;
+            default:
+                return TypeKind.NONE;
+        }
     }
 
     private String getSQLType(BType value) {
@@ -323,6 +408,127 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 currentOrdinal++;
             }
         }
+    }
+
+    /**
+     * This will close database connection and statement.
+     *
+     * @param stmt SQL statement
+     * @param conn SQL connection
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
+     */
+    protected void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
+        try {
+            if (stmt != null && !stmt.isClosed()) {
+                stmt.close();
+            }
+            if (conn != null && !conn.isClosed() && connectionClosable) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This will close database connection, statement and the resultset.
+     *
+     * @param rs   SQL resultset
+     * @param stmt SQL statement
+     * @param conn SQL connection
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
+     */
+    protected void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
+        try {
+            if (rs != null && !rs.isClosed()) {
+                rs.close();
+            }
+            cleanupResources(stmt, conn, connectionClosable);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+        }
+    }
+
+    protected void handleErrorOnTransaction(Context context) {
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
+            return;
+        }
+        notifyTxMarkForAbort(context, transactionLocalContext);
+    }
+
+    public Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isSelectQuery)
+            throws SQLException {
+        Connection conn;
+        boolean isInTransaction = context.isInTransaction();
+        // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
+        // it to use a normal database connection. This is because,
+        // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
+        // which has an open result set on top of it
+        // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
+        // result set is fully iterated, it won't be possible to perform rest of the operations inside the transaction
+        // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
+        // (XA or general transactions)
+        // 4. However for call operations, despite of the fact that they could output resultsets
+        // (as OUT params or return values) we do not use a separate connection, because,
+        // call operations can contain UPDATE actions as well inside the procedure which may require to happen in the
+        // same scope as any other individual UPDATE actions
+        if (!isInTransaction || isSelectQuery) {
+            conn = datasource.getSQLConnection();
+            return conn;
+        } else {
+            //This is when there is an infected transaction block. But this is not participated to the transaction
+            //since the action call is outside of the transaction block.
+            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
+                conn = datasource.getSQLConnection();
+                return conn;
+            }
+        }
+        String connectorId = retrieveConnectorId(context);
+        boolean isXAConnection = datasource.isXAConnection();
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        String globalTxId = transactionLocalContext.getGlobalTransactionId();
+        String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
+        if (txContext == null) {
+            if (isXAConnection) {
+                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                XAResource xaResource = xaConn.getXAResource();
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
+                conn = xaConn.getConnection();
+                txContext = new SQLTransactionContext(conn, xaResource);
+            } else {
+                conn = datasource.getSQLConnection();
+                conn.setAutoCommit(false);
+                txContext = new SQLTransactionContext(conn);
+            }
+            transactionLocalContext.registerTransactionContext(connectorId, txContext);
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
+        } else {
+            conn = ((SQLTransactionContext) txContext).getConnection();
+        }
+        return conn;
+    }
+
+    private String retrieveConnectorId(Context context) {
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
+    }
+
+    private void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
+        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
+        String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+
+        transactionLocalContext.markFailure();
+        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
+            return;
+        }
+        TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
+                transactionBlockId);
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,

@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.CallStatement;
 import org.ballerinalang.database.sql.statement.SQLStatement;
@@ -52,14 +51,14 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class Call extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
         String query = context.getStringArgument(0);
         BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
         BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
         SQLDatasource datasource = retrieveDatasource(context);
 
-        SQLStatement callStatement = new CallStatement(context, datasource, query, parameters, structTypes, callback);
+        SQLStatement callStatement = new CallStatement(context, datasource, query, parameters, structTypes);
         callStatement.execute();
     }
 }

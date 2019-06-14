@@ -20,7 +20,6 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
@@ -35,7 +34,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -57,16 +55,14 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final String query;
     private final BValueArray keyColumns;
     private final BValueArray parameters;
-    private final CallableUnitCallback callback;
 
     public UpdateStatement(Context context, SQLDatasource datasource, String query,
-                           BValueArray keyColumns, BValueArray parameters, CallableUnitCallback callback) {
+                           BValueArray keyColumns, BValueArray parameters) {
         this.context = context;
         this.datasource = datasource;
         this.query = query;
         this.keyColumns = keyColumns;
         this.parameters = parameters;
-        this.callback = callback;
     }
 
     @Override
@@ -78,7 +74,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         boolean isInTransaction = context.isInTransaction();
         try {
             BValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
+            conn = getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
             if (keyColumns != null) {
@@ -105,14 +101,12 @@ public class UpdateStatement extends AbstractSQLStatement {
                 generatedKeys = new BMap();
             }
             context.setReturnValues(createResultRecord(context, count, generatedKeys));
-            callback.notifySuccess();
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e, "execute update failed: "));
-            callback.notifySuccess();
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
+            handleErrorOnTransaction(context);
             checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
-            SQLDatasourceUtils.cleanupResources(rs, stmt, conn, !isInTransaction);
+            cleanupResources(rs, stmt, conn, !isInTransaction);
         }
     }
 

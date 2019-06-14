@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.database.sql.statement.UpdateStatement;
@@ -52,14 +51,13 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class Update extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
         String query = context.getStringArgument(0);
         BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
         BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
         SQLDatasource datasource = retrieveDatasource(context);
 
-        SQLStatement updateStatement = new UpdateStatement(context, datasource, query, keyColumns, parameters,
-                callback);
+        SQLStatement updateStatement = new UpdateStatement(context, datasource, query, keyColumns, parameters);
         updateStatement.execute();
     }
 }

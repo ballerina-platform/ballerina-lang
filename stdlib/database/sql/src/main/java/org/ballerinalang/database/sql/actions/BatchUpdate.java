@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.BatchUpdateStatement;
 import org.ballerinalang.database.sql.statement.SQLStatement;
@@ -52,12 +51,12 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class BatchUpdate extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
         String query = context.getStringArgument(0);
         BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
         SQLDatasource datasource = retrieveDatasource(context);
 
-        SQLStatement batchUpdateStatement = new BatchUpdateStatement(context, datasource, query, parameters, callback);
+        SQLStatement batchUpdateStatement = new BatchUpdateStatement(context, datasource, query, parameters);
         batchUpdateStatement.execute();
     }
 }

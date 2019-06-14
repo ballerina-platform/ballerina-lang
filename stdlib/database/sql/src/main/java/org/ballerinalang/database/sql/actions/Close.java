@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
@@ -44,7 +43,7 @@ import static org.ballerinalang.database.sql.Constants.SQL_PACKAGE_PATH;
 public class Close extends AbstractSQLAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
         SQLDatasource datasource = retrieveDatasource(context);
         // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
@@ -57,6 +56,5 @@ public class Close extends AbstractSQLAction {
                         SQLDatasourceUtils.getSQLConnectorError(context, "Error while stopping the database client"));
             }
         }
-        callback.notifySuccess();
     }
 }

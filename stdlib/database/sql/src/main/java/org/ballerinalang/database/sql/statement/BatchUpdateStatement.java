@@ -18,11 +18,9 @@
 package org.ballerinalang.database.sql.statement;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -42,15 +40,13 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final BValueArray parameters;
-    private final CallableUnitCallback callback;
 
     public BatchUpdateStatement(Context context, SQLDatasource datasource, String query,
-                                BValueArray parameters, CallableUnitCallback callback) {
+                                BValueArray parameters) {
         this.context = context;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.callback = callback;
     }
 
     @Override
@@ -62,7 +58,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         int paramArrayCount = 0;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
+            conn = getDatabaseConnection(context, datasource, false);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (parameters != null) {
@@ -84,7 +80,6 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                 conn.commit();
             }
             processAndSetBatchUpdateResult(updatedCount, paramArrayCount);
-            callback.notifySuccess();
         } catch (BatchUpdateException e) {
             // Depending on the driver, at this point, driver may or may not have executed the remaining commands in
             // the batch which come after the command that failed.
@@ -94,7 +89,6 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // ignore a few failed commands in the batch and let the rest of the commands run if driver allows it.
             updatedCount = e.getUpdateCounts();
             processAndSetBatchUpdateResult(updatedCount, paramArrayCount);
-            callback.notifySuccess();
         } catch (Throwable e) {
             String errorMessage = "execute batch update failed";
             if (conn != null) {
@@ -106,13 +100,11 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     }
                 }
             }
-            context.setReturnValues(
-                    SQLDatasourceUtils.getSQLConnectorError(context, e, errorMessage + ": "));
-            callback.notifySuccess();
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e, errorMessage + ": "));
+            handleErrorOnTransaction(context);
             checkAndObserveSQLError(context, e.getMessage());
         } finally {
-            SQLDatasourceUtils.cleanupResources(stmt, conn, !isInTransaction);
+            cleanupResources(stmt, conn, !isInTransaction);
         }
     }
 

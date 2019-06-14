@@ -18,7 +18,6 @@
 package org.ballerinalang.database.sql.statement;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
@@ -71,17 +70,15 @@ public class CallStatement extends AbstractSQLStatement {
     private final String query;
     private final BValueArray parameters;
     private final BValueArray structTypes;
-    private final CallableUnitCallback callback;
 
     public CallStatement(Context context, SQLDatasource datasource, String query, BValueArray parameters,
-                         BValueArray structTypes, CallableUnitCallback callback) {
+                         BValueArray structTypes) {
 
         this.context = context;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
         this.structTypes = structTypes;
-        this.callback = callback;
     }
 
     @Override
@@ -93,7 +90,7 @@ public class CallStatement extends AbstractSQLStatement {
         boolean isInTransaction = context.isInTransaction();
         try {
             BValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
+            conn = getDatabaseConnection(context, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
@@ -120,16 +117,14 @@ public class CallStatement extends AbstractSQLStatement {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
-                SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, !isInTransaction);
+                cleanupResources(resultSets, stmt, conn, !isInTransaction);
                 context.setReturnValues();
             }
-            callback.notifySuccess();
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            cleanupResources(resultSets, stmt, conn, !isInTransaction);
             context.setReturnValues(
                     SQLDatasourceUtils.getSQLConnectorError(context, e, "execute stored procedure failed: "));
-            callback.notifySuccess();
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
+            handleErrorOnTransaction(context);
             checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
         }
     }
@@ -162,7 +157,7 @@ public class CallStatement extends AbstractSQLStatement {
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
                                     String databaseProductName) throws SQLException {
-        List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
+        List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
         return constructTable(rm, context, rs, structType, columnDefinitions, databaseProductName);
     }
 
@@ -416,6 +411,32 @@ public class CallStatement extends AbstractSQLStatement {
             }
         }
         return refCursorOutParamPresent;
+    }
+
+    /**
+     * This will close database connection, statement and result sets.
+     *
+     * @param resultSets SQL result sets
+     * @param stmt SQL statement
+     * @param conn SQL connection
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
+     */
+    private void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
+            boolean connectionClosable) {
+        try {
+            if (resultSets != null) {
+                for (ResultSet rs : resultSets) {
+                    if (rs != null && !rs.isClosed()) {
+                        rs.close();
+                    }
+                }
+            }
+            cleanupResources(stmt, conn, connectionClosable);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+        }
     }
 }
 
