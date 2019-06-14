@@ -19,7 +19,8 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.SQLStatement;
+import org.ballerinalang.database.sql.statement.SelectStatement;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
@@ -53,20 +54,16 @@ public class Select extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BStructureType structType = getStructType(context, 1);
-            boolean loadSQLTableToMemory = context.getBooleanArgument(0);
+        String query = context.getStringArgument(0);
+        BStructureType structType = getStructType(context, 1);
+        boolean loadSQLTableToMemory = context.getBooleanArgument(0);
 
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-            SQLDatasource datasource = retrieveDatasource(context);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeQuery(context, datasource, query, parameters, structType, loadSQLTableToMemory);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement selectStatement = new SelectStatement(context, datasource, query, parameters, structType,
+                loadSQLTableToMemory);
+        selectStatement.execute();
+
     }
 }
