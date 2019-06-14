@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -35,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Reject one or several received messages.
@@ -56,21 +58,27 @@ public class BasicNack extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        boolean isInTransaction = context.isInTransaction();
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(messageObject,
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         long deliveryTag = (long) messageObject.getNativeData(RabbitMQConstants.DELIVERY_TAG);
         boolean multiple = context.getBooleanArgument(0);
         boolean requeue = context.getBooleanArgument(1);
         boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObject);
         boolean ackMode = ChannelUtils.validateAckMode(messageObject);
+        if (isInTransaction && !Objects.isNull(transactionContext)) {
+            transactionContext.handleTransactionBlock(context);
+        }
         if (!multipleAck && ackMode) {
             try {
                 channel.basicNack(deliveryTag, multiple, requeue);
             } catch (IOException exception) {
-                LOGGER.error("I/O Error occurred while negatively acknowledging the message");
-                RabbitMQUtils.returnError("Error occurred while negatively acknowledging the message",
+                LOGGER.error(RabbitMQConstants.NACK_ERROR);
+                RabbitMQUtils.returnError(RabbitMQConstants.NACK_ERROR + exception.getMessage(),
                         context, exception);
             } catch (AlreadyClosedException exception) {
                 LOGGER.error(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
