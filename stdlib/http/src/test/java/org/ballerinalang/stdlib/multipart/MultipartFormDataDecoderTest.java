@@ -64,7 +64,7 @@ public class MultipartFormDataDecoderTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        bvmResult = BCompileUtil.compile(sourceFilePath);
+        bvmResult = BCompileUtil.compileOnBVM(sourceFilePath);
         BCompileUtil.compile(sourceFilePath);
     }
 
