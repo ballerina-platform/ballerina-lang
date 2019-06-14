@@ -17,15 +17,6 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.database.sql.actions"/>
-    </Match>
-    <Match>
-        <Package name="org.ballerinalang.database.h2"/>
-    </Match>
-    <Match>
-        <Package name="org.ballerinalang.database.mysql"/>
-    </Match>
-    <Match>
         <Class name="org.ballerinalang.database.sql.SQLDatasourceUtils"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
