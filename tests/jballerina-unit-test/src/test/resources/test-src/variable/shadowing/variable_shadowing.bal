@@ -40,6 +40,11 @@ function testObjMethodScope() returns string {
     return e.getName();
 }
 
+function testRecordScope() returns Person {
+    Person p = {};
+    return p;
+}
+
 function testBlockScope1() returns (string, string) {
     (string, string) result = ("", "");
 
@@ -67,8 +72,6 @@ function testBlockScope2() returns string {
 }
 
 function testLambdaFunctions() returns string {
-    int x = 0;
-
     var fn = function () returns string {
         string name = "Inside a lambda function";
         return name;
@@ -79,4 +82,19 @@ function testLambdaFunctions() returns string {
 
 function testFunctionParam(string name) returns string {
     return name;
+}
+
+function testNestedBlocks() returns string {
+    if (true) {
+        if (false) {
+            string s = "nested if";
+        } else {
+            string s = "nested else";
+        }
+
+        string s = "var after nested if-else";
+        return s;
+    }
+
+    return "";
 }

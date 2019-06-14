@@ -62,3 +62,45 @@ service ser = service {
         xmlns "http://sample.com/wso2/a7" as ns;
     }
 };
+
+function testLambdaFunctions() returns string {
+    int x = 0;
+
+    var fn = function () returns string {
+        string x = "Inside a lambda function";
+        return x;
+    };
+
+    if (true) {
+        float f = 12.34;
+
+        var fn2 = function () returns string {
+            string x = "Inside second lambda function";
+            string f = "This should cause a compile error too";
+            return x;
+        };
+    }
+
+    return fn.call();
+}
+
+function testNestedLambdaFunctions() returns string {
+    int x = 0;
+
+    var fn = function () returns string {
+        string x = "Inside a lambda function";
+
+        var fn = function (string x) returns string {
+            string name = "This is valid";
+            return x;
+        };
+
+        return x;
+    };
+
+    return fn.call();
+}
+
+function testFuncParams(string param) {
+    string param = "This is invalid";
+}

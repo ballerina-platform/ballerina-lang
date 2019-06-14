@@ -55,6 +55,12 @@ public class VariableShadowingTest {
     }
 
     @Test
+    public void testRecordScope() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordScope");
+        assertEquals(returns[0].stringValue(), "{name:\"Person\", age:20}");
+    }
+
+    @Test
     public void testBlockScope1() {
         BValue[] returns = BRunUtil.invoke(result, "testBlockScope1");
         assertEquals(returns[0].stringValue(), "Inside first if block");
@@ -78,5 +84,11 @@ public class VariableShadowingTest {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionParam",
                                            new BValue[]{new BString("This is a function param")});
         assertEquals(returns[0].stringValue(), "This is a function param");
+    }
+
+    @Test
+    public void testNestedBlocks() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedBlocks");
+        assertEquals(returns[0].stringValue(), "var after nested if-else");
     }
 }
