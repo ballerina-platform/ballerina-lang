@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // A complex XML defined using the literal syntax and containing nested elements of different types.
+    // A complex XML defined using the literal syntax, which contains nested elements of different types.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
@@ -10,11 +10,11 @@ public function main() {
                   </book>`;
     io:println(x1);
 
-    // Define namespaces. These are visible to all the XML literals defined from this point onwards.  
+    // Defines namespaces. These are visible to all the XML literals defined from this point onwards.  
     xmlns "http://ballerina.com/";
     xmlns "http://ballerina.com/aa" as ns0;
 
-    // Create an XML element. Previously defined namespaces will be added to the element. 
+    // Creates an XML element. Previously-defined namespaces will be added to the element. 
     // The defined prefixes can be applied to elements and attributes inside the element. 
     xml x2 = xml `<book ns0:status="available">
                     <ns0:name>Sherlock Holmes</ns0:name>
@@ -24,8 +24,8 @@ public function main() {
     io:println(x2);
 
     // XML can be interpolated with expressions using the `${}` notation.
-    // The expression can be a previously defined variable, arithmetic expressions, or even a function call. 
-    // These expressions get evaluated during runtime.
+    // The expression can be a previously-defined variable, arithmetic expressions, or even a function call. 
+    // These expressions are evaluated during the runtime.
     string title = "(Sir)";
 
     xml x3 = xml `<ns0:newBook>

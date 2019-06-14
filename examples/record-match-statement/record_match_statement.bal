@@ -34,7 +34,7 @@ public function main() {
 }
 
 // This method uses structured record match patterns with different fields. The given `match` expression will
-// be checked for "isLike" relationship and will be matched at runtime.
+// be checked for "isLike" relationship and will be matched during the runtime.
 function basicMatch(any a) {
     match a {
         // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will
@@ -52,30 +52,30 @@ function basicMatch(any a) {
     }
 }
 
-// Following method uses structured record match patterns with different fields
+// The following method uses structured record match patterns with different fields
 // along with type guards. The expression used with match will be evaluated to
-// check if it "is like" any of the match patterns. For a successful match an additional
+// check if it "is like" any of the match patterns. For a successful match, an additional
 // check will also be performed against the specified type guard.
 function matchWithTypeGuard(any matchExpr) {
     // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2`
     // with a given type guard.
     match matchExpr {
-        // This pattern will only match if `var2` is of type `string`.
+        // This pattern will only match if `var2` is of the type `string`.
         var {var1, var2} if var2 is string =>
                io:println("Matched with string typeguard");
-        // This pattern will only match if `var1` is of type `int` `var2` is of type `int`.
+        // This pattern will only match if `var1` is of the type `int` and `var2` is of the type `int`.
         var {var1, var2} if (var1 is int && var2 is int) =>
                io:println("Matched with int and int typeguard : "
                           + io:sprintf("%s", var1));
-        // This pattern will only match if `var1` is of type `string` `var2` is of type `int`.
+        // This pattern will only match if `var1` is of the type `string` and `var2` is of the type `int`.
         var {var1, var2} if (var1 is string && var2 is int) =>
                io:println("Matched with string and int typeguard : "
                           + io:sprintf("%s", var1));
-        // This pattern will only match if `var1` is of type `int` `var2` is of type `RecordTwo`.
+        // This pattern will only match if `var1` is of the type `int` and `var2` is of the type `RecordTwo`.
         var {var1, var2} if (var1 is int && var2 is RecordTwo) =>
                io:println("Matched with int and RecordTwo typeguard : "
                           + io:sprintf("%s", var1));
-        // This pattern will only match if `var1` is of type `string` `var2` is of type `RecordTwo`.
+        // This pattern will only match if `var1` is of the type `string` and `var2` is of the type `RecordTwo`.
         var {var1, var2} if (var1 is string && var2 is RecordTwo) =>
                io:println("Matched with string and RecordTwo typeguard : "
                           + io:sprintf("%s", var2.var1));

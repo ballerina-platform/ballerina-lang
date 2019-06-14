@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // Following is a simple binding pattern which involves only a single variable.
+    // The following is a simple binding pattern, which involves only a single variable.
     (boolean, float) t = (true, 0.4);
     io:println("Simple variable : ", t);
 
@@ -11,7 +11,7 @@ public function main() {
     (boolean, float) (a1, a2) = (true, 0.4);
     io:println("Tuple variable : ", a1, " ", a2);
 
-    // The binding patterns are recursive in nature. Following examples show
+    // The binding patterns are recursive in nature. The following examples show
     // how we can write complex recursive variable definitions.
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
@@ -28,7 +28,7 @@ public function main() {
     io:println("Tuple variable : ",
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
-    // Tuple type can also take `var` as the type label. In that case the type
+    // Tuple type can also take `var` as the type label. In that case, the type
     // will be inferred from the right hand side.
     var (e1, (e2, e3)) = ("Ballerina", (123, true));
     io:println("Tuple variable : ", e1, " ", e2, " ", e3);
