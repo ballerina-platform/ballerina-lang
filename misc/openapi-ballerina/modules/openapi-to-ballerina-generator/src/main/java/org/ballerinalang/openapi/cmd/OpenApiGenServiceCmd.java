@@ -94,8 +94,4 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
     }
 
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-
-    }
 }

@@ -129,10 +129,6 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
 
     }
 
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-
-    }
 
     /**
      * A util method to check a given module name actually exists in the current command location.
