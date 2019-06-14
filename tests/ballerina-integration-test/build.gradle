@@ -47,7 +47,7 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
-    implementation project('.protobuf-ballerina')
+    implementation project(':protobuf-ballerina')
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-activemq-artemis')
     // implementation project(':ballerina-websub')

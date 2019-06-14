@@ -16,8 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
@@ -35,6 +36,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 
 /**
@@ -45,19 +47,21 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "init",
+        functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Init extends AbstractGrpcNativeFunction {
+public class InitEndpoint extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {
     }
 
-    public static Object init(Strand strand, ObjectValue listenerObject, long port, MapValue configValue) {
-        ListenerConfiguration configuration = getListenerConfig(port, configValue);
+    public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
+        MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
+        long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
+        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
         try {
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(configuration);

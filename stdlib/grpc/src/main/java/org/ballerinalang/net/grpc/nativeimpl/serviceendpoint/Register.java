@@ -16,8 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -60,7 +60,8 @@ public class Register extends AbstractGrpcNativeFunction {
                 return BallerinaErrors.createError("{ballerina/grpc}INTERNAL_ERROR", "Error when " +
                         "initializing service register builder.");
             } else {
-                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, annotationData));
+                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service,
+                        service.getType().getAnnotation("ballerina/grpc", "ServiceDescriptor")));
                 return null;
             }
         } catch (GrpcServerException e) {

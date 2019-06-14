@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -60,7 +61,16 @@ public class ServicesBuilderUtils {
     public static ServerServiceDefinition getServiceDefinition(ObjectValue service, Object annotationData) throws
             GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(annotationData);
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getType().getName());
+        if (fileDescriptor == null) {
+            throw new GrpcServerException("Couldn't find the service descriptor.");
+        }
+        String serviceTypeName = service.getType().getName(); // typeName format: <name>$$<type>$$<version>
+        String[] splitValues = serviceTypeName.split("\\$\\$");
+        String serviceName = splitValues[0];
+        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(serviceName);
+        if (serviceDescriptor == null) {
+            throw new GrpcServerException("Couldn't find the service descriptor for the service: " + serviceName);
+        }
         return getServiceDefinition(service, serviceDescriptor);
     }
     
@@ -140,15 +150,21 @@ public class ServicesBuilderUtils {
     @SuppressWarnings("unchecked")
     private static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(Object annotationData)
             throws GrpcServerException {
+        ArrayValue annotationArray = null;
+        if (annotationData instanceof ArrayValue) {
+            annotationArray = (ArrayValue) annotationData;
+        }
         try {
-            if (annotationData instanceof MapValue) {
-                MapValue<String, Object> annotationMap = (MapValue) annotationData;
-                String descriptorData = annotationMap.getStringValue("descriptor");
-                MapValue<String, String> descMap = (MapValue<String, String>) annotationMap.getMapValue("descMap");
-                return getFileDescriptor(descriptorData, descMap);
-            } else {
-                throw new GrpcServerException("Couldn't find the service descriptor.");
+            if (annotationArray != null && annotationArray.size() > 0) {
+                Object annotationValue = annotationArray.getRefValue(0);
+                if (annotationValue instanceof MapValue) {
+                    MapValue<String, Object> annotationMap = (MapValue) annotationValue;
+                    String descriptorData = annotationMap.getStringValue("descriptor");
+                    MapValue<String, String> descMap = (MapValue<String, String>) annotationMap.getMapValue("descMap");
+                    return getFileDescriptor(descriptorData, descMap);
+                }
             }
+            return null;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
