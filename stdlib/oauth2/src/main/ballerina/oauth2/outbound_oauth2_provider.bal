@@ -59,14 +59,8 @@ public type OutboundOAuth2Provider object {
     public function inspect(map<anydata> data) returns string|error? {
         if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
             var config = self.oauth2ProviderConfig.config;
-            if (config is ClientCredentialsGrantConfig) {
-                if (config.retryRequest) {
-                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-                }
-            } else if (config is DirectTokenConfig) {
-                if (config.retryRequest) {
-                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-                }
+            if (config.retryRequest) {
+                return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
             }
         }
         return ();
