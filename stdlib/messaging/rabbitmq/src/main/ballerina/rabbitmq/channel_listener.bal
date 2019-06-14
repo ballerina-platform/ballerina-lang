@@ -36,7 +36,7 @@ public type ChannelListener object {
     #
     # + return - Nil or error upon failure to start.
     public function __start() returns error? {
-        //ignore
+        return self.start();
     }
 
     # Stops consuming messages through ChannelListener endpoint.
@@ -49,7 +49,7 @@ public type ChannelListener object {
     # Binds the ChannelListener to a service.
     #
     # + serviceType - Type descriptor of the service to bind to.
-    # + data - Service annotations.
+    # + name - Name of the service.
     # + return - () or error upon failure to register listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
        self.registerListener(serviceType);
@@ -58,14 +58,14 @@ public type ChannelListener object {
     # Binds the ChannelListener to a service.
     #
     # + serviceType - Type descriptor of the service to bind to.
-    # + data - Service annotations.
-    # + return - () or error upon failure to register listener.
     private function registerListener(service serviceType) = external;
 
     # Stops consuming messages through listener endpoint.
     #
     # + return - () or error upon failure to close the channel.
     private function stop() returns error? = external;
+
+    private function start() returns error? = external;
 };
 
 # Represents the list of parameters required to create a subscription.
@@ -76,4 +76,4 @@ public type RabbitMQServiceConfig record {|
 |};
 
 # Service descriptor data generated at compile time.
-public annotation RabbitMQServiceConfig ServiceConfig on service;
+public annotation<service> ServiceConfig RabbitMQServiceConfig;

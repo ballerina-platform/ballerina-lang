@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
  *
  * @since 0.995.0
  */
-public class BErrorType extends BType {
+public class BErrorType extends AnnotatableType {
 
     private BType reasonType;
     private BType detailType;
@@ -54,5 +54,10 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return typeName;
     }
 }

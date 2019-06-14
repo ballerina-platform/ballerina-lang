@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -47,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1194,6 +1194,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        annotAccessExpr.expr = rewriteExpr(annotAccessExpr.expr);
+        result = annotAccessExpr;
+    }
+
+    @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
@@ -1243,11 +1249,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
-        /* Ignore */
     }
 
     @Override

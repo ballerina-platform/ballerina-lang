@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/io;
+import ballerina/jwt;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
@@ -336,7 +337,7 @@ public type HttpSecureClient client object {
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
     HttpSecureClient httpSecureClient;
-    if (config.auth is AuthConfig) {
+    if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
         return httpSecureClient;
     } else {
@@ -354,7 +355,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # `error` if an error occurred during the HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns boolean|error {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth["config"];
         if (auth.scheme == BASIC_AUTH) {
             if (authConfig is BasicAuthConfig) {
@@ -397,7 +398,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
 # Process the auth token for basic auth.
 #
 # + authConfig - Basic auth configurations
-# + return - Auth token or `error` if an error occured during validation
+# + return - Auth token or `error` if an error occurred during validation
 function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|error {
     string username = authConfig.username;
     string password = authConfig.password;
@@ -589,8 +590,8 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
     if (jwtIssuerConfig is ()) {
         return runtime:getInvocationContext().authenticationContext.authToken;
     } else {
-        auth:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-        auth:JwtPayload payload = {
+        jwt:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
+        jwt:JwtPayload payload = {
             sub: runtime:getInvocationContext().principal.username,
             iss: jwtIssuerConfig.issuer,
             exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
@@ -599,13 +600,13 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
             jti: system:uuid(),
             aud: jwtIssuerConfig.audience
         };
-        auth:JWTIssuerConfig issuerConfig = {
+        jwt:JWTIssuerConfig issuerConfig = {
             keyStore: jwtIssuerConfig.keyStore,
             keyAlias: jwtIssuerConfig.keyAlias,
             keyPassword: jwtIssuerConfig.keyPassword
         };
         // TODO: cache the token per-user per-client and reuse it
-        return auth:issueJwt(header, payload, issuerConfig);
+        return jwt:issueJwt(header, payload, issuerConfig);
     }
 }
 
@@ -906,7 +907,7 @@ function updateTokenCache(json responsePayload, CachedToken tokenCache, int cloc
 function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConfig config) returns boolean {
     if (retryRequired && res.statusCode == UNAUTHORIZED_401) {
         var auth = config.auth;
-        if (auth is AuthConfig) {
+        if (auth is OutboundAuthConfig) {
             var authConfig = auth.config;
             if (auth.scheme == OAUTH2 && authConfig is OAuth2AuthConfig) {
                 var grantType = authConfig.grantType;
@@ -935,7 +936,7 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
 # + return - Returns `error` if an error occurred during the HTTP client invocation
 function updateRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns error? {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth.config;
         if (authConfig is OAuth2AuthConfig) {
             string authToken;

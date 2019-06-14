@@ -220,16 +220,16 @@ public type MultiResourceInformation record {|
 |};
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation ClientEndpoint on listener;
+public annotation <listener> ClientEndpoint;
 
 # Annotation to configure client code generation.
-public annotation ClientInformation ClientConfig on service;
+public annotation <service> ClientConfig ClientInformation;
 
 # Annotation for additional OpenAPI information of a Ballerina service.
-public annotation ServiceInformation ServiceInfo on service;
+public annotation <service> ServiceInfo ServiceInformation;
 
 # Annotation for additional OpenAPI information of a Ballerina resource.
-public annotation ResourceInformation ResourceInfo on resource function;
+public annotation <resource> ResourceInfo ResourceInformation;
 
 # Annotation for multi OpenAPI operation information of a Ballerina resource.
-public annotation MultiResourceInformation MultiResourceInfo on resource function;
+public annotation <resource> MultiResourceInfo MultiResourceInformation;

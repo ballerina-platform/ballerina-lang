@@ -258,12 +258,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
             } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
         validateAnnotationAttachmentCount(funcNode, funcNode.annAttachments);
@@ -317,10 +317,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
             if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
             }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
 
             annotationAttachment.accept(this);
         });
@@ -451,8 +451,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
         annAttachmentNode.annotationSymbol = annotationSymbol;
-        if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
-                AttachPoints.asMask(annAttachmentNode.attachPoints))) {
+        if (annotationSymbol.maskedPoints > 0 &&
+                !Symbols.isAttachPointPresent(annotationSymbol.maskedPoints,
+                                              AttachPoints.asMask(annAttachmentNode.attachPoints))) {
             String msg = annAttachmentNode.attachPoints.stream()
                     .map(point -> point.name().toLowerCase())
                     .collect(Collectors.joining(", "));
@@ -2285,6 +2286,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateAnnotationAttachmentCount(BLangNode node, List<BLangAnnotationAttachment> attachments) {
         Map<BAnnotationSymbol, Integer> attachmentCounts = new HashMap<>();
         for (BLangAnnotationAttachment attachment : attachments) {
+            if (attachment.annotationSymbol == null) {
+                continue;
+            }
+
             attachmentCounts.merge(attachment.annotationSymbol, 1, Integer::sum);
         }
 

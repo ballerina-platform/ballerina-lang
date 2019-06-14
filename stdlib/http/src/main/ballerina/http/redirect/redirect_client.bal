@@ -306,10 +306,10 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 //Create a new HTTP client endpoint configuration with a given location as the url.
 function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
     ClientEndpointConfig newEpConfig = {
+        http1Settings: config.http1Settings,
+        http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
-        keepAlive: config.keepAlive,
-        chunking: config.chunking,
         httpVersion: config.httpVersion,
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,

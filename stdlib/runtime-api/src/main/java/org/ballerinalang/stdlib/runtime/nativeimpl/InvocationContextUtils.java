@@ -20,6 +20,11 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -44,6 +49,7 @@ public class InvocationContextUtils {
     public static final String STRUCT_TYPE_AUTHENTICATION_CONTEXT = "AuthenticationContext";
     public static final String STRUCT_TYPE_PRINCIPAL = "Principal";
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static InvocationContext getInvocationContext(Context context) {
         InvocationContext invocationContext = (InvocationContext) context.getProperty(InvocationContextUtils
                 .INVOCATION_CONTEXT_PROPERTY);
@@ -54,10 +60,26 @@ public class InvocationContextUtils {
         return invocationContext;
     }
 
+    public static InvocationContext getInvocationContext(Strand strand) {
+        InvocationContext invocationContext = (InvocationContext) strand.getProperty(InvocationContextUtils
+                .INVOCATION_CONTEXT_PROPERTY);
+        if (invocationContext == null) {
+            invocationContext = initInvocationContext(strand);
+            strand.setProperty(InvocationContextUtils.INVOCATION_CONTEXT_PROPERTY, invocationContext);
+        }
+        return invocationContext;
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public static BMap<String, BValue> getInvocationContextStruct(Context context) {
         return getInvocationContext(context).getInvocationContextStruct();
     }
 
+    public static MapValue<String, Object> getInvocationContextRecord(Strand strand) {
+        return getInvocationContext(strand).getInvocationContextRecord();
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     private static InvocationContext initInvocationContext(Context context) {
         BMap<String, BValue> userPrincipalStruct = createUserPrincipal(context);
         UserPrincipal userPrincipal = new UserPrincipal(userPrincipalStruct);
@@ -70,6 +92,16 @@ public class InvocationContextUtils {
         return invocationContext;
     }
 
+    private static InvocationContext initInvocationContext(Strand strand) {
+        MapValue<String, Object> userPrincipalRecord = createUserPrincipal();
+        UserPrincipal userPrincipal = new UserPrincipal(userPrincipalRecord);
+        MapValue<String, Object> authContextRecord = createAuthenticationContext();
+        AuthenticationContext authenticationContext = new AuthenticationContext(authContextRecord);
+        MapValue<String, Object> invocationContextRecord = createInvocationContext(userPrincipalRecord,
+                                                                                   authContextRecord);
+        return new InvocationContext(invocationContextRecord, userPrincipal, authenticationContext);
+    }
+
     private static StructureTypeInfo getStructInfo(Context context, String packageName, String structName) {
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(packageName);
         if (packageInfo == null) {
@@ -78,6 +110,7 @@ public class InvocationContextUtils {
         return packageInfo.getStructInfo(structName);
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     private static BMap<String, BValue> createInvocationContext(Context context, BMap<String, BValue> userPrincipal,
                                                                 BMap<String, BValue> authContext) {
         StructureTypeInfo invocationContextInfo = getStructInfo(context,
@@ -87,6 +120,16 @@ public class InvocationContextUtils {
                 authContext, new BMap());
     }
 
+    private static MapValue<String, Object> createInvocationContext(MapValue<String, Object> userPrincipal,
+                                                                    MapValue<String, Object> authContext) {
+        MapValue<String, Object> invocationContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
+                                                                               STRUCT_TYPE_INVOCATION_CONTEXT);
+        UUID invocationId = UUID.randomUUID();
+        return BallerinaValues.populateRecordFields(invocationContextInfo, invocationId.toString(), userPrincipal,
+                                                    authContext, new MapValueImpl());
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     private static BMap<String, BValue> createAuthenticationContext(Context context) {
         StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG,
                 STRUCT_TYPE_AUTHENTICATION_CONTEXT);
@@ -95,6 +138,15 @@ public class InvocationContextUtils {
         return BLangVMStructs.createBStruct(authContextInfo, scheme, authToken);
     }
 
+    private static MapValue<String, Object> createAuthenticationContext() {
+        MapValue<String, Object> authContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
+                                                                           STRUCT_TYPE_AUTHENTICATION_CONTEXT);
+        String scheme = "";
+        String authToken = "";
+        return BallerinaValues.populateRecordFields(authContextInfo, scheme, authToken);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     private static BMap<String, BValue> createUserPrincipal(Context context) {
         StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_PRINCIPAL);
         String userId = "";
@@ -102,5 +154,15 @@ public class InvocationContextUtils {
         BMap<String, BString> claims = new BMap<>();
         BValueArray scopes = new BValueArray(BTypes.typeString);
         return BLangVMStructs.createBStruct(authContextInfo, userId, username, claims, scopes);
+    }
+
+    private static MapValue<String, Object> createUserPrincipal() {
+        MapValue<String, Object> authContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
+                                                                                     STRUCT_TYPE_PRINCIPAL);
+        String userId = "";
+        String username = "";
+        MapValue<String, String> claims = new MapValueImpl<>();
+        ArrayValue scopes = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
+        return BallerinaValues.populateRecordFields(authContextInfo, userId, username, claims, scopes);
     }
 }

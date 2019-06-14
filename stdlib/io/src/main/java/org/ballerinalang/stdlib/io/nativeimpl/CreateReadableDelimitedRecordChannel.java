@@ -19,6 +19,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -112,6 +114,27 @@ public class CreateReadableDelimitedRecordChannel extends BlockingNativeCallable
                     "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaIOException(message, e);
+        }
+    }
+
+    public static void init(Strand strand, ObjectValue textRecordChannel, ObjectValue characterChannelInfo,
+                            String recordSeparator, String fieldSeparator, String format) {
+        try {
+            //Will get the relevant byte channel and will create a character channel
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants
+                    .CHARACTER_CHANNEL_NAME);
+            DelimitedRecordChannel delimitedRecordChannel;
+            if (DEFAULT.equals(format)) {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
+            } else {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, Format.valueOf(format));
+            }
+            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
+        } catch (Throwable e) {
+            String message =
+                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+            log.error(message, e);
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(message, e);
         }
     }
 }

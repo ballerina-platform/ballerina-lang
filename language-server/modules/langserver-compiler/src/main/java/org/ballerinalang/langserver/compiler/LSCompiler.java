@@ -254,27 +254,6 @@ public class LSCompiler {
         return packages;
     }
 
-//    private BallerinaFile compileModule(String moduleName, LSContext context,
-//                                        CompilerContext compilerContext, String relativeFilePath,
-//                                        Class<? extends ANTLRErrorStrategy> errStrategy, String sourceRoot,
-//                                        String uri) {
-//        DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
-//        List<Diagnostic> diagnostics = new ArrayList<>();
-//        if (diagnosticListener instanceof CollectDiagnosticListener) {
-//            diagnostics = ((CollectDiagnosticListener) diagnosticListener).getDiagnostics();
-//        }
-//        Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
-//                                                       errStrategy);
-//        // Check for compilerCache, If exists; return cached BallerinaFile.
-//        boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, uri));
-//        try {
-//            BLangPackage bLangPackage = compiler.compile(moduleName);
-//            return new BallerinaFile(bLangPackage, diagnostics, isProjectDir, compilerContext);
-//        } catch (RuntimeException e) {
-//            return new BallerinaFile(null, diagnostics, isProjectDir, compilerContext);
-//        }
-//    }
-
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
         Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?

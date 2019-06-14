@@ -5,9 +5,7 @@ public type Person record {
     int age;
     Person? parent = ();
     json info;
-    map<anydata> address = {
-
-    };
+    map<anydata> address =    {   } ;
     int[] marks = [];
 };
 
@@ -26,9 +24,26 @@ function testCastToStructInDifferentPkg() {
         age: 25,
         parent:{ name: "bbb",
             age: 50,
-            address:{"city": "Colombo", "country": "SriLanka"},
+            address:{"city": "Colombo",
+            "country": "SriLanka"},
             info:{ status: "married"}
         },
         info:{ status: "single"}
     };
+}
+
+type Foo record {
+    int a = 0;
+};
+
+function name3() {
+    Foo[] ar =  [{ a: 10}, { a: 20}];
+}
+
+function name4() {
+    Foo foo = {
+        a: 15
+    };
+    anydata adr = foo;
+    Foo convertedFoo = adr is Foo ? adr : {a: -1};
 }

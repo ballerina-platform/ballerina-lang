@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;

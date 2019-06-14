@@ -18,8 +18,8 @@ public function taintExampleRecord (ExampleRecord ex, string data) {
     ex.taintedData = data;
 }
 
-function inOutParamWithAnnotation(ExampleObject ex) returns @tainted ExampleObject {
-    return ex;
+public function inOutParamWithAnnotation (@tainted ExampleObject ex) {
+
 }
 
 public function main (string... args) {
@@ -40,6 +40,6 @@ public function main (string... args) {
     secureFunction(ex4, ex4);
 
     ExampleObject ex5 = new;
-    ex5 = inOutParamWithAnnotation(ex5);
+    inOutParamWithAnnotation(ex5);
     secureFunction(ex5, ex5);
 }

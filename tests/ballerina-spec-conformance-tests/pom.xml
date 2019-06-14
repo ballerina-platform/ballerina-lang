@@ -22,7 +22,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -53,6 +53,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -75,6 +76,13 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>

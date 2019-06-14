@@ -28,7 +28,7 @@
 # + chunking - Configures the chunking behaviour for the service
 # + cors - The cross origin resource sharing configurations for the service
 # + versioning - The version of the service to be used
-# + authConfig - Authentication configurations for securing the service
+# + auth - Authentication configurations for secure the service
 public type HttpServiceConfig record {|
     Listener?[] endpoints = [];
     string host = "b7a.default";
@@ -37,7 +37,7 @@ public type HttpServiceConfig record {|
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ListenerAuthConfig? authConfig = {};
+    ServiceResourceAuth auth?;
 |};
 
 # Configurations for CORS support.
@@ -91,10 +91,10 @@ public type WSServiceConfig record {|
 //public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 # The annotation which is used to configure an HTTP service.
-public annotation HttpServiceConfig ServiceConfig on service;
+public annotation <service> ServiceConfig HttpServiceConfig;
 
 # The annotation which is used to configure a WebSocket service.
-public annotation WSServiceConfig WebSocketServiceConfig on service;
+public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
 ////////////////////////////
 /// Resource Annotations ///
@@ -109,7 +109,7 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 # + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
 # + transactionInfectable - Allow to participate in the distributed transactions if value is true
 # + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
-# + authConfig - Authentication Configs to secure the resource
+# + auth - Authentication Configs to secure the resource
 public type HttpResourceConfig record {|
     string[] methods = [];
     string path = "";
@@ -119,7 +119,7 @@ public type HttpResourceConfig record {|
     CorsConfig cors = {};
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
-    ListenerAuthConfig? authConfig = ();
+    ServiceResourceAuth auth?;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.
@@ -133,21 +133,18 @@ public type WebSocketUpgradeConfig record {|
 
 # Configures the authentication scheme for a service or a resource.
 #
-# + authentication - Enables/disables authentication
-# + authProviders - Array of authentication provider IDs
-# + scopes - Array of scopes
-public type ListenerAuthConfig record {|
-    Authentication? authentication = ();
-    string[]? authProviders = ();
-    string[]? scopes = ();
-|};
-
-# Can be used for enabling/disabling authentication in an HTTP service.
-#
 # + enabled - Specifies whether authentication is enabled
-public type Authentication record {|
-    boolean enabled = false;
+# + authnHandlers - Array of authentication handlers or Array of arrays of authentication handlers. Array is used to
+# say at least one of the authenticaion handlers should successfully authenticated. Array of arrays is used to say
+# at least one authentication handler from the sub arrays should successfully authenticated.
+# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
+# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
+# authorized.
+public type ServiceResourceAuth record {|
+    boolean enabled = true;
+    AuthnHandler[]|AuthnHandler[][] authnHandlers?;
+    string[]|string[][] scopes?;
 |};
 
 # The annotation which is used to configure an HTTP resource.
-public annotation HttpResourceConfig ResourceConfig on resource function;
+public annotation <resource> ResourceConfig HttpResourceConfig;

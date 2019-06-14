@@ -46,7 +46,7 @@ type Participant abstract object {
 
 type RemoteParticipant object {
 
-    private string participantId;
+    string participantId;
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
@@ -148,7 +148,7 @@ type RemoteParticipant object {
 
 type LocalParticipant object {
 
-    private string participantId;
+    string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 

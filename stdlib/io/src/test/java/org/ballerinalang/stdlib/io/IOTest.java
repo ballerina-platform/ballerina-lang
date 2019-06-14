@@ -17,9 +17,6 @@
 
 package org.ballerinalang.stdlib.io;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -30,6 +27,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,10 +58,10 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/bytes_io.bal");
-        characterInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/char_io.bal");
-        recordsInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/record_io.bal");
-        stringInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/string_io.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
+        stringInputOutputProgramFile = BCompileUtil.compile("test-src/io/string_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
@@ -319,6 +320,25 @@ public class IOTest {
         Assert.assertNull(result[0]);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
+    }
+
+    @Test(description = "Test double byte unicode write function in ballerina/io package")
+    public void testWriteHigherUnicodeRangeJsonCharacters() {
+        String sourceToWrite = currentDirectoryPath + "/unicode.json";
+        //Will initialize the channel
+        BValue[] args = { new BString(sourceToWrite), new BString("UTF-8") };
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJsonWithHigherUnicodeRange");
+        //Assert if there's no error return
+        Assert.assertNull(result[0]);
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
+        try {
+            String content = "{\"loop\":\"É\"}";
+            Assert.assertEquals(content,
+                    new String(Files.readAllBytes(Paths.get(sourceToWrite)), StandardCharsets.UTF_8).trim());
+        } catch (IOException e) {
+            Assert.fail("Unable to read from file", e);
+        }
     }
 
     @Test(description = "Test 'writeXml' function in ballerina/io package")

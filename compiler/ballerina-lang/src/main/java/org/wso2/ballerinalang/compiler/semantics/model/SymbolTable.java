@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -50,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -114,11 +114,12 @@ public class SymbolTable {
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
-    public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
+    public final BType stringArrayType = new BArrayType(stringType);
+    public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
 
@@ -201,7 +202,11 @@ public class SymbolTable {
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
-        this.trueType = new BFiniteType(null, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                                                                names.fromString("$anonType$TRUE"),
+                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
@@ -567,7 +572,6 @@ public class SymbolTable {
         defineConversionOperator(booleanType, decimalType, true, InstructionCodes.B2D);
         defineConversionOperator(tableType, xmlType, false, InstructionCodes.DT2XML);
         defineConversionOperator(tableType, jsonType, false, InstructionCodes.DT2JSON);
-        defineConversionOperator(xmlAttributesType, mapStringType, true, InstructionCodes.XMLATTRS2MAP);
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
@@ -599,7 +603,7 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType);
 
         //clone related methods
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anydataType, anydataType);
+        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anyType, pureType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType);
@@ -678,8 +682,6 @@ public class SymbolTable {
                                                                          this.rootPkgSymbol, opcode, safe);
         rootScope.define(symbol.name, symbol);
     }
-    
-    
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,

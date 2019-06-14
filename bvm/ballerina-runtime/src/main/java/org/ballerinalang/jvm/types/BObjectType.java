@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.jvm.types;
 
-import java.util.Map.Entry;
-import java.util.StringJoiner;
-
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
  *
@@ -27,9 +24,9 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType {
 
-    private BAttachedFunction[] attachedFunctions;
-    public BAttachedFunction initializer;
-    public BAttachedFunction defaultsValuesInitFunc;
+    private AttachedFunction[] attachedFunctions;
+    public AttachedFunction initializer;
+    public AttachedFunction defaultsValuesInitFunc;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -48,6 +45,11 @@ public class BObjectType extends BStructureType {
     }
 
     @Override
+    public String getAnnotationKey() {
+        return this.typeName;
+    }
+
+    @Override
     public <V extends Object> V getEmptyValue() {
         return null;
     }
@@ -57,26 +59,19 @@ public class BObjectType extends BStructureType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public BAttachedFunction[] getAttachedFunctions() {
+    public AttachedFunction[] getAttachedFunctions() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(BAttachedFunction[] attachedFunctions) {
+    public void setAttachedFunctions(AttachedFunction[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 
+    public void setInitializer(AttachedFunction initializer) {
+        this.initializer = initializer;
+    }
+
     public String toString() {
-        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
-        StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
-
-        for (Entry<String, BField> field : getFields().entrySet()) {
-            sj.add(field.getKey() + " : " + field.getValue().type);
-        }
-
-        for (BAttachedFunction func : attachedFunctions) {
-            sj.add(func.toString());
-        }
-
-        return sj.toString();
+        return (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
     }
 }

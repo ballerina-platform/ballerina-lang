@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/log;
 import ballerina/socket;
 
 int totalLength = 0;
@@ -25,7 +26,7 @@ listener socket:Listener server = new(59152);
 service echoServer on server {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -34,24 +35,24 @@ service echoServer on server {
             var (content, length) = result;
             if (length > 0) {
                 _ = checkpanic caller->write(content);
-                io:println("Server write");
+                log:printInfo("Server write");
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error on echo server read", err = result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on echo service", err = er);
     }
 }
 
 service helloServer on new socket:Listener(59153) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -67,7 +68,7 @@ service helloServer on new socket:Listener(59153) {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on hello server", err = er);
     }
 }
 
@@ -87,18 +88,18 @@ function process(any|error result, socket:Caller caller) {
         if (length > 0) {
             totalLength = totalLength + <@untainted edint> length;
         } else {
-            io:println("Client close: ", caller.remotePort);
+            log:printInfo("Client close: " + caller.remotePort);
             return;
         }
-    } else {
-        io:println(result);
+    } else if (result is error) {
+        log:printError("Error while process data", err = result);
     }
 }
 
 service BlockingReadServer on new socket:Listener(59154) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -107,24 +108,24 @@ service BlockingReadServer on new socket:Listener(59154) {
             var (content, length) = result;
             if (length > 0) {
                 _ = checkpanic caller->write(content);
-                io:println("Server write");
+                log:printInfo("Server write");
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error while read data", err = result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on blocking read server", err = er);
     }
 }
 
 service errorServer on new socket:Listener(59155) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) returns error? {
@@ -135,10 +136,10 @@ service errorServer on new socket:Listener(59155) {
                 error e = error("Error while on read");
                 return e;
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error on error server read", err = result);
         }
     }
 

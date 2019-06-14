@@ -36,8 +36,8 @@ import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
@@ -73,7 +73,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
-    private OMNode omNode;
+    OMNode omNode;
     private XMLNodeType nodeType;
 
     /**
@@ -322,7 +322,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public MapValue<String, ?> getAttributesMap() {
-        MapValue<String, String> attrMap = new MapValue<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -348,6 +348,7 @@ public final class XMLItem extends XMLValue<OMNode> {
             attrMap.put(attr.getQName().toString(), attr.getAttributeValue());
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -402,7 +403,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -418,7 +419,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().toString().equals(getQname(qname).toString())) {
@@ -436,7 +437,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -457,7 +458,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -572,7 +573,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -662,6 +663,29 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public String stringValue() {
+        try {
+            switch (nodeType) {
+                case COMMENT:
+                    return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
+                case TEXT:
+                    return getTextValue(omNode);
+                case PI:
+                    return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
+                            ((OMProcessingInstruction) omNode).getValue() + PI_END;
+                default:
+                    return this.omNode.toString();
+            }
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return STRING_NULL_VALUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
@@ -709,6 +733,14 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         return this;
+    }
+
+    public int size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
+        return this.omNode == null ? 0 : 1;
     }
 
     /**
@@ -847,9 +879,49 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    @Override
-    public void stamp(BType type) {
-        // TODO Auto-generated method stub
 
+    private static class BXmlAttrMap extends MapValueImpl<String, String> {
+        
+        private final XMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(XMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public String put(String key, String value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute(key, value);
+            }
+            return null;
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
+        }
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        return new XMLIterator.ItemIterator(this);
     }
 }

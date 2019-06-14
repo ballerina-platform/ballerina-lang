@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,5 +45,12 @@ public class EncryptAesEcb extends BlockingNativeCallableUnit {
         String padding = context.getRefArgument(2).stringValue();
         CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding, key, input, null,
                 -1);
+    }
+
+    public static Object encryptAesEcb(Strand strand, Object padding, ArrayValue inputValue, ArrayValue keyValue) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,
+                                             input, null, -1);
     }
 }

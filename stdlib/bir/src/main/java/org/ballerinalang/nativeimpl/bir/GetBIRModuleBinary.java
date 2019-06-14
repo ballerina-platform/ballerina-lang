@@ -29,10 +29,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
+
+import java.io.IOException;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
@@ -78,16 +80,24 @@ public class GetBIRModuleBinary extends BlockingNativeCallableUnit {
             modId = new PackageID(names.fromString(org), names.fromString(name), names.fromString(version));
         }
 
+        BPackageSymbol pkgSymbol = null;
         // Lookup the package in the cache.
         BLangPackage bLangPackage = modCache.get(modId);
         // TODO Create and error if the package is not there.
+        if (bLangPackage == null) { //TODO discuss and improve this - rajith
+            pkgSymbol = modCache.getSymbol(modId);
+        } else {
+            pkgSymbol = bLangPackage.symbol;
+        }
 
-        // Serialize the BIR model to a binary array.
-        BIRNode.BIRPackage bir = bLangPackage.symbol.bir;
-        BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
-        BValueArray binaryArray = new BValueArray(binaryWriter.serialize());
+        try {
+            // Create binary array from the Serialized the BIR model.
+            BValueArray binaryArray = new BValueArray(PackageFileWriter.writePackage(pkgSymbol.birPackageFile));
 
-        // Set the return value
-        context.setReturnValues(binaryArray);
+            // Set the return value
+            context.setReturnValues(binaryArray);
+        } catch (IOException e) {
+            //TODO panic here - rajith
+        }
     }
 }

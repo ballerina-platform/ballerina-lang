@@ -170,7 +170,7 @@ public class LSAnnotationCache {
         scopeEntries.forEach(annotationEntry -> {
             if (annotationEntry.symbol instanceof BAnnotationSymbol) {
                 BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
-                int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).attachPoints;
+                int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.TYPE)) {
                     addAttachment(annotationSymbol, typeAnnotations, bPackageSymbol.pkgID);

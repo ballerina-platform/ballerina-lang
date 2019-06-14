@@ -17,11 +17,23 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Represent an error in ballerina.
@@ -31,7 +43,7 @@ import java.util.Map;
 public class ErrorValue extends RuntimeException implements RefValue {
 
     private static final long serialVersionUID = 1L;
-    private final BType type;
+    private final BErrorType type;
     private final String reason;
     private final Object details;
 
@@ -43,12 +55,17 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
-    public BType getType() {
+    public String stringValue() {
+        return reason + " " + details.toString();
+    }
+
+    @Override
+    public BErrorType getType() {
         return type;
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
 
     }
 
@@ -59,8 +76,13 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
+    public void attemptFreeze(Status freezeStatus) {
+        // do nothing, since error types are always frozen
+    }
+
+    @Override
     public String toString() {
-        return reason + " " + details.toString();
+        return stringValue();
     }
 
     public String getReason() {
@@ -72,5 +94,92 @@ public class ErrorValue extends RuntimeException implements RefValue {
             return ((RefValue) details).copy(new HashMap<>());
         }
         return details;
+    }
+
+    @Override
+    public void printStackTrace() {
+        ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+    }
+
+    public void printStackTrace(PrintWriter printWriter) {
+        printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+    }
+    
+    @Override
+    public StackTraceElement[] getStackTrace() {
+        StackTraceElement[] stackTrace = super.getStackTrace();
+        List<StackTraceElement> filteredStack = new LinkedList<>();
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement stackTraceElement = filterStackTraceElement(stackTrace, i);
+            if (stackTraceElement != null) {
+                filteredStack.add(stackTraceElement);
+            }
+        }
+        StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
+        return filteredStack.toArray(filteredStackArray);
+    }
+
+    public String getPrintableStackTrace() {
+        String errorMsg = getErrorMessage();
+        StringBuilder sb = new StringBuilder();
+        sb.append(errorMsg).append("\n\tat ");
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = this.getStackTrace();
+        if (stackTrace.length == 0) {
+            return sb.toString();
+        }
+        // print first element
+        printStackElement(sb, stackTrace[0], "");
+        for (int i = 1; i < stackTrace.length; i++) {
+            printStackElement(sb, stackTrace[i], "\n\t   ");
+        }
+        return sb.toString();
+    }
+
+    private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
+        // Append the method name
+        sb.append(tab).append(stackTraceElement.getMethodName());
+        // Append the filename
+        sb.append("(").append(stackTraceElement.getFileName());
+        // Append the line number
+        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
+    }
+
+    private String getErrorMessage() {
+        String errorMsg = "";
+        boolean reasonAdded = false;
+        if (reason != null && !reason.isEmpty()) {
+            errorMsg = reason;
+            reasonAdded = true;
+        }
+        if (details != null) {
+            errorMsg = errorMsg + (reasonAdded ? " " : "") + details.toString();
+        }
+        return errorMsg;
+    }
+
+    private static StackTraceElement filterStackTraceElement(StackTraceElement[] stackTrace,
+                                                             int currentIndex) {
+        StackTraceElement stackFrame = stackTrace[currentIndex];
+        String pkgName = stackFrame.getClassName();
+        String fileName = stackFrame.getFileName();
+        int lineNo = stackFrame.getLineNumber();
+        if (lineNo < 0) {
+            return null;
+        }
+        // Handle init function
+        if (pkgName.equals(MODULE_INIT_CLASS_NAME)) {
+            if (currentIndex != 0) {
+                return new StackTraceElement(stackFrame.getClassName(), INIT_FUNCTION_SUFFIX,
+                                             fileName, stackFrame.getLineNumber());
+            }
+
+            return null;
+        }
+        // Remove java sources for bal stacktrace.
+        if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
+            return null;
+        }
+        return stackFrame;
     }
 }

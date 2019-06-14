@@ -16,20 +16,20 @@
 
 import ballerina/log;
 
-# JMS TopicSubscriber endpoint
+# JMS TopicListener
 #
-# + consumerActions - Handles all the caller actions related to the TopicSubscriber endpoint
+# + consumerActions - Handles all the caller actions related to the TopicSubscriber
 # + session - Session of the topic subscriber
 # + messageSelector - The message selector for the topic subscriber
-public type TopicSubscriber object {
+public type TopicListener object {
 
     *AbstractListener;
 
     public TopicSubscriberCaller consumerActions = new;
-    public Session? session;
+    public Session session;
     public string messageSelector = "";
 
-    # Initialize the TopicSubscriber endpoint
+    # Initialize the TopicListener
     #
     # + c - The JMS Session object or Configurations related to the receiver
     # + topicPattern - Name or the pattern of the topic subscription
@@ -37,7 +37,7 @@ public type TopicSubscriber object {
     # + identifier - Unique identifier for the subscription
     public function __init(Session|ReceiverEndpointConfiguration c, string? topicPattern = (), string messageSelector =
         "") {
-        self.consumerActions.topicSubscriber = self;
+        self.consumerActions.topicListener = self;
         self.messageSelector = messageSelector;
         if (c is Session) {
             self.session = c;
@@ -57,10 +57,10 @@ public type TopicSubscriber object {
         }
     }
 
-    # Register TopicSubscriber endpoint
+    # Register TopicListener
     #
-    # + serviceType - Type descriptor of the service
-    # + data - Service annotations
+    # + serviceType - The service instance
+    # + name - Name of the service
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.registerListener(serviceType, self.consumerActions, name);
@@ -70,11 +70,11 @@ public type TopicSubscriber object {
 
     function createSubscriber(Session? session, string messageSelector, string|Destination dest) = external;
 
-    # Start TopicSubscriber endpoint
+    # Start TopicListener
     #
     # + return - Nil or error upon failure to start
     public function __start() returns error? {
-        return ();
+        return self.start();
     }
 
     # Get TopicSubscriber actions handler
@@ -84,7 +84,7 @@ public type TopicSubscriber object {
         return self.consumerActions;
     }
 
-    # Stop TopicSubscriber endpoint
+    # Stop TopicListener
     #
     # + return - Nil or error upon failure to close subscriber
     public function __stop() returns error? {
@@ -92,14 +92,15 @@ public type TopicSubscriber object {
     }
 
     function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
+    private function start() returns error? = external;
 };
 
 # Remote functions that topic subscriber endpoint could perform
 #
-# + topicSubscriber - JMS TopicSubscriber
+# + topicListener - JMS TopicListener
 public type TopicSubscriberCaller client object {
 
-    public TopicSubscriber? topicSubscriber = ();
+    public TopicListener? topicListener = ();
 
     # Acknowledges a received message
     #
@@ -120,21 +121,17 @@ public type TopicSubscriberCaller client object {
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?
     {
-        var subscriber = self.topicSubscriber;
-        if (subscriber is TopicSubscriber) {
+        var subscriber = self.topicListener;
+        if (subscriber is TopicListener) {
             var session = subscriber.session;
-            if (session is Session) {
-                validateTopic(destination);
-                subscriber.createSubscriber(session, subscriber.messageSelector, destination);
-                log:printInfo("Subscriber created for topic " + destination.destinationName);
-            } else {
-                log:printInfo("Session is (), Topic subscriber is not properly initialized");
-            }
+            validateTopic(destination);
+            subscriber.createSubscriber(session, subscriber.messageSelector, destination);
+            log:printInfo("Subscriber created for topic " + destination.destinationName);
         } else {
             log:printInfo("Topic subscriber is not properly initialized");
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-        var returnVal = self.topicSubscriber.closeSubscriber(self);
+        var returnVal = self.topicListener.closeSubscriber(self);
         return result;
     }
 };

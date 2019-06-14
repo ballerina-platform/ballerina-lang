@@ -255,11 +255,6 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showAPIEditor",
                     "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
-                    "group": "navigation"
                 }
             ]
         }

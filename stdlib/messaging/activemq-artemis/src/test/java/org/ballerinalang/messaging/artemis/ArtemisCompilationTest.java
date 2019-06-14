@@ -52,7 +52,7 @@ public class ArtemisCompilationTest {
         BAssertUtil.validateError(compileResult, 0, "Only one resource is allowed in the service", 24, 1);
     }
 
-    @Test(description = "More than expected number of annotations for the service")
+    @Test(description = "More than expected number of annotations for the service", enabled = false)
     public void testMoreServiceAnnotationsForService() {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("artemis_more_service_annotation.bal")
                                                                    .toAbsolutePath().toString());

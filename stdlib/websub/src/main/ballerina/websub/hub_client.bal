@@ -115,7 +115,7 @@ public remote function Client.registerTopic(string topic) returns @tainted error
         if (registrationResponse.statusCode != http:ACCEPTED_202) {
             var result = registrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured during topic registration: " + payload };
+            map<anydata> errorDetail = { message : "Error occurred during topic registration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -136,7 +136,7 @@ public remote function Client.unregisterTopic(string topic) returns @tainted err
         if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
             var result = unregistrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured during topic unregistration: " + payload };
+            map<anydata> errorDetail = { message : "Error occurred during topic unregistration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -172,7 +172,7 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured publishing update: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occurred publishing update: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -200,7 +200,7 @@ public remote function Client.notifyUpdate(string topic, map<string>? headers = 
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occured notifying update availability: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occurred notifying update availability: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
@@ -323,8 +323,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 # + auth - The auth config to use at the hub, if specified
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode, SubscriptionChangeRequest
-                                            subscriptionChangeRequest, http:AuthConfig? auth, int remainingRedirects)
+function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
+                                            SubscriptionChangeRequest subscriptionChangeRequest,
+                                            http:OutboundAuthConfig? auth, int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
 
     if (mode == MODE_SUBSCRIBE) {
@@ -333,8 +334,9 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
     return unsubscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
 }
 
-function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
-                              int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
+function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest,
+                              http:OutboundAuthConfig? auth, int remainingRedirects = 0)
+             returns @tainted SubscriptionChangeResponse| error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = { auth: auth });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
@@ -342,8 +344,9 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
                               remainingRedirects);
 }
 
-function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
-                                int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
+function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest,
+                                http:OutboundAuthConfig? auth, int remainingRedirects = 0)
+             returns @tainted SubscriptionChangeResponse|error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = {
         auth: auth
     });

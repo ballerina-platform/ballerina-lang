@@ -33,7 +33,7 @@ public class ResourceConfigurationTest {
 
     private CompileResult compileResult;
 
-    @Test(description = "Tests for multiple resource configs in a resource")
+    @Test(description = "Tests for multiple resource configs in a resource", enabled = false)
     public void testDuplicateResourceConfigAnnotations() {
         compileResult = BCompileUtil.compile("test-src/services/configuration/resource-config-annotation.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();

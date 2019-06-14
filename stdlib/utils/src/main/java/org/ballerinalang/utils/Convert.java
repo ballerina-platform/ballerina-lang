@@ -22,6 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,8 +56,8 @@ import java.util.function.Predicate;
         packageName = "utils",
         functionName = "convert",
         args = {@Argument(name = "convertType", type = TypeKind.TYPEDESC),
-                @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+                @Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class Convert extends BlockingNativeCallableUnit {
 
@@ -102,5 +107,48 @@ public class Convert extends BlockingNativeCallableUnit {
             return;
         }
         ctx.setReturnValues(convertedValue);
+    }
+
+    public static Object convert(Strand strand, TypedescValue typeDescValue, Object inputValue) {
+        org.ballerinalang.jvm.types.BType convertType = typeDescValue.getDescribingType();
+        RefValue convertedValue;
+        org.ballerinalang.jvm.types.BType targetType;
+        if (convertType.getTag() == TypeTags.UNION_TAG) {
+            List<org.ballerinalang.jvm.types.BType> memberTypes
+                    = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes());
+            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
+
+            Predicate<org.ballerinalang.jvm.types.BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
+            ((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
+
+            if (((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().size() == 1) {
+                targetType = ((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes().get(0);
+            }
+        } else {
+            targetType = convertType;
+        }
+        if (inputValue == null) {
+            if (targetType.getTag() == TypeTags.JSON_TAG) {
+                return null;
+            }
+            return BallerinaErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .CANNOT_CONVERT_NULL, convertType));
+        }
+        if (!TypeChecker.checkIsLikeType(inputValue, targetType)) {
+            return BallerinaErrors.createConversionError(inputValue, targetType);
+        }
+        try {
+            RefValue refValue = (RefValue) inputValue;
+            convertedValue = (RefValue) refValue.copy(new HashMap<>());
+            convertedValue.stamp(targetType, new ArrayList<>());
+            return convertedValue;
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+            return BallerinaErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 e.getDetail());
+        }
     }
 }

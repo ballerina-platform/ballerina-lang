@@ -19,6 +19,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -103,7 +107,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'f':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref.value()));
                             break;
@@ -111,7 +115,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'X':
                             if (ref == null) {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                                        format.charAt(j) + " != ()");
+                                                                               format.charAt(j) + " != ()");
                             }
                             formatHexString(args, result, k, padding, formatSpecifier);
                             break;
@@ -158,6 +162,118 @@ public class Sprintf extends BlockingNativeCallableUnit {
             }
         } else {
             result.append(String.format("%" + padding + x, ref.value()));
+        }
+    }
+
+    public static String sprintf(Strand strand, String format, ArrayValue args) {
+        StringBuilder result = new StringBuilder();
+
+        /* Special chars in case additional formatting is required later
+         *
+         * Primitive built-in types (Same as Java String.format())
+         * b            boolean
+         * B            boolean (ALL_CAPS)
+         * d            int
+         * f            float
+         * s            string
+         * x            hex
+         * X            HEX (ALL_CAPS)
+         *
+         * s            is applicable for any of the supported types in Ballerina. These values will be converted to
+         * their string representation and displayed.
+         */
+
+        // i keeps index for checking %
+        // j reads format specifier to apply
+        // k records number of format specifiers seen so far, used to read respective array element
+        for (int i = 0, j, k = 0; i < format.length(); i++) {
+            if (format.charAt(i) == '%' && ((i + 1) < format.length())) {
+
+                // skip % character
+                j = i + 1;
+
+                if (k >= args.size()) {
+                    // there's not enough arguments
+                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                }
+                StringBuilder padding = new StringBuilder();
+                while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
+                    padding.append(format.charAt(j));
+                    j += 1;
+                }
+                try {
+                    char formatSpecifier = format.charAt(j);
+                    //TODO : Recheck following casting
+                    RefValue ref = (RefValue) args.getRefValue(k);
+                    switch (formatSpecifier) {
+                        case 'b':
+                        case 'B':
+                        case 'd':
+                        case 'f':
+                            if (ref == null) {
+                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                        format.charAt(j) + " != ()");
+                            }
+                            //TODO recheck ref.toString()
+                            result.append(String.format("%" + padding + formatSpecifier, ref.toString()));
+                            break;
+                        case 'x':
+                        case 'X':
+                            if (ref == null) {
+                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                        format.charAt(j) + " != ()");
+                            }
+                            formatHexString(args, result, k, padding, formatSpecifier);
+                            break;
+                        case 's':
+                            if (ref != null) {
+                                result.append(String.format("%" + padding + "s", ref.toString()));
+                            }
+                            break;
+                        case '%':
+                            result.append("%");
+                            break;
+                        default:
+                            // format string not supported
+                            throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                                    org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_FORMAT_SPECIFIER,
+                                    format.charAt(j));
+                    }
+                } catch (IllegalFormatConversionException e) {
+                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
+                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                            format.charAt(j) + " != " + TypeChecker.getType(args.getRefValue(k)));
+                }
+                if (format.charAt(j) == '%') {
+                    // special case %%, don't count as a format specifier
+                    i++;
+                } else {
+                    k++;
+                    i = j;
+                }
+                continue;
+            }
+            // no match, copy and continue
+            result.append(format.charAt(i));
+        }
+        return result.toString();
+    }
+
+    private static void formatHexString(ArrayValue args, StringBuilder result, int k, StringBuilder padding, char x) {
+        RefValue ref = (RefValue) args.getRefValue(k);
+        if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
+                TypeTags.BYTE_TAG ==
+                        ((org.ballerinalang.jvm.types.BArrayType) ref.getType()).getElementType().getTag()) {
+            ArrayValue byteArray = ((ArrayValue) ref);
+            for (int i = 0; i < byteArray.size(); i++) {
+                result.append(String.format("%" + padding + x, byteArray.getByte(i)));
+            }
+        } else {
+            //TODO recheck ref.toString()
+            result.append(String.format("%" + padding + x, ref.toString()));
         }
     }
 }

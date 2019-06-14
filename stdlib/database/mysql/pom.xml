@@ -20,7 +20,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -37,6 +37,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -45,6 +46,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.milestone.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -96,12 +98,14 @@
                                 <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>${project.version}</argument>
+                                <argument>false</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
 

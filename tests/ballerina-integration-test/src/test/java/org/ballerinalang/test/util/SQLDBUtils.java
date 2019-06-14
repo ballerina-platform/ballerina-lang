@@ -17,19 +17,18 @@
  */
 package org.ballerinalang.test.util;
 
+import org.apache.commons.io.FileUtils;
 import org.hsqldb.Server;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ import java.sql.Statement;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = "./target/tempdb/";
+    public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
@@ -118,20 +117,11 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        InputStream is = null;
         String fileAsString = null;
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
-            is = new FileInputStream(fileResource.getFile());
-            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-            String line = buf.readLine();
-            StringBuilder sb = new StringBuilder();
-            while (line != null) {
-                sb.append(line).append("\n");
-                line = buf.readLine();
-            }
-            fileAsString = sb.toString();
-        } catch (IOException e) {
+            return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
+        } catch (IOException | URISyntaxException e) {
             LOG.error("Error ", e);
         }
         return fileAsString;

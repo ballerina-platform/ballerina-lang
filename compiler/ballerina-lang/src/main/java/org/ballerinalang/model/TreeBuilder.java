@@ -20,7 +20,6 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -55,6 +54,7 @@ import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
+import org.ballerinalang.model.tree.expressions.AnnotAccessNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
@@ -148,7 +148,6 @@ import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -185,6 +184,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -617,10 +617,6 @@ public class TreeBuilder {
         return new BLangMarkdownReturnParameterDocumentation();
     }
 
-    public static DeprecatedNode createDeprecatedNode() {
-        return new BLangDeprecatedNode();
-    }
-
     public static IfNode createIfElseStatementNode() {
         return new BLangIf();
     }
@@ -839,6 +835,10 @@ public class TreeBuilder {
 
     public static TypeTestExpressionNode createTypeTestExpressionNode() {
         return new BLangTypeTestExpr();
+    }
+
+    public static AnnotAccessNode createAnnotAccessExpressionNode() {
+        return new BLangAnnotAccessExpr();
     }
 
     public static BLangWorkerFlushExpr createWorkerFlushExpressionNode() {

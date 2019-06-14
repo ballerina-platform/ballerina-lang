@@ -115,6 +115,16 @@ function writeJson(json content) {
     var result = wch.writeJson(content);
 }
 
+function writeJsonWithHigherUnicodeRange() {
+    json content = {
+        "loop": "É"
+    };
+    var result = wch.writeJson(content);
+    if (result is error) {
+        panic result;
+    }
+}
+
 function writeXml(xml content) {
     var result = wch.writeXml(content);
 }

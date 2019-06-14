@@ -40,18 +40,18 @@ public type MockConfig record {
     string functionName = "";
 };
 
-public annotation TestConfig Config on function;
+public annotation<function> Config TestConfig;
 
-public annotation MockConfig Mock on function;
+public annotation<function> Mock MockConfig;
 
 # Identifies beforeSuite function.
-public annotation BeforeSuite on function;
+public annotation<function> BeforeSuite;
 
 # Identifies afterSuite function.
-public annotation AfterSuite on function;
+public annotation<function> AfterSuite;
 
 # Identifies beforeTest function.
-public annotation BeforeEach on function;
+public annotation<function> BeforeEach;
 
 # Identifies afterTest function.
-public annotation AfterEach on function;
+public annotation<function> AfterEach;

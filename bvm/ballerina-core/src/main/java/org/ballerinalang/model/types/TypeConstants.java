@@ -42,7 +42,6 @@ public class TypeConstants {
     public static final String ANYDATA_TNAME = "anydata";
     public static final String TYPEDESC_TNAME = "typedesc";
     public static final String NULL_TNAME = "null";
-    public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
     public static final String CHANNEL = "channel";
     public static final String ERROR = "error";
     public static final String SERVICE = "service";
