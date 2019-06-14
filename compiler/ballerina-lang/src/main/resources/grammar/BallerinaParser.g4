@@ -157,7 +157,6 @@ sourceOnlyAttachPointIdent
     |   EXTERNAL
     |   VAR
     |   CONST
-    |   TYPE_DESC
     ;
 
 workerDeclaration

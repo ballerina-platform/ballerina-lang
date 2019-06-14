@@ -21,4 +21,4 @@ public annotation sensitive on parameter;
 public annotation tainted on parameter, return;
 
 # Denote that the return value is untainted, parameter expect untainted value, and
-public const annotation untainted on return, parameter, source typedesc;
+public const annotation untainted on return, parameter, source type;

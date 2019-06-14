@@ -88,11 +88,7 @@ public class AttachPoint {
         /**
          * Indicate Channel Attach point.
          */
-        CHANNEL("channel"),
-        /**
-         * Indicate typedesc Attach point.
-         */
-        TYPEDESC("typedesc");
+        CHANNEL("channel");
 
         private String value;
 

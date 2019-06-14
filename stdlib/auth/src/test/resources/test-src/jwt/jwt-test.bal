@@ -85,7 +85,7 @@ function testIssueJwtWithSingleAudAndAudAsArray(string keyStorePath) returns (st
     return auth:issueJwt(header, payload, config);
 }
 
-function testValidateJwt(string jwtToken, string trustStorePath) returns @tainted boolean|error {
+function testValidateJwt(string jwtToken, string trustStorePath) returns @tainted (boolean|error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     auth:JWTValidatorConfig config = {
         issuer: "wso2",

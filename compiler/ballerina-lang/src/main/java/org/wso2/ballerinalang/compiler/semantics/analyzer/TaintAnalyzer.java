@@ -1756,7 +1756,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             invNode.symbol.taintTable = taintTable;
-            checkReturnTaintedAnnotation(invNode, taintTable);
+            validateReturnAndParameterTaintedAnnotations(invNode, taintTable);
         }
         return false;
     }
@@ -1777,8 +1777,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     // todo: write what this do, and why
-    private void checkReturnTaintedAnnotation(BLangInvokableNode invokableNode,
-                                              Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+    private void validateReturnAndParameterTaintedAnnotations(BLangInvokableNode invokableNode,
+                                                              Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
         TaintRecord taintRecord = taintedStatusBasedOnAnnotations.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
@@ -1787,6 +1787,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     invokableNode.name.getValue());
             stopAnalysis = true;
         }
+
+        int requiredParamCount = invokableNode.requiredParams.size();
+        int defaultableParamCount = invokableNode.defaultableParams.size();
+        int totalParamCount = requiredParamCount + defaultableParamCount + (invokableNode.restParam == null ? 0 : 1);
+
+        for (int i = 0; i < totalParamCount; i++) {
+            TaintedStatus taintedStatus = taintRecord.parameterTaintedStatusList.get(i);
+            if (taintedStatus == TaintedStatus.TAINTED) {
+                BLangSimpleVariable param = getParam(invokableNode, i, requiredParamCount, defaultableParamCount);
+                dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
+                        invokableNode.name);
+                stopAnalysis = true;
+            }
+        }
+
+
     }
 
     private void analyzeReturnTaintedStatus(Map<Integer, TaintRecord> taintTable, BLangInvokableNode invokableNode,
