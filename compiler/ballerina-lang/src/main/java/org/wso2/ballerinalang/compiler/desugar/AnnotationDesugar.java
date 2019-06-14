@@ -87,7 +87,8 @@ public class AnnotationDesugar {
     private static final String ANNOT_FUNC = "$annot_func$";
     private static final String LOCAL_ANNOT_MAP = "$local_annot_map$";
     private static final String DOT = ".";
-    private static final String RETURNS = "return";
+    private static final String PARAM = "$param$";
+    private static final String RETURNS = "$returns$";
     private BLangSimpleVariable annotationMap;
     private int annotFuncCount = 0;
 
@@ -244,8 +245,8 @@ public class AnnotationDesugar {
                     addAnnotsToFunctionBody(bLangFunction.annAttachments, function, localAnnotMap, pkgNode);
                     annotFunctionDefined = true;
                 }
-                addInvocationToMap(localAnnotMap, bLangFunction.name.value + DOT + param.name.value,
-                                   paramAnnotLambda, function.body, pkgID, owner);
+                addInvocationToMap(localAnnotMap, PARAM + DOT + param.name.value, paramAnnotLambda,
+                                   function.body, pkgID, owner);
             }
         }
 
@@ -261,8 +262,7 @@ public class AnnotationDesugar {
             addAnnotsToFunctionBody(bLangFunction.returnTypeAnnAttachments, retFunction, retLocalAnnotMap, pkgNode);
             BLangLambdaFunction returnAnnotLambda = addReturnAndDefineLambda(retFunction, retLocalAnnotMap, pkgNode,
                                                                              env, pkgID, owner);
-            addInvocationToMap(localAnnotMap, bLangFunction.name.value + DOT + RETURNS,
-                               returnAnnotLambda, function.body, pkgID, owner);
+            addInvocationToMap(localAnnotMap, RETURNS, returnAnnotLambda, function.body, pkgID, owner);
         }
 
         if (annotFunctionDefined) {
