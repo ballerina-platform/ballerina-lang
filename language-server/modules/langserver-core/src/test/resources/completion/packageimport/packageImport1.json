@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
+    "line": 3,
     "character": 9
   },
-  "source": "packageimport/source/packageImport.bal",
+  "source": "packageimport/source/module2/packageImport.bal",
     "items": [
         {
             "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
