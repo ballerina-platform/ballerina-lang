@@ -101,6 +101,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +133,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String HAVING_LAMBDA_PARAM_REFERENCE = "$lambda$streaming$having$input$variable";
     private static final String SELECT_LAMBDA_PARAM_REFERENCE = "$lambda$streaming$simple$select$input$variable";
     private static final String TABLE_JOIN_LAMBDA_PARAM_REFERENCE = "$lambda$streaming$table$join$input$variable";
+    private static final String NEXT_PROCESS_LAMBDA_PARAM_REFERENCE = "$lambda$streaming$next$process$var$ref";
     private static final String JOIN_CONDITION_LAMBDA_PARAM_REFERENCE =
             "$lambda$streaming$join$onCondition$input$variable";
     private static final String SELECT_WITH_GROUP_BY_LAMBDA_PARAM_REFERENCE =
@@ -763,20 +765,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     // Object.process
-    private BLangFieldBasedAccess createNextProcessFuncPointer(DiagnosticPos pos) {
+    private BLangExpression createNextProcessFuncPointer(DiagnosticPos pos) {
         BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
+        return createNextProcessFuncPointer(pos, nextProcessInvokableTypeVarSymbol);
+    }
 
-        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(pos,
-                nextProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
-                TreeBuilder.createFieldBasedAccessNode();
-        nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
-        nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
-        nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
-        nextProcessMethodAccess.pos = pos;
-        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(pos, NEXT_PROCESS_METHOD_NAME);
-        return nextProcessMethodAccess;
+    private BLangExpression createNextProcessFuncPointer(DiagnosticPos pos, BVarSymbol nextProcessVarSymbol) {
+        nextProcessVarSymbol.closure = true;
+        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessVarSymbol);
+        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(pos, nextProcessVarSymbol);
+        return createFieldBasedAccessForProcessFunc(pos, nextProcessInvokableSymbol, nextProcessSimpleVarRef);
     }
 
     private BLangLambdaFunction createAggregatorLambda(BLangSelectClause selectClause) {
@@ -931,7 +929,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private void createTableJoinProcessorStmt(BLangJoinStreamingInput joinStreamingInput) {
-        BLangFieldBasedAccess nextProcessMethodAccess = createNextProcessFuncPointer(joinStreamingInput.pos);
+        BLangExpression nextProcessMethodAccess = createNextProcessFuncPointer(joinStreamingInput.pos);
         BInvokableSymbol tableJoinProcessorInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(joinStreamingInput.pos, env, Names.STREAMS_MODULE).
                 scope.lookup(new Name(CREATE_TABLE_JOIN_PROCESS_METHOD_NAME)).symbol;
@@ -1119,7 +1117,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     lambdaParameterType, env.scope.owner);
 
             BLangSimpleVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
-                    getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
+                    getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null,
+                    lambdaParameterVarSymbol);
             inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
             // Tag variables as closures.
             nextProcessInvokableTypeVarSymbol.closure = true;
@@ -1145,7 +1144,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
             BLangSimpleVariable streamEventArrayTypeVariable = ASTBuilderUtil.
                     createVariable(streamingInput.pos, getVariableName(STREAM_EVENT_ARRAY_PARAM_REFERENCE),
-                            streamEventArrayTypeVarSymbol.type.getReturnType(), null, streamEventArrayTypeVarSymbol);
+                    streamEventArrayTypeVarSymbol.type, null, streamEventArrayTypeVarSymbol);
 
             List<BLangExpression> args = new ArrayList<>();
             args.add(inputEventRef);
@@ -1272,14 +1271,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 } else {
                     nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
                 }
-                BInvokableSymbol nextProcessInvokableSymbol =
-                        getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
 
-                BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
+                BLangExpression nextProcessMethodAccess = createNextProcessFuncPointer(window.pos,
                         nextProcessInvokableTypeVarSymbol);
-                BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
-                        nextProcessInvokableSymbol, nextProcessSimpleVarRef);
-
 
                 BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
 
@@ -1451,17 +1445,21 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         stmts.add(methodInvocationStmt);
     }
 
-    private BLangFieldBasedAccess createFieldBasedAccessForProcessFunc(DiagnosticPos pos,
+    private BLangExpression createFieldBasedAccessForProcessFunc(DiagnosticPos pos,
                                                                        BInvokableSymbol nextProcessInvokableSymbol,
                                                                        BLangSimpleVarRef nextProcessSimpleVarRef) {
-        BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
-                TreeBuilder.createFieldBasedAccessNode();
-        nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
-        nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
-        nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
-        nextProcessMethodAccess.pos = pos;
-        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(pos, NEXT_PROCESS_METHOD_NAME);
-        return nextProcessMethodAccess;
+        BLangSimpleVariable nextProcessVar =
+                this.createStreamEventArrayArgVariable(getVariableName(NEXT_PROCESS_LAMBDA_PARAM_REFERENCE), pos, env);
+        BLangLambdaFunction nextProcessLambda = createLambdaWithVarArg(pos, new BLangSimpleVariable[] {nextProcessVar},
+                ASTBuilderUtil.createTypeNode(symTable.nilType));
+        BLangBlockStmt body = nextProcessLambda.function.body;
+        BLangSimpleVarRef streamEvents = ASTBuilderUtil.createVariableRef(pos, nextProcessVar.symbol);
+        BLangInvocation processInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos,
+                nextProcessInvokableSymbol, Collections.singletonList(streamEvents), symResolver);
+        processInvocation.expr = nextProcessSimpleVarRef;
+        BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, body);
+        stmt.expr = processInvocation;
+        return desugar.rewrite(nextProcessLambda, env);
     }
 
     //
@@ -1522,13 +1520,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaBody.stmts.add(returnStmt);
 
         //Create having (filter) definition
-        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
-
-        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(pos,
-                nextProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(pos,
-                nextProcessInvokableSymbol, nextProcessSimpleVarRef);
+        BLangExpression nextProcessMethodAccess = createNextProcessFuncPointer(pos);
 
         // Having will also use the same filter invokable
         BInvokableSymbol havingInvokableSymbol = (BInvokableSymbol) symResolver.
@@ -1593,15 +1585,29 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariable createStreamEventArgVariable(String variableName, DiagnosticPos pos, SymbolEnv env) {
-        BObjectTypeSymbol recordTypeSymbol = (BObjectTypeSymbol) symResolver.
-                resolvePkgSymbol(pos, env, Names.STREAMS_MODULE).
-                scope.lookup(new Name(STREAM_EVENT_OBJECT_NAME)).symbol;
-
-        BType varType = recordTypeSymbol.type;
+        BType varType = createStreamEventType(pos, env);
         BVarSymbol varSymbol = new BVarSymbol(0, new Name(variableName),
                 varType.tsymbol.pkgID, varType, env.scope.owner);
 
         return ASTBuilderUtil.createVariable(pos, variableName, varType, null, varSymbol);
+    }
+
+    private BLangSimpleVariable createStreamEventArrayArgVariable(String variableName, DiagnosticPos pos,
+                                                                 SymbolEnv env) {
+        BType varType = createStreamEventType(pos, env);
+        BArrayType arrayType = new BArrayType(varType);
+        BVarSymbol varSymbol = new BVarSymbol(0, new Name(variableName),
+                                              varType.tsymbol.pkgID, arrayType, env.scope.owner);
+
+        return ASTBuilderUtil.createVariable(pos, variableName, arrayType, null, varSymbol);
+    }
+
+    private BType createStreamEventType(DiagnosticPos pos, SymbolEnv env) {
+        BObjectTypeSymbol recordTypeSymbol = (BObjectTypeSymbol) symResolver.
+                resolvePkgSymbol(pos, env, Names.STREAMS_MODULE).
+                scope.lookup(new Name(STREAM_EVENT_OBJECT_NAME)).symbol;
+
+        return recordTypeSymbol.type;
     }
 
     private BLangSimpleVariable createAggregatorTypeVariable(String variableName, DiagnosticPos pos, SymbolEnv env) {
