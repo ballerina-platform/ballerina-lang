@@ -17,9 +17,12 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
-    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', ext: 'zip',
-            classifier: 'ballerina-binary-repo'
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
 
@@ -42,14 +45,12 @@ dependencies {
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-sql')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-config')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-auth')
@@ -75,32 +76,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'
-}
-
-task copyBuiltin(type: Copy) {
-    from zipTree("$buildDir/lib/ballerina-builtin-0.992.0-m1-ballerina-binary-repo.zip")
-    into "$buildDir/lib/"
-}
-
-copyBuiltin.dependsOn createBalHome
-createBalo.dependsOn copyBuiltin
-
-test {
-    minHeapSize = "256m"
-    maxHeapSize = "1g"
-
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 configurations {

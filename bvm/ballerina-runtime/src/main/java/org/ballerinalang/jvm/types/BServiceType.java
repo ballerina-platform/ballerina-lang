@@ -16,29 +16,36 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+
+import static org.ballerinalang.jvm.AnnotationUtils.processServiceAnnotations;
+
 /**
  * {@code BServiceType} represents a service in Ballerina.
  *
  * @since 0.995.0
  */
-public class BServiceType extends BType {
+public class BServiceType extends BObjectType {
 
-    public BServiceType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BServiceType.class);
+    public BServiceType(String typeName, BPackage pkg, int flags) {
+        super(typeName, pkg, flags);
+    }
+
+    public BServiceType(String typeName, BPackage pkg, int flags, MapValue globalAnnotationMap, Strand strand,
+                        BServiceType originalType, AttachedFunction[] attachedFunctions) {
+        super(typeName, pkg, flags);
+
+        this.setAttachedFunctions(attachedFunctions);
+        this.setFields(originalType.getFields());
+        this.initializer = originalType.initializer;
+        this.defaultsValuesInitFunc = originalType.defaultsValuesInitFunc;
+
+        processServiceAnnotations(globalAnnotationMap, this, strand);
     }
 
     @Override
     public int getTag() {
         return TypeTags.SERVICE_TAG;
-    }
-
-    @Override
-    public <V> V getZeroValue() {
-        return null;
-    }
-
-    @Override
-    public <V> V getEmptyValue() {
-        return null;
     }
 }

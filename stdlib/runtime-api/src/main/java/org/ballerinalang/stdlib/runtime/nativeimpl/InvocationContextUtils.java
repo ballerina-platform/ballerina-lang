@@ -125,8 +125,8 @@ public class InvocationContextUtils {
         MapValue<String, Object> invocationContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
                                                                                STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        return BallerinaValues.populateRecordFields(invocationContextInfo, invocationId.toString(), userPrincipal,
-                                                    authContext, new MapValueImpl());
+        return BallerinaValues.createRecord(invocationContextInfo, invocationId.toString(), userPrincipal,
+                                            authContext, new MapValueImpl());
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -143,7 +143,7 @@ public class InvocationContextUtils {
                                                                            STRUCT_TYPE_AUTHENTICATION_CONTEXT);
         String scheme = "";
         String authToken = "";
-        return BallerinaValues.populateRecordFields(authContextInfo, scheme, authToken);
+        return BallerinaValues.createRecord(authContextInfo, scheme, authToken);
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -163,6 +163,6 @@ public class InvocationContextUtils {
         String username = "";
         MapValue<String, String> claims = new MapValueImpl<>();
         ArrayValue scopes = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
-        return BallerinaValues.populateRecordFields(authContextInfo, userId, username, claims, scopes);
+        return BallerinaValues.createRecord(authContextInfo, userId, username, claims, scopes);
     }
 }

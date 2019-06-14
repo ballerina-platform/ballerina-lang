@@ -229,6 +229,9 @@ COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 // CLOSED_RANGE - ELLIPSIS
 HALF_OPEN_RANGE   : '..<' ;
 
+// Annotation Access.
+ANNOTATION_ACCESS   : '.@' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral
     ;

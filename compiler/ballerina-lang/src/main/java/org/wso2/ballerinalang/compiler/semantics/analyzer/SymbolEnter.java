@@ -281,16 +281,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
-        if (annotationNode.typeNode != null) {
-            BType type = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+        BLangType annotTypeNode = annotationNode.typeNode;
+        if (annotTypeNode != null) {
+            BType type = this.symResolver.resolveTypeNode(annotTypeNode, annotationEnv);
             annotationSymbol.attachedType = type.tsymbol;
             if (!isValidAnnotationType(type)) {
-                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
+                dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
 
             if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
-                if (!isAllowedConstantType(annotationSymbol, annotationNode.typeNode)) {
-                    dlog.error(annotationNode.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
+                if (!isAllowedConstantType(annotationSymbol,
+                                           annotTypeNode.getKind() == NodeKind.ARRAY_TYPE ?
+                                                   ((BLangArrayType) annotTypeNode).elemtype : annotTypeNode)) {
+                    dlog.error(annotTypeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
                 }
             }
         }

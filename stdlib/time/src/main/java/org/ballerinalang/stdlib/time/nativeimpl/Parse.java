@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -91,8 +92,8 @@ public class Parse extends AbstractTimeFunction {
                 return getTimeRecord(parsedDateTime, dateString, pattern.toString());
             }
             return parseTime(dateString, pattern.toString());
-        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            return TimeUtils.getTimeError(e.getMessage());
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 
@@ -107,8 +108,7 @@ public class Parse extends AbstractTimeFunction {
             zoneId = String.valueOf(ZoneId.from(dateTime));
         } catch (DateTimeException e) {
             if (epochTime < 0) {
-                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                        "failed to parse \"" + dateString + "\" to the " + pattern + " format");
+                throw TimeUtils.getTimeError("failed to parse \"" + dateString + "\" to the " + pattern + " format");
             }
             zoneId = ZoneId.systemDefault().toString();
         }

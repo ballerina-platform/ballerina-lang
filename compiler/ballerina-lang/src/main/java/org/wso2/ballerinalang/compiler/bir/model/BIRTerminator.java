@@ -35,6 +35,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
     public InstructionKind kind;
 
+    public BIRBasicBlock thenBB;
+
     public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
         super(pos);
         this.kind = kind;
@@ -73,7 +75,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand lhsOp;
         public boolean isVirtual;
         public List<BIROperand> args;
-        public BIRBasicBlock thenBB;
         public Name name;
         public PackageID calleePkg;
 
@@ -147,7 +148,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand fp;
         public BIROperand lhsOp;
         public List<BIROperand> args;
-        public BIRBasicBlock thenBB;
         public boolean isAsync;
 
         public FPCall(DiagnosticPos pos,
@@ -293,7 +293,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class Wait extends BIRTerminator {
         public List<BIROperand> exprList;
         public BIROperand lhsOp;
-        public BIRBasicBlock thenBB;
 
         public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT);
@@ -318,7 +317,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class Flush extends BIRTerminator {
         public ChannelDetails[] channels;
         public BIROperand lhsOp;
-        public BIRBasicBlock thenBB;
 
         public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.FLUSH);
@@ -343,7 +341,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class WorkerReceive extends BIRTerminator {
         public Name workerName;
         public BIROperand lhsOp;
-        public BIRBasicBlock thenBB;
         public boolean isSameStrand;
 
         public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
@@ -371,7 +368,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     public static class WorkerSend extends BIRTerminator {
         public Name channel;
         public BIROperand data;
-        public BIRBasicBlock thenBB;
         public boolean isSameStrand;
         public boolean isSync;
         public BIROperand lhsOp;
@@ -404,7 +400,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand lhsOp;
         public List<String> keys;
         public List<BIROperand> valueExprs;
-        public BIRBasicBlock thenBB;
 
         public WaitAll(DiagnosticPos pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
                        BIRBasicBlock thenBB) {

@@ -41,8 +41,8 @@ public class AnnotationAccessTest {
         resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
 
-        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
-        Assert.assertEquals(resultTwo.getErrorCount(), 0);
+//        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
+//        Assert.assertEquals(resultTwo.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -54,7 +54,7 @@ public class AnnotationAccessTest {
     }
 
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
-            dataProvider = "annotAccessWithSourceOnlyPointsTests")
+            dataProvider = "annotAccessWithSourceOnlyPointsTests", enabled = false)
     public void testSourceOnlyAnnotAccess(String testFunction) {
         BValue[] returns = BRunUtil.invoke(resultTwo, testFunction);
         Assert.assertEquals(returns.length, 1);
@@ -69,7 +69,11 @@ public class AnnotationAccessTest {
                 { "testTypeAnnotAccess2" },
                 { "testObjectTypeAnnotAccess1" },
                 { "testObjectTypeAnnotAccess2" },
-                { "testObjectTypeAnnotAccess3" }
+                { "testObjectTypeAnnotAccess3" },
+                { "testServiceAnnotAccess1" },
+                { "testServiceAnnotAccess2" },
+                { "testServiceAnnotAccess3" },
+                { "testServiceAnnotAccess4" }
         };
     }
 

@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/io;
-import ballerina/jwt;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -26,11 +25,13 @@ import ballerina/jwt;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
+# + url - Target service url
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
 public type Client client object {
 
+    public string url;
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
@@ -42,6 +43,7 @@ public type Client client object {
     # + config - The configurations to be used when initializing the client
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
+        self.url = url;
         var result = initialize(url, self.config);
         if (result is error) {
             panic result;
@@ -450,11 +452,12 @@ public type DirectTokenRefreshConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
+// TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
 # The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+//# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|
-    jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

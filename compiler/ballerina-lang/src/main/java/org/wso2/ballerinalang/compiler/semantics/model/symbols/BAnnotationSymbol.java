@@ -40,6 +40,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public Set<AttachPoint> points;
     public int maskedPoints;
 
+    @Deprecated
     public BAnnotationSymbol(Name name, int flags, int maskedPoints, PackageID pkgID, BType type,
                              BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);

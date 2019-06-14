@@ -22,7 +22,6 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.reader.BytesMessageUtil;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -36,7 +35,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,12 +48,19 @@ import java.util.Map;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "getPayload",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "key", type = TypeKind.STRING)
+                @Argument(
+                        name = "key",
+                        type = TypeKind.STRING
+                )
         }
 )
 public class GetPayload extends BlockingNativeCallableUnit {
@@ -70,10 +75,7 @@ public class GetPayload extends BlockingNativeCallableUnit {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
             context.setReturnValues(new BString(TextMessageUtil.readBodyText(msgBuffer).toString()));
         } else if (messageType == Message.BYTES_TYPE || messageType == Message.DEFAULT_TYPE) {
-            ActiveMQBuffer msgBuffer = message.getBodyBuffer();
-            byte[] bytes = new byte[msgBuffer.readableBytes()];
-            BytesMessageUtil.bytesReadBytes(msgBuffer, bytes);
-            context.setReturnValues(new BValueArray(bytes));
+            context.setReturnValues(ArtemisUtils.getBArrayValue(message));
         } else if (messageType == Message.MAP_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
             TypedProperties properties = MapMessageUtil.readBodyMap(msgBuffer);

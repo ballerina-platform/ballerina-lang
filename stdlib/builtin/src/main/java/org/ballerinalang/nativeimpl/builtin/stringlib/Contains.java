@@ -52,6 +52,7 @@ public class Contains extends BlockingNativeCallableUnit {
     }
 
     public static boolean contains(Strand strand, String value, String subString) {
+        StringUtils.checkForNull(value, subString);
         return value.contains(subString);
     }
 }

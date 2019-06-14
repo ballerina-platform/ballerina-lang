@@ -28,10 +28,7 @@ configurations {
     distBal {
         transitive false
     }
-    tools {
-        transitive false
-    }
-    toolsZip {
+    langserverLib {
         transitive false
     }
     ballerinaZip {
@@ -46,6 +43,7 @@ configurations {
     staticFiles
     balx
     unzipped
+    langserverResources
 }
 
 dependencies {
@@ -69,15 +67,17 @@ dependencies {
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
-    dist project(':protobuf-ballerina')
+    // dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     docerina project(':docerina-gradle-plugin')
 
-    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist')
-    tools project(':language-server:language-server-stdio-launcher')
-    tools project(':language-server:language-server-core')
+    langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
+    langserverLib project(':language-server:language-server-stdio-launcher')
+    langserverLib project(':language-server:language-server-core')
+    langserverResources project(path: ':language-server:language-server-core', configuration: 'langserverResources')
+
     balSource project(path: ':jballerina', configuration: 'source')
     distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
@@ -152,19 +152,17 @@ def copyBinSpec = {
     }
 }
 
-def copyToolsBin = {
+def copyLangServerBinSpec = {
     path -> copySpec {
         from('resources')
         into(path + 'lib/tools/lang-server/launcher')
     }
 }
 
-def copyToolsZipSpec = {
+def copyLangSeverIndexSpec = {
     path -> copySpec {
-        configurations.toolsZip.asFileTree.each {
-            from(zipTree(it))
-        }
-        into(path + 'lib/tools/lang-server')
+        from configurations.langserverResources
+        into(path + 'lib/tools/lang-server/resources')
      }
 }
 
@@ -180,9 +178,9 @@ def copyBallerinaZipSpec = {
     }
 }
 
-def copyToolsSpec = {
+def copyLangServerLibsSpec = {
     path -> copySpec {
-        from configurations.tools
+        from configurations.langserverLib
         into(path + 'lib/tools/lang-server/lib')
     }
 }
@@ -242,15 +240,15 @@ task createApiDocsZip(type: Zip) {
     archiveName "ballerina-api-docs-${project.version}.zip"
 }
 
-task createZip(type: Zip, dependsOn: ':language-server:language-server-core:build') {
+task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
-    with copyToolsSpec(basePath)
-    with copyToolsZipSpec(basePath)
-    with copyToolsBin(basePath)
+    with copyLangServerLibsSpec(basePath)
+    with copyLangSeverIndexSpec(basePath)
+    with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
@@ -259,15 +257,16 @@ task createZip(type: Zip, dependsOn: ':language-server:language-server-core:buil
 //    with copySrcBaloSpec(basePath)
 }
 
+
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
-    with copyToolsSpec(installDir)
-    with copyToolsZipSpec(installDir)
-    with copyToolsBin(installDir)
+    with copyLangServerLibsSpec(installDir)
+    with copyLangSeverIndexSpec(installDir)
+    with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
@@ -277,16 +276,17 @@ task updateBalHome(type: Copy) {
     into System.getenv('BAL_HOME')
 }
 
-task createDistribution(type: Copy, dependsOn: ':language-server:language-server-core:build') {
+task createDistribution(type: Copy) {
+    mustRunAfter(':language-server:language-server-core:createZip')
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
-    with copyToolsSpec("")
-    with copyToolsZipSpec("")
-    with copyToolsBin("")
+    with copyLangServerLibsSpec("")
+    with copyLangSeverIndexSpec("")
+    with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
     with apiDocsSpec("")
     with examplesSpec("")
@@ -299,7 +299,7 @@ task createDistribution(type: Copy, dependsOn: ':language-server:language-server
 build {
     dependsOn createZip
     dependsOn createDistribution
-    finalizedBy ':ballerina-tools-integration-test:test'
+    // finalizedBy ':ballerina-tools-integration-test:test'
 }
 
 artifacts {

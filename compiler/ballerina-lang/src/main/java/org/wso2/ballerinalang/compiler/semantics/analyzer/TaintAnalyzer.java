@@ -1777,7 +1777,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    // todo: write what this do, and why
+    /**
+     * Validate the taintedness of return and parameter values when no tainted value is passed into the function.
+     * In this case:
+     *      1. If function returns a tainted value it must annotate return as @tainted.
+     *      2. If function taints a passed in argument, it must annotate respective parameter @tainted.
+     *      3. Function must not return a values who's taintedness is unknown.
+     */
     private void validateReturnAndParameterTaintedAnnotations(BLangInvokableNode invokableNode,
                                                               Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
         TaintRecord taintRecord = taintedStatusBasedOnAnnotations.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
@@ -1803,7 +1809,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-
+        // todo: hadle unknown taintedness of return
     }
 
     private void analyzeReturnTaintedStatus(Map<Integer, TaintRecord> taintTable, BLangInvokableNode invokableNode,

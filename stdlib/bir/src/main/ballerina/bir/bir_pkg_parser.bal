@@ -16,18 +16,16 @@
 
 public type PackageParser object {
     BirChannelReader reader;
-    TypeParser typeParser;
     map<VariableDcl> globalVarMap;
 
-    public function __init(BirChannelReader reader, TypeParser typeParser) {
+    public function __init(BirChannelReader reader) {
         self.reader = reader;
-        self.typeParser = typeParser;
         self.globalVarMap = {};
     }
 
     public function parseVariableDcl() returns VariableDcl {
         VarKind kind = parseVarKind(self.reader);
-        var typeValue = self.typeParser.parseType();
+        var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
         VariableDcl dcl = {
             typeValue: typeValue,
@@ -48,7 +46,7 @@ public type PackageParser object {
 
     public function skipAnnotation() {
         _ = self.reader.readInt32();
-        _ = self.reader.readInt8();
+        _ = self.reader.readInt32();
 
         int attachPointCount = self.reader.readInt32();
         int i = 0;
@@ -58,7 +56,7 @@ public type PackageParser object {
             i += 1;
         }
 
-        _ = self.typeParser.parseType();
+        _ = self.reader.readTypeCpRef();
     }
 
     function skipConstants() {
@@ -68,7 +66,7 @@ public type PackageParser object {
 
     public function parseFunctionParam() returns FunctionParam {
         VarKind kind = parseVarKind(self.reader);
-        var typeValue = self.typeParser.parseType();
+        var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
@@ -90,28 +88,29 @@ public type PackageParser object {
         }
         return funcs;
     }
+    private function parseInvokableType() returns BInvokableType {
+        var functionType = self.reader.readTypeCpRef();
+        if (functionType is BInvokableType) {
+            return functionType;
+        }
+        error err = error("Illegal function signature type");
+        panic err;
+    }
 
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
         map<VariableDcl> localVarMap = {};
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
+        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
-        var isDeclaration = self.reader.readBoolean();
-        var isInterface = self.reader.readBoolean();
-        var visibility = parseVisibility(self.reader);
-        var typeTag = self.reader.readInt8();
-        if (typeTag != self.typeParser.TYPE_TAG_INVOKABLE) {
-            error err = error("Illegal function signature type tag" + typeTag);
-            panic err;
-        }
-        var sig = self.typeParser.parseInvokableType();
+        int flags = self.reader.readInt32();
+        var sig = self.parseInvokableType();
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
 
         BType? receiverType = ();
         boolean hasReceiverType = self.reader.readBoolean();
         if (hasReceiverType) {
-            receiverType = self.typeParser.parseType();
+            receiverType = self.reader.readTypeCpRef();
         }
 
         int taintLength = self.reader.readInt64();
@@ -165,9 +164,7 @@ public type PackageParser object {
         return {
             pos: pos,
             name: { value: name },
-            isDeclaration: isDeclaration,
-            isInterface:isInterface,
-            visibility: visibility,
+            flags: flags,
             localVars: dcls,
             basicBlocks: basicBlocks,
             params: params,
@@ -287,9 +284,9 @@ public type PackageParser object {
     function parseTypeDef() returns TypeDef {
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         string name = self.reader.readStringCpRef();
-        Visibility visibility = parseVisibility(self.reader);
-        var bType = self.typeParser.parseType();
-        return { pos:pos, name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: () };
+        int flags = self.reader.readInt32();
+        var bType = self.reader.readTypeCpRef();
+        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       
@@ -299,9 +296,9 @@ public type PackageParser object {
         while i < numGlobalVars {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
-            Visibility visibility = parseVisibility(self.reader);
-            var typeValue = self.typeParser.parseType();
-            GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, visibility:visibility};
+            int flags = self.reader.readInt32();
+            var typeValue = self.reader.readTypeCpRef();
+            GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[i] = dcl;
             self.globalVarMap[name] = dcl;
             i = i + 1;
@@ -358,21 +355,6 @@ public function parseVarScope(BirChannelReader reader) returns VarScope {
     }
     error err = error("unknown var scope tag " + b);
     panic err;
-}
-
-public function parseVisibility(BirChannelReader reader) returns Visibility {
-    int b = reader.readInt8();
-    if (b == 0) {
-        return "PACKAGE_PRIVATE";
-    } else if (b == 1) {
-        return "PRIVATE";
-    } else if (b == 2) {
-        return "PUBLIC";
-    } else if (b == 3) {
-        return "OPTIONAL";
-    }
-    error err = error("unknown variable visiblity tag " + b);
-        panic err;
 }
 
 public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPos {

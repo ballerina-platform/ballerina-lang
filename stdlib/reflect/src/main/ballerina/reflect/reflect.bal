@@ -31,21 +31,21 @@ public function getResourceAnnotations(service serviceType, string resourceName)
 
 public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;
 
-const CURRENT_PACKAGE_ALIAS = ".";
 const COLON = ":";
 
 public function getServiceAnnots(service serviceType, string? moduleName = (), string annotName) returns any {
-    return getServiceAnnotationsExternal(serviceType, (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+    return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
 }
 
 public function getResourceAnnots(service serviceType, string resourceName, string? moduleName = (),
                                        string annotName) returns any {
     return getResourceAnnotationsExternal(serviceType, resourceName,
-                                          (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+                                          getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
 }
 
 public function getFunctionAnnots(any functionPointer, string? moduleName = (), string annotName) returns any {
-    return getFunctionAnnotationsExternal(functionPointer, (moduleName ?: CURRENT_PACKAGE_ALIAS) + COLON + annotName);
+    return getFunctionAnnotationsExternal(functionPointer,
+                                          getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
 }
 
 function getServiceAnnotationsExternal(service serviceType, string annot) returns any = external;
@@ -54,3 +54,10 @@ function getResourceAnnotationsExternal(service serviceType, string resourceName
     returns any = external;
 
 function getFunctionAnnotationsExternal(any functionPointer, string annot) returns any = external;
+
+function getAnnotQualifiedIdentifier(string? moduleName = (), string annotName) returns string {
+    if (moduleName is string) {
+        return moduleName + COLON + annotName;
+    }
+    return annotName;
+}

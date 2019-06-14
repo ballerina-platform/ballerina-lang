@@ -17,6 +17,10 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -91,6 +95,35 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
         zin.close();
     }
 
+    static ErrorValue decompress(InputStream inputStream, Path outdir) throws IOException {
+        ZipInputStream zin;
+        ErrorValue error = null;
+        // try {
+        zin = new ZipInputStream(inputStream);
+        ZipEntry entry;
+        String name, dir;
+        while ((entry = zin.getNextEntry()) != null) {
+            name = entry.getName();
+            if (!isDecompressDestinationValid(outdir.resolve(name), outdir)) {
+                error = CompressionUtils.createCompressionError("Arbitrary File Write attack attempted via an archive" +
+                        " " +
+                        "file. File name: " + entry.getName());
+                break;
+            }
+            if (entry.isDirectory()) {
+                Files.createDirectories(outdir.resolve(name));
+                continue;
+            }
+            dir = getDirectoryPath(name);
+            if (dir != null) {
+                Files.createDirectories(outdir.resolve(dir));
+            }
+            extractFile(zin, outdir, name);
+        }
+        zin.close();
+        return error;
+    }
+
     /**
      * Validate if the files being extracted will remain within the expected destination path. This is used to prevent
      * Arbitrary File Write attack attempts (Zip Slip).
@@ -161,14 +194,35 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
             } else {
                 try {
                     decompress(inputStream, destPath, context);
-//                    if (context.getReturnValues() == null) {
-//                        context.setReturnValues();
-//                    }
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,
                             "Error occurred when decompressing " + e.getMessage()));
                 }
             }
         }
+    }
+
+    public static Object decompressFromByteArray(Strand strand, ArrayValue contents, ObjectValue destDir) {
+        byte[] content = contents.getBytes();
+        if (content.length == 0) {
+            return CompressionUtils.createCompressionError("Length of the byte array is empty");
+        } else {
+            InputStream inputStream = new ByteArrayInputStream(content);
+
+            Path destPath = (Path) destDir.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+            if (!destPath.toFile().exists()) {
+                return CompressionUtils.createCompressionError(
+                        "Path to place the decompressed file is not available");
+            } else {
+                try {
+                    return decompress(inputStream, destPath);
+                } catch (IOException e) {
+                    return CompressionUtils.createCompressionError(
+                            "Error occurred when decompressing " + e.getMessage());
+                }
+            }
+        }
+
     }
 }

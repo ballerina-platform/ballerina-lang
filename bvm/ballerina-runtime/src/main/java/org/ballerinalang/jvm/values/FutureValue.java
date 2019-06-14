@@ -72,4 +72,8 @@
      public Object copy(Map<Object, Object> refs) {
          return null;
      }
+
+     public void cancel() {
+         this.strand.cancel = true;
+     }
  }

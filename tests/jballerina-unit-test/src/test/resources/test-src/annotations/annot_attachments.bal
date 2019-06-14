@@ -60,19 +60,7 @@ type T2 object {
                             @v6 { val: "v61 value rest" } string... others) returns @v7 () {
         self.name = name;
     }
-
-    public function getLetter(@v6 { val: "v62 value" } int intVal) returns @v7 string;
 };
-
-@v3 {
-    val: "v32 value"
-}
-@v4 {
-    val: 42
-}
-public function T2.getLetter(@v6 { val: "v62 value" } int intVal) returns @v7 string {
-    return self.name.substring(intVal, intVal + 1);
-}
 
 @v3 {
     val: "v33 value"
@@ -98,42 +86,53 @@ int i = 12;
 }
 const F = 123.4;
 
-//@v9 {
-//    val: "v91"
-//}
-//@v9 {
-//    val: "v92"
-//}
-//listener Listener lis = new;
-//
-//@v8 {
-//    val: "v8"
-//}
-//service ser on lis {
-//
-//    @v3 {
-//        val: "v34"
-//    }
-//    @v5 {
-//        val: "54"
-//    }
-//    resource function res(@v6 { val: "v64" } int intVal) returns @v7 string {
-//        return "";
-//    }
-//}
-//
-//type Listener object {
-//    *AbstractListener;
-//
-//    public function __init() {
-//    }
-//
-//    public function __attach(service s, string? name = ()) returns error? {
-//    }
-//
-//    public function __start() returns error? {
-//    }
-//
-//    public function __stop() returns error? {
-//    }
-//};
+@v9 {
+    val: "v91"
+}
+listener Listener lis = new;
+
+@v8 {
+    val: "v8"
+}
+service ser on lis {
+
+    @v3 {
+        val: "v34"
+    }
+    @v5 {
+        val: "54"
+    }
+    resource function res(@v6 { val: "v64" } int intVal) returns @v7 string {
+        return "";
+    }
+}
+
+service serTwo = @v8 {
+                 val: "v82"
+              } service {
+
+    @v5 {
+        val: "542"
+    }
+    resource function res(@v6 { val: "v642" } int intVal) returns @v7 int {
+        return 1;
+    }
+};
+
+type Listener object {
+    *AbstractListener;
+
+    public function __init() {
+    }
+
+    public function __attach(service s, string? name = ()) returns error? {
+    }
+
+    public function __start() returns error? {
+    }
+
+    public function __stop() returns error? {
+    }
+};
+
+//function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;

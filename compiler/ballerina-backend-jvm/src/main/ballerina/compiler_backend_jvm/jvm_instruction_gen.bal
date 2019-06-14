@@ -79,10 +79,6 @@ type InstructionGenerator object {
             self.generateMulIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_MOD) {
             self.generateRemIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_AND) {
-            self.generateAndIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_OR) {
-            self.generateOrIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
@@ -570,94 +566,34 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    function generateAndIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("AND ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPNE, label1);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_0);
-
-        self.mv.visitLabel(label2);
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
-    function generateOrIns(bir:BinaryOp binaryIns) {
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ILOAD
-        // ICONST_1
-        // IF_ICMPNE L0
-        // ICONST_1
-        // ISTORE
-
-        //io:println("OR ins : " + io:sprintf("%s", binaryIns));
-
-        jvm:Label label1 = new;
-        jvm:Label label2 = new;
-
-        self.loadVar(binaryIns.rhsOp1.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.loadVar(binaryIns.rhsOp2.variableDcl);
-
-        self.mv.visitInsn(ICONST_1);
-        self.mv.visitJumpInsn(IF_ICMPEQ, label1);
-
-        self.mv.visitInsn(ICONST_0);
-        self.mv.visitJumpInsn(GOTO, label2);
-
-        self.mv.visitLabel(label1);
-        self.mv.visitInsn(ICONST_1);
-
-        self.mv.visitLabel(label2);
-
-        self.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {
         return self.indexMap.getIndex(varDcl);
     }
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
-        bir:BType typeOfMapNewIns = mapNewIns.typeValue;
+        bir:BType typeOfMapNewIns = mapNewIns.bType;
 
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
-            className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+            var typeRef = mapNewIns.typeRef;
+            className = self.currentPackageName;
+            if (typeRef is bir:TypeRef) {
+                className = typeRefToClassName(typeRef) + "/";
+            }
+            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            if (typeRef is bir:TypeRef) {
+                loadExternalOrLocalType(self.mv, typeRef);
+            } else {
+                loadType(self.mv, mapNewIns.bType);
+            }
+        } else {
+            self.mv.visitTypeInsn(NEW, className);
+            self.mv.visitInsn(DUP);
+            loadType(self.mv, mapNewIns.bType);
         }
-
-        self.mv.visitTypeInsn(NEW, className);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, mapNewIns.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
@@ -720,9 +656,12 @@ type InstructionGenerator object {
             self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
-        } else {
+        } else if (mapLoadIns.except) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+        } else {
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
         // store in the target reg
@@ -786,6 +725,7 @@ type InstructionGenerator object {
         self.loadVar(inst.lhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         self.loadVar(inst.rhsOp.variableDcl);
+        addBoxInsn(self.mv, inst.rhsOp.variableDcl.typeValue);
 
         bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
         if (varRefType is bir:BJSONType ||
@@ -795,27 +735,8 @@ type InstructionGenerator object {
             return;
         }
 
-        string valueDesc;
-        if (varRefType is bir:BArrayType) {
-            if (varRefType.eType is bir:BTypeByte) {
-                self.mv.visitInsn(I2B);
-                valueDesc = "B";
-            } else if (varRefType.eType is bir:BTypeInt) {
-                valueDesc = "J";
-            } else if (varRefType.eType is bir:BTypeString) {
-                valueDesc = io:sprintf("L%s;", STRING_VALUE);
-            } else if (varRefType.eType is bir:BTypeBoolean) {
-                valueDesc = "Z";
-            } else if (varRefType.eType is bir:BTypeFloat) {
-                valueDesc = "D";
-            } else {
-                valueDesc = io:sprintf("L%s;", OBJECT);
-            }
-        } else {
-            valueDesc = io:sprintf("L%s;", OBJECT);
-        }
-
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
+        self.mv.visitMethodInsn(INVOKESTATIC, LIST_UTILS, "add", io:sprintf("(L%s;JL%s;)V", ARRAY_VALUE, OBJECT),
+                                    false);
     }
 
     # Generating loading a new value from an array to the top of the stack
@@ -831,6 +752,9 @@ type InstructionGenerator object {
                 (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
                         io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
+        } else if (varRefType is bir:BTupleType) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
         } else if (bType is bir:BTypeString) {
@@ -855,10 +779,12 @@ type InstructionGenerator object {
     function generateNewErrorIns(bir:NewError newErrorIns) {
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
+        // load errorType
+        loadType(self.mv, newErrorIns.typeValue);
         self.loadVar(newErrorIns.reasonOp.variableDcl);
         self.loadVar(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, STRING_VALUE, OBJECT), false);
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
@@ -881,11 +807,24 @@ type InstructionGenerator object {
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    function generateObjectNewIns(bir:NewInstance objectNewIns) {
-        string className = self.currentPackageName + cleanupTypeName(objectNewIns.typeDef.name.value);
+    function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
+        var typeDefRef = objectNewIns.typeDefRef;
+        bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
+        string className = self.currentPackageName;
+        if (typeDefRef is bir:TypeRef) {
+            className = typeRefToClassName(typeDefRef) + "/";
+        }
+        className = className + cleanupTypeName(typeDef.name.value);
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, objectNewIns.typeDef.typeValue);
+
+        bir:BType typeValue = typeDef.typeValue;
+        if (typeValue is bir:BServiceType) {
+            // For services, create a new type for each new service value. TODO: do only for local vars
+            createServiceType(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex = strandIndex);
+        } else {
+            loadExternalOrLocalType(self.mv, typeDefRef);
+        }
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
@@ -1161,6 +1100,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BJSONType ||
                 bType is bir:BFutureType ||
                 bType is bir:BObjectType ||
+                bType is bir:BServiceType ||
                 bType is bir:BTypeDecimal ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
@@ -1208,6 +1148,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
                     bType is bir:BObjectType ||
+                    bType is bir:BServiceType ||
                     bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
                     bType is bir:BFiniteType ||

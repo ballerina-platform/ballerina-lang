@@ -319,129 +319,129 @@ public function funcWithParam(@v1 {
     return 1;
 }
 
-//@v1 {
-//    val: "v1"
-//}
-//@v2 {
-//    val: "v2"
-//}
-//@v3 {
-//    val: "v3"
-//}
-//@v4 {
-//    val: 4
-//}
-//@v5 {
-//    val: "v5"
-//}
-//@v6 {
-//    val: "v6"
-//}
-//@v7
-//@v8 {
-//    val: "v8"
-//}
-//@v10 {
-//    val: "v10"
-//}
-//@v11 {
-//    val: 11
-//}
-//@v12 {
-//    val: "v12"
-//}
-//@v13 {
-//    val: "v13"
-//}
-//listener Listener lis = new;
+@v1 {
+    val: "v1"
+}
+@v2 {
+    val: "v2"
+}
+@v3 {
+    val: "v3"
+}
+@v4 {
+    val: 4
+}
+@v5 {
+    val: "v5"
+}
+@v6 {
+    val: "v6"
+}
+@v7
+@v8 {
+    val: "v8"
+}
+@v10 {
+    val: "v10"
+}
+@v11 {
+    val: 11
+}
+@v12 {
+    val: "v12"
+}
+@v13 {
+    val: "v13"
+}
+listener Listener lis = new;
 
-//@v1 {
-//    val: "v1"
-//}
-//@v2 {
-//    val: "v2"
-//}
-//@v3 {
-//    val: "v3"
-//}
-//@v4 {
-//    val: 4
-//}
-//@v5 {
-//    val: "v5"
-//}
-//@v6 {
-//    val: "v6"
-//}
-//@v7
-//@v9 {
-//    val: "v9"
-//}
-//@v10 {
-//    val: "v10"
-//}
-//@v11 {
-//    val: 11
-//}
-//@v12 {
-//    val: "v12"
-//}
-//@v13 {
-//    val: "v13"
-//}
-//service ser on lis {
-//
-//    @v1 {
-//        val: "v1"
-//    }
-//    @v2 {
-//        val: "v2"
-//    }
-//    @v4 {
-//        val: 4
-//    }
-//    @v6 {
-//        val: "v6"
-//    }
-//    @v7
-//    @v8 {
-//        val: "v8"
-//    }
-//    @v9 {
-//        val: "v9"
-//    }
-//    @v10 {
-//        val: "v10"
-//    }
-//    @v11 {
-//        val: 11
-//    }
-//    @v12 {
-//        val: "v12"
-//    }
-//    @v13 {
-//        val: "v13"
-//    }
-//    resource function res() {
-//
-//    }
-//}
+@v1 {
+    val: "v1"
+}
+@v2 {
+    val: "v2"
+}
+@v3 {
+    val: "v3"
+}
+@v4 {
+    val: 4
+}
+@v5 {
+    val: "v5"
+}
+@v6 {
+    val: "v6"
+}
+@v7
+@v9 {
+    val: "v9"
+}
+@v10 {
+    val: "v10"
+}
+@v11 {
+    val: 11
+}
+@v12 {
+    val: "v12"
+}
+@v13 {
+    val: "v13"
+}
+service ser on lis {
 
-//type Listener object {
-//    *AbstractListener;
-//
-//    public function __init() {
-//    }
-//
-//    public function __attach(service s, string? name = ()) returns error? {
-//    }
-//
-//    public function __start() returns error? {
-//    }
-//
-//    public function __stop() returns error? {
-//    }
-//};
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v4 {
+        val: 4
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    resource function res() {
+
+    }
+}
+
+type Listener object {
+    *AbstractListener;
+
+    public function __init() {
+    }
+
+    public function __attach(service s, string? name = ()) returns error? {
+    }
+
+    public function __start() returns error? {
+    }
+
+    public function __stop() returns error? {
+    }
+};
 
 @v1 {
     val: "v1"
@@ -550,3 +550,83 @@ int i = 12;
     val: "v13"
 }
 const f = 123.4;
+
+function externalFunctionOne(int fi, float ff) returns int = @v1 {
+                                                                val: "v1"
+                                                            }
+                                                            @v2 {
+                                                                val: "v2"
+                                                            }
+                                                            @v3 {
+                                                                val: "v3"
+                                                            }
+                                                            @v4 {
+                                                                val: 4
+                                                            }
+                                                            @v5 {
+                                                                val: "v5"
+                                                            }
+                                                            @v6 {
+                                                                val: "v6"
+                                                            }
+                                                            @v7
+                                                            @v8 {
+                                                                val: "v8"
+                                                            }
+                                                            @v9 {
+                                                                val: "v9"
+                                                            }
+                                                            @v10 {
+                                                                val: "v10"
+                                                            }
+                                                            @v11 {
+                                                                val: 11
+                                                            }
+                                                            @v12 {
+                                                                val: "v12"
+                                                            } external;
+
+@v8 {
+    val: "invalid"
+}
+service serVar =
+@v1 {
+    val: "v1"
+}
+@v2 {
+    val: "v2"
+}
+@v3 {
+    val: "v3"
+}
+@v4 {
+    val: 4
+}
+@v5 {
+    val: "v5"
+}
+@v6 {
+    val: "v6"
+}
+@v7
+@v9 {
+    val: "v9"
+}
+@v10 {
+    val: "v10"
+}
+@v11 {
+    val: 11
+}
+@v12 {
+    val: "v12"
+}
+@v13 {
+    val: "v13"
+}
+service {
+
+    resource function res() {
+
+    }
+};

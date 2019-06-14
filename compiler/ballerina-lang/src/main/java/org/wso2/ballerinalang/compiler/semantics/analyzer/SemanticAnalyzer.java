@@ -266,14 +266,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
-        validateAnnotationAttachmentCount(funcNode, funcNode.annAttachments);
+        validateAnnotationAttachmentCount(funcNode.annAttachments);
 
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
                 this.analyzeDef(annotationAttachment, funcEnv);
             });
-            validateAnnotationAttachmentCount(funcNode.returnTypeNode, funcNode.returnTypeAnnAttachments);
+            validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
+        }
+
+        if (Symbols.isNative(funcNode.symbol)) {
+            funcNode.externalAnnAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+                this.analyzeDef(annotationAttachment, funcEnv);
+            });
+            validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
         }
 
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
@@ -324,7 +332,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             annotationAttachment.accept(this);
         });
-        validateAnnotationAttachmentCount(typeDefinition, typeDefinition.annAttachments);
+        validateAnnotationAttachmentCount(typeDefinition.annAttachments);
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
@@ -436,7 +444,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
         });
-        validateAnnotationAttachmentCount(annotationNode, annotationNode.annAttachments);
+        validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -505,7 +513,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 });
             }
         }
-        validateAnnotationAttachmentCount(varNode, varNode.annAttachments);
+        validateAnnotationAttachmentCount(varNode.annAttachments);
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
@@ -1801,7 +1809,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
             this.analyzeDef(annotationAttachment, serviceEnv);
         });
-        validateAnnotationAttachmentCount(serviceNode, serviceNode.annAttachments);
+        validateAnnotationAttachmentCount(serviceNode.annAttachments);
 
         if (serviceNode.isAnonymousServiceValue) {
             return;
@@ -2283,7 +2291,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateAnnotationAttachmentCount(BLangNode node, List<BLangAnnotationAttachment> attachments) {
+    private void validateAnnotationAttachmentCount(List<BLangAnnotationAttachment> attachments) {
         Map<BAnnotationSymbol, Integer> attachmentCounts = new HashMap<>();
         for (BLangAnnotationAttachment attachment : attachments) {
             if (attachment.annotationSymbol == null) {
@@ -2295,7 +2303,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         attachmentCounts.forEach((symbol, count) -> {
             if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
-                this.dlog.error(node.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
+                this.dlog.error(attachments.stream()
+                                        .filter(attachment -> attachment.annotationSymbol.equals(symbol))
+                                        .findFirst()
+                                        .get().pos,
+                                DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
                                 symbol.name);
             }
         });

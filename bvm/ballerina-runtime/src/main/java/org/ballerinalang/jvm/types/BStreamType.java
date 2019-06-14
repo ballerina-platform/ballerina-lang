@@ -36,7 +36,7 @@ public class BStreamType extends BType {
      * @param constraint the type by which this stream is constrained
      * @param pkgPath    package path
      */
-    BStreamType(String typeName, BType constraint, String pkgPath) {
+    BStreamType(String typeName, BType constraint, BPackage pkgPath) {
         super(typeName, pkgPath, StreamValue.class);
         this.constraint = constraint;
     }

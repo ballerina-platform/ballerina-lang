@@ -17,12 +17,24 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations.testRuntimeClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    implementation 'org.ballerinalang:ballerina-builtin:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
@@ -34,6 +46,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-logging')
+    implementation project(':ballerina-builtin')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
@@ -41,12 +54,10 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
-    implementation project(':ballerina-jwt')
     testCompile project(':ballerina-launcher')
     testCompile 'org.slf4j:slf4j-simple'
 
-    baloImplementation group: 'org.ballerinalang', name: 'ballerina-builtin', version: '0.992.0-m1', ext: 'zip',
-            classifier: 'ballerina-binary-repo'
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -63,7 +74,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
@@ -75,31 +85,15 @@ dependencies {
     implementation 'org.jvnet.mimepull:mimepull'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-http')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
+    testCompile project(':ballerina-jvm')
 }
 
-task copyBuiltin(type: Copy) {
-    from zipTree("$buildDir/lib/ballerina-builtin-0.992.0-m1-ballerina-binary-repo.zip")
-    into "$buildDir/lib/"
-}
-
-copyBuiltin.dependsOn createBalHome
-createBalo.dependsOn copyBuiltin
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+createBalo {
+    jvmTarget = 'true'
 }
 
 configurations {

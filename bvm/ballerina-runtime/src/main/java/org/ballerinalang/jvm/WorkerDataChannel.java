@@ -40,7 +40,7 @@ public class WorkerDataChannel {
     private Throwable panic;
     private int senderCounter;
     private int receiverCounter;
-    private boolean syncSent = false;
+    private boolean reschedule;
 
     private Lock channelLock;
 
@@ -95,7 +95,7 @@ public class WorkerDataChannel {
     public Object syncSendData(Object data, Strand strand) throws Throwable {
         try {
             acquireChannelLock();
-            if (!syncSent) {
+            if (!reschedule) {
                 // this is a new message, not a reschedule
                 this.channel.add(new WorkerResult(data, true));
                 this.senderCounter++;
@@ -115,15 +115,17 @@ public class WorkerDataChannel {
                     return ret;
                 }
 
+                reschedule = true;
                 strand.blocked = true;
                 strand.yield = true;
                 return null;
             }
 
+            reschedule = false;
             if (this.panic != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 Throwable e = this.panic;
                 this.panic = null;
-                throw new RuntimeException(e);
+                throw e;
             } else if (this.error != null && this.channel.peek() != null && this.channel.peek().isSync) {
                 // should make sure this error happened before sending the sync message
                 ErrorValue ret = this.error;
@@ -134,13 +136,12 @@ public class WorkerDataChannel {
             // sync send done
             return null;
         } finally {
-            this.syncSent = false;
             releaseChannelLock();
         }
     }
     
     @SuppressWarnings("rawtypes")
-    public Object tryTakeData(Strand strand) {
+    public Object tryTakeData(Strand strand) throws Throwable {
         try {
             acquireChannelLock();
             WorkerResult result = this.channel.peek();
@@ -153,7 +154,6 @@ public class WorkerDataChannel {
                     Strand waiting  = this.waitingSender.waitingStrand;
                     waiting.scheduler.unblockStrand(waiting);
                     this.waitingSender = null;
-                    this.syncSent = true;
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
@@ -170,7 +170,7 @@ public class WorkerDataChannel {
                 return result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
-                throw new RuntimeException(this.panic);
+                throw this.panic;
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
                 return error;

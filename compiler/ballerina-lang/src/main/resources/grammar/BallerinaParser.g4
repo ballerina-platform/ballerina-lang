@@ -56,9 +56,13 @@ callableUnitBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
+externalFunctionBody
+    :   ASSIGN annotationAttachment* EXTERNAL
+    ;
+
 functionDefinition
     :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
-     ASSIGN EXTERNAL SEMICOLON)
+     externalFunctionBody SEMICOLON)
     ;
 
 lambdaFunction
@@ -109,7 +113,8 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    callableUnitSignature (callableUnitBody | externalFunctionBody? SEMICOLON)
     ;
 
 annotationDefinition
@@ -738,7 +743,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
-    |   expression DOT AT nameReference                                     # annotAccessExpression
+    |   expression ANNOTATION_ACCESS nameReference                          # annotAccessExpression
     ;
 
 constantExpression

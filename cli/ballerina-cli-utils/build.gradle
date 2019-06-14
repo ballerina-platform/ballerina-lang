@@ -25,7 +25,7 @@ configurations {
 // Task to generate balx for the pull command.
 task genBalxForPull(type: JavaExec) {
     dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
@@ -44,7 +44,7 @@ task genBalxForPull(type: JavaExec) {
 // Task to generate balx for the push command.
 task genBalxForPush(type: JavaExec) {
     dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
@@ -63,7 +63,7 @@ task genBalxForPush(type: JavaExec) {
 // Task to generate balx for the search command.
 task genBalxForSearch(type: JavaExec) {
     dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
@@ -82,7 +82,7 @@ task genBalxForSearch(type: JavaExec) {
 // Task to generate balx for the token updater.
 task genBalxForTokenUpdater(type: JavaExec) {
     dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
@@ -117,8 +117,6 @@ dependencies {
     baloImplementation project(path: ":ballerina-task", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
-
 
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
 //    implementation project(':ballerina-lang')

@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
@@ -148,14 +148,7 @@ public abstract class LSCompletionProvider {
      */
     protected List<CompletionItem> getCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> list,
                                                          LSContext context) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        if (list.isLeft()) {
-            completionItems.addAll(list.getLeft());
-        } else {
-            completionItems.addAll(this.getCompletionItemList(list.getRight(), context));
-        }
-
-        return completionItems;
+        return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
 
     /**
@@ -172,18 +165,16 @@ public abstract class LSCompletionProvider {
         List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
+        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
+                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
         return !lhsDefaultTokens.isEmpty()
-                && ((CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.COLON)
-                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.DOT)
-                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.RARROW)
-                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.LARROW)
-                || (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.NOT)
-                || (lhsDefaultTokens.size() >= 2
-                && (lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.COLON
-                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.DOT
-                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.RARROW
-                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.LARROW
-                || lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.NOT)));
+                && (lastToken == BallerinaParser.COLON || lastToken == BallerinaParser.DOT
+                || lastToken == BallerinaParser.RARROW || lastToken == BallerinaParser.LARROW
+                || lastToken == BallerinaParser.NOT
+                || (lhsDefaultTokens.size() >= 2 && (tokenBeforeLast == BallerinaParser.COLON
+                || tokenBeforeLast == BallerinaParser.DOT || tokenBeforeLast == BallerinaParser.RARROW
+                || tokenBeforeLast == BallerinaParser.LARROW || tokenBeforeLast == BallerinaParser.NOT)));
     }
 
     /**
@@ -224,12 +215,11 @@ public abstract class LSCompletionProvider {
                 .findAny();
         pkgSymbolInfo.ifPresent(symbolInfo -> {
             BSymbol pkgSymbol = symbolInfo.getScopeEntry().symbol;
-            pkgSymbol.scope.entries
-                    .forEach((name, scopeEntry) -> {
-                        if (scopeEntry.symbol instanceof BTypeSymbol) {
-                            filteredList.add(new SymbolInfo(name.getValue(), scopeEntry));
-                        }
-                    });
+            pkgSymbol.scope.entries.forEach((name, scopeEntry) -> {
+                if (scopeEntry.symbol instanceof BTypeSymbol) {
+                    filteredList.add(new SymbolInfo(name.getValue(), scopeEntry));
+                }
+            });
         });
         
         return this.getCompletionItemList(filteredList, ctx);
@@ -244,6 +234,7 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> addTopLevelItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(getStaticItem(context, Snippet.KW_IMPORT));
+        completionItems.add(getStaticItem(context, Snippet.KW_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));
@@ -272,18 +263,6 @@ public abstract class LSCompletionProvider {
      */
     protected CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
         return snippet.get().build(ctx);
-    }
-
-    /**
-     * Check whether the given token is an access modifier token.
-     *
-     * @param tokenType Token type
-     * @return {@link Boolean} Whether the token is an access modifier or not
-     */
-    protected boolean isAccessModifierToken(int tokenType) {
-        return tokenType == BallerinaParser.PUBLIC
-                || tokenType == BallerinaParser.CONST
-                || tokenType == BallerinaParser.FINAL;
     }
 
     /**
@@ -354,7 +333,7 @@ public abstract class LSCompletionProvider {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
-                    || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
+                    || (CommonKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };
     }
@@ -377,7 +356,7 @@ public abstract class LSCompletionProvider {
     }
 
     protected List<CompletionItem> getCompletionItemsAfterOnKeyword(LSContext ctx) {
-        List<SymbolInfo> filtered = this.filterListenerVariables(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filtered = this.filterListenerVariables(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<CompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filtered, ctx));
         completionItems.add(Snippet.KW_NEW.get().build(ctx));
 
@@ -660,7 +639,7 @@ public abstract class LSCompletionProvider {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;
             String pkgAlias = userDefinedType.getPackageAlias().getValue();
             String typeName = userDefinedType.getTypeName().getValue();
-            return pkgAlias.isEmpty() ? typeName : (pkgAlias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName);
+            return pkgAlias.isEmpty() ? typeName : (pkgAlias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName);
         } else {
             throw new LSCompletionException("Error identifying the type of anonymous function parameter");
         }
@@ -675,7 +654,7 @@ public abstract class LSCompletionProvider {
      */
     private List<CompletionItem> getVarDefCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
         filteredList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;

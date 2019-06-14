@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.values.IteratorValue;
  */
 public class BIteratorType extends BType {
 
-    BIteratorType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, IteratorValue.class);
+    BIteratorType(String typeName, BPackage pkg) {
+        super(typeName, pkg, IteratorValue.class);
     }
 
     public <V extends Object> V getZeroValue() {

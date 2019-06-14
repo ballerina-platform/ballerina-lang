@@ -1674,6 +1674,25 @@ public class BLangPackageBuilder {
         invokableNode.setBody(block);
     }
 
+    void endExternalFunctionBody(int annotCount) {
+        InvokableNode invokableNode = this.invokableNodeStack.peek();
+
+        if (annotCount == 0 || annotAttachmentStack.empty()) {
+            return;
+        }
+
+        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(annotCount);
+        for (int i = 0; i < annotCount; i++) {
+            if (annotAttachmentStack.empty()) {
+                break;
+            }
+            tempAnnotAttachments.add(annotAttachmentStack.pop());
+        }
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(tempAnnotAttachments);
+        tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
+    }
+
     void addImportPackageDeclaration(DiagnosticPos pos,
                                      Set<Whitespace> ws,
                                      String orgName,
@@ -2649,19 +2668,24 @@ public class BLangPackageBuilder {
     void startServiceDef(DiagnosticPos pos) {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
-        attachAnnotations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
                        boolean isAnonServiceValue) {
+        endServiceDef(pos, ws, serviceName, identifierPos, isAnonServiceValue, this.annotAttachmentStack.size());
+    }
+
+    void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
+                       boolean isAnonServiceValue, int annotCount) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
         //      This is a global variable if the service is defined in module level.
         //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        attachAnnotations(serviceNode, annotCount);
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;

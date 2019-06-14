@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -79,7 +80,7 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Add the statement templates
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
                 .filterItems(context);
-        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());

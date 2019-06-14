@@ -116,8 +116,8 @@ function generateCheckCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) 
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType ||
             sourceType is bir:BFiniteType) {
-        checkCast(mv, bir:TYPE_DECIMAL);
-        mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal", 
+                io:sprintf("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
     } else if (sourceType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(J)L%s;", DECIMAL_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
@@ -234,7 +234,7 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = TABLE_VALUE;
     } else if (targetType is bir:BStreamType) {
         targetTypeClass = STREAM_VALUE;
-    } else if (targetType is bir:BObjectType) {
+    } else if (targetType is bir:BObjectType || targetType is bir:BServiceType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {
         targetTypeClass = ERROR_VALUE;
@@ -318,8 +318,7 @@ function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
         panic err;
@@ -335,8 +334,7 @@ function generateCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType) {
-        mv.visitTypeInsn(CHECKCAST, DOUBLE_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "doubleValue", "()D", false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'float'", sourceType));
         panic err;
@@ -374,7 +372,8 @@ function generateCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) {
         sourceType is bir:BTypeAnyData ||
         sourceType is bir:BUnionType ||
         sourceType is bir:BJSONType) {
-        mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal", 
+                io:sprintf("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
@@ -404,8 +403,7 @@ function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType) {
-        mv.visitTypeInsn(CHECKCAST, INT_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
         panic err;
