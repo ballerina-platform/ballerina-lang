@@ -105,7 +105,7 @@ public type StreamEvent object {
         string attrib = attribSplit[1];
         string alias = aliasSplit[0];
         int index = 0;
-        map<anydata>[] dArray = self.dataMap[alias] ?: [];
+        map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
             string indexStr = aliasSplit[1].replaceAll("]", "").trim();
             if (indexStr.contains("last")) {
