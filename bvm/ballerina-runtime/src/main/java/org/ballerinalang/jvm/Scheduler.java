@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +70,12 @@ public class Scheduler {
      * Scheduler items that are blocked but the blocker is not known.
      * List key is the own strand.
      */
-    private Map<Strand, SchedulerItem> blockedOnUnknownList = new HashMap<>();
+    private Map<Strand, SchedulerItem> blockedOnUnknownList = new ConcurrentHashMap<>();
 
     /**
      * Items that are due for unblock, but not yet actually in blocked list.
      */
-    private List<Strand> unblockedList = new ArrayList<>();
+    private List<Strand> unblockedList = Collections.synchronizedList(new ArrayList<>());
 
     private static final boolean DEBUG = false;
 
@@ -232,23 +231,22 @@ public class Scheduler {
                     } else {
                         item.blockedOn().forEach(blockedOn -> {
                             synchronized (blockedOn) {
-                                blockedList.compute(blockedOn, (sameAsBlockedOn, blocked) -> {
-                                    if (blocked == COMPLETED) {
-                                        if (DEBUG) {
-                                            debugLog(item + " blocked and freed on " + blockedOn.hashCode());
-                                        }
-                                        reschedule(item);
-                                    } else {
-                                        if (blocked == null) {
-                                            blocked = new HashSet<>();
-                                        }
-                                        if (DEBUG) {
-                                            debugLog(item + " blocked on wait for " + blockedOn.hashCode());
-                                        }
-                                        blocked.add(item);
+                                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
+                                if (blocked == COMPLETED) {
+                                    if (DEBUG) {
+                                        debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                     }
-                                    return blocked;
-                                });
+                                    reschedule(item);
+                                } else {
+                                    if (blocked == null) {
+                                        blocked = new HashSet<>();
+                                        blockedList.put(blockedOn, blocked);
+                                    }
+                                    if (DEBUG) {
+                                        debugLog(item + " blocked on wait for " + blockedOn.hashCode());
+                                    }
+                                    blocked.add(item);
+                                }
                             }
                         });
                     }
@@ -260,7 +258,7 @@ public class Scheduler {
                     }
                     break;
                 case RUNNABLE:
-                    synchronized (item.future) {
+                    synchronized (item.future.strand) {
                         item.future.result = result;
                         item.future.isDone = true;
                         item.future.panic = panic;
@@ -392,13 +390,14 @@ public class Scheduler {
     }
 
     public void release(List<Strand> blockedOnList, Strand strand) {
-        blockedOnList.forEach(blockedOn ->
-            blockedList.computeIfPresent(blockedOn, (sameAsBlockedOn, blocked) -> {
-                blocked.removeIf(item -> item.future.strand == strand);
-                return blocked;
-            })
-        );
-
+        for (Strand blockedOn : blockedOnList) {
+            synchronized (blockedOn) {
+                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
+                if (blocked != null) {
+                    blocked.removeIf(item -> item.future.strand == strand);
+                }
+            }
+        }
     }
 }
 
