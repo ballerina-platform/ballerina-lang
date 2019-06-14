@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.spi;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;

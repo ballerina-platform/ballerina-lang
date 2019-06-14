@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 
 import java.util.List;
 

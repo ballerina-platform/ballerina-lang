@@ -62,7 +62,6 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
         }
 
         int firstToken = lhsDefaultTokens.get(0).getType();
-        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         Optional<CommonToken> listenerKWToken = lhsDefaultTokens.stream()
                 .filter(commonToken -> commonToken.getType() == BallerinaParser.LISTENER)
