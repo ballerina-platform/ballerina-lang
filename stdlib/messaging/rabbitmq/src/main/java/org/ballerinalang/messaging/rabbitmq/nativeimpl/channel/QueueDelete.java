@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -60,8 +61,13 @@ public class QueueDelete extends BlockingNativeCallableUnit {
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
         BValue ifUnused = context.getNullableRefArgument(1);
         BValue ifEmpty = context.getNullableRefArgument(2);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.queueDelete(channel, queueName, ifUnused, ifEmpty);
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context);
+            }
         } catch (RabbitMQConnectorException exception) {
             LOGGER.error("I/O exception while deleting the queue", exception);
             RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);

@@ -99,6 +99,12 @@ public type PackageParser object {
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
 
+        // Need to track a rest param Exist
+        boolean restParamExist = self.reader.readBoolean();
+        if (restParamExist) {
+            _ = self.reader.readInt32();
+        }
+
         BType? receiverType = ();
         boolean hasReceiverType = self.reader.readBoolean();
         if (hasReceiverType) {
@@ -165,7 +171,8 @@ public type PackageParser object {
             argsCount: argsCount,
             typeValue: sig,
             workerChannels:workerChannels,
-            receiverType : receiverType
+            receiverType : receiverType,
+            restParamExist : restParamExist
         };
     }
 
@@ -182,10 +189,6 @@ public type PackageParser object {
         while (j < defaultableParamCount) {
             _ = self.reader.readInt32();
             j += 1;
-        }
-        boolean restParamExist = self.reader.readBoolean();
-        if (restParamExist) {
-            _ = self.reader.readInt32();
         }
     }
 
