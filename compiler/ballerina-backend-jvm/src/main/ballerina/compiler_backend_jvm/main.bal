@@ -41,12 +41,12 @@ public function main(string... args) {
     string targetPath = args[3];
     boolean dumpBir = boolean.convert(args[4]);
 
-    currentBIRContext = createBIRContext(pathToEntryMod, birHome.getPathValue());
-    writeJarFile(generateJarBinary(progName, pathToEntryMod, dumpBir), progName, targetPath);
+    bir:BIRContext birContext = createBIRContext(pathToEntryMod, birHome.getPathValue());
+    writeJarFile(generateJarBinary(progName, pathToEntryMod, birContext, dumpBir), progName, targetPath);
 }
 
-function generateJarBinary(string progName, string pathToEntryMod, boolean dumpBir) returns JarFile {
-
+function generateJarBinary(string progName, string pathToEntryMod, bir:BIRContext birContext, boolean dumpBir) returns JarFile {
+    currentBIRContext = birContext;
     byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
     bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
 

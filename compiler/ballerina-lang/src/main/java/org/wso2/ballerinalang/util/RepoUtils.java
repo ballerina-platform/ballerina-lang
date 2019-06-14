@@ -102,6 +102,12 @@ public class RepoUtils {
         return PRODUCTION_URL;
     }
 
+    /**
+     * Used to get the path to the system repo.
+     *
+     * @param useMainSystemRepo if true, the path of the system repo is set to the main packs lib directory
+     * @return path to the lib directory to use as the system repo
+     */
     public static Path getLibDir(boolean useMainSystemRepo) {
         return useMainSystemRepo ?
                 Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).getParent().resolve("lib") :

@@ -32,15 +32,15 @@ dependencies {
 //    baloCreat project(':lib-creator')
     annotationProcessor project(':ballerina-lang')
 
-    baloTestImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-bir', configuration: 'genBalo')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jvm', configuration: 'genBalo')
     baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
+    baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'genBalo')
 }
 
 compileJava {

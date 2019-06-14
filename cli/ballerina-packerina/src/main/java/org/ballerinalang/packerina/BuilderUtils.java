@@ -132,8 +132,8 @@ public class BuilderUtils {
 
             // ballerina.home is set to pack dash
             balProcess.environment().put(BALLERINA_HOME, ballerinaHome.resolve("build").toString());
-            // update classpath env variable will tell the ballerina sh to pick the jars from the main pack
-            balProcess.environment().put(UPDATE_CLASSPATH, "true");
+            // UPDATE_CLASSPATH env variable will tell the pack dash ballerina sh to pick the jars from the main pack
+            balProcess.environment().put(UPDATE_CLASSPATH, ballerinaHome.toString());
 //            balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
             balProcess.directory(ballerinaHome.resolve("build").resolve("bin").toFile());
             try {
