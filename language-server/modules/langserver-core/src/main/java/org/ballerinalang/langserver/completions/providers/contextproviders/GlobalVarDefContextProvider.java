@@ -63,6 +63,7 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
 
         int firstToken = lhsDefaultTokens.get(0).getType();
         int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         Optional<CommonToken> listenerKWToken = lhsDefaultTokens.stream()
                 .filter(commonToken -> commonToken.getType() == BallerinaParser.LISTENER)
                 .findAny();
@@ -79,8 +80,7 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
             } else if (firstToken == BallerinaParser.FINAL) {
                 completionItems.addAll(this.getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
-            } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
-                    && BallerinaParser.COLON == lastToken) {
+            } else if (BallerinaParser.COLON == invocationOrDelimiterTokenType) {
                 Either<List<CompletionItem>, List<SymbolInfo>> pkgContent = SymbolFilters
                         .get(DelimiterBasedContentFilter.class).filterItems(ctx);
                 completionItems.addAll(this.getCompletionItemList(pkgContent, ctx));
@@ -88,7 +88,7 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
                 completionItems.addAll(this.getAllTopLevelItems(ctx));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
             }
-        } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)) {
+        } else if (invocationOrDelimiterTokenType > -1) {
             if (listenerKWToken.isPresent()) {
                 int pkgDelimiterIndex = lhsDefaultTokens.stream()
                         .map(CommonToken::getType)
