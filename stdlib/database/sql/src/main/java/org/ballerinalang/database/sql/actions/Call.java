@@ -19,7 +19,8 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.CallStatement;
+import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -51,19 +52,13 @@ public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
+        String query = context.getStringArgument(0);
+        BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
-            SQLDatasource datasource = retrieveDatasource(context);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeProcedure(context, datasource, query, parameters, structTypes);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement callStatement = new CallStatement(context, datasource, query, parameters, structTypes);
+        callStatement.execute();
     }
 }
