@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -91,6 +93,7 @@ public class HttpFiltersDesugar {
     private static final String HTTP_FILTER_VAR = "filter";
     private static final String HTTP_FILTERCONTEXT_VAR = "filterContext";
     private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
+    private static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
@@ -136,8 +139,30 @@ public class HttpFiltersDesugar {
                     endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
                     endpoint.type.tsymbol.name.value)) {
                 addFilterStatements(resourceNode, env);
+                addOrderParamConfig(resourceNode);
             }
         }
+    }
+
+    private void addOrderParamConfig(BLangFunction resourceNode) {
+        for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
+            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue())) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
+                        ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+                    if (checkMatchingConfigKey(keyValue, "path")) {
+                           ASTBuilderUtil.
+                    }
+                    if (checkMatchingConfigKey(keyValue, "webSocketUpgrade")) {
+
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
     }
 
     private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {

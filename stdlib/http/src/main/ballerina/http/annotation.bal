@@ -148,3 +148,20 @@ public type ServiceResourceAuth record {|
 
 # The annotation which is used to configure an HTTP resource.
 public annotation <resource> ResourceConfig HttpResourceConfig;
+
+# Configures the authentication scheme for a service or a resource.
+#
+# + enabled - Specifies whether authentication is enabled
+# + authnHandlers - Array of authentication handlers or Array of arrays of authentication handlers. Array is used to
+# say at least one of the authenticaion handlers should successfully authenticated. Array of arrays is used to say
+# at least one authentication handler from the sub arrays should successfully authenticated.
+# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
+# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
+# authorized.
+type HttpParamOrderConfig record {|
+    map<string> pathParamOrder = {}
+    map<string> bodyParamOrder = {}
+|};
+
+# The annotation which is used to configure an HTTP resource.
+annotation <resource> ParamOrderConfig HttpParamOrderConfig;
