@@ -51,14 +51,8 @@
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
-            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
-            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
-            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
-            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
-            <package name="org.ballerinalang.test.expressions.stamp.*"/>
-            <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
@@ -84,6 +78,19 @@
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
+            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
+            <package name="org.ballerinalang.test.expressions.conversion.*"/>
+            <package name="org.ballerinalang.test.expressions.elvis.*"/>
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.ternary.*"/>
+            <package name="org.ballerinalang.test.expressions.typeof.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
         </packages>
 
         <classes>
@@ -128,18 +135,8 @@
                     <exclude name="testAbstractObjectInObject" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
-                <methods>
-                    <exclude name="testSemanticErrorsWithResources"/>
-                    <exclude name="testCheckInBinaryAndExpression"/>
-                    <exclude name="testCheckExprInBinaryExpr7"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
-            <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
-            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
 
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
