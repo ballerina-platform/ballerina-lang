@@ -408,7 +408,6 @@ public class BIRBinaryWriter {
         for (Map.Entry<String, BIRAnnotationValueEntry> annotValueEntry : entryMap.entrySet()) {
             annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
             BIRAnnotationValueEntry valueEntry = annotValueEntry.getValue();
-//            writeType(annotBuf, valueEntry.type);
             writeConstValue(annotBuf, valueEntry.type, valueEntry.value);
         }
     }
