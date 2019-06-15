@@ -308,6 +308,9 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+public const TYPE_HANDLE = "ophandle";
+public type BTypeHandle TYPE_HANDLE;
+
 public type BServiceType record {|
     BObjectType oType;
 |};
@@ -401,7 +404,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";

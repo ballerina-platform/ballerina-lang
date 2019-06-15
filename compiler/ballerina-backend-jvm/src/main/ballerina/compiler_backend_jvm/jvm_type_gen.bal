@@ -794,6 +794,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
             return;
         }
         typeFieldName = "typeAnyService";
+    } else if (bType is bir:BTypeHandle) {
+        typeFieldName = "typeHandle";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;

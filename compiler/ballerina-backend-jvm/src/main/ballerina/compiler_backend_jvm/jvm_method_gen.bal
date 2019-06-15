@@ -325,6 +325,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
+                    bType is bir:BTypeHandle ||
                     bType is bir:BFiniteType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
@@ -416,6 +417,7 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
+                    bType is bir:BTypeHandle ||
                     bType is bir:BFiniteType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -865,6 +867,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
@@ -1692,6 +1695,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
                 bType is bir:BJSONType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BFiniteType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {

@@ -61,6 +61,7 @@ public type TypeParser object {
     public int TYPE_TAG_FUNCTION_POINTER =35;
     public int TYPE_TAG_CHANNEL =36;
     public int TYPE_TAG_SERVICE =37;
+    public int TYPE_TAG_HANDLE =38;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -154,7 +155,10 @@ public type TypeParser object {
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
-        } 
+        } else if (typeTag == self.TYPE_TAG_HANDLE){
+            return TYPE_HANDLE;
+        }
+
         error err = error("Unknown type tag :" + typeTag);
         panic err;
     }
