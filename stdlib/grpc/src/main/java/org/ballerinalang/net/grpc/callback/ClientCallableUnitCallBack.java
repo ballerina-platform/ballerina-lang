@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
 
 /**
  * Call back class registered for client message listener service in B7a executor.
@@ -32,7 +32,7 @@ public class ClientCallableUnitCallBack extends AbstractCallableUnitCallBack {
     }
     
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         super.notifyFailure(error);
     }
 }
