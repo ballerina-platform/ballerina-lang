@@ -931,7 +931,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
             return;
         }
 
