@@ -322,6 +322,10 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                            .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 if (sourceType.getTag() == targetType.getTag()) {
                     return true;
                 }
@@ -357,7 +361,7 @@ public class TypeChecker {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return checkIsUnionType(sourceType, targetType, unresolvedTypes);
+                return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -377,23 +381,16 @@ public class TypeChecker {
 
     // Private methods
 
-    private static boolean checkIsUnionType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
-                if (!checkIsUnionType(sourceMemberType, targetType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            BUnionType targetUnionType = (BUnionType) targetType;
-            for (BType memberType : targetUnionType.getMemberTypes()) {
-                if (checkIsType(sourceType, memberType, unresolvedTypes)) {
-                    return true;
-                }
-            }
-            return false;
+            return ((BUnionType) sourceType).getMemberTypes().stream()
+                    .allMatch(type -> checkIsType(type, targetType, unresolvedTypes));
+        } else if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return ((BFiniteType) sourceType).valueSpace.stream()
+                    .allMatch(bValue -> checkIsType(bValue, targetType));
         }
+        return targetType.getMemberTypes().stream()
+                .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
