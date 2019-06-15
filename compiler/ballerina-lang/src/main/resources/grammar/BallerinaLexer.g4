@@ -95,7 +95,7 @@ TYPE_DESC       : 'typedesc' ;
 TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
-TYPE_HANDLE     : 'handle' ;
+TYPE_HANDLE     : 'ophandle' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
