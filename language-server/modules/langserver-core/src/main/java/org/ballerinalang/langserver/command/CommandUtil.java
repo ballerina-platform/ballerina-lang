@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -140,7 +141,7 @@ public class CommandUtil {
     public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params,
                                                          WorkspaceDocumentManager documentManager,
-                                                         LSCompiler lsCompiler) {
+                                                         LSCompiler lsCompiler) throws LSCompilerException {
         LSServiceOperationContext context = new LSServiceOperationContext();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
@@ -172,7 +173,8 @@ public class CommandUtil {
     }
 
     private static boolean isTopLevelNode(String docUri, WorkspaceDocumentManager documentManager,
-                                          LSCompiler lsCompiler, LSServiceOperationContext context, Position position) {
+                                          LSCompiler lsCompiler, LSServiceOperationContext context, Position position)
+            throws LSCompilerException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), docUri,
                                                          documentManager, lsCompiler, context);
         // Only supported for top-level nodes
@@ -280,8 +282,13 @@ public class CommandUtil {
                 String foundType = matcher.group(2);
                 WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
                 LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-                Node bLangNode = CommandUtil.getBLangNodeByPosition(line, column,
-                                                                    uri, documentManager, lsCompiler, context);
+                Node bLangNode = null;
+                try {
+                    bLangNode = CommandUtil.getBLangNodeByPosition(line, column,
+                                                                   uri, documentManager, lsCompiler, context);
+                } catch (LSCompilerException e) {
+                    // ignore
+                }
                 if (bLangNode instanceof BLangFunction &&
                         !BLangConstants.MAIN_FUNCTION_NAME.equals(((BLangFunction) bLangNode).name.value)) {
                     BLangStatement statement = CommandUtil.getStatementByLocation(
@@ -465,7 +472,7 @@ public class CommandUtil {
 
     public static BLangInvocation getFunctionNode(int line, int column, String uri,
                                                   WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                                  LSContext context) {
+                                                  LSContext context) throws LSCompilerException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, lsCompiler, context);
         if (bLangNode.getLeft() instanceof BLangInvocation) {
             return (BLangInvocation) bLangNode.getLeft();
@@ -478,7 +485,7 @@ public class CommandUtil {
 
     private static Node getBLangNodeByPosition(int line, int column, String uri,
                                                WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                               LSContext context) {
+                                               LSContext context) throws LSCompilerException {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
@@ -589,7 +596,7 @@ public class CommandUtil {
 
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
                                                        WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                                       LSContext context) {
+                                                       LSContext context) throws LSCompilerException {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
