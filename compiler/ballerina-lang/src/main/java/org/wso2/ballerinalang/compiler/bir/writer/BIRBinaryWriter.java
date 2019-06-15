@@ -21,10 +21,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValueEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -38,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -179,6 +182,9 @@ public class BIRBinaryWriter {
         // Function type as a CP Index
         writeType(buf, birFunction.type);
 
+        // Store annotations here...
+        writeAnnotAttachments(buf, insWriter, birFunction.annotAttachments);
+
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
@@ -309,38 +315,38 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
         writeType(buf, birConstant.type);
-        writeConstValue(buf, typeWriter, birConstant.constValue);
+        writeConstValue(buf, birConstant.constValue.valueType, birConstant.constValue.literalValue);
     }
 
-    private void writeConstValue(ByteBuf buf, BIRTypeWriter typeWriter, ConstValue constValue) {
-        writeType(buf, constValue.valueType);
-        switch (constValue.valueType.tag) {
+    private void writeConstValue(ByteBuf buf, BType valueType, Object literalValue) {
+        writeType(buf, valueType);
+        switch (valueType.tag) {
             case TypeTags.INT:
-                buf.writeInt(addIntCPEntry((Long) constValue.literalValue));
+                buf.writeInt(addIntCPEntry((Long) literalValue));
                 break;
             case TypeTags.BYTE:
-                int byteValue = ((Number) constValue.literalValue).intValue();
+                int byteValue = ((Number) literalValue).intValue();
                 buf.writeByte(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = constValue.literalValue instanceof String ?
-                        Double.parseDouble((String) constValue.literalValue) : (Double) constValue.literalValue;
+                double doubleVal = literalValue instanceof String ?
+                        Double.parseDouble((String) literalValue) : (Double) literalValue;
                 buf.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.DECIMAL:
-                buf.writeInt(addStringCPEntry((String) constValue.literalValue));
+                buf.writeInt(addStringCPEntry((String) literalValue));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeByte((Boolean) constValue.literalValue ? 1 : 0);
+                buf.writeByte((Boolean) literalValue ? 1 : 0);
                 break;
             case TypeTags.NIL:
                 break;
             default:
                 // TODO support for other types
                 throw new UnsupportedOperationException("finite type value is not supported for type: "
-                        + constValue.valueType);
+                        + valueType);
 
         }
     }
@@ -363,5 +369,47 @@ public class BIRBinaryWriter {
 
     private void writeType(ByteBuf buf, BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
+    }
+
+    private void writeAnnotAttachments(ByteBuf buff,
+                                       BIRInstructionWriter insWriter,
+                                       List<BIRAnnotationAttachment> annotAttachments) {
+        ByteBuf annotBuf = Unpooled.buffer();
+        annotBuf.writeInt(annotAttachments.size());
+        for (BIRAnnotationAttachment annotAttachment : annotAttachments) {
+            writeAnnotAttachment(annotBuf, insWriter, annotAttachment);
+        }
+        int length = annotBuf.nioBuffer().limit();
+        buff.writeLong(length);
+        buff.writeBytes(annotBuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeAnnotAttachment(ByteBuf annotBuf,
+                                      BIRInstructionWriter insWriter,
+                                      BIRAnnotationAttachment annotAttachment) {
+        // Write module information of the annotation attachment
+        annotBuf.writeInt(insWriter.addPkgCPEntry(annotAttachment.pos.getSource().pkgID));
+        // Write position
+        insWriter.writePosition(annotBuf, annotAttachment.pos);
+        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));
+        writeAnnotAttachValues(annotBuf, annotAttachment.annotValues);
+    }
+
+    private void writeAnnotAttachValues(ByteBuf annotBuf, List<BIRAnnotationValue> annotValues) {
+        annotBuf.writeInt(annotValues.size());
+        for (BIRAnnotationValue annotValue : annotValues) {
+            writeAnnotAttachValueEntries(annotBuf, annotValue.annotValEntryMap);
+        }
+    }
+
+    private void writeAnnotAttachValueEntries(ByteBuf annotBuf,
+                                              Map<String, BIRAnnotationValueEntry> entryMap) {
+        annotBuf.writeInt(entryMap.size());
+        for (Map.Entry<String, BIRAnnotationValueEntry> annotValueEntry : entryMap.entrySet()) {
+            annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
+            BIRAnnotationValueEntry valueEntry = annotValueEntry.getValue();
+//            writeType(annotBuf, valueEntry.type);
+            writeConstValue(annotBuf, valueEntry.type, valueEntry.value);
+        }
     }
 }
