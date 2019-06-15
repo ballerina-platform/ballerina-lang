@@ -166,6 +166,7 @@ public class LSPackageLoader {
      *
      * @param pkg        Built {@link BLangPackage}
      * @param sourceRoot Source Root
+     * @param fileUri file uri
      * @return List of Ballerina Packages
      */
     public static List<BallerinaPackage> getCurrentProjectImportPackages(BLangPackage pkg, String sourceRoot,
