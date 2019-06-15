@@ -1094,6 +1094,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
@@ -1141,6 +1142,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
                     bType is bir:BFiniteType ||
+                    bType is bir:BTypeHandle ||
                     bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {
