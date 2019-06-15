@@ -367,7 +367,8 @@ type Person record {
 };
 
 type Student record {
-    *Person;
+    string name;
+    int age;
     float gpa;
 };
 

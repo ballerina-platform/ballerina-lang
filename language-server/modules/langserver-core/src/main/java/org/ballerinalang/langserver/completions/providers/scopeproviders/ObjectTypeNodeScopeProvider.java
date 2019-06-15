@@ -73,6 +73,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         if (!objectNode.getKind().equals(NodeKind.OBJECT_TYPE)) {
             return completionItems;
@@ -86,7 +87,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
 
         if (!lhsDefaultTokens.isEmpty() && lhsDefaultTokens.get(0).getType() == BallerinaParser.MUL) {
             this.fillObjectReferences(completionItems, lhsDefaultTokens, context);
-        } else if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        } else if (invocationOrDelimiterTokenType > -1) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(eitherList, context));

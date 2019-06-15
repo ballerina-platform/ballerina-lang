@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -58,6 +59,8 @@ class BIRGenEnv {
     BIROperand targetOperand;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
+
+    List<BIRAnnotationAttachment> enclAnnotAttachments;
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.

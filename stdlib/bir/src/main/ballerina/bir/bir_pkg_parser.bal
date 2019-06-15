@@ -96,6 +96,10 @@ public type PackageParser object {
         var name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
+
+        // Read annotation Attachments
+        AnnotationAttachment?[] annotAttachments = self.parseAnnotAttachments();
+
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
 
@@ -172,7 +176,8 @@ public type PackageParser object {
             typeValue: sig,
             workerChannels:workerChannels,
             receiverType : receiverType,
-            restParamExist : restParamExist
+            restParamExist : restParamExist,
+            annotAttachments: annotAttachments
         };
     }
 
@@ -329,7 +334,78 @@ public type PackageParser object {
         };
     }
 
+    function parseAnnotAttachments() returns AnnotationAttachment?[] {
+        AnnotationAttachment?[] annotAttachments = [];
+        int annotNoBytes_ignored = self.reader.readInt64();
+        int noOfAnnotAttachments = self.reader.readInt32();
+        if (noOfAnnotAttachments == 0) {
+            return annotAttachments;
+        }
+
+        foreach var i in 0..<noOfAnnotAttachments {
+            annotAttachments[annotAttachments.length()] = self.parseAnnotAttachment();
+        }
+
+        return annotAttachments;
+    }
+
+    function parseAnnotAttachment() returns AnnotationAttachment {
+        // Read ModuleID
+        ModuleID modId = self.reader.readModuleIDCpRef();
+        // Read DiagnosticPos
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
+        // Read AnnotTagRef
+        string annotTagRef = self.reader.readStringCpRef();
+        // Read AnnotationValue values
+        AnnotationValue?[] annotValues = [];
+        int noOfAnnotValue = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValue {
+            annotValues[annotValues.length()] = self.parseAnnotAttachValue();
+        }
+
+        return {
+            moduleId: modId,
+            pos: pos,
+            annotTagRef: {value:annotTagRef},
+            annotValues:annotValues
+        };
+    }
+
+    function parseAnnotAttachValue() returns AnnotationValue {
+        AnnotationValue annotValue = {};
+        var noOfAnnotValueEntries = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValueEntries {
+            var key = self.reader.readStringCpRef();
+            var bType = self.reader.readTypeCpRef();
+            var value = parseLiteralValue(self.reader, bType);
+            AnnotationValueEntry valueEntry = {literalType: bType, value: value};
+            annotValue.valueEntryMap[key] = valueEntry;
+        }
+        return annotValue;
+    }
+
 };
+
+function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata {
+    anydata value;
+    if (bType is BTypeByte) {
+        value = reader.readIntCpRef();
+    } else if (bType is BTypeInt) {
+        value = reader.readByteCpRef();
+    } else if (bType is BTypeString) {
+        value = reader.readStringCpRef();
+    } else if (bType is BTypeDecimal) {
+        value = reader.readStringCpRef();
+    } else if (bType is BTypeBoolean) {
+        value = reader.readBoolean();
+    } else if (bType is BTypeFloat) {
+        value = reader.readFloatCpRef();
+    } else {
+        error err = error("unsupported literal value type in annotation attachment value", {"type":bType});
+        panic err;
+    }
+    return value;
+}
 
 public function parseVarKind(BirChannelReader reader) returns VarKind {
     int b = reader.readInt8();
