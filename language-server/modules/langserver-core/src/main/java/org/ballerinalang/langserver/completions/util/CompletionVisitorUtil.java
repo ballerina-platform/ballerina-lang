@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -170,6 +172,50 @@ public class CompletionVisitorUtil {
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Check whether the cursor is located within the condition context.
+     * Eg: if (_cursor_)
+     *     while (_cursor_)
+     *
+     * @param env Symbol Environment
+     * @param lsContext Language server completion Context
+     * @param treeVisitor Tree Visitor
+     * @param conditionNode Conditional node - if or while node
+     * @return {@link Boolean} whether the cursor is located within the condition context
+     */
+    public static boolean isWithinConditionContext(SymbolEnv env, LSContext lsContext, TreeVisitor treeVisitor,
+                                                   BLangNode conditionNode) {
+        Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        BLangNode expressionNode = null;
+        if (conditionNode instanceof BLangIf) {
+            expressionNode = ((BLangIf) conditionNode).expr;
+        } else if (conditionNode instanceof BLangWhile) {
+            expressionNode = ((BLangWhile) conditionNode).expr;
+        }
+        
+        if (expressionNode == null) {
+            return false;
+        }
+        DiagnosticPos exprPosition = CommonUtil.toZeroBasedPosition(expressionNode.pos);
+        
+        int cursorLine = cursorPosition.getLine();
+        int cursorCol = cursorPosition.getCharacter();
+        int sLine = exprPosition.sLine;
+        int eLine = exprPosition.eLine;
+        int sCol = exprPosition.sCol;
+        int eCol = exprPosition.eCol;
+        
+        if ((cursorLine > sLine && cursorLine < eLine)
+                || ((cursorLine == sLine || cursorLine == eLine) && cursorCol >= sCol && cursorCol <= eCol)) {
+            lsContext.put(CompletionKeys.IN_CONDITION_CONTEXT_KEY, true);
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(env), env);
+            treeVisitor.forceTerminateVisitor();
+            return true;
+        }
+        
         return false;
     }
 
