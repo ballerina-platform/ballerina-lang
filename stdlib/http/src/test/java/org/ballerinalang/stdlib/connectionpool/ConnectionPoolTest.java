@@ -45,12 +45,12 @@ public class ConnectionPoolTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/connection-pool/client-connection-pool.bal";
-        compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
+        compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test
     public void testGlobalPoolConfig() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testGlobalPoolConfig");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGlobalPoolConfig");
         Assert.assertEquals(returns.length, 3);
         verifyResults((BMap<String, BValue>) returns[0]);
         verifyResults((BMap<String, BValue>) returns[1]);
@@ -59,7 +59,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testSharedConfig() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSharedConfig");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSharedConfig");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);
@@ -69,7 +69,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testPoolPerClient() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testPoolPerClient");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPoolPerClient");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);

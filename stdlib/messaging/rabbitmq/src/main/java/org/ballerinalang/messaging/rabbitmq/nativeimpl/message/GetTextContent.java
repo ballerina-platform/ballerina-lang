@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Retrieves the text content of the RabbitMQ message.
@@ -54,9 +56,15 @@ public class GetTextContent extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        boolean isInTransaction = context.isInTransaction();
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
         byte[] messageContent = (byte[]) messageObject.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
+        if (isInTransaction && !Objects.isNull(transactionContext)) {
+            transactionContext.handleTransactionBlock(context);
+        }
         try {
             context.setReturnValues(new BString(new String(messageContent,
                     StandardCharsets.UTF_8.name())));

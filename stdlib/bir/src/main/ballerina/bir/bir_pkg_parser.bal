@@ -13,10 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 public type PackageParser object {
     BirChannelReader reader;
     map<VariableDcl> globalVarMap;
+    boolean addInterimBB = true;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -221,11 +221,17 @@ public type PackageParser object {
         BasicBlock?[] basicBlocks = [];
         var numBB = self.reader.readInt32();
         int i = 0;
+        int j = 0;
         while (i < numBB) {
-            basicBlocks[i] = bodyParser.parseBB();
+            BasicBlock[] blocks = bodyParser.parseBB(self.addInterimBB);
+            basicBlocks[j] = blocks[0];
+            j += 1;
+            if (self.addInterimBB) {
+                basicBlocks[j] = blocks[1];
+                j += 1;
+            }
             i += 1;
         }
-
         return basicBlocks;
     }
 
@@ -233,9 +239,20 @@ public type PackageParser object {
         ErrorEntry?[] errorEntries = [];
         var numEE = self.reader.readInt32();
         int i = 0;
+        int j = 0;
         while (i < numEE) {
-            errorEntries[i] = bodyParser.parseEE();
-            i += 1;
+            errorEntries[j] = bodyParser.parseEE();
+            
+            if (self.addInterimBB) {
+                ErrorEntry? interimEntry = errorEntries[j].clone();
+                j += 1;
+                if (interimEntry is ErrorEntry) {
+                    interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
+                    errorEntries[j] = interimEntry;                    
+                }
+            }
+            j += 1;
+            i += 1;   
         }
         return errorEntries;
     }
