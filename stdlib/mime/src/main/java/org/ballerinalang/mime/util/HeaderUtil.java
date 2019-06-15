@@ -77,13 +77,15 @@ public class HeaderUtil {
      * @param headerValue Header value as a string
      * @return Parameter map
      */
-    public static MapValueImpl<String, String> getParamMap(String headerValue) {
-        MapValueImpl<String, String> paramMap = null;
+    public static MapValue<String, String> getParamMap(String headerValue) {
+        MapValue<String, String> paramMap = null;
         if (headerValue.contains(SEMICOLON)) {
             extractValue(headerValue);
             List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
                                                    .split(SEMICOLON)).map(String::trim).collect(Collectors.toList());
-            paramMap = validateParams(paramList) ? getHeaderParamMap(paramList) : null;
+            paramMap = validateParams(paramList) ? getHeaderParamMap(paramList) : getEmptyMap();
+        } else {
+            paramMap = getEmptyMap();
         }
         return paramMap;
     }
@@ -147,8 +149,8 @@ public class HeaderUtil {
      * @param paramList List of parameters
      * @return Ballerina map
      */
-    private static MapValueImpl<String, String> getHeaderParamMap(List<String> paramList) {
-        MapValueImpl<String, String> paramMap = new MapValueImpl<>(new BMapType(BTypes.typeString));
+    private static MapValue<String, String> getHeaderParamMap(List<String> paramList) {
+        MapValue<String, String> paramMap = getEmptyMap();
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);
@@ -292,10 +294,7 @@ public class HeaderUtil {
      */
     public static String extractBoundaryParameter(String contentType) {
         MapValue paramMap = HeaderUtil.getParamMap(contentType);
-        if (paramMap != null) {
-            return paramMap.get(BOUNDARY) != null ? (String) paramMap.get(BOUNDARY) : null;
-        }
-        return null;
+        return paramMap.get(BOUNDARY) != null ? (String) paramMap.get(BOUNDARY) : null;
     }
 
     public static void setHeaderToEntity(BMap<String, BValue> entity, String key, String value) {
@@ -336,5 +335,9 @@ public class HeaderUtil {
             return new MimeType(contentType).getBaseType();
         }
         return null;
+    }
+
+    private static MapValue<String, String> getEmptyMap() {
+        return new MapValueImpl<>(new BMapType(BTypes.typeString));
     }
 }

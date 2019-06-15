@@ -58,7 +58,7 @@ public class MessageUtils {
             carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         carbonMessage.setLastHttpContentArrived();
-        carbonMessage.setHttpVersion("1.0");
+        carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;
     }
 
@@ -80,6 +80,7 @@ public class MessageUtils {
                 new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
         carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HashMap<String, String>());
+        carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;
     }
 }

@@ -45,8 +45,6 @@ import java.util.concurrent.Executors;
  */
 public class Services {
 
-    private static final String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
-
     @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
