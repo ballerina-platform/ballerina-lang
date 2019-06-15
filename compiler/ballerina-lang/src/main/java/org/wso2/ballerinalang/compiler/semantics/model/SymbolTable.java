@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -124,6 +125,7 @@ public class SymbolTable {
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
+    public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
 
     public final BTypeSymbol errSymbol;
     public final BType semanticError;
@@ -184,6 +186,8 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(channelType, TypeKind.CHANNEL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
+        initializeType(handleType, TypeKind.HANDLE.typeName());
+
 
         // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
@@ -516,6 +520,7 @@ public class SymbolTable {
         defineCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineCastOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
+        defineCastOperator(anyType, handleType, false, InstructionCodes.NOP); // BVM instructions not used anymore
         defineCastOperator(anydataType, intType, false, InstructionCodes.CHECKCAST);
         defineCastOperator(anydataType, byteType, false, InstructionCodes.CHECKCAST);
         defineCastOperator(anydataType, floatType, false, InstructionCodes.CHECKCAST);
