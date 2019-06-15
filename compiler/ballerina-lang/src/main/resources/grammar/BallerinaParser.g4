@@ -189,6 +189,7 @@ fieldDescriptor
 simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
+    |   TYPE_HANDLE
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
