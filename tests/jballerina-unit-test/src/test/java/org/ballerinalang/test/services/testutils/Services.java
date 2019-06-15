@@ -19,18 +19,16 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -40,16 +38,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-
 /**
  * This contains test utils related to Ballerina service invocations.
  *
  * @since 0.8.0
  */
 public class Services {
-
-    private static final String SERVICE_EP_CONFIG_TYPE_NAME = "ServiceEndpointConfiguration";
 
     @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
@@ -64,14 +58,14 @@ public class Services {
     }
 
     public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
-        HTTPServicesRegistry httpServicesRegistry =
+        RegistryHolder registryHolder =
                 MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
 
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(registryHolder.getRegistry(), request);
         } catch (BallerinaException ex) {
             // throwing an error here to terminate the flow. This should be properly implemented if
             // testing error scenarios are needed.
@@ -89,11 +83,12 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, getEndpointConfig());
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
+                request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Scheduler scheduler = httpServicesRegistry.getScheduler();
+        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
         Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
@@ -109,9 +104,5 @@ public class Services {
         }
         request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
-    }
-
-    private static MapValue<?, ?> getEndpointConfig() {
-        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, SERVICE_EP_CONFIG_TYPE_NAME);
     }
 }

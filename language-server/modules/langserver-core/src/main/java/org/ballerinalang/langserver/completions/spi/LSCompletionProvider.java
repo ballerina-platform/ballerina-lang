@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.spi;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -149,32 +148,6 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> getCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> list,
                                                          LSContext context) {
         return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
-    }
-
-    /**
-     * Check whether the token stream corresponds to a action invocation or a function invocation.
-     *
-     * @param context Completion operation context
-     * @return {@link Boolean}      Whether invocation or Field Access
-     */
-    protected boolean isInvocationOrInteractionOrFieldAccess(LSContext context) {
-        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        if (lhsTokens == null) {
-            return false;
-        }
-        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
-        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
-                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
-        return !lhsDefaultTokens.isEmpty()
-                && (lastToken == BallerinaParser.COLON || lastToken == BallerinaParser.DOT
-                || lastToken == BallerinaParser.RARROW || lastToken == BallerinaParser.LARROW
-                || lastToken == BallerinaParser.NOT
-                || (lhsDefaultTokens.size() >= 2 && (tokenBeforeLast == BallerinaParser.COLON
-                || tokenBeforeLast == BallerinaParser.DOT || tokenBeforeLast == BallerinaParser.RARROW
-                || tokenBeforeLast == BallerinaParser.LARROW || tokenBeforeLast == BallerinaParser.NOT)));
     }
 
     /**
@@ -675,6 +648,9 @@ public abstract class LSCompletionProvider {
         // Add the wait keyword
         CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);
+        // Add the untaint keyword
+        CompletionItem untaintKeyword = Snippet.KW_UNTAINT.get().build(context);
+        completionItems.add(untaintKeyword);
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context);
         completionItems.add(butKeyword);

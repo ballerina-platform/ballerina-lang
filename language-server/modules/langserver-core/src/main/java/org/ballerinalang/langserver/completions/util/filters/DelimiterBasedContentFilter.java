@@ -67,7 +67,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         List<Integer> defaultTokenTypes = defaultTokens.stream()
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
-        int delimiter = getDelimiterTokenType(defaultTokens);
+        int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText();
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
         List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
@@ -202,19 +202,5 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         List<SymbolInfo> filteredSymbols = FilterUtils.filterVariableEntriesOnDelimiter(context, pkgName, delimiter,
                 defaultTokens, delimIndex);
         return Either.forRight(filteredSymbols);
-    }
-
-    private int getDelimiterTokenType(List<CommonToken> defaultTokens) {
-        for (int i = defaultTokens.size() - 1; i >= 0; i--) {
-            CommonToken commonToken = defaultTokens.get(i);
-            int tokenType = commonToken.getType();
-            if (tokenType == BallerinaParser.DOT || tokenType == BallerinaParser.RARROW
-                    || tokenType == BallerinaParser.LARROW || tokenType == BallerinaParser.COLON
-                    || tokenType == BallerinaParser.NOT) {
-                return tokenType;
-            }
-        }
-
-        return -1;
     }
 }
