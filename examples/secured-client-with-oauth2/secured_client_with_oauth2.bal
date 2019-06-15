@@ -7,7 +7,7 @@ import ballerina/log;
 // `grantType: oauth2:CLIENT_CREDENTIALS_GRANT` and relevant configurations
 // passed as a record.
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
-    grantType: http:CLIENT_CREDENTIALS_GRANT,
+    grantType: oauth2:CLIENT_CREDENTIALS_GRANT,
     config: {
         tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
         clientId: "mMNWS9PLmM93V5WHjC",
@@ -29,7 +29,7 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
 // If the access token expires or become invalid, then it will be automatically
 // refreshed with the provided `refreshUrl`.
 oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
-    grantType: http:PASSWORD_GRANT,
+    grantType: oauth2:PASSWORD_GRANT,
     config: {
         tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
         username: "b7a.demo@gmail.com",
@@ -57,7 +57,7 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
 // refreshed with the provided `clientId`, `clientSecret`, `refreshToken`,
 // and `refreshUrl`.
 oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
-    grantType: http:DIRECT_TOKEN,
+    grantType: oauth2:DIRECT_TOKEN,
     config: {
         accessToken: "ya29.GlvQBkqJS0yn0zsZm4IIUUzLk3DH1rRiCMKnHiz6deycKmTFiDsuoFlFfrmXF8dCb0gyzLyXpnv3VcrIlauj3nMs61CbydaAqMl6RwVIU2r2qg1StVVvxRWT9_Or",
         refreshConfig: {
