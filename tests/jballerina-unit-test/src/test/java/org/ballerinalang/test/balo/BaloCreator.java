@@ -17,13 +17,34 @@
  */
 package org.ballerinalang.test.balo;
 
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BFileUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
+import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -60,8 +81,7 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        BuilderUtils.compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/",
-                false, true, false, true, true, true, false);
+        compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/");
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
@@ -103,4 +123,15 @@ public class BaloCreator {
         projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
         BFileUtil.delete(Paths.get(projectPath.toString(), HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME));
     }
+
+    public static void compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
+        CompilerContext context = new CompilerContext();
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(sourceRootPath));
+
+        CompileResult compileResult = BCompileUtil.compileOnJBallerina(context, sourceRootPath.toString(), packageName);
+        BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.write(bLangPackage, targetPath);
+    }
+        
 }
