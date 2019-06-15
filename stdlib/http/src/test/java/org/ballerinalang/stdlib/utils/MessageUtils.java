@@ -58,6 +58,7 @@ public class MessageUtils {
             carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         carbonMessage.setLastHttpContentArrived();
+        carbonMessage.setHttpVersion("1.0");
         return carbonMessage;
     }
 

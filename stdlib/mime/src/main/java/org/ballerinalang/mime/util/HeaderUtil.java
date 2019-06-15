@@ -21,6 +21,8 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -146,7 +148,7 @@ public class HeaderUtil {
      * @return Ballerina map
      */
     private static MapValueImpl<String, String> getHeaderParamMap(List<String> paramList) {
-        MapValueImpl<String, String> paramMap = new MapValueImpl<>();
+        MapValueImpl<String, String> paramMap = new MapValueImpl<>(new BMapType(BTypes.typeString));
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);

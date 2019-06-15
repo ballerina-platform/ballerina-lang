@@ -19,10 +19,8 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
@@ -39,8 +37,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Executors;
-
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -110,9 +106,5 @@ public class Services {
         }
         request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
-    }
-
-    private static MapValue<?, ?> getEndpointConfig() {
-        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, SERVICE_EP_CONFIG_TYPE_NAME);
     }
 }
