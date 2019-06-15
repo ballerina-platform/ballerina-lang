@@ -60,15 +60,15 @@ public class StatementContextProvider extends LSCompletionProvider {
         Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (inWorkerReturn != null && inWorkerReturn) {
             return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
         } else if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
-        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        if (invocationOrDelimiterTokenType > -1) {
             /*
             Action invocation context
              */

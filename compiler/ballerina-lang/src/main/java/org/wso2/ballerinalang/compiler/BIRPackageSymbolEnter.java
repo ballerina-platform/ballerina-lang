@@ -356,6 +356,10 @@ public class BIRPackageSymbolEnter {
             }
         }
 
+        // Read annotation attachments
+        // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
+
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
 
