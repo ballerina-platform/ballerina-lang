@@ -47,9 +47,10 @@ public class VarDefContextProvider extends LSCompletionProvider {
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         Class sorterKey;
-        if (isInvocationOrInteractionOrFieldAccess(context)) {
+        if (invocationOrDelimiterTokenType > -1) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);

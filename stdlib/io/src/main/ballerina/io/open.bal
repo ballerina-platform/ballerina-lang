@@ -30,7 +30,7 @@ public const APPEND = "a";
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel = external;
+public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel | error = external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
@@ -56,8 +56,8 @@ public function createReadableChannel(byte[] content) returns ReadableByteChanne
 public function openReadableCsvFile(@sensitive string path,
                             @sensitive Separator fieldSeparator = ",",
                             @sensitive string charset = "UTF-8",
-                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel {
-    ReadableByteChannel byteChannel = openReadableFile(path);
+                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel | error {
+    ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
 }

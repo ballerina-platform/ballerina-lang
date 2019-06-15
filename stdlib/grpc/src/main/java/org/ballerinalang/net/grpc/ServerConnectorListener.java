@@ -18,7 +18,7 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;

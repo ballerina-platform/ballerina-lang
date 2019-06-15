@@ -40,25 +40,21 @@ under the License.
             </run>
         </groups>
         <packages>
-            <!--<package name="org.ballerinalang.stdlib.entity.*"/>
+            <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
             <package name="org.ballerinalang.stdlib.multipart.*"/>
-            <package name="org.ballerinalang.stdlib.services.basics.*"/> -->
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
-            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>
-            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.stdlib.resiliency.*"/>
-            <package name="org.ballerinalang.stdlib.websocket.*"/>-->
+            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>-->
+            <!--<package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>-->
+            <!--<package name="org.ballerinalang.stdlib.websocket.*"/>-->
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
-            <!--<package name="org.ballerinalang.stdlib.auth.*"/>
-            <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
+            <package name="org.ballerinalang.stdlib.connectionpool.*"/>
+            <!--<package name="org.ballerinalang.stdlib.auth.*"/>-->
+            <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
-                <methods>
-                    <exclude name="testSignatureWithMismatchedBodyParam"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>
@@ -80,8 +76,6 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
-            <class name="org.ballerinalang.stdlib.entity.EntityBodyWithCharsetTest"/>
-            <class name="org.ballerinalang.stdlib.entity.MimeWithHttpTest"/>
         </classes>
     </test>
 </suite>
