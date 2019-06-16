@@ -94,7 +94,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
             // Additional logic when closing the stream at server side.
         }
 
-        public void invoke(Message request, ServerCallStreamObserver responseObserver) {
+        void invoke(Message request, ServerCallStreamObserver responseObserver) {
             onMessageInvoke(resource, request, responseObserver);
         }
     }

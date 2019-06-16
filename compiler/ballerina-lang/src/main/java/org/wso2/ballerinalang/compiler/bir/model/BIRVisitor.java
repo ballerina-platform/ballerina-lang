@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -88,6 +89,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(BIRConstant birConstant) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRAnnotationAttachment birAnnotAttach) {
         throw new AssertionError();
     }
 

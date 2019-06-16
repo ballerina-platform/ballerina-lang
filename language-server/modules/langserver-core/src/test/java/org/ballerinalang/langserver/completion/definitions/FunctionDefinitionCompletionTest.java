@@ -111,6 +111,11 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"chainCompletion3.json", "function"},
                 {"externalKeywordSuggestion1.json", "function"},
                 {"externalKeywordSuggestion2.json", "function"},
+                {"ifWhileConditionContextCompletion1.json", "function"},
+                {"ifWhileConditionContextCompletion2.json", "function"},
+                {"ifWhileConditionContextCompletion3.json", "function"},
+                {"ifWhileConditionContextCompletion4.json", "function"},
+                {"ifWhileConditionContextCompletion5.json", "function"},
         };
     }
 }

@@ -434,7 +434,8 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (cpr.isCursorBeforeNode(ifNode.getPosition(), this, this.lsContext, ifNode, null)) {
+        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, ifNode)
+                || cpr.isCursorBeforeNode(ifNode.getPosition(), this, this.lsContext, ifNode, null)) {
             return;
         }
 
@@ -452,7 +453,8 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (cpr.isCursorBeforeNode(whileNode.getPosition(), this, this.lsContext, whileNode, null)) {
+        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, whileNode) || 
+                cpr.isCursorBeforeNode(whileNode.getPosition(), this, this.lsContext, whileNode, null)) {
             return;
         }
 
