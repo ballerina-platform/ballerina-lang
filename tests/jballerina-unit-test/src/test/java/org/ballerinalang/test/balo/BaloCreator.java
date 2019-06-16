@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.balo;
 
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BFileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -28,23 +25,11 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 
-import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
