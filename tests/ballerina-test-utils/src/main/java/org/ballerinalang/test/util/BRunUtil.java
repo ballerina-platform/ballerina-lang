@@ -804,7 +804,7 @@ public class BRunUtil {
                 if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
                     bvmArray = new BValueArray(getBVMType(arrayType, new Stack<>()));
                 } else if (arrayType.getState() == ArrayState.UNSEALED) {
-                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()));
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), -1);
                 } else {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), array.size());
                 }
