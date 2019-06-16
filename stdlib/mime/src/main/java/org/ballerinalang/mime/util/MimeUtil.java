@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
@@ -435,23 +434,20 @@ public class MimeUtil {
             }
             contentDisposition.set(DISPOSITION_FIELD, dispositionValue);
             MapValue paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
-            if (paramMap != null) {
-                for (Object key : paramMap.getKeys()) {
-                    String paramValue = (String) paramMap.get(key);
-                    switch (key.toString()) {
-                        case CONTENT_DISPOSITION_FILE_NAME:
-                            contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD,
-                                                   stripQuotes(paramValue));
-                            break;
-                        case CONTENT_DISPOSITION_NAME:
-                            contentDisposition.set(CONTENT_DISPOSITION_NAME_FIELD, stripQuotes(paramValue));
-                            break;
-                        default:
-                    }
+            for (Object key : paramMap.getKeys()) {
+                String paramValue = (String) paramMap.get(key);
+                switch (key.toString()) {
+                    case CONTENT_DISPOSITION_FILE_NAME:
+                        contentDisposition.set(CONTENT_DISPOSITION_FILENAME_FIELD, stripQuotes(paramValue));
+                        break;
+                    case CONTENT_DISPOSITION_NAME:
+                        contentDisposition.set(CONTENT_DISPOSITION_NAME_FIELD, stripQuotes(paramValue));
+                        break;
+                    default:
                 }
-                paramMap.remove(CONTENT_DISPOSITION_FILE_NAME);
-                paramMap.remove(CONTENT_DISPOSITION_NAME);
             }
+            paramMap.remove(CONTENT_DISPOSITION_FILE_NAME);
+            paramMap.remove(CONTENT_DISPOSITION_NAME);
             contentDisposition.set(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
         }
     }

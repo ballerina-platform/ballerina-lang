@@ -336,7 +336,6 @@ public class TypeChecker {
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
@@ -374,6 +373,8 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+            case TypeTags.SERVICE_TAG:
+                return checkIsServiceType(sourceType);
             default:
                 return false;
         }
@@ -697,6 +698,15 @@ public class TypeChecker {
         }
 
         return isSameType(source.retType, targetType.retType);
+    }
+
+    private static boolean checkIsServiceType(BType targetType) {
+        if (targetType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            return false;
+        }
+
+        int flags = ((BObjectType) targetType).flags;
+        return (flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
