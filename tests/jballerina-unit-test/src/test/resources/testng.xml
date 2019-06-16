@@ -94,6 +94,7 @@
             <!-- <package name="org.ballerinalang.test.loc.*" /> -->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
+            <package name="org.ballerinalang.test.record.*"/>
         </packages>
 
         <classes>
@@ -190,10 +191,6 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
-            <class name="org.ballerinalang.test.record.ClosedRecordOptionalFieldsTest"/>
-            <class name="org.ballerinalang.test.record.OpenRecordOptionalFieldsTest"/>
-            <class name="org.ballerinalang.test.record.RecordAccessWithIndexTest"/>
-            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest"/>
         </classes>
     </test>
 </suite>

@@ -469,12 +469,11 @@ public class TypeChecker {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
             // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL) &&
-                    (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
+            if (sourceField == null && !Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)) {
                 return false;
             }
 
-            if (sourceField == null || !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
+            if (sourceField != null && !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -486,7 +485,8 @@ public class TypeChecker {
         }
 
         // If it's an open record, check if they are compatible with the rest field of the target type.
-        return sourceFields.values().stream().filter(field -> !targetFieldNames.contains(field.name))
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.name))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 

@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
@@ -85,6 +86,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -726,6 +728,9 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                if (arrayType.getState() == BArrayState.UNSEALED) {
+                    return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                }
                 return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.getSize());
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
@@ -798,9 +803,12 @@ public class BRunUtil {
                 BValueArray bvmArray;
                 if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
                     bvmArray = new BValueArray(getBVMType(arrayType, new Stack<>()));
+                } else if (arrayType.getState() == ArrayState.UNSEALED) {
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()));
                 } else {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), array.size());
                 }
+
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:
