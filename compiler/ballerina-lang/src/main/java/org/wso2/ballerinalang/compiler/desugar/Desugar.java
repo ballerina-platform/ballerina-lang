@@ -4365,15 +4365,14 @@ public class Desugar extends BLangNodeVisitor {
             BLangMatchStructuredBindingPatternClause matchPattern = (BLangMatchStructuredBindingPatternClause) pattern;
             expectedType = getStructuredBindingPatternType(matchPattern.bindingPatternVariable);
         }
-        BLangSimpleVariableDef varDef = forceCastIfApplicable(matchExprVar.symbol, pattern.pos, expectedType);
-
-        // Create a variable reference for _$$_
-        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(pattern.pos, varDef.var.symbol);
 
         if (NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE == pattern.getKind()) { // structured match patterns
             BLangMatchStructuredBindingPatternClause structuredPattern =
                     (BLangMatchStructuredBindingPatternClause) pattern;
+            BLangSimpleVariableDef varDef = forceCastIfApplicable(matchExprVar.symbol, pattern.pos, expectedType);
 
+            // Create a variable reference for _$$_
+            BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(pattern.pos, varDef.var.symbol);
             structuredPattern.bindingPatternVariable.expr = matchExprVarRef;
 
             BLangStatement varDefStmt;
@@ -4392,8 +4391,11 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (structuredPattern.typeGuardExpr != null) {
+                BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(structuredPattern.pos);
+                blockStmt.addStatement(varDef);
+                blockStmt.addStatement(varDefStmt);
                 BLangStatementExpression stmtExpr = ASTBuilderUtil
-                        .createStatementExpression(varDefStmt, structuredPattern.typeGuardExpr);
+                        .createStatementExpression(blockStmt, structuredPattern.typeGuardExpr);
                 stmtExpr.type = symTable.booleanType;
 
                 ifCondition = ASTBuilderUtil

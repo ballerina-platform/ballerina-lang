@@ -905,7 +905,7 @@ type MyErrorTwo error<ERR_REASON_TWO, Details>;
 
 function testTypeGuardForCustomErrorPositive() returns (boolean, boolean) {
     Details d = { message: "detail message" };
-    MyError e3 = error(ERR_REASON, d);
+    MyError e3 = error(ERR_REASON, message = d.message);
     MyErrorTwo e4 = error(ERR_REASON_TWO, message = "detail message");
 
     any|error a1 = e3;
