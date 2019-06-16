@@ -419,9 +419,9 @@ public class BIRGen extends BLangNodeVisitor {
             BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
             BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.type, valueLiteral.value);
 
-            // The keyexpr is also  a string literal
-            BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
-            String entryKey = (String) keyLiteral.value;
+            String entryKey = keyValuePair.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
+                    ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value :
+                    (String) ((BLangLiteral) keyValuePair.key.expr).value;
             annotValueEntryMap.put(entryKey, entryValue);
         }
 

@@ -446,13 +446,24 @@ public class BCompileUtil {
      * @return compiled module node
      */
     public static BLangPackage compileAndGetPackage(String sourceFilePath) {
+        return compileAndGetPackage(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
+    /**
+     * Compile and return the compiled package node.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @param compilerPhase  The compiler phase - BIR_GEN or CODE_GEN
+     * @return compiled module node
+     */
+    public static BLangPackage compileAndGetPackage(String sourceFilePath, CompilerPhase compilerPhase) {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
