@@ -380,7 +380,8 @@ public abstract class LSCompletionProvider {
                         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                         return bSymbol instanceof BObjectTypeSymbol && bSymbol.getName().getValue().equals(typeName);
                     }).findAny();
-                    if (!objectSymbol.isPresent()) {
+                    if (!objectSymbol.isPresent()
+                            || !(objectSymbol.get().getScopeEntry().symbol instanceof BObjectTypeSymbol)) {
                         return completionItems;
                     }
                     objectTypeSymbol = (BObjectTypeSymbol) objectSymbol.get().getScopeEntry().symbol;
@@ -396,7 +397,7 @@ public abstract class LSCompletionProvider {
                 BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
                 CompletionItem newCItem;
                 if (initFunction == null) {
-                    newCItem = BFunctionCompletionItemBuilder.build(null,"new()", "new();");
+                    newCItem = BFunctionCompletionItemBuilder.build(null, "386)", "new();");
                 } else {
                     newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol);
                 }
