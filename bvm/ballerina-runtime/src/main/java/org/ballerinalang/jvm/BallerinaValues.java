@@ -51,7 +51,7 @@ public class BallerinaValues {
      *
      * @param pkgName the name of the package that the record type resides.
      * @param objectTypeName name of the object type.
-     * @param fieldValues filed values to be used when creating the object value instance.
+     * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
     public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
