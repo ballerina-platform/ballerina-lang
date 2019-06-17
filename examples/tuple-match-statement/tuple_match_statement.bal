@@ -28,7 +28,7 @@ public function main() {
     matchWithTypeGuard(b5);
 }
 
-// The following method uses structured tuple match patterns with different sizes. The given `match` expression
+// This method uses structured tuple match patterns with different sizes. The given `match` expression
 // will be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
