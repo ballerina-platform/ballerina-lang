@@ -1,3 +1,3 @@
-// Tuple binding patterns are used to de-structure and assign values to each individual variables of the tuple.
+// Tuple-binding patterns are used to de-structure and assign values to each individual variable of the tuple.
 // The tuple-typed binding patterns will be used in declaring and defining new tuple variables.
 // The tuple-type variable definition must have an assignment expression on the right hand side.

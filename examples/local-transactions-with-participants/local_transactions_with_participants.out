@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command with --experimental param.
+# `.bal` file, and execute the `ballerina run` command with --experimental param.
 $ ballerina run  --experimental local_transaction_participants.bal
 [ballerina/http] started HTTP/WS endpoint 172.17.0.1:53605
 2018-12-04 20:14:08,399 INFO  [ballerina/log] - Created transaction: c5fe74ef-da8c-41ab-8ba6-e7c6daceea93
