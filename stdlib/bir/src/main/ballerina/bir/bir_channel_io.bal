@@ -48,8 +48,22 @@ public type BirChannelReader object {
         return self.cp.floats[self.reader.readInt32()];
     }
 
+    public function readByteCpRef() returns byte {
+        return self.cp.bytes[self.reader.readInt32()];
+    }
+
     public function readModuleIDCpRef() returns ModuleID {
         return self.cp.packages[self.reader.readInt32()];
+    }
+
+    public function readTypeCpRef() returns BType {
+        var index = self.reader.readInt32();
+        var bType = self.cp.types[index];
+        if (bType is BType){
+            return bType;
+        }
+        error err = error("reference to non existing bType " + index );
+        panic err;
     }
 
 

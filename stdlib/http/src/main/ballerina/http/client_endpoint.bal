@@ -25,11 +25,13 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
+# + url - Target service url
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
 public type Client client object {
 
+    public string url;
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
@@ -41,6 +43,7 @@ public type Client client object {
     # + config - The configurations to be used when initializing the client
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
+        self.url = url;
         var result = initialize(url, self.config);
         if (result is error) {
             panic result;
@@ -213,40 +216,55 @@ public type TargetService record {|
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
-# + chunking - The chunking behaviour of the request
 # + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
-# + retryConfig - Configurations associated with Retry
 # + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
+# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
+# + retryConfig - Configurations associated with Retry
 public type ClientEndpointConfig record {|
-    CircuitBreakerConfig? circuitBreaker = ();
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
-    string httpVersion = "1.1";
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
 |};
 
+# Provides settings related to HTTP/1.x protocol.
+#
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + chunking - The chunking behaviour of the request
+public type Http1Settings record {|
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = CHUNKING_AUTO;
+|};
 
 function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
                     returns Client = external;
+
+# Provides settings related to HTTP/2 protocol.
+#
+# + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
+public type Http2Settings record {|
+    boolean http2PriorKnowledge = false;
+|};
 
 # Provides configurations for controlling the retrying behavior in failure scenarios.
 #
@@ -434,11 +452,12 @@ public type DirectTokenRefreshConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
+// TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
 # The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+//# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {

@@ -18,19 +18,22 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
  * The {@link StreamValue} represents a stream in Ballerina.
@@ -44,7 +47,7 @@ public class StreamValue implements RefValue {
     private BType type;
     private BType constraintType;
 
-    private String streamId = "";
+    private String streamId;
 
     private StreamSubscriptionManager streamSubscriptionManager;
 
@@ -104,15 +107,16 @@ public class StreamValue implements RefValue {
     /**
      * Method to publish to a topic representing the stream in the broker.
      *
+     * @param strand the strand in which the data being published
      * @param data the data to publish to the stream
      */
-    public void publish(RefValue data) {
-        BType dataType = data.getType();
+    public void publish(Strand strand, Object data) {
         if (!TypeChecker.checkIsType(data, constraintType)) {
-            throw new BallerinaException("incompatible types: value of type:" + dataType
-                    + " cannot be added to a stream of type:" + this.constraintType);
+            throw BallerinaErrors.createError("incompatible types: value of type:" +
+                    TypeChecker.getType(data).getName() + " cannot be added to a stream of type:" +
+                    this.constraintType.getName());
         }
-        streamSubscriptionManager.sendMessage(this, data);
+        streamSubscriptionManager.sendMessage(this, strand, data);
     }
 
     /**
@@ -121,14 +125,22 @@ public class StreamValue implements RefValue {
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
-    public void subscribe(Consumer functionPointer) {
+    public void subscribe(FPValue<Object[], Object> functionPointer) {
+        BType[] parameters = ((BFunctionType) functionPointer.type).paramTypes;
+        int lastArrayIndex = parameters.length - 1;
+        if (!TypeChecker.checkIsType(constraintType, ((BFunctionType) functionPointer.getType())
+                                                 .paramTypes[lastArrayIndex],
+                                      new ArrayList<>())) {
+            throw BallerinaErrors.createError("incompatible function: subscription function needs to be a function"
+                                              + " accepting:" + this.constraintType.getName());
+        }
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 
     public void subscribe(InputHandler inputHandler) {
         if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-                && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new BallerinaException("Streaming Support is only available with streams accepting objects");
+            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
         }
         streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
     }

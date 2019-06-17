@@ -73,14 +73,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -96,6 +94,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBui
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
@@ -167,6 +168,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -741,6 +743,49 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTupleLiteral tupleLiteral) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(tupleLiteral);
+        Operand typeCPIndex = getTypeCPIndex(tupleLiteral.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(tupleLiteral, tupleLiteral.exprs.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < tupleLiteral.exprs.size(); i++) {
+            BLangExpression argExpr = tupleLiteral.exprs.get(i);
+            genNode(argExpr, this.env);
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = argExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(groupExpr);
+        Operand typeCPIndex = getTypeCPIndex(groupExpr.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(groupExpr, groupExpr.expression != null ? 1 : 0);
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array value;
+        BLangExpression argExpr = groupExpr.expression;
+        genNode(argExpr, this.env);
+        BLangLiteral indexLiteral = new BLangLiteral();
+        indexLiteral.pos = argExpr.pos;
+        indexLiteral.value = (long) 0;
+        indexLiteral.type = symTable.intType;
+        genNode(indexLiteral, this.env);
+        emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+    }
+
+    @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
         Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
@@ -878,7 +923,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(dataRowExpr, this.env);
             dataRows.add(dataRowExpr);
         }
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteral.exprs = dataRows;
         arrayLiteral.type = new BArrayType(symTable.anyType);
         genNode(arrayLiteral, this.env);
@@ -1185,29 +1230,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
         emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
                 errExpr.detailsExpr.regIndex, regIndex);
-    }
-
-    @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        // Emit create array instruction
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
-        Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        BLangLiteral sizeLiteral = generateIntegerLiteralNode(bracedOrTupleExpr, bracedOrTupleExpr.expressions.size());
-
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
-
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
-            genNode(argExpr, this.env);
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = argExpr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            genNode(indexLiteral, this.env);
-            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
-        }
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
@@ -3857,8 +3879,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Only named parameters can have default values.
         for (BVarSymbol param : funcSymbol.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
-            paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            if (param.defaultValue != null) {
+                DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            } else if (param.defaultExpression != null) {
+                if (param.defaultExpression.getKind() == NodeKind.LITERAL ||
+                        param.defaultExpression.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) param.defaultExpression;
+                    param.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
+                    DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                    paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+                } else {
+                    throw new BLangCompilerException("only literals supported for parameter default values.");
+                }
+            }
         }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);

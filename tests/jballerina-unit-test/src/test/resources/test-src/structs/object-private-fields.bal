@@ -41,21 +41,21 @@ public type userB object {
     public string address = "";
 };
 
-public function textPrivateFieldAccess1 () returns (string, string, string, int, int) {
+public function textPrivateFieldAccess1 () returns [string, string, string, int, int] {
     employee01 e = new;
     e.age = 14;
     e.name = "sam";
     e.ssn = "234-56-7890";
     e.id = 45034;
-    return (e.name, e.zipcode, e.ssn, e.id, e.employeeId);
+    return [e.name, e.zipcode, e.ssn, e.id, e.employeeId];
 }
 
-public function textPrivateFieldAccess2 () returns (int, string) {
+public function textPrivateFieldAccess2 () returns [int, string] {
     foo:person p = foo:newPerson();
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
-public function testCompileTimeStructEqWithPrivateFields () returns (string, string, string, int) {
+public function testCompileTimeStructEqWithPrivateFields () returns [string, string, string, int] {
     employee e = new;
     e.age = 24;
     e.name = "jay";
@@ -64,10 +64,10 @@ public function testCompileTimeStructEqWithPrivateFields () returns (string, str
     e.id = 458;
 
     person p = e;
-    return (p.name, p.zipcode, p.ssn, p.id);
+    return [p.name, p.zipcode, p.ssn, p.id];
 }
 
-public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns (int, string, string) {
+public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns [int, string, string] {
     employee e = new;
     e.age = 28;
     e.name = "mal";
@@ -76,10 +76,10 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns (
     e.id = 458;
 
     foo:userObject u = e;
-    return (u.age, u.name, u.zipcode);
+    return [u.age, u.name, u.zipcode];
 }
 
-public function testRuntimeStructEqWithPrivateFields () returns (string, string, string, int, int)|error {
+public function testRuntimeStructEqWithPrivateFields () returns [string, string, string, int, int]|error {
     employee e = new;
     e.age = 24;
     e.name = "jay";
@@ -93,10 +93,10 @@ public function testRuntimeStructEqWithPrivateFields () returns (string, string,
     var e1 = check trap <employee> p;
 
 
-    return (e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId);
+    return [e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId];
 }
 
-public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (string, string, string, int)|error {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns [string, string, string, int]|error {
     employee e = new;
     e.age = 24;
     e.name = "jay";
@@ -107,19 +107,19 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (str
 
     // Now I want convert u back to be an employee instance.
     if(u is person) {
-        return (u.name, u.zipcode, u.ssn, u.id);
+        return [u.name, u.zipcode, u.ssn, u.id];
     } else {
         error err = error("'u' is not a person");
         return err;
     }
 }
 
-public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int) {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns [string, int] {
     foo:userObject u = foo:newUserObject();
 
     var uA = u;
 
     // This is a unsafe cast
     var uB = uA;
-    return (uB.name, uB.age);
+    return [uB.name, uB.age];
 }

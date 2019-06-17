@@ -20,7 +20,12 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-config-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.config.util.JBallerinaTestInitializer"/>
+    </listeners>
+
     <test name="ballerina-config-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <classes >
             <class name="org.ballerinalang.stdlib.config.AESCipherToolTest"/>
             <class name="org.ballerinalang.stdlib.config.ComplexConfigKeyTest"/>
@@ -28,7 +33,11 @@ under the License.
             <class name="org.ballerinalang.stdlib.config.ConfigRegistryTest"/>
             <class name="org.ballerinalang.stdlib.config.ConfigTableTest"/>
             <class name="org.ballerinalang.stdlib.config.ConfigTest"/>
-            <class name="org.ballerinalang.stdlib.config.EncryptedConfigsTest"/>
+            <class name="org.ballerinalang.stdlib.config.EncryptedConfigsTest"> 
+                <methods>
+                    <exclude name="testReadEncryptedFieldWithInvalidSecret"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.stdlib.config.EnvVarConfigTest"/>
             <class name="org.ballerinalang.stdlib.config.VMOptionsTest"/>
         </classes>

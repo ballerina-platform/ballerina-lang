@@ -1,16 +1,16 @@
 xmlns "http://ballerina.com/b" as ns1; 
 
-function testElementLiteralWithNamespaces() returns (xml, xml) {
+function testElementLiteralWithNamespaces() returns [xml, xml] {
     xmlns "http://ballerina.com/";
     xmlns "http://ballerina.com/a" as ns0;
     xmlns "http://ballerina.com/c" as ns1;
 
     xml x1 = xml `<root ns0:id="456"><foo>123</foo><bar ns1:status="complete"></bar></root>`;
     xml x2 = x1.*;
-    return (x1, x2);
+    return [x1, x2];
 }
 
-function testElementWithQualifiedName() returns (xml, xml, xml) {
+function testElementWithQualifiedName() returns [xml, xml, xml] {
 
     xml x1 = xml `<root>hello</root>`;
 
@@ -19,7 +19,7 @@ function testElementWithQualifiedName() returns (xml, xml, xml) {
 
     xml x3 = xml `<ns1:root>hello</ns1:root>`;
 
-    return (x1, x2, x3);
+    return [x1, x2, x3];
 }
 
 function testDefineInlineNamespace() returns (xml) {
@@ -27,7 +27,7 @@ function testDefineInlineNamespace() returns (xml) {
     return x1;
 }
 
-function testDefineInlineDefaultNamespace() returns (xml, xml, xml) {
+function testDefineInlineDefaultNamespace() returns [xml, xml, xml] {
     xmlns "http://ballerina.com/default/namespace";
 
     string defaultNs = "http://ballerina.com";
@@ -35,7 +35,7 @@ function testDefineInlineDefaultNamespace() returns (xml, xml, xml) {
     xml x1 = xml `<foo xmlns:nsx="http://wso2.com/aaa" >hello</foo>`;
     xml x2 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="http://wso2.com" >hello</foo>`;
     xml x3 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="${defaultNs}" >hello</foo>`;
-    return (x1, x2, x3);
+    return [x1, x2, x3];
 }
 
 function testUsingNamespcesOfParent() returns (xml) {
@@ -89,16 +89,16 @@ function testComplexXMLLiteral() returns (xml) {
   return x;
 }
 
-function testNamespaceDclr() returns (string, string, string) {
+function testNamespaceDclr() returns [string, string, string] {
     xmlns "http://sample.com/wso2/a2" as ns0;
     xmlns "http://sample.com/wso2/b2" as ns1;
     xmlns "http://sample.com/wso2/c2";
     xmlns "http://sample.com/wso2/d2" as ns3;
 
-    return (ns0:foo, ns1:foo, ns3:foo);
+    return [ns0:foo, ns1:foo, ns3:foo];
 }
 
-function testInnerScopeNamespaceDclr() returns (string, string, string) {
+function testInnerScopeNamespaceDclr() returns [string, string, string] {
     string s1 = "";
     string s2 = "";
     string s3 = "";
@@ -112,7 +112,7 @@ function testInnerScopeNamespaceDclr() returns (string, string, string) {
     
     s3 = ns1:foo;
     
-    return (s1, s2, s3);
+    return [s1, s2, s3];
 }
 
 type Person object {

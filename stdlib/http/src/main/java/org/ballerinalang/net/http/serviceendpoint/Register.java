@@ -23,10 +23,17 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHTTPServicesRegistry;
+import org.ballerinalang.net.http.BWebSocketService;
+import org.ballerinalang.net.http.BWebSocketServicesRegistry;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
@@ -45,7 +52,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
         orgName = "ballerina", packageName = "http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
-                structPackage = "ballerina/http"),
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
                 @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
@@ -57,13 +64,35 @@ public class Register extends AbstractHttpNativeFunction {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
-        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
-        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+        BHTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        BWebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
         ParamDetail param;
         if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
             String callerType = param.getVarType().toString();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                BWebSocketService webSocketService = new BWebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
+        } else {
+            httpServicesRegistry.registerService(service);
+        }
+        context.setReturnValues();
+    }
+
+    public static Object register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+                                Object annotationData) {
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+        httpServicesRegistry.setScheduler(strand.scheduler);
+
+        BType param;
+        AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
+        if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
+            String callerType = param.getQualifiedName();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
                 httpServicesRegistry.registerService(service);
             } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
                 WebSocketService webSocketService = new WebSocketService(service);
@@ -72,7 +101,6 @@ public class Register extends AbstractHttpNativeFunction {
         } else {
             httpServicesRegistry.registerService(service);
         }
-
-        context.setReturnValues();
+        return null;
     }
 }

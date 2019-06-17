@@ -63,10 +63,10 @@ public class GetTime extends AbstractTimeFunction {
 
     public static ArrayValue getTime(Strand strand, MapValue<String, Object> timeRecord) {
         ArrayValue time = new ArrayValue(getTimeTupleJvmType);
-        time.add(0, getHour(timeRecord));
-        time.add(1, getMinute(timeRecord));
-        time.add(2, getSecond(timeRecord));
-        time.add(3, getMilliSecond(timeRecord));
+        time.add(0, Long.valueOf(getHour(timeRecord)));
+        time.add(1, Long.valueOf(getMinute(timeRecord)));
+        time.add(2, Long.valueOf(getSecond(timeRecord)));
+        time.add(3, Long.valueOf(getMilliSecond(timeRecord)));
         return time;
     }
 }

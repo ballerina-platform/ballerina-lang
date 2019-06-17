@@ -20,12 +20,11 @@ package org.ballerinalang.stdlib.services.configuration.compression;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,13 +42,11 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENC
  */
 public class CompressionConfigSuccessTest {
 
-    private CompileResult serviceResult;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/services/configuration/compression/compression-annotation-test.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        BCompileUtil.compile("test-src/services/configuration/compression/compression-annotation-test.bal");
     }
 
     @Test(description = "Test Compression.AUTO, with no Accept-Encoding header. The response here means the one " +
@@ -57,7 +54,7 @@ public class CompressionConfigSuccessTest {
     public void testAutoCompress() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompress",
                 HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 "The content-encoding header should be null and the identity which means no compression " +
@@ -71,7 +68,7 @@ public class CompressionConfigSuccessTest {
         headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompress",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 "The content-encoding header should be null and the original value of Accept-Encoding should " +
@@ -83,7 +80,7 @@ public class CompressionConfigSuccessTest {
     public void testAutoCompressWithContentTypes() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompressWithContentType",
                                                                         HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
                           "The content-encoding header should be null and the identity which means no compression " +
@@ -95,7 +92,7 @@ public class CompressionConfigSuccessTest {
     public void testAlwaysCompress() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompress",
                 HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()), ENCODING_GZIP,
                 "The content-encoding header should be gzip.");
@@ -108,7 +105,7 @@ public class CompressionConfigSuccessTest {
         headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompress",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 "The content-encoding header should be set to null and the transport will use the original" +
@@ -120,7 +117,7 @@ public class CompressionConfigSuccessTest {
     public void testAlwaysCompressWithContentTypes() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompressWithContentType",
                                                                         HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()), ENCODING_GZIP,
                             "The content-encoding header should be gzip.");
@@ -131,7 +128,7 @@ public class CompressionConfigSuccessTest {
     public void testNeverCompress() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/neverCompress",
                 HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response that was sent " +
@@ -145,7 +142,7 @@ public class CompressionConfigSuccessTest {
         headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/userOverridenValue",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 ENCODING_DEFLATE, "The content-encoding header of the response that was sent " +
@@ -157,7 +154,7 @@ public class CompressionConfigSuccessTest {
     public void testNeverCompressWithContentTypes() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/neverCompressWithContentType",
                                                                         HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                             HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response " +
@@ -169,7 +166,7 @@ public class CompressionConfigSuccessTest {
     public void testAutoCompressWithIncompatibleContentTypes() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompressWithInCompatibleContentType",
                                                                         HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                             HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response " +
@@ -181,7 +178,7 @@ public class CompressionConfigSuccessTest {
     public void testAlwaysCompressWithEmptyContentTypes() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompressWithEmptyContentType",
                                                                         HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()), ENCODING_GZIP,
                             "The content-encoding header should be gzip.");

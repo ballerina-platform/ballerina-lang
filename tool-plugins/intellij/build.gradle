@@ -34,7 +34,9 @@ repositories {
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.6.0'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.34.58'
-    compile 'com.github.ballerina-platform:lsp4intellij:master-SNAPSHOT'
+    compile group: 'com.github.ballerina-platform', name: 'lsp4intellij', version: 'master-SNAPSHOT'
+    compile group: 'com.github.jknack', name: 'handlebars', version: '4.1.2'
+    configurations.compile.exclude(group: 'org.slf4j', module: 'slf4j-api')
 }
 
 apply plugin: 'java'
@@ -59,13 +61,9 @@ intellij {
     // alternativeIdePath localIdePath
 }
 
-apply plugin: 'de.undercouch.download'
-task downloadPsiViewerPlugin() {
-    download {
-        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
-        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
-        onlyIfNewer true
-    }
+task downloadPsiViewerPlugin(type: Download) {
+    src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+    dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
 }
 
 apply plugin: "jacoco"

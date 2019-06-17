@@ -38,7 +38,7 @@ public function basicWorkerTest() returns int {
 }
 
 
-public function testWithTuples() returns (string, int) {
+public function testWithTuples() returns [string, int] {
     string str = "Hello Ballerina!!!";
     int i = 10;
     worker w1 {
@@ -57,7 +57,7 @@ public function testWithTuples() returns (string, int) {
     }
 
     _ = wait {w1, w2};
-    return (str, i);
+    return [str, i];
 }
 
 public function testWithMaps() returns map<string> {
@@ -87,7 +87,7 @@ public function testWithMaps() returns map<string> {
     return m1;
 }
 
-public function complexWorkerTest() returns (int, map<string>) {
+public function complexWorkerTest() returns [int, map<string>] {
     int i = 5;
     map<string> m1 = {a: "A", b: "B", c: "C", d: "D"};
 
@@ -130,7 +130,7 @@ public function complexWorkerTest() returns (int, map<string>) {
     i = i + 50;
     m1["b"] = "BBBB";
 
-    return (i, m1);
+    return [i, m1];
 }
 
 public type Student record {|

@@ -149,7 +149,8 @@ public class FormattingTest {
                 {"expectedCheckPanic.bal", "checkPanic.bal"},
                 {"expectedAnonRecord.bal", "anonRecord.bal"},
                 {"expectedInvocation.bal", "invocation.bal"},
-                {"expectedForkJoin.bal", "forkJoin.bal"},
+                {"expectedTypeDesc.bal", "typeDesc.bal"},
+                {"expectedAnonObject.bal", "anonObject.bal"},
         };
     }
 

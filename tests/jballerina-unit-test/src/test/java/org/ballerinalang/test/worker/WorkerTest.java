@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -250,7 +249,7 @@ public class WorkerTest {
     public void workerWithFutureTest1() {
         BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @Test
@@ -278,7 +277,9 @@ public class WorkerTest {
             System.setOut(new PrintStream(tempOutStream));
             BRunUtil.invoke(result, "sameStrandMultipleInvocation");
             String result = new String(tempOutStream.toByteArray());
-            Assert.assertTrue(result.contains("11 - 11"), result);
+            // we cannot guarantee an ordering between message sends
+            Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
+                            (result.contains("11 - 12") && result.contains("12 - 11")), result);
         } finally {
             System.setOut(defaultOut);
         }
@@ -297,5 +298,15 @@ public class WorkerTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getType().getName(), "Rec");
         Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
+    }
+
+    @Test
+    public void innerWorkerPanicTest() {
+        try {
+            BRunUtil.invoke(result, "panicFunc");
+            Assert.fail("Worker did not panic");
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
+        }
     }
 }

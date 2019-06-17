@@ -82,6 +82,8 @@ public enum Snippet {
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
+    KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
+
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
@@ -90,11 +92,21 @@ public enum Snippet {
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
-    KW_ANNOTATION(SnippetGenerator.getAnnotationDefSnippet()),
+    KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
 
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
+
+    KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),
+
+    KW_UNTAINT(SnippetGenerator.getUntaintKeywordSnippet()),
+
+    KW_ABSTRACT(SnippetGenerator.getAbstractKeywordSnippet()),
+
+    KW_CLIENT(SnippetGenerator.getClientKeywordSnippet()),
+
+    KW_EXTERNAL(SnippetGenerator.getExternalKeywordSnippet()),
 
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),

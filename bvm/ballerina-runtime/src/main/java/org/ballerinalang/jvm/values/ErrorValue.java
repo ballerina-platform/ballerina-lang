@@ -20,14 +20,17 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 
 /**
  * Represent an error in ballerina.
@@ -37,7 +40,7 @@ import java.util.Map;
 public class ErrorValue extends RuntimeException implements RefValue {
 
     private static final long serialVersionUID = 1L;
-    private final BErrorType type;
+    private final BType type;
     private final String reason;
     private final Object details;
 
@@ -48,13 +51,20 @@ public class ErrorValue extends RuntimeException implements RefValue {
         this.details = details;
     }
 
+    public ErrorValue(BType type, String reason, Object details) {
+        super(reason);
+        this.type = type;
+        this.reason = reason;
+        this.details = details;
+    }
+
     @Override
     public String stringValue() {
         return reason + " " + details.toString();
     }
 
     @Override
-    public BErrorType getType() {
+    public BType getType() {
         return type;
     }
 
@@ -79,7 +89,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return stringValue();
     }
 
-
     public String getReason() {
         return reason;
     }
@@ -93,6 +102,74 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public void printStackTrace() {
-        ErrorHandlerUtils.printError("error: " + BallerinaErrors.getPrintableStackTrace(this));
+        ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+    }
+
+    public void printStackTrace(PrintWriter printWriter) {
+        printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+    }
+    
+    @Override
+    public StackTraceElement[] getStackTrace() {
+        StackTraceElement[] stackTrace = super.getStackTrace();
+        List<StackTraceElement> filteredStack = new LinkedList<>();
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement stackTraceElement = BallerinaErrors.filterStackTraceElement(stackTrace, i);
+            if (stackTraceElement != null) {
+                filteredStack.add(stackTraceElement);
+            }
+        }
+        StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
+        return filteredStack.toArray(filteredStackArray);
+    }
+
+    public String getPrintableStackTrace() {
+        String errorMsg = getErrorMessage();
+        StringBuilder sb = new StringBuilder();
+        sb.append(errorMsg);
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = this.getStackTrace();
+        if (stackTrace.length == 0) {
+            return sb.toString();
+        }
+        sb.append("\n\tat ");
+        // print first element
+        printStackElement(sb, stackTrace[0], "");
+        for (int i = 1; i < stackTrace.length; i++) {
+            printStackElement(sb, stackTrace[i], "\n\t   ");
+        }
+        return sb.toString();
+    }
+
+    private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
+        // Append the method name
+        sb.append(tab).append(stackTraceElement.getMethodName());
+        // Append the filename
+        sb.append("(").append(stackTraceElement.getFileName());
+        // Append the line number
+        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
+    }
+
+    private String getErrorMessage() {
+        String errorMsg = "";
+        boolean reasonAdded = false;
+        if (reason != null && !reason.isEmpty()) {
+            errorMsg = reason;
+            reasonAdded = true;
+        }
+        if (details != null) {
+            errorMsg = errorMsg + (reasonAdded ? " " : "") + details.toString();
+        }
+        return errorMsg;
+    }
+
+ 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFrozen() {
+        return true;
     }
 }

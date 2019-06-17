@@ -45,12 +45,12 @@ function checkRefEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
 }
 
 function checkRefEqualityOfTuplesOfDifferentTypes() returns boolean {
-    (string, int) a = ("", 0);
-    (boolean, float) b = (false, 0.0);
+    [string, int] a = ["", 0];
+    [boolean, float] b = [false, 0.0];
     boolean bool1 = a === b && !(a !== b);
 
-    (float|int, int) c = (0, 0);
-    (boolean, int) d = (false, 0);
+    [float|int, int] c = [0, 0];
+    [boolean, int] d = [false, 0];
     boolean bool2 = c === d && !(d !== c);
 
     return bool1 && bool2;
@@ -63,11 +63,11 @@ function checkRefEqualityOfRecordsOfIncompatibleTypes() returns boolean {
 }
 
 function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
-    (string, int) t = ("Hi", 1);
+    [string, int] t = ["Hi", 1];
     json j = "Hi 1";
     boolean bool1 = t === j && !(j !== t);
 
-    Employee|(string, int) e = ("Hi", 1);
+    Employee|[string, int] e = ["Hi", 1];
     j = "Hi 1";
     boolean bool2 = e === j && !(e !== j);
 

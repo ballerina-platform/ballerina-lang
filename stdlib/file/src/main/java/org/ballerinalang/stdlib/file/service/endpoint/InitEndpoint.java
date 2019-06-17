@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -70,8 +69,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         context.setReturnValues();
     }
 
-    public static Object initEndpoint(Strand strand, ObjectValue listener, MapValue<?, ?> serviceEndpointConfig) {
-        final String path = serviceEndpointConfig.getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
+    public static Object initEndpoint(Strand strand, ObjectValue listener) {
+        final String path = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG).
+                getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
         if (path == null || path.isEmpty()) {
             return FileUtils.createError("'path' field is empty");
         }

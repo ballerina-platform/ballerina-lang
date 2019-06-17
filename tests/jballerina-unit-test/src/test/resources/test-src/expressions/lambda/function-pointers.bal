@@ -81,14 +81,14 @@ public function getCount(function (int , int ) returns (int) sumFunction, string
     return first + ": " + sumFunction.call(4, 2) + " " + last;
 }
 
-function testFunctionPointerAsFuncParam() returns (int, string) {
+function testFunctionPointerAsFuncParam() returns [int, string] {
     function (int , int ) returns (int) sumFunction = function (int a, int b) returns (int) {
                                int value =  a + b;
                                return value;
                            };
 
     string s = getCount(sumFunction, "Total", "USD");
-    return (sumFunction.call(5, 8), s);
+    return [sumFunction.call(5, 8), s];
 }
 
 function testAnyToFuncPointerConversion_1() returns (int|error) {
@@ -102,7 +102,7 @@ function testAnyToFuncPointerConversion_1() returns (int|error) {
 }
 
 type Person object {
-    private int age;
+    int age;
 
     function __init (int age) {
         self.age = age;
@@ -114,7 +114,7 @@ type Person object {
 };
 
 type Student object {
-    private int age = 40;
+    int age = 40;
     private int marks;
 
     function getAge() returns (int) {
@@ -123,13 +123,13 @@ type Student object {
 };
 
 function testFuncPointerConversion() returns (int) {
-    function (Student) returns (int) studentFunc = function (Student s) returns (int) {
-                return s.getAge();
+    function (Person) returns (int) personFunc = function (Person p) returns (int) {
+                return p.getAge();
             };
 
-    function (Person) returns (int) personFunc = studentFunc;
-    Person p = new Person(20);
-    return personFunc.call(p);
+    function (Student) returns (int) studentFunc = personFunc;
+    Student s = new Student();
+    return studentFunc.call(s);
 }
 
 function testAnyToFuncPointerConversion_2() returns (int|error) {

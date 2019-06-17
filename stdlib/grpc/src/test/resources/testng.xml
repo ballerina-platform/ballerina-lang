@@ -20,13 +20,18 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-grpc-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.net.grpc.JBallerinaTestInitializer"/>
+    </listeners>
+
     <test name="ballerina-grpc-test" parallel="false">
-        <classes >
+        <parameter name="enableJBallerinaTests" value="true"/>
+         <classes>
             <class name="org.ballerinalang.net.grpc.CompressorCodecTest"/>
             <class name="org.ballerinalang.net.grpc.ProtoBuilderDefinitionTest"/>
             <class name="org.ballerinalang.net.grpc.ResourceReturnTypeTest"/>
             <class name="org.ballerinalang.net.grpc.UnsupportedFieldTypesTest"/>
-            <class name="org.ballerinalang.net.grpc.ConnectionPoolTestCase"/>
+            <!--<class name="org.ballerinalang.net.grpc.ConnectionPoolTestCase"/>-->
         </classes>
     </test>
 </suite>

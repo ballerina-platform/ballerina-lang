@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.model.elements.PackageID;
@@ -78,7 +79,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.file.Path;
@@ -93,7 +97,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -115,7 +119,7 @@ public class CommandUtil {
     public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
                                                                           int line) {
         List<CodeAction> actions = new ArrayList<>();
-        if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
+        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
             actions.add(getInitializerGenerationCommand(docUri, line));
         }
         actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
@@ -145,8 +149,8 @@ public class CommandUtil {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 
-        boolean isService = UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
-        boolean isFunction = UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
+        boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
+        boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
             return actions;
         }
@@ -318,6 +322,33 @@ public class CommandUtil {
                     }
                 }
             }
+        } else if (isTaintedParamPassed(diagnosticMessage)) {
+            try {
+                Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
+                if (matcher.find() && matcher.groupCount() > 0) {
+                    String param = matcher.group(1);
+                    String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
+                    CodeAction action = new CodeAction(commandTitle);
+                    action.setKind(CodeActionKind.QuickFix);
+                    action.setDiagnostics(diagnostics);
+                    // Extract specific content range
+                    Range range = diagnostic.getRange();
+                    WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+                    String content = getContentOfRange(documentManager, uri, range);
+                    // Add `untaint` keyword
+                    matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
+                    String editText = matcher.find() ? "untaint " + content : "untaint (" + content + ")";
+                    // Create text-edit
+                    List<TextEdit> edits = new ArrayList<>();
+                    edits.add(new TextEdit(range, editText));
+                    VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier(uri, null);
+                    action.setEdit(new WorkspaceEdit(Collections.singletonList(
+                            Either.forLeft(new TextDocumentEdit(identifier, edits)))));
+                    actions.add(action);
+                }
+            } catch (WorkspaceDocumentException | IOException e) {
+                //do nothing
+            }
         }
         return actions;
     }
@@ -335,7 +366,7 @@ public class CommandUtil {
                 foundType = typeName;
             } else {
                 edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
-                foundType = alias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName;
+                foundType = alias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
             }
         }
         return foundType;
@@ -445,9 +476,9 @@ public class CommandUtil {
         }
     }
 
-    public static Node getBLangNodeByPosition(int line, int column, String uri,
-                                              WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                              LSContext context) {
+    private static Node getBLangNodeByPosition(int line, int column, String uri,
+                                               WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                               LSContext context) {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
@@ -606,6 +637,10 @@ public class CommandUtil {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES);
     }
 
+    private static boolean isTaintedParamPassed(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.TAINTED_PARAM_PASSED);
+    }
+
     private static CodeAction getDocGenerationCommand(String nodeType, String docUri, int line) {
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
@@ -636,6 +671,48 @@ public class CommandUtil {
                                           CreateObjectInitializerExecutor.COMMAND, args));
         codeAction.setKind(CodeActionKind.Source);
         return codeAction;
+    }
+
+    private static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
+            throws WorkspaceDocumentException, IOException {
+        LSDocument document = new LSDocument(uri);
+        Path filePath = document.getPath();
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        String fileContent = documentManager.getFileContent(compilationPath);
+
+        BufferedReader reader = new BufferedReader(new StringReader(fileContent));
+        StringBuilder capture = new StringBuilder();
+        int lineNum = 1;
+        int sLine = range.getStart().getLine() + 1;
+        int eLine = range.getEnd().getLine() + 1;
+        int sChar = range.getStart().getCharacter();
+        int eChar = range.getEnd().getCharacter();
+        String line;
+        while ((line = reader.readLine()) != null && lineNum <= eLine) {
+            if (lineNum >= sLine) {
+                if (sLine == eLine) {
+                    // single line range
+                    capture.append(line, sChar, eChar);
+                    if (line.length() == eChar) {
+                        capture.append(System.lineSeparator());
+                    }
+                } else if (lineNum == sLine) {
+                    // range start line
+                    capture.append(line.substring(sChar)).append(System.lineSeparator());
+                } else if (lineNum == eLine) {
+                    // range end line
+                    capture.append(line, 0, eChar);
+                    if (line.length() == eChar) {
+                        capture.append(System.lineSeparator());
+                    }
+                } else {
+                    // range middle line
+                    capture.append(line).append(System.lineSeparator());
+                }
+            }
+            lineNum++;
+        }
+        return capture.toString();
     }
 
     /**

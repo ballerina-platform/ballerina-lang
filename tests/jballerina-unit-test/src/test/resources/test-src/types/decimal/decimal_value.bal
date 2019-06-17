@@ -71,13 +71,13 @@ function testDecimalModulus() returns (decimal) {
 }
 
 // Decimal negation.
-//function testDecimalNegation() returns (decimal) {
-//    decimal a = 4.565;
-//    return -a; // EXPECTED: -4.565
-//}
+function testDecimalNegation() returns (decimal) {
+    decimal a = 4.565;
+    return -a; // EXPECTED: -4.565
+}
 
 // Decimal comparison operations.
-function testDecimalComparisonOperations() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
+function testDecimalComparisonOperations() returns [boolean, boolean, boolean, boolean, boolean, boolean] {
     decimal d1 = 45.678432;
     decimal d2 = 45.678432005;
 
@@ -88,22 +88,22 @@ function testDecimalComparisonOperations() returns (boolean, boolean, boolean, b
     boolean b5 = (d1 >= d2);
     boolean b6 = (d1 <= d2);
 
-    return (b1, b2, b3, b4, b5, b6);
+    return [b1, b2, b3, b4, b5, b6];
 }
 
 // Decimal value passed as a parameter.
-function testDecimalParameter(decimal a, decimal b) returns (decimal, decimal) {
+function testDecimalParameter(decimal a, decimal b) returns [decimal, decimal] {
     decimal c;
     decimal d;
     c = a;
     d = b;
-    return (c, d);
+    return [c, d];
 }
 
 // Test int literal assignment for a decimal variable.
-function testIntLiteralAssignment() returns (decimal, decimal) {
+function testIntLiteralAssignment() returns [decimal, decimal] {
     decimal d = 12;
-    return (d, 15);
+    return [d, 15];
 }
 
 function testDecimalArrayValue() returns (decimal[]) {
@@ -116,12 +116,12 @@ function testDecimalArrayValueWithDiscriminator() returns (decimal[]) {
     return ds;
 }
 
-function testDiscriminatedDecimalLiterals() returns (decimal, decimal, decimal, decimal) {
+function testDiscriminatedDecimalLiterals() returns [decimal, decimal, decimal, decimal] {
     var a = 3.22d;
     var b = 0.0e5d;
     decimal c =3.141592653589793238462643383279502d;
     decimal d =3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679d;
-    return (a, b, c, d);
+    return [a, b, c, d];
 }
 
 // Test assigning positive hexadecimal literal without power and floating point.
@@ -145,13 +145,13 @@ function testHexComplexExpression() returns decimal {
 }
 
 // Test positively signed literal assignment
-//function testPositivelySignedLiteralAssignment() returns (decimal, decimal, decimal) {
-//    decimal d1 = +12.23;
-//    decimal d2 = + 0.0;
-//    decimal d4 = -12.23;
-//    decimal d5 = d1 + d4;
-//    return (d1, d2, d5);
-//}
+function testPositivelySignedLiteralAssignment() returns [decimal, decimal, decimal] {
+    decimal d1 = +12.23;
+    decimal d2 = + 0.0;
+    decimal d4 = -12.23;
+    decimal d5 = d1 + d4;
+    return [d1, d2, d5];
+}
 
 // Test decimal inference for map literal context
 function testDecimalInferenceInMapContext() returns map<decimal> {
@@ -160,12 +160,12 @@ function testDecimalInferenceInMapContext() returns map<decimal> {
 }
 
 // Test decimal inference for binary expressions of literals
-function decimalInferenceInLiterals() returns (decimal, decimal, decimal, decimal, decimal) {
+function decimalInferenceInLiterals() returns [decimal, decimal, decimal, decimal, decimal] {
     decimal a = 1.0/2.0;
     decimal b = 1.0+2.0;
     decimal c = 1.0 - 2.0;
     decimal d = 1.0 * 2.0;
     decimal k = 10000.0001;
     decimal e = 1.0/2.0/1.0 + 1.0*0.005 + k;
-    return (a, b, c, d, e);
+    return [a, b, c, d, e];
 }

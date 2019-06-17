@@ -19,14 +19,14 @@
 
 package org.ballerinalang.stdlib.io.data;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,8 +43,8 @@ public class DataChannelTest {
 
     @BeforeClass
     public void setup() {
-        dataChannel = BCompileUtil.compileAndSetup("test-src/io/data_io.bal");
-        currentDirectoryPath = System.getProperty("user.dir") + "/target";
+        dataChannel = BCompileUtil.compile("test-src/io/data_io.bal");
+        currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
     @Test(description = "read and write fixed size integers", dataProvider = "Endianness")
@@ -55,10 +55,10 @@ public class DataChannelTest {
         BValue[] args = {new BInteger(value),
                 new BString(sourceToWrite),
                 new BString(order.toString())};
-        BRunUtil.invokeStateful(dataChannel, "testWriteFixedSignedInt", args);
+        BRunUtil.invoke(dataChannel, "testWriteFixedSignedInt", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
-        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadFixedSignedInt", args2);
+        BValue[] result = BRunUtil.invoke(dataChannel, "testReadFixedSignedInt", args2);
 
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
@@ -69,10 +69,10 @@ public class DataChannelTest {
         //Will initialize the channel
         int value = 2;
         BValue[] args = {new BInteger(value), new BString(sourceToWrite), new BString(order.toString())};
-        BRunUtil.invokeStateful(dataChannel, "testWriteVarInt", args);
+        BRunUtil.invoke(dataChannel, "testWriteVarInt", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
-        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadVarInt", args2);
+        BValue[] result = BRunUtil.invoke(dataChannel, "testReadVarInt", args2);
 
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
@@ -83,10 +83,10 @@ public class DataChannelTest {
         //Will initialize the channel
         double value = 1359494.69;
         BValue[] args = {new BFloat(value), new BString(sourceToWrite), new BString(order.toString())};
-        BRunUtil.invokeStateful(dataChannel, "testWriteFixedFloat", args);
+        BRunUtil.invoke(dataChannel, "testWriteFixedFloat", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
-        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadFixedFloat", args2);
+        BValue[] result = BRunUtil.invoke(dataChannel, "testReadFixedFloat", args2);
 
         Assert.assertEquals(value, ((BFloat) result[0]).floatValue());
     }
@@ -95,10 +95,10 @@ public class DataChannelTest {
     public void processBool(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/boolean.bin";
         BValue[] args = {new BBoolean(false), new BString(sourceToWrite), new BString(order.toString())};
-        BRunUtil.invokeStateful(dataChannel, "testWriteBool", args);
+        BRunUtil.invoke(dataChannel, "testWriteBool", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
-        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadBool", args2);
+        BValue[] result = BRunUtil.invoke(dataChannel, "testReadBool", args2);
 
         Assert.assertEquals(false, ((BBoolean) result[0]).booleanValue());
     }
@@ -110,11 +110,11 @@ public class DataChannelTest {
         String encoding = "UTF-8";
         BValue[] args = {new BString(sourceToWrite), new BString(content), new BString(encoding),
                 new BString(order.toString())};
-        BRunUtil.invokeStateful(dataChannel, "testWriteString", args);
+        BRunUtil.invoke(dataChannel, "testWriteString", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BInteger(content.getBytes().length), new BString(encoding),
                 new BString(order.toString())};
-        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadString", args2);
+        BValue[] result = BRunUtil.invoke(dataChannel, "testReadString", args2);
 
         Assert.assertEquals(content, result[0].stringValue());
     }

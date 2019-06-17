@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -33,6 +34,7 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
@@ -55,15 +57,18 @@ public class StatementContextProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        Optional<String> subRule = this.getSubrule(lhsTokens);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-
-        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+        Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (inWorkerReturn != null && inWorkerReturn) {
+            return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
+        } else if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
-        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        if (invocationOrDelimiterTokenType > -1) {
             /*
             Action invocation context
              */
@@ -75,7 +80,7 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Add the statement templates
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
                 .filterItems(context);
-        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());

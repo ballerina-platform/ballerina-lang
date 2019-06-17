@@ -57,10 +57,10 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
 #
 # + context - `FilterContext` instance
 # + return - Authentication handlers or whether it is needed to engage listener level handlers or not
-function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean {
+function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
      // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -78,6 +78,10 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
             }
+        } else if (resourceAuthHandlers is AuthnHandler[][]) {
+            if (resourceAuthHandlers[0].length() > 0) {
+                return resourceAuthHandlers;
+            }
         }
     }
 
@@ -93,6 +97,10 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
             }
+        } else if (serviceAuthHandlers is AuthnHandler[][]) {
+            if (serviceAuthHandlers[0].length() > 0) {
+                return serviceAuthHandlers;
+            }
         }
     }
     return true;
@@ -103,10 +111,10 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean 
 #
 # + context - `FilterContext` instance
 # + return - Authorization scopes or whether it is needed to engage listener level scopes or not
-function getScopes(FilterContext context) returns string[]|boolean {
+function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
     // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -123,6 +131,10 @@ function getScopes(FilterContext context) returns string[]|boolean {
             if (resourceScopes.length() > 0) {
                 return resourceScopes;
             }
+        } else if (resourceScopes is string[][]) {
+            if (resourceScopes[0].length() > 0) {
+                return resourceScopes;
+            }
         }
     }
 
@@ -137,6 +149,10 @@ function getScopes(FilterContext context) returns string[]|boolean {
             if (serviceScopes.length() > 0) {
                 return serviceScopes;
             }
+        } else if (serviceScopes is string[][]) {
+            if (serviceScopes[0].length() > 0) {
+                return serviceScopes;
+            }
         }
     }
     return true;
@@ -146,13 +162,13 @@ function getScopes(FilterContext context) returns string[]|boolean {
 #
 # + context - `FilterContext` instance
 # + return - Resource level and service level authentication annotations
-function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
+function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
     ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceRef));
-    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
+    return [resourceLevelAuthAnn, serviceLevelAuthAnn];
 }
 
 # Retrieves and return the auth annotation with the given module name, annotation name and annotation data.
@@ -161,7 +177,8 @@ function getServiceResourceAuthConfig(FilterContext context) returns (ServiceRes
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - `ServiceResourceAuth` instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
+        returns ServiceResourceAuth? {
     if (annData.length() == 0) {
         return ();
     }

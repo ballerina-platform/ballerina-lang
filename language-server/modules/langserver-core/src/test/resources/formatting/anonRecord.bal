@@ -80,3 +80,22 @@ type RecordName11 record {
 
     ...;|} sdd;
 };
+
+function testRecordTypes3() returns (typedesc, typedesc) {
+    typedesc a = RecordA;
+    typedesc b =   record {
+  string c; int d;
+    };
+    typedesc b1 =
+             record    {  string c ;int d;  } ;
+    return (a, b);
+}
+
+function testRecordTypes4() returns (typedesc, typedesc) {
+    typedesc a = RecordA;
+    typedesc b =record {   string c;int d   ;  } ;
+    typedesc b1=
+record      {
+              string c;int d;};
+    return (a, b);
+}

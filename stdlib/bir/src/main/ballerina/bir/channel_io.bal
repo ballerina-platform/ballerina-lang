@@ -24,7 +24,7 @@ public type ChannelReader object {
 
     public function __init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
-        self.dataChannel = new (byteChannel);
+        self.dataChannel = new (byteChannel, bOrder = "BE");
     }
 
     public function readBoolean() returns boolean {
@@ -62,7 +62,7 @@ public type ChannelReader object {
         var stringLen = untaint self.readInt32();
         if (stringLen > 0){
             var (strBytes, strLen) = check self.byteChannel.read(untaint stringLen);
-            return encoding:byteArrayToString(strBytes);
+            return encoding:byteArrayToString(strBytes, encoding = "utf-8");
         } else {
             return "";
         }
@@ -75,6 +75,11 @@ public type ChannelReader object {
             panic err;
         }
         return arr;
+    }
+
+    public function readByte() returns byte {
+        var (bytes, _mustBe1) = check self.byteChannel.read(1);
+        return bytes[0];
     }
 };
 

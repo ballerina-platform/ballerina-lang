@@ -38,8 +38,8 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
@@ -96,7 +96,7 @@ public class XMLFactory {
         } catch (AlgorithmAlreadyRegisteredException e) {
             // ignore
         } catch (InvalidCanonicalizerException e) {
-            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
+            throw BallerinaErrors.createError("Error initializing canonicalizer: " + e.getMessage());
         }
     }
 
@@ -130,7 +130,8 @@ public class XMLFactory {
             }
 
             if (children.hasNext()) {
-                throw new BallerinaException("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
+                throw BallerinaErrors
+                        .createError("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
             }
 
             // Here the node is detached from the dummy root, and added to a
@@ -139,13 +140,13 @@ public class XMLFactory {
             OMDocument doc = OM_FACTORY.createOMDocument();
             doc.addChild(omNode);
             return new XMLItem(omNode);
-        } catch (BallerinaException e) {
+        } catch (ErrorValue e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw new BallerinaException(cause.getMessage());
+            throw BallerinaErrors.createError(cause.getMessage());
         } catch (Throwable e) {
-            throw new BallerinaException("failed to parse xml: " + e.getMessage());
+            throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
         }
     }
 
@@ -157,7 +158,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
@@ -167,9 +168,9 @@ public class XMLFactory {
                 elementsSeq.add(i++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new BallerinaException(e.getCause().getMessage());
+            throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new BallerinaException("failed to create xml: " + e.getMessage());
+            throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -183,7 +184,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream, String charset) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
@@ -193,9 +194,9 @@ public class XMLFactory {
                 elementsSeq.add(index++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new BallerinaException(e.getCause().getMessage());
+            throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new BallerinaException("failed to create xml: " + e.getMessage());
+            throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -208,7 +209,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(Reader reader) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
@@ -218,9 +219,9 @@ public class XMLFactory {
                 elementsSeq.add(i++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new BallerinaException(e.getCause().getMessage());
+            throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new BallerinaException("failed to create xml: " + e.getMessage());
+            throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -233,7 +234,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue();
+        ArrayValue concatSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
 
         // Load the content fully before concat the two
@@ -288,8 +289,8 @@ public class XMLFactory {
         if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
-            throw new BallerinaException(
-                    "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
+            throw BallerinaErrors
+                    .createError("start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
 
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
@@ -340,6 +341,12 @@ public class XMLFactory {
     public static XMLValue<?> createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
+
+        // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
+        content = content
+                .replace("&gt;", ">")
+                .replace("&lt;", "<")
+                .replace("&amp;", "&");
 
         OMText omText = OM_FACTORY.createOMText(content);
         return new XMLItem(omText);

@@ -34,7 +34,7 @@ import java.math.MathContext;
  *
  * @since 0.995.0
  */
-public class DecimalValue implements Comparable<DecimalValue> {
+public class DecimalValue {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
@@ -159,7 +159,7 @@ public class DecimalValue implements Comparable<DecimalValue> {
                decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
 
-    public long byteValue() {
+    public int byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
                 throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
@@ -177,7 +177,7 @@ public class DecimalValue implements Comparable<DecimalValue> {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "'decimal' value '" + value + "' cannot be converted to 'byte'");
         }
-        return intVal;
+        return (int) intVal;
     }
 
     private static boolean isByteLiteral(long longValue) {
@@ -416,16 +416,20 @@ public class DecimalValue implements Comparable<DecimalValue> {
         return this.stringValue();
     }
 
-    @Override
-    public int compareTo(DecimalValue o) {
-        return this.value.compareTo(o.value());
+    public static DecimalValue valueOf(int value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 
     public static DecimalValue valueOf(long value) {
-        return new DecimalValue(String.valueOf(value));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 
     public static DecimalValue valueOf(double value) {
-        return new DecimalValue(String.valueOf(value));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128));
+    }
+
+    public static DecimalValue valueOf(boolean value) {
+        return new DecimalValue(value ? BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN) :
+                                        BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 }

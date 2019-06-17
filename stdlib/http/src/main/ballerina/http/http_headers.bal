@@ -80,3 +80,10 @@ public const string WARNING = "warning";
 
 # HTTP header key `transfer-encoding`. Specifies what type of transformation has been applied to entity body. 
 public const string TRANSFER_ENCODING = "transfer-encoding";
+
+# HTTP header key `connection`. Allows the sender to specify options that are desired for that particular connection.
+public const string CONNECTION = "connection";
+
+# HTTP header key `upgrade`. Allows the client to specify what additional communication protocols it supports and
+# would like to use, if the server finds it appropriate to switch protocols.
+public const string UPGRADE = "upgrade";

@@ -72,8 +72,8 @@ public type BirEmitter object {
     }
 
     function emitTypeDef(TypeDef bTypeDef) {
-        string visibility =  bTypeDef.visibility;
-        print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
+        string visibility =  getVisibility(bTypeDef.flags);
+        print(visibility, " type ", bTypeDef.name.value, " ");
         var typeValue = bTypeDef.typeValue;
         if (typeValue is BObjectType){
             emitObjectTypeWithFields(typeValue, self.typeEmitter, "");
@@ -94,7 +94,7 @@ public type BirEmitter object {
     function emitGlobalVars() {
         foreach var bGlobalVar in self.pkg.globalVars {
             if (bGlobalVar is GlobalVariableDcl) {
-                print(bGlobalVar.visibility, " ");
+                print(getVisibility(bGlobalVar.flags), " ");
                 self.typeEmitter.emitType(bGlobalVar.typeValue);
                 println(" ", bGlobalVar.name.value, ";");
             }
@@ -112,15 +112,33 @@ public type BirEmitter object {
 
     function emitFunction(Function bFunction, string tabs) {
         self.posEmitter.emitPosition(bFunction.pos);
-        string visibility =  bFunction.visibility;
-        print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
+        string visibility =  getVisibility(bFunction.flags);
+        print(tabs, visibility, " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
-        println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
+        println(" {", (bFunction.flags & NATIVE) == NATIVE ? "\t// extern" :
+                (bFunction.flags & INTERFACE) == INTERFACE ? "\t// interface" :"");
+        int i = 0;
         foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
+                print(" ");
+                print(v.name.value);
+                print("\t ", v.kind);
+                if (v.hasDefaultExpr) {
+                    print("\t// defaultable -> ");
+                    var bb = bFunction.paramDefaultBBs[i][0];
+                    if (bb is BasicBlock) {
+                        print(bb.id.value);
+                    }
+                    i = i + 1;
+                }
+                println();
+                continue;
+            }
             VariableDcl varDecl = getVariableDcl(v);
             self.typeEmitter.emitType(varDecl.typeValue, tabs = tabs + "\t");
             print(" ");
-            if (varDecl.name.value == "%0") {
+            if (varDecl.kind == VAR_KIND_RETURN) {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
@@ -128,6 +146,21 @@ public type BirEmitter object {
             println("\t// ", varDecl.kind);
         }
         println();// empty line
+        i = 0;
+        foreach var v in bFunction.localVars {
+            if v is FunctionParam {
+                if (v.hasDefaultExpr) {
+                    var bb = bFunction.paramDefaultBBs[i];
+                    foreach var b in bb {
+                        if (b is BasicBlock) {
+                            self.emitBasicBlock(b, tabs + "\t");
+                            println();// empty line
+                        }
+                    }
+                    i = i + 1;
+                }
+            }
+        }
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
                 self.emitBasicBlock(b, tabs + "\t");
@@ -244,7 +277,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.bType);
             println(";");
         } else if (ins is NewStream) {
             print(tabs);
@@ -272,7 +305,17 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            print(ins.typeDef.name.value);
+            var typeDefRef = ins.typeDefRef;
+            if (typeDefRef is TypeDef) {
+                print(typeDefRef.name.value);
+            } else {
+                print(typeDefRef.externalPkg.org);
+                print("/");
+                print(typeDefRef.externalPkg.name);
+                print(" ");
+
+                print(typeDefRef.name.value);
+            }
             println(";");
         } else if (ins is NewError) {
             print(tabs);
@@ -379,6 +422,25 @@ type TerminalEmitter object {
                 i = i + 1;
             }
             println(";");
+        } else if (term is WaitAll) {
+            print(tabs);
+            self.opEmitter.emitOp(term.lhsOp);
+            print(" = ");
+            print(term.kind, " ");
+            print("{");
+            int i = 0;
+            while (i < term.keys.length()) {
+                if (i != 0) {
+                    print(",");
+                }
+                print(term.keys[i], ":");
+                VarRef? expr = term.futures[i];
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println("} -> ", term.thenBB.id.value, ";");
         } else if (term is Flush) {
             print(tabs);
             self.opEmitter.emitOp(term.lhsOp);
@@ -478,7 +540,7 @@ type TypeEmitter object {
 
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
-                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone
+                || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
                 || typeVal is BServiceType) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
@@ -504,7 +566,7 @@ type TypeEmitter object {
         } else if (typeVal is BFiniteType) {
             print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
-            self.emitErrorType(typeVal, tabs);
+            //self.emitErrorType(typeVal, tabs);
         }
     }
 
@@ -520,7 +582,7 @@ type TypeEmitter object {
             println(" ", recField.name.value, ";");
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        print("...");
+        println("...", ";");
         print(tabs, "}");
     }
 
@@ -609,7 +671,7 @@ type TypeEmitter object {
 
 type PositionEmitter object {
     function emitPosition(DiagnosticPos pos) {
-        if (pos.sLine != -1) {
+        if (pos.sLine != 2147483648) {
             self.appendPos(pos.sLine);
             print("-");
             self.appendPos(pos.eLine);
@@ -632,8 +694,8 @@ function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitt
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
     foreach var f in bObjectType.fields {
         if (f is BObjectField) {
-            string visibility = f.visibility;
-            print(tabs + "\t", visibility.toLower(), " ");
+            string visibility = getVisibility(f.flags);
+            print(tabs + "\t", visibility, " ");
             typeEmitter.emitType(f.typeValue);
             println(" ", f.name.value, ";");
         }
@@ -647,4 +709,15 @@ function println(any... vals) {
 
 function print(any... vals) {
     io:print(...vals);
+}
+
+public function getVisibility(int flags) returns string {
+    if ((flags & PRIVATE) == PRIVATE) {
+        return "private";
+    } else if ((flags & PUBLIC) == PUBLIC) {
+        return "pubilic";
+    } else if ((flags & OPTIONAL) == OPTIONAL) {
+        return "optional";
+    } 
+    return "package private";
 }

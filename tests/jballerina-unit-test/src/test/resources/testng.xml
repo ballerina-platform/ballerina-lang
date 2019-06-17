@@ -24,21 +24,84 @@
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
         <packages>
+            <package name="org.ballerinalang.test.vm.*"/>
+            <package name="org.ballerinalang.test.annotations.*"/>
+            <package name="org.ballerinalang.test.imports.*"/>
+            <package name="org.ballerinalang.test.parser.*"/>
+            <package name="org.ballerinalang.test.privacy.*"/>
+            <package name="org.ballerinalang.test.dataflow.*"/>
+            <package name="org.ballerinalang.test.variable.shadowing.*"/>
+            <package name="org.ballerinalang.test.net.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
+            <package name="org.ballerinalang.test.access.*"/>
+            <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
+            <package name="org.ballerinalang.test.types.decimaltype.*"/>
+            <package name="org.ballerinalang.test.types.any.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
+            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.conversion.*"/>
+            <package name="org.ballerinalang.test.error.*"/>
+            <package name="org.ballerinalang.test.types.finaltypes.*"/>
+            <package name="org.ballerinalang.test.types.finite.*"/>
+            <package name="org.ballerinalang.test.types.map.*"/>
+            <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.var.*"/>
+            <package name="org.ballerinalang.test.types.uniontypes.*"/>
+            <package name="org.ballerinalang.test.types.typedesc.*"/>
+            <package name="org.ballerinalang.test.types.tuples.*"/>
+            <package name="org.ballerinalang.test.types.anydata.*"/>
+            <package name="org.ballerinalang.test.statements.arrays.*"/>
+            <package name="org.ballerinalang.test.statements.assign.*"/>
+            <package name="org.ballerinalang.test.statements.block.*"/>
+            <package name="org.ballerinalang.test.statements.breakstatement.*"/>
+            <package name="org.ballerinalang.test.statements.comment.*"/>
+            <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
+            <package name="org.ballerinalang.test.statements.continuestatement.*"/>
+            <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
+            <package name="org.ballerinalang.test.statements.packageimport.*"/>
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
+            <package name="org.ballerinalang.test.statements.vardeclr.*"/>
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.types.json.*"/>
+            <package name="org.ballerinalang.test.types.nullable.*"/>
+            <package name="org.ballerinalang.test.types.nullvalue.*"/>
+            <package name="org.ballerinalang.test.types.globalvar.*"/>
         </packages>
 
         <classes>
             <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
                 <methods>
                     <exclude name="testOptionalArgsInNativeFunc" />
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
+            <class name="org.ballerinalang.test.object.ObjectAttachedFunctionPointerTest" >
+                <methods>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer1"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer2"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer3"></exclude>
+                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer4"></exclude>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.object.ObjectTest" >
@@ -75,86 +138,59 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.DivisionOperationTest">
-                <methods>
-                    <exclude name="testIntDivideByZeroExpr"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.ModOperationTest">
-                <methods>
-                    <exclude name="testIntModZero"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
-            <class name="org.ballerinalang.test.expressions.binaryoperations.BinaryExprTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
 
-            <!--Built in methods-->
-            <class name="org.ballerinalang.test.expressions.builtinoperations.LengthOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"/>
-
-            <class name="org.ballerinalang.test.expressions.conversion.NativeConversionWithStampTypesTest"/>
-
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.AnydataStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.ArrayStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.JSONStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.MapStampInbuiltFunctionTest">
-                <!-- Fails because of cyclic record type issue-->
-                <methods>
-                    <exclude name="testStampRecordToMapWithCyclicValueReferences"/>
-                    <exclude name="testStampRecordToRecordWithCyclicValueReferences"/>
-                </methods>
-            </class>
-
-            <class name="org.ballerinalang.test.expressions.stamp.RecordStampInbuiltFunctionTest">
-                <!-- Fails because of optional fields not implemented-->
-                <methods>
-                    <exclude name="testStampRecordToRecordWithOptionalFields"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.stamp.StampInbuiltFunctionNegativeTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.TupleTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.UnionTypeStampInbuiltFunctionTest"/>
-            <class name="org.ballerinalang.test.expressions.stamp.XMLStampInbuiltFunctionTest"/>
-
-            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest">
-                <methods>
-                    <exclude name="testInMapLiteral" />
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.MultiplyOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.OperatorPrecedenceTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.RefEqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.SubtractOperationTest"/>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
-                <methods>
-                    <exclude name="testError_1"/>
-                    <exclude name="testError_2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.binaryoperations.EqualAndNotEqualOperationsTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalNaNInfinityTest">
-                <!--We can remove excludes once 'isNaN' and 'isFinite' are supported-->
-                <methods>
-                    <exclude name="testIsFinite"/>
-                    <exclude name="testIsNaN"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueNegativeTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalBFloatComparisonTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalTypeConversionTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalUsageTest"/>
-            <class name="org.ballerinalang.test.types.decimaltype.BDecimalValueTest">
-                <!--Unary + and - is not supported yet-->
-                <methods>
-                    <exclude name="testDecimalNegation" />
-                    <exclude name="testPositivelySignedLiteralAssignment" />
-                </methods>
-            </class>
+
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
+            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/> 
+            <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
+            <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
+            <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
+<!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
+
+            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
+                <methods>
+                    <exclude name="testConnectorAction1"/>
+                    <exclude name="testConnectorAction2"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
+            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.StackOverflowTest">
+                <methods>
+                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
+                    <exclude name="recursiveFunction"/>
+                    <exclude name="testStackOverflowInFunction"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
+                <methods>
+                    <!--TODO:convert within while returns empty-->
+                    <exclude name="largeForkCreationTest"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
+            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
+            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
@@ -166,6 +202,34 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
+            <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
+                <methods>
+                    <exclude name="simpleWorkerMessagePassingTest"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
+            <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
+            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
+            <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+            <class name="org.ballerinalang.test.record.ClosedRecordOptionalFieldsTest"/>
+            <class name="org.ballerinalang.test.record.OpenRecordOptionalFieldsTest"/>
+            <class name="org.ballerinalang.test.record.RecordAccessWithIndexTest"/>
+            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest"/>
+
+            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
+                <methods>
+                    <exclude name="testServiceLevelXML"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
+            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
         </classes>
     </test>
 </suite>

@@ -127,7 +127,7 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
         // Todo: ToString required to be handle with different built in method since it is not covered by convert
         // function.
         try {
-            if (targetType.getTag() == TypeTags.STRING_TAG) {
+            if (targetType.getTag() == org.ballerinalang.jvm.types.TypeTags.STRING_TAG) {
                 return ((RefValue) inputValue).stringValue();
             }
             return BallerinaErrors.createConversionError(inputValue, targetType);

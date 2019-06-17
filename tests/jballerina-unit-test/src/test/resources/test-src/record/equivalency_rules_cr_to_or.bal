@@ -123,3 +123,27 @@ function testAdditionalFieldsToRest() returns AnotherPerson1 {
     AnotherPerson1 ap = p;
     return ap;
 }
+
+public type PublicPerson record {|
+    string name;
+    int age;
+    string address;
+|};
+
+function testHeterogeneousTypedescEq() returns AnotherPerson1 {
+    PublicPerson p = {name:"John Doe", age:25, address:"Colombo, Sri Lanka"};
+    AnotherPerson1 ap = p;
+    return ap;
+}
+
+public type OpenPublicPerson record {
+    string name;
+    int age;
+    string address;
+};
+
+function testHeterogeneousTypedescEq2() returns OpenPublicPerson {
+    Person3 p = {name:"John Doe", age:25, address:"Colombo, Sri Lanka", weight:70.0};
+    OpenPublicPerson p1 = p;
+    return p1;
+}

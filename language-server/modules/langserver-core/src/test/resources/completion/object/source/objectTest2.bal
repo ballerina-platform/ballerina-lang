@@ -1,0 +1,4 @@
+
+type myTestObject c object {
+    
+};

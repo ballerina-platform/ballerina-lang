@@ -163,7 +163,7 @@ public class Init extends BlockingNativeCallableUnit {
         String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
 
         if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
-            long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
             appointment = new Appointment(cronExpression, noOfRuns);
         } else {
             appointment = new Appointment(cronExpression);

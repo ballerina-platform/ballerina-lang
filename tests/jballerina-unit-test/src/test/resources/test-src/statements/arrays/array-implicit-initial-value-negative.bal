@@ -125,12 +125,12 @@ function foo1 () returns UN {
     return 0;
 }
 
-function foo2 () returns (int, float) {
-    return (0, 0.0);
+function foo2 () returns [int, float] {
+    return [0, 0.0];
 }
 
-function foo3 () returns (int[], float) {
-    return ([1], 1.0);
+function foo3 () returns [int[], float] {
+    return [[1], 1.0];
 }
 
 function foo4 () returns int[] {
@@ -156,9 +156,9 @@ FandF[]|FTUnion[] unionOfArrays = [2.4];
 anydata[] anyDataArray = [];
 
 function complexArrays() {
-    (int|string, float)[][] a = [];
+    [int|string, float][][] a = [];
 
-    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+    [int|string, float][][] b = [[[124, 65.4], [234, 23.22]]];
 
     (int|float)[][] f = [[23, 45], [123, 43, 68]];
 

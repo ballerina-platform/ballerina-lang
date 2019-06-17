@@ -19,8 +19,9 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
+import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -98,7 +100,13 @@ public class BuilderUtils {
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
-            bLangPackage.jarBinaryContent = JVMCodeGen.generateJarBinary(dumpBIR, bLangPackage, context, packagePath);
+            CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
+                    getBackendCodeGenerator();
+            Optional result = jvmCodeGen.generate(dumpBIR, bLangPackage, context, packagePath);
+            if (!result.isPresent()) {
+                throw new RuntimeException("Compiled binary jar is not found");
+            }
+            bLangPackage.jarBinaryContent = (byte[]) result.get();
             compiler.write(bLangPackage, targetPath);
             return;
         }
@@ -164,8 +172,13 @@ public class BuilderUtils {
         if (jvmTarget) {
             outStream.println();
             for (BLangPackage bLangPackage : packages) {
-                bLangPackage.jarBinaryContent = JVMCodeGen.generateJarBinary(dumpBir, bLangPackage,
-                        context, sourceRootPath.toString());
+                CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
+                        getBackendCodeGenerator();
+                Optional result = jvmCodeGen.generate(false, bLangPackage, context, sourceRootPath.toString());
+                if (!result.isPresent()) {
+                    throw new RuntimeException("Compiled binary jar is not found");
+                }
+                bLangPackage.jarBinaryContent = (byte[]) result.get();
             }
             compiler.write(packages);
             return;

@@ -48,17 +48,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:Client httpClient)(ballerina/http:Response|error)",
+      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE requestAction, http:Client httpClient, string verb = )(ballerina/http:Response|ballerina/http:HttpFuture|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n  \n**Return**  \nballerina/http:Response|error"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
         }
       },
       "sortText": "121",
-      "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient})",
+      "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient}, verb = ${5:\"\"})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -698,25 +698,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BasicAuthnHandler",
+      "label": "BasicAuthHeaderAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Defines Basic Auth handler for HTTP traffic.\n"
+        "left": "Defines Basic auth header authn handler for HTTP traffic.\n"
       },
       "sortText": "221",
-      "insertText": "BasicAuthnHandler",
+      "insertText": "BasicAuthHeaderAuthnHandler",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "JwtAuthnHandler",
+      "label": "BearerAuthHeaderAuthnHandler",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of JWT Auth handler for HTTP traffic\n"
+        "left": "Representation of Bearer auth header authn handler for HTTP traffic.\n"
       },
       "sortText": "221",
-      "insertText": "JwtAuthnHandler",
+      "insertText": "BearerAuthHeaderAuthnHandler",
       "insertTextFormat": "Snippet"
     },
     {
