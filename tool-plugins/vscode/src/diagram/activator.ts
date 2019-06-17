@@ -20,8 +20,8 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { BallerinaExtension, ballerinaExtInstance } from '../core';
-import { WebViewRPCHandler, getComposerPath, getCommonWebViewOptions } from '../utils';
+import { BallerinaExtension } from '../core';
+import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
