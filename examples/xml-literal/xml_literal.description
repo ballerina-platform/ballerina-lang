@@ -1,3 +1,3 @@
 // Ballerina allows you to define XML as part of the language 
 // and syntactically validates it. You can insert expressions into
-//  the XML literal to pass values dynamically during the runtime.
+//  the XML literal to pass values dynamically at runtime.
