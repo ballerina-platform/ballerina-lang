@@ -12,7 +12,7 @@ public function main() {
         string str = value;
         io:println("value is a string: ", str);
     } else if (value is int) {
-        // The type of `value` within this block is narrowed to `int`, and thus, the `value` can be used in a
+        // The type of `value` within this block is narrowed to `int`, and thus, `value` can be used in a
         // context where an `int` is expected.
         io:println("value is an int: ", value);
         io:println("value + 1: ", addOneToInt(value));
