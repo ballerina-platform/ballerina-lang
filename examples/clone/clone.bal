@@ -41,7 +41,7 @@ public function main() {
 
     // Invokes the `.clone()` built-in method. The return type is either `Person` or `error`. `error` could be
     // returned if the variable on which `.clone()` is called is not of the type `anydata`.
-    // If the type of the value that is cloned can be determined during compile time and is `anydata`, the type of the
+    // If the type of the value that is cloned can be determined at compile time and is `anydata`, the type of the
     // return value is exactly the type of the value being cloned.
     // E.g., `Person result = person.clone();`
     // If `person` is cloned instead of `anyValue`, during compile time the compiler will determine that the return type is
