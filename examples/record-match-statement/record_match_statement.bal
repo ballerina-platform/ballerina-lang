@@ -52,7 +52,7 @@ function basicMatch(any a) {
     }
 }
 
-// The following method uses structured record match patterns with different fields
+// This method uses structured record match patterns with different fields
 // along with type guards. The expression used with match will be evaluated to
 // check if it "is like" any of the match patterns. For a successful match, an additional
 // check will also be performed against the specified type guard.
