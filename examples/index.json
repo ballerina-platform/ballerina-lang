@@ -959,28 +959,32 @@
         "category": "Working over the network",
         "samples": [
             {
-              "name": "RabbitMQ Producer",
-              "url": "rabbitmq-producer"
+                "name": "RabbitMQ Producer",
+                "url": "rabbitmq-producer"
             },
             {
-              "name": "RabbitMQ Consumer",
-              "url": "rabbitmq-consumer"
+                "name": "RabbitMQ Consumer",
+                "url": "rabbitmq-consumer"
             },
             {
-              "name": "QoS Settings",
-              "url": "rabbitmq_consumer_with_qos_settings"
+                "name": "Consumer Acknowledgements",
+                "url": "rabbitmq-consumer-with-client-acknowledgement"
             },
             {
-              "name": "Data Binding",
-              "url": "rabbitmq_consumer_with_data_binding"
+                "name": "QoS Settings",
+                "url": "rabbitmq-consumer-with-qos-settings"
             },
             {
-              "name": "Transaction Producer",
-              "url": "rabbitmq-transaction-producer"
+                "name": "Data Binding",
+                "url": "rabbitmq-consumer-with-data-binding"
             },
             {
-              "name": "Transaction Consumer",
-              "url": "rabbitmq-transaction-consumer"
+                "name": "Transaction Producer",
+                "url": "rabbitmq-transaction-producer"
+            },
+            {
+                "name": "Transaction Consumer",
+                "url": "rabbitmq-transaction-consumer"
             }
         ]
     },

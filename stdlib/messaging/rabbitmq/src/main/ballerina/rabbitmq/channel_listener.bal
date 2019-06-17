@@ -14,20 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 # Public Ballerina API - Ballerina RabbitMQ Message Listener.
 # To provide a listener to consume messages from RabbitMQ.
 #
 # + amqpChannel - Reference to a Ballerina RabbitMQ Channel.
-public type ChannelListener object {
+public type Listener object {
 
     *AbstractListener;
 
     private Channel? amqpChannel;
 
     # Initializes a Ballerina ChannelListener object with the given Connection object or connection parameters.
-    # Creates a Connection object if only the connection configuration is given.
+    # Creates a Connection object if only the connection configuration is given. Sets global QoS settings
+    # which will be applied to the entire channel.
     #
     # + connectionOrConnectionConfig - Holds a Ballerina RabbitMQ Connection object or the connection parameters.
+    # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
+    #                      Unless explicitly given, this value is 10 by default.
+    # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
     public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
         self.amqpChannel = new Channel(connectionOrConnectionConfig);
@@ -55,9 +60,9 @@ public type ChannelListener object {
     #
     # + serviceType - Type descriptor of the service to bind to.
     # + name - Name of the service.
-    # + return - () or error upon failure to register listener.
+    # + return - Nil or error upon failure to register listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
-       self.registerListener(serviceType);
+        return self.registerListener(serviceType);
     }
 
     # Retrieve the Channel which initializes this listener.
@@ -65,18 +70,9 @@ public type ChannelListener object {
     # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
     public function getChannel() returns Channel | error = external;
 
-    # Binds the ChannelListener to a service.
-    #
-    # + serviceType - Type descriptor of the service to bind to.
     private function registerListener(service serviceType) = external;
-
-    # Stops consuming messages through listener endpoint.
-    #
-    # + return - () or error upon failure to close the channel.
     private function stop() returns error? = external;
-
     private function start() returns error? = external;
-
     private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? = external;
 };
 
@@ -90,7 +86,7 @@ public type ChannelListener object {
 # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
 public type RabbitMQServiceConfig record {|
     QueueConfiguration queueConfig;
-    AcknowledgementMode ackMode = CLIENT_ACK;
+    AcknowledgementMode ackMode = AUTO_ACK;
     int prefetchCount?;
     int prefetchSize?;
 |};

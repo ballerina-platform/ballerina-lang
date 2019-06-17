@@ -4,11 +4,11 @@ import ballerina/rabbitmq;
 // Creates a ballerina RabbitMQ connection that allows re-usability if necessary.
 rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
 
-listener rabbitmq:ChannelListener channelListener= new(connection);
+listener rabbitmq:Listener channelListener= new(connection);
 
 // The consumer service listens to the "MyQueue" queue.
-// ackMode is by default rabbitmq:CLIENT_ACK where manual acknowledgements are
-// required.
+// ackMode is by default rabbitmq:AUTO_ACK where messages are acknowledged
+// immediately after consuming.
 @rabbitmq:ServiceConfig {
     queueConfig: {
         queueName: "MyQueue"
@@ -26,12 +26,6 @@ service rabbitmqConsumer on channelListener {
             log:printInfo("The message received: " + messageContent);
         } else {
             log:printError("Error occurred while retrieving the message content.");
-        }
-
-        // Positively acknowledges a single message.
-        var result = message->basicAck();
-        if (result is error) {
-            log:printError("Error occurred while acknowledging the message.");
         }
     }
 }
