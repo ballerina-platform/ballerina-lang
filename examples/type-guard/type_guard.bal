@@ -7,12 +7,12 @@ public function main() {
     // The type guard can be used with `value` to test to which of the types it belongs to and perform conditional
     // logic based on the type which it belongs to.
     if (value is string) {
-        // The type of `value` within this block is narrowed to `string`, and thus, the`value` can be assigned to a
+        // The type of `value` within this block is narrowed to `string`, and thus, `value` can be assigned to a
         // variable of the type `string`.
         string str = value;
         io:println("value is a string: ", str);
     } else if (value is int) {
-        // The type of `value` within this block is narrowed to `int`, and thus, the `value` can be used in a
+        // The type of `value` within this block is narrowed to `int`, and thus, `value` can be used in a
         // context where an `int` is expected.
         io:println("value is an int: ", value);
         io:println("value + 1: ", addOneToInt(value));
@@ -22,11 +22,11 @@ public function main() {
 
         // The type test needs to be used again since the type of `value` is reset to `string|int|boolean`.
         if (value is int) {
-            // The `value` is an `int` here.
+            // `value` is an `int` here.
             int i = value;
             io:println("- value is an int: ", i);
         } else {
-            // The `value` is `string` or `boolean` here.
+            // `value` is `string` or `boolean` here.
             string|boolean sb = value;
             io:println("- value is string|boolean: ", sb);
         }
