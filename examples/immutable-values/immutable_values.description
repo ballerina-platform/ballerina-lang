@@ -4,7 +4,7 @@
 // freeze attempt would return the value with the frozen flag set. Calling freeze on structures would deeply
 // freeze all elements.
 //
-// Freeze is also defined on values that may be of the type `anydata` during the runtime (e.g., `any`, unions consisting of
+// Freeze is also defined on values that may be of the type `anydata` at runtime (e.g., `any`, unions consisting of
 // `anydata`, and `non-anydata` types). If a `non-anydata` value is found, the freeze attempt would return an error.
 //
 // The built-in method `.isFrozen()` could be used to check if a value is frozen.
