@@ -296,8 +296,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
-            return "OAuth2 client credentials grant type; Access token received from authorization request.
-                Cache is empty.";
+            return "OAuth2 client credentials grant type; Access token received from authorization request. Cache is empty.";
         });
         return accessToken;
     } else {
@@ -383,14 +382,14 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
     int expiryTime = tokenCache.expiryTime;
     if (expiryTime == 0) {
         log:printDebug(function () returns string {
-            return "Expiry time is 0, which means cached access token is always valid until we get a 401 response.";
+            return "Expiry time is 0, which means cached access token is always valid.";
         });
         return true;
     }
     int currentSystemTime = time:currentTime().time;
-    if (currentSystemTime > expiryTime) {
+    if (currentSystemTime < expiryTime) {
         log:printDebug(function () returns string {
-            return "Current time > expiry time, which means cached access token is valid until we get a 401 response.";
+            return "Current time < expiry time, which means cached access token is valid.";
         });
         return true;
     }
