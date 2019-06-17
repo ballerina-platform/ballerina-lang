@@ -38,7 +38,7 @@ function basicMatch(any a) {
         // This pattern check is for a tuple type of two variables and types can be of any.
         var (s, i) => io:println("Matched with two vars : "
                                     + io:sprintf("%s", a));
-        // This pattern check is for single variable and type can be of any. This has to be the last pattern.
+        // This pattern check is for a single variable which can be of type `any`. This has to be the last pattern.
         var s => io:println("Matched with single var : "
                                     + io:sprintf("%s", a));
     }
