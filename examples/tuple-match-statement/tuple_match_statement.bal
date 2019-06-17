@@ -29,7 +29,7 @@ public function main() {
 }
 
 // The following method uses structured tuple match patterns with different sizes. The given `match` expression
-// will be checked for "isLike" relationship and will be matched during the runtime.
+// will be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
         // This pattern check is for the tuple type of three variables and types can be of any.
