@@ -11,7 +11,7 @@ function concatIntString (int i, string v) {
 function testJSONObject () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1) {
+    foreach var [i, j] in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;
@@ -49,7 +49,7 @@ function testArrayOfJSON () returns string | error {
 function testJSONString () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1.name) {
+    foreach var [i, j] in check map<json>.convert(j1.name) {
         concatString(j.toString());
     }
     return output;
@@ -58,7 +58,7 @@ function testJSONString () returns string|error {
 function testJSONNumber () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1.age) {
+    foreach var [i, j] in check map<json>.convert(j1.age) {
         concatString(j.toString());
     }
     return output;
@@ -67,7 +67,7 @@ function testJSONNumber () returns string|error {
 function testJSONBoolean () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1.pass) {
+    foreach var [i, j] in check map<json>.convert(j1.pass) {
         concatString(j.toString());
     }
     return output;
@@ -76,7 +76,7 @@ function testJSONBoolean () returns string|error {
 function testJSONNull () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1.city) {
+    foreach var [i, j] in check map<json>.convert(j1.city) {
         concatString(j.toString());
     }
     return output;
@@ -105,12 +105,12 @@ function testJSONToStructCast () returns string|error {
 function testAddWhileIteration () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1) {
+    foreach var [i, j] in check map<json>.convert(j1) {
         if (j.toString() == "bob") {
             j1["lastname"] = "smith";
         }
     }
-    foreach var (i, j) in check map<json>.convert(j1) {
+    foreach var [i, j] in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;
@@ -119,7 +119,7 @@ function testAddWhileIteration () returns string|error {
 function testDeleteWhileIteration () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var (i, j) in check map<json>.convert(j1) {
+    foreach var [i, j] in check map<json>.convert(j1) {
         string str = j.toString();
         if (str == "bob") {
            any x = j1.remove("subjects");
@@ -127,7 +127,7 @@ function testDeleteWhileIteration () returns string|error {
         concatString(str);
     }
 
-    foreach var (i, j) in check map<json>.convert(j1) {
+    foreach var [i, j] in check map<json>.convert(j1) {
         concatString(j.toString());
     }
     return output;
