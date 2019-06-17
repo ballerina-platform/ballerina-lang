@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // The following is a simple binding pattern, which involves only a single variable.
+    // This is a simple binding pattern, which involves only a single variable.
     (boolean, float) t = (true, 0.4);
     io:println("Simple variable : ", t);
 
