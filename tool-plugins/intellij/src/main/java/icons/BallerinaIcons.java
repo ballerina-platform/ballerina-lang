@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea;
+package icons;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
@@ -30,7 +30,7 @@ import javax.swing.Icon;
  */
 public class BallerinaIcons {
 
-    public static final Icon FILE = IconLoader.getIcon("/icons/ballerina.png");
+    public static final Icon FILE = IconLoader.getIcon("/icons/ballerina.png", BallerinaIcons.class);
     public static final Icon ICON = FILE;
     public static final Icon APPLICATION_RUN = createIconWithShift(ICON, AllIcons.Nodes.RunnableMark);
     public static final Icon RUN = AllIcons.RunConfigurations.TestState.Run;
@@ -53,6 +53,18 @@ public class BallerinaIcons {
 
     public static final Icon PUBLIC_FIELD = createPublicFieldIcon(AllIcons.Nodes.Advice);
     public static final Icon PRIVATE_FIELD = createPrivateFieldIcon(AllIcons.Nodes.Advice);
+
+    /**
+     * Contains icons used for the ballerina diagram editor(referred by plugin.xml).
+     */
+    public static class Layout {
+        public static final Icon EDITOR_ONLY =
+                IconLoader.getIcon("/icons/layout/code.svg", BallerinaIcons.class);
+        public static final Icon EDITOR_PREVIEW =
+                IconLoader.getIcon("/icons/layout/split-view.svg", BallerinaIcons.class);
+        public static final Icon PREVIEW_ONLY =
+                IconLoader.getIcon("/icons/layout/design-view.svg", BallerinaIcons.class);
+    }
 
     private BallerinaIcons() {
 

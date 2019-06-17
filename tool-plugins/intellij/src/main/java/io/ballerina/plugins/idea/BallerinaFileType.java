@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
+import icons.BallerinaIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
