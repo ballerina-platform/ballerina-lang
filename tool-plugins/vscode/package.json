@@ -52,6 +52,11 @@
             "type": "object",
             "title": "Ballerina",
             "properties": {
+                "ballerina.home.override": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true, Ballerina home specified in preferences will be used"
+                },
                 "ballerina.home": {
                     "type": "string",
                     "default": "",
