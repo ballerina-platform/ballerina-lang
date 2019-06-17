@@ -348,11 +348,14 @@ public class BIRPackageSymbolEnter {
                 structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
                     structureTypeSymbol.initializerFunc = attachedFunc;
                 }
             }
         }
+
+        // Read annotation attachments
+        // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);

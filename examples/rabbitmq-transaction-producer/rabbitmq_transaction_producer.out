@@ -1,0 +1,11 @@
+# Make sure to have the RabbitMQ broker running.
+#
+# Navigate to the directory that contains the
+# 'rabbitmq_transaction_producer.bal' file, and issue the 'ballerina run' command as follows..
+
+$ ballerina run rabbitmq_transaction_producer.bal
+
+2019-06-07 11:44:46,695 INFO  [ballerina/transactions] - Created transaction: ee1fd05e-0fb3-408f-b6fd-1fd740a2cf31
+The queue was created successfully
+The message was sent successfully
+2019-06-07 11:44:46,706 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: ee1fd05e-0fb3-408f-b6fd-1fd740a2cf31:$anon$.$1

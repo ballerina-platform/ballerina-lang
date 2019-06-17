@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.sourceprune.SourcePruner.searchTokenAtCursor;
 
@@ -78,7 +80,8 @@ public class CompletionUtil {
         if (ctx == null) {
             return null;
         }
-
+        // Set the invocation or field access token type
+        setInvocationOrInteractionOrFieldAccessToken(ctx);
         BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderFactory.getInstance().getProviders();
         LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
@@ -124,5 +127,35 @@ public class CompletionUtil {
         
         SourcePruner.pruneSource(tokenStream, tokenAtCursor.get().getTokenIndex(), context);
         documentManager.setPrunedContent(path, tokenStream.getText());
+    }
+
+    /**
+     * Check whether the token stream corresponds to a action invocation or a function invocation.
+     *
+     * @param context Completion operation context
+     */
+    private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
+        if (lhsTokens == null) {
+            return;
+        }
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
+                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
+        boolean result = !lhsDefaultTokens.isEmpty()
+                && (lastToken == BallerinaParser.COLON || lastToken == BallerinaParser.DOT
+                || lastToken == BallerinaParser.RARROW || lastToken == BallerinaParser.LARROW
+                || lastToken == BallerinaParser.NOT
+                || (lhsDefaultTokens.size() >= 2 && (tokenBeforeLast == BallerinaParser.COLON
+                || tokenBeforeLast == BallerinaParser.DOT || tokenBeforeLast == BallerinaParser.RARROW
+                || tokenBeforeLast == BallerinaParser.LARROW || tokenBeforeLast == BallerinaParser.NOT)));
+
+        if (result) {
+            context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, lastToken);
+        }
     }
 }

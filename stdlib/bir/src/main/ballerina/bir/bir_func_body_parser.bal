@@ -30,7 +30,7 @@ public type FuncBodyParser object {
         self.typeDefs = typeDefs;
     }
 
-    public function parseBB() returns BasicBlock {
+    public function parseBB(boolean addInterimBB) returns BasicBlock[] {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
         Instruction?[] instructions = [];
@@ -40,7 +40,24 @@ public type FuncBodyParser object {
             i += 1;
         }
 
-        return { id: { value: id }, instructions: instructions, terminator: self.parseTerminator() };
+        // Need to make sure terminators are at top of each switch case to avoid side effects due to reschedules.
+        if (addInterimBB) {
+            Terminator terminator = self.parseTerminator();
+            BasicBlock interimBB = {id: { value: id + "interim" }, instructions: [], terminator:terminator };
+            Terminator goto = self.createGOTO(terminator.pos, interimBB);
+            BasicBlock initialBB = { id: { value: id }, instructions: instructions, terminator: goto };
+            BasicBlock[2] bbs = [initialBB, interimBB];
+            return bbs;
+        }
+
+        BasicBlock[1] bb = [{ id: { value: id }, instructions: instructions, terminator: self.parseTerminator() }];
+        return bb;
+    }
+
+    private function createGOTO(DiagnosticPos pos, BasicBlock thenBB) returns Terminator {
+        TerminatorKind kind = TERMINATOR_GOTO;
+        GOTO goto = {pos:pos, kind:kind, targetBB:thenBB};
+        return goto;
     }
 
     public function parseEE() returns ErrorEntry {

@@ -75,7 +75,7 @@ function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
     return arr.length();
 }
 
-function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (int,int,int) {
+function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns [int,int,int] {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -85,7 +85,7 @@ function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (i
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return (arr.length(), brr.length(), crr.length());
+    return [arr.length(), brr.length(), crr.length()];
 }
 
 function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int) {
@@ -184,7 +184,7 @@ function lengthOfMultipleXmlElements() returns (int) {
 }
 
 function lengthOfTuple() returns (int) {
-    (int, string) a = (10, "John");
+    [int, string] a = [10, "John"];
     int length = a.length();
     return length;
 }
@@ -240,7 +240,7 @@ function accessLengthOfNullJson() returns (int) {
 }
 
 function accessLengthOfNullTuple() returns (int) {
-    (int, int )a = (0, 0);
+    [int, int ]a = [0, 0];
     int length = a.length();
     return length;
 }

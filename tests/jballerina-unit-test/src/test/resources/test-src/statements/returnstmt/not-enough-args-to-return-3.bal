@@ -1,4 +1,4 @@
-function testNotEnoughArgsToReturn3(string s) returns (string, string, int){
+function testNotEnoughArgsToReturn3(string s) returns [string, string, int]{
     return split(s), "sameera";
 }
 

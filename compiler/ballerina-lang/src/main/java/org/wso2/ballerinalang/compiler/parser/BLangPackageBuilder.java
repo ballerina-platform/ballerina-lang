@@ -112,10 +112,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -124,10 +122,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -1256,19 +1256,21 @@ public class BLangPackageBuilder {
         addExpressionNode(litExpr);
     }
 
-    void addArrayInitExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
+    void addListConstructorExpression(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
         List<ExpressionNode> argExprList;
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
         if (argsAvailable) {
-            arrayLiteral.addWS(commaWsStack.pop());
+            listConstructorExpr.addWS(commaWsStack.pop());
             argExprList = exprNodeListStack.pop();
         } else {
             argExprList = new ArrayList<>(0);
         }
-        arrayLiteral.exprs = argExprList.stream().map(expr -> (BLangExpression) expr).collect(Collectors.toList());
-        arrayLiteral.pos = pos;
-        arrayLiteral.addWS(ws);
-        addExpressionNode(arrayLiteral);
+        listConstructorExpr.exprs = argExprList.stream().map(expr -> (BLangExpression) expr)
+                .collect(Collectors.toList());
+        listConstructorExpr.pos = pos;
+        listConstructorExpr.addWS(ws);
+        addExpressionNode(listConstructorExpr);
     }
 
     void addKeyValueRecord(Set<Whitespace> ws) {
@@ -1477,13 +1479,11 @@ public class BLangPackageBuilder {
         addExpressionNode(indexBasedAccess);
     }
 
-    void createBracedOrTupleExpression(DiagnosticPos pos, Set<Whitespace> ws, int numberOfExpressions) {
-        final BLangBracedOrTupleExpr expr = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
+    void createGroupExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        final BLangGroupExpr expr = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
         expr.pos = pos;
         expr.addWS(ws);
-        for (int i = 0; i < numberOfExpressions; i++) {
-            expr.expressions.add(0, (BLangExpression) exprNodeStack.pop());
-        }
+        expr.expression = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(expr);
     }
 

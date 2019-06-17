@@ -46,9 +46,9 @@ public function fooFunc2 (string s, int i = 4, Bar r,  Foo... fArg) returns Foo 
     return f;
 }
 
-public function fooFunc3 (string s, int i = 4, Bar r,  Foo... fArg) returns (Foo, string) {
+public function fooFunc3 (string s, int i = 4, Bar r,  Foo... fArg) returns [Foo, string] {
     Foo f = new ();
-    return (f, "G");
+    return [f, "G"];
 }
 
 public function fooFunc1 (Foo fArg) {

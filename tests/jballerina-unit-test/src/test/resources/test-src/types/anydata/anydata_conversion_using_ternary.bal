@@ -31,7 +31,7 @@ type Employee record {|
 type ValueType int|float|string|boolean|byte;
 type DataType ValueType|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
-function testAnydataToValueTypes() returns (int, float, boolean, string) {
+function testAnydataToValueTypes() returns [int, float, boolean, string] {
     anydata ad = 33;
     int i = ad is int ? ad : -1;
 
@@ -44,7 +44,7 @@ function testAnydataToValueTypes() returns (int, float, boolean, string) {
     ad = "Hello World!";
     string s = ad is string ? ad : "";
 
-    return (i, f, bool, s);
+    return [i, f, bool, s];
 }
 
 function testAnydataToJson() returns json {
@@ -61,7 +61,7 @@ function testAnydataToXml() returns xml {
     return convertedX;
 }
 
-function testAnydataToRecord() returns (Foo, ClosedFoo) {
+function testAnydataToRecord() returns [Foo, ClosedFoo] {
     Foo foo = {a: 15};
     anydata adr = foo;
     Foo convertedFoo = adr is Foo ? adr : {a: -1};
@@ -70,7 +70,7 @@ function testAnydataToRecord() returns (Foo, ClosedFoo) {
     adr = cFoo;
     ClosedFoo convertedCFoo = adr is ClosedFoo ? adr : {ca: -1};
 
-    return (convertedFoo, convertedCFoo);
+    return [convertedFoo, convertedCFoo];
 }
 
 function testAnydataToUnion() returns ValueType?[] {
@@ -131,38 +131,38 @@ function testAnydataToUnion2() returns DataType[] {
     return dt;
 }
 
-function testAnydataToTuple() returns (int, float, boolean, string, byte)? {
+function testAnydataToTuple() returns [int, float, boolean, string, byte]? {
     anydata ad;
 
     byte b = 255;
-    (int, float, boolean, string, byte) vt = (123, 23.45, true, "hello world!", b);
+    [int, float, boolean, string, byte] vt = [123, 23.45, true, "hello world!", b];
     ad = vt;
 
-    return ad is (int, float, boolean, string, byte) ? ad : ();
+    return ad is [int, float, boolean, string, byte] ? ad : ();
 }
 
-function testAnydataToTuple2() returns (json, xml)? {
+function testAnydataToTuple2() returns [json, xml]? {
     anydata ad;
 
     json j = { name: "apple", color: "red", price: 40 };
     xml x = xml `<book>The Lost World</book>`;
-    (json, xml) jxt = (j, x);
+    [json, xml] jxt = [j, x];
     ad = jxt;
 
-    return ad is (json, xml) ? ad : ();
+    return ad is [json, xml] ? ad : ();
 }
 
-function testAnydataToTuple3() returns ((DataType[], string), int, float)? {
+function testAnydataToTuple3() returns [[DataType[], string], int, float]? {
     anydata ad;
 
     json j = { name: "apple", color: "red", price: 40 };
     xml x = xml `<book>The Lost World</book>`;
     DataType[] dt = [j, x];
-    (DataType[], string) ct = (dt, "hello world!");
-    ((DataType[], string), int, float) nt = (ct, 123, 23.45);
+    [DataType[], string] ct = [dt, "hello world!"];
+    [[DataType[], string], int, float] nt = [ct, 123, 23.45];
     ad = nt;
 
-    return ad is ((DataType[], string), int, float) ? ad : ();
+    return ad is [[DataType[], string], int, float] ? ad : ();
 }
 
 function testAnydataToNil() returns int? {

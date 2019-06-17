@@ -45,12 +45,12 @@ function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
 }
 
 function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
-    (string, int) a = ("", 0);
-    (boolean, float) b = (false, 0.0);
+    [string, int] a = ["", 0];
+    [boolean, float] b = [false, 0.0];
     boolean bool1 = a == b && !(a != b);
 
-    (float|int, int) c = (0, 0);
-    (boolean, int) d = (false, 0);
+    [float|int, int] c = [0, 0];
+    [boolean, int] d = [false, 0];
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
@@ -67,11 +67,11 @@ function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
 }
 
 function checkEqualityWithJsonForIncompatibleType() returns boolean {
-    (string, int) t = ("Hi", 1);
+    [string, int] t = ["Hi", 1];
     json j = "Hi 1";
     boolean bool1 = t == j && t != j;
 
-    (string, int)[] e = [("Hi", 1)];
+    [string, int][] e = [["Hi", 1]];
     j = "Hi 1";
     boolean bool2 = e == j && e != j;
 
@@ -89,11 +89,11 @@ function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
 
 function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
     int[] a = [1, 2];
-    (float, float) b = (1.0, 2.0);
+    [float, float] b = [1.0, 2.0];
 
     boolean equals = a == b && !(a != b);
 
-    (int, float) c = (1, 2.0);
+    [int, float] c = [1, 2.0];
     return equals && a == c && !(c != a);
 
     // Uncomment once closed list comparison is fixed
@@ -106,8 +106,8 @@ function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
 
 function testEqualityWithNonAnydataType() returns boolean {
     stream<int> s = new;
-    (int, stream<int>) a = (1, s);
-    (int, float) b = (3, 23.9);
+    [int, stream<int>] a = [1, s];
+    [int, float] b = [3, 23.9];
     boolean equals = a == b && !(b != a);
 
     any c = 5;

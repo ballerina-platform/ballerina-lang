@@ -97,23 +97,23 @@ function testByteArrayIncreaseSize() returns int {
     return (a.length());
 }
 
-function testByteArrayOfArray() returns (int, int) {
+function testByteArrayOfArray() returns [int, int] {
     byte[][] aa = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
     int a = (aa.length());
     int b = (aa[0].length());
-    return (a, b);
+    return [a, b];
 }
 
-function testByteBinaryOperation(byte a, byte b, byte c) returns (boolean, boolean) {
+function testByteBinaryOperation(byte a, byte b, byte c) returns [boolean, boolean] {
     boolean b1 = (a == b);
     boolean b2 = (a == c);
-    return (b1, b2);
+    return [b1, b2];
 }
 
-function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolean, boolean) {
+function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns [boolean, boolean] {
     boolean b1 = (a != b);
     boolean b2 = (a != c);
-    return (b1, b2);
+    return [b1, b2];
 }
 
 function testByteOrIntMatch1() returns byte|int|string[]|Foo|error {
@@ -189,65 +189,65 @@ function testWorkerWithByteVariable() {
   }
 }
 
-function testBitwiseAndOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+function testBitwiseAndOperator(byte a, byte b, int i, int j) returns [byte, int, int, int, int]{
     byte b1 = a & b;
     int r1 = <int>(a & b);
     int r2 = <int>a & i;
     int r3 = i & j;
     int r4 = <int>a & i & <int>b & j;
-    return (b1, r1, r2, r3, r4);
+    return [b1, r1, r2, r3, r4];
 }
 
-function testBitwiseOrOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+function testBitwiseOrOperator(byte a, byte b, int i, int j) returns [byte, int, int, int, int]{
     byte b1 = a | b;
     int r1 = <int>(a | b);
     int r2 = <int>a | i;
     int r3 = i | j;
     int r4 = <int>a | i | <int>b | j;
-    return (b1, r1, r2, r3, r4);
+    return [b1, r1, r2, r3, r4];
 }
 
-function testBitwiseXorOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+function testBitwiseXorOperator(byte a, byte b, int i, int j) returns [byte, int, int, int, int]{
     byte b1 = a ^ b;
     int r1 = <int>(a ^ b);
     int r2 = <int>a ^ i;
     int r3 = i ^ j;
     int r4 = <int>a ^ i ^ <int>b ^ j;
-    return (b1, r1, r2, r3, r4);
+    return [b1, r1, r2, r3, r4];
 }
 
-function testBitwiseRightShiftOperator1(byte a, byte b, int i, int j) returns (byte, int, byte){
+function testBitwiseRightShiftOperator1(byte a, byte b, int i, int j) returns [byte, int, byte]{
     byte r1 = a >> b;
     int r2 = i >> j;
     byte r3 = a >> j;
-    return (r1, r2, r3);
+    return [r1, r2, r3];
 }
 
-function testBitwiseRightShiftOperator2(byte a, byte b, int i, int j) returns (int, int, int){
+function testBitwiseRightShiftOperator2(byte a, byte b, int i, int j) returns [int, int, int]{
     int r1 = <int> (a >> b);
     int r2 = i >> j;
     int r3 = <int> (a >> j);
-    return (r1, r2, r3);
+    return [r1, r2, r3];
 }
 
-function testBitwiseLeftShiftOperator1(byte a, byte b, int i, int j) returns (byte, int, byte){
+function testBitwiseLeftShiftOperator1(byte a, byte b, int i, int j) returns [byte, int, byte]{
     byte r1 = a << b;
     int r2 = i << j;
     byte r3 = a << j;
-    return (r1, r2, r3);
+    return [r1, r2, r3];
 }
 
-function testBitwiseLeftShiftOperator2(byte a, byte b, int i, int j) returns (int, int, int){
+function testBitwiseLeftShiftOperator2(byte a, byte b, int i, int j) returns [int, int, int]{
     int r1 = <int> (a << b);
     int r2 = i << j;
     int r3 = <int> (a << j);
-    return (r1, r2, r3);
+    return [r1, r2, r3];
 }
 
-function testBitwiseUnsignedRightShiftOperator(byte a, int i, int j) returns (int, int){
+function testBitwiseUnsignedRightShiftOperator(byte a, int i, int j) returns [int, int]{
     int r1 = i >>> j;
     int r2 = i >>> a;
-    return (r1, r2);
+    return [r1, r2];
 }
 
 function testByteShift() returns byte {
@@ -257,10 +257,10 @@ function testByteShift() returns byte {
     return d;
 }
 
-function testBitwiseNotOperator(byte b, int i) returns (byte, int) {
+function testBitwiseNotOperator(byte b, int i) returns [byte, int] {
     byte a = ~b;
     int j = ~i;
-    return (a, j);
+    return [a, j];
 }
 
 function testBitwiseOperatorPrecedence1(byte a, byte b, byte c) returns byte {

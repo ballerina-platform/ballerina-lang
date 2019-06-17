@@ -245,7 +245,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentId(MIMEPart mimePart, ObjectValue partStruct) {
-        partStruct.set(CONTENT_ID_FIELD, new BString(mimePart.getContentId()));
+        partStruct.set(CONTENT_ID_FIELD, mimePart.getContentId());
     }
 
     private static void populateContentLength(MIMEPart mimePart, BMap<String, BValue> partStruct) {
