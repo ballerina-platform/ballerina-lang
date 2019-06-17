@@ -11,7 +11,7 @@ public function main() {
     (boolean, float) (a1, a2) = (true, 0.4);
     io:println("Tuple variable : ", a1, " ", a2);
 
-    // The binding patterns are recursive in nature. The following examples show
+    // The binding patterns are recursive in nature. These examples show
     // how we can write complex recursive variable definitions.
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
