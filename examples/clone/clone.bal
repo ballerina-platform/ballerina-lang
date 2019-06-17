@@ -48,7 +48,7 @@ public function main() {
     // `Person`.
     var result = anyValue.clone();
 
-    // The type of the value held by an `any`-typed variable is only determined during runtime.
+    // The type of the value held by an `any`-typed variable is only determined at runtime.
     // Therefore, the type of the returned value on a clone attempt could be `error`, if a non-`anydata` value is
     // found.
     // Checks if the `.clone()` attempt is successful, and returns a `Person` value.
