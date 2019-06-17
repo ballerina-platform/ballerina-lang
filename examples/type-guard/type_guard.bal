@@ -22,7 +22,7 @@ public function main() {
 
         // The type test needs to be used again since the type of `value` is reset to `string|int|boolean`.
         if (value is int) {
-            // The `value` is an `int` here.
+            // `value` is an `int` here.
             int i = value;
             io:println("- value is an int: ", i);
         } else {
