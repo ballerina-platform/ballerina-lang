@@ -361,7 +361,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             // Check whether HTTP status code of the response falls into configured `failoverCodes`
             if (failoverCodeIndex[httpStatusCode]) {
                 error? result = ();
-                (currentIndex, result) = handleResponseWithErrorCode(endpointResponse, initialIndex, noOfEndpoints,
+                [currentIndex, result] = handleResponseWithErrorCode(endpointResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
                 if (result is error) {
                     return result;
@@ -382,7 +382,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 // Check whether HTTP status code of the response falls into configured `failoverCodes`
                 if (failoverCodeIndex[httpStatusCode]) {
                     error? result = ();
-                    (currentIndex, result) = handleResponseWithErrorCode(futureResponse, initialIndex, noOfEndpoints,
+                    [currentIndex, result] = handleResponseWithErrorCode(futureResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
                     if (result is error) {
                         return result;
@@ -395,7 +395,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 }
             } else {
                 error? httpConnectorErr = ();
-                (currentIndex, httpConnectorErr) = handleError(futureResponse, initialIndex, noOfEndpoints,
+                [currentIndex, httpConnectorErr] = handleError(futureResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
 
                 if (httpConnectorErr is error) {
@@ -404,7 +404,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             }
         } else {
             error? httpConnectorErr = ();
-            (currentIndex, httpConnectorErr) = handleError(endpointResponse, initialIndex, noOfEndpoints,
+            [currentIndex, httpConnectorErr] = handleError(endpointResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
 
             if (httpConnectorErr is error) {
@@ -544,7 +544,7 @@ function getLastSuceededClientEP(FailoverClient failoverClient) returns Client {
 }
 
 function handleResponseWithErrorCode(Response response, int initialIndex, int noOfEndpoints, int index,
-                                                            error?[] failoverActionErrData) returns (int, error?) {
+                                                            error?[] failoverActionErrData) returns [int, error?] {
 
     error? resultError = ();
     int currentIndex = index;
@@ -584,11 +584,11 @@ function handleResponseWithErrorCode(Response response, int initialIndex, int no
             populateFailoverErrorHttpStatusCodes(response, failoverActionErrData, currentIndex - 1);
         }
     }
-    return (currentIndex, resultError);
+    return [currentIndex, resultError];
 }
 
 function handleError(error response, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
-                                                                                                returns (int, error?) {
+                                                                                                returns [int, error?] {
     error? httpConnectorErr = ();
     int currentIndex = index;
     // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
@@ -623,5 +623,5 @@ function handleError(error response, int initialIndex, int noOfEndpoints, int in
             failoverActionErrData[currentIndex - 1] = response;
         }
     }
-    return (currentIndex, httpConnectorErr);
+    return [currentIndex, httpConnectorErr];
 }

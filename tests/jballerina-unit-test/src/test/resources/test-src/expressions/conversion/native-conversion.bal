@@ -629,7 +629,7 @@ type movie record {|
     person[] actors = [];
 |};
 
-function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
+function testStructToMapWithRefTypeArray () returns [map<any>, int]|error {
     movie theRevenant = {title:"The Revenant",
                             year:2015,
                             released:"08 Jan 2016",
@@ -643,9 +643,9 @@ function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     anydata a = m["writers"];
     var writers = person[].convert(a);
     if(writers is person[]){
-        return (m, writers[0].age);
+        return [m, writers[0].age];
     } else {
-        return (m, 0);
+        return [m, 0];
     }
 }
 
@@ -854,20 +854,20 @@ public type O2 object {
 //    }
 //}
 
-function testTupleConversion1() returns (T1, T1)|error {
+function testTupleConversion1() returns [T1, T1]|error {
     T1 a = {};
     T2 b = {};
-    (T1, T2) x = (a, b);
-    (T1, T1) x2;
+    [T1, T2] x = [a, b];
+    [T1, T1] x2;
     anydata y = x;
-    x2 = check (T1, T1).convert(y);
+    x2 = check [T1, T1].convert(y);
     return x2;
 }
 
-function testTupleConversion2() returns (int, string)|error {
-    (int, string) x = (10, "XX");
+function testTupleConversion2() returns [int, string]|error {
+    [int, string] x = [10, "XX"];
     anydata y = x;
-    x = check (int, string).convert(y);
+    x = check [int, string].convert(y);
     return x;
 }
 

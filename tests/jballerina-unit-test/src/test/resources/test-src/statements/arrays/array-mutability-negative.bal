@@ -70,8 +70,8 @@ type Cat object { // Not Assignable to Animal Object
         return self.catName;
     }
 
-    public function getNameAndAge() returns (string, int) {
-        return (self.catName, self.age);
+    public function getNameAndAge() returns [string, int] {
+        return [self.catName, self.age];
     }
 };
 

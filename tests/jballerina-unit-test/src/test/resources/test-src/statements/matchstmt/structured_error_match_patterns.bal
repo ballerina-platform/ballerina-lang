@@ -27,7 +27,7 @@ type ReasonRec record {
 
 type ReasonRecTup record {
     Message message;
-    (string, int) x;
+    [string, int] x;
 };
 
 function testBasicErrorMatch() returns string {
@@ -54,7 +54,8 @@ function selectError(int errorNo) returns error {
     var x1 = m1["m"];
     error <string, map<string>> err0 = error("Error Code", message = "Msg of error-0");
     Message mes = { a: "Hello" };
-    error<string, ReasonRecTup> err1 = error("Error Code", message = mes, x = ("x", 1));
+    [string, int] x = ["x", 1];
+    error<string, ReasonRecTup> err1 = error("Error Code", message = mes, x = x);
     error<string, ReasonRec> err2 = error("Error Code", message = mes, x = "x");
     error <string, map<string>> err3 = error("Error Code", message = "message", blah = "bb", foo = "foo");
 
@@ -69,9 +70,9 @@ function selectError(int errorNo) returns error {
 
 function testBasicErrorMatch2() returns string {
     error <string, map<string>> err1 = error("Error Code", message = "Msg");
-    (string, map<any>)|error t1 = err1;
+    [string, map<any>]|error t1 = err1;
     match t1 {
-        var (reason, detail) => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
+        var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
         var error(reason, message = message) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
     }
     return "Default";
@@ -79,9 +80,9 @@ function testBasicErrorMatch2() returns string {
 
 function testBasicErrorMatch3() returns string {
     error <string> err1 = error("Error Code");
-    (string, map<any>)|error <string> t1 = err1;
+    [string, map<any>]|error <string> t1 = err1;
     match t1 {
-        var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
+        var [reason, detail] => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason) => return "Matched with error : " + reason;
     }
     return "Default";
@@ -173,7 +174,7 @@ function testErrorWithUnderscore() returns string[] {
 
 function foo5(any|error e) returns string {
     match e {
-        var (a, b) => return "Matched with tuple var";
+        var [a, b] => return "Matched with tuple var";
         var { a, b } => return "Matched with record var";
         var error (reason, ..._) => return "Matched with error reason = " + <string>reason;
         var x => {

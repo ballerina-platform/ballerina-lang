@@ -41,15 +41,15 @@ type Person record {|
     Person[]? children = ();
 |};
 
-function testLiteralValueAssignment() returns (anydata, anydata, anydata, anydata) {
+function testLiteralValueAssignment() returns [anydata, anydata, anydata, anydata] {
     anydata adi = 10;
     anydata adf = 23.45;
     anydata adb = true;
     anydata ads = "Hello World!";
-    return (adi, adf, adb, ads);
+    return [adi, adf, adb, ads];
 }
 
-function testValueTypesAssignment() returns (anydata, anydata, anydata, anydata) {
+function testValueTypesAssignment() returns [anydata, anydata, anydata, anydata] {
     int i = 10;
     anydata adi = i;
 
@@ -62,17 +62,17 @@ function testValueTypesAssignment() returns (anydata, anydata, anydata, anydata)
     string s = "Hello World!";
     anydata ads = s;
 
-    return (adi, adf, adb, ads);
+    return [adi, adf, adb, ads];
 }
 
-function testRecordAssignment() returns (anydata, anydata) {
+function testRecordAssignment() returns [anydata, anydata] {
     Foo f = {a: 20};
     anydata adr = f;
 
     ClosedFoo cf = {ca: 35};
     anydata adcr = cf;
 
-    return (adr, adcr);
+    return [adr, adcr];
 }
 
 function testCyclicRecordAssignment() returns (anydata) {
@@ -92,13 +92,13 @@ function testCyclicRecordAssignment() returns (anydata) {
     }
 }
 
-function testXMLAssignment() returns (anydata, anydata) {
+function testXMLAssignment() returns [anydata, anydata] {
     anydata adxl = xml `<book>The Lost World</book>`;
 
     xml x = xml `<book>Count of Monte Cristo</book>`;
     anydata adx = x;
 
-    return (adxl, adx);
+    return [adxl, adx];
 }
 
 function testJSONAssignment() returns anydata {
@@ -162,7 +162,7 @@ function testMapAssignment() {
     map<DataType> mu = {};
     ad = mu;
 
-    map<((DataType, string), int, float)> mtup = {};
+    map<[[DataType, string], int, float]> mtup = {};
     ad = mtup;
 
     map<()> mnil = {};
@@ -354,22 +354,22 @@ function testTupleAssignment() returns anydata[] {
     int i = 0;
 
     byte b = 255;
-    (int, float, boolean, string, byte) vt = (123, 23.45, true, "hello world!", b);
+    [int, float, boolean, string, byte] vt = [123, 23.45, true, "hello world!", b];
     rets[i] = vt;
     i += 1;
 
     json j = { name: "apple", color: "red", price: 40 };
     xml x = xml `<book>The Lost World</book>`;
-    (json, xml) jxt = (j, x);
+    [json, xml] jxt = [j, x];
     rets[i] = jxt;
     i += 1;
 
     DataType[] dt = [j, x];
-    (DataType[], string) ct = (dt, "hello world!");
+    [DataType[], string] ct = [dt, "hello world!"];
     rets[i] = ct;
     i += 1;
 
-    ((DataType[], string), int, float) nt = (ct, 123, 23.45);
+    [[DataType[], string], int, float] nt = [ct, 123, 23.45];
     rets[i] = nt;
 
     return rets;
@@ -409,7 +409,7 @@ function testFiniteTypeAssignment() returns anydata {
     return ad;
 }
 
-function testAnydataToValueTypes() returns (int, float, boolean, string) {
+function testAnydataToValueTypes() returns [int, float, boolean, string] {
     anydata ad = 33;
     int i = 0;
     if (ad is int) {
@@ -434,7 +434,7 @@ function testAnydataToValueTypes() returns (int, float, boolean, string) {
         s = ad;
     }
 
-    return (i, f, bool, s);
+    return [i, f, bool, s];
 }
 
 function testAnydataToJson() returns json {
@@ -457,7 +457,7 @@ function testAnydataToXml() returns xml {
     return convertedX;
 }
 
-function testAnydataToRecord() returns (Foo, ClosedFoo) {
+function testAnydataToRecord() returns [Foo, ClosedFoo] {
     Foo foo = {a: 15};
     anydata adr = foo;
     Foo convertedFoo = {};
@@ -471,7 +471,7 @@ function testAnydataToRecord() returns (Foo, ClosedFoo) {
     if (adr is ClosedFoo) {
         convertedCFoo = adr;
     }
-    return (convertedFoo, convertedCFoo);
+    return [convertedFoo, convertedCFoo];
 }
 
 function testAnydataToMap() {
@@ -568,10 +568,10 @@ function testAnydataToMap() {
         convertedMu = ad;
     }
 
-    map<((DataType, string), int, float)> mtup = {};
+    map<[[DataType, string], int, float]> mtup = {};
     ad = mtup;
-    map<((DataType, string), int, float)> convertedMtup;
-    if (ad is map<((DataType, string), int, float)>) {
+    map<[[DataType, string], int, float]> convertedMtup;
+    if (ad is map<[[DataType, string], int, float]>) {
         convertedMtup = ad;
     }
 
@@ -702,45 +702,45 @@ function testAnydataToUnion2() returns DataType[] {
     return dt;
 }
 
-function testAnydataToTuple() returns (int, float, boolean, string, byte)? {
+function testAnydataToTuple() returns [int, float, boolean, string, byte]? {
     anydata ad;
 
     byte b = 255;
-    (int, float, boolean, string, byte) vt = (123, 23.45, true, "hello world!", b);
+    [int, float, boolean, string, byte] vt = [123, 23.45, true, "hello world!", b];
     ad = vt;
-    if (ad is (int, float, boolean, string, byte)) {
+    if (ad is [int, float, boolean, string, byte]) {
         return ad;
     }
 
     return ();
 }
 
-function testAnydataToTuple2() returns (json, xml)? {
+function testAnydataToTuple2() returns [json, xml]? {
     anydata ad;
 
     json j = { name: "apple", color: "red", price: 40 };
     xml x = xml `<book>The Lost World</book>`;
-    (json, xml) jxt = (j, x);
+    [json, xml] jxt = [j, x];
     ad = jxt;
 
-    if (ad is (json, xml)) {
+    if (ad is [json, xml]) {
         return ad;
     }
 
     return ();
 }
 
-function testAnydataToTuple3() returns ((DataType[], string), int, float)? {
+function testAnydataToTuple3() returns [[DataType[], string], int, float]? {
     anydata ad;
 
     json j = { name: "apple", color: "red", price: 40 };
     xml x = xml `<book>The Lost World</book>`;
     DataType[] dt = [j, x];
-    (DataType[], string) ct = (dt, "hello world!");
-    ((DataType[], string), int, float) nt = (ct, 123, 23.45);
+    [DataType[], string] ct = [dt, "hello world!"];
+    [[DataType[], string], int, float] nt = [ct, 123, 23.45];
     ad = nt;
 
-    if (ad is ((DataType[], string), int, float)) {
+    if (ad is [[DataType[], string], int, float]) {
         return ad;
     }
 
@@ -878,14 +878,14 @@ function testArraysWithErrorsAsAnydata() returns boolean {
 }
 
 function testTuplesWithErrorsAsAnydata() returns boolean {
-    (error, MyError) a1 = (e1, e3);
-    (anydata, error, string) a2 = (a1, e1, "hello");
+    [error, MyError] a1 = [e1, e3];
+    [anydata, error, string] a2 = [a1, e1, "hello"];
 
     anydata ad1 = <anydata> a1;
     anydata ad2 = a2;
 
-    (error, MyError) a3 = <(error, MyError)> ad1;
-    (anydata, error, string) a4 = <(anydata, error, string)> ad2;
+    [error, MyError] a3 = <[error, MyError]> ad1;
+    [anydata, error, string] a4 = <[anydata, error, string]> ad2;
 
     return a3[0] === e1 && a3[1] === e3 && a4[0] === a1 && a4[1] === e1 && a3 === a1 && a4 === a2;
 }

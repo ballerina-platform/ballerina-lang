@@ -213,21 +213,21 @@ function checkMapRefEqualityNegative() returns boolean {
 }
 
 function checkTupleRefEqualityPositive() returns boolean {
-    (string, int) t1 = ("", 0);
-    (string, int) t2 = t1;
+    [string, int] t1 = ["", 0];
+    [string, int] t2 = t1;
 
-    (string, int, OpenEmployee) t3 = ("hi", 0, { name: "Em" });
-    (string, int, OpenEmployee) t4 = t3;
+    [string, int, OpenEmployee] t3 = ["hi", 0, { name: "Em" }];
+    [string, int, OpenEmployee] t4 = t3;
 
     return t1 === t2 && t3 === t4 && !(t1 !== t2) && !(t3 !== t4);
 }
 
 function checkTupleRefEqualityNegative() returns boolean {
-    (boolean, int) t1 = (false, 0);
-    (boolean, int) t2 = (false, 0);
+    [boolean, int] t1 = [false, 0];
+    [boolean, int] t2 = [false, 0];
 
-    (string, ClosedEmployee) t3 = ("hi", { name: "EmZee" });
-    (string, ClosedEmployee) t4 = ("hi", { name: "Em" });
+    [string, ClosedEmployee] t3 = ["hi", { name: "EmZee" }];
+    [string, ClosedEmployee] t4 = ["hi", { name: "Em" }];
 
     return t1 === t2 || t3 === t4 && !(t1 !== t2) && !(t3 !== t4);
 }
@@ -251,9 +251,9 @@ function checkJsonRefEqualityPositive() returns boolean {
     string[] strArrTwo = strArr;
     equals = equals && isRefEqual(strArrTwo, jArr);
 
-    (string, int) tup = ("hi", 1);
-    (string, int) tup1 = tup;
-    (json, int) jTup = tup;
+    [string, int] tup = ["hi", 1];
+    [string, int] tup1 = tup;
+    [json, int] jTup = tup;
     return equals && isRefEqual(jTup, tup1);
 }
 

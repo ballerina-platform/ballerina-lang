@@ -72,9 +72,9 @@ function stampObjectsToArray() returns any[] {
     return anyValue;
 }
 
-function stampObjectsToTuple() returns (int,string) {
+function stampObjectsToTuple() returns [int,string] {
     PersonObj p = new PersonObj();
-    (int, string) tupleValue = (int,string).stamp(p);
+    [int, string] tupleValue = [int,string].stamp(p);
 
     return tupleValue;
 }

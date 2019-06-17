@@ -154,8 +154,8 @@ function testFiniteTypesWithUnionCaseThree() returns int {
 
 function testFiniteTypesWithTuple() returns State {
    State onState = "on";
-   (State, int ) b = (onState, 20);
-   var (i, j) = b;
+   [State, int ] b = [onState, 20];
+   var [i, j] = b;
    return i;
 }
 
@@ -172,19 +172,19 @@ function testTypeAliasing() returns string {
 
 type MyType int|string;
 
-function testTypeAliasingCaseOne() returns (MyType,MyType) {
+function testTypeAliasingCaseOne() returns [MyType,MyType] {
      MyType a = 100;
      MyType b = "hundred";
-     return (a,b);
+     return [a,b];
 }
 
 public type ParamTest string|int;
 
-function testTypeDefinitionWithVarArgs() returns (ParamTest, ParamTest) {
+function testTypeDefinitionWithVarArgs() returns [ParamTest, ParamTest] {
     string s1 = "Anne";
     ParamTest p1 = testVarArgs("John");
     ParamTest p2 = testVarArgs(s1);
-    return (p1, p2);
+    return [p1, p2];
 }
 
 function testVarArgs(ParamTest... p1) returns ParamTest {
@@ -196,11 +196,11 @@ const string SCON = "s";
 
 type FiniteType ICON|SCON;
 
-function testFiniteTypeWithConstants() returns (FiniteType, FiniteType) {
+function testFiniteTypeWithConstants() returns [FiniteType, FiniteType] {
     FiniteType f = 5;
     FiniteType s = "s";
 
-    return (f,s);
+    return [f,s];
 }
 
 const byte BCONST = 5;
@@ -209,10 +209,10 @@ const float FCONST = 5;
 
 type Number FCONST|ICONST|BCONST;
 
-function testFiniteTypeWithNumericConstants() returns (Number, Number) {
+function testFiniteTypeWithNumericConstants() returns [Number, Number] {
     Number n1 = 5;
     Number n2 = 5.0;
-    return (n1, n2);
+    return [n1, n2];
 }
 
 type ByteType BCONST;

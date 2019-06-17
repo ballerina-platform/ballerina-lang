@@ -1,7 +1,7 @@
 
-public function testObjectWithSimpleInit () returns (int, string, int, string) {
+public function testObjectWithSimpleInit () returns [int, string, int, string] {
     Person p = new Person(99);
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 type Person object {

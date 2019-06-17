@@ -94,7 +94,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) {
+    public void exitParameter(BallerinaParser.ParameterContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -670,7 +670,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.typeName().size());
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.tupleTypeDescriptor().typeName().size());
     }
 
     @Override
@@ -944,7 +944,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) {
+    public void exitListBindingPattern(BallerinaParser.ListBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -953,7 +953,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTupleRefBindingPattern(BallerinaParser.TupleRefBindingPatternContext ctx) {
+    public void exitListRefBindingPattern(BallerinaParser.ListRefBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -1055,7 +1055,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if ((ctx.Identifier() != null) && ((ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)
+        if ((ctx.Identifier() != null) && ((ctx.parent instanceof BallerinaParser.ListBindingPatternContext)
                 || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
                 || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
@@ -1239,13 +1239,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
+    public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
         }
-
         boolean argsAvailable = ctx.expressionList() != null;
-        this.pkgBuilder.addArrayInitExpr(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        this.pkgBuilder.addListConstructorExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
     @Override
@@ -1296,7 +1295,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) {
+    public void exitListDestructuringStatement(BallerinaParser.ListDestructuringStatementContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -2316,11 +2315,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTupleLiteral(BallerinaParser.TupleLiteralContext ctx) {
+    public void exitGroupExpression(BallerinaParser.GroupExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.createBracedOrTupleExpression(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
+        this.pkgBuilder.createGroupExpression(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2492,7 +2491,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
-        } else if (ctx.emptyTupleLiteral() != null) {
+        } else if (ctx.nilLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "()");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
