@@ -17,11 +17,11 @@ type Family record {
     string[] children = [];
 };
 
-function testCreateStruct () returns (string?, map<any>?, int?) {
+function testCreateStruct () returns [string?, map<any>?, int?] {
     map<any> address1 = {};
     map<any> address = {"country":"USA", "state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
-    return (emp["name"], emp["adrs"], emp["age"]);
+    return [emp["name"], emp["adrs"], emp["age"]];
 }
 
 function testStructOfStruct () returns (string) {
@@ -76,16 +76,16 @@ function testStructExpressionAsIndex () returns string? {
     return dpt["employees"][0]["family"]["children"][(dpt["employees"][0]["family"]["noOfChildren"] ?: 1) - 1];
 }
 
-function testDefaultVal () returns (string?, string?, int?) {
+function testDefaultVal () returns [string?, string?, int?] {
     Person p = {};
-    return (p["name"], p["lname"], p["age"]);
+    return [p["name"], p["lname"], p["age"]];
 }
 
-function testNestedFieldDefaultVal () returns (string?, string?, int?) {
+function testNestedFieldDefaultVal () returns [string?, string?, int?] {
     Department dpt = {};
     dpt["employees"] = [];
     dpt["employees"][0] = {lname:"Smith"};
-    return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
+    return [dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]];
 }
 
 function testGetNonInitAttribute () returns string? {

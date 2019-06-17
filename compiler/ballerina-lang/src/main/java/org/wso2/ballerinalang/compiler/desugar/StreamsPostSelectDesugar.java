@@ -28,11 +28,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -117,10 +118,23 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        IntStream.range(0, bracedOrTupleExpr.expressions.size()).forEach(i -> bracedOrTupleExpr.expressions
-                .set(i, (BLangExpression) rewrite(bracedOrTupleExpr.expressions.get(i))));
-        result = bracedOrTupleExpr;
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression = (BLangExpression) rewrite(groupExpr.expression);
+        result = groupExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        IntStream.range(0, listConstructorExpr.exprs.size()).forEach(i -> listConstructorExpr.exprs
+                .set(i, (BLangExpression) rewrite(listConstructorExpr.exprs.get(i))));
+        result = listConstructorExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        IntStream.range(0, tupleLiteral.exprs.size()).forEach(i -> tupleLiteral.exprs
+                .set(i, (BLangExpression) rewrite(tupleLiteral.exprs.get(i))));
+        result = tupleLiteral;
     }
 
     @Override

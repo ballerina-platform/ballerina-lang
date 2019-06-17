@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,14 +16,13 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
-import java.util.List;
-
 /**
- * Expression of (expression , expression).
+ * Expression of (expression).
  *
- * @since 0.966.0
+ * @since 1.0
  */
-public interface BracedOrTupleExpression extends ExpressionNode {
+public interface GroupExpressionNode extends ExpressionNode {
 
-    List<? extends ExpressionNode> getExpressions();
+    ExpressionNode getExpression();
+
 }

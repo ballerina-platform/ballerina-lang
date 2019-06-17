@@ -78,8 +78,8 @@ function testCompoundAssignmentAdditionWithFunctionInvocation() returns (int){
 }
 
 
-function getMultiIncrement() returns (int, int) {
-   return (200, 100);
+function getMultiIncrement() returns [int, int] {
+   return [200, 100];
 }
 
 
