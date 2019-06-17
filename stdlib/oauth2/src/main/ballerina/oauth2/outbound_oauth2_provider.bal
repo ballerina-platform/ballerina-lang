@@ -30,13 +30,13 @@ public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public OAuth2ProviderConfig oauth2ProviderConfig;
+    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig;
     public CachedToken tokenCache;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
     # + outboundJwtAuthConfig - Outbound OAuth2 authentication configurations
-    public function __init(OAuth2ProviderConfig oauth2ProviderConfig) {
+    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.tokenCache = {
             accessToken: "",
@@ -58,34 +58,11 @@ public type OutboundOAuth2Provider object {
     # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
     public function inspect(map<anydata> data) returns string|error? {
         if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
-            var config = self.oauth2ProviderConfig.config;
-            if (config is ClientCredentialsGrantConfig) {
-                if (config.retryRequest) {
-                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-                }
-            } else if (config is PasswordGrantConfig) {
-                if (config.retryRequest) {
-                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-                }
-            } else {
-                if (config.retryRequest) {
-                    config.accessToken = EMPTY_STRING;
-                    return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-                }
-            }
+            return check getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
         }
         return ();
     }
 };
-
-# The `OAuth2ProviderConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
-#
-# + grantType - OAuth2 grant type
-# + config - Configurations for the given grant type
-public type OAuth2ProviderConfig record {|
-    OAuth2GrantType grantType;
-    ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
-|};
 
 # The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
 #
@@ -216,32 +193,17 @@ type RequestConfig record {|
 # + tokenCache - Cached token configurations
 # + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token or `error` if the validation fails
-function getAuthTokenForOAuth2(OAuth2ProviderConfig authConfig, CachedToken tokenCache,
-                               boolean updateRequest) returns string|error {
-    var grantType = authConfig.grantType;
-    var grantTypeConfig = authConfig.config;
-    if (grantType is PASSWORD_GRANT) {
-        if (grantTypeConfig is PasswordGrantConfig) {
-            return getAuthTokenForOAuth2PasswordGrant(grantTypeConfig, tokenCache);
-        } else {
-            return prepareError("Invalid config is provided for the password grant type.");
-        }
-    } else if (grantType is CLIENT_CREDENTIALS_GRANT) {
-        if (grantTypeConfig is ClientCredentialsGrantConfig) {
-            return getAuthTokenForOAuth2ClientCredentialsGrant(grantTypeConfig, tokenCache);
-        } else {
-            return prepareError("Invalid config is provided for the password grant type.");
-        }
+function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
+                               CachedToken tokenCache, boolean updateRequest) returns string|error {
+    if (authConfig is PasswordGrantConfig) {
+        return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
+    } else if (authConfig is ClientCredentialsGrantConfig) {
+        return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
     } else {
-        // Within this code block, the grant type is DIRECT_TOKEN
-        if (grantTypeConfig is DirectTokenConfig) {
-            if (updateRequest) {
-                grantTypeConfig.accessToken = EMPTY_STRING;
-            }
-            return getAuthTokenForOAuth2DirectTokenMode(grantTypeConfig, tokenCache);
-        } else {
-            return prepareError("Invalid config is provided for the direct token mode.");
+        if (updateRequest) {
+            authConfig.accessToken = EMPTY_STRING;
         }
+        return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
     }
 }
 

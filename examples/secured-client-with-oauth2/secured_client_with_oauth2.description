@@ -1,10 +1,9 @@
 // A secured client with OAuth2 authentication is used to connect to a secured
 // service with OAuth2 authentication.
-// The `oauth2:OutboundOAuth2Provider` is initialized with the `grantType` as
-// `oauth2:CLIENT_CREDENTIALS_GRANT` or `oauth2:PASSWORD_GRANT` or
-// `oauth2:DIRECT_TOKEN` and relevant configurations passed as a record.
-// The `http:BearerAuthHandler` is initialized by providing the created
-// `oauth2:OutboundOAuth2Provider`. An additional `auth` field is added to the
-// HTTP client endpoint initialization in order to make the simple HTTP client
-// endpoint into a secure client endpoint. Inside the `auth` field the field
+// The `oauth2:OutboundOAuth2Provider` is initialized with relevant
+// configurations passed as a record. The `http:BearerAuthHandler`
+// is initialized by providing the created `oauth2:OutboundOAuth2Provider`.
+// An additional `auth` field is added to the HTTP client endpoint
+// initialization in order to make the simple HTTP client endpoint
+// into a secure client endpoint. Inside the `auth` field the field
 // `authHandler` is defined as the created `http:BearerAuthHandler`.
