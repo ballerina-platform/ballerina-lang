@@ -21,7 +21,7 @@ function foo(int x, function (int, string) returns float bar)
     return x * bar.call(10, "2");
 }
 
-// The function pointer as a return type.
+// A function pointer as a return type.
 function getFunctionPointer() returns (function (int, string) returns float) {
     return test;
 }
