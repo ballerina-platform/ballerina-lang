@@ -278,6 +278,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.socketIdleTimeout = idleTimeout;
     }
 
+    public long getSocketIdleTimeout() {
+        return socketIdleTimeout;
+    }
+
     void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }

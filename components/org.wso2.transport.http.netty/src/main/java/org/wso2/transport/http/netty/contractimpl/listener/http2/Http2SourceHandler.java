@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2RemoteFlowController;
-import io.netty.util.internal.PlatformDependent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +61,9 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(Http2SourceHandler.class);
 
-    // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
-    private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
+//    // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
+//    private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
+    private Http2ServerChannel http2ServerChannel = new Http2ServerChannel();
     private ChannelHandlerContext ctx;
     private ServerConnectorFuture serverConnectorFuture;
     private HttpServerChannelInitializer serverChannelInitializer;
@@ -86,6 +86,14 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.targetChannelPool = new ConcurrentHashMap<>();
         setRemoteFlowController();
+        setDataEventListeners(serverChannelInitializer);
+    }
+
+    private void setDataEventListeners(HttpServerChannelInitializer serverChannelInitializer) {
+        http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
+                                                new Http2ServerTimeoutHandler(
+                                                        serverChannelInitializer.getSocketIdleTimeout(),
+                                                        http2ServerChannel));
     }
 
     private void setRemoteFlowController() {
@@ -142,7 +150,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
-            HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+//            HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+            HttpCarbonMessage sourceReqCMsg = http2ServerChannel.getInboundMessage(streamId).getInboundMessage();
             // CarbonMessage can be already removed from the map once the LastHttpContent is added because of receiving
             // a data frame when the outbound response is started to send. So, the data frames received after that
             // should be released.
@@ -170,7 +179,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void destroy() {
-        streamIdRequestMap.clear();
+//        streamIdRequestMap.clear();
+        http2ServerChannel.destroy();
     }
 
     private void closeTargetChannels() {
@@ -183,8 +193,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         });
     }
 
-    public Map<Integer, HttpCarbonMessage> getStreamIdRequestMap() {
-        return streamIdRequestMap;
+    public Map<Integer, InboundMessageHolder> getStreamIdRequestMap() {
+        return http2ServerChannel.getStreamIdRequestMap();
+//        return streamIdRequestMap;
     }
 
     public ChannelHandlerContext getChannelHandlerContext() {

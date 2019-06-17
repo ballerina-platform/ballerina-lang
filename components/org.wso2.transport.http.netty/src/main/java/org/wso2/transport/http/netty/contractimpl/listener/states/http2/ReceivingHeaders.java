@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -64,7 +65,8 @@ public class ReceivingHeaders implements ListenerState {
         int streamId = headersFrame.getStreamId();
         if (headersFrame.isEndOfStream()) {
             // Retrieve HTTP request and add last http content with trailer headers.
-            HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
+            HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
+                    .getInboundMessage();
             if (sourceReqCMsg != null) {
                 readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
                 http2SourceHandler.getStreamIdRequestMap().remove(streamId);
@@ -79,8 +81,10 @@ public class ReceivingHeaders implements ListenerState {
         } else {
             // Construct new HTTP Request
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+            InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(sourceReqCMsg);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
-            http2SourceHandler.getStreamIdRequestMap().put(streamId, sourceReqCMsg); // storing to add HttpContent later
+            // storing to add HttpContent later
+            http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }
