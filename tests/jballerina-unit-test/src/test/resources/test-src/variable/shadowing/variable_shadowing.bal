@@ -45,8 +45,8 @@ function testRecordScope() returns Person {
     return p;
 }
 
-function testBlockScope1() returns (string, string) {
-    (string, string) result = ("", "");
+function testBlockScope1() returns [string, string] {
+    [string, string] result = ["", ""];
 
     if (true) {
         string name = "Inside first if block";
