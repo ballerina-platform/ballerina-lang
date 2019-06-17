@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -44,13 +45,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -68,13 +67,14 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -180,9 +180,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
-    private TypeChecker typeChecker;
-    private Desugar desugar;
+    private final TypeChecker typeChecker;
+    private final Desugar desugar;
     private final Names names;
+    private final Types types;
     private final StreamsPreSelectDesuagr preSelectDesuagr;
     private final StreamsPostSelectDesugar postSelectDesugar;
     private final StreamingAggregatorArrayBuilder aggregatorArrayBuilder;
@@ -195,8 +196,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BType outputEventType;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BVarSymbol> joinProcessorStack = new Stack<>();
-    private boolean isInJoin = false;
-    private boolean isTableJoin = false;
+    private boolean isJoin;
+    private boolean isInJoin;
+    private boolean isTableJoin;
+    private long currentQueryStmt;
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
     private Map<String, String> streamAliasMap;
 
@@ -206,6 +209,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
+        this.types = Types.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.desugar = Desugar.getInstance(context);
@@ -227,6 +231,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public BLangBlockStmt desugar(BLangForever foreverStatement) {
 
         this.env = foreverStatement.getEnv();
+        this.currentQueryStmt = 0;
+
         stmts = new ArrayList<>();
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
 
@@ -277,6 +283,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         joinProcessorStack.clear();
         streamAliasMap = new HashMap<>();
         exprStack.empty();
+        isJoin = false;
+        isInJoin = false;
+        isTableJoin = false;
         //Construct the elements to publish events to output stream
         BLangStreamAction streamAction = (BLangStreamAction) queryStmt.getStreamingAction();
         streamAction.accept(this);
@@ -293,6 +302,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) queryStmt.getJoiningInput();
         if (joinStreamingInput != null) {
             isInJoin = true;
+            isJoin = true;
             BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
             createStreamAliasMap(streamingInput);
             resolveJoinProperties(queryStmt.getStreamingInput().getStreamReference(),
@@ -305,6 +315,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangStreamingInput streamingInput = (BLangStreamingInput) queryStmt.getStreamingInput();
         createStreamAliasMap(streamingInput);
         streamingInput.accept(this);
+
+        //increment the query statement counter
+        currentQueryStmt++;
     }
 
     private void resolveSelectExpressions(BLangSelectClause selectClause, StreamingInput streamingInput) {
@@ -367,11 +380,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         orderByObjSymbol.pkgID, orderingFuncArrayType, env.scope.owner);
 
         //create RHS expression for the ordering function array
-        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         orderingFuncArrExpr.exprs = new ArrayList<>();
         orderingFuncArrExpr.type = orderingFuncArrayType;
 
-        BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
         sortModesArrayExpr.type = new BArrayType(symTable.stringType);
 
@@ -571,7 +584,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangSimpleVarRef createResultArrayRefInForEach(DiagnosticPos pos, BType outputType, BSymbol symbol,
                                                             BLangBlockStmt body) {
         BType outputArrayType = new BArrayType(outputType);
-        BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralExpr.exprs = new ArrayList<>();
         arrayLiteralExpr.type = outputArrayType;
         BLangSimpleVariable outputArrayVariable =
@@ -585,6 +598,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private BLangForeach createForEachStmtForArrayConversion(DiagnosticPos pos, BSymbol owner, BSymbol
             inputCollectionSymbol, BLangSimpleVarRef outputArrayRef) {
+
+        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+        foreach.pos = pos;
+        foreach.collection = ASTBuilderUtil.createVariableRef(pos, inputCollectionSymbol);
+        types.setForeachTypedBindingPatternType(foreach);
+
+        final BLangSimpleVariable foreachVariable = createForeachVariable(pos, owner, foreach.varType);
+        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(foreachVariable.pos, foreachVariable);
+        foreach.isDeclaredWithVar = true;
         // foreach v in events {
         //     outputEvents[outputEvents.length()] =  <T>T.convert(v);
         // }
@@ -592,9 +615,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         // Note - int $length$ = outputEvents.length();
         BLangInvocation lengthInvocation = createLengthInvocation(pos, (BVarSymbol) outputArrayRef.symbol);
-
-        final BLangSimpleVariable foreachVariable = createForeachVariables(pos, owner);
-        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
 
         // create `outputEvents[k] = <T>T.convert(v);` assignment stmt
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputArrayRef, lengthInvocation);
@@ -611,15 +631,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, foreachBody);
         assignment.setExpression(outputTypeConversionExpr);
         assignment.varRef = indexAccessExpr;
-        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-        foreach.pos = pos;
         foreach.body = foreachBody;
-        foreach.collection = ASTBuilderUtil.createVariableRef(pos, inputCollectionSymbol);
-        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(foreachVariable.pos, foreachVariable);
-        foreach.isDeclaredWithVar = true;
-        foreach.varType = foreachVariable.type;
-        foreach.resultType = new BMapType(TypeTags.MAP, foreachVariable.type, null);
-        foreach.nillableResultType = BUnionType.create(null, foreach.resultType, symTable.nilType);
         return foreach;
     }
 
@@ -739,7 +751,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     // [streams:sum(), streams:count(), .. etc ]
     private BLangArrayLiteral createAggregatorArray(BLangSelectClause selectClause) {
-        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
 
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
@@ -852,7 +864,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createGroupByLambdas(BLangSelectClause selectClause) {
-        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arr.exprs = new ArrayList<>();
         selectClause.getGroupBy().getVariables()
                 .forEach(groupingVar -> arr.exprs.add(createGroupByLambda((BLangExpression) groupingVar)));
@@ -1095,7 +1107,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangWindow windowClauseNode = (BLangWindow) streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             windowClauseNode.accept(this);
-        } else if (isInJoin && !isTableReference(streamingInput.getStreamReference())) {
+        } else if (isJoin && !isTableReference(streamingInput.getStreamReference())) {
             windowClauseNode = createDefaultLengthWindow(streamingInput);
             streamingInput.setWindowClause(windowClauseNode);
             windowClauseNode.accept(this);
@@ -1246,7 +1258,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
 
         //converting the window parameters into an array of parameters
-        BLangArrayLiteral windowParamArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangListConstructorExpr windowParamArrExpr =
+                (BLangListConstructorExpr) TreeBuilder.createListConstructorExpressionNode();
         windowParamArrExpr.exprs = new ArrayList<>();
         windowParamArrExpr.type = symTable.anyType;
         windowParamArrExpr.exprs.addAll(invocation.argExprs);
@@ -1326,8 +1339,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BInvokableSymbol methodInvokableSymbol =
                 getInvokableSymbolOfObject(joinProcessVarSymbol, SET_JOIN_PROPERTIES_METHOD_NAME);
         List<BLangExpression> args = new ArrayList<>();
-        // join processor (caller)
-        args.add(ASTBuilderUtil.createVariableRef(window.pos, joinProcessVarSymbol));
         // table name
         String tableReferenceSymbolName = table.symbol.toString();
         args.add(ASTBuilderUtil.createLiteral(window.pos, symTable.stringType, streamAliasMap
@@ -1340,6 +1351,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         args.add(ASTBuilderUtil.createVariableRef(window.pos, windowInvokableTypeVarSymbol));
         BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(window.pos, methodInvokableSymbol, args, symResolver);
+        methodInvocation.expr = ASTBuilderUtil.createVariableRef(window.pos, joinProcessVarSymbol);
         methodInvocation.argExprs = args;
         BLangExpressionStmt methodInvocationStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         methodInvocationStmt.pos = window.pos;
@@ -1560,7 +1572,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private String getScopeName() {
-        return (env.scope.owner != null) ? "$" + env.scope.owner.name.value + "$" : "$";
+        return ((env.scope.owner != null) ? "$" + env.scope.owner.name.value + "$" : "$") + currentQueryStmt;
     }
 
     private void defineFunction(BLangFunction funcNode, BLangPackage targetPkg) {
@@ -1740,8 +1752,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangSimpleVariable createForeachVariables(DiagnosticPos pos, BSymbol symbol) {
-        BType type = symTable.mapAnydataType;
+    private BLangSimpleVariable createForeachVariable(DiagnosticPos pos, BSymbol symbol, BType type) {
         final BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, VAR_FOREACH_VAL, type);
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), symbol.pkgID, variable.type, symbol);
         return variable;

@@ -29,7 +29,7 @@ const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
-function testTypicalScenario() returns (http:Response[], error?[]) {
+function testTypicalScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -65,10 +65,10 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testTrialRunFailure() returns (http:Response[], error?[]) {
+function testTrialRunFailure() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -105,10 +105,10 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
+function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -140,10 +140,10 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
             }
             counter = counter + 1;
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceOpenScenario() returns (http:Response[], error?[]) {
+function testForceOpenScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -178,10 +178,10 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceCloseScenario() returns (http:Response[], error?[]) {
+function testForceCloseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -217,10 +217,10 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -253,10 +253,10 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdFailureResponseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
@@ -289,7 +289,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
 int actualRequestNumber = 0;

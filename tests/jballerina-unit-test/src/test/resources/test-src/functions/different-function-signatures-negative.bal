@@ -29,12 +29,12 @@ function funcInvocWitTooManyArgs() {
     bar(5, b="Alex", 6, ...array);
 }
 
-function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) {
+function funcInvocAsRestArgs() returns [int, float, string, int, string, int[]] {
     bar(5, b="Alex", 6, ...getIntArray());
 }
 
-function getIntArray() returns (int[], string) {
-    return ([1,2,3,4], "hello");
+function getIntArray() returns [int[], string] {
+    return [[1,2,3,4], "hello"];
 }
 
 function funcWithDefaultParamIncompatibleType(json j = xml `{"name":"John"}`) returns json {

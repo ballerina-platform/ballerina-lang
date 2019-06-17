@@ -48,8 +48,8 @@ public class WorkerDeclarationContextProvider extends LSCompletionProvider {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Boolean inWorkerReturnCtx = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
-
-        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (invocationOrDelimiterTokenType > -1) {
             List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_TOKENS_KEY).stream()
                     .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                     .collect(Collectors.toList());

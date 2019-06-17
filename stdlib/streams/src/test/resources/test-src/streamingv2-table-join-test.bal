@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 
 public type Stock record {
     string symbol;
@@ -135,6 +136,7 @@ public function queryStocksTable(string symbol, int volume) returns table<Stock>
             var ret = result.add(stock);
         }
     }
+    io:println(result);
     return result;
 }
 

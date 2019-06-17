@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
@@ -536,7 +535,7 @@ type TerminatorGenerator object {
         }
         boolean isVoid = returnType is bir:BTypeNil;
         createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
-        lambdas[lambdaName] = (callIns, methodClass);
+        lambdas[lambdaName] = [callIns, methodClass];
         self.lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);

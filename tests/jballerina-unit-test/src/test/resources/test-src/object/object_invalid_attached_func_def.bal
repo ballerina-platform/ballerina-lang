@@ -28,7 +28,7 @@ type Person object {
 
     function test9(int a, string name) returns string; // return missing
 
-    function test10(int a, string name) returns (int, string); // return mismatch
+    function test10(int a, string name) returns [int, string]; // return mismatch
 
     function test11(int a, string name) returns Foo; //return assignable object object mismatch
 
@@ -78,8 +78,8 @@ function Person.test9(int a, string name) {
 
 }
 
-function Person.test10(int a, string name) returns (string, string) {
-    return ("a", "b");
+function Person.test10(int a, string name) returns [string, string] {
+    return ["a", "b"];
 }
 
 function Person.test11(int a, string name) returns Bar {

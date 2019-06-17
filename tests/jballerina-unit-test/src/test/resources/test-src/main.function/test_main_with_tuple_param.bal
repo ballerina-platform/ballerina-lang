@@ -19,11 +19,11 @@ public type Employee record {
     string name;
 };
 
-public function main((int, Employee, string) t) {
+public function main([int, Employee, string] t) {
     int id;
     Employee e;
     string dept;
-    (id, e, dept) = t;
+    [id, e, dept] = t;
 
     io:print("Id: " + string.convert(id) + ", Name: " + e.name + ", Dept: " + dept);
 }
