@@ -30,7 +30,7 @@ public function main() {
     // Value `test` will serve as a function pointer for the `foo` function.
     io:println("Answer: " + foo(10, test));
     io:println("Answer: " + foo(10, getFunctionPointer()));
-    // The function pointer as a variable.
+    // A function pointer as a variable.
     function (int, string) returns float f = getFunctionPointer();
     io:println("Answer: " + foo(10, f));
 }
