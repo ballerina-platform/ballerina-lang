@@ -106,7 +106,7 @@ public type InboundLdapAuthProvider object {
         }
         string username;
         string password;
-        (username, password) = check auth:extractUsernameAndPassword(credential);
+        [username, password] = check auth:extractUsernameAndPassword(credential);
         boolean authenticated = doAuthenticate(self, username, password);
         if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;

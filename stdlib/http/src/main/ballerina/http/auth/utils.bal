@@ -59,7 +59,7 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
 function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|InboundAuthHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
      // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -113,7 +113,7 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
 function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
     // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -161,13 +161,13 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 #
 # + context - `FilterContext` instance
 # + return - Resource level and service level authentication annotations
-function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
+function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get auth details from the resource level
     ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceRef));
-    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
+    return [resourceLevelAuthAnn, serviceLevelAuthAnn];
 }
 
 # Retrieves and return the auth annotation with the given module name, annotation name and annotation data.

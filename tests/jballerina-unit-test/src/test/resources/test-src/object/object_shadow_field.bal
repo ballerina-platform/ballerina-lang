@@ -1,6 +1,6 @@
-public function testShadowingObjectField () returns (int, string) {
+public function testShadowingObjectField () returns [int, string] {
     Person p = new Person(a = 50, n = "passed in name value");
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
 type Person object {

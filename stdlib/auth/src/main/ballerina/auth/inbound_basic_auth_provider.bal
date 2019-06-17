@@ -36,7 +36,7 @@ public type InboundBasicAuthProvider object {
         }
         string username;
         string password;
-        (username, password) = check extractUsernameAndPassword(credential);
+        [username, password] = check extractUsernameAndPassword(credential);
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.

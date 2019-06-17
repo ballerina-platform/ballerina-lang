@@ -61,11 +61,11 @@ function getObj0() returns Obj0|Obj2|Obj3|Obj4 {
     return obj0Instance;
 }
 
-function getLocals() returns ((Obj0|Obj2|Obj3|Obj4), (Obj0|Obj2|Obj3|Obj4), (Obj0|Obj2|Obj3|Obj4)) {
+function getLocals() returns [(Obj0|Obj2|Obj3|Obj4), (Obj0|Obj2|Obj3|Obj4), (Obj0|Obj2|Obj3|Obj4)] {
     Obj0|Obj2|Obj3|Obj4 localObj4 = new(5, 6, 7);
     Obj0|Obj2|Obj3|Obj4 localObj0 = new(5, j=0);
     Obj0|Obj2|Obj3|Obj4 localObj3 = new(j=2);
-    return (localObj4, localObj0, localObj3);
+    return [localObj4, localObj0, localObj3];
 }
 
 function getMixedUnionMembers() returns (Obj0|Obj2|Obj3|Obj4|int) {

@@ -36,7 +36,6 @@ function testInvalidAssignmentsWithLiterals() {
     anydata adrl = {a: 15};
     anydata adcrl = {ca: 30};
     anydata adjl = { name: "apple", color: "red", price: 40 };
-    anydata adtupl = (123, 23.45, "hello world!");
     // TODO: Enable the below scenario after https://github.com/ballerina-platform/ballerina-lang/issues/10914 is fixed
     // anydata adtl = table {
     //                        { primarykey id, name, salary },
@@ -78,10 +77,10 @@ function testInvalidMapAssignments() {
     map<Foo> mr = {};
     ad = mr;
 
-    map<(DataType, string)> mtup = {};
+    map<[DataType, string]> mtup = {};
     ad = mtup;
 
-    map<((DataType, string), Bar)> mtup2 = {};
+    map<[[DataType, string], Bar]> mtup2 = {};
     ad = mtup2;
 
     map<DataType> mu = {};
@@ -121,7 +120,7 @@ function testInvalidArrayAssignments() {
     DataType[] au = [];
     ad = au;
 
-    ((DataType, string), int, float)[] atup = [];
+    [[DataType, string], int, float][] atup = [];
     ad = atup;
 }
 
@@ -131,13 +130,13 @@ function testInvalidUnionAssignments() {
 }
 
 function testInvalidTupleAssignments() {
-    (int, float, Bar) t1 = (10, 23.45, new Bar());
+    [int, float, Bar] t1 = [10, 23.45, new Bar()];
     anydata ad = t1;
 
-    (DataType, int) t2 = ("hello world!", 10);
+    [DataType, int] t2 = ["hello world!", 10];
     ad = t2;
 
-    ((DataType, int), string, int) t3 = (("hello world!", 10), "foo", 20);
+    [[DataType, int], string, int] t3 = [["hello world!", 10], "foo", 20];
     ad = t3;
 }
 

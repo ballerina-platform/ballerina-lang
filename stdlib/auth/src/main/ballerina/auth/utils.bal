@@ -48,13 +48,13 @@ public const string AUTH_SCHEME_BEARER = "Bearer ";
 #
 # + credential - Credential value
 # + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
-public function extractUsernameAndPassword(string credential) returns (string, string)|error {
+public function extractUsernameAndPassword(string credential) returns [string, string]|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");
     } else {
-        return (decodedCredentials[0], decodedCredentials[1]);
+        return [decodedCredentials[0], decodedCredentials[1]];
     }
 }
 
