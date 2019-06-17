@@ -25,12 +25,12 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
 import org.ballerinalang.test.util.CompileResult;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -66,13 +66,13 @@ public class Services {
     }
 
     public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
-        HTTPServicesRegistry httpServicesRegistry = MockHTTPConnectorListener.getInstance()
+        RegistryHolder registryHolder = MockHTTPConnectorListener.getInstance()
                                                             .getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(registryHolder.getRegistry(), request);
         } catch (BallerinaException ex) {
             HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
@@ -87,11 +87,12 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, null);
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
+                request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();
-        Scheduler scheduler = httpServicesRegistry.getScheduler();
+        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
         Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();

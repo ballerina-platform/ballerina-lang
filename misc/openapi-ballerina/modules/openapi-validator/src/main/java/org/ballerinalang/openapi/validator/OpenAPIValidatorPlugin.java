@@ -28,8 +28,8 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -133,8 +133,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 }
                             } else if (contractAttr.equals(Constants.METHODS)) {
-                                if (keyValue.getValue() instanceof BLangArrayLiteral) {
-                                    BLangArrayLiteral methodSet = (BLangArrayLiteral) keyValue.getValue();
+                                if (keyValue.getValue() instanceof BLangListConstructorExpr.BLangArrayLiteral) {
+                                    BLangListConstructorExpr.BLangArrayLiteral methodSet = (BLangListConstructorExpr.BLangArrayLiteral) keyValue.getValue();
                                     for (BLangExpression methodExpr : methodSet.exprs) {
                                         if (methodExpr instanceof BLangLiteral) {
                                             BLangLiteral method = (BLangLiteral) methodExpr;

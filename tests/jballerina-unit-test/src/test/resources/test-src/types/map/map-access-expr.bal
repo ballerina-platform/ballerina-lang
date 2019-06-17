@@ -68,7 +68,7 @@ function testHasKeyNegative() returns (boolean) {
     return namesMap.hasKey("fname2");
 }
 
-function testGetMapValues () returns (string, string) {
+function testGetMapValues () returns [string, string] {
     json j = {"city":"Colombo", "country":"SriLanka"};
     int[] arr = [7,8,9];
     map<any> address = {city:"CA", "country":"USA"};
@@ -89,17 +89,17 @@ function testGetMapValues () returns (string, string) {
     var nam = <string> values[0];
     var jsn = <json> values[8];
     var city = <string> jsn.city;
-    return (nam, city);
+    return [nam, city];
 }
 
-function testMapRemovePositive() returns (boolean, boolean, boolean) {
+function testMapRemovePositive() returns [boolean, boolean, boolean] {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return (namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname"));
+    return [namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname")];
 }
 
-function testMapRemoveNegative() returns (boolean, boolean, boolean) {
+function testMapRemoveNegative() returns [boolean, boolean, boolean] {
     map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return (namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2"));
+    return [namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2")];
 }
 
 function testMapConcurrentAccess() returns int {

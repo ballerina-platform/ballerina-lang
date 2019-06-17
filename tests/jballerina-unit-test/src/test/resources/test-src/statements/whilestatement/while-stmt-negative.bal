@@ -11,7 +11,7 @@ function testIfStmtWithIncompatibleType() {
 	    int a = 5;
 	}
 
-	while (5, "foo") {
+	while [5, "foo"] {
 	    int a = 5;
 	}
 }

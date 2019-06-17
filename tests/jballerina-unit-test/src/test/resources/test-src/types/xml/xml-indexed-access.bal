@@ -1,8 +1,8 @@
-function testXMLAccessWithIndex() returns (xml, xml, xml) {
+function testXMLAccessWithIndex() returns [xml, xml, xml] {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
     xml x2 = x1[0].*;
 
-    return (x1[0], x2[0], x2[1]);
+    return [x1[0], x2[0], x2[1]];
 }
 
 function testXMLAccessWithOutOfIndex() returns (xml) {
@@ -17,15 +17,15 @@ function testXMLSequenceAccessWithOutOfIndex() returns (xml) {
     return x2[5]; 
 }
 
-function testLengthOfXMLSequence() returns (int, int, int, int) {
+function testLengthOfXMLSequence() returns [int, int, int, int] {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
     xml x2 = x1[0].*;
 
     xml[] x3 = [x1, x2];
-    return (x1.length(), x2.length(), x2[2].length(), x3.length());
+    return [x1.length(), x2.length(), x2[2].length(), x3.length()];
 }
 
-function testFieldBasedAccess() returns (xml, xml, xml, xml, xml, xml) {
+function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
     xml x1 = xml `<name1><fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1></name1>`;
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
@@ -37,10 +37,10 @@ function testFieldBasedAccess() returns (xml, xml, xml, xml, xml, xml) {
     xml x8 = x3.*.bar[1];
     xml x9 = x3.*.*;
 
-    return (x4, x5, x6, x7, x8, x9);
+    return [x4, x5, x6, x7, x8, x9];
 }
 
-function testFieldBasedAccessWithNamespaces() returns (xml, xml, xml, xml) {
+function testFieldBasedAccessWithNamespaces() returns [xml, xml, xml, xml] {
     xmlns "http://test.com/default";
     xmlns "http://test.com" as ns0;
 
@@ -53,5 +53,5 @@ function testFieldBasedAccessWithNamespaces() returns (xml, xml, xml, xml) {
     xml x6 = x1.^"ns0:fname";
     xml x7 = x1.^"{http://test.com}fname";
 
-    return (x4, x5, x6, x7);
+    return [x4, x5, x6, x7];
 }

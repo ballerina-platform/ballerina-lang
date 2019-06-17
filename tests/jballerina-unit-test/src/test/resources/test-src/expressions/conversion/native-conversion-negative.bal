@@ -125,13 +125,13 @@ function testEmptyMaptoStructWithoutDefaults () returns StructWithoutDefaults|er
     return testStruct;
 }
 
-function testTupleConversionFail() returns (T1, T2) | error {
+function testTupleConversionFail() returns [T1, T2] | error {
     T1 a = {};
     T1 b = {};
-    (T1, T1) x = (a, b);
-    (T1, T2) x2;
+    [T1, T1] x = [a, b];
+    [T1, T2] x2;
     anydata y = x;
-    var result = (T1, T2).convert(y);
+    var result = [T1, T2].convert(y);
     return result;
 }
 

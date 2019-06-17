@@ -58,6 +58,7 @@ public type Function record {|
     ChannelDetail[] workerChannels;
     BType? receiverType;
     boolean restParamExist;
+    AnnotationAttachment?[] annotAttachments = [];
 |};
 
 public type BasicBlock record {|
@@ -79,6 +80,22 @@ public type ChannelDetail record {|
 
 public type Name record {|
     string value = "";
+|};
+
+public type AnnotationAttachment record {|
+    ModuleID moduleId;
+    DiagnosticPos pos;
+    Name annotTagRef;
+    AnnotationValue?[] annotValues = [];
+|};
+
+public type AnnotationValue record {|
+    map<AnnotationValueEntry> valueEntryMap = {};
+|};
+
+public type AnnotationValueEntry record {|
+    BType literalType;
+    anydata value;
 |};
 
 public const BINARY_ADD = "ADD";
