@@ -46,7 +46,7 @@ function basicMatch(any a) {
 
 // The following method uses structured tuple match patterns with different sizes along with the type guards. The given
 // `match` expression will be checked for "isLike" relationship and also it will check the type guard for the pattern
-// to match during the runtime.
+// to match at runtime.
 function matchWithTypeGuard(any b) {
     match b {
         // This pattern check is for the tuple type of two variables and types has to be `string` and `int`.
