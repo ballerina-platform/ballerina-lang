@@ -59,8 +59,6 @@ import java.util.List;
 
 import javax.sql.rowset.CachedRowSet;
 
-import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COLUMN_TYPE_NAME;
-
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
  * related to ballerina.data.actions.sql connector.
@@ -76,6 +74,7 @@ public class SQLDataIterator extends TableIterator {
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
     private String sourceDatabase;
+    private static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,

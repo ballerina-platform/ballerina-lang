@@ -48,16 +48,16 @@ function commnetFunction() {
 // 5) Array grow and size change test
 }
 
-function testDefaultValueOfIntArrayElement() returns (int, int, int){
+function testDefaultValueOfIntArrayElement() returns [int, int, int]{
     int[] a = [];
     a[5] = 45;
-    return (a[0], a[1], a[5]);
+    return [a[0], a[1], a[5]];
 }
 
-function testDefaultValueOfJsonArrayElement() returns (json, json, json) {
+function testDefaultValueOfJsonArrayElement() returns [json, json, json] {
     json[] j = [];
     j[5] = {name:"supun"};
-    return (j[0], j[1], j[5]);
+    return [j[0], j[1], j[5]];
 }
 
 function testArrayGrowth () returns (int) {

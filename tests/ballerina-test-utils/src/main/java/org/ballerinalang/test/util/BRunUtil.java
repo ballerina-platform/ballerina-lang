@@ -338,6 +338,7 @@ public class BRunUtil {
                     break;
                 case TypeTags.UNION_TAG:
                 case TypeTags.ANY_TAG:
+                case TypeTags.FINITE_TYPE_TAG:
                 case TypeTags.JSON_TAG:
                     typeClazz = Object.class;
                     break;
@@ -467,7 +468,9 @@ public class BRunUtil {
                             jvmArray.add(i, array.getFloat(i));
                             break;
                         default:
-                            throw new RuntimeException("Function signature type '" + type + "' is not supported");
+                            BRefType<?> refValue = array.getRefValue(i);
+                            jvmArray.add(i, getJVMValue(refValue.getType(), refValue));
+                            break;
                     }
                 }
                 return jvmArray;
@@ -475,6 +478,7 @@ public class BRunUtil {
             case TypeTags.JSON_TAG:
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
+            case TypeTags.FINITE_TYPE_TAG:
                 return getJVMValue(value.getType(), value);
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
@@ -825,6 +829,7 @@ public class BRunUtil {
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key), bvmValueMap));
                 }
+                bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
             case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
                 TableValue jvmTable = (TableValue) value;

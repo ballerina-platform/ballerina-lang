@@ -12,11 +12,11 @@ function testPut(string key, string value) returns (int) {
     return cache.size();
 }
 
-function testGettingExistingValue(string key, string value) returns (int, string) {
+function testGettingExistingValue(string key, string value) returns [int, string] {
     cache:Cache cache = new;
     cache.put(key, value);
     string returnValue = <string>cache.get(key);
-    return (cache.size(), returnValue);
+    return [cache.size(), returnValue];
 }
 
 function testGettingNonExistingValue(string key) returns any? {
@@ -32,7 +32,7 @@ function testRemove(string key, string value) returns (int) {
     return cache.size();
 }
 
-function testCacheEviction1() returns (string[], int) {
+function testCacheEviction1() returns [string[], int] {
     cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
@@ -55,10 +55,10 @@ function testCacheEviction1() returns (string[], int) {
     cache.put("J", "J");
     runtime:sleep(20);
     cache.put("K", "K");
-    return (cache.keys(), cache.size());
+    return [cache.keys(), cache.size()];
 }
 
-function testCacheEviction2() returns (string[], int) {
+function testCacheEviction2() returns [string[], int] {
     cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
@@ -83,10 +83,10 @@ function testCacheEviction2() returns (string[], int) {
     cache.put("J", "J");
     runtime:sleep(20);
     cache.put("K", "K");
-    return (cache.keys(), cache.size());
+    return [cache.keys(), cache.size()];
 }
 
-function testCacheEviction3() returns (string[], int) {
+function testCacheEviction3() returns [string[], int] {
     cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
@@ -113,10 +113,10 @@ function testCacheEviction3() returns (string[], int) {
     cache.put("J", "J");
     runtime:sleep(20);
     cache.put("K", "K");
-    return (cache.keys(), cache.size());
+    return [cache.keys(), cache.size()];
 }
 
-function testCacheEviction4() returns (string[], int) {
+function testCacheEviction4() returns [string[], int] {
     cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 5, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
@@ -138,7 +138,7 @@ function testCacheEviction4() returns (string[], int) {
     runtime:sleep(20);
     cache.put("F", "F");
     runtime:sleep(20);
-    return (cache.keys(), cache.size());
+    return [cache.keys(), cache.size()];
 }
 
 function testExpiredCacheAccess() returns (int) {

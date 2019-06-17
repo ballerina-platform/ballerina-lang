@@ -28,6 +28,7 @@ import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
  * Get the ID of the connection.
@@ -53,6 +54,6 @@ public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoin
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         MockHTTPConnectorListener httpListener = MockHTTPConnectorListener.getInstance();
         httpListener.setHttpServicesRegistry(((Long) listener.get(HttpConstants.ENDPOINT_CONFIG_PORT)).intValue(),
-                                             httpServicesRegistry);
+                                             httpServicesRegistry, listener.getMapValue(SERVICE_ENDPOINT_CONFIG));
     }
 }
