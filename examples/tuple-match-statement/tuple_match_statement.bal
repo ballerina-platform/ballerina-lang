@@ -32,7 +32,7 @@ public function main() {
 // will be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
-        // This pattern check is for the tuple type of three variables and types can be of any.
+        // This pattern check is for a tuple type of three variables and types can be of any.
         var (s, i, b) => io:println("Matched with three vars : "
                                     + io:sprintf("%s", a));
         // This pattern check is for the tuple type of two variables and types can be of any.
