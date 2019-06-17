@@ -36,7 +36,7 @@ public function main() {
     };
 
     // Assigns the `person` value to an `any`-typed variable called `anyValue`.
-    // The type of the value held by `anyValue` is determined during runtime.
+    // The type of the value held by `anyValue` is determined at runtime.
     any anyValue = person;
 
     // Invokes the `.clone()` built-in method. The return type is either `Person` or `error`. `error` could be
