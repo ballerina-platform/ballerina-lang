@@ -13,10 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 public type PackageParser object {
     BirChannelReader reader;
     map<VariableDcl> globalVarMap;
+    boolean addInterimBB = true;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -96,6 +96,10 @@ public type PackageParser object {
         var name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
+
+        // Read annotation Attachments
+        AnnotationAttachment?[] annotAttachments = self.parseAnnotAttachments();
+
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
 
@@ -172,7 +176,8 @@ public type PackageParser object {
             typeValue: sig,
             workerChannels:workerChannels,
             receiverType : receiverType,
-            restParamExist : restParamExist
+            restParamExist : restParamExist,
+            annotAttachments: annotAttachments
         };
     }
 
@@ -221,11 +226,17 @@ public type PackageParser object {
         BasicBlock?[] basicBlocks = [];
         var numBB = self.reader.readInt32();
         int i = 0;
+        int j = 0;
         while (i < numBB) {
-            basicBlocks[i] = bodyParser.parseBB();
+            BasicBlock[] blocks = bodyParser.parseBB(self.addInterimBB);
+            basicBlocks[j] = blocks[0];
+            j += 1;
+            if (self.addInterimBB) {
+                basicBlocks[j] = blocks[1];
+                j += 1;
+            }
             i += 1;
         }
-
         return basicBlocks;
     }
 
@@ -233,9 +244,20 @@ public type PackageParser object {
         ErrorEntry?[] errorEntries = [];
         var numEE = self.reader.readInt32();
         int i = 0;
+        int j = 0;
         while (i < numEE) {
-            errorEntries[i] = bodyParser.parseEE();
-            i += 1;
+            errorEntries[j] = bodyParser.parseEE();
+            
+            if (self.addInterimBB) {
+                ErrorEntry? interimEntry = errorEntries[j].clone();
+                j += 1;
+                if (interimEntry is ErrorEntry) {
+                    interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
+                    errorEntries[j] = interimEntry;                    
+                }
+            }
+            j += 1;
+            i += 1;   
         }
         return errorEntries;
     }
@@ -312,7 +334,78 @@ public type PackageParser object {
         };
     }
 
+    function parseAnnotAttachments() returns AnnotationAttachment?[] {
+        AnnotationAttachment?[] annotAttachments = [];
+        int annotNoBytes_ignored = self.reader.readInt64();
+        int noOfAnnotAttachments = self.reader.readInt32();
+        if (noOfAnnotAttachments == 0) {
+            return annotAttachments;
+        }
+
+        foreach var i in 0..<noOfAnnotAttachments {
+            annotAttachments[annotAttachments.length()] = self.parseAnnotAttachment();
+        }
+
+        return annotAttachments;
+    }
+
+    function parseAnnotAttachment() returns AnnotationAttachment {
+        // Read ModuleID
+        ModuleID modId = self.reader.readModuleIDCpRef();
+        // Read DiagnosticPos
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
+        // Read AnnotTagRef
+        string annotTagRef = self.reader.readStringCpRef();
+        // Read AnnotationValue values
+        AnnotationValue?[] annotValues = [];
+        int noOfAnnotValue = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValue {
+            annotValues[annotValues.length()] = self.parseAnnotAttachValue();
+        }
+
+        return {
+            moduleId: modId,
+            pos: pos,
+            annotTagRef: {value:annotTagRef},
+            annotValues:annotValues
+        };
+    }
+
+    function parseAnnotAttachValue() returns AnnotationValue {
+        AnnotationValue annotValue = {};
+        var noOfAnnotValueEntries = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValueEntries {
+            var key = self.reader.readStringCpRef();
+            var bType = self.reader.readTypeCpRef();
+            var value = parseLiteralValue(self.reader, bType);
+            AnnotationValueEntry valueEntry = {literalType: bType, value: value};
+            annotValue.valueEntryMap[key] = valueEntry;
+        }
+        return annotValue;
+    }
+
 };
+
+function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata {
+    anydata value;
+    if (bType is BTypeByte) {
+        value = reader.readIntCpRef();
+    } else if (bType is BTypeInt) {
+        value = reader.readByteCpRef();
+    } else if (bType is BTypeString) {
+        value = reader.readStringCpRef();
+    } else if (bType is BTypeDecimal) {
+        value = reader.readStringCpRef();
+    } else if (bType is BTypeBoolean) {
+        value = reader.readBoolean();
+    } else if (bType is BTypeFloat) {
+        value = reader.readFloatCpRef();
+    } else {
+        error err = error("unsupported literal value type in annotation attachment value", {"type":bType});
+        panic err;
+    }
+    return value;
+}
 
 public function parseVarKind(BirChannelReader reader) returns VarKind {
     int b = reader.readInt8();

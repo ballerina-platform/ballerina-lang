@@ -49,7 +49,7 @@ function testFreezeOnArrayWithoutAnydata() {
 function testFreezeOnTupleWithoutAnydata() {
     PersonObj po = new;
     PersonObjTwo po2 = new;
-    (PersonObj|PersonObjTwo, PersonObjTwo) t1 = (po, po2);
+    [PersonObj|PersonObjTwo, PersonObjTwo] t1 = [po, po2];
     _ = t1.freeze();
 }
 
@@ -62,16 +62,16 @@ function testInvalidAssignmentWithFreeze() {
     map<string|PersonObj> m = {};
     map<string|PersonObj> m1 = m.freeze();
 
-    map<(string|PersonObj, FreezeAllowedDepartment|float)> m2 = {};
-    map<(any, any)> m3 = m2.freeze();
+    map<[string|PersonObj, FreezeAllowedDepartment|float]> m2 = {};
+    map<[any, any]> m3 = m2.freeze();
 
     (boolean|PersonObj|float)?[] a1 = [];
     (boolean|PersonObj|float)?[] a2 = a1.freeze();
 
     any[] a3 = a1.freeze();
 
-    (string|PersonObj, FreezeAllowedDepartment|float) t1 = ("", 0.0);
-    (string|PersonObj, FreezeAllowedDepartment|float) t2 = t1.freeze();
+    [string|PersonObj, FreezeAllowedDepartment|float] t1 = ["", 0.0];
+    [string|PersonObj, FreezeAllowedDepartment|float] t2 = t1.freeze();
 
     FreezeAllowedDepartment fd = { head: "" };
     FreezeAllowedDepartment fd2 = fd.freeze();

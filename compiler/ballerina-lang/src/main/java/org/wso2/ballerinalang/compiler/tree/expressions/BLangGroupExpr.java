@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,30 +17,25 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * Implementation of {@link BracedOrTupleExpression}.
+ * Implementation of {@link GroupExpressionNode}.
  *
- * @since 0.966.0
+ * @since 1.0
  */
-public class BLangBracedOrTupleExpr extends BLangExpression implements BracedOrTupleExpression {
+public class BLangGroupExpr extends BLangExpression implements GroupExpressionNode {
 
-    public List<BLangExpression> expressions = new ArrayList<>();
-    public boolean isBracedExpr = false;
+    public BLangExpression expression;
     public boolean isTypedescExpr = false;
     public BType typedescType = null;
 
     @Override
-    public List<BLangExpression> getExpressions() {
-        return expressions;
+    public ExpressionNode getExpression() {
+        return expression;
     }
 
     @Override
@@ -50,11 +45,11 @@ public class BLangBracedOrTupleExpr extends BLangExpression implements BracedOrT
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.BRACED_TUPLE_EXPR;
+        return NodeKind.GROUP_EXPR;
     }
 
     @Override
     public String toString() {
-        return "(" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(",")) + ")";
+        return "(" + expression.toString() + ")";
     }
 }

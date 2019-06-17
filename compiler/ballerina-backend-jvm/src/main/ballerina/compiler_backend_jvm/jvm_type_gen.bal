@@ -921,7 +921,8 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BJSONType) {
+               bType is bir:BJSONType ||
+               bType is bir:BFiniteType) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
         return io:sprintf("L%s;", FUNCTION_POINTER);

@@ -36,35 +36,35 @@ type EmployeeObj object {
 //-----------------------Tuple Type Stamp Negative Test cases----------------------------------------------------------
 
 function stampTupleToRecord() returns Employee {
-    (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
+    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
     Employee returnValue = Employee.stamp(tupleValue);
     return returnValue;
 }
 
 function stampTupleToJSON() returns json {
-    (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
+    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
     json jsonValue = json.stamp(tupleValue);
     return jsonValue;
 }
 
 function stampTupleToXML() returns xml {
-    (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
+    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
     xml xmlValue = xml.stamp(tupleValue);
     return xmlValue;
 }
 
 function stampTupleToObject() returns EmployeeObj {
-    (string, int) tupleValue = ("Mohan", 30);
+    [string, int] tupleValue = ["Mohan", 30];
 
     EmployeeObj objectValue = EmployeeObj.stamp(tupleValue);
     return objectValue;
 }
 
 function stampTupleToMap() returns map<any> {
-    (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
+    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
     map<any> mapValue = map<any>.stamp(tupleValue);
     return mapValue;
