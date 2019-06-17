@@ -26,7 +26,7 @@ public function main() {
             int i = value;
             io:println("- value is an int: ", i);
         } else {
-            // The `value` is `string` or `boolean` here.
+            // `value` is `string` or `boolean` here.
             string|boolean sb = value;
             io:println("- value is string|boolean: ", sb);
         }
