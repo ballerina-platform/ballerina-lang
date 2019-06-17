@@ -15,7 +15,7 @@ function test(int x, string s) returns float {
     return f;
 }
 
-// The function pointer as a parameter. Uses the `.call()` method to invoke the function using the function pointer.
+// A function pointer as a parameter. Uses the `.call()` method to invoke the function using the function pointer.
 function foo(int x, function (int, string) returns float bar)
              returns float {
     return x * bar.call(10, "2");
