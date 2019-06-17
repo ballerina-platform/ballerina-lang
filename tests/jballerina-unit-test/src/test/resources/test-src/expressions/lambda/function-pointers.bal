@@ -81,14 +81,14 @@ public function getCount(function (int , int ) returns (int) sumFunction, string
     return first + ": " + sumFunction.call(4, 2) + " " + last;
 }
 
-function testFunctionPointerAsFuncParam() returns (int, string) {
+function testFunctionPointerAsFuncParam() returns [int, string] {
     function (int , int ) returns (int) sumFunction = function (int a, int b) returns (int) {
                                int value =  a + b;
                                return value;
                            };
 
     string s = getCount(sumFunction, "Total", "USD");
-    return (sumFunction.call(5, 8), s);
+    return [sumFunction.call(5, 8), s];
 }
 
 function testAnyToFuncPointerConversion_1() returns (int|error) {

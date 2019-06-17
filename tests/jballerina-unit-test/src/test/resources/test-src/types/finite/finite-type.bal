@@ -171,8 +171,8 @@ function testFiniteTypesWithUnionCaseThree() returns int {
 
 function testFiniteTypesWithTuple() returns State {
    State onState = "on";
-   (State, int ) b = (onState, 20);
-   var (i, j) = b;
+   [State, int ] b = [onState, 20];
+   var [i, j] = b;
    return i;
 }
 
@@ -189,19 +189,19 @@ function testTypeAliasing() returns string {
 
 type MyType int|string;
 
-function testTypeAliasingCaseOne() returns (MyType,MyType) {
+function testTypeAliasingCaseOne() returns [MyType,MyType] {
      MyType a = 100;
      MyType b = "hundred";
-     return (a,b);
+     return [a,b];
 }
 
 public type ParamTest string|int;
 
-function testTypeDefinitionWithVarArgs() returns (ParamTest, ParamTest) {
+function testTypeDefinitionWithVarArgs() returns [ParamTest, ParamTest] {
     string s1 = "Anne";
     ParamTest p1 = testVarArgs("John");
     ParamTest p2 = testVarArgs(s1);
-    return (p1, p2);
+    return [p1, p2];
 }
 
 function testVarArgs(ParamTest... p1) returns ParamTest {
@@ -210,9 +210,9 @@ function testVarArgs(ParamTest... p1) returns ParamTest {
 
 type ArrayCustom int[];
 
-function testTypeDefinitionWithArray() returns (int, int) {
+function testTypeDefinitionWithArray() returns [int, int] {
     ArrayCustom val = [34, 23];
-    return (val.length() , val[1]);
+    return [val.length() , val[1]];
 }
 
 type FuncType function (string) returns int;
@@ -243,11 +243,11 @@ const string SCON = "s";
 
 type FiniteType ICON|SCON;
 
-function testFiniteTypeWithConstants() returns (FiniteType, FiniteType) {
+function testFiniteTypeWithConstants() returns [FiniteType, FiniteType] {
     FiniteType f = 5;
     FiniteType s = "s";
 
-    return (f,s);
+    return [f,s];
 }
 
 const byte BCONST = 5;
@@ -257,10 +257,10 @@ const decimal DCONST = 5;
 
 type Number DCONST|FCONST|ICONST|BCONST;
 
-function testFiniteTypeWithNumericConstants() returns (Number, Number) {
+function testFiniteTypeWithNumericConstants() returns [Number, Number] {
     Number n1 = 5;
     Number n2 = 5.0;
-    return (n1, n2);
+    return [n1, n2];
 }
 
 type ByteType BCONST;
@@ -452,11 +452,11 @@ function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
 
 type t 1.0f|1.0d;
 type t2 2.22f|3.33d;
-function testFiniteTypesWithDiscriminatedMembers() returns (any, any, any, any, any) {
+function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, any] {
     t a = 1.0f;
     t b = 1.0d;
     t|t2 c = 2.22;
     t|t2 d = 2.22f;
     t|t2 e = 3.33d;
-    return (a, b, c, d, e);
+    return [a, b, c, d, e];
 }

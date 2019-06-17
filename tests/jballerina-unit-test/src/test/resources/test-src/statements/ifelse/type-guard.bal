@@ -313,16 +313,16 @@ function getUpdatedString(string s) returns string {
 type func function() returns boolean;
 int fPtrFlag = 0;
 
-function testFuncPtrTypeInferenceInElseGuard() returns (boolean, int) {
+function testFuncPtrTypeInferenceInElseGuard() returns [boolean, int] {
     func? f = function () returns boolean {
         fPtrFlag = 100;
         return true;
     };
 
     if (f is ()) {
-        return (false, fPtrFlag);
+        return [false, fPtrFlag];
     } else {
-        return (f.call(), fPtrFlag);
+        return [f.call(), fPtrFlag];
     }
 }
 
@@ -533,7 +533,7 @@ error e2 = error("e2");
 error? errorW1 = e1;
 error? errorW2 = e2;
 
-function testTypeGuardForGlobalVars() returns (string, string?) {
+function testTypeGuardForGlobalVars() returns [string, string?] {
     string w1ErrMsg = "";
     string? w2ErrMsg = "";
     if (errorW1 is error) {
@@ -545,7 +545,7 @@ function testTypeGuardForGlobalVars() returns (string, string?) {
     if (errorW2 is error) {
         w2ErrMsg = errorW2.reason();
     }
-    return (w1ErrMsg, w2ErrMsg);
+    return [w1ErrMsg, w2ErrMsg];
 }
 
 type FooBarOneTwoTrue "foo"|"bar"|1|2.0|true;
@@ -653,72 +653,72 @@ type FooBarInt "foo"|"bar"|int;
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_1() returns boolean {
     FooBarOneTwoBoolean f = "foo";
-    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    [string, FooBarBaz|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperOne(f);
     return s == "FooBarBaz" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_2() returns boolean {
     FooBarOneTwoBoolean f = 2.0;
-    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    [string, FooBarBaz|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperOne(f);
     return s == "OneTwo" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_3() returns boolean {
     FooBarOneTwoBoolean f = true;
-    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    [string, FooBarBaz|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperOne(f);
     return s == "boolean" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_4() returns boolean {
     FooBarOneTwoBoolean f = "bar";
-    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    [string, FooBarInt|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperTwo(f);
     return s == "FooBarInt" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_5() returns boolean {
     FooBarOneTwoBoolean f = 1;
-    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    [string, FooBarInt|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperTwo(f);
     return s == "FooBarInt" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_6() returns boolean {
     FooBarOneTwoBoolean f = 2.0;
-    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    [string, FooBarInt|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperTwo(f);
     return s == "OneTwo" && f == v;
 }
 
 function testFiniteTypeInUnionAsComplexFiniteTypes_7() returns boolean {
     FooBarOneTwoBoolean f = false;
-    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    [string, FooBarInt|OneTwo|boolean] [s, v] = finiteTypeAsComplexFiniteTypesHelperTwo(f);
     return s == "boolean" && f == v;
 }
 
-function finiteTypeAsComplexFiniteTypesHelperOne(FooBarOneTwoBoolean f) returns (string, FooBarBaz|OneTwo|boolean) {
+function finiteTypeAsComplexFiniteTypesHelperOne(FooBarOneTwoBoolean f) returns [string, FooBarBaz|OneTwo|boolean] {
     if (f is FooBarBaz) {
         FooBarBaz x = f;
-        return ("FooBarBaz", x);
+        return ["FooBarBaz", x];
     } else {
         if (f is OneTwo) {
             OneTwo x = f;
-            return ("OneTwo", x);
+            return ["OneTwo", x];
         } else {
             boolean x = f;
-            return ("boolean", x);
+            return ["boolean", x];
         }
     }
 }
 
-function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns (string, FooBarInt|OneTwo|boolean) {
+function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns [string, FooBarInt|OneTwo|boolean] {
     if (f is FooBarInt) {
         FooBarInt x = f;
-        return ("FooBarInt", x);
+        return ["FooBarInt", x];
     } else {
         if (f is OneTwo) {
             OneTwo x = f;
-            return ("OneTwo", x);
+            return ["OneTwo", x];
         } else {
             boolean x = f;
-            return ("boolean", x);
+            return ["boolean", x];
         }
     }
 }
@@ -818,9 +818,9 @@ type IntTen 10;
 
 function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
     FooBarTen f = "bar";
-    (FooBarTen, FloatFive, boolean) g = (f, FIVE, true);
+    [FooBarTen, FloatFive, boolean] g = [f, FIVE, true];
     any a = g;
-    if (a is (string|int|xml, float, boolean)) {
+    if (a is [string|int|xml, float, boolean]) {
         return a === g;
     }
     return false;
@@ -828,9 +828,9 @@ function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
 
 function testFiniteTypeAsBroaderTypeInStructureNegative() returns boolean {
     FooBarTen f = "bar";
-    (string|float|int, FloatFive, boolean) g = (f, FIVE, true);
+    [string|float|int, FloatFive, boolean] g = [f, FIVE, true];
     any a = g;
-    if (a is (string|int|xml, float, boolean)) {
+    if (a is [string|int|xml, float, boolean]) {
         return true;
     }
     return false;
@@ -903,7 +903,7 @@ type Details record {
 type MyError error<ERR_REASON, Details>;
 type MyErrorTwo error<ERR_REASON_TWO, Details>;
 
-function testTypeGuardForCustomErrorPositive() returns (boolean, boolean) {
+function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     Details d = { message: "detail message" };
     MyError e3 = error(ERR_REASON, d);
     MyErrorTwo e4 = error(ERR_REASON_TWO, d);
@@ -923,7 +923,7 @@ function testTypeGuardForCustomErrorPositive() returns (boolean, boolean) {
     }
 
     boolean isGenericError = a1 is error && a2 is error;
-    return (isSpecificError, isGenericError);
+    return [isSpecificError, isGenericError];
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {

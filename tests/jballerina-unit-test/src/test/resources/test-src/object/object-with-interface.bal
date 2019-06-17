@@ -1,7 +1,7 @@
 
-public function testObjectWithInterface () returns (int, string, int, string) {
+public function testObjectWithInterface () returns [int, string, int, string] {
     Person p = new Employee(100, 10, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 
@@ -12,9 +12,9 @@ type Person abstract object {
     int year = 50;
     string month = "february";
 
-    function attachFunc1(int add, string value1) returns (int, string);
+    function attachFunc1(int add, string value1) returns [int, string];
 
-    function attachInterface(int add, string value1) returns (int, string);
+    function attachInterface(int add, string value1) returns [int, string];
 };
 
 type Employee object {
@@ -31,16 +31,16 @@ type Employee object {
         self.month = val1 + " uuuu";
     }
 
-    function attachFunc1(int add, string value1) returns (int, string) {
+    function attachFunc1(int add, string value1) returns [int, string] {
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 
-    function attachInterface(int add, string value1) returns (int, string){
+    function attachInterface(int add, string value1) returns [int, string]{
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 };
 

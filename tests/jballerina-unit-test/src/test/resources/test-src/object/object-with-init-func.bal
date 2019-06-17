@@ -1,16 +1,16 @@
-public function testObjectWithSimpleInit () returns (int, string, int, string) {
+public function testObjectWithSimpleInit () returns [int, string, int, string] {
     Person p = new Person(99, 7);
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithSimpleInitWithDiffValues () returns (int, string, int, string) {
+public function testObjectWithSimpleInitWithDiffValues () returns [int, string, int, string] {
     Person p = new Person(675, 27, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithoutRHSType () returns (int, string, int, string) {
+public function testObjectWithoutRHSType () returns [int, string, int, string] {
     Person p = new (675, 27, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 

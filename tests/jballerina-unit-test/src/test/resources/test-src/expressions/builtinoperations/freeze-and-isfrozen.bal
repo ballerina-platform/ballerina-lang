@@ -17,37 +17,37 @@
 final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
 final string FREEZE_SUCCESSFUL = "freeze successful";
 
-function testBooleanFreeze(boolean a) returns (boolean, boolean) {
+function testBooleanFreeze(boolean a) returns [boolean, boolean] {
     boolean b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testIntFreeze(int a) returns (boolean, boolean) {
+function testIntFreeze(int a) returns [boolean, boolean] {
     int b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testByteFreeze(byte a) returns (boolean, boolean) {
+function testByteFreeze(byte a) returns [boolean, boolean] {
     byte b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testFloatFreeze(float a) returns (boolean, boolean) {
+function testFloatFreeze(float a) returns [boolean, boolean] {
     float b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testDecimalFreeze(decimal a) returns (boolean, boolean) {
+function testDecimalFreeze(decimal a) returns [boolean, boolean] {
     decimal b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testStringFreeze(string a) returns (boolean, boolean) {
+function testStringFreeze(string a) returns [boolean, boolean] {
     string b = a.freeze();
-    return (a == b, (a.isFrozen() && b.isFrozen()));
+    return [a == b, (a.isFrozen() && b.isFrozen())];
 }
 
-function testBasicTypeNullableUnionFreeze() returns (boolean, boolean) {
+function testBasicTypeNullableUnionFreeze() returns [boolean, boolean] {
     int? i = 5;
     anydata j = i.freeze();
     boolean equals = i == j;
@@ -79,10 +79,10 @@ function testBasicTypeNullableUnionFreeze() returns (boolean, boolean) {
     equals = m == j;
     isFrozen = m.isFrozen() && j.isFrozen();
 
-    return (equals, isFrozen);
+    return [equals, isFrozen];
 }
 
-function testBasicTypeUnionFreeze() returns (boolean, boolean) {
+function testBasicTypeUnionFreeze() returns [boolean, boolean] {
     int|string i = 5;
     anydata j = i.freeze();
     boolean equals = i == j;
@@ -92,7 +92,7 @@ function testBasicTypeUnionFreeze() returns (boolean, boolean) {
     boolean|float|int|decimal l = k.freeze();
     equals = l == k;
     isFrozen = k.isFrozen() && l.isFrozen();
-    return (equals, isFrozen);
+    return [equals, isFrozen];
 }
 
 function testBasicTypesAsJsonFreeze() returns boolean {
@@ -113,12 +113,12 @@ function testBasicTypesAsJsonFreeze() returns boolean {
     return equals && a == b;
 }
 
-function testIsFrozenOnStructuralTypes() returns (boolean, boolean)|error {
+function testIsFrozenOnStructuralTypes() returns [boolean, boolean]|error {
     Employee e = { id: 0, name: "Em" };
     map<string|int|()|Employee> m = { one: "1", two: 2, three: (), rec: e };
 
     anydata[] a = [1, "hi", 2.0, false, m, (), e];
-    (int, string, Employee) t = (1, "Em", e);
+    [int, string, Employee] t = [1, "Em", e];
     
     json j = { name: "Em", dataType: "json" };
     xml x = xml `<bookItem>The Lost World</bookItem>`;
@@ -142,7 +142,7 @@ function testIsFrozenOnStructuralTypes() returns (boolean, boolean)|error {
     map<anydata> m2 = m1.freeze();
     boolean isFrozenAfterFreeze = m.isFrozen() && a.isFrozen() && m1.isFrozen() && e.isFrozen() && t.isFrozen() &&
                                     m2.isFrozen() && j.isFrozen() && x.isFrozen() && empTable.isFrozen();
-    return (isFrozenBeforeFreeze, isFrozenAfterFreeze);
+    return [isFrozenBeforeFreeze, isFrozenAfterFreeze];
 }
 
 function testFrozenIntArrayModification() {
@@ -341,7 +341,7 @@ function testFrozenAnyArrayElementUpdate() returns error? {
 
 function testFrozenTupleUpdate() {
     Employee e1 = { name: "Em", id: 1000 };
-    (int, Employee) t1 = (1, e1);
+    [int, Employee] t1 = [1, e1];
     _ = t1.freeze();
     Employee e2 = { name: "Zee", id: 1200 };
     t1[1] = e2;
@@ -396,7 +396,7 @@ function testSimpleUnionFreeze() returns boolean {
     return u1.isFrozen() && u2.isFrozen();
 }
 
-function testInvalidComplexMapFreeze() returns (string, boolean) {
+function testInvalidComplexMapFreeze() returns [string, boolean] {
     map<string|PersonObj> m1 = {};
     PersonObj p = new("John");
 
@@ -405,10 +405,10 @@ function testInvalidComplexMapFreeze() returns (string, boolean) {
 
     map<string|PersonObj>|error res = m1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, m1.isFrozen());
+    return [errorOrSuccessMsg, m1.isFrozen()];
 }
 
-function testInvalidComplexArrayFreeze() returns (string, boolean) {
+function testInvalidComplexArrayFreeze() returns [string, boolean] {
     (string|typedesc|float)?[] a1 = [];
     typedesc p = int;
 
@@ -418,10 +418,10 @@ function testInvalidComplexArrayFreeze() returns (string, boolean) {
 
     (string|typedesc|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, a1.isFrozen());
+    return [errorOrSuccessMsg, a1.isFrozen()];
 }
 
-function testInvalidComplexRecordFreeze() returns (string, boolean) {
+function testInvalidComplexRecordFreeze() returns [string, boolean] {
     PersonObj p = new("Anne");
     PersonObj p1 = new("Harry");
     PersonObj p2 = new("John");
@@ -429,28 +429,28 @@ function testInvalidComplexRecordFreeze() returns (string, boolean) {
 
     FreezeAllowedDepartment|error res = fd.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, fd.isFrozen());
+    return [errorOrSuccessMsg, fd.isFrozen()];
 }
 
-function testInvalidComplexTupleFreeze() returns (string, boolean) {
+function testInvalidComplexTupleFreeze() returns [string, boolean] {
     PersonObj p = new("John");
-    (int, string|PersonObj|float, boolean) t1 = (1, p, true);
+    [int, string|PersonObj|float, boolean] t1 = [1, p, true];
 
     any|error res = t1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, t1.isFrozen());
+    return [errorOrSuccessMsg, t1.isFrozen()];
 }
 
-function testInvalidComplexUnionFreeze() returns (string, boolean) {
+function testInvalidComplexUnionFreeze() returns [string, boolean] {
     PersonObj p = new("John");
     int|Dept|PersonObj u1 = p;
 
     int|Dept|PersonObj|error res = u1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, u1.isFrozen());
+    return [errorOrSuccessMsg, u1.isFrozen()];
 }
 
-function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
+function testInvalidSelfReferencingValueFreeze() returns [string, boolean] {
     map<any> m = { one: 1 };
     map<any> m2 = { two: 2 };
     m.m2 = m2;
@@ -461,10 +461,10 @@ function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
 
     map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
+    return [errorOrSuccessMsg, m.isFrozen() || m2.isFrozen()];
 }
 
-function testValidComplexMapFreeze() returns (string, boolean) {
+function testValidComplexMapFreeze() returns [string, boolean] {
     map<string|PersonObj> m1 = {};
 
     m1.one = "one";
@@ -472,10 +472,10 @@ function testValidComplexMapFreeze() returns (string, boolean) {
 
     map<string|PersonObj>|error res = m1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, m1.isFrozen());
+    return [errorOrSuccessMsg, m1.isFrozen()];
 }
 
-function testValidComplexArrayFreeze() returns (string, boolean) {
+function testValidComplexArrayFreeze() returns [string, boolean] {
     (string|PersonObj|float)?[] a1 = [];
 
     a1[0] = 2.0;
@@ -483,35 +483,35 @@ function testValidComplexArrayFreeze() returns (string, boolean) {
 
     (string|PersonObj|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, a1.isFrozen());
+    return [errorOrSuccessMsg, a1.isFrozen()];
 }
 
-function testValidComplexRecordFreeze() returns (string, boolean) {
+function testValidComplexRecordFreeze() returns [string, boolean] {
     FreezeAllowedDepartment fd = { head: "John", e1: 234, e2: 10 };
 
     any|error res = fd.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, fd.isFrozen());
+    return [errorOrSuccessMsg, fd.isFrozen()];
 }
 
-function testValidComplexTupleFreeze() returns (string, boolean) {
-    (int, string|PersonObj|float, boolean) t1 = (1, 3.0, true);
+function testValidComplexTupleFreeze() returns [string, boolean] {
+    [int, string|PersonObj|float, boolean] t1 = [1, 3.0, true];
 
-    (int, string|PersonObj|float, boolean)|error res = t1.freeze();
+    [int, string|PersonObj|float, boolean]|error res = t1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, t1.isFrozen());
+    return [errorOrSuccessMsg, t1.isFrozen()];
 }
 
-function testValidComplexUnionFreeze() returns (string, boolean) {
+function testValidComplexUnionFreeze() returns [string, boolean] {
     Dept d = { code: "FN101", name: "Finance" };
     int|Dept|PersonObj u1 = d;
 
     int|Dept|PersonObj|error res = u1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, u1.isFrozen());
+    return [errorOrSuccessMsg, u1.isFrozen()];
 }
 
-function testValidSelfReferencingValueFreeze() returns (string, boolean) {
+function testValidSelfReferencingValueFreeze() returns [string, boolean] {
     map<any> m = { one: 1 };
     map<any> m2 = { two: 2 };
     m.m2 = m2;
@@ -519,10 +519,10 @@ function testValidSelfReferencingValueFreeze() returns (string, boolean) {
 
     map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
+    return [errorOrSuccessMsg, m.isFrozen() || m2.isFrozen()];
 }
 
-function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
+function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns [string, boolean, boolean] {
     map<any> m = { one: 1 };
     map<any> m2 = { two: 2 };
     _ = checkpanic m.freeze();
@@ -533,10 +533,10 @@ function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string
 
     map<any>|error res = m2.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, m2.isFrozen(), m.isFrozen());
+    return [errorOrSuccessMsg, m2.isFrozen(), m.isFrozen()];
 }
 
-function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
+function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns [string, boolean, boolean] {
     string[] a = ["hello world", "from Ballerina"];
     json[] a1 = ["hello", "world", true];
     any[] a2 = [1, a1, a, 11.2];
@@ -547,7 +547,7 @@ function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns (stri
 
     any[]|error res = a2.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
-    return (errorOrSuccessMsg, a2.isFrozen(), a.isFrozen());
+    return [errorOrSuccessMsg, a2.isFrozen(), a.isFrozen()];
 }
 
 function testErrorValueFreeze() returns string {
