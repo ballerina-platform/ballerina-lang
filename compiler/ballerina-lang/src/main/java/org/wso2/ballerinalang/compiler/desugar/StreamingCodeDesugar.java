@@ -195,7 +195,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BType outputEventType;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BVarSymbol> joinProcessorStack = new Stack<>();
-    private boolean isJoin = false;
     private boolean isInJoin = false;
     private boolean isTableJoin = false;
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
@@ -293,7 +292,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) queryStmt.getJoiningInput();
         if (joinStreamingInput != null) {
-            isJoin = true;
             isInJoin = true;
             BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
             createStreamAliasMap(streamingInput);
@@ -514,9 +512,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                 names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
                                 lambdaFunction.function.symbol.pkgID, new BArrayType(anydataMapType),
                                 lambdaFunction.function.symbol.owner))}, typeNode);
-        // Rewrite the lambda function.
-        outputLambdaFunc = desugar.rewrite(outputLambdaFunc, env);
-        // create `T[] outputEvents`
+
         BLangSimpleVarRef outputArrayRef =
                 createResultArrayRefInForEach(outputLambdaFunc.function.pos, outputEventType,
                                               outputLambdaFunc.function.symbol, outputLambdaFunc.function.body);
@@ -1099,7 +1095,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangWindow windowClauseNode = (BLangWindow) streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             windowClauseNode.accept(this);
-        } else if (isJoin && !isTableReference(streamingInput.getStreamReference())) {
+        } else if (isInJoin && !isTableReference(streamingInput.getStreamReference())) {
             windowClauseNode = createDefaultLengthWindow(streamingInput);
             streamingInput.setWindowClause(windowClauseNode);
             windowClauseNode.accept(this);
@@ -1277,8 +1273,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
                 BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
 
+                String lhsOrRhsWindow = isInJoin ? "RHS" : "LHS";
                 BVarSymbol windowInvokableTypeVarSymbol =
-                        new BVarSymbol(0, new Name(getVariableName(WINDOW_FUNC_REFERENCE)),
+                        new BVarSymbol(0, new Name(getVariableName(WINDOW_FUNC_REFERENCE + lhsOrRhsWindow)),
                                        windowInvokableSymbol.pkgID, windowInvokableType, env.scope.owner);
                 nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
 
@@ -1292,7 +1289,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 invocation.namedArgs.add(nextProcPointer);
 
                 BLangSimpleVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
-                        windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
+                        windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE + lhsOrRhsWindow,
+                        WINDOW_OBJECT_NAME);
                 stmts.add(windowDef);
 
                 BLangSimpleVarRef windowVarRef = ASTBuilderUtil.createVariableRef(window.pos,
@@ -1459,7 +1457,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         processInvocation.expr = nextProcessSimpleVarRef;
         BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, body);
         stmt.expr = processInvocation;
-        return desugar.rewrite(nextProcessLambda, env);
+        return nextProcessLambda;
     }
 
     //
