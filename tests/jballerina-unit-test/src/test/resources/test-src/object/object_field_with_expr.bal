@@ -1,7 +1,7 @@
 
-function testFieldWithExpr() returns (int, string) {
+function testFieldWithExpr() returns [int, string] {
     Person p = new;
-    return (p.ep.pp, p.ep.name);
+    return [p.ep.pp, p.ep.name];
 }
 
 

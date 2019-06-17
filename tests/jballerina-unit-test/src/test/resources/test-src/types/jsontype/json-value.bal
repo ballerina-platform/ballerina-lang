@@ -29,9 +29,9 @@ function testNullAsJsonVal () returns (json) {
     return j;
 }
 
-function testJsonWithNull () returns (json, any) {
+function testJsonWithNull () returns [json, any] {
     json j = {"name":null};
-    return (j, j.name);
+    return [j, j.name];
 }
 
 function testNestedJsonInit () returns (json) {
@@ -47,24 +47,24 @@ function testJsonArrayInit () returns (json) {
     return j;
 }
 
-function testGetString () returns (string, string) {
+function testGetString () returns [string, string] {
     json j1 = "Supun";
     json j2 = {name:"Setunga"};
     string j1String;
     string j2String;
     j1String = <string> j1;
     j2String = <string> j2.name;
-    return (j1String, j2String);
+    return [j1String, j2String];
 }
 
-function testGetInt () returns (int, int) {
+function testGetInt () returns [int, int] {
     json j1 = 25;
     json j2 = {age:43};
     int j1Int;
     int j2Int;
     j1Int = <int>j1;
     j2Int = <int>j2.age;
-    return (j1Int, j2Int);
+    return [j1Int, j2Int];
 }
 
 function testGetFloat () returns (float) {
@@ -214,7 +214,7 @@ function testUpdateJsonArrayInArray () returns (json) {
     return j;
 }
 
-function testGetNestedJsonElement () returns (string, string, string, string) {
+function testGetNestedJsonElement () returns [string, string, string, string] {
     json j = {name:"aaa", age:25, parent:{name:"bbb", age:50}, address:{city:"Colombo", "country":"SriLanka"}, array:[1, 5, 7]};
 
     string addressKey = "address";
@@ -227,7 +227,7 @@ function testGetNestedJsonElement () returns (string, string, string, string) {
     cityString2 = <string>j["address"]["city"];
     cityString3 = <string>j.address["city"];
     cityString4 = <string>j[addressKey][cityKey];
-    return (cityString1, cityString2, cityString3, cityString4);
+    return [cityString1, cityString2, cityString3, cityString4];
 }
 
 function testJsonExprAsIndex () returns (string) {
@@ -251,24 +251,24 @@ function testSetArrayOutofBoundElement () returns (json) {
     return j;
 }
 
-function testSetToNonArrayWithIndex () returns (json, json, json) {
+function testSetToNonArrayWithIndex () returns [json, json, json] {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
     j1[7] = 8;
     j2[7] = 8;
     j3[7] = 8;
-    return (j1, j2, j3);
+    return [j1, j2, j3];
 }
 
-function testGetFromNonArrayWithIndex () returns (json, json, json) {
+function testGetFromNonArrayWithIndex () returns [json, json, json] {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
-    return (j1[7], j2[7], j3[7]);
+    return [j1[7], j2[7], j3[7]];
 }
 
-function testSetToNonObjectWithKey () returns (json, json, json) {
+function testSetToNonObjectWithKey () returns [json, json, json] {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
@@ -276,14 +276,14 @@ function testSetToNonObjectWithKey () returns (json, json, json) {
     j1["name"] = "Supun";
     j2["name"] = "Supun";
     j3["name"] = "Supun";
-    return (j1, j2, j3);
+    return [j1, j2, j3];
 }
 
-function testGetFromNonObjectWithKey () returns (json, json, json) {
+function testGetFromNonObjectWithKey () returns [json, json, json] {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
-    return (j1.name, j2.name, j3.name);
+    return [j1.name, j2.name, j3.name];
 }
 
 function testGetStringInArray () returns (string) {
@@ -326,12 +326,12 @@ function testStringWithEscapedCharsToJson () returns (json) {
     return json.convert(s);
 }
 
-function testJsonLength () returns (int, int) {
+function testJsonLength () returns [int, int] {
     json[] j1 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
 
     json j2 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
 
-    return (j1.length(), j2.length());
+    return [j1.length(), j2.length()];
 }
 
 function testJsonArrayToJsonCasting () returns (json) {
@@ -341,14 +341,14 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
-function testJsonToJsonArrayCasting() returns (any, json[][]|error, json[][]|error) {
+function testJsonToJsonArrayCasting() returns [any, json[][]|error, json[][]|error] {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     json[] j2 = <json[]>j1;
     json[][]|error j3 = trap <json[][]>j1;
     json[][]|error j4 = json[][].stamp(j1);
 
-    return (j2, j3, j4);
+    return [j2, j3, j4];
 }
 
 function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {
@@ -411,37 +411,37 @@ function testNullJsonToArray() returns (int[]) {
     return <int[]>j;
 }
 
-function testIntArrayToJsonAssignment() returns (json, json) {
+function testIntArrayToJsonAssignment() returns [json, json] {
     int[] a = [1, 5, 9];
     json j = a;
     j[3] = 4;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testFloatArrayToJsonAssignment() returns (json, json) {
+function testFloatArrayToJsonAssignment() returns [json, json] {
     float[] f = [1.3, 5.4, 9.4];
     json j = f;
     j[3] = 4.5;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testDecimalArrayToJsonAssignment() returns (json, json) {
+function testDecimalArrayToJsonAssignment() returns [json, json] {
     decimal[] d = [1.3, 1.234, 4.1];
     json j = d;
     j[3] = 4.54;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testStringArrayToJsonAssignment() returns (json, json) {
+function testStringArrayToJsonAssignment() returns [json, json] {
     string[] s = ["apple", "orange"];
     json j = s;
     j[2] = "grape";
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testBooleanArrayToJsonAssignment() returns (json, json) {
+function testBooleanArrayToJsonAssignment() returns [json, json] {
     boolean[] b = [true, true, false];
     json j = b;
     j[3] = true;
-    return (j, j[1]);
+    return [j, j[1]];
 }

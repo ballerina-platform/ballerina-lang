@@ -25,12 +25,12 @@ function testConstrainedMapValueTypeIndexBasedNegative () returns (string|()) {
     return val;
 }
 
-function testConstrainedMapStructTypePositive () returns ((string, int)) {
+function testConstrainedMapStructTypePositive () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap.item = jack;
     Person val = testMap.item;
-    return (val.name, val.age);
+    return [val.name, val.age];
 }
 
 function testConstrainedMapStructTypeNegative () returns (Person) {
@@ -41,14 +41,14 @@ function testConstrainedMapStructTypeNegative () returns (Person) {
     return val;
 }
 
-function testConstrainedMapValueTypeAssignWithFieldAccessPositive () returns ((string, string)) {
+function testConstrainedMapValueTypeAssignWithFieldAccessPositive () returns ([string, string]) {
     map<string> testMap = {};
     testMap.name = "kevin";
     testMap.sname = "ratnasekera";
-    return (testMap.name, testMap.sname);
+    return [testMap.name, testMap.sname];
 }
 
-function testConstrainedMapConstrainedWithConstrainedMap () returns ((string, string)) {
+function testConstrainedMapConstrainedWithConstrainedMap () returns ([string, string]) {
     map<map<string>> testMap = {};
     map<string> sMap = {name:"kevin"};
     sMap.sname = "ratnasekera";
@@ -56,27 +56,27 @@ function testConstrainedMapConstrainedWithConstrainedMap () returns ((string, st
     map<string> rSMap = testMap.item;
     string name_r = rSMap.name;
     string sname_r = rSMap.sname;
-    return (name_r, sname_r);
+    return [name_r, sname_r];
 }
 
-function testConstrainedMapConstrainedWithValueTypeArray () returns ((int, int)) {
+function testConstrainedMapConstrainedWithValueTypeArray () returns ([int, int]) {
     map<int[]> testMap = {};
     int[] intArr = [25, 30];
     testMap["item"] = intArr;
     int[] rIntArr = testMap.item;
-    return (rIntArr[0], rIntArr[1]);
+    return [rIntArr[0], rIntArr[1]];
 }
 
-function testConstrainedMapIntTypePositive () returns ((int, int)) {
+function testConstrainedMapIntTypePositive () returns ([int, int]) {
     map<int> testMap = {};
     testMap["item_1"] = 36;
     testMap["item_2"] = 63;
     int item_1 = testMap.item_1;
     int item_2 = testMap.item_2;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapIntTypeNegative () returns ((int, int)) {
+function testConstrainedMapIntTypeNegative () returns ([int, int]) {
     map<int> testMap = {};
     testMap["item_1"] = 36;
     testMap["item_2"] = 63;
@@ -84,10 +84,10 @@ function testConstrainedMapIntTypeNegative () returns ((int, int)) {
     int item_1 = item is int ? item : 0;
     item = testMap["item_2_n"];
     int item_2 = item is int ? item : 0;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapFloatTypePositive () returns ((float, float)) {
+function testConstrainedMapFloatTypePositive () returns ([float, float]) {
     float dummy = 6.9;
     map<float> testMap = {};
     testMap["item_1"] = 3.6;
@@ -95,10 +95,10 @@ function testConstrainedMapFloatTypePositive () returns ((float, float)) {
     float item_1 = testMap.item_1;
     float item_2 = testMap.item_2;
     dummy = 9.6;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapFloatTypeNegative () returns ((float, float)) {
+function testConstrainedMapFloatTypeNegative () returns ([float, float]) {
     float dummy = 6.9;
     map<float> testMap = {};
     testMap["item_1"] = 3.6;
@@ -108,19 +108,19 @@ function testConstrainedMapFloatTypeNegative () returns ((float, float)) {
     item = testMap["item_2_n"];
     float item_2 = item is float ? item : 0.0;
     dummy = 9.6;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapBooleanTypePositive () returns ((boolean, boolean)) {
+function testConstrainedMapBooleanTypePositive () returns ([boolean, boolean]) {
     map<boolean> testMap = {};
     testMap["item_1"] = true;
     testMap["item_2"] = false;
     boolean item_1 = testMap.item_1;
     boolean item_2 = testMap.item_2;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapBooleanTypeNegative () returns ((boolean, boolean)) {
+function testConstrainedMapBooleanTypeNegative () returns ([boolean, boolean]) {
     map<boolean> testMap = {};
     testMap["item_1"] = true;
     testMap["item_2"] = false;
@@ -128,10 +128,10 @@ function testConstrainedMapBooleanTypeNegative () returns ((boolean, boolean)) {
     boolean item_1 = item is boolean ? item : false;
     item = testMap["item_2_n"];
     boolean item_2 = item is boolean ? item : false;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapBlobTypePositive () returns (byte[], byte[]) {
+function testConstrainedMapBlobTypePositive () returns [byte[], byte[]] {
     map<byte[]> testMap = {};
     string sitem_1 = "hi";
     byte[] bitem_1 = sitem_1.toByteArray("UTF-8");
@@ -141,10 +141,10 @@ function testConstrainedMapBlobTypePositive () returns (byte[], byte[]) {
     testMap["item_2"] = bitem_2;
     byte[] item_1 = testMap.item_1;
     byte[] item_2 = testMap.item_2;
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
-function testConstrainedMapBlobTypeNegative () returns (byte[], byte[]) {
+function testConstrainedMapBlobTypeNegative () returns [byte[], byte[]] {
     map<byte[]> testMap = {};
     string sitem_1 = "hi";
     byte[] bitem_1 = sitem_1.toByteArray("UTF-8");
@@ -165,7 +165,7 @@ function testConstrainedMapBlobTypeNegative () returns (byte[], byte[]) {
        item_2 = b;
     }
     
-    return (item_1, item_2);
+    return [item_1, item_2];
 }
 
 function testConstrainedMapValueTypeCast () returns (string) {
@@ -187,7 +187,7 @@ function getGenericMap (map<any> m) returns (map<any>) {
     return m;
 }
 
-function testConstrainedMapRefTypeCast () returns ((string, int)) {
+function testConstrainedMapRefTypeCast () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap["item"] = jack;
@@ -195,7 +195,7 @@ function testConstrainedMapRefTypeCast () returns ((string, int)) {
     map<Person> castMap;
     castMap = < map<Person> > m;
     Person p = castMap.item;
-    return (p.name, p.age);
+    return [p.name, p.age];
 }
 
 function testConstrainedMapRefTypeCastNegative () returns (map<int>|error) {
@@ -257,34 +257,34 @@ type Employee record {
     int age;
 };
 
-function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
+function testStructConstrainedMapRuntimeCast () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<any> m = getGenericMap(testMap);
     map<Employee> castMap = m is map<Employee> ? m : {};
     Employee p = castMap.item;
-    return (p.name, p.age);
+    return [p.name, p.age];
 }
 
-function testStructConstrainedMapStaticCast () returns ((string, int)) {
+function testStructConstrainedMapStaticCast () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<Employee> castMap = testMap;
     Employee p = castMap.item;
-    return (p.name, p.age);
+    return [p.name, p.age];
 }
 
 
-function testStructEquivalentMapUpdate () returns ((string, int)) {
+function testStructEquivalentMapUpdate () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<Employee> m =  testMap;
     map<Employee> castMap = m;
     Employee p = castMap.item;
-    return (p.name, p.age);
+    return [p.name, p.age];
 }
 
 function updateEquivalentMap (map<Employee> m) returns (map<Employee>) {
@@ -293,26 +293,26 @@ function updateEquivalentMap (map<Employee> m) returns (map<Employee>) {
     return m;
 }
 
-function testStructEquivalentMapAccess () returns ((string, int)) {
+function testStructEquivalentMapAccess () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Mervin", age:25, address:"Usa"};
     testMap["item"] = jack;
     return equivalentMapAccess(testMap);
 }
 
-function equivalentMapAccess (map<Employee> m) returns ((string, int)) {
+function equivalentMapAccess (map<Employee> m) returns ([string, int]) {
     Employee b = m.item;
-    return (b.name, b.age);
+    return [b.name, b.age];
 }
 
-function testStructMapUpdate () returns ((string, int)) {
+function testStructMapUpdate () returns ([string, int]) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<any> m = updateStructMap(testMap);
     map<Employee> castMap = m is map<Employee> ? m : {};
     Employee p = castMap.update;
-    return (p.name, p.age);
+    return [p.name, p.age];
 }
 
 function updateStructMap (map<any> m) returns (map<any>) {
@@ -348,12 +348,12 @@ type Student record {|
     int age;
 |};
 
-function testMapToStructConversion () returns ((int, int)|error) {
+function testMapToStructConversion () returns ([int, int]|error) {
     map<int> testMap = {};
     testMap["index"] = 100;
     testMap["age"] = 63;
     Student k = check Student.convert(testMap);
-    return (k.index, k.age);
+    return [k.index, k.age];
 }
 
 function testMapFunctionsOnConstrainedMaps () returns (string[]) {
@@ -363,7 +363,7 @@ function testMapFunctionsOnConstrainedMaps () returns (string[]) {
     return testMap.keys();
 }
 
-function testForEachOnConstrainedMaps () returns ((string, string)) {
+function testForEachOnConstrainedMaps () returns ([string, string]) {
     map<string> testMap = {};
     testMap["name"] = "Ronnie";
     testMap["sname"] = "Coleman";
@@ -373,20 +373,20 @@ function testForEachOnConstrainedMaps () returns ((string, string)) {
         arr[index] = v[1];
         index = index + 1;
     }
-    return (arr[0], arr[1]);
+    return [arr[0], arr[1]];
 }
 
-function testMapOfElementTypeArray () returns ((string, string)) {
+function testMapOfElementTypeArray () returns ([string, string]) {
     map<string[]> testMap = {};
     string[] s1 = ["name", "sname"];
     string[] s2 = ["Kollupitiya", "Ja-Ela"];
     testMap["a1"] = s1;
     testMap["a2"] = s2;
     string[] r2 = testMap.a2;
-    return (r2[0], r2[1]);
+    return [r2[0], r2[1]];
 }
 
-function testMapOfElementTypeRefArray () returns ((string, int)) {
+function testMapOfElementTypeRefArray () returns ([string, int]) {
     map<Employee[]> testMap = {};
     Employee jack = {name:"Jack", age:25};
     Employee[] e1 = [];
@@ -394,7 +394,7 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
     testMap["e1"] = e1;
     Employee[] r2 = testMap.e1;
     Employee jackR = r2[0];
-    return (jackR.name, jackR.age);
+    return [jackR.name, jackR.age];
 }
 
 type PersonComplex record {|
@@ -409,7 +409,7 @@ type PersonComplex record {|
     boolean alive = false;
 |};
 
-function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
+function testJsonToStructConversionStructWithConstrainedMap () returns [string, string] {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -434,7 +434,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
     var result = PersonComplex.convert(j);
     if (result is PersonComplex) {
         map<string> ms = result.address;
-        return (ms.city, ms.country);
+        return [ms.city, ms.country];
     } else {
         panic result;
     }
@@ -511,11 +511,11 @@ function testConstrainedMapWithCompoundAssignment () returns (int) {
     return testMap.count;
 }
 
-function testMapConstrainedEquivalentMapInsert () returns (string?, int?) {
+function testMapConstrainedEquivalentMapInsert () returns [string?, int?] {
     map<Employee> emp = {};
     Person jack = {name:"Jack", age:25, address:"Usa"};
     emp["jack"] = jack;
-    return (emp["jack"].name, emp["jack"].age);
+    return [emp["jack"].name, emp["jack"].age];
 }
 
 type Transaction record {

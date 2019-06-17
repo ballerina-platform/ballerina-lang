@@ -38,7 +38,7 @@ function testIfStmtWithIncompatibleType3() {
         int b = 4;
     }
 
-    if (5, "baz") {
+    if [5, "baz"] {
         //do nothing
     }
     return;

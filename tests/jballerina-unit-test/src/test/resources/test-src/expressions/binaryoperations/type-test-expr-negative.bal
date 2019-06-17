@@ -136,30 +136,30 @@ function testArrays() {
 }
 
 function testTuples() {
-    (int, string) a = (4, "hello");
+    [int, string] a = [4, "hello"];
 
-    boolean b0 = a is (int, string);
-    boolean b1 = a is (float, boolean);
-    boolean b2 = a is (any, any);
-    boolean b3 = a is (json, json);
+    boolean b0 = a is [int, string];
+    boolean b1 = a is [float, boolean];
+    boolean b2 = a is [any, any];
+    boolean b3 = a is [json, json];
 }
 
-function testTupleWithAssignableTypes() returns (boolean, boolean, boolean) {
-    (X, Y) a = ({}, {});
-    boolean b0 = a is (X, X);
-    boolean b1 = a is (X, Y);
-    boolean b2 = a is (Y, Y);
-    return (b0, b1, b2);
+function testTupleWithAssignableTypes() returns [boolean, boolean, boolean] {
+    [X, Y] a = [{}, {}];
+    boolean b0 = a is [X, X];
+    boolean b1 = a is [X, Y];
+    boolean b2 = a is [Y, Y];
+    return [b0, b1, b2];
 }
 
-function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean, boolean) {
+function testSimpleConstrainedMap() returns [boolean, boolean, boolean, boolean, boolean] {
     map<string> m = {"key1": "value1"};
     boolean b0 = m is map<any>;
     boolean b1 = m is map<any>;
     boolean b2 = m is map<string>;
     boolean b3 = m is json;
     boolean b4 = m is map<json>;
-    return (b0, b1, b2, b3, b4);
+    return [b0, b1, b2, b3, b4];
 }
 
 type A3 record {
@@ -181,18 +181,18 @@ function testSealedRecordTypes() returns string {
     return "n/a";
 }
 
-function testRecordArrays() returns (boolean, boolean) {
+function testRecordArrays() returns [boolean, boolean] {
     A[] a = [{}, {}];
     A[][] b = [[{}, {}], [{}, {}]];
-    return (a is B[], b is B[][]);
+    return [a is B[], b is B[][]];
 }
 
-function testJsonArrays() returns (boolean, boolean) {
+function testJsonArrays() returns [boolean, boolean] {
     json[] x = [1, 2, 3];
     json[][] y = [[1, 2, 3], [4, 5, 6]];
     boolean b0 = x is int[];
     boolean b1 = y is int[][];
-    return (b0, b1);
+    return [b0, b1];
 }
 
 public type X1 abstract object {
@@ -217,7 +217,7 @@ public type Z1 object {
     }
 };
 
-function testObjectEquivalency() returns (string, string) {
+function testObjectEquivalency() returns [string, string] {
     Z1 z = new Z1(5, "foo", 6.7, true);
     string s1 = "";
     string s2 = "";
@@ -230,7 +230,7 @@ function testObjectEquivalency() returns (string, string) {
         s2 = "values: " + z.p + ", " + z.q + ", " + z.r;
     }
 
-    return (s1, s2);
+    return [s1, s2];
 }
 
 type FooBar "foo"|"bar";

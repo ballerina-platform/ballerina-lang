@@ -122,7 +122,7 @@ public type FooObj object {
 };
 
 
-function test8() returns (string, int) {
+function test8() returns [string, int] {
     string[] s = ["B", "A"];
     int[] i = [1,2,3,4,5];
     var foo = function (string[] v) returns string { return v[1];};
@@ -135,7 +135,7 @@ function test8() returns (string, int) {
     (function (int[] vals) returns int) y = (vals) => fooObj.processIntArray(vals);
     int r = y.call(i);
 
-    return(q, r);
+    return[q, r];
 }
 
 function test9() returns string {
