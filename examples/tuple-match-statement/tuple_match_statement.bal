@@ -52,7 +52,7 @@ function matchWithTypeGuard(any b) {
         // This pattern check is for the tuple type of two variables and types has to be `string` and `int`.
         var (s, i) if (s is string && i is int) =>
            io:println("'s' is string and 'i' is int : " + io:sprintf("%s", b));
-        // This pattern check is for the tuple type of two variables and the first variable should be of the type `float`.
+        // This pattern check is for a tuple type of two variables and the first variable should be of the type `float`.
         var (s, i) if s is float =>
            io:println("Only 's' is float : " + io:sprintf("%s", b));
         // This pattern check is for a tuple type of two variables and the second variable should be of the type `int`.
