@@ -16,25 +16,24 @@ listener rabbitmq:ChannelListener channelListener = new(connection);
     queueConfig: {
         queueName: "MyQueue"
     },
-    ackMode: rabbitmq:CLIENT_ACK,
     prefetchCount: 10
 }
 // Attaches the service to the listener.
-service testClientQos on channelListener {
+service QosConsumer on channelListener {
 
     // Gets triggered when a message is received by the queue.
     resource function onMessage(rabbitmq:Message message) {
-        var msg = message.getTextContent();
-        if (msg is string) {
-            log:printInfo("The message received: " + msg);
+        var messageContent = message.getTextContent();
+        if (messageContent is string) {
+            log:printInfo("The message received: " + messageContent);
         } else {
-            log:printError("Error occurred while retrieving the message content");
+            log:printError("Error occurred while retrieving the message content.");
         }
         // The consumer will continue to receive messages from the server
         // once a total of 10(prefetchCount) messages are being acknowledged.
         var result = message->basicAck();
         if (result is error) {
-            log:printError("Error occurred while acknowledging the message");
+            log:printError("Error occurred while acknowledging the message.");
         }
     }
 }

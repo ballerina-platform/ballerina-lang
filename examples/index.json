@@ -957,14 +957,32 @@
         "title": "RabbitMQ",
         "column": 3,
         "category": "Working over the network",
-        "samples": [{
-            "name": "Basic Producer",
-            "url": "rabbitmq-simple-producer"
-        },
-          {
-            "name": "Basic Consumer",
-            "url": "rabbitmq-simple-consumer"
-          }]
+        "samples": [
+            {
+              "name": "RabbitMQ Producer",
+              "url": "rabbitmq-producer"
+            },
+            {
+              "name": "RabbitMQ Consumer",
+              "url": "rabbitmq-consumer"
+            },
+            {
+              "name": "QoS Settings",
+              "url": "rabbitmq_consumer_with_qos_settings"
+            },
+            {
+              "name": "Data Binding",
+              "url": "rabbitmq_consumer_with_data_binding"
+            },
+            {
+              "name": "Transaction Producer",
+              "url": "rabbitmq-transaction-producer"
+            },
+            {
+              "name": "Transaction Consumer",
+              "url": "rabbitmq-transaction-consumer"
+            }
+        ]
     },
     {
         "title": "ActiveMQ Artemis",
