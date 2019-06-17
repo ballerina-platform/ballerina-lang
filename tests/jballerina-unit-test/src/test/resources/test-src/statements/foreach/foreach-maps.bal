@@ -31,18 +31,20 @@ function testDeleteWhileIteration () returns (string) | error {
     output = "";
     string val;
     string mval = "";
-    foreach var (k, v) in m {
-        val = <string> v;
-        if (k == "a") {
+    foreach var (k1, v1) in m {
+        if (k1 == "a") {
             _ = m.remove("c");
+            foreach var (k2, v2) in m {
+                val = <string> v2;
+                stringConcat(k2, val);
+                if (m.hasKey(k2)){
+                    mval = m[k2] is () ? "" : <string> m[k2];
+                } else {
+                    mval = "null";
+                }
+                stringConcat(k2, mval);
+            }
         }
-        stringConcat(k, val);
-        if (m.hasKey(k)){
-            mval = m[k] is () ? "" : <string> m[k];
-        } else {
-            mval = "null";
-        }
-        stringConcat(k, mval);
     }
     return output;
 }
