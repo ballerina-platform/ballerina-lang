@@ -83,7 +83,8 @@ public type ChannelListener object {
 # Represents the list of parameters required to create a subscription.
 #
 # + queueConfig - Specifies configuration details about the queue to be subscribed to.
-# + ackMode - Type of acknowledgement mode.
+# + ackMode - Type of the acknowledgement mode. Default mode is rabbitmq:CLIENT_ACK
+#                    where manual acknowledgements are required.
 # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
 #                      Unless explicitly given, this value is 10 by default.
 # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
