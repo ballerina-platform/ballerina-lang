@@ -12,9 +12,9 @@ ERROR [sachini/parserModule] - 2:9: invalid token '/'
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 3,
+		"lineNumber": 4,
 		"index": 13,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

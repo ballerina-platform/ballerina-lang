@@ -2,10 +2,10 @@ function foo
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 1:12: expected LPAREN; found 'EOF'
-ERROR [sachini/parserModule] - 1:12: expected LBRACE; found 'EOF'
+ERROR [sachini/parserModule] - 2:1: expected LPAREN; found 'EOF'
+ERROR [sachini/parserModule] - 2:1: expected LBRACE; found 'EOF'
 ERROR [sachini/parserModule] - LBRACE inserted
-ERROR [sachini/parserModule] - 1:12: expected RBRACE; found 'EOF'
+ERROR [sachini/parserModule] - 2:1: expected RBRACE; found 'EOF'
 ERROR [sachini/parserModule] - RBRACE inserted
 
 
@@ -14,11 +14,11 @@ ERROR [sachini/parserModule] - RBRACE inserted
 	"tokenList": [{
 		"tokenType": 51,
 		"text": "EOF",
-		"startPos": 12,
-		"endPos": 12,
-		"lineNumber": 1,
+		"startPos": 1,
+		"endPos": 1,
+		"lineNumber": 2,
 		"index": 3,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

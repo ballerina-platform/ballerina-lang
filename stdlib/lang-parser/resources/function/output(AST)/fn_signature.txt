@@ -10,9 +10,9 @@ serialized json output:
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 2,
+		"lineNumber": 3,
 		"index": 7,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

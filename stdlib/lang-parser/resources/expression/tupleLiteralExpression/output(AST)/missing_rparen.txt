@@ -13,9 +13,9 @@ ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 3,
+		"lineNumber": 4,
 		"index": 15,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

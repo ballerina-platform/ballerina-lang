@@ -1,6 +1,21 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/log;
-
 
 type Parser object {
     //stack which holds the operators during expression rule
@@ -130,17 +145,17 @@ type Parser object {
 
                 return insertAssign;
             } else {
-                int[] exprPanic = [ASSIGN,SEMICOLON, RBRACE, EOF];
+                int[] exprPanic = [ASSIGN, SEMICOLON, RBRACE, EOF];
                 while (panicMode) {
-                	if(self.LAToken(1) == exprPanic[0]){
-                		break;
-                	} else if (self.LAToken(1) == exprPanic[1]) {
+                    if (self.LAToken(1) == exprPanic[0]) {
+                        break;
+                    } else if (self.LAToken(1) == exprPanic[1]) {
                         break;
                     } else if (self.LAToken(1) == exprPanic[2] && self.LookaheadToken(1).whiteSpace == "\n") {
                         break;
-                    }else if (self.LAToken(1) == exprPanic[3]) {
-					 	break;
-				 	}
+                    } else if (self.LAToken(1) == exprPanic[3]) {
+                        break;
+                    }
 
                     Token currToken1 = self.parserBuffer.consumeToken();
                     self.errTokens[self.errCount] = currToken1;
@@ -156,43 +171,43 @@ type Parser object {
                     whiteSpace: ""
                 };
             }
-        } else if (rule == "blockNode"){
-        	if (mToken == RBRACE) {
-				Token insertRbrace = self.insertToken(mToken);
-				insertRbrace.text = "}";
+        } else if (rule == "blockNode") {
+            if (mToken == RBRACE) {
+                Token insertRbrace = self.insertToken(mToken);
+                insertRbrace.text = "}";
 
-				return insertRbrace;
-			} else if (mToken == LBRACE) {
-				Token insertLbrace = self.insertToken(mToken);
-				insertLbrace.text = "{";
+                return insertRbrace;
+            } else if (mToken == LBRACE) {
+                Token insertLbrace = self.insertToken(mToken);
+                insertLbrace.text = "{";
 
-				return insertLbrace;
-			}
+                return insertLbrace;
+            }
 
         } else if (rule == "functionSignature") {
-                int[] functionSignaturePanic = [LBRACE, RBRACE, EOF];
+            int[] functionSignaturePanic = [LBRACE, RBRACE, EOF];
 
-                while (panicMode) {
-                    if (self.LAToken(1) == functionSignaturePanic[0]) {
-                    	break;
-                    } else if (self.LAToken(1) == functionSignaturePanic[1]) {
-                        break;
-                    } else if (self.LAToken(1) == functionSignaturePanic[2]) {
-                        break;
-                    }
-                    Token currToken1 = self.parserBuffer.consumeToken();
-                    self.errTokens[self.errCount] = currToken1;
-                    self.errCount += 1;
+            while (panicMode) {
+                if (self.LAToken(1) == functionSignaturePanic[0]) {
+                    break;
+                } else if (self.LAToken(1) == functionSignaturePanic[1]) {
+                    break;
+                } else if (self.LAToken(1) == functionSignaturePanic[2]) {
+                    break;
                 }
-                return {
-                    tokenType: PARSER_ERROR_TOKEN,
-                    text: "<unexpected Token: Expected " + tokenNames[mToken] + ">",
-                    startPos: -1,
-                    endPos: -1,
-                    lineNumber: 0,
-                    index: -1,
-                    whiteSpace: ""
-                };
+                Token currToken1 = self.parserBuffer.consumeToken();
+                self.errTokens[self.errCount] = currToken1;
+                self.errCount += 1;
+            }
+            return {
+                tokenType: PARSER_ERROR_TOKEN,
+                text: "<unexpected Token: Expected " + tokenNames[mToken] + ">",
+                startPos: -1,
+                endPos: -1,
+                lineNumber: 0,
+                index: -1,
+                whiteSpace: ""
+            };
         } else if (rule == "statement") {
             self.errorRecovered = false;
             int[] statementPanic = [SEMICOLON, RBRACE];
@@ -281,12 +296,12 @@ type Parser object {
         // the error tokens will be added to errToken list
         if (identifier.tokenType == PARSER_ERROR_TOKEN) {
             ErrorIdentifierNode erIdNode = {
-			    nodeKind: ER_IDENTIFIER_NODE,
-			    tokenList: [],
-			    identifier: ()
-		    };
+                nodeKind: ER_IDENTIFIER_NODE,
+                tokenList: [],
+                identifier: ()
+            };
             ErrorFunctionSignatureNode fSignature = {
-               	nodeKind: ER_FN_SIGNATURE_NODE,
+                nodeKind: ER_FN_SIGNATURE_NODE,
                 tokenList: self.errTokens,
                 functionIdentifier: erIdNode
             };
@@ -294,58 +309,58 @@ type Parser object {
             return fSignature;
 
         } else {
-        	IdentifierNode idNode = {
-				nodeKind: IDENTIFIER_NODE,
-				tokenList: [identifier],
-				identifier: identifier.text
-			};
+            IdentifierNode idNode = {
+                nodeKind: IDENTIFIER_NODE,
+                tokenList: [identifier],
+                identifier: identifier.text
+            };
             //error recovery for lParen and rParen : panic error recovery
             //tokens will be consumed until a lBrace is reached
             Token lParen = self.matchToken(LPAREN, FN_SIGNATURE_NODE);
-            
-            if(lParen.tokenType == PARSER_ERROR_TOKEN){
-            	ErrorFunctionSignatureNode fSignature = {
-						nodeKind: ER_FN_SIGNATURE_NODE,
-						tokenList: self.errTokens,
-						functionIdentifier: idNode
-				};
-				self.resetErrorFlag();
-				return fSignature;
-            }else{
-            	Token rParen = self.matchToken(RPAREN, FN_SIGNATURE_NODE);
-            	if(rParen.tokenType == PARSER_ERROR_TOKEN){
-            		//appending the errTokens with lParen which was correctly parsed
-            		self.errTokens = self.appendErrorTknList([lParen]);
-            		ErrorFunctionSignatureNode fSignature = {
-							nodeKind: ER_FN_SIGNATURE_NODE,
-							tokenList: self.errTokens,
-							functionIdentifier: idNode
-					};
-					self.resetErrorFlag();
-					return fSignature;
-            	} else{
-            		FunctionSignatureNode fSignature = {
-						nodeKind: FN_SIGNATURE_NODE,
-						tokenList: [lParen, rParen],
-						functionIdentifier: idNode
-					};
-					return fSignature;
-            	}
+
+            if (lParen.tokenType == PARSER_ERROR_TOKEN) {
+                ErrorFunctionSignatureNode fSignature = {
+                    nodeKind: ER_FN_SIGNATURE_NODE,
+                    tokenList: self.errTokens,
+                    functionIdentifier: idNode
+                };
+                self.resetErrorFlag();
+                return fSignature;
+            } else {
+                Token rParen = self.matchToken(RPAREN, FN_SIGNATURE_NODE);
+                if (rParen.tokenType == PARSER_ERROR_TOKEN) {
+                    //appending the errTokens with lParen which was correctly parsed
+                    self.errTokens = self.appendErrorTknList([lParen]);
+                    ErrorFunctionSignatureNode fSignature = {
+                        nodeKind: ER_FN_SIGNATURE_NODE,
+                        tokenList: self.errTokens,
+                        functionIdentifier: idNode
+                    };
+                    self.resetErrorFlag();
+                    return fSignature;
+                } else {
+                    FunctionSignatureNode fSignature = {
+                        nodeKind: FN_SIGNATURE_NODE,
+                        tokenList: [lParen, rParen],
+                        functionIdentifier: idNode
+                    };
+                    return fSignature;
+                }
             }
         }
     }
 
-	#append the tokens of a grammar to the errToken list in an error situation
+    #append the tokens of a grammar to the errToken list in an error situation
     # +return - Token[]
-    function appendErrorTknList(Token[] tokenLst) returns Token[]{
-    	int errListSize = self.errTokens.length();
-    	int count = 0;
-    	while (count < tokenLst.length()) {
-    		self.errTokens[errListSize] = tokenLst[count];
-    		errListSize += 1;
-    		count += 1;
-    	}
-    	return self.errTokens;
+    function appendErrorTknList(Token[] tokenLst) returns Token[] {
+        int errListSize = self.errTokens.length();
+        int count = 0;
+        while (count < tokenLst.length()) {
+            self.errTokens[errListSize] = tokenLst[count];
+            errListSize += 1;
+            count += 1;
+        }
+        return self.errTokens;
     }
 
 
@@ -376,10 +391,10 @@ type Parser object {
         //the error token which is returned in an error situation, have the token endPosition set as -1
         if (rBrace.endPos == -1 || lBrace.endPos == -1) {
             ErrorBlockNode erNode = {
-				nodeKind: ER_BLOCK_NODE,
-				tokenList: [lBrace, rBrace],
-				statementList: <StatementNode[]>(stsList.freeze())
-			};
+                nodeKind: ER_BLOCK_NODE,
+                tokenList: [lBrace, rBrace],
+                statementList: <StatementNode[]>(stsList.freeze())
+            };
             self.resetErrorFlag();
             return erNode;
         } else {
@@ -395,7 +410,7 @@ type Parser object {
     #Statement
     #	|<variable definition statement>
     #	|<continue statement>
-	# +return - StatementNode?
+    # +return - StatementNode?
     function parseStatement() returns StatementNode {
         //check if the LA token belongs to any of the statement type or else return an error node
         if (self.LAToken(1) == INT) {
@@ -421,167 +436,167 @@ type Parser object {
     }
 
     #Variable definition statement
-	#    | <valueTypeName> IDENTIFIER SEMICOLON // int a;
-	#    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
-	# +return - VariableDefinitionStatementNode
-	function parseVariableDefinitionStatementNode() returns VariableDefStNode {
+    #    | <valueTypeName> IDENTIFIER SEMICOLON // int a;
+    #    | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
+    # +return - VariableDefinitionStatementNode
+    function parseVariableDefinitionStatementNode() returns VariableDefStNode {
 
-		Token valueTypeTkn = self.parseValueTypeName();
-		//it is not necessary to check the validity of the value type since we only call this method if its a valid value type name.
-		ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
-		Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
+        Token valueTypeTkn = self.parseValueTypeName();
+        //it is not necessary to check the validity of the value type since we only call this method if its a valid value type name.
+        ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
+        Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
 
-        //if the identifier is mismatched, 
+        //if the identifier is mismatched,
         //the tokens will be consumed until ASSIGN or SEMICOLON is found.
-		if (identifier.tokenType == PARSER_ERROR_TOKEN) {
-			ErrorVarRefIdentifierNode vRef = {
-				nodeKind: ER_VAR_DEF_IDENTIFIER_NODE,
-				tokenList: self.errTokens,
-				varIdentifier: ()
-			};
-			self.resetErrorFlag();
+        if (identifier.tokenType == PARSER_ERROR_TOKEN) {
+            ErrorVarRefIdentifierNode vRef = {
+                nodeKind: ER_VAR_DEF_IDENTIFIER_NODE,
+                tokenList: self.errTokens,
+                varIdentifier: ()
+            };
+            self.resetErrorFlag();
 
-			if (self.LAToken(1) == SEMICOLON) {
-				Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+            if (self.LAToken(1) == SEMICOLON) {
+                Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
 
-				VariableDefinitionStatementNode vDef = {
-					nodeKind: VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn, semiC],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: ()
-				};
-				self.resetErrorFlag();
-				return vDef;
+                VariableDefinitionStatementNode vDef = {
+                    nodeKind: VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn, semiC],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: ()
+                };
+                self.resetErrorFlag();
+                return vDef;
 
-			} else if (self.LAToken(1) == ASSIGN){
-				VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef,valueTypeTkn,valueKind1);
+            } else if (self.LAToken(1) == ASSIGN) {
+                VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef, valueTypeTkn, valueKind1);
                 return vStatementNode;
-			} else {
-				VariableDefinitionStatementNode vDef2 = {
-					nodeKind: VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: ()
-				};
-				self.resetErrorFlag();
-				return vDef2;
-			}
-		}
+            } else {
+                VariableDefinitionStatementNode vDef2 = {
+                    nodeKind: VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: ()
+                };
+                self.resetErrorFlag();
+                return vDef2;
+            }
+        }
 
         //variable definition statement with valid identifier
-		VarRefIdentifier vRef = {
-			nodeKind: VAR_REF_NODE,
-			tokenList: [identifier],
-			varIdentifier: identifier.text
-		};
+        VarRefIdentifier vRef = {
+            nodeKind: VAR_REF_NODE,
+            tokenList: [identifier],
+            varIdentifier: identifier.text
+        };
 
 
-		if (self.LAToken(1) == SEMICOLON) {
-			Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
-			VariableDefinitionStatementNode vDef = {
-				nodeKind: VAR_DEF_STATEMENT_NODE,
-				tokenList: [valueTypeTkn, semiC],
-				valueKind: valueKind1,
-				varIdentifier: vRef,
-				expression: ()
-			};
-			self.resetErrorFlag();
-			return vDef;
+        if (self.LAToken(1) == SEMICOLON) {
+            Token semiC = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+            VariableDefinitionStatementNode vDef = {
+                nodeKind: VAR_DEF_STATEMENT_NODE,
+                tokenList: [valueTypeTkn, semiC],
+                valueKind: valueKind1,
+                varIdentifier: vRef,
+                expression: ()
+            };
+            self.resetErrorFlag();
+            return vDef;
 
-		} else {
-			VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef,valueTypeTkn,valueKind1);
-			return vStatementNode;
-		}
-	}
+        } else {
+            VariableDefStNode vStatementNode = self.parseVarDefExpr(vRef, valueTypeTkn, valueKind1);
+            return vStatementNode;
+        }
+    }
 
-	# reset the errCount, and set error recovered to True, once an error is recovered
-	function resetErrorFlag(){
-		self.errCount = 0;
-		self.errTokens = [];
-		self.errorRecovered = true;
-	}
+    # reset the errCount, and set error recovered to True, once an error is recovered
+    function resetErrorFlag() {
+        self.errCount = 0;
+        self.errTokens = [];
+        self.errorRecovered = true;
+    }
 
 
     #parse ( ASSING EXPR SEMICOLON ) in variable definition statement
     # +return - VariableDefStNode
-    function parseVarDefExpr(VariableReferenceNode vRef,  Token valueTypeTkn, ValueKind valueKind1 ) returns VariableDefStNode{
-    	//token insertion if token assign is mismatched
-		Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
-		self.errorRecovered = true;
-		ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
-		//if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
-		if (exprNode is ()) {
-			log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
-			self.errorRecovered = false;
-		}
-		if (self.errorRecovered == false || self.invalidOccurence == true) {
-			ErrorExpressionNode erNode = {
-				nodeKind: ER_EXPRESSION_NODE,
-				tokenList:self.errTokens,
-				errorExpression:exprNode
-			};
-			self.resetErrorFlag();
-			self.invalidOccurence = false;
-			Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+    function parseVarDefExpr(VariableReferenceNode vRef, Token valueTypeTkn, ValueKind valueKind1) returns VariableDefStNode {
+        //token insertion if token assign is mismatched
+        Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
+        self.errorRecovered = true;
+        ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
+        //if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
+        if (exprNode is ()) {
+            log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
+            self.errorRecovered = false;
+        }
+        if (self.errorRecovered == false || self.invalidOccurence == true) {
+            ErrorExpressionNode erNode = {
+                nodeKind: ER_EXPRESSION_NODE,
+                tokenList: self.errTokens,
+                errorExpression: exprNode
+            };
+            self.resetErrorFlag();
+            self.invalidOccurence = false;
+            Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
             //tokens inserted using token insertion method will have the token endposition as -1
-			if(semiC2.endPos == -1 || assign.endPos == -1){
+            if (semiC2.endPos == -1 || assign.endPos == -1) {
 
-				 ErrorVarDefStatementNode errSt = {
-					nodeKind: ER_VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn, assign, semiC2],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: erNode
-				 };
-				 self.resetErrorFlag();
-				return errSt;
-			} else {
-				VariableDefinitionStatementNode vDef2 = {
-					nodeKind: VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn, assign, semiC2],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: erNode
-				};
-				return vDef2;
-			}
+                ErrorVarDefStatementNode errSt = {
+                    nodeKind: ER_VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn, assign, semiC2],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: erNode
+                };
+                self.resetErrorFlag();
+                return errSt;
+            } else {
+                VariableDefinitionStatementNode vDef2 = {
+                    nodeKind: VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn, assign, semiC2],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: erNode
+                };
+                return vDef2;
+            }
 
 
-		} else{
-			//token insertion if semicolon is mismatched
-			Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
-			if(semiC2.endPos == -1 || assign.endPos == -1){
-				ErrorVarDefStatementNode errSt = {
-					nodeKind: ER_VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn, assign, semiC2],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: exprNode
-				 };
-				 self.resetErrorFlag();
-				return errSt;
+        } else {
+            //token insertion if semicolon is mismatched
+            Token semiC2 = self.matchToken(SEMICOLON, VAR_DEF_STATEMENT_NODE);
+            if (semiC2.endPos == -1 || assign.endPos == -1) {
+                ErrorVarDefStatementNode errSt = {
+                    nodeKind: ER_VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn, assign, semiC2],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: exprNode
+                };
+                self.resetErrorFlag();
+                return errSt;
 
-			} else {
-				VariableDefinitionStatementNode vDef2 = {
-					nodeKind: VAR_DEF_STATEMENT_NODE,
-					tokenList: [valueTypeTkn,assign, semiC2],
-					valueKind: valueKind1,
-					varIdentifier: vRef,
-					expression: exprNode
-				 };
-				 self.resetErrorFlag();
-				return vDef2;
-			}
+            } else {
+                VariableDefinitionStatementNode vDef2 = {
+                    nodeKind: VAR_DEF_STATEMENT_NODE,
+                    tokenList: [valueTypeTkn, assign, semiC2],
+                    valueKind: valueKind1,
+                    varIdentifier: vRef,
+                    expression: exprNode
+                };
+                self.resetErrorFlag();
+                return vDef2;
+            }
 
-		}
+        }
     }
 
 
     #continue statement
     #|CONTINUE SEMICOLON
-	# +return - ContinueStatementNode
+    # +return - ContinueStatementNode
     function parseContinueStatementNode() returns ContinueStNode {
 
         Token valueTypeTkn = self.parseValueTypeName();
@@ -601,11 +616,11 @@ type Parser object {
             Token semiC2 = self.matchToken(SEMICOLON, CONTINUE_STATEMENT_NODE);
 
             ErrorContinueStatementNode errcontinue = {
-				 nodeKind: ER_CONTIUE_STATEMENT_NODE,
-				 tokenList: [semiC2],
-				 valueKind: valueKind1
-			};
-			self.resetErrorFlag();
+                nodeKind: ER_CONTIUE_STATEMENT_NODE,
+                tokenList: [semiC2],
+                valueKind: valueKind1
+            };
+            self.resetErrorFlag();
             return errcontinue;
         }
 
@@ -623,7 +638,7 @@ type Parser object {
     #| <tuple literal>
     #
     #the statementType determines the break condition or the terminal token of the while loop
-	# +return - ExpressionNode
+    # +return - ExpressionNode
     function expressionBuilder(string statementType) returns ExpressionNode {
         //position count of the tuple list
         self.tupleListPos = 0;
@@ -650,19 +665,19 @@ type Parser object {
     }
 
     #build the expression based on the operators remain in the operator stack
-    function buildFinalExpr(){
-    	//tuple expression list
-		ExpressionNode?[] tupleList = [];
-		//list to keep track of commas
-		Token[] commaList = [];
-    	while (self.oprStack.peek() != -1) {
-			Token operator = self.oprStack.pop();
+    function buildFinalExpr() {
+        //tuple expression list
+        ExpressionNode?[] tupleList = [];
+        //list to keep track of commas
+        Token[] commaList = [];
+        while (self.oprStack.peek() != -1) {
+            Token operator = self.oprStack.pop();
 
-			if (operator.tokenType == LPAREN) {
-				log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing ')'");
-				self.invalidOccurence = true;
+            if (operator.tokenType == LPAREN) {
+                log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing ')'");
+                self.invalidOccurence = true;
 
-				commaList[self.separatorCount] = operator;
+                commaList[self.separatorCount] = operator;
                 self.separatorCount += 1;
 
                 ExpressionNode exprComma = self.expStack.pop();
@@ -672,128 +687,128 @@ type Parser object {
                 tupleList = self.reverseTupleList(tupleList);
 
                 TupleLiteralNode tupleLNode = {
-					nodeKind: TUPLE_LITERAL_NODE,
-					tokenList: commaList,
-					tupleExprList:<ExpressionNode[]>(tupleList.freeze())
-				};
-				self.expStack.push(tupleLNode);
-				self.tupleListPos = 0;
+                    nodeKind: TUPLE_LITERAL_NODE,
+                    tokenList: commaList,
+                    tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+                };
+                self.expStack.push(tupleLNode);
+                self.tupleListPos = 0;
 
-			//build the unary expressions
-			} else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {
-				//unary_minus and unary_plus token types are converted to ADD and SUB tokenType
+            //build the unary expressions
+            } else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {
+                //unary_minus and unary_plus token types are converted to ADD and SUB tokenType
                 self.convertToValidOp(operator);
-				OperatorKind opKind3 = self.matchOperatorType(operator);
+                OperatorKind opKind3 = self.matchOperatorType(operator);
 
-				if (self.expOperand == true) {
-					self.expOperand = false;
-					log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
-					self.invalidOccurence = true;
-					UnaryExpressionNode uExpression = {
-						nodeKind: UNARY_EXPRESSION_NODE,
-						tokenList: [operator],
-						operatorKind: opKind3,
-						uExpression: ()
-					};
-					self.expStack.push(uExpression);
-				} else {
-					ExpressionNode expr3 = self.expStack.pop();
-					UnaryExpressionNode uExpression = {
-						nodeKind: UNARY_EXPRESSION_NODE,
-						tokenList: [operator],
-						operatorKind: opKind3,
-						uExpression: expr3
-					};
-					self.expStack.push(uExpression);
-				}
-			}
-			else if (operator.tokenType == COMMA) {
-				 if (self.expOperand == true) {
-					 log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
-					 //token deletion without calling the method as the comma token is already consumed and pushed to the opr stack
-					 self.errTokens[self.errCount] = operator;
-					 self.errCount += 1;
-					 self.invalidOccurence = true;
-					 continue;
-				 }
+                if (self.expOperand == true) {
+                    self.expOperand = false;
+                    log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
+                    self.invalidOccurence = true;
+                    UnaryExpressionNode uExpression = {
+                        nodeKind: UNARY_EXPRESSION_NODE,
+                        tokenList: [operator],
+                        operatorKind: opKind3,
+                        uExpression: ()
+                    };
+                    self.expStack.push(uExpression);
+                } else {
+                    ExpressionNode expr3 = self.expStack.pop();
+                    UnaryExpressionNode uExpression = {
+                        nodeKind: UNARY_EXPRESSION_NODE,
+                        tokenList: [operator],
+                        operatorKind: opKind3,
+                        uExpression: expr3
+                    };
+                    self.expStack.push(uExpression);
+                }
+            }
+            else if (operator.tokenType == COMMA) {
+                if (self.expOperand == true) {
+                    log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
+                    //token deletion without calling the method as the comma token is already consumed and pushed to the opr stack
+                    self.errTokens[self.errCount] = operator;
+                    self.errCount += 1;
+                    self.invalidOccurence = true;
+                    continue;
+                }
 
-				 self.invalidOccurence = true;
-				 self.errorRecovered = false;
-				 commaList[self.separatorCount] = operator;
-				 self.separatorCount += 1;
+                self.invalidOccurence = true;
+                self.errorRecovered = false;
+                commaList[self.separatorCount] = operator;
+                self.separatorCount += 1;
 
-				 ExpressionNode exprComma = self.expStack.pop();
-				 tupleList[self.tupleListPos] = exprComma;
-				 self.tupleListPos += 1;
-			 }
-			else {
-				OperatorKind opKind = self.matchOperatorType(operator);
-				ExpressionNode expr2 = self.expStack.pop();
-				ExpressionNode expr1 = self.expStack.pop();
-				if (expr1 is ()) {
-					self.errorRecovered = false;
-					log:printError(operator.lineNumber + ":" + operator.startPos +
-					" : invalid binary expression, binary RHS expression not found");
-					BinaryExpressionNode bExpr = {
-						nodeKind: BINARY_EXP_NODE,
-						tokenList: [operator],
-						operatorKind: opKind,
-						leftExpr: expr2,
-						rightExpr: expr1
-					};
-					self.expStack.push(bExpr);
-				} else {
-					BinaryExpressionNode bExpr = {
-						nodeKind: BINARY_EXP_NODE,
-						tokenList: [operator],
-						operatorKind: opKind,
-						leftExpr: expr1,
-						rightExpr: expr2
-					};
-					self.expStack.push(bExpr);
-				}
-			}
-		}
-		//here only comma separated expression is found, missing lParen and rParen
-		if(self.tupleListPos  > 0){
-			Token lastOperator = commaList[commaList.length() - 1];
-			log:printError(lastOperator.lineNumber + ":" + lastOperator.startPos + " : invalid tuple literal expression");
-			ExpressionNode exprComma = self.expStack.pop();
-			tupleList[self.tupleListPos] = exprComma;
-			self.tupleListPos += 1;
-			tupleList = self.reverseTupleList(tupleList);
-			TupleLiteralNode tupleLNode = {
-				nodeKind: TUPLE_LITERAL_NODE,
-				tokenList: commaList,
-				tupleExprList:<ExpressionNode[]>(tupleList.freeze())
-			};
-			self.expStack.push(tupleLNode);
+                ExpressionNode exprComma = self.expStack.pop();
+                tupleList[self.tupleListPos] = exprComma;
+                self.tupleListPos += 1;
+            }
+            else {
+                OperatorKind opKind = self.matchOperatorType(operator);
+                ExpressionNode expr2 = self.expStack.pop();
+                ExpressionNode expr1 = self.expStack.pop();
+                if (expr1 is ()) {
+                    self.errorRecovered = false;
+                    log:printError(operator.lineNumber + ":" + operator.startPos +
+                    " : invalid binary expression, binary RHS expression not found");
+                    BinaryExpressionNode bExpr = {
+                        nodeKind: BINARY_EXP_NODE,
+                        tokenList: [operator],
+                        operatorKind: opKind,
+                        leftExpr: expr2,
+                        rightExpr: expr1
+                    };
+                    self.expStack.push(bExpr);
+                } else {
+                    BinaryExpressionNode bExpr = {
+                        nodeKind: BINARY_EXP_NODE,
+                        tokenList: [operator],
+                        operatorKind: opKind,
+                        leftExpr: expr1,
+                        rightExpr: expr2
+                    };
+                    self.expStack.push(bExpr);
+                }
+            }
+        }
+        //here only comma separated expression is found, missing lParen and rParen
+        if (self.tupleListPos > 0) {
+            Token lastOperator = commaList[commaList.length() - 1];
+            log:printError(lastOperator.lineNumber + ":" + lastOperator.startPos + " : invalid tuple literal expression");
+            ExpressionNode exprComma = self.expStack.pop();
+            tupleList[self.tupleListPos] = exprComma;
+            self.tupleListPos += 1;
+            tupleList = self.reverseTupleList(tupleList);
+            TupleLiteralNode tupleLNode = {
+                nodeKind: TUPLE_LITERAL_NODE,
+                tokenList: commaList,
+                tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+            };
+            self.expStack.push(tupleLNode);
 
-		}
-		self.separatorCount = 0;
-		self.tupleListPos = 0;
+        }
+        self.separatorCount = 0;
+        self.tupleListPos = 0;
     }
 
-	# reversing the tupleList so that the expressions in the tuple list will be in proper order.
- 	# +return - ExpressionNode?[]
-    function reverseTupleList(ExpressionNode?[] tupleList) returns ExpressionNode?[]{
-    	int reverseCount = 0;
-		while (reverseCount < tupleList.length() / 2) {
-			ExpressionNode temp = tupleList[reverseCount];
-			tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
-			tupleList[tupleList.length() - reverseCount - 1] = temp;
-			reverseCount += 1;
-		}
-		return tupleList;
+    # reversing the tupleList so that the expressions in the tuple list will be in proper order.
+    # +return - ExpressionNode?[]
+    function reverseTupleList(ExpressionNode?[] tupleList) returns ExpressionNode?[] {
+        int reverseCount = 0;
+        while (reverseCount < tupleList.length() / 2) {
+            ExpressionNode temp = tupleList[reverseCount];
+            tupleList[reverseCount] = tupleList[tupleList.length() - reverseCount - 1];
+            tupleList[tupleList.length() - reverseCount - 1] = temp;
+            reverseCount += 1;
+        }
+        return tupleList;
     }
 
     #convert the Unary_plus and unary_minus operators back to the valid types (ADD,SUB)
-    function convertToValidOp(Token operator){
-    	if(operator.tokenType == UNARY_MINUS){
-			operator.tokenType = SUB;
-		}else if (operator.tokenType == UNARY_PLUS){
-			operator.tokenType = ADD;
-		}
+    function convertToValidOp(Token operator) {
+        if (operator.tokenType == UNARY_MINUS) {
+            operator.tokenType = SUB;
+        } else if (operator.tokenType == UNARY_PLUS) {
+            operator.tokenType = ADD;
+        }
 
     }
 
@@ -863,11 +878,11 @@ type Parser object {
                 self.expOperand = false;
                 return true;
             }
-        } else if ((self.LAToken(1) >= ADD && self.LAToken(1) <= UNTAINT) || self.LAToken(1) == COMMA) {//binary, unary operators and comma
+        } else if ((self.LAToken(1) >= ADD && self.LAToken(1) <= UNTAINT) || self.LAToken(1) == COMMA) {            //binary, unary operators and comma
 
             //if the expression stack is empty then that means no prior expression , so this is a unary expr
             if (self.expStack.isEmpty() == true || self.priorOperator == true) {
-                if (self.LAToken(1) == SUB || self.LAToken(1) == ADD || (self.LAToken(1) >= 25 && self.LAToken(1) <= 27)) {// unary operators
+                if (self.LAToken(1) == SUB || self.LAToken(1) == ADD || (self.LAToken(1) >= 25 && self.LAToken(1) <= 27)) {                    // unary operators
 
                     if (self.LAToken(1) == SUB) {
                         Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
@@ -890,7 +905,7 @@ type Parser object {
                         self.priorOperator = true;
                         return true;
                     }
-                } else { //Operator which is not an unary operator - Ex:(,2) -> in such instance where the comma is in invalid position comma is deleted and added to the errorlist.
+                } else {                    //Operator which is not an unary operator - Ex:(,2) -> in such instance where the comma is in invalid position comma is deleted and added to the errorlist.
                     Token invalidToken = self.deleteToken();
                     return true;
                 }
@@ -910,7 +925,7 @@ type Parser object {
                     }
                     Token operator = self.oprStack.pop();
                     //build unary expressions, and push it to the expression stack
-                    if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {// unary operators
+                    if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {                        // unary operators
                         self.priorOperator = false;
                         //unary_minus and unary_plus token types are converted to ADD and SUB tokenType
                         self.convertToValidOp(operator);
@@ -924,7 +939,7 @@ type Parser object {
                             uExpression: expr3
                         };
                         self.expStack.push(uExpression);
-                    } else { //build binary expressions by popping two expressions and push it to the expression stack
+                    } else {                        //build binary expressions by popping two expressions and push it to the expression stack
                         OperatorKind opKind = self.matchOperatorType(operator);
                         ExpressionNode expr2 = self.expStack.pop();
                         ExpressionNode expr1 = self.expStack.pop();
@@ -986,9 +1001,9 @@ type Parser object {
                     tupleList[self.tupleListPos] = exprComma;
                     self.tupleListPos += 1;
                     continue;
-                } else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) { // unary operators
+                } else if ((operator.tokenType >= NOT && operator.tokenType <= UNARY_PLUS)) {                    // unary operators
 
-                	//unary_minus and unary_plus token types are converted to ADD and SUB tokenType
+                    //unary_minus and unary_plus token types are converted to ADD and SUB tokenType
                     self.convertToValidOp(operator);
                     OperatorKind opKind3 = self.matchOperatorType(operator);
                     if (self.expOperand == true) {
@@ -1017,7 +1032,7 @@ type Parser object {
                     if (self.expOperand == true) {
 
                         log:printError(operator.lineNumber + ":" + operator.startPos +
-                         " : invalid binary expression, binary RHS expression not found");
+                        " : invalid binary expression, binary RHS expression not found");
                         self.invalidOccurence = true;
                         OperatorKind opKind = self.matchOperatorType(operator);
                         ExpressionNode expr1 = self.expStack.pop();
@@ -1071,7 +1086,7 @@ type Parser object {
                     tupleExprList:<ExpressionNode[]>(tupleList.freeze())
                 };
                 self.expStack.push(tupleLNode);
-                self.tupleListPos =0;
+                self.tupleListPos = 0;
             }
 
             self.separatorCount = 0;
@@ -1087,7 +1102,7 @@ type Parser object {
     #valueTypeName
     #   | INT
     #   | STRING
-	# +return - Token
+    # +return - Token
     function parseValueTypeName() returns Token {
         if (self.LAToken(1) == INT) {
             Token int1 = self.matchToken(INT, STATEMENT_NODE);

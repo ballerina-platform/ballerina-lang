@@ -10,11 +10,11 @@ ERROR [sachini/parserModule] - LBRACE inserted
 	"tokenList": [{
 		"tokenType": 51,
 		"text": "EOF",
-		"startPos": 16,
-		"endPos": 16,
-		"lineNumber": 1,
+		"startPos": 1,
+		"endPos": 1,
+		"lineNumber": 2,
 		"index": 6,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

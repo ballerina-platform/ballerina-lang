@@ -7,7 +7,6 @@ serialized json output:
 ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
 ERROR [sachini/parserModule] - SEMICOLON inserted
 
-
 {
 	"nodeKind": "package",
 	"tokenList": [{
@@ -15,9 +14,9 @@ ERROR [sachini/parserModule] - SEMICOLON inserted
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 3,
+		"lineNumber": 4,
 		"index": 11,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

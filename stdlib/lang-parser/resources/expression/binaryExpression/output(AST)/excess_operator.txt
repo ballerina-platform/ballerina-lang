@@ -12,9 +12,9 @@ ERROR [sachini/parserModule] - 2:12 : missing unary expression
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 3,
+		"lineNumber": 4,
 		"index": 14,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

@@ -13,9 +13,9 @@ ERROR [sachini/parserModule] - 2:6: expected IDENTIFIER; found '='
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 3,
+		"lineNumber": 4,
 		"index": 11,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

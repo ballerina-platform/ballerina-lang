@@ -5,7 +5,6 @@ serialized json output:
 
 ERROR [sachini/parserModule] - 1:15: expected RPAREN; found '{'
 
-
 {
 	"nodeKind": "package",
 	"tokenList": [{
@@ -13,9 +12,9 @@ ERROR [sachini/parserModule] - 1:15: expected RPAREN; found '{'
 		"text": "EOF",
 		"startPos": 1,
 		"endPos": 1,
-		"lineNumber": 2,
+		"lineNumber": 3,
 		"index": 6,
-		"whiteSpace": null
+		"whiteSpace": "\n"
 	}],
 	"definitionList": [{
 		"nodeKind": "function",

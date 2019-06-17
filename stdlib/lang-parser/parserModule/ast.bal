@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 
 const PACKAGE_NODE = "package";
@@ -66,8 +82,8 @@ const BIT_COMPLEMENT_OP = "~";
 //untaint type to be a value kind?
 const UNTAINT_TYPE = "untaint";
 
-type OperatorKind PLUS_OP|MINUS_OP | DIVISION_OP | MULTIPLICATION_OP | ERROR_OP | COLON_OP | COMMA_OP |
-MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP | UNTAINT_TYPE;
+type OperatorKind PLUS_OP | MINUS_OP | DIVISION_OP | MULTIPLICATION_OP | ERROR_OP | COLON_OP | COMMA_OP |
+ MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP | UNTAINT_TYPE;
 
 type Node record {
     NodeKind nodeKind;
@@ -89,43 +105,43 @@ type FunctionNode record {
 
 type FunctionUnitSignatureNode FunctionSignatureNode | ErrorFunctionSignatureNode;
 
-type FunctionSignatureNode record{
+type FunctionSignatureNode record {
     *Node;
     IdentifierNodeKind functionIdentifier;
 };
 
-type ErrorFunctionSignatureNode record{
+type ErrorFunctionSignatureNode record {
 	*FunctionSignatureNode;
 };
 
 type FunctionBodyNode BlockNode | ErrorBlockNode;
 
-type BlockNode record{
+type BlockNode record {
     *Node;
     StatementNode[] statementList;
 };
 
-type ErrorBlockNode record{
+type ErrorBlockNode record {
 	*BlockNode;
 };
 
-type StatementNode VariableDefStNode | ContinueStNode | ErrorStatementNode ;
+type StatementNode VariableDefStNode | ContinueStNode | ErrorStatementNode;
 
 
 type VariableDefStNode VariableDefinitionStatementNode | ErrorVarDefStatementNode;
-type VariableDefinitionStatementNode record{
+type VariableDefinitionStatementNode record {
     *Node;
     ValueKind valueKind;
     VariableReferenceNode varIdentifier;
     ExpressionNode? expression;
 };
 
-type ErrorVarDefStatementNode record{
+type ErrorVarDefStatementNode record {
 	*VariableDefinitionStatementNode;
 };
 
 type ContinueStNode ContinueStatementNode | ErrorContinueStatementNode;
-type ContinueStatementNode record{
+type ContinueStatementNode record {
     *Node;
     ValueKind valueKind;
 };
@@ -141,7 +157,7 @@ type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | Tu
 
 type ErrorExpressionNode record {
 	*Node;
-	ExpressionNode errorExpression?;
+    ExpressionNode errorExpression?;
 };
 
 type BinaryExpressionNode record {
@@ -164,7 +180,7 @@ type IdentifierNode record {
 };
 type ErrorIdentifierNode record {
 	*Node;
-	string? identifier;
+    string? identifier;
 };
 
 type VariableReferenceNode VarRefIdentifier | ErrorVarRefIdentifierNode;
@@ -175,15 +191,15 @@ type VarRefIdentifier record {
 };
 type ErrorVarRefIdentifierNode record {
 	*Node;
-	string? varIdentifier;
+    string? varIdentifier;
 };
 
-type TupleLiteralNode record{
+type TupleLiteralNode record {
     *Node;
     ExpressionNode[] tupleExprList?;
 };
 
-type SimpleLiteral IntegerLiteralNode | QuotedStringLiteralNode| EmptyTupleLiteralNode;
+type SimpleLiteral IntegerLiteralNode | QuotedStringLiteralNode | EmptyTupleLiteralNode;
 
 type IntegerLiteralNode record {
     *Node;
