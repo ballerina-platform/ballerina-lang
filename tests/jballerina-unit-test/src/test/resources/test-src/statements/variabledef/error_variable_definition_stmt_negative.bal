@@ -56,8 +56,8 @@ function testBasicErrorVariable2() {
 }
 
 function errorVarInTupleVar() {
-    (int, error) tuple = (100, error("Error Code"));
-    var (a, error(reason, message = message)) = tuple;
+    [int, error] tuple = [100, error("Error Code")];
+    var [a, error(reason, message = message)] = tuple;
     boolean r = reason; // incompatible types: expected 'boolean', found 'string'
     string m = message; // incompatible types: expected 'string', found 'anydata|error'
 }
@@ -75,7 +75,7 @@ function errorVarWithUnderscore() {
 }
 
 
-function testDetailMapConstrainedToJSON() returns (json, json) {
+function testDetailMapConstrainedToJSON() returns [json, json] {
     error<string, map<json>> err1 = error("ErrorReason", message = "broken", fatal = true);
 
     var error(reason1, message = message, fatal = fatal) = err1;
@@ -89,5 +89,5 @@ function testDetailMapConstrainedToJSON() returns (json, json) {
 
     }
 
-    return (message, fatal);
+    return [message, fatal];
 }

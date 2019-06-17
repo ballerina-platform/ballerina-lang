@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/io;
 
-function testArrayWithErrors() returns (string, string, string) {
+function testArrayWithErrors() returns [string, string, string] {
     error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
     error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
     error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
@@ -43,25 +43,25 @@ function testArrayWithErrors() returns (string, string, string) {
     foreach error<string, map<string|boolean>> error(reason4, ..._) in errorArray {
         result3 += reason4 + ":";
     }
-    return (result1, result2, result3);
+    return [result1, result2, result3];
 }
 
 
-function testMapWithErrors() returns (string, string, string) {
+function testMapWithErrors() returns [string, string, string] {
     error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
     error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
     error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
     map<error<string, map<string|boolean>>> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
-    foreach var (key, error(reason, message = message, fatal = fatal)) in errMap {
+    foreach var [key, error(reason, message = message, fatal = fatal)] in errMap {
         result1 += reason + ":";
         result1 += io:sprintf("%s:", message);
         result1 += io:sprintf("%s:", fatal);
     }
 
     string result2 = "";
-    foreach (string, error<string, map<string|boolean>>) (key, error(reason2, message = message, fatal = fatal)) in errMap {
+    foreach [string, error<string, map<string|boolean>>] [key, error(reason2, message = message, fatal = fatal)] in errMap {
         result2 += reason2 + ":";
         any temp2 = message;
         if (temp2 is string|boolean|()) {
@@ -71,11 +71,11 @@ function testMapWithErrors() returns (string, string, string) {
     }
 
     string result3 = "";
-    foreach var (key, error(reason3)) in errMap {
+    foreach var [key, error(reason3)] in errMap {
         result3 += reason3 + ":";
     }
-    foreach (string, error<string, map<string|boolean>>) (key, error(reason4, ..._)) in errMap {
+    foreach [string, error<string, map<string|boolean>>] [key, error(reason4, ..._)] in errMap {
         result3 += reason4 + ":";
     }
-    return (result1, result2, result3);
+    return [result1, result2, result3];
 }

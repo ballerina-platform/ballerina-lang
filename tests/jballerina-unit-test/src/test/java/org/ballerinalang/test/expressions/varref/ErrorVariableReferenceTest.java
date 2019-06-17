@@ -229,7 +229,7 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 64, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
-                "expected '(any,string,map,(error,any))', found '(int,string,error,(error,Foo))'", 78, 58);
+                "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 78, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', found 'map<anydata|error>'",
                                   92, 32);
         BAssertUtil.validateError(resultNegative, ++i,

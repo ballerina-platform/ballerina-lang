@@ -80,7 +80,7 @@ function testMapWithErrors2() returns string {
 
 
     string result1 = "";
-    foreach (string, error<string, map<string>>) (key, error(reason,  message = message, fatal = fatal)) in errMap { // incompatible types: expected '(string,error)', found '(string,error)'
+    foreach [string, error<string, map<string>>] [key, error(reason,  message = message, fatal = fatal)] in errMap { // incompatible types: expected '(string,error)', found '(string,error)'
 
     }
     return result1;
@@ -93,11 +93,11 @@ function testMapWithErrors3() returns string {
     map<error<string, map<string|boolean>>> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
-    foreach var (key, error(reason, message = message, fatal = fatal)) in errMap {
+    foreach var [key, error(reason, message = message, fatal = fatal)] in errMap {
         map<string> x = message;
     }
 
-    foreach var (key, error(reason1, message = message))in errMap {
+    foreach var [key, error(reason1, message = message)] in errMap {
         string|boolean x = message;
     }
     return result1;
@@ -113,7 +113,7 @@ function testForeachReasonBinding() {
     error<string, ReasonT> err1 = error("reason-1", message = "message", fatal = false);
     map<error<string, ReasonT>> errMap = {a: err0, b: err1};
 
-    foreach var (key, error(reason, message = message, fatal = fatal, other2 = otherVar)) in errMap {
+    foreach var [key, error(reason, message = message, fatal = fatal, other2 = otherVar)] in errMap {
         string m = message;
         boolean f = fatal;
         int i = otherVar;

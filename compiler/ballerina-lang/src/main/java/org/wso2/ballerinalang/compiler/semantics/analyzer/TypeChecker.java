@@ -1187,13 +1187,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
                 null, env.scope.owner);
-
-        Name detailName = names.fromString("synthetic$error$detail");
-        BRecordTypeSymbol detailRecordSym = Symbols.createRecordSymbol(0, detailName, env.enclPkg.symbol.pkgID,
-                null, errorTSymbol);
-
-        List<BField> fields = new ArrayList<>();
         boolean unresolvedReference = false;
+
         for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
             BLangVariableReference refItem = (BLangVariableReference) detailItem.expr;
             refItem.lhsVar = true;
@@ -1205,12 +1200,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailRecordSym, fields, detailItem, (BLangFieldBasedAccess) refItem)) {
+                if (checkIndexBasedAccessExpr(detailItem, (BLangFieldBasedAccess) refItem)) {
                     unresolvedReference = true;
                 }
                 continue;
             } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailRecordSym, fields, detailItem, (BLangIndexBasedAccess) refItem)) {
+                if (checkIndexBasedAccessExpr(detailItem, (BLangIndexBasedAccess) refItem)) {
                     unresolvedReference = true;
                 }
                 continue;
@@ -1220,10 +1215,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 unresolvedReference = true;
                 continue;
             }
-            BVarSymbol refSymbol = (BVarSymbol) refItem.symbol;
-            BVarSymbol fieldVarSymbol = new BVarSymbol(0, names.fromIdNode(detailItem.name),
-                    env.enclPkg.symbol.pkgID, refSymbol.type, detailRecordSym);
-            fields.add(new BField(names.fromIdNode(detailItem.name), detailItem.pos, fieldVarSymbol));
         }
 
         if (varRefExpr.restVar != null) {
@@ -1245,17 +1236,17 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BType restFieldType;
+        BType errorRefRestFieldType;
         if (varRefExpr.restVar == null) {
-            restFieldType = symTable.pureType;
+            errorRefRestFieldType = symTable.pureType;
         } else if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
-            restFieldType = symTable.pureType;
+            errorRefRestFieldType = symTable.pureType;
         } else if (varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
             || varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            restFieldType = varRefExpr.restVar.type;
+            errorRefRestFieldType = varRefExpr.restVar.type;
         } else if (varRefExpr.restVar.type.tag == TypeTags.MAP) {
-            restFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
+            errorRefRestFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
         } else {
             dlog.error(varRefExpr.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                     varRefExpr.restVar.type, symTable.pureTypeConstrainedMap);
@@ -1263,18 +1254,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BRecordType detailRecType = new BRecordType(detailRecordSym);
-        detailRecType.fields = fields;
-        detailRecType.sealed = false;
-        detailRecType.restFieldType = restFieldType;
-        detailRecordSym.type = detailRecType;
-        detailRecordSym.scope = new Scope(detailRecordSym);
-        for (BField field : fields) {
-            detailRecordSym.scope.define(field.name, field.symbol);
-        }
-
-        BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, detailRecType);
-        resultType = errorType;
+        BType errorDetailType = new BMapType(TypeTags.MAP, errorRefRestFieldType, null);
+        resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
     }
 
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
@@ -1298,23 +1279,23 @@ public class TypeChecker extends BLangNodeVisitor {
         return unresolvedReference;
     }
 
-    private boolean checkIndexBasedAccessExpr(BRecordTypeSymbol detailRecordSym, List<BField> fields,
-                                              BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
+    private boolean checkIndexBasedAccessExpr(BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
         Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
         BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
         if (fSym != null) {
             if (fSym.type.getKind() == TypeKind.MAP) {
                 BType constraint = ((BMapType) fSym.type).constraint;
-                BVarSymbol fieldVarSymbol = new BVarSymbol(0, names.fromIdNode(detailItem.name),
-                        env.enclPkg.symbol.pkgID, constraint, detailRecordSym);
-                fields.add(new BField(names.fromIdNode(detailItem.name), detailItem.pos, fieldVarSymbol));
+                checkExpr(detailItem, this.env, constraint);
                 return false;
             } else {
-                throw new UnsupportedOperationException("rec field base access");
+                if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, fSym.type);
+                } else {
+                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING, fSym.type);
+                }
             }
-        } else {
-            return true;
         }
+        return true;
     }
 
     @Override

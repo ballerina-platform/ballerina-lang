@@ -89,13 +89,13 @@ function testBasicErrorVariableWithRecordDetails() returns [string, string, stri
 
 function testErrorInTuple() returns [int, string, string, anydata|error, boolean] {
     Foo f = { message: "fooMsg", fatal: true };
-    [int, string, error, [error, Foo]] t1 = (12, "Bal", error("Err", message = "Something Wrong"),
-                                                                (error("Err2", message = "Something Wrong2"), f));
-    [int, string, error, [error, Foo]] (intVar, stringVar, erroVar, (errorVar2, fooVar)) = t1;
+    [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
+                                                                [error("Err2", message = "Something Wrong2"), f]];
+    [int, string, error, [error, Foo]] [intVar, stringVar, erroVar, [errorVar2, fooVar]] = t1;
     return [intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal];
 }
 
-function testErrorInTupleWithVar() returns (int, string, string, anydata|error, boolean) {
+function testErrorInTupleWithVar() returns [int, string, string, anydata|error, boolean] {
     Foo f = { message: "fooMsg", fatal: false };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
