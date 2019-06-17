@@ -730,13 +730,10 @@ public class TypeChecker {
             // Both types are array types
             BArrayType lhrArrayType = (BArrayType) expType;
             BArrayType rhsArrayType = (BArrayType) actualType;
-            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+            return checkIsArrayType(rhsArrayType, lhrArrayType, new ArrayList<>());
         }
         // Now one or both types are not array types and they have to be equal
-        if (expType == actualType) {
-            return true;
-        }
-        return false;
+        return expType == actualType;
     }
 
     public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
