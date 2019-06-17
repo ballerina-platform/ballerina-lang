@@ -7,7 +7,7 @@ public function main() {
     // The type guard can be used with `value` to test to which of the types it belongs to and perform conditional
     // logic based on the type which it belongs to.
     if (value is string) {
-        // The type of `value` within this block is narrowed to `string`, and thus, the`value` can be assigned to a
+        // The type of `value` within this block is narrowed to `string`, and thus, `value` can be assigned to a
         // variable of the type `string`.
         string str = value;
         io:println("value is a string: ", str);
