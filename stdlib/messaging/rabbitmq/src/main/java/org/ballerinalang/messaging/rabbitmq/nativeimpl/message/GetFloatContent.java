@@ -29,8 +29,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -52,8 +50,6 @@ import java.util.Objects;
 )
 public class GetFloatContent extends BlockingNativeCallableUnit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetFloatContent.class);
-
     @Override
     public void execute(Context context) {
         boolean isInTransaction = context.isInTransaction();
@@ -69,7 +65,6 @@ public class GetFloatContent extends BlockingNativeCallableUnit {
             context.setReturnValues(new BFloat(Float.parseFloat(new String(messageContent,
                     StandardCharsets.UTF_8.name()))));
         } catch (UnsupportedEncodingException exception) {
-            LOGGER.error("Error while retrieving the float content of the message");
             RabbitMQUtils.returnError("Error while retrieving the float content of the message: "
                     + exception.getMessage(), context, exception);
         }

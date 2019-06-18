@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.rabbitmq.util;
 
+import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
@@ -230,9 +231,11 @@ public class ChannelUtils {
     public static void basicPublish(Channel channel, String routingKey, byte[] message, String exchange) {
         try {
             channel.basicPublish(exchange, routingKey, null, message);
-        } catch (Exception e) {
+        } catch (IOException e) {
             String errorMessage = "An error occurred while publishing the message to the queue ";
             throw new RabbitMQConnectorException(errorMessage + e.getMessage(), e);
+        } catch (AlreadyClosedException e) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CHANNEL_CLOSED_ERROR + e.getMessage(), e);
         }
     }
 

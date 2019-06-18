@@ -20,10 +20,10 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <!-- Ballerina language Test Cases. -->
+    <!-- Ballerina language compilation test cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
         <packages>
-
+            <package name="org.ballerinalang.messaging.rabbitmq.*"/>
         </packages>
     </test>
 </suite>

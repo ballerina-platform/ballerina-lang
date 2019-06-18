@@ -76,8 +76,8 @@ public class RabbitMQConstants {
     public static final int DEFAULT_PREFETCH = 10;
     public static final String MULTIPLE_ACK_ERROR = "Trying to acknowledge the same message multiple times";
     public static final String ACK_MODE_ERROR = "Trying to acknowledge messages in auto-ack mode";
-    public static final String ACK_ERROR = "Error occurred while positively acknowledging the message ";
-    public static final String NACK_ERROR = "Error occurred while negatively acknowledging the message ";
+    public static final String ACK_ERROR = "Error occurred while positively acknowledging the message: ";
+    public static final String NACK_ERROR = "Error occurred while negatively acknowledging the message: ";
 
     // Channel constant fields
     public static final String QOS_STATUS = "qos_status";
@@ -90,6 +90,8 @@ public class RabbitMQConstants {
     public static final String DELIVERY_TAG = "delivery_tag";
     public static final String MESSAGE_ACK_STATUS = "message_ack_status";
     public static final String AUTO_ACK_STATUS = "message_ack_status";
+    static final String MESSAGE_OBJ_FULL_NAME = PACKAGE_RABBITMQ + ":" + MESSAGE_OBJECT;
+    public static final String MESSAGE_PROCESSING_ERROR = "An error occurred while processing the message.";
 
     // Queue configuration constant fields
     public static final String ALIAS_QUEUE_NAME = "queueName";
@@ -108,8 +110,8 @@ public class RabbitMQConstants {
 
     // Transaction constant fields
     public static final String RABBITMQ_TRANSACTION_CONTEXT = "rabbitmq_transactional_context";
-    static final String COMMIT_FAILED = "Transaction commit failed.";
-    static final String ROLLBACK_FAILED = "Transaction rollback failed.";
+    static final String COMMIT_FAILED = "Transaction commit failed: ";
+    static final String ROLLBACK_FAILED = "Transaction rollback failed: ";
 
     private RabbitMQConstants() {
     }

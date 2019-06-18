@@ -72,7 +72,7 @@ public class BasicPublish extends BlockingNativeCallableUnit {
                 transactionContext.handleTransactionBlock(context);
             }
         } catch (RabbitMQConnectorException exception) {
-            LOGGER.error("I/O exception while publishing a message", exception);
+            LOGGER.error("Error occurred while publishing a message", exception);
             RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);
         }
     }

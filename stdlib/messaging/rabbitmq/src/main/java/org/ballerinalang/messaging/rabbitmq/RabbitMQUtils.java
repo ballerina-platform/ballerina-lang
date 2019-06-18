@@ -54,7 +54,7 @@ public class RabbitMQUtils {
         return objectClass.cast(nativeData);
     }
 
-    private static BMap<String, BValue> createErrorRecord(Context context, String errorMessage, Exception e) {
+    public static BMap<String, BValue> createErrorRecord(Context context, String errorMessage, Exception e) {
         BMap<String, BValue> errorStruct =
                 BLangConnectorSPIUtil.createBStruct(context, RabbitMQConstants.PACKAGE_RABBITMQ,
                         RabbitMQConstants.RABBITMQ_ERROR_RECORD);

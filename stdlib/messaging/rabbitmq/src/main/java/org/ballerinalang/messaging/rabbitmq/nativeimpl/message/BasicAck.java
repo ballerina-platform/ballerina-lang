@@ -32,8 +32,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -54,7 +52,6 @@ import java.util.Objects;
 )
 public class BasicAck extends BlockingNativeCallableUnit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAck.class);
 
     @Override
     public void execute(Context context) {
@@ -77,11 +74,9 @@ public class BasicAck extends BlockingNativeCallableUnit {
                 channel.basicAck(deliveryTag, multiple);
                 messageObject.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, true);
             } catch (IOException exception) {
-                LOGGER.error(RabbitMQConstants.ACK_ERROR, exception);
                 RabbitMQUtils.returnError(RabbitMQConstants.ACK_ERROR + exception.getMessage(),
                         context, exception);
             } catch (AlreadyClosedException exception) {
-                LOGGER.error(RabbitMQConstants.CHANNEL_CLOSED_ERROR, exception);
                 RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR,
                         context, exception);
             }
