@@ -19,18 +19,6 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Specifies the type of the OAuth2 grant type
-public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT|DIRECT_TOKEN;
-
-# Indicates OAuth2 client credentials grant type
-public const CLIENT_CREDENTIALS_GRANT = "CLIENT_CREDENTIALS_GRANT";
-
-# Indicates OAuth2 password grant type
-public const PASSWORD_GRANT = "PASSWORD_GRANT";
-
-# Indicates `direct token` as a grant type, where this is considered as a custom way of providing access tokens by the user
-public const DIRECT_TOKEN = "DIRECT_TOKEN";
-
 # Constant for the auth error code.
 public const OAUTH2_ERROR_CODE = "{ballerina/oauth2}OAuth2Error";
 
