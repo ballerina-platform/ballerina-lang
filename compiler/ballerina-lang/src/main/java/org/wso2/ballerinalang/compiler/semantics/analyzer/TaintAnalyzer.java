@@ -433,6 +433,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
         }
+
+        // Listener can be marked as @untainted to indicate it's listening to a safe endpoint,
+        // When not annotated @untainted, it defaults to tainted.
+        if (varNode.flagSet.contains(Flag.LISTENER)) {
+            if (hasAnnotation(varNode, ANNOTATION_UNTAINTED)) {
+                setTaintedStatus(varNode, TaintedStatus.UNTAINTED);
+            } else {
+                setTaintedStatus(varNode, TaintedStatus.TAINTED);
+            }
+        }
     }
 
     @Override
@@ -1343,8 +1353,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        // todo: set correct tainted status of the service by checking variables within service constructor.
-        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+        // Taintedness of a service variable depends on taintedness of listeners attached to this service.
+        // If any listener is tainted then the service variable is tainted.
+
+        boolean anyTaintedListeners = serviceConstructorExpr.serviceNode.attachedExprs.stream()
+                .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                .allMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+
+        if (anyTaintedListeners) {
+            getCurrentAnalysisState().taintedStatus = TaintedStatus.TAINTED;
+        } else {
+            getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+        }
     }
 
     @Override
@@ -1650,6 +1670,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
             return;
         }
+
+        boolean markParamsTainted = true;
+        if (invNode.getKind() == NodeKind.FUNCTION
+            && ((BLangFunction) invNode).receiver != null) {
+            if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
+
+            }
+        }
         // Entry point input parameters are all tainted, since they contain user controlled data.
         // If any value has been marked "sensitive" generate an error.
         if (isEntryPointParamsInvalid(invNode.requiredParams, markParamsTainted)) {
@@ -1657,10 +1685,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
         invNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
-        if (isEntryPointParamsInvalid(defaultableParamsVarList)) {
+        if (isEntryPointParamsInvalid(defaultableParamsVarList, markParamsTainted)) {
             return;
         }
-        if (invNode.restParam != null && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam))) {
+        if (invNode.restParam != null
+                && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam), markParamsTainted)) {
             return;
         }
         // Perform end point analysis.
@@ -1675,10 +1704,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isEntryPointParamsInvalid(List<BLangSimpleVariable> params) {
+    private boolean isEntryPointParamsInvalid(List<BLangSimpleVariable> params, boolean markParamsTainted) {
         if (params != null) {
             for (BLangSimpleVariable param : params) {
-                param.symbol.tainted = true;
+                if (markParamsTainted) {
+                    param.symbol.tainted = true;
+                }
                 if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
                     this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE,
                             param.name.value);
