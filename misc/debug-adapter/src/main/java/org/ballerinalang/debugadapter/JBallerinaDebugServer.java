@@ -14,20 +14,23 @@ package org.ballerinalang.debugadapter;/*
  * limitations under the License.
  */
 
-import com.sun.jdi.*;
+import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ThreadReference;
+import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import events.EventBus;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.Thread;
+import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -179,14 +182,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
-        ThreadReference thread = debuggee.allThreads()
-                .stream()
-                .filter(t -> t.uniqueID() == args.getThreadId())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
-        thread.resume();
+//        ThreadReference thread = debuggee.allThreads()
+//                .stream()
+//                .filter(t -> t.uniqueID() == args.getThreadId())
+//                .findFirst()
+//                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+//        thread.resume();
+        debuggee.resume();
         ContinueResponse continueResponse = new ContinueResponse();
-        continueResponse.setAllThreadsContinued(false);
+        continueResponse.setAllThreadsContinued(true);
         return CompletableFuture.completedFuture(continueResponse);
     }
 
@@ -198,11 +202,44 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Cannot find thread"));
         StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_MIN, StepRequest.STEP_OVER);
+                StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+
         request.addCountFilter(1);// next step only
         request.enable();
-//        eventBus.eventSet.resume();
+        debuggee.resume();
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> stepIn(StepInArguments args) {
+        ThreadReference thread = debuggee.allThreads()
+                .stream()
+                .filter(t -> t.uniqueID() == args.getThreadId())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
+                StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+
+        request.addCountFilter(1);// next step only
+        request.enable();
+        debuggee.resume();
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Void> stepOut(StepOutArguments args) {
+        ThreadReference thread = debuggee.allThreads()
+                .stream()
+                .filter(t -> t.uniqueID() == args.getThreadId())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
+                StepRequest.STEP_LINE, StepRequest.STEP_OUT);
+
+        request.addCountFilter(1);// next step only
+        request.enable();
+        debuggee.resume();
+        return null;
     }
 
     @Override
@@ -232,7 +269,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Source source = new Source();
         try {
             newStackFrame = new StackFrame();
-//            final File f = new File(hello_world.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             source.setPath("/Users/pahan/workspace/jballerina/samples/" + stackFrame.location().sourceName());
             source.setName(stackFrame.location().sourceName());
             newStackFrame.setSource(source);

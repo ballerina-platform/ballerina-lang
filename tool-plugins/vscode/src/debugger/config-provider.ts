@@ -80,7 +80,6 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             // launch debugger
 
             // TODO: update this code to ballerina launch
-            // const ballerinaCommand = "java -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=y -jar hello_world.jar"
             const balProcess = child_process.spawn('java', 
                 ['-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=y', '-jar', 'hello_world.jar'], {
                 cwd: "/Users/pahan/workspace/jballerina/samples"
@@ -88,7 +87,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
             balProcess.stdout.on('data', (data) => {
                 if (data.toString().includes('Listening for transport dt_socket')) {
-                    BallerinaDebugAdapterDescriptorFactory.launchAdopter(resolve, reject);
+                    BallerinaDebugAdapterDescriptorFactory.launchAdapter(resolve, reject);
                 }
                 console.log(data.toString())
             });
@@ -97,7 +96,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             });
         });
     }
-    static launchAdopter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
+    static launchAdapter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
         const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
 
         let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");

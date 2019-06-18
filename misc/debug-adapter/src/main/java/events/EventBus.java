@@ -20,25 +20,19 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.event.BreakpointEvent;
-import com.sun.jdi.event.ClassPrepareEvent;
-import com.sun.jdi.event.Event;
-import com.sun.jdi.event.EventSet;
+import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.StepRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class EventBus {
     private Breakpoint[] breakpointsList = new Breakpoint[0];
-    public EventSet eventSet = null;
 
     public void setBreakpointsList(Breakpoint[] breakpointsList) {
         this.breakpointsList = breakpointsList;
@@ -47,10 +41,13 @@ public class EventBus {
     public void startListening(VirtualMachine debuggee, IDebugProtocolClient client) {
         CompletableFuture.runAsync(() -> {
                     try {
-                        while ((eventSet = debuggee.eventQueue().remove(100)) != null) {
+                        while (true) {
+                            EventSet eventSet = debuggee.eventQueue().remove();
+                            EventIterator eventIterator = eventSet.eventIterator();
 
-                            for (Event event : eventSet) {
-
+                            while (eventIterator.hasNext()) {
+                                Event event = eventIterator.next();
+                                System.out.println(event.toString());
                                 /*
                                  * If this is ClassPrepareEvent, then set breakpoint
                                  */
@@ -82,9 +79,12 @@ public class EventBus {
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
                                     stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                                     client.stopped(stoppedEventArguments);
-//                        }
-                                }
-                                else {
+                                } else if (event instanceof StepEvent){
+                                    StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                                    stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
+                                    stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                                    client.stopped(stoppedEventArguments);
+                                } else {
                                     eventSet.resume();
                                 }
                             }
@@ -94,6 +94,9 @@ public class EventBus {
                         System.out.println("VM is now disconnected.");
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                    finally {
+                        System.out.println("While loop exit");
                     }
                 }
         );
