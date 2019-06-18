@@ -225,7 +225,7 @@ public function Response.hasHeader(string headerName) returns boolean {
     return entity.hasHeader(headerName);
 }
 
-public function Response.getHeader(string headerName) returns string {
+public function Response.getHeader(string headerName) returns @tainted string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -235,7 +235,7 @@ public function Response.addHeader(string headerName, string headerValue) {
     entity.addHeader(headerName, headerValue);
 }
 
-public function Response.getHeaders(string headerName) returns (string[]) {
+public function Response.getHeaders(string headerName) returns @tainted (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -260,7 +260,7 @@ public function Response.removeAllHeaders() {
     entity.removeAllHeaders();
 }
 
-public function Response.getHeaderNames() returns string[] {
+public function Response.getHeaderNames() returns @tainted string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
@@ -270,28 +270,28 @@ public function Response.setContentType(string contentType) {
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response.getContentType() returns string {
+public function Response.getContentType() returns @tainted string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-public function Response.getJsonPayload() returns json|error {
+public function Response.getJsonPayload() returns @tainted json|error {
     return self.getEntity()!getJson();
 }
 
-public function Response.getXmlPayload() returns xml|error {
+public function Response.getXmlPayload() returns @tainted xml|error {
     return self.getEntity()!getXml();
 }
 
-public function Response.getTextPayload() returns string|error {
+public function Response.getTextPayload() returns @tainted string|error {
     return self.getEntity()!getText();
 }
 
-public function Response.getBinaryPayload() returns byte[]|error {
+public function Response.getBinaryPayload() returns @tainted byte[]|error {
     return self.getEntity()!getByteArray();
 }
 
-public function Response.getByteChannel() returns io:ReadableByteChannel|error {
+public function Response.getByteChannel() returns @tainted io:ReadableByteChannel|error {
     return self.getEntity()!getByteChannel();
 }
 

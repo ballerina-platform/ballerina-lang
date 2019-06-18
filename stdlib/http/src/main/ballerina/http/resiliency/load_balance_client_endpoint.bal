@@ -252,7 +252,7 @@ public remote function LoadBalanceClient.rejectPromise(PushPromise promise) {
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performLoadBalanceExecuteAction(LoadBalanceClient lb, string path, Request request,
-                                         string httpVerb) returns Response|error {
+                                         string httpVerb) returns @tainted Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
@@ -264,7 +264,7 @@ function performLoadBalanceExecuteAction(LoadBalanceClient lb, string path, Requ
 
 // Handles all the actions exposed through the Load Balance connector.
 function performLoadBalanceAction(LoadBalanceClient lb, string path, Request request, HttpOperation requestAction)
-             returns Response|error {
+             returns @tainted Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is available.
     LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode: 500, message: "", httpActionErr:[]};

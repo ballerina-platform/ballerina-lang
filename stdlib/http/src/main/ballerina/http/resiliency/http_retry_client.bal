@@ -306,14 +306,14 @@ public remote function RetryClient.rejectPromise(PushPromise promise) {
 // of the http verb and invokes the perform action method.
 // verb is used for submit methods only.
 function performRetryClientExecuteAction(@sensitive string path, Request request, @sensitive string httpVerb,
-                                         RetryClient retryClient, string verb = "") returns HttpResponse|error {
+                                         RetryClient retryClient, string verb = "") returns @tainted HttpResponse|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performRetryAction(path, request, connectorAction, retryClient, verb = verb);
 }
 
 // Handles all the actions exposed through the retry client.
 function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
-                            RetryClient retryClient, string verb = "") returns HttpResponse|error {
+                            RetryClient retryClient, string verb = "") returns @tainted HttpResponse|error {
     Client httpClient = retryClient.httpClient;
     int currentRetryCount = 0;
     int retryCount = retryClient.retryInferredConfig.count;

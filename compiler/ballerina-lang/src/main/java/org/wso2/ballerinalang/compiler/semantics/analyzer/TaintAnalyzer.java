@@ -1652,7 +1652,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         // Entry point input parameters are all tainted, since they contain user controlled data.
         // If any value has been marked "sensitive" generate an error.
-        if (isEntryPointParamsInvalid(invNode.requiredParams)) {
+        if (isEntryPointParamsInvalid(invNode.requiredParams, markParamsTainted)) {
             return;
         }
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
@@ -1786,6 +1786,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      */
     private void validateReturnAndParameterTaintedAnnotations(BLangInvokableNode invokableNode,
                                                               Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+        if (this.analyzerPhase != AnalyzerPhase.INITIAL_ANALYSIS
+                || this.analyzerPhase != AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS) {
+            return;
+        }
+
         TaintRecord taintRecord = taintedStatusBasedOnAnnotations.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
@@ -1803,9 +1808,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             TaintedStatus taintedStatus = taintRecord.parameterTaintedStatusList.get(i);
             if (taintedStatus == TaintedStatus.TAINTED) {
                 BLangSimpleVariable param = getParam(invokableNode, i, requiredParamCount, defaultableParamCount);
-                dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
-                        invokableNode.name);
-                stopAnalysis = true;
+                if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
+                    dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
+                            invokableNode.name);
+                    stopAnalysis = true;
+                }
             }
         }
 

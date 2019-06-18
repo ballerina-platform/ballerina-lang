@@ -42,7 +42,7 @@ public type JWTValidatorConfig record {|
 # + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
-public function validateJwt(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
+public function validateJwt(string jwtToken, JWTValidatorConfig config) returns @tainted JwtPayload|error {
     string[] encodedJWTComponents = [];
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
@@ -81,7 +81,7 @@ function getJWTComponents(string jwtToken) returns (string[])|error {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
+function parseJWT(string[] encodedJWTComponents) returns @tainted ((JwtHeader, JwtPayload)|error) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
@@ -96,7 +96,7 @@ function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload
     return (jwtHeader, jwtPayload);
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ((json, json)|error) {
     string jwtHeader = encoding:byteArrayToString(check
         encoding:decodeBase64Url(encodedJWTComponents[0]));
     string jwtPayload = encoding:byteArrayToString(check

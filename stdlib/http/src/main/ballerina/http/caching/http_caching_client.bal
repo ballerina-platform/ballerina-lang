@@ -357,7 +357,7 @@ public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
 }
 
 function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
-                           boolean isShared, boolean forwardRequest) returns Response|error {
+                           boolean isShared, boolean forwardRequest) returns @tainted Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 
@@ -572,7 +572,7 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
     return STALE;
 }
 
-function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns boolean {
+function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns @tainted boolean {
     int currentAge = getResponseAge(cachedResponse);
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
     return freshnessLifetime > currentAge;
@@ -653,7 +653,7 @@ function setAgeHeader(Response cachedResponse) {
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
-function calculateCurrentResponseAge(Response cachedResponse) returns int {
+function calculateCurrentResponseAge(Response cachedResponse) returns @tainted int {
     int ageValue = getResponseAge(cachedResponse);
     int dateValue = getDateValue(cachedResponse);
     int now = time:currentTime().time;
@@ -728,7 +728,7 @@ function retain2xxWarnings(Response cachedResponse) {
     }
 }
 
-function getResponseAge(Response cachedResponse) returns int {
+function getResponseAge(Response cachedResponse) returns @tainted int {
     if (!cachedResponse.hasHeader(AGE)) {
         return 0;
     }

@@ -154,12 +154,12 @@ function testMoveToFunction(string sourceStr, string target) returns boolean {
     }
 }
 
-function testWriteFile(string pathValue) returns error? {
+function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
     var result = byteChannel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
-    return <@untainted error?> byteChannel.close();
+    return byteChannel.close();
 }
 
 function testReadFile(string pathValue) returns boolean {

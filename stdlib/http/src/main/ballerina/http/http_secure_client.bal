@@ -112,7 +112,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function post(string path, RequestMessage message) returns Response|error {
+    public remote function post(string path, RequestMessage message) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->post(path, req);
@@ -131,7 +131,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function head(string path, RequestMessage message = ()) returns Response|error {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->head(path, message = req);
@@ -150,7 +150,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function put(string path, RequestMessage message) returns Response|error {
+    public remote function put(string path, RequestMessage message) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->put(path, req);
@@ -170,7 +170,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->execute(httpVerb, path, req);
@@ -189,7 +189,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function patch(string path, RequestMessage message) returns Response|error {
+    public remote function patch(string path, RequestMessage message) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->patch(path, req);
@@ -208,7 +208,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, RequestMessage message) returns Response|error {
+    public remote function delete(string path, RequestMessage message) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->delete(path, req);
@@ -227,7 +227,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function get(string path, RequestMessage message = ()) returns Response|error {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->get(path, message = req);
@@ -246,7 +246,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
-    public remote function options(string path, RequestMessage message = ()) returns Response|error {
+    public remote function options(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
         Response res = check self.httpClient->options(path, message = req);
@@ -264,7 +264,7 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function forward(string path, Request request) returns Response|error {
+    public remote function forward(string path, Request request) returns @tainted Response|error {
         boolean retryRequired = check generateSecureRequest(request, self.config, self.tokenCache);
         Response res = check self.httpClient->forward(path, request);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
@@ -420,8 +420,8 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token with the status whether retrying is required for a 401 response or returns
 # `error` if the validation fails
-function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCache,
-                               boolean updateRequest) returns (string, boolean)|error {
+function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, @tainted CachedToken tokenCache,
+                               boolean updateRequest) returns @tainted (string, boolean)|error {
     var grantType = authConfig.grantType;
     var grantTypeConfig = authConfig.config;
     if (grantType is PASSWORD_GRANT) {
@@ -456,7 +456,7 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCac
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            CachedToken tokenCache) returns (string, boolean)|error {
+                                            @tainted CachedToken tokenCache) returns @tainted (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -497,7 +497,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     CachedToken tokenCache) returns (string, boolean)|error {
+                                                     @tainted CachedToken tokenCache) returns @tainted (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -539,7 +539,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              CachedToken tokenCache) returns (string, boolean)|error {
+                                              @tainted CachedToken tokenCache) returns @tainted (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         var directAccessToken = grantTypeConfig["accessToken"];
@@ -642,7 +642,7 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
 # + tokenCache - Cached token configurations
 # + return - Access token received or `error` if an error occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
-                                                CachedToken tokenCache) returns string|error {
+                                                @tainted CachedToken tokenCache) returns @tainted string|error {
     Client authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
@@ -719,7 +719,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 # + tokenCache - Cached token configurations
 # + return - Access token received or `error` if an error occurred during HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
-                                          CachedToken tokenCache) returns string|error {
+                                          @tainted CachedToken tokenCache) returns @tainted string|error {
     Client refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
@@ -839,7 +839,7 @@ function prepareRequest(RequestConfig config) returns Request|error {
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Extracted access token or `error` if an error occurred during the HTTP client invocation
-function extractAccessTokenFromResponse(Response response, CachedToken tokenCache, int clockSkew) returns string|error {
+function extractAccessTokenFromResponse(Response response, @tainted CachedToken tokenCache, int clockSkew) returns @tainted string|error {
     if (response.statusCode == OK_200) {
         var payload = response.getJsonPayload();
         if (payload is json) {
@@ -934,7 +934,7 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
 # + config - Client endpoint configurations
 # + tokenCache - Cached token configurations
 # + return - Returns `error` if an error occurred during the HTTP client invocation
-function updateRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns error? {
+function updateRequest(Request req, ClientEndpointConfig config, @tainted CachedToken tokenCache) returns error? {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         var authConfig = auth.config;

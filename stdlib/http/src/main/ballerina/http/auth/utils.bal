@@ -47,7 +47,7 @@ public const JWT_AUTH = "JWT_AUTH";
 #
 # + req - Request instance
 # + return - Value of the Authorization header
-public function extractAuthorizationHeaderValue(Request req) returns string {
+public function extractAuthorizationHeaderValue(Request req) returns @tainted string {
     // extract authorization header
     return req.getHeader(AUTH_HEADER);
 }

@@ -250,12 +250,12 @@ public function Request.hasHeader(string headerName) returns boolean {
     return entity.hasHeader(headerName);
 }
 
-public function Request.getHeader(string headerName) returns string {
+public function Request.getHeader(string headerName) returns @tainted string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Request.getHeaders(string headerName) returns string[] {
+public function Request.getHeaders(string headerName) returns @tainted string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -280,12 +280,12 @@ public function Request.removeAllHeaders() {
     entity.removeAllHeaders();
 }
 
-public function Request.getHeaderNames() returns string[] {
+public function Request.getHeaderNames() returns @tainted string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-public function Request.expects100Continue() returns boolean {
+public function Request.expects100Continue() returns @tainted boolean {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
@@ -295,28 +295,28 @@ public function Request.setContentType(string contentType) returns error? {
     return;
 }
 
-public function Request.getContentType() returns string {
+public function Request.getContentType() returns @tainted string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-public function Request.getJsonPayload() returns json|error {
+public function Request.getJsonPayload() returns @tainted json|error {
     return self.getEntity()!getJson();
 }
 
-public function Request.getXmlPayload() returns xml|error {
+public function Request.getXmlPayload() returns @tainted xml|error {
     return self.getEntity()!getXml();
 }
 
-public function Request.getTextPayload() returns string|error {
+public function Request.getTextPayload() returns @tainted string|error {
     return self.getEntity()!getText();
 }
 
-public function Request.getBinaryPayload() returns byte[]|error {
+public function Request.getBinaryPayload() returns @tainted byte[]|error {
     return self.getEntity()!getByteArray();
 }
 
-public function Request.getByteChannel() returns io:ReadableByteChannel|error {
+public function Request.getByteChannel() returns @tainted io:ReadableByteChannel|error {
     return self.getEntity()!getByteChannel();
 }
 
@@ -324,7 +324,7 @@ public function Request.getBodyParts() returns mime:Entity[]|error {
     return self.getEntity()!getBodyParts();
 }
 
-public function Request.getFormParams() returns map<string>|error {
+public function Request.getFormParams() returns @tainted map<string>|error {
     var mimeEntity = self.getEntity();
     if (mimeEntity is mime:Entity) {
         if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {

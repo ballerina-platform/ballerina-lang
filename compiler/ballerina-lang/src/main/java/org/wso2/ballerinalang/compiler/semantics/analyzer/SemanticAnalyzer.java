@@ -344,7 +344,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             annotationAttachment.accept(this);
         });
-        validateAnnotationAttachmentCount(conversionExpr, conversionExpr.annAttachments);
+        validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
     @Override

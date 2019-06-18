@@ -121,7 +121,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         addDefaultableBooleanVarsToSignature(func);
     }
     typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untaint map<(bir:AsyncCall|bir:FPLoad,string)>> lambdas);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted map<(bir:AsyncCall|bir:FPLoad,string)>> lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -129,7 +129,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     generateFrameClasses(module, jarFile.pkgEntries);
     foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        currentClass = untaint moduleClass;
+        currentClass = <@untainted string> moduleClass;
         if (moduleClass == typeOwnerClass) {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
             generateDefaultConstructor(cw, VALUE_CREATOR);
@@ -147,7 +147,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                 bir:Function? mainFunc = getMainFunc(module.functions);
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
-                    mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
+                    mainClass = getModuleLevelClassName(<@untainted string> orgName, <@untainted string> moduleName,
                                                         cleanupBalExt(mainFunc.pos.sourceFileName));
                 }
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
@@ -362,8 +362,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             } else {
                 string? balFileName = func.pos.sourceFileName;
                 if (balFileName is string) {
-                    moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                                          untaint cleanupBalExt(balFileName));
+                    moduleClass = getModuleLevelClassName(<@untainted string> orgName, <@untainted string> moduleName,
+                                                          <@untainted string> cleanupBalExt(balFileName));
                     var javaClass = jvmClassMap[moduleClass];
                     if (javaClass is JavaClass) {
                         javaClass.functions[javaClass.functions.length()] = func;

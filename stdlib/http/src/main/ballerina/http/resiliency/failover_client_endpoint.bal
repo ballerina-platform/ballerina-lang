@@ -316,14 +316,14 @@ public remote function FailoverClient.rejectPromise(PushPromise promise) {
 // of the http verb and invokes the perform action method.
 // `verb` is used for HTTP `submit()` method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                                    FailoverClient failoverClient, string verb = "") returns HttpResponse|error {
+                                    @tainted FailoverClient failoverClient, string verb = "") returns @tainted HttpResponse|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverClient, verb = verb);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                        FailoverClient failoverClient, string verb = "") returns HttpResponse|error {
+                                        @tainted FailoverClient failoverClient, string verb = "") returns @tainted HttpResponse|error {
 
     Client foClient = getLastSuceededClientEP(failoverClient);
     FailoverInferredConfig failoverInferredConfig = failoverClient.failoverInferredConfig;

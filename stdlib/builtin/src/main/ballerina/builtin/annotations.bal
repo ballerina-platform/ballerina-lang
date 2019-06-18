@@ -18,7 +18,7 @@
 public annotation sensitive on parameter;
 
 # Denote that the return value is tainted.
-public annotation tainted on parameter, return;
+public const annotation tainted on parameter, return, source listener;
 
 # Denote that the return value is untainted, parameter expect untainted value, and
-public const annotation untainted on return, parameter, source type;
+public const annotation untainted on return, parameter, source type, source listener;

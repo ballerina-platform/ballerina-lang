@@ -34,7 +34,7 @@ public type BearerAuthHeaderAuthnHandler object {
     #
     # + req - `Request` instance
     # + return - `true` if can be authenticated, else `false`
-    public function canHandle(Request req) returns boolean {
+    public function canHandle(Request req) returns @tainted boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
             return headerValue.hasPrefix(AUTH_SCHEME_BEARER);
