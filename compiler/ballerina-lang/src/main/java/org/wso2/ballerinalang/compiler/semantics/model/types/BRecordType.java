@@ -33,6 +33,15 @@ import java.util.ArrayList;
  */
 public class BRecordType extends BStructureType implements RecordType {
 
+    private static final String SPACE = " ";
+    private static final String RECORD = "record";
+    private static final String CLOSE_LEFT = "{|";
+    private static final String OPEN_LEFT = "{";
+    private static final String SEMI = ";";
+    private static final String CLOSE_RIGHT = "|}";
+    private static final String DOLLAR = "$";
+    private static final String OPEN_RIGHT = "}";
+    private static final String REST = "...";
     public boolean sealed;
     public BType restFieldType;
 
@@ -62,6 +71,21 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String toString() {
+
+        if (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(RECORD).append(SPACE);
+            sb.append(sealed ? CLOSE_LEFT : OPEN_LEFT);
+            fields.forEach(fields -> sb.append(SPACE).append(fields.type).append(SPACE)
+                    .append(fields.name).append(SEMI));
+            if (sealed) {
+                sb.append(SPACE).append(CLOSE_RIGHT);
+                return sb.toString();
+            }
+            sb.append(restFieldType).append(REST);
+            sb.append(SPACE).append(OPEN_RIGHT);
+            return sb.toString();
+        }
         return this.tsymbol.toString();
     }
 }

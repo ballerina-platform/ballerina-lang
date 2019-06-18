@@ -2578,6 +2578,7 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.symbol = funcSymbol;
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
+        iExpr.argExprs.add(0, iExpr.expr);
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
     }
@@ -2600,10 +2601,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         iExpr.requiredArgs = new ArrayList<>();
-
-        if (PackageID.isLangLibPackageID(iExpr.symbol.pkgID)) {
-            iExpr.requiredArgs.add(iExpr.expr);
-        }
 
         // Split the different argument types: required args, named args and rest args
         int i = 0;

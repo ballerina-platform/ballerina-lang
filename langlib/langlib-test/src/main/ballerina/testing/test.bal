@@ -16,10 +16,22 @@
 
 
 function test1 () {
-  //string a = "";
-  //_ = a.toString();
 
   float[] x = [];
-  int y = 10;
-  (float,int) zz = x.first(y);
+
+  record {| float a; |} aa = x.test();
+
+  x.removeAll();
+
+  abstract object {
+      public function next() returns record {|
+          float value;
+  |}?;} zz = x.iterator();
+
+
+
 }
+
+
+  function foo() {
+  }

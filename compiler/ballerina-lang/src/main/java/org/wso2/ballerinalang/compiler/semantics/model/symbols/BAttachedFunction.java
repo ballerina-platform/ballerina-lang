@@ -37,4 +37,12 @@ public class BAttachedFunction {
         this.type = type;
         this.symbol = symbol;
     }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("function").append(" ").append(funcName).append(" ").append(type.getTypeSignature());
+        return sb.toString();
+    }
 }
