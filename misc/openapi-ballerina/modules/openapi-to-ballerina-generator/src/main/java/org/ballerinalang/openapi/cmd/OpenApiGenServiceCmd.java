@@ -3,12 +3,18 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * Class to implement "openapi gen-service" command for ballerina.
+ * Ex: ballerina openapi gen-service module:serviceName contract
+ */
 @CommandLine.Command(name = "gen-service")
 public class OpenApiGenServiceCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
@@ -18,7 +24,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
 
-    @CommandLine.Parameters(index="1..*")
+    @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
     @CommandLine.Option(names = {"-c", "--copy-contract"},
@@ -57,16 +63,18 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         }
 
         //TODO Accept user confirmation to copy the contract in to the ballerina porject.
-        if(isCopy) {
+        if (isCopy) {
             throw LauncherUtils.createLauncherException("User selected : " + isCopy);
         }
 
         //Set source package for the generated service
         generator.setSrcPackage(moduleArgs.get(0));
 
+
         try {
-            generator.generate(GeneratorConstants.GenType.valueOf("GEN_SERVICE"), argList.get(0), output);
-        } catch (Exception e) {
+            generator.generate(GeneratorConstants.GenType.valueOf("GEN_SERVICE"),
+                        argList.get(0), argList.get(1), output);
+        } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(
                     "Error occurred when generating service for openapi contract at " + argList.get(0)
                             + ". " + e.getMessage() + ".");

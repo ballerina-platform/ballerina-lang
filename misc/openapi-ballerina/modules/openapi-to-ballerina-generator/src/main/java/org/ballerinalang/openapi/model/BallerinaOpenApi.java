@@ -266,4 +266,8 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
         this.definitionPath = definitionPath;
     }
 
+    public String getDefinitionPath() {
+        return definitionPath;
+    }
+
 }
