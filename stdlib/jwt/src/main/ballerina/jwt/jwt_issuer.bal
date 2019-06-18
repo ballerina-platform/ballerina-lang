@@ -24,9 +24,9 @@ import ballerina/encoding;
 # + keyPassword - Signing key password
 # + audienceAsArray - Always represent audience as an array (even when there is single audience)
 public type JwtIssuerConfig record {|
-    crypto:KeyStore keyStore?;
-    string keyAlias?;
-    string keyPassword?;
+    crypto:KeyStore keyStore;
+    string keyAlias;
+    string keyPassword;
     boolean audienceAsArray = false;
 |};
 
@@ -49,29 +49,25 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
         return (jwtAssertion);
     } else {
         if (config is JwtIssuerConfig) {
-            var keyStore = config["keyStore"];
-            var keyAlias = config["keyAlias"];
-            var keyPassword = config["keyPassword"];
-            if (keyStore is crypto:KeyStore && keyAlias is string && keyPassword is string) {
-                var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
-                                                               keyPassword = keyPassword);
-                string signature = "";
-                if (header.alg == RS256) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else if (header.alg == RS384) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else if (header.alg == RS512) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else {
-                    return prepareError("Unsupported JWS algorithm.");
-                }
-                return (jwtAssertion + "." + signature);
+            crypto:KeyStore keyStore = config.keyStore;
+            string keyAlias = config.keyAlias;
+            string keyPassword = config.keyPassword;
+            var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                           keyPassword = keyPassword);
+            string signature = "";
+            if (header.alg == RS256) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
+            } else if (header.alg == RS384) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
+            } else if (header.alg == RS512) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
             } else {
-                return prepareError("Signing JWT requires keyStore, keyAlias and keyPassword.");
+                return prepareError("Unsupported JWS algorithm.");
             }
+            return (jwtAssertion + "." + signature);
         } else {
             return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
         }
@@ -150,22 +146,3 @@ function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
     }
     return inJson;
 }
-
-# Represents authentication provider configurations that supports generating JWT for client interactions.
-#
-# + issuer - Expected JWT token issuer
-# + audience - Expected JWT token audience
-# + expTime - Expiry time for newly issued JWT tokens
-# + keyStore - Keystore containing the signing key
-# + keyAlias - Key alias for signing newly issued JWT tokens
-# + keyPassword - Key password for signing newly issued JWT tokens
-# + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtIssuerConfig record {|
-    string issuer;
-    string[] audience;
-    int expTime = 300;
-    crypto:KeyStore keyStore;
-    string keyAlias;
-    string keyPassword;
-    JwtSigningAlgorithm signingAlg = RS256;
-|};

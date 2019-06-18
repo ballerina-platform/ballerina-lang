@@ -21,18 +21,18 @@ import ballerina/time;
 
 # Represents outbound JWT authenticator.
 #
-# + jwtAuthProviderConfig - Outbound JWT auth provider configurations
+# + jwtIssuerConfig - Inferred JWT issuer configurations
 public type OutboundJwtAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public OutboundJwtAuthProviderConfig jwtAuthProviderConfig;
+    public InferredJwtIssuerConfig? jwtIssuerConfig;
 
     # Provides authentication based on the provided JWT configuration.
     #
-    # + outboundJwtAuthConfig - Outbound JWT authentication configurations
-    public function __init(OutboundJwtAuthProviderConfig jwtAuthProviderConfig) {
-        self.jwtAuthProviderConfig = jwtAuthProviderConfig;
+    # + jwtAuthProviderConfig - Inferred JWT issuer configurations
+    public function __init(InferredJwtIssuerConfig? jwtIssuerConfig) {
+        self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
     # Generate token for JWT authentication.
@@ -40,7 +40,7 @@ public type OutboundJwtAuthProvider object {
     # + return - Generated token or `error` if an error occurred during the JWT issuing or validation
     public function generateToken() returns string|error {
         string authToken = EMPTY_STRING;
-        var jwtIssuerConfig = self.jwtAuthProviderConfig["inferredJwtIssuerConfig"];
+        var jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is InferredJwtIssuerConfig) {
             authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
         } else {
@@ -48,7 +48,7 @@ public type OutboundJwtAuthProvider object {
         }
         if (authToken == EMPTY_STRING) {
             return prepareError("JWT was not used during inbound authentication.
-                                Provide InferredJwtIssuerConfig to issue new token.");
+                                Provide OutboundJwtAuthProviderConfig to issue new token.");
         }
         return authToken;
     }
@@ -62,16 +62,24 @@ public type OutboundJwtAuthProvider object {
     }
 };
 
-# The `OutboundJwtAuthProviderConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
+# Represents authentication provider configurations that supports generating JWT for client interactions.
 #
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
-public type OutboundJwtAuthProviderConfig record {|
-    InferredJwtIssuerConfig inferredJwtIssuerConfig?;
+# + issuer - Expected JWT token issuer
+# + audience - Expected JWT token audience
+# + expTime - Expiry time for newly issued JWT tokens
+# + issuerConfig - JWT issuer configurations
+# + signingAlg - Signing algorithm for signing newly issued JWT tokens
+public type InferredJwtIssuerConfig record {|
+    string issuer;
+    string[] audience;
+    int expTime = 300;
+    JwtIssuerConfig issuerConfig;
+    JwtSigningAlgorithm signingAlg = RS256;
 |};
 
 # Process auth token for JWT auth.
 #
-# + jwtIssuerConfig - JWT issuer configurations
+# + jwtIssuerConfig - Inferred JWT issuer configurations
 # + return - Auth token or `error` if an error occurred during the JWT issuing or validation
 function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
@@ -84,11 +92,6 @@ function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns
         jti: system:uuid(),
         aud: jwtIssuerConfig.audience
     };
-    JwtIssuerConfig issuerConfig = {
-        keyStore: jwtIssuerConfig.keyStore,
-        keyAlias: jwtIssuerConfig.keyAlias,
-        keyPassword: jwtIssuerConfig.keyPassword
-    };
     // TODO: cache the token per-user per-client and reuse it
-    return issueJwt(header, payload, issuerConfig);
+    return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
 }

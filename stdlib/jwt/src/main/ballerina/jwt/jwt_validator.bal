@@ -27,6 +27,7 @@ import ballerina/time;
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
+# + jwtCache - Cache used to store parsed JWT information as CachedJwt
 public type JwtValidatorConfig record {|
     string issuer?;
     string[] audience?;
@@ -34,6 +35,16 @@ public type JwtValidatorConfig record {|
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
+    cache:Cache jwtCache = new(capacity = 1000);
+|};
+
+# Represents parsed and cached JWT.
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
+public type CachedJwt record {|
+    JwtPayload jwtPayload;
+    int expiryTime;
 |};
 
 # Validity given JWT string.
