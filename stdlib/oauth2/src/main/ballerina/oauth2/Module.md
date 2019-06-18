@@ -21,13 +21,10 @@ The `oauth2:OutboundOAuth2Provider` is another implementation of the `auth:Outbo
 
 ```ballerina
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
-    grantType: oauth2:CLIENT_CREDENTIALS_GRANT,
-    config: {
-        tokenUrl: "https://localhost:9196/oauth2/token",
-        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
-        clientSecret: "9205371918321623741",
-        scopes: ["token-scope1", "token-scope2"]
-    }
+    tokenUrl: "https://localhost:9196/oauth2/token",
+    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+    clientSecret: "9205371918321623741",
+    scopes: ["token-scope1", "token-scope2"]
 });
 ```
 
@@ -35,15 +32,12 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
 
 ```ballerina
 oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
-    grantType: oauth2:PASSWORD_GRANT,
-    config: {
-        tokenUrl: "https://localhost:9196/oauth2/token/authorize/header",
-        username: "johndoe",
-        password: "A3ddj3w",
-        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
-        clientSecret: "9205371918321623741",
-        scopes: ["token-scope1", "token-scope2"]
-    }
+    tokenUrl: "https://localhost:9196/oauth2/token/authorize/header",
+    username: "johndoe",
+    password: "A3ddj3w",
+    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+    clientSecret: "9205371918321623741",
+    scopes: ["token-scope1", "token-scope2"]
 });
 ```
 
@@ -51,16 +45,13 @@ oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
 
 ```ballerina
 oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
-    grantType: oauth2:DIRECT_TOKEN,
-    config: {
-        accessToken: "2YotnFZFEjr1zCsicMWpAA",
-        refreshConfig: {
-            refreshUrl: "https://localhost:9196/oauth2/token/refresh",
-            refreshToken: "XlfBs91yquexJqDaKEMzVg==",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
-            clientSecret: "9205371918321623741",
-            scopes: ["token-scope1", "token-scope2"]
-        }
+    accessToken: "2YotnFZFEjr1zCsicMWpAA",
+    refreshConfig: {
+        refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+        refreshToken: "XlfBs91yquexJqDaKEMzVg==",
+        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+        clientSecret: "9205371918321623741",
+        scopes: ["token-scope1", "token-scope2"]
     }
 });
 ```

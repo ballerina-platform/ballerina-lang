@@ -37,5 +37,8 @@ When creating a new outbound authentication provider, you need to implement the 
 The `auth:OutboundBasicAuthProvider` is used to authenticate with external endpoint with the use of username and passwords provided at configurations. The `auth:OutboundBasicAuthProvider` is an implementation of the `auth:OutboundAuthProvider` interface.
 
 ```ballerina
-auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "tom", password: "123" });
+auth:OutboundBasicAuthProvider basicAuthProvider = new({
+    username: "tom",
+    password: "123"
+});
 ```

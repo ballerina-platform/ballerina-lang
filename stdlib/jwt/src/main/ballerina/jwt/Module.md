@@ -24,15 +24,13 @@ The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:Outboun
 
 ```ballerina
 jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
-    inferredJwtIssuerConfig: {
-        issuer: "example",
-        audience: ["ballerina"],
-        keyAlias: "ballerina",
-        keyPassword: "ballerina",
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
+    issuer: "example",
+    audience: ["ballerina"],
+    keyAlias: "ballerina",
+    keyPassword: "ballerina",
+    keyStore: {
+        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+        password: "ballerina"
     }
 });
 ```
