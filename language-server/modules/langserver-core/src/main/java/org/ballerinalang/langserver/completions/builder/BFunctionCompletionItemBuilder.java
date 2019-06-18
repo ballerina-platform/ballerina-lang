@@ -156,10 +156,10 @@ public final class BFunctionCompletionItemBuilder {
             String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
             functionName = functionName.replace(receiverType + ".", "");
         }
+        functionName = functionName.equals("__init") ? "new" : functionName;
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
-        List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
         if (bInvokableSymbol.kind == null
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
@@ -184,17 +184,7 @@ public final class BFunctionCompletionItemBuilder {
                 signature.append(getParameterSignature(parameterDefs.get(itr), false));
                 insertText.append(getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
 
-                if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
-                    signature.append(", ");
-                    insertText.append(", ");
-                }
-            }
-            for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
-                signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
-                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true, 
-                        parameterDefs.size() + itr + 1));
-
-                if (itr < defaultParameterDefs.size() - 1) {
+                if (itr != parameterDefs.size() - 1) {
                     signature.append(", ");
                     insertText.append(", ");
                 }

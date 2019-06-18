@@ -78,21 +78,19 @@ public class ArtemisTransactionContext implements BallerinaTransactionContext {
     }
 
     public void handleTransactionBlock(Context context, String objectType) {
-        if (ArtemisUtils.isAnonymousSession(sessionObj)) {
-            if (!context.isInTransaction()) {
+        if (!context.isInTransaction()) {
+            if (ArtemisUtils.isAnonymousSession(sessionObj)) {
                 try {
                     session.commit();
                     return;
                 } catch (ActiveMQException e) {
                     throw new ArtemisConnectorException("Session commit failed: " + e.getMessage(), e, context);
                 }
-            }
-        } else {
-            if (!context.isInTransaction()) {
+            } else {
                 throw new ArtemisConnectorException("The Session used by the Artemis " + objectType +
-                                                            " object is transacted. Hence " + objectType +
-                                                            " transacted actions cannot be used outside a transaction" +
-                                                            " block", context);
+                        " object is transacted. Hence " + objectType +
+                        " transacted actions cannot be used outside a transaction" +
+                        " block", context);
             }
         }
         TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();

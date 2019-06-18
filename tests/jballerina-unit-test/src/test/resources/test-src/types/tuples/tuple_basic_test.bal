@@ -12,7 +12,7 @@ function basicTupleTest () returns (string) {
 
     // Test 3
     FooStruct foo = {x:"foo test3"};
-    var (a, b) = ("test3",foo);
+    var [a, b] = ["test3",foo];
     addValue(a);
     addValue(b.x);
     endTest();
@@ -20,22 +20,22 @@ function basicTupleTest () returns (string) {
     // Test 4
     string c;
     int d;
-    (c, d) = ("test4", 4);
+    [c, d] = ["test4", 4];
     addValue(c);
     addValue(string.convert(d));
     endTest();
 
     // Test 5
-    (string,int) f = ("test5",5);
-    var (g, h) = f;
+    [string,int] f = ["test5",5];
+    var [g, h] = f;
     addValue(g);
     addValue(string.convert(h));
     endTest();
 
     // Test 6
     FooStruct foo6 = {x:"foo test6"};
-    (string, FooStruct) i = ("test6",foo6);
-    var (j, k) = i;
+    [string, FooStruct] i = ["test6",foo6];
+    var [j, k] = i;
     addValue(j);
     addValue(k.x);
     endTest();
@@ -56,71 +56,71 @@ function endTest(){
 }
 
 function testFunctionInvocation() returns (string) {
-    (string, float, string) i = ("y", 5.0, "z");
+    [string, float, string] i = ["y", 5.0, "z"];
     string x = testTuples("x", i);
     return x;
 }
 
-function testTuples (string x, (string, float, string) y) returns (string) {
-    var (i, j, k) = y;
+function testTuples (string x, [string, float, string] y) returns (string) {
+    var [i, j, k] = y;
     return x + i + j + k;
 }
 
 function testFunctionReturnValue() returns (string) {
-    (string, float, string) x = testReturnTuples("x");
-    var (i, j, k) = x;
+    [string, float, string] x = testReturnTuples("x");
+    var [i, j, k] = x;
     return i + j + k;
 }
 
-function testReturnTuples (string a) returns ((string, float, string)) {
-    (string, float, string) x = (a, 5.0, "z");
+function testReturnTuples (string a) returns ([string, float, string]) {
+    [string, float, string] x = [a, 5.0, "z"];
     return x;
 }
 
-function testFunctionReturnValue2() returns (string, float) {
-    var (i, j, k) = testReturnTuples("x");
-    return (i + k, j);
+function testFunctionReturnValue2() returns [string, float] {
+    var [i, j, k] = testReturnTuples("x");
+    return [i + k, j];
 }
 
 function testIgnoredValue1 () returns string {
-    (string, int) x = ("foo", 1);
+    [string, int] x = ["foo", 1];
     string a;
-    (a, _) = x;
+    [a, _] = x;
     return a;
 }
 
 function testIgnoredValue2 () returns string {
-    (string, int, int) x = ("foo", 1, 2);
+    [string, int, int] x = ["foo", 1, 2];
     string a;
     int c;
-    (a, _, c) = x;
+    [a, _, c] = x;
     return a;
 }
 
 function testIgnoredValue3 () returns string {
-    (string, int, int) x = ("foo", 1, 2);
+    [string, int, int] x = ["foo", 1, 2];
     string a;
-    (a, _, _) = x;
+    [a, _, _] = x;
     return a;
 }
 
-function testIgnoredValue4 () returns (string, boolean) {
-    (string, (int, (int, boolean))) x = ("foo", (1, (2, true)));
+function testIgnoredValue4 () returns [string, boolean] {
+    [string, [int, [int, boolean]]] x = ["foo", [1, [2, true]]];
     string a;
     boolean b;
-    (a, (_, (_, b))) = x;
-    return (a, b);
+    [a, [_, [_, b]]] = x;
+    return [a, b];
 }
 
-function testIndexBasedAccess () returns (string, int, boolean) {
-    (boolean, int, string) x = (true, 3, "abc");
+function testIndexBasedAccess () returns [string, int, boolean] {
+    [boolean, int, string] x = [true, 3, "abc"];
     boolean tempBool = x[0];
     int tempInt = x[1];
     string tempString = x[2];
     x[0] = false;
     x[1] = 4;
     x[2] = "def";
-    return (x[2], x[1], x[0]);
+    return [x[2], x[1], x[0]];
 }
 
 type Person record {|
@@ -132,12 +132,12 @@ type Employee record {
     boolean intern;
 };
 
-function testIndexBasedAccessOfRecords () returns (string, boolean, string, string, float) {
+function testIndexBasedAccessOfRecords () returns [string, boolean, string, string, float] {
     Person p1 = { name: "Foo" };
     Person p2 = { name: "Bar" };
     Employee e1 = { name: "FooBar", intern: false };
 
-    (Person, Employee, Person, float) x = (p1, e1, p2, 12.0);
+    [Person, Employee, Person, float] x = [p1, e1, p2, 12.0];
     Person p3 = x[0];
     Employee e2 = x[1];
     Person p4 = x[2];
@@ -149,10 +149,10 @@ function testIndexBasedAccessOfRecords () returns (string, boolean, string, stri
     x[1] = e3;
     x[2] = p6;
     x[3] = 15.5;
-    return (x[0].name, x[1].intern, x[2].name, p3.name, x[3]);
+    return [x[0].name, x[1].intern, x[2].name, p3.name, x[3]];
 }
 
-function testDefaultValuesInTuples () returns (string, int, boolean, float) {
-    (boolean, int, string, float) x = (false, 0, "", 0.0);
-    return (x[2], x[1], x[0], x[3]);
+function testDefaultValuesInTuples () returns [string, int, boolean, float] {
+    [boolean, int, string, float] x = [false, 0, "", 0.0];
+    return [x[2], x[1], x[0], x[3]];
 }

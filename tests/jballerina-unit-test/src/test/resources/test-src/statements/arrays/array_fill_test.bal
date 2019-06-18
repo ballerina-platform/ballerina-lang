@@ -64,9 +64,9 @@ function testArrayOfArraysFill(int index) returns Person[][] {
     return ar;
 }
 
-function testTupleArrayFill(int index) returns (string, int)[] {
-    (string, int) tup = ("Hello World!", 100);
-    (string, int)[] ar = [];
+function testTupleArrayFill(int index) returns [string, int][] {
+    [string, int] tup = ["Hello World!", 100];
+    [string, int][] ar = [];
     ar[index] = tup;
     return ar;
 }
@@ -84,7 +84,7 @@ type Foo record {
     boolean b;
     decimal d;
     () n;
-    (string, int) t;
+    [string, int] t;
     map<any> m;
     xml x;
     byte bt;
@@ -100,7 +100,7 @@ function testRecordArrayFill(int index) returns Foo[] {
         b: true,
         d: 23.45,
         n: (),
-        t: ("Pubudu", 27),
+        t: ["Pubudu", 27],
         m: m,
         x: xml ` `,
         bt: 5,
@@ -118,7 +118,7 @@ type Employee record {
     float salary;
 };
 
-function testTableArrayFill(int index) returns (table<Employee>[], string) {
+function testTableArrayFill(int index) returns [table<Employee>[], string] {
     table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
     table<Employee>[] ar = [];
     ar[index] = tbEmployee;
@@ -130,7 +130,7 @@ function testTableArrayFill(int index) returns (table<Employee>[], string) {
         }
     }
 
-    return (ar, name);
+    return [ar, name];
 }
 
 function testXMLArrayFill(int index) returns xml[] {

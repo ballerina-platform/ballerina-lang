@@ -55,8 +55,8 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
     JwtHeader header = {};
     JwtPayload payload = {};
     var decodedJwt = parseJWT(encodedJWTComponents);
-    if (decodedJwt is (JwtHeader, JwtPayload)) {
-        (header, payload) = decodedJwt;
+    if (decodedJwt is [JwtHeader, JwtPayload]) {
+        [header, payload] = decodedJwt;
     } else {
         return decodedJwt;
     }
@@ -81,22 +81,22 @@ function getJWTComponents(string jwtToken) returns (string[])|error {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
+function parseJWT(string[] encodedJWTComponents) returns ([JwtHeader, JwtPayload]|error) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
-    if (decodedJWTComponents is (json, json)) {
-        (headerJson, payloadJson) = decodedJWTComponents;
+    if (decodedJWTComponents is [json, json]) {
+        [headerJson, payloadJson] = decodedJWTComponents;
     } else {
         return decodedJWTComponents;
     }
 
     JwtHeader jwtHeader = parseHeader(headerJson);
     JwtPayload jwtPayload = parsePayload(payloadJson);
-    return (jwtHeader, jwtPayload);
+    return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns ([json, json]|error) {
     string jwtHeader = encoding:byteArrayToString(check
         encoding:decodeBase64Url(encodedJWTComponents[0]));
     string jwtPayload = encoding:byteArrayToString(check
@@ -119,7 +119,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
     } else {
         return jsonPayload;
     }
-    return (jwtHeaderJson, jwtPayloadJson);
+    return [jwtHeaderJson, jwtPayloadJson];
 }
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {

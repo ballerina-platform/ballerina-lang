@@ -83,7 +83,7 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 141, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(int,string)' will not be matched to '(float,boolean)'", 142, 18);
+                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 143, 18);
         BAssertUtil.validateError(negativeResult, i++,
@@ -600,7 +600,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test (groups = "brokenOnJBallerina")
+    @Test
     public void testError_1() {
         BValue[] returns = BRunUtil.invoke(result, "testError_1");
         Assert.assertEquals(returns.length, 4);
@@ -614,7 +614,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
 
-    @Test (groups = "brokenOnJBallerina")
+    @Test
     public void testError_2() {
         BValue[] returns = BRunUtil.invoke(result, "testError_2");
         Assert.assertEquals(returns.length, 3);

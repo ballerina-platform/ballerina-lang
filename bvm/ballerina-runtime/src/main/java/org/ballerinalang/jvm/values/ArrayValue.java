@@ -180,11 +180,12 @@ public class ArrayValue implements RefValue, CollectionValue {
             case TypeTags.BYTE_TAG:
                 byteValues = (byte[]) newArrayInstance(Byte.TYPE);
                 break;
+            case TypeTags.XML_TAG:
+                refValues = (Object[]) newArrayInstance(Object.class);
+                break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
-                if (size > 0) {
-                    Arrays.fill(refValues, elementType.getZeroValue());
-                }
+                Arrays.fill(refValues, elementType.getZeroValue());
         }
     }
 
@@ -370,8 +371,8 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof String)
-                               ? ("\"" + refValues[i] + "\"") : ((RefValue) refValues[i]).stringValue());
+                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
+                        (refValues[i] instanceof String) ? ("\"" + refValues[i] + "\"") :  refValues[i].toString());
             } else {
                 sj.add("()");
             }
@@ -566,6 +567,8 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (value != null) {
                 sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
                         : value.toString());
+            } else {
+                sj.add("()");
             }
         }
         return sj.toString();
@@ -619,9 +622,11 @@ public class ArrayValue implements RefValue, CollectionValue {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
+                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
+                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {
@@ -710,7 +715,8 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if ((requestedCapacity) - currentArraySize >= 0) {
+        if ((requestedCapacity) - currentArraySize > 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) this.arrayType).getState() == ArrayState.UNSEALED) {
             // Here the growth rate is 1.5. This value has been used by many other languages
             int newArraySize = currentArraySize + (currentArraySize >> 1);
 
@@ -868,7 +874,7 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (cursor == length) {
                 return null;
             }
-            return array.get(cursor);
+            return array.getValue(cursor);
         }
 
         @Override

@@ -20,6 +20,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -47,6 +48,7 @@ public class HTTPServicesRegistry {
     protected Map<String, HttpService> servicesByBasePath;
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
+    private Scheduler scheduler;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         this.webSocketServicesRegistry = webSocketServicesRegistry;
@@ -180,6 +182,14 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     /**

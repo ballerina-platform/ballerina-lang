@@ -174,8 +174,8 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate \\{\"message\":\"modification not " +
-                    "allowed on frozen value\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate \\{\"message\":" +
+                    "\"failed to set element to json: modification not allowed on frozen value\"\\}.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
@@ -549,7 +549,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "modification not allowed on frozen value");
+                            "failed to set element to json: modification not allowed on frozen value");
     }
 
     @Test
@@ -567,19 +567,19 @@ public class FreezeAndIsFrozenTest {
         // todo: (obj|obj|()).freeze() should be invalid.
 //        validateError(negativeResult, index++, "function invocation on type 'PersonObjTwo|PersonObj[]' is not " +
 //                "supported", 46, 9);
-        validateError(negativeResult, index++, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' " +
+        validateError(negativeResult, index++, "function invocation on type '[PersonObj|PersonObjTwo,PersonObjTwo]' " +
                 "is not supported", 53, 9);
         validateError(negativeResult, index++, "undefined function 'Department.freeze'", 58, 9);
         validateError(negativeResult, index++, "incompatible types: expected 'map<string|PersonObj>', found " +
                 "'map<string|PersonObj>|error'", 63, 32);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<(any,any)>', found 'map<" +
-                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 66, 26);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<[any,any]>', found 'map<" +
+                "[string|PersonObj,FreezeAllowedDepartment|float]>|error'", 66, 26);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean|PersonObj|float?[]', found " +
                 "'boolean|PersonObj|float?[]|error'", 69, 39);
         validateError(negativeResult, index++, "incompatible types: expected 'any[]', found " +
                 "'boolean|PersonObj|float?[]|error'", 71, 16);
-        validateError(negativeResult, index++, "incompatible types: expected '(string|PersonObj," +
-                "FreezeAllowedDepartment|float)', found '(string|PersonObj,FreezeAllowedDepartment|float)" +
+        validateError(negativeResult, index++, "incompatible types: expected '[string|PersonObj," +
+                "FreezeAllowedDepartment|float]', found '[string|PersonObj,FreezeAllowedDepartment|float]" +
                 "|error'", 74, 60);
         validateError(negativeResult, index++, "incompatible types: expected 'FreezeAllowedDepartment', found " +
                 "'FreezeAllowedDepartment|error'", 77, 35);

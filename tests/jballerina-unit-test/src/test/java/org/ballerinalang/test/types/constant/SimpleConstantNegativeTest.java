@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 56);
+        Assert.assertEquals(compileResult.getErrorCount(), 55);
 
         int index = 0;
         int offset = 1;
@@ -54,10 +54,9 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 offset += 7, 21);
         BAssertUtil.validateError(compileResult, index++, "invalid literal for type 'string'", offset += 2, 18);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 1);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", offset += 6, 5);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
-                offset += 11, 21);
+                offset += 17, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 9, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",

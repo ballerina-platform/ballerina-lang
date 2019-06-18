@@ -135,7 +135,7 @@ public function Person.getKind() returns string {
     return self.kind;
 }
 
-function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
+function testObjectEquivalencyBetweenAnonAndNormalObject() returns [int, string, string] {
     object { 
         public int age = 0;
         public string name = "";
@@ -153,10 +153,10 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 
     Person person1 = value;
 
-    return (person1.age, person1.name, person1.getKind());
+    return [person1.age, person1.name, person1.getKind()];
 }
 
-function testAnonObjectWithRecordLiteral() returns (int, string) {
+function testAnonObjectWithRecordLiteral() returns [int, string] {
     object { 
         public record {| int age; string name; anydata...; |} details;
         private int length; 
@@ -171,7 +171,7 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
         
     } value = new ({age:8, name:"sanjiva"}, "passed kind");
 
-    return (value.details.age, value.getName());
+    return [value.details.age, value.getName()];
 }
 
 type Foo object {
@@ -190,13 +190,13 @@ type Foo object {
     }
 };
 
-function testObjectWithAnonRecordLiteral() returns (int, string) {
+function testObjectWithAnonRecordLiteral() returns [int, string] {
     Foo value = new ({age:8, name:"sanjiva"}, "passed kind");
 
-    return (value.details.age, value.getName());
+    return [value.details.age, value.getName()];
 }
 
-function testObjectWithSelfReference() returns (int, string) {
+function testObjectWithSelfReference() returns [int, string] {
     object {
         public int age; 
         public string name; 
@@ -212,5 +212,5 @@ function testObjectWithSelfReference() returns (int, string) {
     } sample = new;
 
     sample.test(10, "Jewell");
-    return (sample.age, sample.name);
+    return [sample.age, sample.name];
 }

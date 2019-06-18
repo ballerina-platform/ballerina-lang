@@ -40,39 +40,42 @@ under the License.
             </run>
         </groups>
         <packages>
-            <!--<package name="org.ballerinalang.stdlib.entity.*"/>
+            <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
             <package name="org.ballerinalang.stdlib.multipart.*"/>
-            <package name="org.ballerinalang.stdlib.services.basics.*"/> -->
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
-            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>
-            <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.stdlib.resiliency.*"/>
-            <package name="org.ballerinalang.stdlib.websocket.*"/>
+            <!--<package name="org.ballerinalang.stdlib.services.dispatching.*"/>-->
+            <!--<package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>-->
+            <!--<package name="org.ballerinalang.stdlib.websocket.*"/>-->
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
-            <package name="org.ballerinalang.stdlib.auth.*"/>
-            <package name="org.ballerinalang.stdlib.connectionpool.*"/> -->
+            <package name="org.ballerinalang.stdlib.connectionpool.*"/>
+            <!--<package name="org.ballerinalang.stdlib.auth.*"/>-->
+            <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest">
-                <methods>
-                    <exclude name="testSignatureWithMismatchedBodyParam"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
             <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
                 <methods>
                     <exclude name="testErrorReturn"></exclude>
+                    <exclude name="testGetString"></exclude>
                 </methods>
             </class>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningDispatchingTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.VersioningNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.UriTemplateDefaultDispatcherTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.UriMatrixParametersMatchTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
             <class name="org.ballerinalang.stdlib.services.dispatching.ProducesConsumesAnnotationTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.promise.PushPromiseNativeFunctionTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionNegativeTest"/>
+            <class name="org.ballerinalang.stdlib.services.nativeimpl.request.RequestNativeFunctionSuccessTest"/>
+            <class name="org.ballerinalang.stdlib.services.dispatching.VirtualHostDispatchingTest"/>
         </classes>
     </test>
 </suite>

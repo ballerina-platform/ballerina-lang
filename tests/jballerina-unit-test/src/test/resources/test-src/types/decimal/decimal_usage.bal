@@ -15,33 +15,33 @@
 // under the License.
 
 // Decimal array.
-function testDecimalArray() returns (decimal[], int, decimal, decimal) {
+function testDecimalArray() returns [decimal[], int, decimal, decimal] {
     decimal[] dArr = [12.3, 23.2, 34.534, 5.4];
     int length = dArr.length();
     decimal element0 = dArr[0];
     decimal element1 = dArr[1];
-    return (dArr, length, element0, element1);
+    return [dArr, length, element0, element1];
 }
 
 // Decimal map.
-function testDecimalMap() returns (map<decimal>, int, string[], decimal) {
+function testDecimalMap() returns [map<decimal>, int, string[], decimal] {
     map<decimal> dMap = {element0: 12.45, element1: 34.3, element2: 2314.31};
     int length = dMap.length();
     string[] keys = dMap.keys();
     decimal element0 = dMap.element0;
-    return (dMap, length, keys, element0);
+    return [dMap, length, keys, element0];
 }
 
 // Test record with decimal fields
-function testDecimalRecord() returns (decimal, decimal) {
+function testDecimalRecord() returns [decimal, decimal] {
     Animal a = {weight: 23.45, height: 120.43};
-    return (a.weight, a.height);
+    return [a.weight, a.height];
 }
 
 // Test object with decimal fields
-function testDecimalObject() returns (string, int, decimal, decimal) {
+function testDecimalObject() returns [string, int, decimal, decimal] {
     Student s = new(57.25, 168.67);
-    return (s.name, s.age, s.weight, s.height);
+    return [s.name, s.age, s.weight, s.height];
 }
 
 // Record with decimal fields
