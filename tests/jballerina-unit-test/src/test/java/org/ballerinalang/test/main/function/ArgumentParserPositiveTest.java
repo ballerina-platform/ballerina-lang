@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 
 /**
  * Test class for entry function argument parsing positive scenarios.
@@ -36,11 +38,11 @@ import java.io.PrintStream;
  */
 public class ArgumentParserPositiveTest {
 
-    private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
+    private static final String MAIN_FUNCTION_TEST_SRC_DIR = "src/test/resources/test-src/main.function";
 
+    private ProgramFile programFile;
     private ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
     private PrintStream defaultOut;
-
 
     @BeforeClass
     public void setUp() {
@@ -49,102 +51,115 @@ public class ArgumentParserPositiveTest {
 
     @Test(dataProvider = "mainFunctionArgsAndResult")
     public void testMainWithParams(String intString, String floatString, String expectedString) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_params.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_params.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{intString, floatString});
+        runMain(programFile, new String[]{intString, floatString});
         Assert.assertEquals(tempOutStream.toString(), expectedString, "evaluated to invalid value");
     }
 
     @Test
     public void testNoArg() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_no_params.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_no_params.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{});
+        runMain(programFile, new String[]{});
         Assert.assertEquals(tempOutStream.toString(), "1", "evaluated to invalid value");
     }
 
     @Test(dataProvider = "intValues")
     public void testIntArg(String specifiedInt, String expectedInt) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_int_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_int_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{specifiedInt});
+        runMain(programFile, new String[]{specifiedInt});
         Assert.assertEquals(tempOutStream.toString(), expectedInt, "string arg parsed as invalid int");
     }
 
     @Test(dataProvider = "decimalValues")
     public void testDecimalArg(String specifiedDecimal, String expectedDecimal) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_decimal_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_decimal_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{specifiedDecimal});
+        runMain(programFile, new String[]{specifiedDecimal});
         Assert.assertEquals(tempOutStream.toString(), expectedDecimal, "string arg parsed as invalid decimal");
     }
 
     @Test(dataProvider = "jsonValues")
     public void testJsonArg(String arg) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_json_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_json_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{arg});
+        runMain(programFile, new String[]{arg});
         Assert.assertEquals(tempOutStream.toString(), arg, "string arg parsed as invalid JSON");
     }
 
     @Test
     public void testXmlArg() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_xml_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_xml_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"<book status=\"available\" count=\"5\"></book>"});
+        runMain(programFile, new String[]{"<book status=\"available\" count=\"5\"></book>"});
         Assert.assertTrue(tempOutStream.toString().contains("<book status=\"available\" count=\"5\"></book>"),
                 "string arg parsed as invalid XML");
     }
 
     @Test(dataProvider = "arrayValues")
     public void testValidArrayArg(String arg) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_array_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_array_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{arg});
+        runMain(programFile, new String[]{arg});
         Assert.assertEquals(tempOutStream.toString(), arg, "string arg parsed as invalid array");
     }
 
     @Test
     public void testTupleArg() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_tuple_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_tuple_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
+        runMain(programFile, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
         Assert.assertEquals(tempOutStream.toString(), "Id: 101, Name: Maryam, Dept: finance",
                             "string arg parsed as invalid tuple");
     }
 
     @Test
     public void testAllNamedArgs() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"-i=2", "-s=hi", "false", "is"});
+        runMain(programFile, new String[]{"-i=2", "-s=hi", "false", "is"});
         Assert.assertEquals(tempOutStream.toString(), "2 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
 
     @Test
     public void testSingleNamedArg() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"-s=hi", "false", "is"});
+        runMain(programFile, new String[]{"-s=hi", "false", "is"});
         Assert.assertEquals(tempOutStream.toString(), "1 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
 
     @Test
     public void testNoNamedArg() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"true", "is"});
+        runMain(programFile, new String[]{"true", "is"});
         Assert.assertEquals(tempOutStream.toString(), "1 default hello world: is true",
                             "string args with no named args parsed as invalid args");
     }
 
     @Test
     public void testMultipleParam() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_multiple_typed_params.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_multiple_typed_params.bal"), false,
+                                            true);
         resetTempOut();
-        runMain(compileResult, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
+        runMain(programFile, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
                 "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                 "{ \"name\": \"Em\" }", "just", "the", "rest"});
         Assert.assertTrue(tempOutStream.toString().contains(
@@ -155,9 +170,10 @@ public class ArgumentParserPositiveTest {
 
     @Test
     public void testOneDimArrParam() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_oneD_array_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_oneD_array_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]", "[1.0, 20.4, 30.3]",
+        runMain(programFile, new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]", "[1.0, 20.4, 30.3]",
                 "[true, true, false]", "[5, \"Maryam\", { \"name\": \"Maryam\" }]",
                 "[{ \"name\": \"Maryam\" }, { \"name\": \"Em\" }, { \"name\": \"Ziyad\" }]"});
         Assert.assertEquals(tempOutStream.toString(), "integer: 200, string: ballerina, float: 20.4, " +
@@ -167,9 +183,10 @@ public class ArgumentParserPositiveTest {
 
     @Test
     public void testMapParam() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_map_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_map_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"{\"int\":10, \"test\":120}",
+        runMain(programFile, new String[]{"{\"int\":10, \"test\":120}",
                 "{\"test\":\"Ballerina\", \"string\":\"str\"}",
                 "{\"test\":12.0, \"float\":11.1}",
                 "{\"boolean\":false, \"test\":true}",
@@ -182,34 +199,38 @@ public class ArgumentParserPositiveTest {
 
     @Test(dataProvider = "optionalParamArgAndResult")
     public void testMainWithOptionalParams(String inputValue, String expectedValue) throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_optional_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{inputValue});
+        runMain(programFile, new String[]{inputValue});
         Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
     }
 
     @Test
     public void testMainWithOptionalParamsNoneSpecified() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_optional_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{});
+        runMain(programFile, new String[]{});
         Assert.assertEquals(tempOutStream.toString(), "string value: s is nil m is nil", "evaluated to invalid value");
     }
 
     @Test(dataProvider = "optionalDefaultableParamOneArgSpecifiedAndResult")
     public void testMainWithOptionalDefaultableParamOneArgSpecified(String inputValue, String expectedValue)
             throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_optional_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{inputValue});
+        runMain(programFile, new String[]{inputValue});
         Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
     }
 
     @Test
     public void testMainWithOptionalParamsBothSpecified() throws IOException {
-        CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_optional_defaultable_param.bal");
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
         resetTempOut();
-        runMain(compileResult, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
+        runMain(programFile, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
         Assert.assertEquals(tempOutStream.toString(), "string value: ballerina {\"eleven\":11, \"twelve\":12}",
                             "evaluated to invalid value");
     }
@@ -291,7 +312,7 @@ public class ArgumentParserPositiveTest {
         System.setOut(new PrintStream(tempOutStream));
     }
 
-    private void runMain(CompileResult compileResult, String[] args) {
-        BCompileUtil.runMain(compileResult, args);
+    private void runMain(ProgramFile programFile, String[] args) {
+        BLangProgramRunner.runProgram(programFile, args);
     }
 }
