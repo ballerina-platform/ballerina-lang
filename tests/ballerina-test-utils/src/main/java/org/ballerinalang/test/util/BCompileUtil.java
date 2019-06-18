@@ -137,6 +137,19 @@ public class BCompileUtil {
     }
 
     /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileMain(String sourceFilePath) {
+        if (jBallerinaTestsEnabled()) {
+            return compileOnJBallerina(sourceFilePath);
+        }
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
+    /**
      * Compile and return the semantic errors for tests.
      *
      * @param sourceFilePath Path to source module/file
@@ -574,6 +587,9 @@ public class BCompileUtil {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
         Optional result = jvmCodeGen.generate(false, bLangPackage, context, packageName);
+        bLangPackage.jarBinaryContent = (byte[]) result.get();
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.write(bLangPackage, "/Users/vinod/repo/bal/dist/jballerina-tools-0.992.0-m2-SNAPSHOT/bin/testjar.jar");
         if (!result.isPresent()) {
             throw new RuntimeException("Compiled binary jar is not found");
         }
@@ -587,6 +603,20 @@ public class BCompileUtil {
         runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
         compileResult.setClassLoader(classLoader);
         return compileResult;
+    }
+
+    public static void runMain(CompileResult compileResult, String[] args) {
+        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage) compileResult.getAST()).packageID.orgName.value,
+                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
+        Method mainMethod = null;
+        try {
+            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
+            mainMethod.invoke(null, (Object) args);
+        } catch (NoSuchMethodException|IllegalAccessException|InvocationTargetException e) {
+            throw new RuntimeException("Main method invocation failed", e);
+        }
+
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {

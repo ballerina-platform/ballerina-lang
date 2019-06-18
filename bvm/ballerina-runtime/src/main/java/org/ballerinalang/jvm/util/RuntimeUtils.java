@@ -69,4 +69,17 @@
                  array.append((Object) value);
          }
      }
+
+     public static class ParamInfo {
+         String name;
+         boolean hasDefaultable;
+         BType type;
+         int index = -1;
+
+         public ParamInfo(boolean hasDefaultable, String name, BType type) {
+             this.name = name;
+             this.hasDefaultable = hasDefaultable;
+             this.type = type;
+         }
+     }
  }
