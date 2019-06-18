@@ -34,7 +34,7 @@ public function main() {
 }
 
 // This method uses structured record match patterns with different fields. The given `match` expression will
-// be checked for "isLike" relationship and will be matched during the runtime.
+// be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
         // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will
@@ -52,7 +52,7 @@ function basicMatch(any a) {
     }
 }
 
-// The following method uses structured record match patterns with different fields
+// This method uses structured record match patterns with different fields
 // along with type guards. The expression used with match will be evaluated to
 // check if it "is like" any of the match patterns. For a successful match, an additional
 // check will also be performed against the specified type guard.

@@ -7,7 +7,7 @@ type Person object {
     public int age = 0;
     // If you need to have a field with its own type, you need to make that field defaultable
     // (i.e., able to specify a default value).
-    // In the below example, the `parent` field is made defaultable by allowing it to have nil as a value.
+    // Here, the `parent` field is made defaultable by allowing it to have nil as a value.
     public Person? parent = ();
     // Private fields are only visible within the object and its functions.
     private string email = "default@abc.com";

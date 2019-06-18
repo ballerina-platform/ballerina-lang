@@ -28,37 +28,37 @@ public function main() {
     matchWithTypeGuard(b5);
 }
 
-// The following method uses structured tuple match patterns with different sizes. The given `match` expression
-// will be checked for "isLike" relationship and will be matched during the runtime.
+// This method uses structured tuple match patterns with different sizes. The given `match` expression
+// will be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
-        // This pattern check is for the tuple type of three variables and types can be of any.
+        // This pattern check is for a tuple type of three variables and types can be of any.
         var (s, i, b) => io:println("Matched with three vars : "
                                     + io:sprintf("%s", a));
-        // This pattern check is for the tuple type of two variables and types can be of any.
+        // This pattern check is for a tuple type of two variables and types can be of any.
         var (s, i) => io:println("Matched with two vars : "
                                     + io:sprintf("%s", a));
-        // This pattern check is for single variable and type can be of any. This has to be the last pattern.
+        // This pattern check is for a single variable which can be of type `any`. This has to be the last pattern.
         var s => io:println("Matched with single var : "
                                     + io:sprintf("%s", a));
     }
 }
 
-// The following method uses structured tuple match patterns with different sizes along with the type guards. The given
+// This method uses structured tuple match patterns with different sizes along with type guards. The given
 // `match` expression will be checked for "isLike" relationship and also it will check the type guard for the pattern
-// to match during the runtime.
+// to match at runtime.
 function matchWithTypeGuard(any b) {
     match b {
-        // This pattern check is for the tuple type of two variables and types has to be `string` and `int`.
+        // This pattern check is for a tuple type of two variables and types has to be `string` and `int`.
         var (s, i) if (s is string && i is int) =>
            io:println("'s' is string and 'i' is int : " + io:sprintf("%s", b));
-        // This pattern check is for the tuple type of two variables and the first variable should be of the type `float`.
+        // This pattern check is for a tuple type of two variables and the first variable should be of the type `float`.
         var (s, i) if s is float =>
            io:println("Only 's' is float : " + io:sprintf("%s", b));
-        // This pattern check is for the tuple type of two variables and the second variable should be of the type `int`.
+        // This pattern check is for a tuple type of two variables and the second variable should be of the type `int`.
         var (s, i) if i is int =>
            io:println("Only 'i' is int : " + io:sprintf("%s", b));
-        // This pattern check is for the tuple type of two variables without any type guard.
+        // This pattern check is for a tuple type of two variables without any type guard.
         var (s, i) => io:println("No type guard : " + io:sprintf("%s", b));
         // This pattern check is for a single variable and its type should be `float`.
         var s if s is float =>
