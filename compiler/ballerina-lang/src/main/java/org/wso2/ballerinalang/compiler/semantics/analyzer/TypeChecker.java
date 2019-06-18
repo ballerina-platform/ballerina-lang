@@ -167,7 +167,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private Types types;
-    private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
     private boolean isTypeChecked;
@@ -200,7 +199,6 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
-        this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantValueChecker = ConstantValueChecker.getInstance(context);

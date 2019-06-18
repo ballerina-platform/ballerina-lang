@@ -2309,6 +2309,7 @@ public class Desugar extends BLangNodeVisitor {
             visitFunctionPointerInvocation(iExpr);
             return;
         } else if (iExpr.iterableOperationInvocation) {
+            // TODO : Fix this.
             visitIterableOperationInvocation(iExpr);
             return;
         }

@@ -587,16 +587,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangExpression varRefExpr = variable.expr;
         BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
 
-        if (varRefExpr.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation iterableInv = (BLangInvocation) varRefExpr;
-            if (iterableInv.iterableOperationInvocation &&
-                    iterableInv.iContext.getLastOperation().resultType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
-                dlog.error(variable.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH,
-                           iterableInv.iContext.getLastOperation().kind);
-                return;
-            }
-        }
-
         switch (variable.getKind()) {
             case VARIABLE:
                 if (!validateVariableDefinition(varRefExpr)) {
