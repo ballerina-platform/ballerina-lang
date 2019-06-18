@@ -2241,6 +2241,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         funcNode.receiver.type);
             }
 
+            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
+
             return;
         }
 
