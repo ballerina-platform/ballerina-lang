@@ -42,7 +42,7 @@ import ballerina/runtime;
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
-public type InboundLdapAuthProviderConfig record {|
+public type LdapConnectionConfig record {|
     string domainName;
     string connectionURL;
     string connectionName;
@@ -77,21 +77,21 @@ public type SecureClientSocket record {|
 
 # Represents Ballerina configuration for LDAP based auth provider.
 #
-# + ldapAuthProviderConfig - LDAP auth provider configurations
+# + ldapConnectionConfig - LDAP connection configurations
 # + instanceId - Endpoint instance id
 public type InboundLdapAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public InboundLdapAuthProviderConfig ldapAuthProviderConfig;
+    public LdapConnectionConfig ldapConnectionConfig;
     public string instanceId;
 
     # Create an LDAP auth store with the given configurations.
     #
-    # + ldapAuthProviderConfig -  LDAP auth provider configurations
+    # + ldapConnectionConfig -  LDAP connection configurations
     # + instanceId - Endpoint instance id
-    public function __init(InboundLdapAuthProviderConfig ldapAuthProviderConfig, string instanceId) {
-        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
+    public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
+        self.ldapConnectionConfig = ldapConnectionConfig;
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
@@ -110,7 +110,7 @@ public type InboundLdapAuthProvider object {
         boolean authenticated = doAuthenticate(self, username, password);
         if (authenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
+            principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
             principal.scopes = getLdapScopes(self, username);
