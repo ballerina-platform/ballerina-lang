@@ -14,7 +14,7 @@ public function main() {
     string s = x1@["{http://ballerina.com/aa}status"];
     io:println(s);
 
-    // An attribute that is not bound to a namespace can be accessed using the String representation of the name.
+    // An attribute that is not bound to a namespace can be accessed using the string representation of the name.
     io:println(x1@["count"]);
 
     // Accesses an attribute using a dynamic name.
