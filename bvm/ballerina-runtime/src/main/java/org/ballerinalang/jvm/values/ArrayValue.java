@@ -371,8 +371,8 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof String)
-                               ? ("\"" + refValues[i] + "\"") : ((RefValue) refValues[i]).stringValue());
+                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
+                        (refValues[i] instanceof String) ? ("\"" + refValues[i] + "\"") :  refValues[i].toString());
             } else {
                 sj.add("()");
             }
@@ -874,7 +874,7 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (cursor == length) {
                 return null;
             }
-            return array.get(cursor);
+            return array.getValue(cursor);
         }
 
         @Override
