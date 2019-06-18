@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 

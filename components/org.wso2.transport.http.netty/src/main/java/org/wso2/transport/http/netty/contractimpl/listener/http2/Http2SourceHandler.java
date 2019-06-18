@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.ReceivingHeaders;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -136,6 +137,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest, this, STREAM_ID_ONE);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             requestCarbonMessage.setLastHttpContentArrived();
+            http2ServerChannel.getDataEventListeners()
+                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, STREAM_ID_ONE));
             notifyRequestListener(this, requestCarbonMessage, STREAM_ID_ONE);
         }
     }
@@ -146,7 +149,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
             Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
             http2MessageStateContext.setListenerState(new ReceivingHeaders(this, http2MessageStateContext));
-            http2MessageStateContext.getListenerState().readInboundRequestHeaders(headersFrame);
+            http2MessageStateContext.getListenerState().readInboundRequestHeaders(ctx, headersFrame);
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
@@ -180,6 +183,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     private void destroy() {
 //        streamIdRequestMap.clear();
+        http2ServerChannel.getDataEventListeners().forEach(Http2DataEventListener::destroy);
         http2ServerChannel.destroy();
     }
 
@@ -239,5 +243,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ServerRemoteFlowControlListener getServerRemoteFlowControlListener() {
         return serverRemoteFlowControlListener;
+    }
+
+    public Http2ServerChannel getHttp2ServerChannel() {
+        return http2ServerChannel;
     }
 }

@@ -89,7 +89,8 @@ public class Http2StateUtil {
                     http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
                     http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
                     http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener()));
+                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener(),
+                    http2SourceHandler.getHttp2ServerChannel()));
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 LOG.error("Error while notifying listeners", e);
@@ -148,6 +149,11 @@ public class Http2StateUtil {
                                                  HttpResponseFuture outboundRespStatusFuture, int streamId,
                                                  Http2Headers http2Headers, boolean endStream,
                                                  Http2OutboundRespListener respListener) throws Http2Exception {
+        for (Http2DataEventListener dataEventListener : respListener.getHttp2ServerChannel().getDataEventListeners()) {
+            if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
+                return;
+            }
+        }
         ChannelFuture channelFuture = encoder.writeHeaders(
             ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();

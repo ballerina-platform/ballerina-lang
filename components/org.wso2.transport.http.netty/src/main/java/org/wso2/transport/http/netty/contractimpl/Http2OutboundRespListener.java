@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ServerChannel;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
@@ -72,12 +73,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private String remoteAddress = "-";
     private ServerRemoteFlowControlListener remoteFlowControlListener;
     private ResponseWriter defaultResponseWriter;
+    private Http2ServerChannel http2ServerChannel;
 
     public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
                                      String serverName, String remoteAddress,
-                                     ServerRemoteFlowControlListener remoteFlowControlListener) {
+                                     ServerRemoteFlowControlListener remoteFlowControlListener,
+                                     Http2ServerChannel http2ServerChannel) {
         this.serverChannelInitializer = serverChannelInitializer;
         this.inboundRequestMsg = inboundRequestMsg;
         this.ctx = ctx;
@@ -92,6 +95,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         inboundRequestArrivalTime = Calendar.getInstance();
         http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
         this.remoteFlowControlListener = remoteFlowControlListener;
+        this.http2ServerChannel = http2ServerChannel;
     }
 
     @Override
@@ -112,6 +116,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
         if (isValidStreamId(promiseId, conn)) {
+            http2ServerChannel.getDataEventListeners()
+                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, promiseId));
             writeMessage(outboundResponseMsg, promiseId, false);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture()
@@ -271,5 +277,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     public void removeDefaultResponseWriter() {
         remoteFlowControlListener.removeResponseWriter(defaultResponseWriter);
+    }
+
+    public Http2ServerChannel getHttp2ServerChannel() {
+        return http2ServerChannel;
     }
 }

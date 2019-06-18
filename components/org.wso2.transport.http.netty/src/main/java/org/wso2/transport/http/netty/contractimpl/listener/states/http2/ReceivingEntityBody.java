@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -28,11 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.ZERO_READABLE_BYTES;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
@@ -57,7 +60,7 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -65,9 +68,15 @@ public class ReceivingEntityBody implements ListenerState {
     public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMessage();
 
         if (sourceReqCMsg != null) {
+
+            for (Http2DataEventListener listener : http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()) {
+                listener.onDataRead(http2SourceHandler.getChannelHandlerContext(), streamId, data,
+                                    dataFrame.isEndOfStream());
+            }
+
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                 sourceReqCMsg.setLastHttpContentArrived();

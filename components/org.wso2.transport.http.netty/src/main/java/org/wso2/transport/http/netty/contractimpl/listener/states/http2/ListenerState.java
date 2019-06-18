@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
@@ -40,7 +41,7 @@ public interface ListenerState {
      * @param headersFrame inbound header frame
      * @throws Http2Exception if an error occurs while reading
      */
-    void readInboundRequestHeaders(Http2HeadersFrame headersFrame) throws Http2Exception;
+    void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) throws Http2Exception;
 
     /**
      * Reads entity body of inbound request.

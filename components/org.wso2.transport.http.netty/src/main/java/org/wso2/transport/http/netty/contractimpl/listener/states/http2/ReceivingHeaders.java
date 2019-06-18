@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -40,6 +41,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.STREAM_ID_ONE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -61,7 +63,8 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) throws Http2Exception {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame)
+            throws Http2Exception {
         int streamId = headersFrame.getStreamId();
         if (headersFrame.isEndOfStream()) {
             // Retrieve HTTP request and add last http content with trailer headers.
@@ -85,6 +88,8 @@ public class ReceivingHeaders implements ListenerState {
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
             // storing to add HttpContent later
             http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);
+            http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()
+                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }

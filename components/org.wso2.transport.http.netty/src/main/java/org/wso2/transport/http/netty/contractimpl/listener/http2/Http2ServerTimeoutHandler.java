@@ -6,7 +6,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +48,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
     @Override
     public boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
+        updateLastReadTime(streamId, endOfStream);
         return false;
     }
 
@@ -60,19 +60,19 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
     @Override
     public boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
-
+        updateLastWriteTime(streamId);
         return true;
     }
 
     @Override
     public boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
-
+        updateLastWriteTime(streamId);
         return true;
     }
 
     @Override
     public void onStreamReset(int streamId) {
-
+        onStreamClose(streamId);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(InboundMessageHolder msgHolder) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
-//                closeStream(streamId, ctx);
+                closeStream(streamId, ctx);
                 handlePrimaryResponseTimeout(msgHolder);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
@@ -132,6 +132,12 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //            http2ServerChannel.removeInFlightMessage(streamId);
         }
 
+        private void closeStream(int streamId, ChannelHandlerContext ctx) {
+//            Http2TargetHandler clientOutboundHandler =
+//                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
+//            clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+        }
+
     }
 
     private void updateLastReadTime(int streamId, boolean endOfStream) {
@@ -144,6 +150,15 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         }
         if (endOfStream) {
             onStreamClose(streamId);
+        }
+    }
+
+    private void updateLastWriteTime(int streamId) {
+        InboundMessageHolder inboundMessage = http2ServerChannel.getInboundMessage(streamId);
+        if (inboundMessage != null) {
+            inboundMessage.setLastReadWriteTime(ticksInNanos());
+        } else {
+            LOG.debug("InboundMessageHolder may have already been removed for streamId: {}", streamId);
         }
     }
 }

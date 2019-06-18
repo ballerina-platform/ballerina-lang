@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -43,6 +44,7 @@ import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStat
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -96,7 +98,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -159,8 +161,14 @@ public class SendingEntityBody implements ListenerState {
     private void writeData(HttpContent httpContent, int streamId, boolean endStream) throws Http2Exception {
         contentLength += httpContent.content().readableBytes();
         validatePromisedStreamState(originalStreamId, streamId, conn, inboundRequestMsg);
+        final ByteBuf content = httpContent.content();
+        for (Http2DataEventListener dataEventListener : http2OutboundRespListener.getHttp2ServerChannel().getDataEventListeners()) {
+            if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
+                return;
+            }
+        }
         ChannelFuture channelFuture = encoder.writeData(
-                ctx, streamId, httpContent.content(), 0, endStream, ctx.newPromise());
+                ctx, streamId, content, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
         if (endStream) {
