@@ -2319,6 +2319,10 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = genIExpr;
+        if (iExpr.langLibInvocation) {
+            return;
+        }
+        // TODO : Remove this if block. Not needed.
         if (iExpr.expr == null) {
             if (iExpr.exprSymbol == null) {
                 return;
@@ -2326,19 +2330,7 @@ public class Desugar extends BLangNodeVisitor {
             iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, iExpr.exprSymbol);
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
-
         switch (iExpr.expr.type.tag) {
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.MAP:
-            case TypeTags.TABLE:
-            case TypeTags.STREAM:
-            case TypeTags.FUTURE:
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);

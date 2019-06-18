@@ -19,8 +19,6 @@ function test1 () {
 
   float[] x = [];
 
-  record {| float a; |} aa = x.test();
-
   x.removeAll();
 
   abstract object {

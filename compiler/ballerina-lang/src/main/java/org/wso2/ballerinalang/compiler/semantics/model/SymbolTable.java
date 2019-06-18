@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -462,7 +461,6 @@ public class SymbolTable {
 
         defineConversionOperators();
 
-        defineBuiltinMethods();
     }
 
     private void defineConversionOperators() {
@@ -568,52 +566,6 @@ public class SymbolTable {
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
-    }
-
-    private void defineBuiltinMethods() {
-
-        // Error related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType);
-
-        // Length methods.
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, arrayType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tupleType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, mapType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, recordType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, jsonType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, xmlType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType);
-
-        // float related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType);
-
-        // Decimal related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, decimalType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, decimalType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType);
-
-        //clone related methods
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anyType, pureType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType);
-    }
-
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
-        defineBuiltinMethod(method, type, Collections.emptyList(), retType);
-    }
-
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType) {
-        List<BType> paramTypes = Lists.of(type);
-        paramTypes.addAll(args);
-        defineOperator(names.fromString(method.getName()), paramTypes, retType, InstructionCodes.NOP);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

@@ -51,6 +51,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public boolean iterableOperationInvocation;
     public IterableContext iContext;
     public boolean actionInvocation;
+    public boolean langLibInvocation;
     public boolean async;
     /* Cached values for Built-in function invocation */
     public boolean builtinMethodInvocation;
