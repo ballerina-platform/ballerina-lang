@@ -34,7 +34,12 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -46,10 +51,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.compiler.CompilerOptionName.*;
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * OpenApi related utility classes.
@@ -186,7 +196,7 @@ public class OpenApiConverterUtils {
 
     /**
      * This method will compile a given ballerina package, find the service name and compile it to generate
-     * an OpenApi contract
+     * an OpenApi contract.
      *
      * @param moduleName - Module Name of the service residing in
      * @param serviceName - Service name
@@ -243,7 +253,7 @@ public class OpenApiConverterUtils {
             throw new OpenApiConverterException("Please check if input source is valid and complete");
         }
 
-        if(checkOASFileExists(serviceName + ConverterConstants.YAML_EXTENSION, output)) {
+        if (checkOASFileExists(serviceName + ConverterConstants.YAML_EXTENSION, output)) {
             throw LauncherUtils.createLauncherException("The output location already contains " +
                     "an OpenApi Contract named " + serviceName + ConverterConstants.YAML_EXTENSION);
         }
@@ -255,7 +265,7 @@ public class OpenApiConverterUtils {
 
             outStream.println("The OpenApi Contract was successfully generated at " + output.toRealPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
         }
     }
 
