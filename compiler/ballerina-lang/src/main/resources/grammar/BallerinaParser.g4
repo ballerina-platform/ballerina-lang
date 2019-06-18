@@ -187,7 +187,7 @@ typeName
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
+    |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
@@ -195,6 +195,14 @@ typeName
 
 inclusiveRecordTypeDescriptor
     :   RECORD LEFT_BRACE fieldDescriptor* RIGHT_BRACE
+    ;
+
+tupleTypeDescriptor
+    : LEFT_BRACKET typeName (COMMA typeName)* (COMMA tupleRestDescriptor)? RIGHT_BRACKET
+    ;
+
+tupleRestDescriptor
+    : typeName ELLIPSIS
     ;
 
 exclusiveRecordTypeDescriptor
@@ -213,7 +221,7 @@ simpleTypeName
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
-    |   emptyTupleLiteral // nil type name ()
+    |   nilLiteral
     ;
 
 referenceTypeName
@@ -273,7 +281,7 @@ statement
     :   errorDestructuringStatement
     |   variableDefinitionStatement
     |   assignmentStatement
-    |   tupleDestructuringStatement
+    |   listDestructuringStatement
     |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   ifElseStatement
@@ -310,13 +318,9 @@ recordLiteral
 staticMatchLiterals
     :   simpleLiteral                                                       # staticMatchSimpleLiteral
     |   recordLiteral                                                       # staticMatchRecordLiteral
-    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   listConstructorExpr                                                 # staticMatchListLiteral
     |   Identifier                                                          # staticMatchIdentifierLiteral
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
-    ;
-
- tupleLiteral
-    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
 
 recordKeyValue
@@ -353,7 +357,7 @@ tableData
     :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
-arrayLiteral
+listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
@@ -361,8 +365,8 @@ assignmentStatement
     :   variableReference ASSIGN expression SEMICOLON
     ;
 
-tupleDestructuringStatement
-    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
+listDestructuringStatement
+    :   listRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordDestructuringStatement
@@ -425,7 +429,7 @@ bindingPattern
     ;
 
 structuredBindingPattern
-    :   tupleBindingPattern
+    :   listBindingPattern
     |   recordBindingPattern
     |   errorBindingPattern
     ;
@@ -434,8 +438,8 @@ errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 
-tupleBindingPattern
-    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+listBindingPattern
+    :   LEFT_BRACKET bindingPattern (COMMA bindingPattern)+ RIGHT_BRACKET
     ;
 
 recordBindingPattern
@@ -471,12 +475,13 @@ bindingRefPattern
     ;
 
 structuredRefBindingPattern
-    :   tupleRefBindingPattern
+    :   listRefBindingPattern
     |   recordRefBindingPattern
     ;
 
-tupleRefBindingPattern
-    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+// TODO : Add rest binding pattern to comply with 2019r1 spec.
+listRefBindingPattern
+    :   LEFT_BRACKET bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_BRACKET
     ;
 
 recordRefBindingPattern
@@ -706,7 +711,7 @@ namespaceDeclaration
 
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
-    |   arrayLiteral                                                        # arrayLiteralExpression
+    |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
@@ -721,7 +726,7 @@ expression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName GT expression                                           # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT | TYPEOF) expression    # unaryExpression
-    |   tupleLiteral                                                        # bracedOrTupleExpression
+    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
     |   expression IS typeName                                              # typeTestExpression
@@ -811,8 +816,7 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
-    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
+    :   annotationAttachment* typeName Identifier
     ;
 
 defaultableParameter
@@ -833,7 +837,7 @@ simpleLiteral
     |   SUB? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
-    |   emptyTupleLiteral
+    |   nilLiteral
     |   blobLiteral
     |   NullLiteral
     ;
@@ -849,7 +853,7 @@ integerLiteral
     |   HexIntegerLiteral
     ;
 
-emptyTupleLiteral
+nilLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;
 

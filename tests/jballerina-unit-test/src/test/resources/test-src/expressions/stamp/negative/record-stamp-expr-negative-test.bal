@@ -96,10 +96,10 @@ function stampRecordToArray() returns string[] {
     return stringArray;
 }
 
-function stampRecordToTuple() returns (string, string) {
+function stampRecordToTuple() returns [string, string] {
 
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    (string, string) tupleValue = (string, string).stamp(e1);
+    [string, string] tupleValue = [string, string].stamp(e1);
 
     return tupleValue;
 }

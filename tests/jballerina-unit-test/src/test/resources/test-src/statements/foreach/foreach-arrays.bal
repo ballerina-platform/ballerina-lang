@@ -62,7 +62,7 @@ function testIntArrayWithArityTwo() returns string {
     return output;
 }
 
-function testIntArrayComplex() returns (int, int, string) {
+function testIntArrayComplex() returns [int, int, string] {
     int[] ldata = [1, -3, 5, -30, 4, 11, 25, 10];
     output = "";
     sum = 0;
@@ -81,7 +81,7 @@ function testIntArrayComplex() returns (int, int, string) {
         }
         i += 1;
     }
-    return (sum, negSum, output);
+    return [sum, negSum, output];
 }
 
 function testFloatArrayWithArityOne() returns string {

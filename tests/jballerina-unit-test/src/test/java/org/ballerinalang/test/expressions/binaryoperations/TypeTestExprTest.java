@@ -83,7 +83,7 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 141, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(int,string)' will not be matched to '(float,boolean)'", 142, 18);
+                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 143, 18);
         BAssertUtil.validateError(negativeResult, i++,

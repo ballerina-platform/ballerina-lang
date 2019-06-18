@@ -12,7 +12,7 @@ type Data2 record {
 
 type Data3 record {
     int i;
-    (int, string) v;
+    [int, string] v;
 };
 
 function concatIntString(int i, string s) {
@@ -58,9 +58,9 @@ function testArrayWithSimpleVariableWithType() returns string {
 function testArrayWithTupleWithoutType() returns string {
     output = "";
 
-    (int, string)[] arr = [(1, "A"), (2, "B"), (3, "C")];
+    [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
 
-    foreach var (i, v) in arr {
+    foreach var [i, v] in arr {
         concatIntString(i, v);
     }
     return output;
@@ -69,9 +69,9 @@ function testArrayWithTupleWithoutType() returns string {
 function testArrayWithTupleWithType() returns string {
     output = "";
 
-    (int, string)[] arr = [(1, "A"), (2, "B"), (3, "C")];
+    [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
 
-    foreach (int, string) (i, v) in arr {
+    foreach [int, string] [i, v] in arr {
         concatIntString(i, v);
     }
     return output;
@@ -80,9 +80,9 @@ function testArrayWithTupleWithType() returns string {
 function testArrayWithTupleInTupleWithoutType() returns string {
     output = "";
 
-    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
+    [int, [string, float]][] arr = [[1, ["A", 2.0]], [2, ["B", 3.0]], [3, ["C", 4.0]]];
 
-    foreach var (i, (s, f)) in arr {
+    foreach var [i, [s, f]] in arr {
         concatIntStringFloat(i, s, f);
     }
     return output;
@@ -91,9 +91,9 @@ function testArrayWithTupleInTupleWithoutType() returns string {
 function testArrayWithTupleInTupleWithType() returns string {
     output = "";
 
-    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
+    [int, [string, float]][] arr = [[1, ["A", 2.0]], [2, ["B", 3.0]], [3, ["C", 4.0]]];
 
-    foreach (int, (string, float)) (i, (s, f)) in arr {
+    foreach [int, [string, float]] [i, [s, f]] in arr {
         concatIntStringFloat(i, s, f);
     }
     return output;
@@ -106,9 +106,9 @@ function testArrayWithRecordInTupleWithoutType() returns string {
     Data d2 = { i: 2, v: "B" };
     Data d3 = { i: 3, v: "C" };
 
-    (int, Data)[] arr = [(1, d1), (2, d2), (3, d3)];
+    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
 
-    foreach var (i, {i: j, v: k}) in arr {
+    foreach var [i, {i: j, v: k}] in arr {
         concatIntIntString(i, j, k);
     }
     return output;
@@ -121,9 +121,9 @@ function testArrayWithRecordInTupleWithType() returns string {
     Data d2 = { i: 2, v: "B" };
     Data d3 = { i: 3, v: "C" };
 
-    (int, Data)[] arr = [(1, d1), (2, d2), (3, d3)];
+    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
 
-    foreach (int, Data) (i, {i: j, v: k}) in arr {
+    foreach [int, Data] [i, {i: j, v: k}] in arr {
         concatIntIntString(i, j, k);
     }
     return output;
@@ -200,13 +200,13 @@ function testArrayWithRecordInRecordWithType() returns string {
 function testArrayWithTupleInRecordWithoutType() returns string {
     output = "";
 
-    Data3 d1 = { i: 1, v: (1, "A") };
-    Data3 d2 = { i: 2, v: (2, "B") };
-    Data3 d3 = { i: 3, v: (3, "C") };
+    Data3 d1 = { i: 1, v: [1, "A"] };
+    Data3 d2 = { i: 2, v: [2, "B"] };
+    Data3 d3 = { i: 3, v: [3, "C"] };
 
     Data3[] arr = [d1, d2, d3];
 
-    foreach var {i, v: (j, k)} in arr {
+    foreach var {i, v: [j, k]} in arr {
         concatIntIntString(i, j, k);
     }
     return output;
@@ -215,13 +215,13 @@ function testArrayWithTupleInRecordWithoutType() returns string {
 function testArrayWithTupleInRecordWithType() returns string {
     output = "";
 
-    Data3 d1 = { i: 1, v: (1, "A") };
-    Data3 d2 = { i: 2, v: (2, "B") };
-    Data3 d3 = { i: 3, v: (3, "C") };
+    Data3 d1 = { i: 1, v: [1, "A"] };
+    Data3 d2 = { i: 2, v: [2, "B"] };
+    Data3 d3 = { i: 3, v: [3, "C"] };
 
     Data3[] arr = [d1, d2, d3];
 
-    foreach Data3 {i, v: (j, k)} in arr {
+    foreach Data3 {i, v: [j, k]} in arr {
         concatIntIntString(i, j, k);
     }
     return output;

@@ -60,7 +60,7 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
 function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
      // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -114,7 +114,7 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHan
 function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
-    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+    [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
 
     // check if authentication is enabled for resource and service
     boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
@@ -162,7 +162,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 #
 # + context - `FilterContext` instance
 # + return - Resource level and service level authentication annotations
-function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
+function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
     any annData = reflect:getResourceAnnots(context.serviceRef, context.resourceName, moduleName = ANN_MODULE,
                                             RESOURCE_ANN_NAME);
@@ -183,7 +183,7 @@ function getServiceResourceAuthConfig(FilterContext context) returns (ServiceRes
         serviceLevelAuthAnn = serviceConfig["auth"];
     }
 
-    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
+    return [resourceLevelAuthAnn, serviceLevelAuthAnn];
 }
 
 # Check for the service or the resource is secured by evaluating the enabled flag configured by the user.

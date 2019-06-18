@@ -99,9 +99,9 @@ function stampUnionToAnydata() returns anydata {
     return anydataValue;
 }
 
-function stampUnionToTuple() returns (string, string)|error  {
-    int|float|(string, string) unionVar = ("mohan", "LK2014");
-    (string, string)|error  tupleValue = (string, string).stamp(unionVar);
+function stampUnionToTuple() returns [string, string]|error  {
+    int|float|[string, string] unionVar = ["mohan", "LK2014"];
+    [string, string]|error  tupleValue = [string, string].stamp(unionVar);
 
     return tupleValue;
 }

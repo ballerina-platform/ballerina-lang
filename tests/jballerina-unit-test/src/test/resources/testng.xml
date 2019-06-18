@@ -82,6 +82,7 @@
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.foreach.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -231,6 +232,8 @@
             </class>
             <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
             <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
         </classes>
     </test>
 </suite>

@@ -17,7 +17,7 @@
 import ballerina/io;
 
 function tupleAccessTest() returns string {
-    (int, string, boolean, ()) tuple = (100, "string_value", true, ());
+    [int, string, boolean, ()] tuple = [100, "string_value", true, ()];
 
     string finalResult = "";
     int index = 0;
@@ -58,7 +58,7 @@ function tupleAccessTestWithBehavioralValues() returns string {
     function (int) returns int aFn = x => x * 2;
     json jVal = "json";
 
-    (Obj, function (int) returns int, string, json) tuple = (obj, aFn, "str", jVal);
+    [Obj, function (int) returns int, string, json] tuple = [obj, aFn, "str", jVal];
 
     string finalResult = "";
     int index = 0;
@@ -82,7 +82,7 @@ function tupleAccessTestWithBehavioralValues() returns string {
 }
 
 function tupleIndexAsFunction(string index) returns string {
-    (string, float, boolean) tuple = ("string", 9.0, true);
+    [string, float, boolean] tuple = ["string", 9.0, true];
     var result = tuple[getKey(index)];
     return io:sprintf("%s", result);
 }
@@ -97,54 +97,54 @@ function getKey(string key) returns int {
 }
 
 function tupleWithUnionType() returns anydata {
-    (string|boolean, float) tuple = (true, 1.1);
+    [string|boolean, float] tuple = [true, 1.1];
     int index = 0;
     string|boolean|float result = tuple[index];
     return result;
 }
 
-function tupleInsideTupleAccess() returns (boolean, boolean) {
-    (string, (string, int, (boolean, ())), float) tuple = ("string", ("string_2", 200, (true, ())), 9.0);
+function tupleInsideTupleAccess() returns [boolean, boolean] {
+    [string, [string, int, [boolean, ()]], float] tuple = ["string", ["string_2", 200, [true, ()]], 9.0];
     boolean result = tuple[1][2][0];
     boolean result5 = false;
     int index1 = 1;
     int index2 = 2;
     int index3 = 0;
-    string|(string, int, (boolean, ()))|float result2 = tuple[index1];
-    if result2 is (string, int, (boolean, ())) {
-        string|int|(boolean, ()) result3 = result2[index2];
-        if result3 is (boolean, ()) {
+    string|[string, int, [boolean, ()]]|float result2 = tuple[index1];
+    if result2 is [string, int, [boolean, ()]] {
+        string|int|[boolean, ()] result3 = result2[index2];
+        if result3 is [boolean, ()] {
             boolean? result4 = result3[index3];
             if result4 is boolean {
                 result5 = result4;
             }
         }
     }
-    return (result, result5);
+    return [result, result5];
 }
 
 function tupleIndexOutOfBoundTest1() {
     string name = "";
-    (string, string) animals = ("Dog", "Mouse");
+    [string, string] animals = ["Dog", "Mouse"];
     int index = 2;
     name = animals[index];
 }
 
 function tupleIndexOutOfBoundTest2() {
     string name = "";
-    (string, string) animals = ("Dog", "Mouse");
+    [string, string] animals = ["Dog", "Mouse"];
     int index = -1;
     name = animals[index];
 }
 
 function tupleIndexOutOfBoundTest3() {
-    (string, string) animals = ("Dog", "Mouse");
+    [string, string] animals = ["Dog", "Mouse"];
     int index = 2;
     animals[index] = "CAT";
 }
 
 function tupleIndexOutOfBoundTest4() {
-    (string, string) animals = ("Dog", "Mouse");
+    [string, string] animals = ["Dog", "Mouse"];
     int index = -1;
     animals[index] = "CAT";
 }
@@ -159,7 +159,7 @@ type Foo record {|
 |};
 
 function testConstTupleIndex(int index) returns anydata {
-    (Foo, boolean) tuple = ({ x: "s", y: 12 }, true);
+    [Foo, boolean] tuple = [{ x: "s", y: 12 }, true];
     match index {
         -1 => return tuple[INDEX_NEG_ONE];
         0 => {
@@ -174,7 +174,7 @@ function testConstTupleIndex(int index) returns anydata {
 }
 
 function tupleIndexAccessOfSameTypeWithIndexFromMap() returns float {
-    (float, float, float) floatTuple = (1.1, 2.2, 3.3);
+    [float, float, float] floatTuple = [1.1, 2.2, 3.3];
     map<int> strMap = { x: 0, y: 1, z: 2 };
     float total = 0.0;
     total += floatTuple[strMap.x];
@@ -184,14 +184,14 @@ function tupleIndexAccessOfSameTypeWithIndexFromMap() returns float {
 }
 
 function testInvalidInsertionToTuple() {
-    (string, boolean, int) tuple = ("str", true, 10);
+    [string, boolean, int] tuple = ["str", true, 10];
     int index = 0;
     tuple[index] = "str2";
     tuple[index] = false;
 }
 
 function testTupleAccessToAnyAndAnydata() returns string {
-    (string, boolean, int) tuple = ("str", true, 10);
+    [string, boolean, int] tuple = ["str", true, 10];
     int index = 0;
     string result = "";
     any a = tuple[index];
@@ -223,7 +223,7 @@ type FiniteThree FiniteTwo|SIX;
 type FiniteFour int|FiniteTwo|SIX;
 
 function testTupleAccessUsingFiniteType() returns string {
-    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    [string, boolean, Bar, float] tuple = ["string", true, { fieldOne: "string" }, 1.1];
     FiniteOne index0 = 0;
     FiniteOne index1 = 1;
     FiniteOne index2 = 2;
@@ -249,7 +249,7 @@ function testTupleAccessUsingUnionWithFiniteTypes() returns boolean {
     string s = "hello world";
     boolean b = true;
     Bar bar = { fieldOne: "string" };
-    (string, boolean, Bar) tuple = (s, b, bar);
+    [string, boolean, Bar] tuple = [s, b, bar];
     FiniteFour index0 = 0;
     FiniteFour index1 = 1;
     FiniteFour index2 = 2;
@@ -262,7 +262,7 @@ function testTupleAccessUsingUnionWithFiniteTypes() returns boolean {
 }
 
 function testTupleAccessUsingFiniteTypeNegative() returns string {
-    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    [string, boolean, Bar, float] tuple = ["string", true, { fieldOne: "string" }, 1.1];
     FiniteTwo index0 = 0;
     FiniteTwo index1 = 4;
 
@@ -273,7 +273,7 @@ function testTupleAccessUsingFiniteTypeNegative() returns string {
 }
 
 function testTupleAccessUsingUnionWithFiniteTypesNegative() {
-    (string, boolean, Bar, float) tuple = ("string", true, { fieldOne: "string" }, 1.1);
+    [string, boolean, Bar, float] tuple = ["string", true, { fieldOne: "string" }, 1.1];
     FiniteThree index0 = 0;
     FiniteThree index1 = 6;
 

@@ -117,11 +117,11 @@ function stampAnydataArrayToUnion() returns Employee[]|int|error  {
     return employeeArray;
 }
 
-function stampArrayValueToTuple() returns (Employee, Student)|error {
+function stampArrayValueToTuple() returns [Employee, Student]|error {
     Employee[] arrayValue = [{ name: "Mohan", status: "single", batch: "LK2015", school: "Royal College" },
     { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" }];
 
-    (Employee, Student)|error returnValue = (Employee, Student).stamp(arrayValue);
+    [Employee, Student]|error returnValue = [Employee, Student].stamp(arrayValue);
     return returnValue;
 }
 
@@ -135,7 +135,8 @@ function stampJSONToBasicArray() returns int[]|error {
 }
 
 function stampAnydataToBasicArray() returns int[]|error {
-    anydata anydataValue = [1, 2, 3, 4];
+    // todo
+    anydata[] anydataValue = [1, 2, 3, 4];
     int[]|error returnArray = int[].stamp(anydataValue);
 
     return returnArray;
@@ -183,24 +184,24 @@ function stampBasicArrayToJSONArray() returns json[]|error {
     return returnValue;
 }
 
-function stampBasicArrayToTuple() returns (int,int)|error {
+function stampBasicArrayToTuple() returns [int,int]|error {
     int[] intArrayValue = [1, 2];
-    (int,int)|error returnValue = (int,int).stamp(intArrayValue);
+    [int,int]|error returnValue = [int,int].stamp(intArrayValue);
 
     return returnValue;
 }
 
-function stampAnydataBasicArrayToTuple() returns (int,int)|error {
+function stampAnydataBasicArrayToTuple() returns [int,int]|error {
     int[] intArrayValue = [1, 2];
     anydata anydataValue = intArrayValue;
-    (int,int)|error returnValue = (int,int).stamp(anydataValue);
+    [int,int]|error returnValue = [int,int].stamp(anydataValue);
 
     return returnValue;
 }
 
-function stampBasicArrayToAnydataTuple() returns (anydata,anydata)|error {
+function stampBasicArrayToAnydataTuple() returns [anydata,anydata]|error {
     int[] intArrayValue = [1, 2];
-    (anydata,anydata)|error returnValue = (anydata,anydata).stamp(intArrayValue);
+    [anydata,anydata]|error returnValue = [anydata,anydata].stamp(intArrayValue);
 
     return returnValue;
 }

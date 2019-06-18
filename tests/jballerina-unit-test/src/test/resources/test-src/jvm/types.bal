@@ -141,7 +141,7 @@ function arrayFunc(string[] strs) returns Grades[] {
 }
 
 function tupleTest() returns int {
-   (int, string) a = (10, "John");
+   [int, string] a = [10, "John"];
 
    // int aint;
    // string astr;
@@ -149,16 +149,16 @@ function tupleTest() returns int {
 
    // var (aint1, astr1) = a;
 
-   (int, int) ret = divideBy((500,20));
+   [int, int] ret = divideBy([500,20]);
    // var (_, r1) = ret;
 
    return 10;
 }
 
-function divideBy((int,int) d) returns (int, int) {
+function divideBy([int,int] d) returns [int, int] {
    //  int q = d[0] / d[1];
    // int r = d[0] % d[1];
-    return (100, 200);
+    return [100, 200];
 }
 
 function recordsTest() returns string {
@@ -281,9 +281,9 @@ function testNullAsJsonVal () returns (json) {
     return j;
 }
 
-function testJsonWithNull () returns (json, any) {
+function testJsonWithNull () returns [json, any] {
     json j = {"name":null};
-    return (j, j.name);
+    return [j, j.name];
 }
 
 function testNestedJsonInit () returns (json) {
@@ -299,24 +299,24 @@ function testJsonArrayInit () returns (json) {
     return j;
 }
 
-function testGetString () returns (string, string) {
+function testGetString () returns [string, string] {
     json j1 = "Supun";
     json j2 = {name:"Setunga"};
     string j1String;
     string j2String;
     j1String = <string> j1;
     j2String = <string> j2.name;
-    return (j1String, j2String);
+    return [j1String, j2String];
 }
 
-function testGetInt () returns (int, int) {
+function testGetInt () returns [int, int] {
     json j1 = 25;
     json j2 = {age:43};
     int j1Int;
     int j2Int;
     j1Int = <int>j1;
     j2Int = <int>j2.age;
-    return (j1Int, j2Int);
+    return [j1Int, j2Int];
 }
 
 function testGetFloat () returns (float) {
@@ -445,7 +445,7 @@ function testUpdateJsonArrayInArray () returns (json) {
     return j;
 }
 
-function testGetNestedJsonElement () returns (string, string, string, string) {
+function testGetNestedJsonElement () returns [string, string, string, string] {
     json j = {name:"aaa", age:25, parent:{name:"bbb", age:50}, address:{city:"Colombo", "country":"SriLanka"}, array:[1, 5, 7]};
 
     string addressKey = "address";
@@ -458,7 +458,7 @@ function testGetNestedJsonElement () returns (string, string, string, string) {
     cityString2 = <string>j["address"]["city"];
     cityString3 = <string>j.address["city"];
     cityString4 = <string>j[addressKey][cityKey];
-    return (cityString1, cityString2, cityString3, cityString4);
+    return [cityString1, cityString2, cityString3, cityString4];
 }
 
 function testJsonExprAsIndex () returns (string) {
@@ -482,24 +482,24 @@ function testSetArrayOutofBoundElement () returns (json) {
     return j;
 }
 
-function testSetToNonArrayWithIndex () returns (json, json, json) {
+function testSetToNonArrayWithIndex () returns [json, json, json] {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
     j1[7] = 8;
     j2[7] = 8;
     j3[7] = 8;
-    return (j1, j2, j3);
+    return [j1, j2, j3];
 }
 
-function testGetFromNonArrayWithIndex () returns (json, json, json) {
+function testGetFromNonArrayWithIndex () returns [json, json, json] {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
-    return (j1[7], j2[7], j3[7]);
+    return [j1[7], j2[7], j3[7]];
 }
 
-function testSetToNonObjectWithKey () returns (json, json, json) {
+function testSetToNonObjectWithKey () returns [json, json, json] {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
@@ -507,14 +507,14 @@ function testSetToNonObjectWithKey () returns (json, json, json) {
     j1["name"] = "Supun";
     j2["name"] = "Supun";
     j3["name"] = "Supun";
-    return (j1, j2, j3);
+    return [j1, j2, j3];
 }
 
-function testGetFromNonObjectWithKey () returns (json, json, json) {
+function testGetFromNonObjectWithKey () returns [json, json, json] {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
-    return (j1.name, j2.name, j3.name);
+    return [j1.name, j2.name, j3.name];
 }
 
 function testGetStringInArray () returns (string) {
@@ -591,32 +591,32 @@ function testNullJsonToArray() returns (int[]) {
     return <int[]>j;
 }
 
-function testIntArrayToJsonAssignment() returns (json, json) {
+function testIntArrayToJsonAssignment() returns [json, json] {
     int[] a = [1, 5, 9];
     json j = a;
     j[3] = 4;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testFloatArrayToJsonAssignment() returns (json, json) {
+function testFloatArrayToJsonAssignment() returns [json, json] {
     float[] f = [1.3, 5.4, 9.4];
     json j = f;
     j[3] = 4.5;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testStringArrayToJsonAssignment() returns (json, json) {
+function testStringArrayToJsonAssignment() returns [json, json] {
     string[] s = ["apple", "orange"];
     json j = s;
     j[2] = "grape";
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
-function testBooleanArrayToJsonAssignment() returns (json, json) {
+function testBooleanArrayToJsonAssignment() returns [json, json] {
     boolean[] b = [true, true, false];
     json j = b;
     j[3] = true;
-    return (j, j[1]);
+    return [j, j[1]];
 }
 
 function waitTest() returns string {
@@ -632,7 +632,7 @@ function waitTest() returns string {
 
 string waitMultimple = "";
 
-function waitOnSame() returns (string,string,string) {
+function waitOnSame() returns [string,string,string] {
     future<string> p1 = start foo2("wait1");
     future<()> p = start append("00");
     
@@ -648,7 +648,7 @@ function waitOnSame() returns (string,string,string) {
     future<()> ap2 = start append("33");
     wait ap2;
 
-    return (p1Result, wait2, waitMultimple);
+    return [p1Result, wait2, waitMultimple];
 }
 
 function waitSame(future<()> f) {
