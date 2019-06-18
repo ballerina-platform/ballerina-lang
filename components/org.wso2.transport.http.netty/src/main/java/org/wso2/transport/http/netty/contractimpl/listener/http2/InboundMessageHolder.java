@@ -1,16 +1,18 @@
 package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 public class InboundMessageHolder {
-    private HttpCarbonMessage inboundMsg;
+    private HttpCarbonMessage inboundMsgOrPushResponse;
     private HttpCarbonResponse response;
     private Http2ServerChannel http2ServerChannel;
     private long lastReadWriteTime;
+    private Http2OutboundRespListener http2OutboundRespListener;
 
-    public InboundMessageHolder(HttpCarbonMessage inboundMsg) {
-        this.inboundMsg = inboundMsg;
+    public InboundMessageHolder(HttpCarbonMessage inboundMsgOrPushResponse) {
+        this.inboundMsgOrPushResponse = inboundMsgOrPushResponse;
     }
 
     /**
@@ -32,6 +34,15 @@ public class InboundMessageHolder {
     }
 
     public HttpCarbonMessage getInboundMessage() {
-        return inboundMsg;
+        return inboundMsgOrPushResponse;
+    }
+
+    public Http2OutboundRespListener getHttp2OutboundRespListener() {
+        return http2OutboundRespListener;
+    }
+
+    public void setHttp2OutboundRespListener(
+            Http2OutboundRespListener http2OutboundRespListener) {
+        this.http2OutboundRespListener = http2OutboundRespListener;
     }
 }

@@ -2,6 +2,7 @@ package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,8 +112,8 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(InboundMessageHolder msgHolder) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
-                closeStream(streamId, ctx);
-                handlePrimaryResponseTimeout(msgHolder);
+                closeStream(msgHolder, streamId, ctx);
+                handleTimeout(msgHolder);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));
@@ -123,7 +124,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
             return idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
         }
 
-        private void handlePrimaryResponseTimeout(InboundMessageHolder msgHolder) {
+        private void handleTimeout(InboundMessageHolder msgHolder) {
 //            if (msgHolder.getResponse() != null) {
 //                handleIncompleteResponse(msgHolder, true);
 //            } else {
@@ -132,12 +133,12 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //            http2ServerChannel.removeInFlightMessage(streamId);
         }
 
-        private void closeStream(int streamId, ChannelHandlerContext ctx) {
+        private void closeStream(InboundMessageHolder msgHolder, int streamId, ChannelHandlerContext ctx) {
 //            Http2TargetHandler clientOutboundHandler =
 //                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
 //            clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+            msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
         }
-
     }
 
     private void updateLastReadTime(int streamId, boolean endOfStream) {

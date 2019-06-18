@@ -23,15 +23,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ServerChannel;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ServerTimeoutHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
@@ -115,6 +119,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
+        InboundMessageHolder msgHolder = new InboundMessageHolder(outboundResponseMsg);
+        msgHolder.setHttp2OutboundRespListener(this);
+        http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
+                                                new Http2ServerTimeoutHandler(
+                                                        serverChannelInitializer.getSocketIdleTimeout(),
+                                                        http2ServerChannel));
         if (isValidStreamId(promiseId, conn)) {
             http2ServerChannel.getDataEventListeners()
                     .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, promiseId));
@@ -141,6 +151,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
+        http2ServerChannel.getInboundMessage(streamId).setHttp2OutboundRespListener(this);
         ResponseWriter writer = new ResponseWriter(streamId);
         if (backOffEnabled) {
             remoteFlowControlListener.addResponseWriter(writer);
@@ -233,6 +244,13 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
             writer.getBackPressureObservable().notifyUnWritable();
         }
+    }
+
+    public void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
+        encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
+        http2ServerChannel.getDataEventListeners()
+                .forEach(dataEventListener -> dataEventListener.onStreamReset(streamId));
+        ctx.flush();
     }
 
     public ChannelHandlerContext getChannelHandlerContext() {
