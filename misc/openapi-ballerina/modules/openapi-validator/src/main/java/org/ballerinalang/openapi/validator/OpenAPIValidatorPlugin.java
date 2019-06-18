@@ -133,8 +133,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     }
                                 }
                             } else if (contractAttr.equals(Constants.METHODS)) {
-                                if (keyValue.getValue() instanceof BLangListConstructorExpr.BLangArrayLiteral) {
-                                    BLangListConstructorExpr.BLangArrayLiteral methodSet = (BLangListConstructorExpr.BLangArrayLiteral) keyValue.getValue();
+                                if (keyValue.getValue() instanceof BLangListConstructorExpr) {
+                                    BLangListConstructorExpr methodSet = (BLangListConstructorExpr) keyValue.getValue();
                                     for (BLangExpression methodExpr : methodSet.exprs) {
                                         if (methodExpr instanceof BLangLiteral) {
                                             BLangLiteral method = (BLangLiteral) methodExpr;
