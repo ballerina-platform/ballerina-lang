@@ -9,6 +9,10 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * Class to implement "openapi gen-client" command for ballerina.
+ * Ex: ballerina openapi (gen-client) [module]:clientName  -o(output directory name)
+ */
 @CommandLine.Command(name = "gen-client")
 public class OpenApiGenClientCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
@@ -18,7 +22,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
 
-    @CommandLine.Parameters(index="1..*")
+    @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
     @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
@@ -37,6 +41,22 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
             return;
+        }
+
+        if (moduleArgs == null) {
+            throw LauncherUtils.createLauncherException("Client name is mandatory to generate the ballerina client." +
+                    " \nE.g. ballerina openapi gen-client [<module>]:<servicename> <openapicontract>");
+        }
+
+        //Check if relevant arguments are present
+        if (argList == null) {
+            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to " +
+                    "generate the client. \nE.g: ballerina openapi gen-client " + moduleArgs.get(0) + ":"
+                    + moduleArgs.get(1) + " <OpenApiContract>");
+        }
+
+        if (moduleArgs.size() > 2) {
+            generator.setSrcPackage(moduleArgs.get(0));
         }
 
         try {

@@ -17,17 +17,8 @@
 */
 package org.ballerinalang.openapi.cmd;
 
-import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.openapi.CodeGenerator;
-import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import picocli.CommandLine;
-
-import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 /**
  * Class to implement "openapi" command for ballerina.
@@ -42,10 +33,11 @@ import java.util.List;
 })
 public class OpenApiCmd implements BLauncherCmd {
     //private static final String genclient = "GEN-CLIENT";
-    private static final String genservice = "GEN-SERVICE";
+    //private static final String genservice = "GEN-SERVICE";
     //private static final String export = "EXPORT";
     private static final String CMD_NAME = "openapi";
 
+    /*
     private static final PrintStream outStream = System.err;
 
     @CommandLine.Parameters(index = "0", split = ":")
@@ -72,6 +64,8 @@ public class OpenApiCmd implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
+    */
+
 
     @Override
     public void execute() {
@@ -120,7 +114,7 @@ public class OpenApiCmd implements BLauncherCmd {
     }
 
 
-    private void generateFromOpenApi(String targetLanguage) {
+    /*private void generateFromOpenApi(String targetLanguage) {
         CodeGenerator generator = new CodeGenerator();
 
         if (targetLanguage.equals("GEN_SERVICE")) {
@@ -150,20 +144,7 @@ public class OpenApiCmd implements BLauncherCmd {
                     "Error occurred when generating " + targetLanguage + " for " + "openapi file at " + argList.get(1)
                             + ". " + e.getMessage() + ".");
         }
-    }
-
-    private void exportFromBal() {
-        Path outPath = Paths.get(output);
-        Path servicePath = Paths.get(argList.get(1));
-
-        try {
-            OpenApiConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
-        } catch (Exception e) {
-            throw LauncherUtils.createLauncherException(
-                    "Error occurred when exporting openapi file for service file at " + argList.get(1)
-                            + ". " + e.getMessage() + ".");
-        }
-    }
+    }*/
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) { }

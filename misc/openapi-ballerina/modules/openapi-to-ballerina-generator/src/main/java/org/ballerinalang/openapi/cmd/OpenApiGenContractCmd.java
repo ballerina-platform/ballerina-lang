@@ -11,6 +11,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * Class to implement "openapi gen-contract" command for ballerina.
+ * Ex: ballerina openapi gen-contract [module:]serviceName
+ * [-i ballerinaFile]
+ * [-o contractFile]
+ * [-s|--skip-bind]
+ */
 @CommandLine.Command(name = "gen-contract")
 public class OpenApiGenContractCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
@@ -20,7 +27,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
 
-    @CommandLine.Parameters(index="1..*")
+    @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
     @CommandLine.Option(names = { "-i", "--ballerina-file" }, description = "The ballerina file " +
@@ -88,7 +95,8 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
         try {
             OpenApiConverterUtils.generateOAS3DefinitionFromModule(module, serviceName, outPutPath);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw LauncherUtils.createLauncherException("Error occurred when exporting openapi file. " +
+                    "\n" + e.getMessage());
         }
     }
 
@@ -135,7 +143,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
      * @param moduleName - module name to be checked
      * @return true if module exists.
      */
-    private boolean checkModuleExist(String moduleName){
+    private boolean checkModuleExist(String moduleName) {
         Path userLocation = Paths.get(System.getProperty("user.dir"));
         Path moduleLocation = userLocation.resolve(moduleName);
 
