@@ -455,6 +455,9 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
         });
+
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomAnnotationServiceDesugar(service, env));
+
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));

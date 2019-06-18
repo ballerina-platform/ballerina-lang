@@ -215,4 +215,15 @@ public class ServiceDesugar {
     private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
     }
+
+    public void engageCustomAnnotationServiceDesugar(BLangService service, SymbolEnv env) {
+        final BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) service.serviceTypeDefinition.typeNode;
+        objectTypeNode.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
+                .forEach(func -> engageCustomAnnotationResourceDesugar(service, func, env));
+    }
+
+    private void engageCustomAnnotationResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
+        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+    }
+
 }
