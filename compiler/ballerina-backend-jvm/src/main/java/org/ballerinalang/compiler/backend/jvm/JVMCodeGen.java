@@ -17,40 +17,40 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.nativeimpl.bir.BIRModuleUtils;
 import org.ballerinalang.spi.CompilerBackendCodeGenerator;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * Ballerina compiler JVM backend.
@@ -60,8 +60,9 @@ import java.util.jar.Manifest;
 @JavaSPIService("org.ballerinalang.spi.CompilerBackendCodeGenerator")
 public class JVMCodeGen implements CompilerBackendCodeGenerator {
 
+    private static final String BALLERINA_HOME = "BALLERINA_HOME";
+    private static final String UPDATE_CLASSPATH = "UPDATE_CLASSPATH";
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
-    private static final String functionName = "generateJarBinary";
     private static final String PKG_ENTRIES = "pkgEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
 
@@ -69,37 +70,68 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
     public Optional<Object> generate(Object... args) {
         boolean dumpBIR = (boolean) args[0];
         BLangPackage bLangPackage = (BLangPackage) args[1];
-        CompilerContext context = (CompilerContext) args[2];
-        String packagePath = (String) args[3];
-        byte[] jarContent = generateJarBinary(dumpBIR, bLangPackage, context, packagePath);
+        String packageName = (String) args[2]; // name of the package/file being codegenerated
+        Path sourceRootPath = (Path) args[3]; // path to the bir of the file being codegenerated
+        Path ballerinaHome = (Path) args[4]; // path to home dir of pack that runs compiler backend
+        byte[] jarContent = generateJarBinary(dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome);
         return Optional.of(jarContent);
     }
 
-    private static byte[] generateJarBinary(boolean dumpBIR, BLangPackage bLangPackage, CompilerContext context,
-                                           String packagePath) {
-        PackageID packageID = bLangPackage.packageID;
-        URI resURI = getExecResourceURIFromThisJar();
-        byte[] resBytes = readExecResource(resURI);
-        ProgramFile programFile = loadProgramFile(resBytes);
+    private static byte[] generateJarBinary(boolean dumpBIR, BLangPackage bLangPackage, String packageName,
+                                            Path sourceRootPath, Path ballerinaHome) {
+        // TODO: use .bat for windows.
+        String[] commands = {
+                "sh",
+                "ballerina",
+                "run",
+                "compiler_backend_jvm.balx",
+                System.getProperty("ballerina.home"), // birHome
+                cleanUpFilename(packageName), // programName
+                getPathToBIR(bLangPackage, sourceRootPath).toString(), // pathToEntryMod
+                Paths.get("").toAbsolutePath().toString(), // targetPath
+                ballerinaHome.resolve("bin").toString(), // pathToCompilerBackend
+                ballerinaHome.getParent().toString(), // libDir
+                String.valueOf(dumpBIR) // dumpBIR
+        };
+        ProcessBuilder balProcess = new ProcessBuilder(commands);
+        balProcess.inheritIO();
 
-        BValue[] args = new BValue[4];
-        args[0] = new BBoolean(dumpBIR);
-//        args[1] = BIRModuleUtils.createBIRContext(programFile, PackageCache.getInstance(context),
-//                Names.getInstance(context));
-        args[2] = BIRModuleUtils.createModuleID(programFile, packageID.orgName.value,
-                packageID.name.value, packageID.version.value, packageID.isUnnamed,
-                packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
-        args[3] = new BString(FileUtils.cleanupFileExtension(packagePath));
-
-        FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
-        BValue result = BLangProgramRunner.runProgram(programFile, functionInfo, args);
-
-        Map<String, BValue> jarEntries = ((BMap<String, BValue>) result).getMap();
+        balProcess.environment().put(BALLERINA_HOME, ballerinaHome.toString());
+        // UPDATE_CLASSPATH env variable will tell the pack dash ballerina sh to pick the jars from the main pack
+        balProcess.environment().put(UPDATE_CLASSPATH, ballerinaHome.getParent().toString());
+//        balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
+        balProcess.directory(ballerinaHome.resolve("bin").toFile());
         try {
-            return getJarContent(jarEntries);
+            Process process = balProcess.start();
+            boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
+            if (!processEnded) {
+                throw new BLangRuntimeException("failed to generate jar file.");
+            }
         } catch (IOException e) {
-            throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
+            throw new BLangRuntimeException("could not start compiler_backend_jvm.balx", e);
+        } catch (InterruptedException e) {
+            // do nothing
         }
+
+        return decompressBIR(cleanUpFilename(packageName),
+                Paths.get("").toAbsolutePath().resolve("target").toString());
+    }
+
+    private static Path getPathToBIR(BLangPackage bLangPackage, Path sourceRootPath) {
+        // If bir is for a package, get the bir from .ballerina folder
+        // If bir is for a single bal file, get the bir from the tmp directory
+        // TODO: Use a random tmp directory instead of java.io.tmpdir
+        return bLangPackage.packageID.isUnnamed ?
+                Paths.get(System.getProperty("java.io.tmpdir"))
+                        .resolve(bLangPackage.packageID.orgName.value)
+                        .resolve(bLangPackage.packageID.version.value)
+                        .resolve(bLangPackage.packageID.name.value) :
+                sourceRootPath
+                        .resolve(".ballerina")
+                        .resolve("repo")
+                        .resolve(bLangPackage.packageID.orgName.value)
+                        .resolve(bLangPackage.packageID.name.value)
+                        .resolve(bLangPackage.packageID.version.value);
     }
 
     private static byte[] getJarContent(Map<String, BValue> entries) throws IOException {
@@ -180,5 +212,39 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
         } catch (IOException e) {
             throw new BLangCompilerException("failed to load embedded executable resource: ", e);
         }
+    }
+
+    private static String cleanUpFilename(String updatedFileName) {
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0,
+                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+        return updatedFileName;
+    }
+
+    private static byte[] decompressBIR(String pkgName, String libPath) {
+        try (InputStream in = getCompiledBIRBinary(pkgName, libPath);
+             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+//            while (in.getNextJarEntry() != null) {
+//                in.read(buffer);
+//            }
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, len);
+            }
+            // Create binary array from the Serialized the BIR model.
+            return byteArrayOutputStream.toByteArray();
+            // Set the return value
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error decompressing executable " + libPath + File.separator + pkgName);
+        }
+    }
+
+    private static InputStream getCompiledBIRBinary(String pkgName, String libPath) throws IOException {
+        Path path = Paths.get(libPath);
+        Path resolve = path.resolve(pkgName + ".jar");
+        FileInputStream is = new FileInputStream(resolve.toString());
+        return is;
     }
 }

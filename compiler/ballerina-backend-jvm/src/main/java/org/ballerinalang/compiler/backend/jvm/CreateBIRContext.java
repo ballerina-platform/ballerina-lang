@@ -52,7 +52,8 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
         functionName = "createBIRContext",
         args = {
                 @Argument(name = "sourceDir", type = STRING),
-                @Argument(name = "balHome", type = STRING)
+                @Argument(name = "pathToCompilerBackend", type = STRING),
+                @Argument(name = "libDir", type = STRING)
         }
 )
 public class CreateBIRContext extends BlockingNativeCallableUnit {
@@ -62,20 +63,20 @@ public class CreateBIRContext extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String sourceDir = context.getStringArgument(0);
-        String balHome = context.getStringArgument(1);
+        String pathToCompilerBackend = context.getStringArgument(1);
+        String libDir = context.getStringArgument(2);
 
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(CompilerOptionName.PROJECT_DIR, sourceDir);
-        options.put(CompilerOptionName.MASTER_REPO, String.valueOf(true));
+        System.setProperty("ballerina.home", libDir);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
 
         SourceDirectoryManager.getInstance(compilerContext); // initialize the source directory
 
         byte[] resBytes;
         try {
-            resBytes = Files.readAllBytes(
-                    Paths.get(balHome).resolve("build").resolve("bin").resolve(EXEC_RESOURCE_FILE_NAME));
+            resBytes = Files.readAllBytes(Paths.get(pathToCompilerBackend).resolve(EXEC_RESOURCE_FILE_NAME));
         } catch (IOException e) {
             throw new BLangCompilerException("failed to load " + EXEC_RESOURCE_FILE_NAME + ": ", e);
         }

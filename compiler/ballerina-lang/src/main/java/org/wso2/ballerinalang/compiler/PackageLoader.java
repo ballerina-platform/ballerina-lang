@@ -81,7 +81,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.MASTER_REPO;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -148,7 +147,7 @@ public class PackageLoader {
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
-        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)), options.isSet(MASTER_REPO));
+        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
     }
@@ -166,12 +165,12 @@ public class PackageLoader {
      * @param sourceRoot Project path.
      * @return Repository Hierarchy.
      */
-    private RepoHierarchy genRepoHierarchy(Path sourceRoot, boolean useMainSystemRepo) {
+    private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir(useMainSystemRepo), compilerPhase);
+        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
@@ -179,7 +178,7 @@ public class PackageLoader {
                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir, compilerPhase)
                 : new ZipRepo(projectHiddenDir);
-        Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(useMainSystemRepo), compilerPhase);
+        Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
 
         RepoNode homeCacheNode;
 

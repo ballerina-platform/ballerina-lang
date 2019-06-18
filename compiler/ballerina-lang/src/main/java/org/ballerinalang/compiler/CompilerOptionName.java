@@ -48,9 +48,7 @@ public enum CompilerOptionName {
 
     SIDDHI_RUNTIME_ENABLED("siddhiRuntimeEnabled"),
 
-    EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
-
-    MASTER_REPO("masterRepo");
+    EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled");
 
     public final String name;
 

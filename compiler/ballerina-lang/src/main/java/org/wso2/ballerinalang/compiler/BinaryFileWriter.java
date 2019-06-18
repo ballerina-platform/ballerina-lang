@@ -99,12 +99,51 @@ public class BinaryFileWriter {
     }
 
     public void write(BLangPackage packageNode, String fileName) {
+        if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+            if (packageNode.packageID.isUnnamed) {
+                writeBIR(packageNode, fileName);
+            } else {
+                writePackageBIR(packageNode);
+            }
+        }
         // TODO Reuse binary content in PackageFile when writing the program file..
         if (packageNode.symbol.entryPointExists) {
             outStream.println("Generating executable");
             writeExecutableBinary(packageNode, fileName);
         }
         writeLibraryPackage(packageNode);
+    }
+
+    private void writeBIR(BLangPackage packageNode, String fileName) {
+        if (packageNode.symbol.birPackageFile != null) {
+            String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
+            Path destDirPath = createAndGetTempDir(packageNode); // bir will be written to a temp directory.
+            try {
+                addFileBirContent(cleanupExecFileName(fileName, BLANG_COMPILED_PKG_BIR_EXT),
+                        packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
+                this.sourceDirectory.saveCompiledPackage(packageNode.symbol.compiledPackage, destDirPath, birFilename);
+            } catch (IOException e) {
+                String msg = "error writing the compiled module(bir) of '" +
+                        packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                throw new BLangCompilerException(msg, e);
+            }
+        }
+    }
+
+    private void writePackageBIR(BLangPackage packageNode) {
+        if (packageNode.symbol.birPackageFile != null) {
+            String birFilename = cleanupExecFileName(packageNode.packageID.name.value, BLANG_COMPILED_PKG_EXT);
+            Path destDirPath = getPackageDirPathInProjectRepo(packageNode.packageID);
+            try {
+                addPackageBirContent(packageNode.packageID,
+                        packageNode.symbol.birPackageFile, packageNode.symbol.compiledPackage);
+                this.sourceDirectory.saveCompiledPackage(packageNode.symbol.compiledPackage, destDirPath, birFilename);
+            } catch (IOException e) {
+                String msg = "error writing the compiled module(bir) of '" +
+                        packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                throw new BLangCompilerException(msg, e);
+            }
+        }
     }
 
     private void writeExecutableBinary(BLangPackage packageNode) {
@@ -120,6 +159,7 @@ public class BinaryFileWriter {
             return;
         }
 
+        // TODO: Remove once install command runs in jvm target
         if (this.compilerPhase == CompilerPhase.BIR_GEN && packageNode.symbol.birPackageFile != null) {
             String birFilename = cleanupExecFileName(fileName, BLANG_COMPILED_PKG_EXT);
             Path destDirPath = createAndGetTempDir(packageNode); // bir will be written to a temp directory.

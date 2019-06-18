@@ -25,9 +25,11 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -59,6 +61,11 @@ public class DecompressBIR extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String libPath = context.getStringArgument(0);
         String pkgName = context.getStringArgument(1);
+        BValueArray binaryArray = decompressBIR(pkgName, libPath);
+        context.setReturnValues(binaryArray);
+    }
+
+    private BValueArray decompressBIR(String pkgName, String libPath) {
         try (InputStream in = getCompiledBIRBinary(pkgName, libPath);
              ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
@@ -67,12 +74,10 @@ public class DecompressBIR extends BlockingNativeCallableUnit {
                 byteArrayOutputStream.write(buffer, 0, len);
             }
             // Create binary array from the Serialized the BIR model.
-            BValueArray binaryArray = new BValueArray(byteArrayOutputStream.toByteArray());
-
+            return new BValueArray(byteArrayOutputStream.toByteArray());
             // Set the return value
-            context.setReturnValues(binaryArray);
         } catch (IOException e) {
-
+            throw new BLangRuntimeException("error decompressing executable " + libPath + File.separator + pkgName);
         }
     }
 

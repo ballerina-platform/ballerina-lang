@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -81,6 +82,9 @@ public class GetBIRModuleBinary extends BlockingNativeCallableUnit {
         }
 
         BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(modId, null, null);
+        if (pkgSymbol == null) {
+            throw new BLangRuntimeException("unable to find package " + modId);
+        }
         try {
             // Create binary array from the Serialized the BIR model.
             BValueArray binaryArray = new BValueArray(PackageFileWriter.writePackage(pkgSymbol.birPackageFile));

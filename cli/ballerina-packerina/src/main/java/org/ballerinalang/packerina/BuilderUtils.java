@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BackendCodeGeneratorProvider;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -30,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -88,7 +85,7 @@ public class BuilderUtils {
     }
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
-                                                String packagePath,
+                                                String packageName,
                                                 String targetPath,
                                                 boolean buildCompiledPkg,
                                                 boolean offline,
@@ -102,7 +99,7 @@ public class BuilderUtils {
                 lockEnabled, skiptests, enableExperimentalFeatures, siddhiRuntimeEnabled);
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.build(packagePath);
+        BLangPackage bLangPackage = compiler.build(packageName);
 
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
@@ -111,42 +108,17 @@ public class BuilderUtils {
             if (!bLangPackage.symbol.entryPointExists) {
                 return;
             }
-            Path ballerinaHome = Paths.get(System.getenv(BALLERINA_HOME));
-            // TODO: use .bat for windows.
-            String[] commands = {
-                    "sh",
-                    "ballerina",
-                    "run",
-                    "compiler_backend_jvm.balx",
-                    ballerinaHome.toString(),
-                    cleanUpFilename(targetPath),
-                    Paths.get(System.getProperty("java.io.tmpdir"))
-                            .resolve(bLangPackage.packageID.orgName.value)
-                            .resolve(bLangPackage.packageID.version.value)
-                            .resolve(bLangPackage.packageID.name.value).toString(),
-                    Paths.get("").toAbsolutePath().toString(),
-                    String.valueOf(dumpBIR)
-            };
-            ProcessBuilder balProcess = new ProcessBuilder(commands);
-            balProcess.inheritIO();
 
-            // ballerina.home is set to pack dash
-            balProcess.environment().put(BALLERINA_HOME, ballerinaHome.resolve("build").toString());
-            // UPDATE_CLASSPATH env variable will tell the pack dash ballerina sh to pick the jars from the main pack
-            balProcess.environment().put(UPDATE_CLASSPATH, ballerinaHome.toString());
-//            balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
-            balProcess.directory(ballerinaHome.resolve("build").resolve("bin").toFile());
-            try {
-                Process process = balProcess.start();
-                boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
-                if (!processEnded) {
-                    throw new BLangRuntimeException("failed to generate jar file.");
-                }
-            } catch (IOException e) {
-                throw new BLangRuntimeException("could not start compiler_backend_jvm.balx", e);
-            } catch (InterruptedException e) {
-                // do nothing
+            CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
+                    getBackendCodeGenerator();
+
+            Path ballerinaHome = Paths.get(System.getenv(BALLERINA_HOME));
+            Optional result = jvmCodeGen.generate(
+                    dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome.resolve("build"));
+            if (!result.isPresent()) {
+                throw new RuntimeException("Compiled binary jar is not found");
             }
+            bLangPackage.jarBinaryContent = (byte[]) result.get();
             return;
         }
 

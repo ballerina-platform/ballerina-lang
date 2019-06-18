@@ -448,11 +448,11 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     // Add the builtin and utils modules to the imported list of modules
     bir:ImportModule builtinModule = {modOrg : {value:"ballerina"}, 
                                       modName : {value:"builtin"}, 
-                                      modVersion : {value:"0.0.0"}};
+                                      modVersion : {value:""}};
 
     bir:ImportModule utilsModule = {modOrg : {value:"ballerina"}, 
                                       modName : {value:"utils"}, 
-                                      modVersion : {value:"0.0.0"}};
+                                      modVersion : {value:""}};
 
     if (isSameModule(moduleId, builtinModule)) {
         return;

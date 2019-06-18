@@ -39,9 +39,11 @@ public function main(string... args) {
     string progName = args[1];
     string pathToEntryMod = args[2];
     string targetPath = args[3];
-    boolean dumpBir = boolean.convert(args[4]);
+    string pathToCompilerBackend = args[4];
+    string libDir = args[5];
+    boolean dumpBir = boolean.convert(args[6]);
 
-    bir:BIRContext birContext = createBIRContext(pathToEntryMod, birHome.getPathValue());
+    bir:BIRContext birContext = createBIRContext(pathToEntryMod, pathToCompilerBackend, libDir);
     writeJarFile(generateJarBinary(progName, pathToEntryMod, birContext, dumpBir), progName, targetPath);
 }
 
@@ -73,4 +75,4 @@ function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
 
 function writeExecutableJarToFile(JarFile jarFile, string fileName, string targetPath) = external;
 
-function createBIRContext(string sourceDir, string balHome) returns bir:BIRContext = external;
+function createBIRContext(string sourceDir, string pathToCompilerBackend, string libDir) returns bir:BIRContext = external;

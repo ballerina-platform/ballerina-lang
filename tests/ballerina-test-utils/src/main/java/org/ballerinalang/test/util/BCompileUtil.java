@@ -573,7 +573,7 @@ public class BCompileUtil {
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
-        Optional result = jvmCodeGen.generate(false, bLangPackage, context, packageName);
+        Optional result = jvmCodeGen.generate(false, bLangPackage, packageName, sourceRoot);
         if (!result.isPresent()) {
             throw new RuntimeException("Compiled binary jar is not found");
         }
