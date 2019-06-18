@@ -44,6 +44,9 @@ public const string AUTH_SCHEME_BASIC = "Basic ";
 # Bearer authentication scheme.
 public const string AUTH_SCHEME_BEARER = "Bearer ";
 
+# Table name of the config user section of toml file.
+const string CONFIG_USER_SECTION = "b7a.users";
+
 # Extracts the username and password from credential value.
 #
 # + credential - Credential value

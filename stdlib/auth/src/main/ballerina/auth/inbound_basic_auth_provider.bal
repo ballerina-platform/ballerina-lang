@@ -19,12 +19,21 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/runtime;
 
-const string CONFIG_USER_SECTION = "b7a.users";
-
 # Represents inbound basic auth provider which is configuration file based auth store provider.
+#
+# + basicAuthConfig - Basic auth provider configurations
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
+
+    public BasicAuthConfig basicAuthConfig;
+
+    # Provides authentication based on the provided configuration.
+    #
+    # + basicAuthConfig - Basic auth provider configurations
+    public function __init(BasicAuthConfig basicAuthConfig) {
+        self.basicAuthConfig = basicAuthConfig;
+    }
 
     # Attempts to authenticate with credential.
     #
@@ -60,20 +69,28 @@ public type InboundBasicAuthProvider object {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
-            principal.scopes = getScopes(username);
+            principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
         }
         return authenticated;
     }
 };
 
+# The `BasicAuthConfig` record can be used to configure inbound Basic authentication configurations.
+#
+# + tableName - Table name of the toml file of user-store.
+public type BasicAuthConfig record {|
+    string tableName = CONFIG_USER_SECTION;
+|};
+
 # Reads the scope(s) for the user with the given username.
 #
 # + username - Username
+# + tableName - Table name of the toml file of user-store
 # + return - Array of groups for the user denoted by the username
-function getScopes(string username) returns string[] {
+function getScopes(string username, string tableName) returns string[] {
     // first read the user id from user->id mapping
     // reads the groups for the user-id
-    return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
+    return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
 # Extract password hash from the configuration file.

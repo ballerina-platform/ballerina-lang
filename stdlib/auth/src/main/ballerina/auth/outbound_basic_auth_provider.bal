@@ -19,25 +19,25 @@ import ballerina/log;
 
 # Represents outbound Basic auth authenticator.
 #
-# + basicAuthProviderConfig - Outbound Basic auth provider configurations
+# + credential - Credential configurations
 public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
 
-    public OutboundBasicAuthConfig basicAuthProviderConfig;
+    public Credential credential;
 
     # Provides authentication based on the provided basic auth configuration.
     #
-    # + basicAuthProviderConfig - Outbound Basic auth provider configurations
-    public function __init(OutboundBasicAuthConfig basicAuthProviderConfig) {
-        self.basicAuthProviderConfig = basicAuthProviderConfig;
+    # + credential - Credential configurations
+    public function __init(Credential credential) {
+        self.credential = credential;
     }
 
     # Generate token for Basic authentication.
     #
     # + return - Generated token or `error` if an error occurred during validation
     public function generateToken() returns string|error {
-        return getAuthTokenForBasicAuth(self.basicAuthProviderConfig);
+        return getAuthTokenForBasicAuth(self.credential);
     }
 
     # Inspect the incoming data and generate the token for Basic authentication.
@@ -49,22 +49,22 @@ public type OutboundBasicAuthProvider object {
     }
 };
 
-# The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.
+# The `Credential` record can be used to configure Basic authentication used by the HTTP endpoint.
 #
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
-public type OutboundBasicAuthConfig record {|
+public type Credential record {|
     string username;
     string password;
 |};
 
 # Process the auth token for basic auth.
 #
-# + authConfig - Basic auth configurations
+# + credential - Credential configurations
 # + return - Auth token or `error` if an error occurred during validation
-function getAuthTokenForBasicAuth(OutboundBasicAuthConfig authConfig) returns string|error {
-    string username = authConfig.username;
-    string password = authConfig.password;
+function getAuthTokenForBasicAuth(Credential credential) returns string|error {
+    string username = credential.username;
+    string password = credential.password;
     if (username == EMPTY_STRING || password == EMPTY_STRING) {
         return prepareError("Username or password cannot be empty.");
     }
