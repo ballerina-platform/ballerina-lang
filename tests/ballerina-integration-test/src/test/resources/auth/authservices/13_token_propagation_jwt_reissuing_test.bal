@@ -41,9 +41,9 @@ listener http:Listener listener13_1 = new(9107, config = {
 });
 
 jwt:OutboundJwtAuthProvider jwtAuthProvider13_2 = new({
-    inferredJwtIssuerConfig: {
-        issuer: "example2",
-        audience: ["ballerina"],
+    issuer: "example2",
+    audience: ["ballerina"],
+    issuerConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {

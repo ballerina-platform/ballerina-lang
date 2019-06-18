@@ -19,12 +19,12 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/runtime;
 
-auth:OutboundBasicAuthProvider basicAuthProvider = new;
-http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
+auth:OutboundCustomAuthProvider outboundCustomAuthProvider = new;
+http:OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
 
 http:Client client17 = new("https://localhost:9114", config = {
     auth: {
-        authHandler: jwtAuthHandler14_2
+        authHandler: outboundCustomAuthHandler
     }
 });
 
@@ -64,7 +64,7 @@ InboundCustomAuthHandler inboundCustomAuthHandler = new(inboundCustomAuthProvide
 
 listener http:Listener listener17_2 = new(9114, config = {
     auth: {
-        authHandlers: [customAuthHandler]
+        authHandlers: [inboundCustomAuthHandler]
     },
     secureSocket: {
         keyStore: {
@@ -132,7 +132,7 @@ public type InboundCustomAuthHandler object {
     }
 };
 
-// ---------- inbound_custom_auth_store_provider ----------
+// ---------- inbound_custom_auth_provider ----------
 
 public type InboundCustomAuthProvider object {
 
@@ -185,7 +185,7 @@ public type OutboundCustomAuthHandler object {
     }
 };
 
-// ---------- outbound_custom_auth_store_provider ----------
+// ---------- outbound_custom_auth_provider ----------
 
 public type OutboundCustomAuthProvider object {
 

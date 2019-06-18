@@ -17,7 +17,7 @@
 import ballerina/ldap;
 import ballerina/http;
 
-ldap:InboundLdapAuthProviderConfig ldapConfig02 = {
+ldap:LdapConnectionConfig ldapConfig02 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",

@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/jwt;
 
-auth:InboundBasicAuthProvider basicAuthProvider11_1 = new;
+auth:InboundBasicAuthProvider basicAuthProvider11_1 = new({});
 http:BasicAuthHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
 
 listener http:Listener listener11_1 = new(9103, config = {
@@ -34,9 +34,9 @@ listener http:Listener listener11_1 = new(9103, config = {
 });
 
 jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
-    inferredJwtIssuerConfig: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    issuerConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {
