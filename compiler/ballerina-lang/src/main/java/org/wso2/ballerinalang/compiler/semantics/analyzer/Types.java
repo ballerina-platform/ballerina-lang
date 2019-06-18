@@ -1622,7 +1622,7 @@ public class Types {
 
         @Override
         public Boolean visit(BServiceType t, BType s) {
-            return t == s;
+            return t == s || t.tag == s.tag;
         }
 
         @Override
