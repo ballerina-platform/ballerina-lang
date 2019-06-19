@@ -15,97 +15,97 @@
 // under the License.
 
 //separators
-const int LBRACE = 0;
-const int RBRACE = 1;
-const int SEMICOLON = 2;
-const int COMMA = 3;
-const int DOT = 4;
-const int COLON = 5;
-const int LPAREN = 6;
-const int RPAREN = 7;
-const int QUESTION_MARK = 8;
-const int LEFT_BRACKET = 9;
-const int RIGHT_BRACKET = 10;
+const LBRACE = 0;
+const RBRACE = 1;
+const SEMICOLON = 2;
+const COMMA = 3;
+const DOT = 4;
+const COLON = 5;
+const LPAREN = 6;
+const RPAREN = 7;
+const QUESTION_MARK = 8;
+const LEFT_BRACKET = 9;
+const RIGHT_BRACKET = 10;
 
 //documentation markdown
-const int HASH = 11;
+const HASH = 11;
 
 //binary operators
-const int ADD = 12;
-const int SUB = 13;
-const int DIV = 14;
-const int MUL = 15;
-const int MOD = 16;
+const ADD = 12;
+const SUB = 13;
+const DIV = 14;
+const MUL = 15;
+const MOD = 16;
 
 //binary compared operators
-const int GT = 17;
-const int GT_EQUAL = 18;
-const int LT = 19;
-const int LT_EQUAL = 20;
+const GT = 17;
+const GT_EQUAL = 18;
+const LT = 19;
+const LT_EQUAL = 20;
 
 //binary equal operators
-const int EQUAL = 21;
-const int NOT_EQUAL = 22;
+const EQUAL = 21;
+const NOT_EQUAL = 22;
 
 //binary ref equal operators
-const int REF_NOT_EQUAL = 23;
-const int REF_EQUAL = 24;
+const REF_NOT_EQUAL = 23;
+const REF_EQUAL = 24;
 
 
 //unary operators
-const int NOT = 25;
+const NOT = 25;
 //sub and add tokens will be renamed as unaryMinus and unaryPlus,
 //in the parser during unary expressions
 
-const int BIT_COMPLEMENT = 26;
-const int UNTAINT = 27;
-const int UNARY_MINUS = 28;
-const int UNARY_PLUS = 29;
+const BIT_COMPLEMENT = 26;
+const UNTAINT = 27;
+const UNARY_MINUS = 28;
+const UNARY_PLUS = 29;
 
 // Integer Range Operators.
-const int HALF_OPEN_RANGE = 30;
+const HALF_OPEN_RANGE = 30;
 
 // Compound Assignment operators.
-const int COMPOUND_ADD = 31;
-const int COMPOUND_SUB = 32;
-const int COMPOUND_DIV = 33;
-const int COMPOUND_MUL = 34;
-const int COMPOUND_RIGHT_SHIFT = 35;
-const int COMPOUND_LEFT_SHIFT = 36;
-const int COMPOUND_LOGICAL_SHIFT = 37;
+const COMPOUND_ADD = 31;
+const COMPOUND_SUB = 32;
+const COMPOUND_DIV = 33;
+const COMPOUND_MUL = 34;
+const COMPOUND_RIGHT_SHIFT = 35;
+const COMPOUND_LEFT_SHIFT = 36;
+const COMPOUND_LOGICAL_SHIFT = 37;
 
 //additional symbols
-const int RANGE = 38;
-const int ELLIPSIS = 39;
-const int ELVIS = 40;
-const int EQUAL_GT = 41;
-const int RARROW = 42;
-const int SYNCRARROW = 43;
-const int LARROW = 44;
-const int ASSIGN = 45;
-const int IDENTIFIER = 46;
-const int NUMBER = 47;
-const int QUOTED_STRING_LITERAL = 48;
-const int LEXER_ERROR_TOKEN = 49;
-const int PARSER_ERROR_TOKEN = 50;
-const int EOF = 51;
+const RANGE = 38;
+const ELLIPSIS = 39;
+const ELVIS = 40;
+const EQUAL_GT = 41;
+const RARROW = 42;
+const SYNCRARROW = 43;
+const LARROW = 44;
+const ASSIGN = 45;
+const IDENTIFIER = 46;
+const NUMBER = 47;
+const QUOTED_STRING_LITERAL = 48;
+const LEXER_ERROR_TOKEN = 49;
+const PARSER_ERROR_TOKEN = 50;
+const EOF = 51;
 
 //reserved words
-const int FINAL = 52;
-const int FUNCTION = 53;
-const int INT = 54;
-const int STRING = 55;
-const int CONTINUE = 56;
+const FINAL = 52;
+const FUNCTION = 53;
+const INT = 54;
+const STRING = 55;
+const CONTINUE = 56;
 //Delimiters
-const int LEFT_CLOSED_RECORD_DELIMITER = 57;
+const LEFT_CLOSED_RECORD_DELIMITER = 57;
 
 //>>,>>>,<< newly added tokens
-const int DOUBLE_GT = 58;
-const int DOUBLE_LT = 59;
-const int TRIPLE_GT = 60;
+const DOUBLE_GT = 58;
+const DOUBLE_LT = 59;
+const TRIPLE_GT = 60;
 
 //incomplete token range 61-70
-//const int INCOMPLETE_SY = 61;
+//const INCOMPLETE_SY = 61;
 
 
 string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON", "LPAREN", "RPAREN", "QUESTION_MARK",
@@ -118,72 +118,72 @@ string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON",
 "TRIPLE_GT"];
 
 //single token symbols
-const string rBraceSymbol = "}";
-const string lParenSymbol = "(";
-const string rParenSymbol = ")";
-const string colonSymbol = ":";
-const string commaSymbol = ",";
-const string lBracketSymbol = "[";
-const string rBracketSymbol = "]";
-const string hashSymbol = "#";
-const string bitComplimentSy = "~";
-const string modSymbol = "%";
-const string semicolonSym = ";";
+const rBraceSymbol = "}";
+const lParenSymbol = "(";
+const rParenSymbol = ")";
+const colonSymbol = ":";
+const commaSymbol = ",";
+const lBracketSymbol = "[";
+const rBracketSymbol = "]";
+const hashSymbol = "#";
+const bitComplimentSy = "~";
+const modSymbol = "%";
+const semicolonSym = ";";
 
-const string lBraceSymbol = "{";
-const string addSymbol = "+";
-const string subSymbol = "-";
-const string mulSymbol = "*";
-const string divSymbol = "/";
-const string quesMarkSym = "?";
+const lBraceSymbol = "{";
+const addSymbol = "+";
+const subSymbol = "-";
+const mulSymbol = "*";
+const divSymbol = "/";
+const quesMarkSym = "?";
 
-const string assignSym = "=";
-const string dotSym = ".";
-const string notSym = "!";
+const assignSym = "=";
+const dotSym = ".";
+const notSym = "!";
 
-const string gtSymbol = ">";
-const string ltSymbol = "<";
-const string singleQuoteSym = "\"";
+const gtSymbol = ">";
+const ltSymbol = "<";
+const singleQuoteSym = "\"";
 
 //double token symbols
-const string lClosedRecordSy = "{|";
-const string compAddSy = "+=";
-const string compSubSy = "-=";
-const string comMulSy = "*=";
-const string comDivSy = "/=";
-const string elvisSy = "?:";
+const lClosedRecordSy = "{|";
+const compAddSy = "+=";
+const compSubSy = "-=";
+const comMulSy = "*=";
+const comDivSy = "/=";
+const elvisSy = "?:";
 
-const string equalSym = "==";
-const string equalGtSym = "=>";
-const string rarrowSym = "->";
-const string rangeSym = "..";
-const string notEqSym = "!=";
+const equalSym = "==";
+const equalGtSym = "=>";
+const rarrowSym = "->";
+const rangeSym = "..";
+const notEqSym = "!=";
 
-const string gtEqSym = ">=";
-const string ltEqSym = "<=";
-const string larrowSym = "<-";
-const string quotesStringSym = "\"\"";
+const gtEqSym = ">=";
+const ltEqSym = "<=";
+const larrowSym = "<-";
+const quotesStringSym = "\"\"";
 
 //triple token Symbols
-const string refEqSym = "===";
-const string syncRarrowSym = "->>";
-const string ellipsisSym = "...";
-const string halfOpenRangeSym = "..<";
-const string refNotEqSym = "!==";
+const refEqSym = "===";
+const syncRarrowSym = "->>";
+const ellipsisSym = "...";
+const halfOpenRangeSym = "..<";
+const refNotEqSym = "!==";
 
-const string compRShiftSym = ">>=";
-const string comLShiftSym = "<<=";
-const string eofSym = "EOF";
+const compRShiftSym = ">>=";
+const comLShiftSym = "<<=";
+const eofSym = "EOF";
 
 //quadruple token symbol
-const string compLogicalSym = ">>>=";
+const compLogicalSym = ">>>=";
 
 //incomplete symbols
-const string doubleGtSym = ">>";
-const string doubleLtSym = "<<";
-const string tripleGtSym = ">>>";
+const doubleGtSym = ">>";
+const doubleLtSym = "<<";
+const tripleGtSym = ">>>";
 
-//const string atSym = "$";
+//const atSym = "$";
 
 
 #object which fills tokens into separate maps based on the size of the symbol

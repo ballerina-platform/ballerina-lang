@@ -17,12 +17,12 @@
 import ballerina/io;
 import ballerina/log;
 
-# Lexer tokenize the lexemes.
+# Lexer, tokenize the lexemes.
 # the characters pulled from the bufferReader is passed through
-# symbol recognizers, identifers, reesrved words and numeric recognizers
+# symbol recognizers, identifers, reserved words and numeric recognizers
 # to build tokens
 public type Lexer object {
-    TokenMapper tknMapper = new ();
+    TokenMapper tknMapper = new;
     //token position relative to the line number
     int position = 0;
     //line number of the token in the source
@@ -30,7 +30,7 @@ public type Lexer object {
     //index of the token relative to the input file
     int tokenIndex = 0;
     //initializing the whitespace stack
-    WhiteSpaceStack wpStack = new ();
+    WhiteSpaceStack wpStack = new;
     //instance of the bufferReader object
     private BufferReader buffer;
 
@@ -43,7 +43,8 @@ public type Lexer object {
         return self.buffer.consume();
     }
 
-    #the characters from the buffer stream will be tokenized and a token will be returned
+    # The characters from the buffer stream will be tokenized and a token will be returned.
+    #
     # +return - Token
     public function nextToken() returns Token {
         //current character
@@ -82,12 +83,12 @@ public type Lexer object {
             if (tokenSymbol is int) {
                 endPosCount += 1;
                 //check EOF
-                if (self.buffer.lookAhead() == "") {
+                if (self.buffer.lookAhead() == END_OF_FILE) {
                     isValidSy = false;
                 }
                 while (isValidSy) {
                     //check EOF
-                    if (self.buffer.lookAhead() == "") {
+                    if (self.buffer.lookAhead() == END_OF_FILE) {
                         break;
                     }
                     //check with the look ahead token to see if there is a valid symbol
@@ -107,26 +108,10 @@ public type Lexer object {
                 //check if the token is an incomplete token,(no valid token found)
                 if (tokenSymbol >= 61 && tokenSymbol <= 70) {
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: LEXER_ERROR_TOKEN,
-                        text: validSy,
-                        startPos: self.position - (endPosCount - 1),
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(LEXER_ERROR_TOKEN, validSy, self.position - (endPosCount - 1));
                 } else {
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: tokenSymbol,
-                        text: validSy,
-                        startPos: self.position - (endPosCount - 1),
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(tokenSymbol, validSy, self.position - (endPosCount - 1));
                 }
             } else if (currChar == singleQuoteSym) { //quoted string literal
                 string str = currChar;
@@ -135,15 +120,7 @@ public type Lexer object {
                     currChar = self.nextLexeme();
                     self.position += 1;
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: QUOTED_STRING_LITERAL,
-                        text: quotesStringSym,
-                        startPos: self.position - 1,
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(QUOTED_STRING_LITERAL, quotesStringSym, self.position - 1);
                 }
                 //keeps track whether the string literal is incomplete
                 boolean incompleteStr = true;
@@ -164,30 +141,13 @@ public type Lexer object {
                         str = str + currChar;
                         incompleteStr = false;
                         self.tokenIndex += 1;
-                        return {
-                            tokenType: QUOTED_STRING_LITERAL,
-                            text: str,
-                            startPos: self.position - strPos,
-                            endPos: self.position,
-                            lineNumber: self.lineNum,
-                            index: self.tokenIndex,
-                            whiteSpace: self.wpStack.getWhiteSpace()
-                        };
+                        return self.getToken(QUOTED_STRING_LITERAL, str, self.position - strPos);
                     }
                     //loop until Eof
-                    if (self.buffer.lookAhead() == "") {
+                    if (self.buffer.lookAhead() == END_OF_FILE) {
                         incompleteStr = false;
                         //if no inverted comma is found,all the characters until Eof is captured and returned as an Lexer Error Token
-                        return {
-                            tokenType: LEXER_ERROR_TOKEN,
-                            text: str,
-                            startPos: self.position - strPos,
-                            endPos: self.position,
-                            lineNumber: self.lineNum,
-                            index: self.tokenIndex,
-                            whiteSpace: self.wpStack.getWhiteSpace()
-                        };
-
+                        return self.getToken(LEXER_ERROR_TOKEN, str, self.position - strPos);
                     }
                 }
             } else if (isDigit(currChar)) { // integers
@@ -213,27 +173,11 @@ public type Lexer object {
                         numb = numb + currChar;
                     }
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: LEXER_ERROR_TOKEN,
-                        text: numb,
-                        startPos: self.position - digitPos,
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(LEXER_ERROR_TOKEN, numb, self.position - digitPos);
                 }
                 if (validNum) {
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: NUMBER,
-                        text: numb,
-                        startPos: self.position - digitPos,
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(NUMBER, numb, self.position - digitPos);
                 }
             } else if (isLetter(currChar)) {
                 string word = currChar;
@@ -245,57 +189,52 @@ public type Lexer object {
                     word = word + currChar;
                 }
 
-                int checkReserved = isReserved(word);
+                int checkReserved = getReservedKey(word);
 
                 if (checkReserved != EOF) {
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: checkReserved,
-                        text: word,
-                        startPos: self.position - wordLength,
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(checkReserved, word, self.position - wordLength);
                 } else {
                     self.tokenIndex += 1;
-                    return {
-                        tokenType: IDENTIFIER,
-                        text: word,
-                        startPos: self.position - wordLength,
-                        endPos: self.position,
-                        lineNumber: self.lineNum,
-                        index: self.tokenIndex,
-                        whiteSpace: self.wpStack.getWhiteSpace()
-                    };
+                    return self.getToken(IDENTIFIER, word, self.position - wordLength);
                 }
             }
         }
         self.tokenIndex += 1;
         self.position += 1;
+        return self.getToken(EOF, eofSym, self.position);
+    }
+
+    # Method to build the Token based on the given parameters.
+    #
+    # + tkType - Token type.
+    # + tkText - Token text.
+    # + startPosition - Starting position of the token.
+    # + return - Token.
+    function getToken(int tkType, string tkText, int startPosition) returns Token {
         return {
-            tokenType: EOF,
-            text: eofSym,
-            startPos: self.position,
+            tokenType: tkType,
+            text: tkText,
+            startPos: startPosition,
             endPos: self.position,
             lineNumber: self.lineNum,
             index: self.tokenIndex,
             whiteSpace: self.wpStack.getWhiteSpace()
         };
+
     }
+
 };
 
-
-# Token record
+# Token record.
 #
-# + tokenType - type of the Token 
-# + text - input text 
-# + startPos - starting column number of the token
-# + endPos - ending column number of the token
-# + lineNumber - lineNumber with respect to the source code
-# + index - index of the token with respect to the source code 
-# + whiteSpace - whiteSpace prior to the token is attached here
+# + tokenType - type of the Token.
+# + text - input text.
+# + startPos - starting column number of the token.
+# + endPos - ending column number of the token.
+# + lineNumber - lineNumber with respect to the source code.
+# + index - index of the token with respect to the source code.
+# + whiteSpace - whiteSpace prior to the token is attached here.
 public type Token record {
     int tokenType;
     string text;
@@ -306,90 +245,64 @@ public type Token record {
     string? whiteSpace;
 };
 
-#check whether the current character is a white space
-# + return -  boolean true if the character is a whitepsace character
+# Checks whether the current character is a white space.
+#
+# + return -  boolean true if the character is a whitepsace character.
 function isWhiteSpace(string currentCharacter) returns boolean {
     string spaceRegEx = "[ \t\r\n\f]";
-    boolean | error whiteSp = currentCharacter.matches(spaceRegEx);
-
-    if (whiteSp is error) {
-        panic whiteSp;
-    } else {
-        return whiteSp;
-    }
+    return checkpanic currentCharacter.matches(spaceRegEx);
 }
 
-#check whether the current character is a Enter
-# + return - boolean true if character is newline whitespace
+# Checks whether the current character is a Enter.
+#
+# + return - boolean true if character is newline whitespace.
 function isEnter(string currentCharacter) returns boolean {
     string enterRegEx = "[\n]";
-    boolean | error enterSpace = currentCharacter.matches(enterRegEx);
-
-    if (enterSpace is error) {
-        panic enterSpace;
-    } else {
-        return enterSpace;
-    }
+    return checkpanic currentCharacter.matches(enterRegEx);
 }
-#check whether the current character is a tab space
-# + return - boolean true if character is tab whitespace
+
+# Checks whether the current character is a tab space.
+#
+# + return - boolean true if character is tab whitespace.
 function isTab(string currentCharacter) returns boolean {
     string tabRegEx = "[\t]";
-    boolean | error enterTabSpace = currentCharacter.matches(tabRegEx);
-
-    if (enterTabSpace is error) {
-        panic enterTabSpace;
-    } else {
-        return enterTabSpace;
-    }
+    return checkpanic currentCharacter.matches(tabRegEx);
 }
 
-#check whether the current character is a digit
-# + return - boolean true if character is a digit
+# Checks whether the current character is a digit.
+#
+# + return - boolean true if character is a digit.
 function isDigit(string currentChar) returns boolean {
     string regExNumber = "[0-9]";
-    boolean | error isNumb = currentChar.matches(regExNumber);
-
-    if (isNumb is error) {
-        panic isNumb;
-    } else {
-        return isNumb;
-    }
+    return checkpanic currentChar.matches(regExNumber);
 }
 
-#check whether the current character is a letter based on regex
-# + return - boolean true if character is a letter
+# Checks whether the current character is a letter based on regex.
+#
+# + return - boolean true if character is a letter.
 function isLetter(string currentChar) returns boolean {
     string regExString = "[a-zA-Z]+";
-    boolean | error letter = currentChar.matches(regExString);
-
-    if (letter is error) {
-        panic letter;
-    } else {
-        return letter;
-    }
+    return checkpanic currentChar.matches(regExString);
 }
 
-#check whether the built word is a reserved word or not
-# + return - int of the reserved word
-function isReserved(string word) returns int {
-    int resWord = EOF;
-
+# Checks whether the built word is a reserved word or not.
+#
+# + return - int of the reserved word.
+function getReservedKey(string word) returns int {
     match word {
-        "function" =>resWord = FUNCTION;
-        "int" =>resWord = INT;
-        "string" =>resWord = STRING;
-        "untaint" =>resWord = UNTAINT;
-        "final" =>resWord = FINAL;
-        "continue" =>resWord = CONTINUE;
+        "function" => return FUNCTION;
+        "int" => return INT;
+        "string" => return STRING;
+        "untaint" => return UNTAINT;
+        "final" => return FINAL;
+        "continue" => return CONTINUE;
     }
-
-    return resWord;
+    return EOF;
 }
 
-#if a whitespace is reached it will be pushed to the stack.
-#once getWhitespace() method is called
-#stack will be popped and all the whitespaces which were infront of the character will be added to the token whitespcae field
+# If a whitespace is reached it will be pushed to the stack.
+# once getWhitespace() method is called
+# stack will be popped and all the whitespaces which were infront of the character will be added to the token whitespcae field
 type WhiteSpaceStack object {
     string[] spaceStack = [];
     int top;
@@ -405,11 +318,11 @@ type WhiteSpaceStack object {
 
     function pop() returns string {
         self.top = self.top - 1;
-        string spaceSaved = self.spaceStack[self.top];
-        return spaceSaved;
+        return self.spaceStack[self.top];
     }
 
-    #if the whitespace stack is not empty, pop the stack and return the whitespace characters else return null
+    # If the whitespace stack is not empty, pop the stack and return the whitespace characters else return null.
+    #
     # + return - whitespace string or null
     function getWhiteSpace() returns string? {
         string space = "";
@@ -420,7 +333,5 @@ type WhiteSpaceStack object {
             }
             return space;
         }
-        return ();
-
     }
 };

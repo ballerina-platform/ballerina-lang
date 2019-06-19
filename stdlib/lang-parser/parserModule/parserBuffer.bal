@@ -16,8 +16,8 @@
 
 import ballerina/io;
 
-#The lexemes which are tokenized are pushed to the parser buffer reader.
-#ParserBufferReader functions as a circular buffer and the capacity of the buffer can be specified.
+# The lexemes which are tokenized are pushed to the parser buffer reader.
+# ParserBufferReader functions as a circular buffer and the capacity of the buffer can be specified.
 public type ParserBufferReader object {
     //size of the token array
     private int capacity;
@@ -47,12 +47,7 @@ public type ParserBufferReader object {
     }
 
     function isEOFToken() returns boolean {
-        boolean isEof = false;
-        if (self.tokenArray[self.readPointer].tokenType == EOF) {
-            isEof = true;
-        }
-
-        return isEof;
+        return self.tokenArray[self.readPointer].tokenType == EOF;
     }
 
     function consumeToken() returns Token {

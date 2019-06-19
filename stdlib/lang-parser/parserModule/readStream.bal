@@ -20,10 +20,6 @@ import ballerina/log;
 public function main() {
     PackageNode? parsedFile = parseFile("inputFile.bal");
     if (parsedFile is PackageNode) {
-        // json|error j = json.convert(parsedFile);
-        //    if (j is json) {
-        //        io:println(j);
-        //    }
         io:println(parsedFile);
     }
 }
@@ -32,7 +28,7 @@ public function main() {
 function parseFile(string fileLocation) returns PackageNode? {
     io:ReadableCharacterChannel sourceChannel = new(io:openReadableFile(fileLocation), "UTF-8");
 
-    BufferReader | error bReader = trap new BufferReader(capacity = 5, sourceChannel);
+    BufferReader | error bReader = new BufferReader(sourceChannel);
 
     if (bReader is error) {
         log:printError("error occurred while processing chars ", err = bReader);
@@ -51,8 +47,8 @@ function parseFile(string fileLocation) returns PackageNode? {
 }
 
 function closeRc(io:ReadableCharacterChannel ch) {
-    var cr = ch.close();
-    if (cr is error) {
-        log:printError("Error occured while closing the channel: ", err = cr);
+    var readChannel = ch.close();
+    if (readChannel is error) {
+        log:printError("Error occured while closing the channel: ", err = readChannel);
     }
 }

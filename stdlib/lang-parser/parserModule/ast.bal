@@ -20,7 +20,6 @@ const PACKAGE_NODE = "package";
 const FUNCTION_NODE = "function";
 const STATEMENT_NODE = "statement";
 const VAR_DEF_STATEMENT_NODE = "variableDefinitionStatement";
-const VAR_DEC_STATEMENT_NODE = "variableDeclrationStatement";
 const EXPRESSION_NODE = "expression";
 const BINARY_EXP_NODE = "binaryExpression";
 const IDENTIFIER_NODE = "identifier";
@@ -37,22 +36,20 @@ const EMPTY_TUPLE_LITERAL_NODE = "emptyTupleLiteralNode";
 const UNARY_EXPRESSION_NODE = "unaryExpressionNode";
 const CONTINUE_STATEMENT_NODE = "continueStatement";
 
-//error nodes
-const ER_FN_SIGNATURE_NODE = "errorFunctionSignature";
-const ER_BLOCK_NODE = "errorFunctionBody";
-const ER_VAR_DEF_STATEMENT_NODE = "errorVariableDefinitionStatement";
-const ER_VAR_DEF_IDENTIFIER_NODE = "errorVariableDefinitionIdentifier";
-const ER_CONTIUE_STATEMENT_NODE = "errorContinueStatement";
-const ER_STATEMENT_NODE = "errorStatement";
-const ER_IDENTIFIER_NODE = "errorIdentifier";
+const ERROR_FN_SIGNATURE_NODE = "errorFunctionSignature";
+const ERROR_BLOCK_NODE = "errorFunctionBody";
+const ERROR_VAR_DEF_STATEMENT_NODE = "errorVariableDefinitionStatement";
+const ERROR_VAR_DEF_IDENTIFIER_NODE = "errorVariableDefinitionIdentifier";
+const ERROR_CONTIUE_STATEMENT_NODE = "errorContinueStatement";
+const ERROR_STATEMENT_NODE = "errorStatement";
+const ERROR_IDENTIFIER_NODE = "errorIdentifier";
+const ERROR_EXPRESSION_NODE = "failedExpression";
 
-const ER_EXPRESSION_NODE = "failedExpression";
-
-type NodeKind PACKAGE_NODE | FUNCTION_NODE | STATEMENT_NODE | VAR_DEF_STATEMENT_NODE | VAR_DEC_STATEMENT_NODE | EXPRESSION_NODE |
+type NodeKind PACKAGE_NODE | FUNCTION_NODE | STATEMENT_NODE | VAR_DEF_STATEMENT_NODE | EXPRESSION_NODE |
  BINARY_EXP_NODE | IDENTIFIER_NODE | VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
  RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
- EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE | ER_FN_SIGNATURE_NODE | ER_BLOCK_NODE |
- ER_VAR_DEF_STATEMENT_NODE | ER_VAR_DEF_IDENTIFIER_NODE | ER_CONTIUE_STATEMENT_NODE | ER_STATEMENT_NODE | ER_IDENTIFIER_NODE | ER_EXPRESSION_NODE;
+ EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE | ERROR_FN_SIGNATURE_NODE | ERROR_BLOCK_NODE |
+ ERROR_VAR_DEF_STATEMENT_NODE | ERROR_VAR_DEF_IDENTIFIER_NODE | ERROR_CONTIUE_STATEMENT_NODE | ERROR_STATEMENT_NODE | ERROR_IDENTIFIER_NODE | ERROR_EXPRESSION_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
@@ -79,7 +76,6 @@ const REF_EQUAL_OP = "===";
 const REF_NOT_EQUAL_OP = "!==";
 const NOT_OP = "!";
 const BIT_COMPLEMENT_OP = "~";
-//untaint type to be a value kind?
 const UNTAINT_TYPE = "untaint";
 
 type OperatorKind PLUS_OP | MINUS_OP | DIVISION_OP | MULTIPLICATION_OP | ERROR_OP | COLON_OP | COMMA_OP |
@@ -127,8 +123,8 @@ type ErrorBlockNode record {
 
 type StatementNode VariableDefStNode | ContinueStNode | ErrorStatementNode;
 
-
 type VariableDefStNode VariableDefinitionStatementNode | ErrorVarDefStatementNode;
+
 type VariableDefinitionStatementNode record {
     *Node;
     ValueKind valueKind;
@@ -141,14 +137,16 @@ type ErrorVarDefStatementNode record {
 };
 
 type ContinueStNode ContinueStatementNode | ErrorContinueStatementNode;
+
 type ContinueStatementNode record {
     *Node;
     ValueKind valueKind;
 };
+
 type ErrorContinueStatementNode record {
 	*ContinueStatementNode;
 };
-//if a token doesnt match to any of the statements
+
 type ErrorStatementNode record {
 	*Node;
 };
@@ -172,12 +170,14 @@ type UnaryExpressionNode record {
     OperatorKind operatorKind;
     ExpressionNode uExpression;
 };
+
 type IdentifierNodeKind IdentifierNode | ErrorIdentifierNode;
 
 type IdentifierNode record {
     *Node;
     string identifier;
 };
+
 type ErrorIdentifierNode record {
 	*Node;
     string? identifier;
@@ -189,6 +189,7 @@ type VarRefIdentifier record {
     *Node;
     string varIdentifier;
 };
+
 type ErrorVarRefIdentifierNode record {
 	*Node;
     string? varIdentifier;

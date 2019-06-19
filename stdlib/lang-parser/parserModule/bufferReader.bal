@@ -17,6 +17,8 @@
 import ballerina/io;
 import ballerina/log;
 
+const END_OF_FILE = "";
+
 public type BufferReader object {
     //size of the character array
     private int capacity;
@@ -29,23 +31,20 @@ public type BufferReader object {
     //counter to fill the buffer
     private int bufferSize = 0;
 
-    public function __init(int capacity = 5,io:ReadableCharacterChannel sourceChannel) {
+    public function __init(io:ReadableCharacterChannel sourceChannel, int capacity = 5) returns error? {
         self.capacity = capacity;
         self.sourceChannel = sourceChannel;
-        var result = self.fillBuffer();
-
-        if (result is error) {
-            // Doing this right now as we cannot handle errors returned from constructor
-            panic result;
-        }
+        return self.fillBuffer();
     }
-    //buffer is filled character by character based on the capacity defined
 
+    # Buffer is filled character by character based on the capacity defined
+    # 
+    # +return - error?
     function fillBuffer() returns error? {
         while (self.bufferSize < self.capacity) {
             self.characterArray[self.bufferSize] = check self.sourceChannel.read(1);
             //if the character is an empty string ,that means it has reached the Eof
-            if (self.characterArray[self.bufferSize] == "") {
+            if (self.characterArray[self.bufferSize] == END_OF_FILE) {
                 break;
             }
             self.bufferSize = self.bufferSize + 1;
@@ -53,16 +52,13 @@ public type BufferReader object {
     }
 
     function isEOF() returns boolean {
-        boolean endOfFile = false;
-        if (self.characterArray[self.readPointer] == "") {
-            endOfFile = true;
-        }
-
-        return endOfFile;
+        return self.characterArray[self.readPointer] == END_OF_FILE;
     }
 
-    //bufferReader functions as a circular buffer,
-    //i:e when one character is consumed, another is filled to the buffer
+    # BufferReader functions as a circular buffer,
+    # i:e when one character is consumed, another is filled to the buffer
+    # 
+    # +return - string
     function consume() returns string {
         string currChar = self.characterArray[self.readPointer];
         //the buffersize will not be equal to the capacity, if the input file has less number of characters than the buffer size
@@ -77,18 +73,22 @@ public type BufferReader object {
         return currChar;
     }
 
-    //method to store the characters in buffers for the ones which were consumed
+    # Method to store the characters in buffers for the ones which were consumed.
+    # 
+    # +return - error?
     function storeCharacter() returns error? {
         self.characterArray[self.readPointer] = check self.sourceChannel.read(1);
-        if (self.characterArray[self.readPointer] == "") {
+        if (self.characterArray[self.readPointer] == END_OF_FILE) {
             self.isEof = true;
         }
     }
 
-    //method to lookahead the characters in the buffer
+    # Method to lookahead the characters in the buffer.
+    #
+    # +lookAheadCount - how many lookaheads do we have to check.
+    # +return -  string
     function lookAhead(int lookAheadCount = 1) returns string {
-        int a = (self.readPointer - 1 + lookAheadCount) % self.capacity;
-
-        return self.characterArray[a];
+        int lookAhead = (self.readPointer - 1 + lookAheadCount) % self.capacity;
+        return self.characterArray[lookAhead];
     }
 };
