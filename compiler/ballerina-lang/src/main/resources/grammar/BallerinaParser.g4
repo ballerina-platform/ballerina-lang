@@ -719,7 +719,7 @@ expression
     |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT (annotationAttachment+ typeName | typeName) GT expression        # typeConversionExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
