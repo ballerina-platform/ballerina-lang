@@ -212,7 +212,7 @@ public class ArrayFillTest {
         }
 
         assertEquals(recordArr.getBValue(index).stringValue(),
-                     "{s:\"foo\", i:10, f:12.34, b:true, d:23.45, n:(), t:(\"Pubudu\", 27), m:{\"1\":1}, x: , bt:5," +
+                     "{s:\"foo\", i:10, f:12.34, b:true, d:23.45, n:(), t:[\"Pubudu\", 27], m:{\"1\":1}, x: , bt:5," +
                              " j:{\"name\":\"Pubudu\"}, ad:10}");
     }
 

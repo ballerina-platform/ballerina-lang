@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 
 /**
- * (int, string) (i, s) = (5, "foo");.
+ * [int, string] [i, s] = [5, "foo"];.
  *
  * @since 0.985.0
  */
