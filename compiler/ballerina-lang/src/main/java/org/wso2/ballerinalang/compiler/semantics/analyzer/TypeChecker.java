@@ -709,6 +709,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (broadTypesSet.size() > 1) {
                 // union type
                 eType = BUnionType.create(null, broadTypesSet);
+                if (!types.hasImplicitInitialValue(eType)) {
+                    ((BUnionType) eType).add(symTable.nilType);
+                }
             } else {
                 eType = broadTypesSet.toArray(new BType[0])[0];
             }
@@ -759,35 +762,65 @@ public class TypeChecker extends BLangNodeVisitor {
                 listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
             } else if (type.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) type;
-                List<BType> results = new ArrayList<>();
-                for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-                    BType expType = tupleType.tupleTypes.get(i);
-                    BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
-                    results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                if (checkTupleType(listConstructorExpr, tupleType)) {
+                    listCompatibleTypes.add(tupleType);
                 }
-                actualType = new BTupleType(results);
-                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
             }
         }
 
         if (listCompatibleTypes.isEmpty()) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.size() > 1) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ANY) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ARRAY) {
             checkExprs(listConstructorExpr.exprs, this.env, ((BArrayType) listCompatibleTypes.get(0)).eType);
         } else if (listCompatibleTypes.get(0).tag == TypeTags.TUPLE) {
-            List<BType> results = new ArrayList<>();
-            for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-                BType expType = ((BTupleType) listCompatibleTypes.get(0)).tupleTypes.get(i);
-                BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
-                results.add(expType.tag != TypeTags.NONE ? expType : actType);
-            }
-            actualType = new BTupleType(results);
+            actualType = listCompatibleTypes.get(0);
+            setTupleType(listConstructorExpr, actualType);
         }
         return actualType;
+    }
+
+    private boolean checkTupleType(BLangExpression expression, BType type) {
+        if (type.tag == TypeTags.TUPLE && expression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
+                || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
+            BTupleType tupleType = (BTupleType) type;
+            BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
+            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
+                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                    BLangExpression expr = tupleExpr.exprs.get(i);
+                    if (!checkTupleType(expr, tupleType.tupleTypes.get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return types.isAssignable(checkExpr(expression, env), type);
+        }
+    }
+
+    private void setTupleType(BLangExpression expression, BType type) {
+        if (type.tag == TypeTags.TUPLE && expression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
+                || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
+            BTupleType tupleType = (BTupleType) type;
+            BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
+            tupleExpr.type = type;
+            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
+                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                    setTupleType(tupleExpr.exprs.get(i), tupleType.tupleTypes.get(i));
+                }
+            }
+        } else {
+            checkExpr(expression, env);
+        }
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
