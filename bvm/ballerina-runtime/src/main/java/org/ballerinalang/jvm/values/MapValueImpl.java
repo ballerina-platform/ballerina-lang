@@ -501,7 +501,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public IteratorValue getIterator() {
-        return new MapIterator<K, V>(new LinkedHashMap<>(this).entrySet().iterator());
+        return new MapIterator<>(new LinkedHashMap<>(this).entrySet().iterator());
     }
 
     /**

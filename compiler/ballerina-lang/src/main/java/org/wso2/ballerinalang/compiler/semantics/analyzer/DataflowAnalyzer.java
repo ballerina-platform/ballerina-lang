@@ -276,6 +276,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         analyzeBranch(funcNode.body, funcEnv);
     }
 
@@ -1042,6 +1043,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        BLangService serviceNode = serviceConstructorExpr.serviceNode;
+        serviceNode.annAttachments.forEach(bLangAnnotationAttachment ->
+                                                   analyzeNode(bLangAnnotationAttachment.expr, env));
+        serviceNode.resourceFunctions.forEach(function -> analyzeNode(function, env));
     }
 
     @Override

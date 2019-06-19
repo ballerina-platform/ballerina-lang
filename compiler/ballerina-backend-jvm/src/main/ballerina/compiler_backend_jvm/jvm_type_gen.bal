@@ -61,7 +61,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         } else if (bType is bir:BObjectType) {
             createObjectType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BServiceType) {
-            createObjectType(mv, bType.oType, typeDef, typePkgName);
+            createServiceType(mv, bType.oType, typeDef, typePkgName);
         } else if (bType is bir:BErrorType) {
             createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
@@ -372,6 +372,39 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
     return;
 }
 
+# Create a runtime type instance for the service.
+#
+# + mv - method visitor
+# + objectType - object type
+# + typeDef - type definition of the service
+# + pkgName - name of the module the service belongs to
+function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
+    mv.visitTypeInsn(NEW, SERVICE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    string name = typeDef.name.value;
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+
+    // Load flags
+    mv.visitLdcInsn(typeDef.flags);
+    mv.visitInsn(L2I);
+
+    // Initialize the object
+    mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+        io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
+        false);
+}
+
 # Add the field type information to an object type. The object type is assumed
 # to be at the top of the stack.
 #
@@ -592,6 +625,10 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTypeDesc) {
         typeFieldName = "typeTypedesc";
     }  else if (bType is bir:BServiceType) {
+        if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
+            loadUserDefinedType(mv, bType);
+            return;
+        }
         typeFieldName = "typeAnyService";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
@@ -785,13 +822,16 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 #
 # + mv - method visitor
 # + typeName - type to be loaded
-function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType bType) {
+function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
     string fieldName = "";
     string typeOwner = "";
 
     if (bType is bir:BObjectType) {
         typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
         fieldName = getTypeFieldName(bType.name.value);
+    } else if (bType is bir:BServiceType) {
+        typeOwner = getPackageName(bType.oType.moduleId.org, bType.oType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.oType.name.value);
     } else {
         typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
         fieldName = getTypeFieldName(bType.name.value);
