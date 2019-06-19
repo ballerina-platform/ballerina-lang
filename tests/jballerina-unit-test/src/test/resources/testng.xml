@@ -82,6 +82,7 @@
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.foreach.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -95,6 +96,7 @@
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
+            <package name="org.ballerinalang.test.types.constant.*" />
         </packages>
 
         <classes>
@@ -114,20 +116,10 @@
             </class>
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
             <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
 
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/> 
-            <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
-            <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
-            <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
-<!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
-
+            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
@@ -191,6 +183,8 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
         </classes>
     </test>
 </suite>

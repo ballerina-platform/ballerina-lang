@@ -60,7 +60,6 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -1711,7 +1710,7 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    private LiteralNode generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+    private BLangConstant generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                              boolean isTypeAvailable) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         constantNode.pos = pos;
@@ -1722,7 +1721,7 @@ public class BLangPackageBuilder {
         if (isTypeAvailable) {
             constantNode.setTypeNode(this.typeNodeStack.pop());
         }
-        constantNode.setValue(this.exprNodeStack.pop());
+        constantNode.expr = (BLangExpression) this.exprNodeStack.pop();
         return constantNode;
     }
 
@@ -1762,7 +1761,7 @@ public class BLangPackageBuilder {
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
-        NodeKind nodeKind = ((BLangExpression) constantNode.value).getKind();
+        NodeKind nodeKind = constantNode.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.
@@ -1771,8 +1770,8 @@ public class BLangPackageBuilder {
             BLangLiteral literal = nodeKind == NodeKind.LITERAL ?
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
-            literal.setValue(((BLangLiteral) constantNode.value).value);
-            literal.type = ((BLangLiteral) constantNode.value).type;
+            literal.setValue(((BLangLiteral) constantNode.expr).value);
+            literal.type = constantNode.expr.type;
             literal.isConstant = true;
 
             // Create a new finite type node.

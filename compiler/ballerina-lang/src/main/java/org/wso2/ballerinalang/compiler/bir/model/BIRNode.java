@@ -19,11 +19,11 @@ package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -549,13 +549,10 @@ public abstract class BIRNode {
      *
      * @since 1.0.0
      */
-    public static class BIRAnnotationValueEntry {
-        public BType type;
-        public Object value;
+    public static class BIRAnnotationValueEntry extends ConstValue {
 
-        public BIRAnnotationValueEntry(BType type, Object value) {
-            this.type = type;
-            this.value = value;
+        public BIRAnnotationValueEntry(Object value, BType type) {
+            super(value, type);
         }
     }
 
@@ -565,17 +562,12 @@ public abstract class BIRNode {
      * @since 0.995.0
      */
     public static class ConstValue {
-        public BType valueType;
-        public Object literalValue;
+        public BType type;
+        public Object value;
 
-        public Map<Name, ConstValue> constantValueMap;
-
-        public ConstValue() {
-            this.constantValueMap = new HashMap<>();
-        }
-
-        public Map<Name, ConstValue> getConstantValueMap() {
-            return constantValueMap;
+        public ConstValue(Object value, BType type) {
+            this.value = value;
+            this.type = type;
         }
     }
 

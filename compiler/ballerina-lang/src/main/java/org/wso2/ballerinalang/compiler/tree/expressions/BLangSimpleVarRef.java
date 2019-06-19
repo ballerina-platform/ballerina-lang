@@ -129,6 +129,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         public BLangConstRef(BSymbol varSymbol) {
             this.symbol = varSymbol;
             this.varSymbol = varSymbol;
+            this.type = varSymbol.type;
         }
 
         @Override

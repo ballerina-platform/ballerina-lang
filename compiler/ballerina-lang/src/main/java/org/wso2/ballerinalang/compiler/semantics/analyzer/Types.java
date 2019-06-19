@@ -2446,6 +2446,42 @@ public class Types {
         return valueSpace.stream().map(v -> (BLangLiteral) v).anyMatch(lit -> lit.originalValue.equals(element));
     }
 
+    public boolean isAllowedConstantType(BType type) {
+        switch (type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.MAP:
+                return isAllowedConstantType(((BMapType) type).constraint);
+            case TypeTags.FINITE:
+                BLangExpression finiteValue = ((BFiniteType) type).valueSpace.toArray(new BLangExpression[0])[0];
+                return isAllowedConstantType(finiteValue.type);
+            default:
+                return false;
+        }
+    }
+
+    public boolean isValidLiteral(BLangLiteral literal, BType targetType) {
+        BType literalType = literal.type;
+        if (literalType.tag == targetType.tag) {
+            return true;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.BYTE:
+                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
+            case TypeTags.DECIMAL:
+                return literalType.tag == TypeTags.FLOAT;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      *

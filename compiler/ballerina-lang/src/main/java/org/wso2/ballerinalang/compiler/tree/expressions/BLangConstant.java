@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.ConstantNode;
+import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -43,22 +44,16 @@ import java.util.Set;
 /**
  * @since 0.985.0
  */
-public class BLangConstant extends BLangExpression implements ConstantNode, AnnotatableNode, DocumentableNode,
+public class BLangConstant extends BLangVariable implements ConstantNode, AnnotatableNode, DocumentableNode,
         TopLevelNode {
 
     public BLangIdentifier name;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
-    public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public BConstantSymbol symbol;
 
-    // Type node defined in the constant definition.
-    public BLangType typeNode;
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
 
-    public Object value;
-    public String originalValue;
+//    public String originalValue;
 
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
@@ -107,25 +102,15 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
     }
 
-    @Override
-    public Object getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    @Override
-    public String getOriginalValue() {
-        return originalValue;
-    }
-
-    @Override
-    public void setOriginalValue(String originalValue) {
-        this.originalValue = originalValue;
-    }
+//    @Override
+//    public String getOriginalValue() {
+//        return originalValue;
+//    }
+//
+//    @Override
+//    public void setOriginalValue(String originalValue) {
+//        this.originalValue = originalValue;
+//    }
 
     @Override
     public NodeKind getKind() {
@@ -140,7 +125,7 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     @Override
     public String toString() {
         return (typeNode == null ? String.valueOf(type) : String.valueOf(typeNode)) + " " + symbol.name.value +
-                " = " + String.valueOf(value);
+                " = " + String.valueOf(expr);
     }
 
     @Override

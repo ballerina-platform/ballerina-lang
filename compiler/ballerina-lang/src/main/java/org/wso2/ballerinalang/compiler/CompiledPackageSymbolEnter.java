@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -730,11 +731,11 @@ public class CompiledPackageSymbolEnter {
 
         boolean isSimpleLiteral = dataInStream.readBoolean();
         if (isSimpleLiteral) {
-            // Get finite type.
-            String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
-            BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+            // Get symbol's type.
+            String symbolTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType symbolType = getBTypeFromDescriptor(symbolTypeSig);
 
-            // Get value type.
+            // Get value literal's type.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
             BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
@@ -743,9 +744,8 @@ public class CompiledPackageSymbolEnter {
 
             // Create the constant symbol.
             constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
-                    finiteType, valueType, enclScope.owner);
-            constantSymbol.literalValue = object;
-            constantSymbol.literalValueTypeTag = valueType.tag;
+                    valueType, symbolType, enclScope.owner);
+            constantSymbol.value = new BLangConstantValue(object, valueType);
         } else {
             // Read value type. Don't need the finite type since the literal is not a simple literal.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
@@ -772,13 +772,13 @@ public class CompiledPackageSymbolEnter {
             // first time. Then we update the constant symbol's literal value and the mapCPEntries literal value with
             // the map literal which we have read.
             if (mapCPEntry.literalValue == null) {
-                constantSymbol.literalValue = mapCPEntry.literalValue = mapLiteral;
+//                constantSymbol.value = mapCPEntry.literalValue = mapLiteral;
             } else {
                 // If the mapCPEntry's literal value is not null, that means we have encountered this value
                 // earlier. In such case, set the mapCPEntry's literal value as the constant symbol's literal value.
                 // This is done to make sure all the references have the same literal value. Otherwise the `===` will
                 // fail for them.
-                constantSymbol.literalValue = mapCPEntry.literalValue;
+//                constantSymbol.value = mapCPEntry.literalValue;
             }
 
             constantSymbol.literalValueTypeTag = valueType.tag;

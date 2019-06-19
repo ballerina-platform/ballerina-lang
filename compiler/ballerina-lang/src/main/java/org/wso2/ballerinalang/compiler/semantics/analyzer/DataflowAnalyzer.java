@@ -571,10 +571,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {
-        return symbol != null &&
-                symbol.owner != null &&
-                symbol.owner.tag == SymTag.PACKAGE &&
-                (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
+        if (symbol == null) {
+            return false;
+        } else if (symbol.owner == null) {
+            return false;
+        } else if (symbol.owner.tag != SymTag.PACKAGE) {
+            return false;
+        }
+
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
+                ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
     }
 
     /**
@@ -898,6 +904,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        this.currDependentSymbol.push(constant.symbol);
+        try {
+            analyzeNode(constant.expr, env);
+            return;
+        } finally {
+            this.currDependentSymbol.pop();
+        }
     }
 
     @Override

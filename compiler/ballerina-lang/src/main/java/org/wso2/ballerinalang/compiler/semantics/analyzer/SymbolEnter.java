@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -94,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
@@ -110,6 +112,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -225,8 +228,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type definitions.
         this.typePrecedence = 0;
-
-        // First visit constants.
+        
+        // Visit constants.
         pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
 
         // Visit type definitions.
@@ -887,46 +890,44 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.semanticError, symTable.semanticError, env.scope.owner);
-
-        // Update the symbol of the node.
+                symTable.semanticError, symTable.noType, env.scope.owner);
         constant.symbol = constantSymbol;
 
-        // Note - This is checked and error is logged in semantic analyzer.
-        if (!isValidConstantExpression((BLangExpression) constant.value)) {
-            if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
-                env.scope.define(constantSymbol.name, constantSymbol);
-            }
-            return;
-        }
-
-        // Note - constant.typeNode.type will be resolved in a `resolveConstantTypeNode()` later since at this
-        // point we might not be able to resolve the type properly because type definitions in the package are not yet
-        // visited.
-
-        NodeKind nodeKind = ((BLangExpression) constant.value).getKind();
-
+        NodeKind nodeKind = constant.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
-            // Visit the associated type definition. This will set the type of the type definition.
-            defineNode(constant.associatedTypeDefinition, env);
-
-            // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
-            // resolve the types of any type definition which uses the constant in type node.
-            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-
-            BLangLiteral literal = (BLangLiteral) constant.value;
-            constantSymbol.literalValue = literal.value;
-            constantSymbol.literalValueTypeTag = literal.type.tag;
-        } else if (nodeKind == NodeKind.RECORD_LITERAL_EXPR) {
-            // We need to update the symbol type to noType here. Then it will be updated properly when
-            // resolving the type node in resolveConstantTypeNode().
             if (constant.typeNode != null) {
-                constant.symbol.type = symTable.noType;
+                BType staticType = symResolver.resolveTypeNode(constant.typeNode, env);
+                if (types.isValidLiteral((BLangLiteral) constant.expr, staticType)) {
+                    // A literal type constant is defined with correct type.
+                    // Update the type of the finiteType node to the static type.
+                    // This is done to make the type inferring work. 
+                    // eg: const decimal d = 5.0;
+                    BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
+                    BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
+                    valueSpaceExpr.type = staticType;
+                    defineNode(constant.associatedTypeDefinition, env);
+
+                    constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+                    constantSymbol.literalType = staticType;
+                } else {
+                    // A literal type constant is defined with some incorrect type. Set the original
+                    // types and continue the flow and let it fail at semantic analyzer.
+                    defineNode(constant.associatedTypeDefinition, env);
+                    constantSymbol.type = staticType;
+                    constantSymbol.literalType = constant.expr.type;
+                }
+            } else {
+                // A literal type constant is defined without the type.
+                // Then the type of the symbol is the finite type.
+                defineNode(constant.associatedTypeDefinition, env);
+                constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+                constantSymbol.literalType = constant.expr.type;
             }
-            constantSymbol.literalValue = constant.value;
-        }
+        } else if (constant.typeNode != null) {
+            constantSymbol.type = symResolver.resolveTypeNode(constant.typeNode, env);
+            constantSymbol.literalType = constantSymbol.type;
+        } 
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
@@ -1069,61 +1070,17 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         // Resolve the type node and update the type of the typeNode.
         for (BLangConstant constant : constants) {
-            // Constant symbol type will be an error type if the RHS of the constant definition node is invalid.
-            if (constant.symbol.type == symTable.semanticError) {
-                continue;
-            }
-
             if (constant.typeNode != null) {
-                constant.symbol.literalValueType = symResolver.resolveTypeNode(constant.typeNode, env);
-            } else {
-                constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
-            }
+                constant.symbol.type =
+                        constant.symbol.literalType = symResolver.resolveTypeNode(constant.typeNode, env);
 
-            if (isAllowedConstantType(constant.symbol, constant.typeNode)) {
-                continue;
-            }
-            // Constant might not have a typeNode.
-            if (constant.typeNode != null) {
-                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+                if (constant.symbol.type != symTable.semanticError &&
+                        !types.isAllowedConstantType(constant.symbol.type)) {
+                    dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
+                            constant.typeNode);
+                }
             }
         }
-    }
-
-    private boolean isAllowedConstantType(BConstantSymbol symbol, BLangType typeNode) {
-        switch (symbol.literalValueType.tag) {
-            case TypeTags.BOOLEAN:
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.NIL:
-                return true;
-            case TypeTags.MAP:
-                return isAllowedMapConstraintType(typeNode);
-        }
-        return false;
-    }
-
-    private boolean isAllowedMapConstraintType(BLangType typeNode) {
-        switch (typeNode.type.tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.NIL:
-                return true;
-            case TypeTags.MAP:
-                return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
-            default:
-                dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
-                break;
-        }
-        // Return true anyway since otherwise there will be two errors logged for this.
-        return true;
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {

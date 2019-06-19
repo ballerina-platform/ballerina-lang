@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -1107,7 +1108,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                         types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
                 } else {
-                    actualType = ((BConstantSymbol) symbol).literalValueType;
+                    actualType = ((BConstantSymbol) symbol).literalType;
                 }
 
                 // If the constant is on the LHS, modifications are not allowed.
@@ -1241,19 +1242,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        // Check constant map literal access.
-        if (varRefType.tag == TypeTags.MAP) {
-            BLangExpression expression = fieldAccessExpr.getExpression();
-            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
-                if (symbol.tag == SymTag.CONSTANT) {
-                    BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
-                    // Retrieve the field access expression's value.
-                    constantValueChecker.checkValue(fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
-                }
-            }
-        }
+        checkConstantAccess(fieldAccessExpr, varRefType);
 
         // error lifting on lhs is not supported
         if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
@@ -3701,5 +3690,32 @@ public class TypeChecker extends BLangNodeVisitor {
                         .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));
         }
         return false;
+    }
+
+    private void checkConstantAccess(BLangFieldBasedAccess fieldAccessExpr, BType varRefType) {
+        // Check constant map literal access.
+        BLangExpression expression = fieldAccessExpr.getExpression();
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+
+        BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+        if (symbol.tag != SymTag.CONSTANT || varRefType.tag != TypeTags.MAP) {
+            return;
+        }
+
+        BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
+        // if constan't value is null, that means, we are visiting the constant's value expressions,
+        // and the are not yet resolved. Hence skip the key validation. It will be validated during
+        // the constant value resolution.
+        if (constantSymbol.value == null) {
+            return;
+        }
+
+        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
+        String key = fieldAccessExpr.field.value;
+        if (!value.containsKey(key)) {
+            dlog.error(fieldAccessExpr.field.pos, DiagnosticCode.KEY_NOT_FOUND, key, constantSymbol.name);
+        }
     }
 }

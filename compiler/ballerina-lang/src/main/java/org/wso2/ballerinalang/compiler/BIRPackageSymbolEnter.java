@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -82,6 +83,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -449,45 +451,53 @@ public class BIRPackageSymbolEnter {
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
-        BType finiteType = readBType(dataInStream);
-        BType valueType = readBType(dataInStream);
-
-        // Get the simple literal value.
-        Object object = readLiteralValue(dataInStream, valueType);
+        BType type = readBType(dataInStream);
+        BType literalType = readBType(dataInStream);
 
         Scope enclScope = this.env.pkgSymbol.scope;
 
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
-        constantSymbol.literalValue = object;
-        constantSymbol.literalValueTypeTag = valueType.tag;
+                this.env.pkgSymbol.pkgID, literalType, type, enclScope.owner);
+        constantSymbol.value = readConstLiteralValue(dataInStream, literalType);
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
     }
 
-    private Object readLiteralValue(DataInputStream dataInStream, BType valueType) throws IOException {
+    private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream, BType valueType)
+            throws IOException {
         switch (valueType.tag) {
             case TypeTags.INT:
                 int integerCpIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
-                return integerCPEntry.value;
+                return new BLangConstantValue(integerCPEntry.value, symTable.intType);
             case TypeTags.BYTE:
                 int byteCpIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
-                return byteCPEntry.value;
+                return new BLangConstantValue(byteCPEntry.value, symTable.byteType);
             case TypeTags.FLOAT:
                 int floatCpIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
-                return Double.toString(floatCPEntry.value);
+                return new BLangConstantValue(Double.toString(floatCPEntry.value), symTable.floatType);
             case TypeTags.STRING:
+                return new BLangConstantValue(getStringCPEntryValue(dataInStream), symTable.stringType);
             case TypeTags.DECIMAL:
-                return getStringCPEntryValue(dataInStream);
+                return new BLangConstantValue(getStringCPEntryValue(dataInStream), symTable.decimalType);
             case TypeTags.BOOLEAN:
-                return dataInStream.readByte() == 1;
+                return new BLangConstantValue(dataInStream.readByte() == 1, symTable.booleanType);
             case TypeTags.NIL:
-                return null;
+                return new BLangConstantValue(null, symTable.nilType);
+            case TypeTags.MAP:
+                int size = dataInStream.readInt();
+                Map<String, BLangConstantValue> keyValuePairs = new LinkedHashMap<>();
+                for (int i = 0; i < size; i++) {
+                    String key = getStringCPEntryValue(dataInStream);
+                    BType type = readBType(dataInStream);
+                    BLangConstantValue value = readConstLiteralValue(dataInStream, type);
+                    keyValuePairs.put(key, value);
+                }
+                return new BLangConstantValue(keyValuePairs, valueType);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
