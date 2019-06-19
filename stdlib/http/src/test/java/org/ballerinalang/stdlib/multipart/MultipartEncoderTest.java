@@ -24,6 +24,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;

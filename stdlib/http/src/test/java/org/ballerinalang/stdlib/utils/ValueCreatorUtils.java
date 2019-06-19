@@ -27,7 +27,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE;
 
 /**
  * Utility functions to create JVM values.
@@ -44,15 +44,18 @@ public class ValueCreatorUtils {
         return request;
     }
 
+    public static ObjectValue createResponseObject() {
+        ObjectValue response = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE);
+        HttpUtil.checkEntityAvailability(response);
+        return response;
+    }
+
+
     public static ObjectValue createEntityObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
     }
 
     public static ObjectValue createMediaTypeObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-    }
-
-    public static ObjectValue createCacheControlObject() {
-        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST_CACHE_CONTROL);
     }
 }
