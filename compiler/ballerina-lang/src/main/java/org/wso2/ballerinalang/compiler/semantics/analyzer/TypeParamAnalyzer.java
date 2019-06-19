@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -92,7 +93,7 @@ public class TypeParamAnalyzer {
         if (env.typeParamsEntries == null) {
             return;
         }
-        boolean foundAnyTypeParam = findTypeParamAndBoundType(expType, actualType, env);
+        boolean foundAnyTypeParam = findTypeParam(expType, actualType, env);
         if (!foundAnyTypeParam) {
             return;
         }
@@ -111,7 +112,7 @@ public class TypeParamAnalyzer {
 
     // Private methods.
 
-    private boolean findTypeParamAndBoundType(BType expType, BType actualType, SymbolEnv env) {
+    private boolean findTypeParam(BType expType, BType actualType, SymbolEnv env) {
 
         // Finding TypePram and its bound type require, both has to be same structure.
         if (expType.tag == TypeTags.TYPE_PARAM) {
@@ -119,19 +120,21 @@ public class TypeParamAnalyzer {
             return true;
             // Bound type is a structure. Visit recursively to find bound type.
         } else if (expType.tag == TypeTags.ARRAY && actualType.tag == TypeTags.ARRAY) {
-            return findTypeParamAndBoundType(((BArrayType) expType).eType, ((BArrayType) actualType).eType, env);
+            return findTypeParam(((BArrayType) expType).eType, ((BArrayType) actualType).eType, env);
         } else if (expType.tag == TypeTags.MAP && actualType.tag == TypeTags.MAP) {
-            return findTypeParamAndBoundType(((BMapType) expType).constraint, ((BMapType) actualType).constraint, env);
+            return findTypeParam(((BMapType) expType).constraint, ((BMapType) actualType).constraint, env);
         } else if (expType.tag == TypeTags.TUPLE && actualType.tag == TypeTags.TUPLE) {
-            return findTypeParamInTupleMembers((BTupleType) expType, (BTupleType) actualType, env);
+            return findTypeParamInTuple((BTupleType) expType, (BTupleType) actualType, env);
         } else if (expType.tag == TypeTags.RECORD && actualType.tag == TypeTags.RECORD) {
-            return findTypeParamInRecordField((BRecordType) expType, (BRecordType) actualType, env);
+            return findTypeParamInRecord((BRecordType) expType, (BRecordType) actualType, env);
         } else if (expType.tag == TypeTags.INVOKABLE && actualType.tag == TypeTags.INVOKABLE) {
-            return findTypeParamInFunctionSignature((BInvokableType) expType, (BInvokableType) actualType, env);
+            return findTypeParamInInvokableType((BInvokableType) expType, (BInvokableType) actualType, env);
         } else if (expType.tag == TypeTags.OBJECT && actualType.tag == TypeTags.OBJECT) {
             return findTypeParamInObject((BObjectType) expType, (BObjectType) actualType, env);
         } else if (expType.tag == TypeTags.UNION && actualType.tag == TypeTags.UNION) {
             return findTypeParamInUnion((BUnionType) expType, (BUnionType) actualType, env);
+        } else if (expType.tag == TypeTags.ERROR && actualType.tag == TypeTags.ERROR) {
+            return findTypeParamInError((BErrorType) expType, (BErrorType) actualType, env);
         }
         return false;
     }
@@ -145,16 +148,16 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private boolean findTypeParamInTupleMembers(BTupleType expType, BTupleType actualType, SymbolEnv env) {
+    private boolean findTypeParamInTuple(BTupleType expType, BTupleType actualType, SymbolEnv env) {
 
         boolean found = false;
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
-            found |= findTypeParamAndBoundType(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env);
+            found |= findTypeParam(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env);
         }
         return found;
     }
 
-    private boolean findTypeParamInRecordField(BRecordType expType, BRecordType actualType, SymbolEnv env) {
+    private boolean findTypeParamInRecord(BRecordType expType, BRecordType actualType, SymbolEnv env) {
 
         boolean found = false;
         for (BField exField : expType.fields) {
@@ -166,18 +169,18 @@ public class TypeParamAnalyzer {
                 // This is an error, which is logged already.
                 continue;
             }
-            found |= findTypeParamAndBoundType(exField.type, actualFieldType, env);
+            found |= findTypeParam(exField.type, actualFieldType, env);
         }
         return found;
     }
 
-    private boolean findTypeParamInFunctionSignature(BInvokableType expType, BInvokableType actualType, SymbolEnv env) {
+    private boolean findTypeParamInInvokableType(BInvokableType expType, BInvokableType actualType, SymbolEnv env) {
 
         boolean found = false;
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
-            found |= findTypeParamAndBoundType(expType.paramTypes.get(i), actualType.paramTypes.get(i), env);
+            found |= findTypeParam(expType.paramTypes.get(i), actualType.paramTypes.get(i), env);
         }
-        found |= findTypeParamAndBoundType(expType.retType, actualType.retType, env);
+        found |= findTypeParam(expType.retType, actualType.retType, env);
         return found;
     }
 
@@ -194,7 +197,7 @@ public class TypeParamAnalyzer {
                 // This is an error, which is logged already.
                 continue;
             }
-            found |= findTypeParamAndBoundType(exField.type, actualFieldType, env);
+            found |= findTypeParam(exField.type, actualFieldType, env);
         }
         List<BAttachedFunction> expAttFunctions = ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs;
         List<BAttachedFunction> actualAttFunctions = ((BObjectTypeSymbol) actualType.tsymbol).attachedFuncs;
@@ -207,7 +210,7 @@ public class TypeParamAnalyzer {
             if (actFuncType == null) {
                 continue;
             }
-            found |= findTypeParamInFunctionSignature(expFunc.type, actFuncType, env);
+            found |= findTypeParamInInvokableType(expFunc.type, actFuncType, env);
         }
         return found;
     }
@@ -222,7 +225,14 @@ public class TypeParamAnalyzer {
                 .filter(type -> type != symTable.nilType).findFirst().orElse(symTable.nilType);
         BType act = actualType.getMemberTypes().stream()
                 .filter(type -> type != symTable.nilType).findFirst().orElse(symTable.nilType);
-        return findTypeParamAndBoundType(exp, act, env);
+        return findTypeParam(exp, act, env);
+    }
+
+    private boolean findTypeParamInError(BErrorType expType, BErrorType actualType, SymbolEnv env) {
+
+        boolean found = findTypeParam(expType.detailType, actualType.detailType, env);
+        found |= findTypeParam(expType.reasonType, expType.reasonType, env);
+        return found;
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env) {
@@ -239,27 +249,29 @@ public class TypeParamAnalyzer {
             BType constraint = ((BMapType) expType).constraint;
             return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env), symTable.mapType.tsymbol);
         } else if (expType.tag == TypeTags.TUPLE) {
-            return getMatchBoundTypeForTuple((BTupleType) expType, env);
+            return getMatchingTupleBoundType((BTupleType) expType, env);
         } else if (expType.tag == TypeTags.RECORD) {
-            return getMatchingBoundTypeForRecord((BRecordType) expType, env);
+            return getMatchingRecordBoundType((BRecordType) expType, env);
         } else if (expType.tag == TypeTags.INVOKABLE) {
-            return getMatchingBoundTypeForFunctions((BInvokableType) expType, env);
+            return getMatchingFunctionBoundType((BInvokableType) expType, env);
         } else if (expType.tag == TypeTags.OBJECT) {
-            return getMatchingBoundTypeForObject((BObjectType) expType, env);
+            return getMatchingObjectBoundType((BObjectType) expType, env);
         } else if (expType.tag == TypeTags.UNION) {
-            return getMatchingBoundTypeForOptional((BUnionType) expType, env);
+            return getMatchingOptionalBoundType((BUnionType) expType, env);
+        } else if (expType.tag == TypeTags.ERROR) {
+            return getMatchingErrorBoundType((BErrorType) expType, env);
         }
         return expType;
     }
 
-    private BTupleType getMatchBoundTypeForTuple(BTupleType expType, SymbolEnv env) {
+    private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env) {
 
         List<BType> tupleTypes = new ArrayList<>();
         expType.tupleTypes.forEach(type -> tupleTypes.add(getMatchingBoundType(type, env)));
         return new BTupleType(tupleTypes);
     }
 
-    private BRecordType getMatchingBoundTypeForRecord(BRecordType expType, SymbolEnv env) {
+    private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env) {
 
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
@@ -288,7 +300,7 @@ public class TypeParamAnalyzer {
         return bRecordType;
     }
 
-    private BInvokableType getMatchingBoundTypeForFunctions(BInvokableType expType, SymbolEnv env) {
+    private BInvokableType getMatchingFunctionBoundType(BInvokableType expType, SymbolEnv env) {
 
         List<BType> paramTypes = expType.paramTypes.stream()
                 .map(type -> getMatchingBoundType(type, env))
@@ -296,7 +308,7 @@ public class TypeParamAnalyzer {
         return new BInvokableType(paramTypes, getMatchingBoundType(expType.retType, env), null);
     }
 
-    private BType getMatchingBoundTypeForObject(BObjectType expType, SymbolEnv env) {
+    private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env) {
 
         BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(0, expType.tsymbol.name,
                 env.enclPkg.packageID, null, expType.tsymbol.scope.owner);
@@ -314,7 +326,7 @@ public class TypeParamAnalyzer {
         }
 
         for (BAttachedFunction expFunc : ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs) {
-            BInvokableType matchType = getMatchingBoundTypeForFunctions(expFunc.type, env);
+            BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
                     expFunc.symbol.name, env.enclPkg.packageID, matchType, env.scope.owner);
             actObjectSymbol.attachedFuncs.add(new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType));
@@ -324,7 +336,7 @@ public class TypeParamAnalyzer {
         return objectType;
     }
 
-    private BType getMatchingBoundTypeForOptional(BUnionType expType, SymbolEnv env) {
+    private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env) {
 
         if (!expType.isNullable() && expType.getMemberTypes().size() != 2) {
             return expType;
@@ -334,4 +346,11 @@ public class TypeParamAnalyzer {
                 .forEach(type -> members.add(getMatchingBoundType(type, env)));
         return BUnionType.create(null, members);
     }
+
+    private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env) {
+
+        return new BErrorType(null, getMatchingBoundType(expType.reasonType, env),
+                getMatchingBoundType(expType.detailType, env));
+    }
+
 }
