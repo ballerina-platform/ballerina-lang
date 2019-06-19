@@ -69,12 +69,6 @@ public class SignatureParams {
     }
 
     private void validateEntityBodyParam(BType entityBodyParamType) {
-        //TODO move this validation to compile time
-//        String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
-//        if (!entityBodyAttributeValue.equals(entityBodyParamType.getVarName())) {
-//            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
-//                    "' as param name, but found '" + entityBodyParamType.getVarName() + "'");
-//        }
         int type = entityBodyParamType.getTag();
         if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
                 type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParamType))) {

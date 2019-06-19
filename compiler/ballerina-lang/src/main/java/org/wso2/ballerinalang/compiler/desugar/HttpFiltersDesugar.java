@@ -196,19 +196,9 @@ public class HttpFiltersDesugar {
     }
 
     private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
-        HashMap<String, Integer> mapper = getParamMapper(resourceNode.getParameters(), value.toString());
-
-
-
-
-
-
         DiagnosticPos pos = resourceNode.pos;
-        // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         resourceNode.addAnnotationAttachment(annoAttachment);
-//        Symbols.createPackageSymbol(new PackageID())
-        final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(resourceNode.symbol.getEnclosingSymbol().getEnclosedSymbols());
         BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
                 (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
 
@@ -229,7 +219,7 @@ public class HttpFiltersDesugar {
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.RESOURCE);
         literalNode.pos = pos;
-        BStructureTypeSymbol bStructSymbol = null;
+        BStructureTypeSymbol bStructSymbol;
         BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
                 (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
@@ -237,7 +227,7 @@ public class HttpFiltersDesugar {
             literalNode.type = bStructSymbol.type;
         }
 
-        //Add pathParamOrder map
+        // Create pathParamOrder record literal
         BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
                 TreeBuilder.createRecordKeyValue();
         literalNode.keyValuePairs.add(pathParamOrderKeyValue);
@@ -249,15 +239,18 @@ public class HttpFiltersDesugar {
         BLangRecordLiteral paramOrderLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         paramOrderLiteralNode.type = new BMapType(TypeTags.MAP, symTable.intType, symTable.mapType.tsymbol);
 
-        mapper.forEach((k, v) -> {
+        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
+
+        getParamMapper(resourceNode.getParameters(), value.toString()).forEach((paramName, paramIndex) -> {
             // Create a new literal for the key.
             BLangLiteral paramKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            paramKeyLiteral.value = k;
+            paramKeyLiteral.value = paramName;
             paramKeyLiteral.type = symTable.stringType;
 
             // Create a new literal for the value.
             BLangLiteral paramValueLiteral = new BLangLiteral();
-            paramValueLiteral.value = Long.valueOf(v);
+            paramValueLiteral.value = Long.valueOf(paramIndex);
             paramValueLiteral.type = symTable.intType;
 
             // Create a new key-value.
@@ -266,19 +259,11 @@ public class HttpFiltersDesugar {
             pathParamOrderEntry.valueExpr = paramValueLiteral;
             paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
         });
-
-        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
-
-
     }
 
-    private HashMap<String,Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
-        HashMap mapper = new HashMap<String, Integer>();
-        boolean expression = false;
+    private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
+        HashMap<String, Integer> mapper = new HashMap<>();
         int startIndex = 0;
-        int maxIndex = path.length() - 1;
-
         for (int pointerIndex = 0; pointerIndex < path.length(); pointerIndex++) {
             char ch = path.charAt(pointerIndex);
             switch (ch) {
@@ -287,14 +272,12 @@ public class HttpFiltersDesugar {
                     break;
                 case '}':
                     String token = path.substring(startIndex, pointerIndex);
-                    //Add map entry
                     for (int i = 2; i < parameters.size(); i++) {
-                        if (parameters.get(i).getName().getValue().equals(token)) {
+                        if (parameters.get(i).getName().getValue().equalsIgnoreCase(token)) {
                             mapper.put(token, i);
                             break;
                         }
                     }
-                    startIndex = pointerIndex + 1;
                     break;
             }
         }
