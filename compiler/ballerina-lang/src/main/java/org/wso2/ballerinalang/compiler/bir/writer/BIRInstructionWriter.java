@@ -521,6 +521,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Positions
+    // TODO Refactor duplicate methods
     void writePosition(DiagnosticPos pos) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
@@ -543,17 +544,39 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(sourceFileName));
     }
 
-    // private methods
-
-    private void addCpAndWriteString(String string) {
-        buf.writeInt(addStringCPEntry(string));
+    void writePosition(ByteBuf buf, DiagnosticPos pos) {
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
+        String sourceFileName = "";
+        if (pos != null) {
+            sLine = pos.sLine;
+            eLine = pos.eLine;
+            sCol = pos.sCol;
+            eCol = pos.eCol;
+            if (pos.src != null) {
+                sourceFileName = pos.src.cUnitName;
+            }
+        }
+        buf.writeInt(sLine);
+        buf.writeInt(eLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eCol);
+        buf.writeInt(addStringCPEntry(sourceFileName));
     }
 
-    private int addPkgCPEntry(PackageID packageID) {
+    int addPkgCPEntry(PackageID packageID) {
         int orgCPIndex = addStringCPEntry(packageID.orgName.value);
         int nameCPIndex = addStringCPEntry(packageID.name.value);
         int versionCPIndex = addStringCPEntry(packageID.version.value);
         return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+    }
+
+    // private methods
+
+    private void addCpAndWriteString(String string) {
+        buf.writeInt(addStringCPEntry(string));
     }
 
     private int addStringCPEntry(String value) {

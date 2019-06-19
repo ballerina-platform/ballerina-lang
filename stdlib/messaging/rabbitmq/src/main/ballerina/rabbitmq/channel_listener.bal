@@ -60,6 +60,11 @@ public type ChannelListener object {
        self.registerListener(serviceType);
     }
 
+    # Retrieve the Channel which initializes this listener.
+    #
+    # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
+    public function getChannel() returns Channel | error = external;
+
     # Binds the ChannelListener to a service.
     #
     # + serviceType - Type descriptor of the service to bind to.

@@ -24,6 +24,9 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValueEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -64,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -154,6 +158,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -333,6 +338,9 @@ public class BIRGen extends BLangNodeVisitor {
             i++;
         }
 
+        // Populate annotation attachments in BIRFunction node
+        populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
+
         birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
@@ -387,6 +395,40 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         this.env.clear();
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment astAnnotAttach) {
+        // ------------------------------------------------------
+        // In the current implementation of the compiler, there two possible values for `astAnnotAttach.expr`
+        //  1) null
+        //  2) BLangRecordLiteral
+        // In this implementation, we support only the BLangRecordLiteral expressions
+        //   which have only key:BLangLiteral key/value pairs
+        // ------------------------------------------------------
+        if (astAnnotAttach.expr == null) {
+            return;
+        }
+
+        Map<String, BIRAnnotationValueEntry> annotValueEntryMap = new HashMap<>();
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) astAnnotAttach.expr;
+        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+            if (NodeKind.LITERAL != keyValuePair.valueExpr.getKind()) {
+                return;
+            }
+            BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
+            BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.type, valueLiteral.value);
+
+            String entryKey = keyValuePair.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
+                    ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value :
+                    (String) ((BLangLiteral) keyValuePair.key.expr).value;
+            annotValueEntryMap.put(entryKey, entryValue);
+        }
+
+        Name annotTagRef = this.names.fromIdNode(astAnnotAttach.annotationName);
+        BIRAnnotationAttachment annotAttachment = new BIRAnnotationAttachment(astAnnotAttach.pos, annotTagRef);
+        annotAttachment.annotValues.add(new BIRAnnotationValue(annotValueEntryMap));
+        this.env.enclAnnotAttachments.add(annotAttachment);
     }
 
     private TaintTable populateTaintTable(Map<Integer, TaintRecord> taintRecords) {
@@ -2096,5 +2138,13 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>()));
         this.env.targetOperand = lhsOp;
+    }
+
+    private void populateBIRAnnotAttachments(List<BLangAnnotationAttachment> astAnnotAttachments,
+                                             List<BIRAnnotationAttachment> birAnnotAttachments,
+                                             BIRGenEnv currentEnv) {
+        currentEnv.enclAnnotAttachments = birAnnotAttachments;
+        astAnnotAttachments.forEach(annotAttach -> annotAttach.accept(this));
+        currentEnv.enclAnnotAttachments = null;
     }
 }

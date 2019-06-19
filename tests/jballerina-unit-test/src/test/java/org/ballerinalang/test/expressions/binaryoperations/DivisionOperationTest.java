@@ -56,8 +56,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(groups = "brokenOnJBallerina", description = "Test two int divide expression",
-            expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
         BRunUtil.invoke(result, "intDivide", args);

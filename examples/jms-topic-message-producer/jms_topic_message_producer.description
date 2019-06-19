@@ -1,4 +1,4 @@
 // In this example,  a message is published to a topic using a Java Message
-// Service (JMS) publisher.  Here Connection and Session are created explicitly
+// Service (JMS) publisher.  Here, the Connection and Session are created explicitly
 // to allow reusability.
 

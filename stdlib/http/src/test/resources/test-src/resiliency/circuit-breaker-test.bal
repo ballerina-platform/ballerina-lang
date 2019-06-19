@@ -30,6 +30,7 @@ const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-thresho
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
 function testTypicalScenario() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -68,6 +69,7 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
 }
 
 function testTrialRunFailure() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -107,6 +109,7 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
 }
 
 function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -141,6 +144,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
 }
 
 function testForceOpenScenario() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -178,6 +182,7 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
 }
 
 function testForceCloseScenario() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -216,6 +221,7 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
 }
 
 function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -251,6 +257,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
 }
 
 function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error?[]) {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {

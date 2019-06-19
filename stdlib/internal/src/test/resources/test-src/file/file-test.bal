@@ -163,7 +163,7 @@ function testWriteFile(string pathValue) returns @tainted error? {
 }
 
 function testReadFile(string pathValue) returns boolean {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(pathValue);
+    io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
     if (readResult is error) {

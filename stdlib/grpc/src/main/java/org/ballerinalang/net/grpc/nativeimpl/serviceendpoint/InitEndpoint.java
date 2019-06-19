@@ -16,17 +16,17 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
@@ -36,6 +36,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 
 /**
@@ -46,27 +47,32 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "init",
+        functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Init extends AbstractGrpcNativeFunction {
-    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    
+public class InitEndpoint extends AbstractGrpcNativeFunction {
+
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        long port = context.getIntArgument(0);
-        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
-        ServerConnector httpServerConnector =
-                HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
-
-        ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
-        serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
-        serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
-        context.setReturnValues();
     }
+
+    public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
+        MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
+        long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
+        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
+        try {
+            ServerConnector httpServerConnector =
+                    HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
+            ServicesRegistry.Builder servicesRegistryBuilder = new ServicesRegistry.Builder();
+            listenerObject.addNativeData(SERVER_CONNECTOR, httpServerConnector);
+            listenerObject.addNativeData(SERVICE_REGISTRY_BUILDER, servicesRegistryBuilder);
+            return null;
+        } catch (Exception e) {
+            // TODO: Add proper error object.
+            return BallerinaErrors.createError("{ballerina/grpc}INTERNAL_ERROR");
+        }
+    }
+
 }

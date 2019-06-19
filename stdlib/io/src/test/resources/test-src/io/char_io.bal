@@ -20,9 +20,13 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    rch = <@untainted io:ReadableCharacterChannel> new io:ReadableCharacterChannel(byteChannel, encoding);
+function initReadableChannel(string filePath, string encoding) returns error? {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        rch = <@untainted io:ReadableCharacterChannel> new io:ReadableCharacterChannel(byteChannel, encoding);
+    } else {
+        return byteChannel;
+    }
 }
 
 function initWritableChannel(string filePath, string encoding) {

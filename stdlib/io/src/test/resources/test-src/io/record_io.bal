@@ -19,18 +19,22 @@ import ballerina/io;
 io:ReadableTextRecordChannel? rch = ();
 io:WritableTextRecordChannel? wch = ();
 
-function initReadableChannel(string filePath, string encoding, string recordSeperator,
-                                    string fieldSeperator) {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-    rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+function initReadableChannel(string filePath, string encoding, string recordSeparator,
+                                    string fieldSeparator) returns error? {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is error) {
+        return byteChannel;
+    } else {
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
+    }
 }
 
-function initWritableChannel(string filePath, string encoding, string recordSeperator,
-                             string fieldSeperator) {
+function initWritableChannel(string filePath, string encoding, string recordSeparator,
+                             string fieldSeparator) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
 }
 
 

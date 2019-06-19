@@ -950,7 +950,8 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BJSONType) {
+               bType is bir:BJSONType ||
+               bType is bir:BFiniteType) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
         return io:sprintf("L%s;", FUNCTION_POINTER);
@@ -974,7 +975,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
     foreach var value in finiteType.values {
         mv.visitInsn(DUP);
-        mv.visitLdcInsn(value);
+
+        if (value is ()) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            mv.visitLdcInsn(value);
+        }
 
         if (value is int) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);

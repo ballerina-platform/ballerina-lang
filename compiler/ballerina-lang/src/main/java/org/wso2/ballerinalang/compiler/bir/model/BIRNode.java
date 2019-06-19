@@ -289,6 +289,8 @@ public abstract class BIRNode {
          */
         public TaintTable taintTable;
 
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, BType receiverType,
                            Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
@@ -305,6 +307,7 @@ public abstract class BIRNode {
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
             this.taintTable = taintTable;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -490,7 +493,7 @@ public abstract class BIRNode {
         public ConstValue constValue;
 
         public BIRConstant(DiagnosticPos pos, Name name, int flags,
-                             BType type, ConstValue constValue) {
+                           BType type, ConstValue constValue) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -503,6 +506,59 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+    }
+
+    /**
+     * Represents an annotation attachment in BIR node tree.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationAttachment extends BIRNode {
+
+        public Name annotTagRef;
+
+        // The length == 0 means that the value of this attachment is 'true'
+        // The length > 1 means that there are one or more attachments of this annotation
+        public List<BIRAnnotationValue> annotValues;
+
+        public BIRAnnotationAttachment(DiagnosticPos pos, Name annotTagRef) {
+            super(pos);
+            this.annotTagRef = annotTagRef;
+            this.annotValues = new ArrayList<>();
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * Represents the record value of an annotation attachment.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationValue {
+        public Map<String, BIRAnnotationValueEntry> annotValEntryMap;
+
+        public BIRAnnotationValue(Map<String, BIRAnnotationValueEntry> annotValEntryMap) {
+            this.annotValEntryMap = annotValEntryMap;
+        }
+    }
+
+    /**
+     * Represent one key/value pair entry in an annotation attachment value.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationValueEntry {
+        public BType type;
+        public Object value;
+
+        public BIRAnnotationValueEntry(BType type, Object value) {
+            this.type = type;
+            this.value = value;
+        }
     }
 
     /**
