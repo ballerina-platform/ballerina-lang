@@ -370,7 +370,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        /* ignored */
+        // Any service that is not created via service definition is considered tainted regardless of taintedness
+        // of listeners.
+        if (serviceNode.isAnonymousServiceValue) {
+            serviceNode.symbol.tainted = true;
+            serviceNode.serviceTypeDefinition.symbol.tainted = true;
+        }
     }
 
     @Override
@@ -1356,15 +1361,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Taintedness of a service variable depends on taintedness of listeners attached to this service.
         // If any listener is tainted then the service variable is tainted.
 
-        boolean anyTaintedListeners = serviceConstructorExpr.serviceNode.attachedExprs.stream()
+        boolean anyListenersUntainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
                 .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
-                .allMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+                .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
 
-        if (anyTaintedListeners) {
-            getCurrentAnalysisState().taintedStatus = TaintedStatus.TAINTED;
-        } else {
-            getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+        if (anyListenersUntainted || serviceConstructorExpr.type.tsymbol.tainted) {
+            // Service type tainted due to listeners being tainted.
+            serviceConstructorExpr.type.tsymbol.tainted = true;
         }
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
@@ -1675,7 +1680,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (invNode.getKind() == NodeKind.FUNCTION
             && ((BLangFunction) invNode).receiver != null) {
             if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
-
+                // When service definition is bound to a untainted listeners, arguments to resource functions
+                // are considered untainted.
+                if (!((BLangFunction) invNode).receiver.type.tsymbol.tainted) {
+                    markParamsTainted = false;
+                }
             }
         }
         // Entry point input parameters are all tainted, since they contain user controlled data.
