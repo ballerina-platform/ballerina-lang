@@ -62,10 +62,10 @@ function stampXMLToArray() returns BookRecord[] {
     return arrayValue;
 }
 
-function stampXMLToTuple() returns (string, string) {
+function stampXMLToTuple() returns [string, string] {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    (string, string) tupleValue = (string, string).stamp(xmlValue);
+    [string, string] tupleValue = [string, string].stamp(xmlValue);
     return tupleValue;
 }

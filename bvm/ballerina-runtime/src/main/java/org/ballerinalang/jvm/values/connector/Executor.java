@@ -20,12 +20,9 @@ package org.ballerinalang.jvm.values.connector;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 /**
@@ -48,24 +45,31 @@ public class Executor {
      */
     public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
-        //TODO this is temp fix till we get the service.start() API
-        Executors.newSingleThreadExecutor().submit(() -> {
-            //TODO check the scheduler thread count
-            Scheduler scheduler = new Scheduler(4);
-            Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
-            FutureValue futureValue = scheduler.schedule(new Object[1], func, null);
-            scheduler.start();
-            Object returnValues = futureValue.result;
-            if (futureValue.panic != null) {
-                futureValue.panic.printStackTrace();
-            }
+        submit(null, service, resourceName, callback, properties, args);
+    }
 
-            if (returnValues instanceof ErrorValue) {
-                callback.notifyFailure((ErrorValue) returnValues);
-            } else {
-                callback.notifySuccess();
-            }
-        });
+
+    /**
+     * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
+     * execution and will return the connector thread immediately.
+     *
+     * @param scheduler    available scheduler.
+     * @param service      to be executed.
+     * @param resourceName to be executed.
+     * @param callback     to be executed when execution completes.
+     * @param properties   to be passed to context.
+     * @param args         required for the resource.
+     */
+    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName,
+                              CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+
+        //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
+        if (scheduler == null) {
+            scheduler = new Scheduler(4, false);
+            scheduler.start();
+        }
+        Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
+        scheduler.schedule(new Object[1], func, null, callback, properties);
     }
 
     /**

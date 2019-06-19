@@ -1,40 +1,40 @@
-function negativeIntTest() returns (int, int) {
+function negativeIntTest() returns [int, int] {
     int x;
     int y;
     x = -5;
     y = -x;
 
-    return (x,y);
+    return [x,y];
 }
 
-function positiveIntTest() returns (int, int) {
+function positiveIntTest() returns [int, int] {
     int x;
     int y;
     x = +5;
     y = +x;
 
-    return (x,y);
+    return [x,y];
 }
 
-function negativeFloatTest() returns (float, float) {
+function negativeFloatTest() returns [float, float] {
     float x;
     float y;
     x = -5.0;
     y = -x;
 
-    return (x,y);
+    return [x,y];
 }
 
-function positiveFloatTest() returns (float, float) {
+function positiveFloatTest() returns [float, float] {
     float x;
     float y;
     x = +5.0;
     y = +x;
 
-    return (x,y);
+    return [x,y];
 }
 
-function booleanNotTest() returns (boolean, boolean, boolean) {
+function booleanNotTest() returns [boolean, boolean, boolean] {
     boolean x;
     boolean y;
     boolean z;
@@ -42,7 +42,7 @@ function booleanNotTest() returns (boolean, boolean, boolean) {
     y = !x;
     z = !false;
 
-    return (x,y,z);
+    return [x,y,z];
 }
 
 function unaryExprInIfConditionTest() returns (boolean) {

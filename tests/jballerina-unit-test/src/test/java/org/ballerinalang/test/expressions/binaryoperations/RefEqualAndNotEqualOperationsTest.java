@@ -384,23 +384,23 @@ public class RefEqualAndNotEqualOperationsTest {
                       21);
         validateError(resultNegative, 9, "operator '!==' not defined for 'map<string|int>' and 'map<float>'", 42,
                       34);
-        validateError(resultNegative, 10, "operator '===' not defined for '(string,int)' and '(boolean,float)'", 50,
+        validateError(resultNegative, 10, "operator '===' not defined for '[string,int]' and '[boolean,float]'", 50,
                       21);
-        validateError(resultNegative, 11, "operator '!==' not defined for '(string,int)' and '(boolean,float)'", 50,
+        validateError(resultNegative, 11, "operator '!==' not defined for '[string,int]' and '[boolean,float]'", 50,
                       34);
-        validateError(resultNegative, 12, "operator '===' not defined for '(float|int,int)' and '(boolean,int)'",
+        validateError(resultNegative, 12, "operator '===' not defined for '[float|int,int]' and '[boolean,int]'",
                       54, 21);
-        validateError(resultNegative, 13, "operator '!==' not defined for '(boolean,int)' and '(float|int,int)'",
+        validateError(resultNegative, 13, "operator '!==' not defined for '[boolean,int]' and '[float|int,int]'",
                       54, 34);
         validateError(resultNegative, 14, "operator '===' not defined for 'Employee' and 'Person'", 62, 12);
         validateError(resultNegative, 15, "operator '!==' not defined for 'Person' and 'Employee'", 62, 25);
-        validateError(resultNegative, 16, "operator '===' not defined for '(string,int)' and 'json'",
+        validateError(resultNegative, 16, "operator '===' not defined for '[string,int]' and 'json'",
                       68, 21);
-        validateError(resultNegative, 17, "operator '!==' not defined for 'json' and '(string,int)'",
+        validateError(resultNegative, 17, "operator '!==' not defined for 'json' and '[string,int]'",
                       68, 34);
-        validateError(resultNegative, 18, "operator '===' not defined for 'Employee|(string,int)' and 'json'",
+        validateError(resultNegative, 18, "operator '===' not defined for 'Employee|[string,int]' and 'json'",
                       72, 21);
-        validateError(resultNegative, 19, "operator '!==' not defined for 'Employee|(string,int)' and 'json'",
+        validateError(resultNegative, 19, "operator '!==' not defined for 'Employee|[string,int]' and 'json'",
                       72, 34);
         validateError(resultNegative, 20, "operator '===' not defined for 'Abc' and 'Def'", 80, 12);
         validateError(resultNegative, 21, "operator '!==' not defined for 'Def' and 'Abc'", 80, 25);

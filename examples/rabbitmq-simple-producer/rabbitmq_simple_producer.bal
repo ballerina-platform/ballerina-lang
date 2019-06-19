@@ -1,13 +1,9 @@
 import ballerina/io;
 import ballerina/rabbitmq;
 
-// Creates a ballerina RabbitMQ connection that allows reusability if necessary.
-rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
-
 public function main() {
     // Creates a ballerina RabbitMQ channel.
-    rabbitmq:Channel newChannel = new(connection);
-
+    rabbitmq:Channel newChannel = new({ host: "localhost", port: 5672 });
     // Declares the queue.
     var queueResult = newChannel->queueDeclare(queueConfig = { queueName: "MyQueue" });
     if (queueResult is error) {
@@ -15,7 +11,6 @@ public function main() {
     } else {
         io:println("The queue was created successfully");
     }
-
     // Publishes the message using the routing key named "MyQueue".
     var sendResult = newChannel->basicPublish("Hello from Ballerina", "MyQueue");
     if (sendResult is error) {

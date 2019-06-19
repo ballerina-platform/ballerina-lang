@@ -47,13 +47,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -473,9 +474,16 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        if (bracedOrTupleExpr.expressions != null) {
-            bracedOrTupleExpr.expressions.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        if (listConstructorExpr.exprs != null) {
+            listConstructorExpr.exprs.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        if (groupExpr.expression != null) {
+            this.acceptNode(groupExpr.expression);
         }
     }
 

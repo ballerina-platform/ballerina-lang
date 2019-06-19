@@ -20,17 +20,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
@@ -45,59 +44,37 @@ import java.nio.file.Paths;
         orgName = "ballerina", packageName = "io",
         functionName = "openReadableFile",
         args = {@Argument(name = "path", type = TypeKind.STRING)},
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage = "ballerina/io")
-        },
         isPublic = true
 )
 public class OpenReadableFile extends AbstractNativeChannel {
-    /**
-     * Index which defines the file path.
-     */
-    private static final int PATH_FIELD_INDEX = 0;
+
     /**
      * Read only access mode.
      */
     private static final String READ_ACCESS_MODE = "r";
 
-    /**
-     * {@inheritDoc}
-     */
+    public static Object openReadableFile(Strand strand, String pathUrl) {
+        Object channel;
+        try {
+            channel = createChannel(inFlow(pathUrl));
+        } catch (AccessDeniedException e) {
+            channel = IOUtils.createError("Do not have access to read file: " + e.getMessage());
+        } catch (Throwable e) {
+            channel = IOUtils.createError("Failed to open file: " + e.getMessage());
+        }
+        return channel;
+    }
+
+    private static Channel inFlow(String pathUrl) throws IOException {
+        Path path = Paths.get(pathUrl);
+        FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
+        Channel channel = new FileIOChannel(fileChannel);
+        channel.setReadable(true);
+        return channel;
+    }
+
     @Override
-    //TODO Remove after migration : implemented using bvm values/types
     public Channel inFlow(Context context) throws BallerinaException {
-        String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
-        Channel channel;
-        try {
-            Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, READ_ACCESS_MODE);
-            channel = new FileIOChannel(fileChannel);
-            channel.setReadable(true);
-        } catch (AccessDeniedException e) {
-            throw new BallerinaException("Do not have access to read file: ", e);
-        } catch (Throwable e) {
-            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
-        }
-        return channel;
-    }
-
-    public static ObjectValue openReadableFile(Strand strand, String pathUrl) {
-        return createChannel(inFlow(pathUrl));
-    }
-
-    private static Channel inFlow(String pathUrl) throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
-        Channel channel;
-        try {
-            Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
-            channel = new FileIOChannel(fileChannel);
-            channel.setReadable(true);
-        } catch (AccessDeniedException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("Do not have access to read file: ", e);
-        } catch (Throwable e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("failed to open file: " + e.getMessage(),
-                                                                               e);
-        }
-        return channel;
+        return null;
     }
 }

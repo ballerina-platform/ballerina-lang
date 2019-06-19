@@ -33,8 +33,8 @@ function testUnionTypeInUnion() returns string {
     }
 }
 
-function testNestedTypeCheck() returns (any, any, any) {
-    return (bar(true), bar(1234), bar("hello"));
+function testNestedTypeCheck() returns [any, any, any] {
+    return [bar(true), bar(1234), bar("hello")];
 }
 
 function bar (string | int | boolean i)  returns string {
@@ -96,10 +96,10 @@ function testSimpleRecordTypes_1() returns string {
     return "n/a";
 }
 
-function testSimpleRecordTypes_2() returns (boolean, boolean) {
+function testSimpleRecordTypes_2() returns [boolean, boolean] {
     B1 b = {x:0, y:""};
     any a = b;
-    return (a is A1, a is B1);
+    return [a is A1, a is B1];
 }
 
 type A2 record {|
@@ -112,8 +112,8 @@ type B2 record {|
     anydata...;
 |};
 
-function testSimpleRecordTypes_3() returns (boolean, boolean) {
+function testSimpleRecordTypes_3() returns [boolean, boolean] {
     B2 b = {x:0};
     any a = b;
-    return (a is A2, a is B2);
+    return [a is A2, a is B2];
 }

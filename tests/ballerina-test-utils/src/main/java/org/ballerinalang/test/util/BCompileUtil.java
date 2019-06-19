@@ -38,7 +38,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -583,14 +583,19 @@ public class BCompileUtil {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                 bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        String initFuncName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
-        String startFuncName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).startFunction);
-        try {
-            Method method = initClazz.getDeclaredMethod(initFuncName, Strand.class);
-            method.invoke(null, new Strand(new Scheduler(4)));
+        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).initFunction.name);
+        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
+        compileResult.setClassLoader(classLoader);
+        return compileResult;
+    }
 
-            method = initClazz.getDeclaredMethod(startFuncName, Strand.class);
-            method.invoke(null, new Strand(new Scheduler(4)));
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            Scheduler scheduler = new Scheduler(4, false);
+            //TODO fix following method invoke to scheduler.schedule()
+            method.invoke(null, new Strand(scheduler));
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
@@ -603,12 +608,10 @@ public class BCompileUtil {
                 throw new org.ballerinalang.util.exceptions
                         .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
             }
-            throw new RuntimeException("Error while invoking function '" + initFuncName + "'", e);
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         } catch (Exception e) {
-            throw new RuntimeException("Error while invoking function '" + initFuncName + "'", e);
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
-        compileResult.setClassLoader(classLoader);
-        return compileResult;
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath) {
@@ -617,8 +620,7 @@ public class BCompileUtil {
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName);
     }
-
-    private static String cleanupFunctionName(BLangFunction function) {
-        return function.name.value.replaceAll("[.:/<>]", "_");
+    private static String cleanupFunctionName(BLangIdentifier name) {
+        return name.value.replaceAll("[.:/<>]", "_");
     }
 }

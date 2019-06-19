@@ -76,7 +76,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
-    private final HashMap<String, Object> nativeData = new HashMap<>();
+    private final Map<String, Object> nativeData = new HashMap<>();
 
     public MapValueImpl(BType type) {
         super();
@@ -501,7 +501,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public IteratorValue getIterator() {
-        return new MapIterator<K, V>(new LinkedHashMap<>(this).entrySet().iterator());
+        return new MapIterator<>(new LinkedHashMap<>(this).entrySet().iterator());
     }
 
     /**
@@ -556,5 +556,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public Object getNativeData(String key) {
         return nativeData.get(key);
+    }
+
+    /**
+     * Method to retrieve whole native data map.
+     *
+     * @return nativeData map
+     */
+    public Map<String, Object> getNativeDataMap() {
+        return this.nativeData;
     }
 }

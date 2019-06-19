@@ -1,7 +1,7 @@
 
-public function testObjectInsideObject () returns (string, string) {
+public function testObjectInsideObject () returns [string, string] {
     Person p = new Person();
-    return (p.getNameWrapperInside1(), p.getNameFromDiffObject());
+    return [p.getNameWrapperInside1(), p.getNameFromDiffObject()];
 }
 
 

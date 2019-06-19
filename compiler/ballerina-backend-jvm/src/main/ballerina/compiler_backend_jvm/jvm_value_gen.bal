@@ -80,7 +80,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -384,7 +384,10 @@ public type ObjectGenerator object {
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_4);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "(I)V", false);
+        //TODO remove this and load the strand from ALOAD
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
                             "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);

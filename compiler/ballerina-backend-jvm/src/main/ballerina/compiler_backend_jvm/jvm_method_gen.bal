@@ -1008,7 +1008,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
 }
 
 function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
-                            string initClass) {
+                            string initClass, boolean serviceEPAvailable) {
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
@@ -1025,9 +1025,15 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(I)V", false);
 
-    if (hasInitFunction(pkg)) {
+    if (serviceEPAvailable) {
+        mv.visitInsn(ICONST_1);
+    } else {
+        mv.visitInsn(ICONST_0);
+    }
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+
+if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
@@ -1064,7 +1070,17 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
             bir:BType pType = getType(paramType);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            generateParamCast(argArrayIndex, pType, mv);
+            // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
+            if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
+                // load VarArgs array
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitIntInsn(BIPUSH, argArrayIndex);
+                loadType(mv, pType);
+                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "createVarArgsArray", 
+                    io:sprintf("([L%s;IL%s;)L%s;", STRING_VALUE, ARRAY_TYPE, ARRAY_VALUE), false);
+            } else {
+                generateParamCast(argArrayIndex, pType, mv);
+            }
             mv.visitInsn(AASTORE);
             paramIndex += 1;
 
@@ -1160,7 +1176,11 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        castFromString(pType, mv);
+        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
+            addUnboxInsn(mv, pType);
+        } else {
+            castFromString(pType, mv);
+        }
         paramIndex += 1;
     }
 
@@ -1304,7 +1324,7 @@ function getModuleStartFuncName(bir:Package module) returns string {
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
-        var (importedPkg, isFromCache) = lookupModule(importModuleToModuleId(mod));
+        var [importedPkg, isFromCache] = lookupModule(importModuleToModuleId(mod));
 
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
