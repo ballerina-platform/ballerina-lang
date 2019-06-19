@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.sdk;
 
+import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -172,12 +174,64 @@ public class BallerinaSdkUtil {
         return file != null && file.isDirectory() ? file : null;
     }
 
+    @NotNull
+    public static BallerinaSdk getBallerinaSdkFor(Project project) {
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk == null) {
+            return new BallerinaSdk(null, false, false);
+        }
+        String sdkPath = projectSdk.getHomePath();
+
+        if (!isValidSdk(sdkPath)) {
+            return new BallerinaSdk(null, false, false);
+        }
+        boolean langServerSupport = hasLangServerSupport(sdkPath);
+        boolean webviewSupport = hasWebviewSupport(sdkPath);
+        return new BallerinaSdk(sdkPath, langServerSupport, webviewSupport);
+    }
+
+    private static boolean isValidSdk(String sdkPath) {
+
+        if (Strings.isNullOrEmpty(sdkPath)) {
+            return false;
+        }
+        // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
+        String balShellScript = Paths.get(sdkPath, "bin", "ballerina").toString();
+        String balBatchScript = Paths.get(sdkPath, "bin", "ballerina.bat").toString();
+
+        return (new File(balShellScript).exists() || new File(balBatchScript).exists());
+    }
+
+    private static boolean hasLangServerSupport(String sdkPath) {
+
+        if (Strings.isNullOrEmpty(sdkPath)) {
+            return false;
+        }
+        // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
+        String launcherShellScript = Paths.get(sdkPath, "lib", "tools", "lang-server", "launcher",
+                "language-server-launcher.sh").toString();
+        String launcherBatchScript = Paths.get(sdkPath, "lib", "tools", "lang-server", "launcher",
+                "language-server-launcher.bat").toString();
+
+        return new File(launcherShellScript).exists() || new File(launcherBatchScript).exists();
+    }
+
+    private static boolean hasWebviewSupport(String sdkPath) {
+
+        if (Strings.isNullOrEmpty(sdkPath)) {
+            return false;
+        }
+        // Checks for composer library resource directory existence.
+        String composerLib = Paths.get(sdkPath, "lib", "tools", "composer-library").toString();
+        return new File(composerLib).exists();
+    }
+
     public static LinkedHashSet<VirtualFile> getSourcesPathsToLookup(@NotNull Project project, @Nullable Module
             module) {
         LinkedHashSet<VirtualFile> sdkAndBallerinaPath = newLinkedHashSet();
         ContainerUtil.addIfNotNull(sdkAndBallerinaPath, getSdkSrcDir(project, module));
         // Todo  - add Ballerina Path
-        //        ContainerUtil.addAllNotNull(sdkAndBallerinaPath, getBallerinaPathSources(project, module));
+        // ContainerUtil.addAllNotNull(sdkAndBallerinaPath, getBallerinaPathSources(project, module));
         return sdkAndBallerinaPath;
     }
 
