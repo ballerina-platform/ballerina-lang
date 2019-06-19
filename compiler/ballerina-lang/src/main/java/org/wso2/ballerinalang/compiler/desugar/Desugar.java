@@ -254,6 +254,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String BASE_64 = "base64";
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
+    private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -283,7 +284,7 @@ public class Desugar extends BLangNodeVisitor {
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
-    Stack<BLangAccessExpression> accessExprStack = new Stack<>();
+    Stack<BLangExpression> accessExprStack = new Stack<>();
     private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
@@ -4813,70 +4814,101 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatement rewriteSafeNavigationAssignment(BLangAccessExpression accessExpr, BLangExpression rhsExpr,
                                                            boolean safeAssignment) {
-        List<BLangStatement> stmts = createLHSSafeNavigation(accessExpr, accessExpr.type, rhsExpr, safeAssignment);
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(accessExpr.pos, stmts);
-        return blockStmt;
+        // --- original code ---
+        // A? a = ();
+        // a.b = 4;
+        // --- desugared code ---
+        // A? a = ();
+        // if(a is ()) {
+        //    panic error("NullReferenceException");
+        // }
+        // (<A> a).b = 4;
+        // This will get chained and will get added more if cases as required,
+        // For invocation exprs, this will create a temp var to store that, so it won't get executed
+        // multiple times.
+        this.accessExprStack = new Stack<>();
+        List<BLangStatement> stmts = new ArrayList<>();
+        createLHSSafeNavigation(stmts, accessExpr.expr);
+        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(accessExpr.pos,
+                cloneExpression(accessExpr), rhsExpr);
+        stmts.add(assignment);
+        return ASTBuilderUtil.createBlockStmt(accessExpr.pos, stmts);
     }
 
-    private List<BLangStatement> createLHSSafeNavigation(BLangExpression expr, BType type,
-                                                         BLangExpression rhsExpr, boolean safeAssignment) {
-        List<BLangStatement> stmts = new ArrayList<>();
+    private void createLHSSafeNavigation(List<BLangStatement> stmts, BLangExpression expr) {
         NodeKind kind = expr.getKind();
+        boolean root = false;
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
                 kind == NodeKind.INVOCATION) {
             BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
-            if (accessExpr.expr != null) {
-                this.accessExprStack.push(accessExpr);
-                // If the parent of current expr is the root, terminate
-                stmts.addAll(createLHSSafeNavigation(accessExpr.expr, type, rhsExpr, safeAssignment));
-
-                this.accessExprStack.pop();
-            }
-            accessExpr.type = accessExpr.originalType;
-
-            // if its the leaf node, assign the original rhs expression to the access expression
-            if (accessExpr.leafNode) {
-                BLangVariableReference accessExprForFinalAssignment = cloneExpression(accessExpr);
-                BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(accessExpr.pos,
-                        accessExprForFinalAssignment, rhsExpr, false);
-                assignmentStmt.safeAssignment = safeAssignment;
-                stmts.add(assignmentStmt);
-                return stmts;
-            }
-        } else if (expr.type.tag != TypeTags.JSON) {
-            // Do not create any default init statement for the very first varRef, unless its a JSON.
-            // i.e: In a field access expression a.b.c.d, do not create an init for 'a', if it is not JSON
-            return stmts;
+            createLHSSafeNavigation(stmts, accessExpr.expr);
+            accessExpr.expr = accessExprStack.pop();
+        } else {
+            root = true;
         }
 
-        if (expr.type.isNullable() && isDefaultableMappingType(expr.type)) {
-            BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
-            stmts.add(ifStmt);
+        // If expression is an invocation, then create a temp var to store the invocation value, so that
+        // invocation will happen only one time
+        if (expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            BVarSymbol interMediateSymbol = new BVarSymbol(0, names.fromString(GEN_VAR_PREFIX.value
+                    + "i_intermediate"), this.env.scope.owner.pkgID, invocation.type, this.env.scope.owner);
+            BLangSimpleVariable intermediateVariable = ASTBuilderUtil.createVariable(expr.pos,
+                    interMediateSymbol.name.value, invocation.type, invocation, interMediateSymbol);
+            BLangSimpleVariableDef intermediateVariableDefinition = ASTBuilderUtil.createVariableDef(invocation.pos,
+                    intermediateVariable);
+            stmts.add(intermediateVariableDefinition);
+
+            expr = ASTBuilderUtil.createVariableRef(invocation.pos, interMediateSymbol);
         }
 
-        return stmts;
+        if (expr.type.isNullable()) {
+            BLangTypeTestExpr isNillTest = ASTBuilderUtil.createTypeTestExpr(expr.pos, expr, getNillTypeNode());
+            isNillTest.type = symTable.booleanType;
+
+            BLangBlockStmt thenStmt = ASTBuilderUtil.createBlockStmt(expr.pos);
+
+            //Cloning the expression and set the nil lifted type.
+            expr = cloneExpression(expr);
+            expr.type = types.getSafeType(expr.type, false);
+
+            if (isDefaultableMappingType(expr.type) && !root) { // TODO for records, type should be defaultable as well
+                // This will properly get desugered later to a json literal
+                BLangRecordLiteral jsonLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                jsonLiteral.type = expr.type;
+                jsonLiteral.pos = expr.pos;
+                BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(expr.pos,
+                        expr, jsonLiteral);
+                thenStmt.addStatement(assignment);
+            } else {
+                BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                literal.value = ERROR_REASON_NULL_REFERENCE_ERROR;
+                literal.type = symTable.stringType;
+
+                BLangErrorConstructorExpr errorConstExpr = (BLangErrorConstructorExpr)
+                        TreeBuilder.createErrorConstructorNode();
+                errorConstExpr.pos = expr.pos;
+                errorConstExpr.reasonExpr = literal;
+                errorConstExpr.type = symTable.errorType;
+
+                BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+                panicNode.expr = errorConstExpr;
+                panicNode.pos = expr.pos;
+                thenStmt.addStatement(panicNode);
+            }
+
+            BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(expr.pos, isNillTest, thenStmt, null);
+            stmts.add(ifelse);
+        }
+
+        accessExprStack.push(expr);
     }
 
-    private BLangIf getSafeNaviDefaultInitStmt(BLangExpression accessExpr) {
-        // Create if-condition. eg:
-        // if (a.b == () )
-        BLangVariableReference accessExprForNullCheck = cloneExpression(accessExpr);
-        BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(accessExpr.pos, symTable.nilType, null);
-        BLangBinaryExpr ifCondition = ASTBuilderUtil.createBinaryExpr(accessExpr.pos, accessExprForNullCheck,
-                bLangLiteral, symTable.booleanType, OperatorKind.EQUAL, (BOperatorSymbol) symResolver
-                        .resolveBinaryOperator(OperatorKind.EQUAL, symTable.anyType, symTable.nilType));
-
-        // Create if body. eg:
-        // a.b = {};
-        BLangVariableReference accessExprForInit = cloneExpression(accessExpr);
-        // Look one step ahead to determine the type of the child, and get the default value expression
-        BLangExpression defaultValue = getDefaultValueExpr(this.accessExprStack.peek());
-        BLangAssignment assignmentStmt =
-                ASTBuilderUtil.createAssignmentStmt(accessExpr.pos, accessExprForInit, defaultValue, false);
-
-        // Create If-statement
-        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(assignmentStmt));
-        return ASTBuilderUtil.createIfElseStmt(accessExpr.pos, ifCondition, ifBody, null);
+    private BLangValueType getNillTypeNode() {
+        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nillTypeNode.typeKind = TypeKind.NIL;
+        nillTypeNode.type = symTable.nilType;
+        return nillTypeNode;
     }
 
     private BLangVariableReference cloneExpression(BLangExpression expr) {
