@@ -1,11 +1,31 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.util.Map;
@@ -13,9 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
 
+/**
+ * Timeout handler for server. Timer applies to individual streams.
+ */
 public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(Http2ServerTimeoutHandler.class);
@@ -50,13 +74,13 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
     @Override
     public boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
         updateLastReadTime(streamId, endOfStream);
-        return false;
+        return true;
     }
 
     @Override
     public boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
                                      boolean endOfStream) {
-        return false;
+        return true;
     }
 
     @Override
@@ -131,6 +155,23 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //                notifyTimeoutError(msgHolder, true);
 //            }
 //            http2ServerChannel.removeInFlightMessage(streamId);
+
+            //TODO:what happens if the timeout triggered while receiving inbound request??
+
+            if (msgHolder.getInboundMsgOrPushResponse() != null) {
+//                if (msgHolder.isPushResponse()) {
+//                    msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyPushResponse(
+//                            streamId, new EndpointTimeOutException(
+//                                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
+//                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+//                } else {
+                    msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyHttpListener(
+                            new EndpointTimeOutException(
+                                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
+                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+//                }
+            }
+            http2ServerChannel.getStreamIdRequestMap().remove(streamId);
         }
 
         private void closeStream(InboundMessageHolder msgHolder, int streamId, ChannelHandlerContext ctx) {

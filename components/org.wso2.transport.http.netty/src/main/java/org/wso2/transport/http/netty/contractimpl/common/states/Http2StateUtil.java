@@ -235,7 +235,8 @@ public class Http2StateUtil {
      */
     public static void releaseDataFrame(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMessage();
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
+                .getInboundMsgOrPushResponse();
         if (sourceReqCMsg != null) {
             sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
             http2SourceHandler.getStreamIdRequestMap().remove(streamId);

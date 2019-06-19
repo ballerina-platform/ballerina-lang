@@ -41,7 +41,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
-import static org.wso2.transport.http.netty.contract.Constants.STREAM_ID_ONE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -68,8 +67,9 @@ public class ReceivingHeaders implements ListenerState {
         int streamId = headersFrame.getStreamId();
         if (headersFrame.isEndOfStream()) {
             // Retrieve HTTP request and add last http content with trailer headers.
-            HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
-                    .getInboundMessage();
+            InboundMessageHolder inboundMessageHolder = http2SourceHandler.getStreamIdRequestMap().get(streamId);
+            HttpCarbonMessage sourceReqCMsg =
+                    inboundMessageHolder != null ? inboundMessageHolder.getInboundMsgOrPushResponse() : null;
             if (sourceReqCMsg != null) {
                 readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
                 http2SourceHandler.getStreamIdRequestMap().remove(streamId);
@@ -78,21 +78,26 @@ public class ReceivingHeaders implements ListenerState {
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
+                setEventListeners(ctx, streamId, sourceReqCMsg);
                 notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             }
             http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
         } else {
             // Construct new HTTP Request
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
-            InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(sourceReqCMsg);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
-            // storing to add HttpContent later
-            http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);
-            http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()
-                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
+            setEventListeners(ctx, streamId, sourceReqCMsg);
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }
+    }
+
+    private void setEventListeners(ChannelHandlerContext ctx, int streamId, HttpCarbonMessage sourceReqCMsg) {
+        InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(sourceReqCMsg);
+        // storing to add HttpContent later
+        http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);
+        http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()
+                .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
     }
 
     @Override

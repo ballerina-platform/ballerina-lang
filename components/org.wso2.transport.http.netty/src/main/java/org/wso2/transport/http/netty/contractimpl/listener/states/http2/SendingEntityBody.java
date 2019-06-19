@@ -162,7 +162,8 @@ public class SendingEntityBody implements ListenerState {
         contentLength += httpContent.content().readableBytes();
         validatePromisedStreamState(originalStreamId, streamId, conn, inboundRequestMsg);
         final ByteBuf content = httpContent.content();
-        for (Http2DataEventListener dataEventListener : http2OutboundRespListener.getHttp2ServerChannel().getDataEventListeners()) {
+        for (Http2DataEventListener dataEventListener : http2OutboundRespListener.getHttp2ServerChannel()
+                .getDataEventListeners()) {
             if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
                 return;
             }
