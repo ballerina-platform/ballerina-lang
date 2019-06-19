@@ -77,19 +77,19 @@ public type InboundOAuth2Provider object {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
-            principal.scopes = self.getScopes(scopes);
+            principal.scopes = getScopes(scopes);
         }
         return authenticated;
     }
-
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + scopes - Set of scopes seperated with a space
-    # + return - Array of groups for the user denoted by the username
-    public function getScopes(string scopes) returns string[] {
-        return scopes.trim().split(" ");
-    }
 };
+
+# Reads the scope(s) for the user with the given username.
+#
+# + scopes - Set of scopes seperated with a space
+# + return - Array of groups for the user denoted by the username
+public function getScopes(string scopes) returns string[] {
+    return scopes.trim().split(" ");
+}
 
 # Represents introspection server onfigurations.
 #

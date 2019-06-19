@@ -18,6 +18,50 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/runtime;
 
+# Represents Ballerina configuration for LDAP based auth provider.
+#
+# + ldapConnectionConfig - LDAP connection configurations
+# + instanceId - Endpoint instance id
+public type InboundLdapAuthProvider object {
+
+    *auth:InboundAuthProvider;
+
+    public LdapConnectionConfig ldapConnectionConfig;
+    public string instanceId;
+
+    # Create an LDAP auth store with the given configurations.
+    #
+    # + ldapConnectionConfig -  LDAP connection configurations
+    # + instanceId - Endpoint instance id
+    public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
+        self.ldapConnectionConfig = ldapConnectionConfig;
+        self.instanceId = instanceId;
+        initLdapConnectionContext(self, instanceId);
+    }
+
+    # Authenticate with username and password.
+    #
+    # + credential - Credential value
+    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|error {
+        if (credential == "") {
+            return false;
+        }
+        string username;
+        string password;
+        [username, password] = check auth:extractUsernameAndPassword(credential);
+        boolean authenticated = doAuthenticate(self, username, password);
+        if (authenticated) {
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
+            // By default set userId as username.
+            principal.username = username;
+            principal.scopes = getLdapScopes(self, username);
+        }
+        return authenticated;
+    }
+};
+
 # Represents configurations that required for LDAP auth store.
 #
 # + domainName - Unique name to identify the user store
@@ -74,50 +118,6 @@ public type SecureClientSocket record {|
     crypto:TrustStore? trustStore = ();
     string trustedCertFile = "";
 |};
-
-# Represents Ballerina configuration for LDAP based auth provider.
-#
-# + ldapConnectionConfig - LDAP connection configurations
-# + instanceId - Endpoint instance id
-public type InboundLdapAuthProvider object {
-
-    *auth:InboundAuthProvider;
-
-    public LdapConnectionConfig ldapConnectionConfig;
-    public string instanceId;
-
-    # Create an LDAP auth store with the given configurations.
-    #
-    # + ldapConnectionConfig -  LDAP connection configurations
-    # + instanceId - Endpoint instance id
-    public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
-        self.ldapConnectionConfig = ldapConnectionConfig;
-        self.instanceId = instanceId;
-        initLdapConnectionContext(self, instanceId);
-    }
-
-    # Authenticate with username and password.
-    #
-    # + credential - Credential value
-    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|error {
-        if (credential == "") {
-            return false;
-        }
-        string username;
-        string password;
-        [username, password] = check auth:extractUsernameAndPassword(credential);
-        boolean authenticated = doAuthenticate(self, username, password);
-        if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-            // By default set userId as username.
-            principal.username = username;
-            principal.scopes = getLdapScopes(self, username);
-        }
-        return authenticated;
-    }
-};
 
 # Reads the scope(s) for the user with the given username.
 #
