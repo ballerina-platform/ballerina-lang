@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.PsiReference;
 
-public class BallerinaCompletePackageNameImpl extends BallerinaCompositeElementImpl implements BallerinaCompletePackageName {
+public class BallerinaCompletePackageNameImpl extends ASTWrapperPsiElement implements BallerinaCompletePackageName {
 
   public BallerinaCompletePackageNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -46,11 +46,6 @@ public class BallerinaCompletePackageNameImpl extends BallerinaCompositeElementI
   @NotNull
   public List<BallerinaPackageName> getPackageNameList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaPackageName.class);
-  }
-
-  @NotNull
-  public PsiReference[] getReferences() {
-    return BallerinaPsiImplUtil.getReferences(this);
   }
 
 }

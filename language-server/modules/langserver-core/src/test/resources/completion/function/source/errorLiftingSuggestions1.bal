@@ -5,8 +5,10 @@ http:ClientEndpointConfig conf = {
    url: "https://postman-echo.com/basic-auth",
    auth: {
        scheme: http:BASIC_AUTH,
-       username: "postman",
-       password: "password"
+       config: {
+           username: "postman",
+           password: "password"
+       }
    }
 };
 

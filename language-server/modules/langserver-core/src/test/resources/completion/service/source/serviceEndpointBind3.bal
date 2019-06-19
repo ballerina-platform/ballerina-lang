@@ -8,6 +8,6 @@ listener http:Listener ep2 = new(9090);
 }
 service myService1 on new h {
    resource function foo(http:Caller caller, http:Request req) {
-       _ = caller->respond("Hello");
+       checkpanic caller->respond("Hello");
    }
 }

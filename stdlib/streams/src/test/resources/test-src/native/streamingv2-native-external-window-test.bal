@@ -100,7 +100,7 @@ function createStreamingConstruct() {
     streams:Aggregator[] aggregators = [];
     aggregators[0] = iSumAggregator;
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
             return e.data["inputStream.school"];
@@ -116,10 +116,10 @@ function createStreamingConstruct() {
         });
 
     streams:Window tmpWindow = streams:externalTime(["inputStream.timeStamp", 1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
+        nextProcessPointer = function (streams:StreamEvent?[] e) {select.process(e);});
 
     inputStream.subscribe(function (Teacher t) {
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(t, "inputStream");
             tmpWindow.process(eventArr);
 
         });

@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 6,
+    "character": 21
+  },
+  "source": "function/source/workerDeclarationContext1.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

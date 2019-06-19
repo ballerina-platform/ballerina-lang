@@ -1,3 +1,3 @@
 // String templates are string literals that allow embedded expressions.
-// The placeholders for expressions are indicated by two open and close curly braces `{{}}`.
+// The placeholders for expressions are indicated by the dollar symbol followed by an open and close curly brace `${}`.
 // You can enclose a string literal with the keyword `string` followed by two back-tick characters.

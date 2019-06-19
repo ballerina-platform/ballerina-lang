@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaParameterDocumentationImpl extends BallerinaCompositeElementImpl implements BallerinaParameterDocumentation {
+public class BallerinaParameterDocumentationImpl extends ASTWrapperPsiElement implements BallerinaParameterDocumentation {
 
   public BallerinaParameterDocumentationImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaParameterDocumentationImpl extends BallerinaCompositeEleme
   @Override
   @Nullable
   public BallerinaDocumentationText getDocumentationText() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationText.class);
+    return findChildByClass(BallerinaDocumentationText.class);
   }
 
   @Override
   @NotNull
   public PsiElement getDescriptionSeparator() {
-    return notNullChild(findChildByType(DESCRIPTION_SEPARATOR));
+    return findNotNullChildByType(DESCRIPTION_SEPARATOR);
   }
 
   @Override
   @NotNull
   public PsiElement getParameterName() {
-    return notNullChild(findChildByType(PARAMETER_NAME));
+    return findNotNullChildByType(PARAMETER_NAME);
   }
 
 }

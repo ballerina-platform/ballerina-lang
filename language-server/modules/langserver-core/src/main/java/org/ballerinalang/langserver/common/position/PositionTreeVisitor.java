@@ -45,14 +45,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -182,7 +182,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
                 try {
                     BUnionType bUnionType = (BUnionType) userDefinedType.type;
-                    for (BType type : bUnionType.memberTypes) {
+                    for (BType type : bUnionType.getMemberTypes()) {
                         if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
                                                                                                      .typeName
                                                                                                      .getValue())) {
@@ -524,10 +524,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        setPreviousNode(arrayLiteral);
-        if (arrayLiteral.exprs != null) {
-            arrayLiteral.exprs.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        setPreviousNode(listConstructorExpr);
+        if (listConstructorExpr.exprs != null) {
+            listConstructorExpr.exprs.forEach(this::acceptNode);
         }
     }
 
@@ -632,10 +632,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        setPreviousNode(bracedOrTupleExpr);
-        if (bracedOrTupleExpr.expressions != null) {
-            bracedOrTupleExpr.expressions.forEach(this::acceptNode);
+    public void visit(BLangGroupExpr groupExpr) {
+        setPreviousNode(groupExpr);
+        if (groupExpr.expression != null) {
+            this.acceptNode(groupExpr.expression);
         }
     }
 

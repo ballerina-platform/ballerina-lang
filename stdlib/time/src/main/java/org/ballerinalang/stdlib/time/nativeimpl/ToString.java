@@ -18,13 +18,12 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Convert a Time to ISO 8601 formatted string.
@@ -33,10 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "toString",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        functionName = "toString"
 )
 public class ToString extends AbstractTimeFunction {
     @Override
@@ -44,5 +40,9 @@ public class ToString extends AbstractTimeFunction {
 
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         context.setReturnValues(new BString(getDefaultString(timeStruct)));
+    }
+
+    public static String toString(Strand strand, MapValue<String, Object> timeRecord) {
+        return getDefaultString(timeRecord);
     }
 }

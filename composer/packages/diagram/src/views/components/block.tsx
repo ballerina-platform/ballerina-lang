@@ -1,22 +1,29 @@
 
 import { ASTKindChecker, ASTNode, ASTUtil, Block as BlockNode,
-        Function as FunctionNode } from "@ballerina/ast-model";
+        Function as FunctionNode,
+        VisibleEndpoint} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { BlockViewState } from "../../view-model/block";
 import { FunctionViewState, ViewState } from "../../view-model/index";
 import { ReturnViewState } from "../../view-model/return";
 import { BlockDropdown } from "./block-dropdown";
+import { LifeLine } from "./life-line";
 import { Return } from "./return";
 
-export class Block extends React.Component<{ model: BlockNode }, { isHovered: boolean }> {
+export interface BlockNodeProps {
+    model: BlockNode;
+    visibleEndpoints?: VisibleEndpoint[];
+}
+
+export class Block extends React.Component<BlockNodeProps, { isHovered: boolean }> {
 
     public state = {
         isHovered: false
     };
 
     public render() {
-        const { model }  = this.props;
+        const { model, visibleEndpoints }  = this.props;
         const { isHovered } = this.state;
         const statements: React.ReactNode[] = [];
         const viewState: BlockViewState = model.viewState;
@@ -35,8 +42,6 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             const returnViewState: ViewState = ((model.parent as FunctionNode)
                     .viewState as FunctionViewState)
                     .implicitReturn;
-            returnViewState.bBox.x = triggerPosition.x;
-            returnViewState.bBox.y = triggerPosition.y;
             implicitReturn.viewState = returnViewState;
             if (!(implicitReturn.viewState as ReturnViewState).hidden) {
                 additionalComponents.push(<Return model={implicitReturn} />);
@@ -62,6 +67,18 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
                 />
                 {statements}
                 {...additionalComponents}
+                {visibleEndpoints && visibleEndpoints
+                    .filter((element) => element.viewState.visible)
+                    .map((element: VisibleEndpoint) => {
+                        return <LifeLine
+                            title={element.name}
+                            icon="endpoint"
+                            model={element.viewState.bBox}
+                            astModel={element}
+                            activeRange={[y, y + height]}
+                        />;
+                    })
+                }
                 {<BlockDropdown {...dropDownProps} />}
             </g>);
     }

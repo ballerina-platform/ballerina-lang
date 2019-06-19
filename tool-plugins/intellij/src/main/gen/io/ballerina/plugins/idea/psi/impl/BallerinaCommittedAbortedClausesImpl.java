@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCommittedAbortedClausesImpl extends BallerinaCompositeElementImpl implements BallerinaCommittedAbortedClauses {
+public class BallerinaCommittedAbortedClausesImpl extends ASTWrapperPsiElement implements BallerinaCommittedAbortedClauses {
 
   public BallerinaCommittedAbortedClausesImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaCommittedAbortedClausesImpl extends BallerinaCompositeElem
   @Override
   @Nullable
   public BallerinaAbortedClause getAbortedClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAbortedClause.class);
+    return findChildByClass(BallerinaAbortedClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaCommittedClause getCommittedClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCommittedClause.class);
+    return findChildByClass(BallerinaCommittedClause.class);
   }
 
 }

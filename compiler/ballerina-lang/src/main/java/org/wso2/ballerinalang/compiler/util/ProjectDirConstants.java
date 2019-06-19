@@ -30,7 +30,9 @@ public class ProjectDirConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
+    public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_PKG_EXT = ".zip";
+    public static final String BLANG_COMPILED_JAR_EXT = ".jar";
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
@@ -49,9 +51,22 @@ public class ProjectDirConstants {
 
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_HOME_LIB = "lib";
+    public static final String BALLERINA_HOME_BRE = "bre";
+    public static final String USER_DIR = "user.dir";
 
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
 
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
+
+    public static final String NIGHTLY_BUILD = "nightly.build";
+
+    public static final String DS_STORE_FILE = ".DS_Store";
+
+    public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
+
+    public static final String MAIN_CLASS_MANIFEST_ENTRY = "Main-Class";
+
+    public static final String JAVA_MAIN = "main";
+
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlTypeName {
+public class BallerinaXmlTypeNameImpl extends ASTWrapperPsiElement implements BallerinaXmlTypeName {
 
   public BallerinaXmlTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -42,45 +43,9 @@ public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl impl
   }
 
   @Override
-  @Nullable
-  public BallerinaXmlLocalName getXmlLocalName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlLocalName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaXmlNamespaceName getXmlNamespaceName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlNamespaceName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
   @NotNull
   public PsiElement getXml() {
-    return notNullChild(findChildByType(XML));
+    return findNotNullChildByType(XML);
   }
 
 }

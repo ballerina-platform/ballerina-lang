@@ -17,29 +17,21 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.EmptyProto;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -51,9 +43,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -66,27 +56,31 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  * @since 1.0.0
  */
 public class MessageUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
+    private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
-    public static BMap<String, BValue> getHeaderStruct(Resource resource) {
-        if (resource == null || resource.getParamDetails() == null) {
+    public static ObjectValue getHeaderObject() {
+        return BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+    }
+
+    static boolean headersRequired(AttachedFunction function) {
+        if (function == null || function.getParameterType() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
-        BMap<String, BValue> headerStruct = null;
-        for (ParamDetail detail : resource.getParamDetails()) {
-            BType paramType = detail.getVarType();
-            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
+        boolean headersRequired = false;
+        for (BType paramType : function.getParameterType()) {
+            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackage().getName()) &&
                     "Headers".equals(paramType.getName())) {
-                headerStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource),
-                        paramType.getPackagePath(), paramType.getName());
+                headersRequired = true;
                 break;
             }
         }
-        return headerStruct;
+        return headersRequired;
     }
 
     public static long copy(InputStream from, OutputStream to) throws IOException {
@@ -103,19 +97,16 @@ public class MessageUtils {
         return total;
     }
 
-    public static StreamObserver getResponseObserver(BRefType refType) {
+    @SuppressWarnings("unchecked")
+    public static StreamObserver getResponseObserver(ObjectValue refType) {
         Object observerObject = null;
-        if (refType instanceof BMap) {
-            observerObject = ((BMap<String, BValue>) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
+        if (refType instanceof MapValue) {
+            observerObject = ((MapValue<String, Object>) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver) observerObject);
         }
         return null;
-    }
-
-    public static BError getConnectorError(Throwable throwable) {
-        return getConnectorError(BTypes.typeError, throwable);
     }
     
     /**
@@ -123,54 +114,33 @@ public class MessageUtils {
      * Error type is generic ballerina error type. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param errorType this is ballerina generic error type.
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error value.
      */
-    public static BError getConnectorError(BErrorType errorType, Throwable error) {
-        BErrorType errType = Optional.ofNullable(errorType).orElse(BTypes.typeError);
-        BMap<String, BValue> refData = new BMap<>(errType.detailsType);
+    public static ErrorValue getConnectorError(Throwable error) {
         String reason = "{ballerina/grpc}";
+        String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
             reason = reason + statusException.getStatus().getCode().name();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
-                refData.put("message", new BString(statusException.getStatus().getDescription()));
+                message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                refData.put("message", new BString(statusException.getStatus().getCause().getMessage()));
+                message = statusException.getStatus().getCause().getMessage();
             } else {
-                refData.put("message", new BString(UNKNOWN_ERROR));
+                message =  UNKNOWN_ERROR;
             }
         } else {
             if (error.getMessage() == null) {
                 reason = reason + UNKNOWN.name();
-                refData.put("message", new BString(UNKNOWN_ERROR));
+                message =  UNKNOWN_ERROR;
             } else {
                 reason = reason + INTERNAL.name();
-                refData.put("message", new BString(error.getMessage()));
+                message = error.getMessage();
             }
         }
-        return new BError(errorType, reason, refData);
-    }
-    
-    public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getPackageInfo().getProgramFile();
-    }
-    
-    /**
-     * Handles failures in GRPC callable unit callback.
-     *
-     * @param streamObserver observer used the send the error back
-     * @param error          error message struct
-     */
-    static void handleFailure(StreamObserver streamObserver, BError error) {
-        String errorMsg = error.stringValue();
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        if (streamObserver != null) {
-            streamObserver.onError(new Message(new StatusRuntimeException(Status.fromCodeValue(Status
-                    .Code.INTERNAL.value()).withDescription(errorMsg))));
-        }
+        return BallerinaErrors.createError(reason, message);
     }
     
     /**
@@ -224,10 +194,8 @@ public class MessageUtils {
             return MethodDescriptor.MethodType.UNARY;
         } else if (methodDescriptorProto.getServerStreaming()) {
             return MethodDescriptor.MethodType.SERVER_STREAMING;
-        } else if (methodDescriptorProto.getClientStreaming()) {
-            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         } else {
-            return MethodDescriptor.MethodType.UNKNOWN;
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         }
     }
     
@@ -241,14 +209,7 @@ public class MessageUtils {
         if (messageDescriptor == null) {
             return false;
         }
-        List<Descriptors.Descriptor> descriptors = EmptyProto.getDescriptor()
-                .getMessageTypes();
-        for (Descriptors.Descriptor descriptor : descriptors) {
-            if (descriptor.getFullName().equals(messageDescriptor.getFullName())) {
-                return true;
-            }
-        }
-        return false;
+        return GOOGLE_PROTOBUF_EMPTY.equals(messageDescriptor.getFullName());
     }
 
     /** Closes an InputStream, ignoring IOExceptions. */
@@ -269,7 +230,7 @@ public class MessageUtils {
      * @param contentType gRPC content type
      * @return is valid content type
      */
-    public static boolean isGrpcContentType(String contentType) {
+    static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
             return false;
         }
@@ -306,7 +267,7 @@ public class MessageUtils {
         return httpCarbonMessage;
     }
 
-    public static Status httpStatusToGrpcStatus(int httpStatusCode) {
+    static Status httpStatusToGrpcStatus(int httpStatusCode) {
         return httpStatusToGrpcCode(httpStatusCode).toStatus()
                 .withDescription("HTTP status code " + httpStatusCode);
     }

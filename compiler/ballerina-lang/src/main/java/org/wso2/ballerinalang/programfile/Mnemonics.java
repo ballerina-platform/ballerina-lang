@@ -82,9 +82,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RASTORE] = "rastore";
         mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
 
-        mnemonics[InstructionCodes.BIAND] = "biand";
         mnemonics[InstructionCodes.IAND] = "iand";
-        mnemonics[InstructionCodes.BIOR] = "bior";
         mnemonics[InstructionCodes.IOR] = "ior";
 
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
@@ -95,12 +93,9 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
-        mnemonics[InstructionCodes.STAMP] = "stamp";
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
-        mnemonics[InstructionCodes.REASON] = "reason";
-        mnemonics[InstructionCodes.DETAIL] = "detail";
 
         mnemonics[InstructionCodes.MAPSTORE] = "map_store";
         mnemonics[InstructionCodes.JSONSTORE] = "json_store";
@@ -216,7 +211,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.S2ANY] = "s2any";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
 
-        mnemonics[InstructionCodes.TYPE_ASSERTION] = "type_assertion";
+        mnemonics[InstructionCodes.TYPE_CAST] = "type_cast";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
@@ -269,7 +264,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         
         mnemonics[InstructionCodes.FLUSH] = "flush";
-        mnemonics[InstructionCodes.LENGTH] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "new_struct";
@@ -277,15 +271,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWTABLE] = "new_table";
         mnemonics[InstructionCodes.NEWSTREAM] = "new_stream";
 
-        mnemonics[InstructionCodes.CONVERT] = "convert";
-
-        mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.I2BI] = "i2bi";
-        mnemonics[InstructionCodes.BI2I] = "bi2i";
-        mnemonics[InstructionCodes.BIXOR] = "bior";
+        mnemonics[InstructionCodes.F2BI] = "f2bi";
+        mnemonics[InstructionCodes.D2BI] = "d2bi";
         mnemonics[InstructionCodes.IXOR] = "ior";
         mnemonics[InstructionCodes.BACONST] = "baconst";
         mnemonics[InstructionCodes.IURSHIFT] = "iurshift";

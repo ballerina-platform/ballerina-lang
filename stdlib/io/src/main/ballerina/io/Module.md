@@ -68,16 +68,15 @@ if (writeResult is error) {
 Ballerina also supports I/O for delimited records.
 
 ```ballerina
-// Creating a `ReadableTextRecordChannel` from the `ReadableCharacterChannel`.
-// Records are separated using a new line, and
-// fields of a record are separated using a comma.
+// Create a `ReadableTextRecordChannel` from the `ReadableCharacterChannel`.
+// Records are separated using a new line, and fields of a record are separated using a comma.
 var readableRecordsChannel = new io:ReadableTextRecordChannel(readableCharChannel, fs = ",", rs = "\n");
 
-// Reading a few records.
+// Read few records.
 while (readableRecordsChannel.hasNext()) {
     var result = readableRecordsChannel.getNext();
     if (result is string[]) {
-        println(record); // Retrieved a record.
+        io:println(result); // Retrieved a record.
     } else {
         return result; // An IO error occurred when reading the records.
     }
@@ -87,7 +86,7 @@ while (readableRecordsChannel.hasNext()) {
 A `.CSV` file can be read and written directly into a `CSVChannel`, as shown in this code snippet.
 
 ```ballerina
-// Creating a `ReadableCSVChannel` from the `ReadableCharacterChannel`.
+// Create a `ReadableCSVChannel` from the `ReadableCharacterChannel`.
 var readableCSVChannel = new io:ReadableCSVChannel(readableCharChannel);
 ```
 
@@ -130,7 +129,7 @@ public type Person record {
     boolean isMarried;
 };
 
-//Serialize record into binary
+// Serialize record into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
     var length = p.name.toByteArray("UTF-8").length();
@@ -142,50 +141,49 @@ function serialize(Person p, io:WritableByteChannel byteChannel) {
     var closeResult = dc.close();
 }
 
-//Deserialize record into binary
+// Deserialize record into binary.
 function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     Person person = {};
     int nameLength = 0;
     string nameValue;
     io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
-    //Read 32 bit singed integer
+    // Read 32 bit signed integer.
     var int32Result = dc.readInt32();
     if (int32Result is int) {
         nameLength = int32Result;
     } else if (int32Result is error) {
         log:printError("Error occurred while reading name length", err = int32Result);
     }
-    //Read UTF-8 encoded string represented through specified amount of bytes
+    // Read UTF-8 encoded string represented through specified amount of bytes.
     var strResult = dc.readString(nameLength, "UTF-8");
     if (strResult is string) {
         person.name = strResult;
     } else if (strResult is error) {
         log:printError("Error occurred while reading name", err = strResult);
     }
-    //Read 16 bit signed integer
+    // Read 16 bit signed integer.
     var int16Result = dc.readInt16();
     if (int16Result is int) {
         person.age = int16Result;
     } else if (int16Result is error) {
         log:printError("Error occurred while reading age", err = int16Result);
     }
-    //Read 64 bit signed float
+    // Read 64 bit signed float.
     var float64Result = dc.readFloat64();
     if (float64Result is float) {
         person.income = float64Result;
     } else if (float64Result is error) {
         log:printError("Error occurred while reading income", err = float64Result);
     }
-    //Read boolean
+    // Read boolean.
     var boolResult = dc.readBool();
     if (boolResult is boolean) {
         person.isMarried = boolResult;
     } else if (boolResult is error) {
         log:printError("Error occurred while reading marital status", err = boolResult);
     }
-    //Finally close the data channel
+    // Finally close the data channel.
     var closeResult = dc.close();
     return person;
 }
 ```
-

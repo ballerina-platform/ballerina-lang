@@ -26,7 +26,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/okWithBody"
     }
     resource function sendOKWithBody(http:Caller caller, http:Request req) {
-        _ = caller->ok("OK Response");
+       checkpanic caller->ok("OK Response");
     }
 
     @http:ResourceConfig {
@@ -34,7 +34,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/okWithoutBody"
     }
     resource function sendOKWithoutBody(http:Caller caller, http:Request req) {
-        _ = caller->ok(());
+        checkpanic caller->ok(());
     }
 
     @http:ResourceConfig {
@@ -42,7 +42,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/createdWithBody"
     }
     resource function sendCreatedWithBody(http:Caller caller, http:Request req) {
-        _ = caller->created("/newResourceURI", message = "Created Response");
+        checkpanic caller->created("/newResourceURI", message = "Created Response");
     }
 
     @http:ResourceConfig {
@@ -50,7 +50,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/createdWithoutBody"
     }
     resource function sendCreatedWithoutBody(http:Caller caller, http:Request req) {
-        _ = caller->created("/newResourceURI");
+        checkpanic caller->created("/newResourceURI");
     }
 
     @http:ResourceConfig {
@@ -58,7 +58,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/createdWithEmptyURI"
     }
     resource function sendCreatedWithEmptyURI(http:Caller caller, http:Request req) {
-        _ = caller->created("");
+        checkpanic caller->created("");
     }
 
     @http:ResourceConfig {
@@ -66,7 +66,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/acceptedWithBody"
     }
     resource function sendAcceptedWithBody(http:Caller caller, http:Request req) {
-        _ = caller->accepted(message = { msg: "accepted response" });
+        checkpanic caller->accepted(message = { msg: "accepted response" });
     }
 
     @http:ResourceConfig {
@@ -74,6 +74,6 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/acceptedWithoutBody"
     }
     resource function sendAcceptedWithoutBody(http:Caller caller, http:Request req) {
-        _ = caller->accepted();
+        checkpanic caller->accepted();
     }
 }

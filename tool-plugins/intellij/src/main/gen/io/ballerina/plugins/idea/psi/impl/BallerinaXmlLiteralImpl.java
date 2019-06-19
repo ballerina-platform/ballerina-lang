@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaXmlLiteral {
+public class BallerinaXmlLiteralImpl extends ASTWrapperPsiElement implements BallerinaXmlLiteral {
 
   public BallerinaXmlLiteralImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaXmlLiteralImpl extends BallerinaCompositeElementImpl imple
   @Override
   @Nullable
   public BallerinaXmlItem getXmlItem() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlItem.class);
+    return findChildByClass(BallerinaXmlItem.class);
   }
 
   @Override
@@ -56,7 +57,7 @@ public class BallerinaXmlLiteralImpl extends BallerinaCompositeElementImpl imple
   @Override
   @NotNull
   public PsiElement getXmlLiteralStart() {
-    return notNullChild(findChildByType(XML_LITERAL_START));
+    return findNotNullChildByType(XML_LITERAL_START);
   }
 
 }

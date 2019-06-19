@@ -1,0 +1,26 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 3
+    },
+    "end": {
+      "line": 3,
+      "character": 3
+    }
+  },
+  "expected": {
+    "title": "Ignore Return Value",
+    "command": "IGNORE_RETURN",
+    "arguments": [
+      {
+        "argumentK":"node.line",
+        "argumentV":"3"
+      },
+      {
+        "argumentK":"node.column",
+        "argumentV":"3"
+      }
+    ]
+  }
+}

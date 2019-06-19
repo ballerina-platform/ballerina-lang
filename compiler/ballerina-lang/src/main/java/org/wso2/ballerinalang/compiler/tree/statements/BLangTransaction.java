@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
-    public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
+    public Set<ClosureVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
 
     public BLangTransaction() {
     }

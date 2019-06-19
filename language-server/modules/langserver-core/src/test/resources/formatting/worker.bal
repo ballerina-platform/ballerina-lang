@@ -1,7 +1,7 @@
 import ballerina/http;
 
-function main(string... args) {worker default {int a = 0;}
+function main(string... args) {worker worker1 {int a = 0;}
 
-worker worker1 {
+worker worker2 {
              int b = 0;}
 }

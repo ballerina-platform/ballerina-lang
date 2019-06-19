@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? annotationAttachment* definition)*
         EOF
     ;
 
@@ -19,7 +19,7 @@ packageName
     ;
 
 version
-    :   (VERSION Identifier)
+    :   VERSION Identifier
     ;
 
 importDeclaration
@@ -53,15 +53,16 @@ serviceBodyMember
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
+     ASSIGN EXTERNAL SEMICOLON)
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    :   FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
     ;
 
 arrowFunction
@@ -78,7 +79,7 @@ callableUnitSignature
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
+    :   PUBLIC? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
@@ -90,7 +91,7 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -99,7 +100,6 @@ fieldDefinition
 
 recordRestFieldDefinition
     :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
-    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -109,25 +109,25 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
+    :   PUBLIC? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
     ;
 
 constantDefinition
-    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
 globalVariableDefinition
-    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   PUBLIC? FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType
-    : CHANNEL (LT typeName GT)
+    : CHANNEL LT typeName GT
     ;
 
 attachmentPoint
@@ -162,17 +162,35 @@ finiteTypeUnit
 
 typeName
     :   simpleTypeName                                                                          # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET (integerLiteral | sealedLiteral)? RIGHT_BRACKET)+                # arrayTypeNameLabel
+    |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   ABSTRACT? CLIENT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                              # objectTypeNameLabel
-    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
+    |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
+    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
     ;
 
-recordFieldDefinitionList
-    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
+inclusiveRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* RIGHT_BRACE
+    ;
+
+tupleTypeDescriptor
+    : LEFT_BRACKET typeName (COMMA typeName)* (COMMA tupleRestDescriptor)? RIGHT_BRACKET
+    ;
+
+tupleRestDescriptor
+    : typeName ELLIPSIS
+    ;
+
+exclusiveRecordTypeDescriptor
+    :   RECORD LEFT_CLOSED_RECORD_DELIMITER fieldDescriptor* recordRestFieldDefinition? RIGHT_CLOSED_RECORD_DELIMITER
+    ;
+
+fieldDescriptor
+    :   fieldDefinition
+    |   typeReference
     ;
 
 // Temporary production rule name
@@ -182,7 +200,7 @@ simpleTypeName
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
-    |   emptyTupleLiteral // nil type name ()
+    |   nilLiteral
     ;
 
 referenceTypeName
@@ -204,12 +222,12 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)
-    |   TYPE_FUTURE (LT typeName GT)
-    |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
+    :   TYPE_MAP LT typeName GT
+    |   TYPE_FUTURE LT typeName GT
+    |   TYPE_XML
     |   TYPE_JSON
-    |   TYPE_TABLE (LT typeName GT)
-    |   TYPE_STREAM (LT typeName GT)
+    |   TYPE_TABLE LT typeName GT
+    |   TYPE_STREAM LT typeName GT
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -242,7 +260,7 @@ statement
     :   errorDestructuringStatement
     |   variableDefinitionStatement
     |   assignmentStatement
-    |   tupleDestructuringStatement
+    |   listDestructuringStatement
     |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   ifElseStatement
@@ -279,13 +297,9 @@ recordLiteral
 staticMatchLiterals
     :   simpleLiteral                                                       # staticMatchSimpleLiteral
     |   recordLiteral                                                       # staticMatchRecordLiteral
-    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   listConstructorExpr                                                 # staticMatchListLiteral
     |   Identifier                                                          # staticMatchIdentifierLiteral
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
-    ;
-
- tupleLiteral
-    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
 
 recordKeyValue
@@ -322,7 +336,7 @@ tableData
     :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
-arrayLiteral
+listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
@@ -330,8 +344,8 @@ assignmentStatement
     :   variableReference ASSIGN expression SEMICOLON
     ;
 
-tupleDestructuringStatement
-    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
+listDestructuringStatement
+    :   listRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordDestructuringStatement
@@ -364,7 +378,7 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :  ifClause elseIfClause* elseClause?
+    :   ifClause elseIfClause* elseClause?
     ;
 
 ifClause
@@ -394,7 +408,7 @@ bindingPattern
     ;
 
 structuredBindingPattern
-    :   tupleBindingPattern
+    :   listBindingPattern
     |   recordBindingPattern
     |   errorBindingPattern
     ;
@@ -403,12 +417,21 @@ errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 
-tupleBindingPattern
-    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+listBindingPattern
+    :   LEFT_BRACKET bindingPattern (COMMA bindingPattern)+ RIGHT_BRACKET
     ;
 
 recordBindingPattern
+    :   openRecordBindingPattern
+    |   closedRecordBindingPattern
+    ;
+
+openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordBindingPattern
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
@@ -422,7 +445,6 @@ fieldBindingPattern
 
 restBindingPattern
     :   ELLIPSIS Identifier
-    |   sealedLiteral
     ;
 
 bindingRefPattern
@@ -432,16 +454,26 @@ bindingRefPattern
     ;
 
 structuredRefBindingPattern
-    :   tupleRefBindingPattern
+    :   listRefBindingPattern
     |   recordRefBindingPattern
     ;
 
-tupleRefBindingPattern
-    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+// TODO : Add rest binding pattern to comply with 2019r1 spec.
+listRefBindingPattern
+    :   LEFT_BRACKET bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_BRACKET
     ;
 
 recordRefBindingPattern
+    :   openRecordRefBindingPattern
+    |   closedRecordRefBindingPattern
+    ;
+
+openRecordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordRefBindingPattern
+    :   LEFT_CLOSED_RECORD_DELIMITER fieldRefBindingPattern (COMMA fieldRefBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 errorRefBindingPattern
@@ -467,7 +499,7 @@ foreachStatement
     ;
 
 intRangeExpression
-    :   (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    :   (LEFT_BRACKET | LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET | RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -522,7 +554,16 @@ returnStatement
     ;
 
 workerSendAsyncStatement
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON
+    :   expression RARROW peerWorker (COMMA expression)? SEMICOLON
+    ;
+
+peerWorker
+    : workerName
+    | DEFAULT
+    ;
+
+workerName
+    : Identifier
     ;
 
 flushWorker
@@ -596,7 +637,7 @@ transactionStatement
     ;
 
 committedAbortedClauses
-    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
+    :   (committedClause? abortedClause?) | (abortedClause? committedClause?)
     ;
 
 transactionClause
@@ -649,7 +690,7 @@ namespaceDeclaration
 
 expression
     :   simpleLiteral                                                       # simpleLiteralExpression
-    |   arrayLiteral                                                        # arrayLiteralExpression
+    |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
@@ -662,10 +703,11 @@ expression
     |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression  # unaryExpression
-    |   tupleLiteral                                                        # bracedOrTupleExpression
-    |	CHECK expression										            # checkedExpression
+    |   LT typeName GT expression                                           # typeConversionExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT | TYPEOF) expression    # unaryExpression
+    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
+    |   CHECK expression                                                    # checkedExpression
+    |   CHECKPANIC expression                                               # checkPanickedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -678,13 +720,18 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
+    |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
+    |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    ;
+
+constantExpression
+    :   simpleLiteral
+    |   recordLiteral
     ;
 
 typeDescExpr
@@ -747,8 +794,7 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
-    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
+    :   annotationAttachment* typeName Identifier
     ;
 
 defaultableParameter
@@ -765,12 +811,11 @@ formalParameterList
     ;
 
 simpleLiteral
-    :   (SUB)? integerLiteral
-    |   (SUB)? floatingPointLiteral
+    :   SUB? integerLiteral
+    |   SUB? floatingPointLiteral
     |   QuotedStringLiteral
-    |   SymbolicStringLiteral
     |   BooleanLiteral
-    |   emptyTupleLiteral
+    |   nilLiteral
     |   blobLiteral
     |   NullLiteral
     ;
@@ -786,7 +831,7 @@ integerLiteral
     |   HexIntegerLiteral
     ;
 
-emptyTupleLiteral
+nilLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;
 
@@ -822,7 +867,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
     ;
 
 element
@@ -843,14 +888,14 @@ emptyTag
     ;
 
 procIns
-    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
+    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression RIGHT_BRACE)* XMLPIText
     ;
 
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
 text
-    :   (XMLTemplateText expression ExpressionEnd)+ XMLText?
+    :   (XMLTemplateText expression RIGHT_BRACE)+ XMLText?
     |   XMLText
     ;
 
@@ -860,16 +905,15 @@ xmlQuotedString
     ;
 
 xmlSingleQuotedString
-    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression ExpressionEnd)* XMLSingleQuotedString? SINGLE_QUOTE_END
+    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression RIGHT_BRACE)* XMLSingleQuotedString? SINGLE_QUOTE_END
     ;
 
 xmlDoubleQuotedString
-    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression ExpressionEnd)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
+    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression RIGHT_BRACE)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
     ;
 
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression ExpressionEnd
     ;
 
 stringTemplateLiteral
@@ -877,14 +921,14 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
+    :   (StringTemplateExpressionStart expression RIGHT_BRACE)+ StringTemplateText?
     |   StringTemplateText
     ;
 
 
 anyIdentifierName
-    : Identifier
-    | reservedWord
+    :   Identifier
+    |   reservedWord
     ;
 
 reservedWord
@@ -938,8 +982,8 @@ limitClause
 
 selectClause
     :   SELECT (MUL| selectExpressionList )
-            groupByClause?
-            havingClause?
+        groupByClause?
+        havingClause?
     ;
 
 selectExpressionList
@@ -972,7 +1016,7 @@ joinStreamingInput
     ;
 
 outputRateLimit
-    :   OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
+    :   OUTPUT (ALL | LAST | FIRST) EVERY (DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS)
     |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
     ;
 
@@ -1015,35 +1059,6 @@ timeScale
     |   DAY | DAYS
     |   MONTH | MONTHS
     |   YEAR | YEARS
-    ;
-
-// Deprecated parsing.
-
-deprecatedAttachment
-    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
-    ;
-
-deprecatedText
-    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    ;
-
-deprecatedTemplateInlineCode
-    :   singleBackTickDeprecatedInlineCode
-    |   doubleBackTickDeprecatedInlineCode
-    |   tripleBackTickDeprecatedInlineCode
-    ;
-
-singleBackTickDeprecatedInlineCode
-    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDeprecatedInlineCode
-    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDeprecatedInlineCode
-    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 // Markdown documentation

@@ -23,7 +23,7 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.EmbeddedExecutorError;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -64,14 +64,15 @@ import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 public class PushUtils {
 
     private static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
-    private static final PrintStream SYS_ERR = System.err;
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.out;
+
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;
 
+    private static final PrintStream SYS_ERR = System.err;
+    private static final PrintStream SYS_OUT = System.out;
     /**
      * Push/Uploads modules to the central repository.
      *
@@ -80,8 +81,9 @@ public class PushUtils {
      * @param installToRepo repo the module should be pushed to central or the home repository
      * @param enableExperimentalFeatures Flag indicating to enable the experimental feature
      * @param noBuild do not build sources before pushing
+     * @return status of the module pushed
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild,
+    public static boolean pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild,
                                     boolean enableExperimentalFeatures) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Check if the Ballerina.toml exists
@@ -131,7 +133,7 @@ public class PushUtils {
         // Always build if the flag is not given
         if (!noBuild) {
             BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false,
-                    enableExperimentalFeatures);
+                    enableExperimentalFeatures, false, false);
         } else if (Files.notExists(pkgPathFromPrjtDir)) {
             // If --no-build is given, first check if the module artifact exists. If it does not exist prompt the user
             // to run "ballerina push" without the --no-build flag
@@ -162,18 +164,24 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.executeFunction("packaging_push/packaging_push.balx", BLangConstants.MAIN_FUNCTION_NAME,
-                                     accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL,
-                                     authors, keywords, license, resourcePath, pkgPathFromPrjtDir.toString(), msg,
-                                     ballerinaVersion, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                                     proxy.getPassword(), baloVersionOfPkg);
-
+            Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_push/packaging_push.balx",
+                    accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL, authors, keywords,
+                    license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
+            if (execute.isPresent()) {
+                String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
+                if (!errorMessage.trim().equals("")) {
+                    SYS_ERR.println(errorMessage);
+                    return false;
+                }
+            }
         } else {
             if (!installToRepo.equals("home")) {
                 throw createLauncherException("Unknown repository provided to push the module");
             }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
         }
+        return true;
     }
 
     /**
@@ -265,7 +273,7 @@ public class PushUtils {
             try {
                 Files.createDirectories(targetDirectoryPath);
                 Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
+                SYS_OUT.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
                                           packageID.version.getValue() + " [project repo -> home repo]");
             } catch (IOException e) {
                 throw createLauncherException("Error occurred when creating directories in the home repository");
@@ -300,6 +308,12 @@ public class PushUtils {
      */
     private static String getAccessTokenOfCLI() {
         settings = TomlParserUtils.readSettings();
+        // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
+        // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
+        String tokenAsEnvVar = System.getenv(ProjectDirConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
+        if (tokenAsEnvVar != null) {
+            return tokenAsEnvVar;
+        }
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
@@ -371,8 +385,9 @@ public class PushUtils {
      * @param installToRepo repo the module should be pushed to central or the home repository
      * @param noBuild do not build sources before pushing
      * @param enableExperimentalFeatures Flag indicating to enable the experimental feature
+     * @return status of the modules pushed
      */
-    public static void pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild,
+    public static boolean pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild,
                                        boolean enableExperimentalFeatures) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
@@ -384,12 +399,18 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(
-                    path -> pushPackages(path, sourceRoot, installToRepo, noBuild, enableExperimentalFeatures));
+            for (String path : fileList) {
+                boolean statusOfModulePush = pushPackages(path, sourceRoot, installToRepo, noBuild,
+                        enableExperimentalFeatures);
+                if (!statusOfModulePush) {
+                    return false;
+                }
+            }
         } catch (IOException ex) {
             throw createLauncherException("error occurred while pushing modules from " + sourceRootPath.toString()
                                                      + " " + ex.getMessage());
         }
+        return true;
     }
 
     /**

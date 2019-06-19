@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -66,6 +66,16 @@
                 </excludes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <properties>
@@ -73,8 +83,6 @@
         <maven.checkstyleplugin.excludes>
             **org/wso2/ballerinalang/compiler/parser/antlr4/*,
             **/util/parser/*,
-            **/${native.constructs.provider.class}.java,
-            **/${ballerina.package.repository.provider.class}.java,
             **/generated/**
         </maven.checkstyleplugin.excludes>
     </properties>

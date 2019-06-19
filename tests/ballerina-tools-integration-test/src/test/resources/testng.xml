@@ -20,19 +20,22 @@
 <suite name="Ballerina-Test-Suite">
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
-        <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+        <!--<listener class-name="org.ballerinalang.test.listener.TestNGListener"/>-->
     </listeners>
 
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ExecuteTestsNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.ImportModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleBuildTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleRunTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleInitTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.RunTopLevelBalInProjectTestCase"/>
@@ -54,9 +57,16 @@
         </packages>
     </test>
 
-    <test name="ballerina-swagger-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-openapi-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.swagger.*"/>
+            <package name="org.ballerinalang.test.openapi.*"/>
+        </packages>
+    </test>
+
+    <test name="jballerina-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.jvm.*"/>
         </packages>
     </test>
 </suite>

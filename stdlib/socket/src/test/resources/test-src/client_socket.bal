@@ -18,15 +18,15 @@ import ballerina/io;
 import ballerina/socket;
 
 function oneWayWrite(string msg) {
-    socket:Client socketClient = new({host: "localhost", port: 47826});
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
     byte[] msgByteArray = msg.toByteArray("utf-8");
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         panic writeResult;
     }
-    var closeResult =  socketClient->close();
+    var closeResult = socketClient->close();
     if (closeResult is error) {
         io:println(closeResult.detail().message);
     } else {
@@ -35,12 +35,12 @@ function oneWayWrite(string msg) {
 }
 
 function shutdownWrite(string firstMsg, string secondMsg) returns error? {
-    socket:Client socketClient = new({host: "localhost", port: 47826});
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
     byte[] msgByteArray = firstMsg.toByteArray("utf-8");
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         panic writeResult;
     }
     var shutdownResult = socketClient->shutdownWrite();
@@ -51,7 +51,7 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
-    } else if (writeResult is error) {
+    } else {
         var closeResult = socketClient->close();
         if (closeResult is error) {
             io:println(closeResult.detail().message);
@@ -61,4 +61,60 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
         return writeResult;
     }
     return;
+}
+
+function echo(string msg) returns string {
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
+    string returnStr = "";
+    byte[] msgByteArray = msg.toByteArray("utf-8");
+    var writeResult = socketClient->write(msgByteArray);
+    if (writeResult is int) {
+        io:println("Number of bytes written: ", writeResult);
+    } else {
+        io:println("echo panic", writeResult);
+        panic writeResult;
+    }
+    var result = socketClient->read();
+    if (result is (byte[], int)) {
+        var (content, length) = result;
+        if (length > 0) {
+            var str = getString(content);
+            if (str is string) {
+                returnStr = untaint str;
+            } else {
+                io:println(str.detail().message);
+            }
+            var closeResult = socketClient->close();
+            if (closeResult is error) {
+                io:println(closeResult.detail().message);
+            } else {
+                io:println("Client connection closed successfully.");
+            }
+        } else {
+            io:println("Client close: ", socketClient.remotePort);
+        }
+    } else {
+        io:println(result);
+    }
+    return returnStr;
+}
+
+function getString(byte[] content) returns string|error {
+    io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+    return characterChannel.read(50);
+}
+
+function invalidReadParam() returns (byte[], int)|error {
+    socket:Client socketClient = new({ host: "localhost", port: 47826 });
+    return trap socketClient->read(length = 0);
+}
+
+function invalidAddress() returns error? {
+    error? result = trap createClient();
+    return result;
+}
+
+function createClient() {
+    socket:Client socketClient = new({ host: "localhost", port: 43434 });
 }

@@ -20,9 +20,9 @@ package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
+import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 
 /**
@@ -32,9 +32,9 @@ import org.ballerinalang.net.grpc.Status;
  */
 public class UnaryServerCallHandler extends ServerCallHandler {
 
-    private Resource resource;
+    private ServiceResource resource;
 
-    public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
+    public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, ServiceResource resource) {
         super(methodDescriptor);
         this.resource = resource;
     }
@@ -94,7 +94,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
             // Additional logic when closing the stream at server side.
         }
 
-        public void invoke(Message request, ServerCallStreamObserver responseObserver) {
+        void invoke(Message request, ServerCallStreamObserver responseObserver) {
             onMessageInvoke(resource, request, responseObserver);
         }
     }

@@ -19,19 +19,17 @@
 package org.ballerinalang.stdlib.auth;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,31 +43,26 @@ public class ConfigAuthProviderTest {
 
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
-    private Path secretCopyPath;
+    private Path secretCopyFilePath;
 
     @BeforeClass
     public void setup() throws IOException {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", BALLERINA_CONF);
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
         String secretFile = "secret.txt";
-        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
-        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", secretFile);
-        Files.deleteIfExists(secretCopyPath);
-        copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", secretFile);
+        String secretCopyFile = "secret-copy.txt";
+        secretCopyFilePath = Paths.get(resourceRoot, "datafiles", secretCopyFile);
+        copySecretFile(secretFilePath.toString(), secretCopyFilePath.toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyPath.toString()),
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyFilePath.toString()),
                 ballerinaConfPath.toString(), null);
-    }
-
-    private void copySecretFile(String from, String to) throws IOException {
-        Files.copy(Paths.get(from), Paths.get(to));
     }
 
     @Test(description = "Test case for creating file based userstore")
@@ -82,43 +75,99 @@ public class ConfigAuthProviderTest {
     @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingUser");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for authenticating with invalid password")
     public void testAuthenticationOfNonExistingPassword() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationOfNonExistingPassword");
-        Assert.assertNotNull(returns);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        assertFailureOfResults(returns);
     }
 
     @Test(description = "Test case for successful authentication")
     public void testAuthentication() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthentication");
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        assertSuccessOfResults(returns);
     }
 
-    @Test(description = "Test case for reading groups of non-existing user")
-    public void testReadScopesOfNonExistingUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 0);
+    @Test(description = "Test case for unsuccessful authentication when username is empty")
+    public void testAuthenticationWithEmptyUsername() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsername");
+        assertFailureOfResults(returns);
     }
 
-    @Test(description = "Test case for reading groups of a user")
-    public void testReadScopesOfUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
-        Assert.assertNotNull(returns);
-        BValueArray groups = ((BValueArray) returns[0]);
-        Assert.assertEquals(groups.size(), 1);
+    @Test(description = "Test case for unsuccessful authentication when password is empty")
+    public void testAuthenticationWithEmptyPassword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPassword");
+        assertFailureOfResults(returns);
+    }
 
-        Assert.assertEquals(groups.getString(0), "scope1");
+    @Test(description = "Test case for unsuccessful authentication when password is empty and username is invalid")
+    public void testAuthenticationWithEmptyPasswordAndInvalidUsername() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPasswordAndInvalidUsername");
+        assertFailureOfResults(returns);
+    }
+
+    @Test(description = "Test case for unsuccessful authentication when username and password are empty")
+    public void testAuthenticationWithEmptyUsernameAndEmptyPassword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsernameAndEmptyPassword");
+        assertFailureOfResults(returns);
+    }
+
+    @Test(description = "Test case for successful authentication with sha-256 hashed password")
+    public void testAuthenticationSha256() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha256");
+        assertSuccessOfResults(returns);
+    }
+
+    @Test(description = "Test case for successful authentication with sha-384 hashed password")
+    public void testAuthenticationSha384() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha384");
+        assertSuccessOfResults(returns);
+    }
+
+    @Test(description = "Test case for successful authentication with sha-512 hashed password")
+    public void testAuthenticationSha512() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512");
+        assertSuccessOfResults(returns);
+    }
+
+    @Test(description = "Test case for successful authentication with plain text password")
+    public void testAuthenticationPlain() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlain");
+        assertSuccessOfResults(returns);
+    }
+
+    @Test(description = "Test case for unsuccessful authentication with sha-512 hashed password, using invalid " +
+            "password")
+    public void testAuthenticationSha512Negative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512Negative");
+        assertFailureOfResults(returns);
+    }
+
+    @Test(description = "Test case for unsuccessful authentication with plain text password, using invalid password")
+    public void testAuthenticationPlainNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlainNegative");
+        assertFailureOfResults(returns);
     }
 
     @AfterClass
     public void tearDown() throws IOException {
-        Files.deleteIfExists(secretCopyPath);
+        Files.deleteIfExists(secretCopyFilePath);
+    }
+
+    private void assertSuccessOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void assertFailureOfResults(BValue[] returns) {
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(returns[0] instanceof BBoolean && ((BBoolean) returns[0]).booleanValue());
+    }
+
+    private void copySecretFile(String from, String to) throws IOException {
+        Files.deleteIfExists(Paths.get(to));
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 }

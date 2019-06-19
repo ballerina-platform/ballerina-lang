@@ -23,7 +23,7 @@ import { Header } from "semantic-ui-react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../context/open-api-context";
 
-import InlineEdit from "../utils/inline-edit";
+import InlineEdit from "../utils/inline-edit/inline-edit";
 import OpenApiContact from "./contact";
 import OpenApiLicense from "./license";
 
@@ -38,6 +38,7 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
 
     public render() {
         const { info } = this.props;
+
         return(
             <OpenApiContextConsumer>
                 {(context: OpenApiContext | null) => {
@@ -48,32 +49,30 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                 <Header.Subheader>
                                     <InlineEdit
                                         changeAttribute={{key: "info.version", changeValue: ""}}
-                                        text={info.version}
+                                        editableObject={info.version}
                                         changeModel={context!.openApiJson}
-                                        placeholderText=" + Description"
-                                        onInlineValueChange={context!.onInlineValueChange}
+                                        paragraph
+                                        placeholderText=" + Version"
+                                        onValueChange={context!.onInlineValueChange}
                                     />
                                 </Header.Subheader>
                             </Header>
                             <InlineEdit
                                 changeAttribute={{key: "info.description", changeValue: ""}}
-                                text={info.description}
+                                editableObject={info.description ? info.description : ""}
                                 isMarkdown
-                                isParagraph
+                                paragraph
                                 changeModel={context!.openApiJson}
                                 placeholderText="+ Description"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                             <InlineEdit
-                                text={{
-                                    link: info.termsOfService,
-                                    type: "tos",
-                                    urlText: "Terms of service"
-                                }}
+                                editableObject={info.termsOfService ? info.termsOfService : ""}
+                                isTermsOfService
                                 changeAttribute={{key: "info.termsOfService", changeValue: ""}}
                                 changeModel={context!.openApiJson}
                                 placeholderText="+ Terms of service link"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                             <OpenApiContact contact={info.contact} />
                             <OpenApiLicense license={info.license} />

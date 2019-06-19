@@ -24,8 +24,8 @@ const string EMPTY_STRING = "";
 
 const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
 const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
-final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
+final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, defaultValue = 9797);
+final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, defaultValue = "0.0.0.0");
 
 const string EXPIRY_TAG = "timeWindow";
 const string PERCENTILE_TAG = "quantile";
@@ -48,10 +48,11 @@ service PrometheusReporter on prometheusListener {
         produces: ["application/text"]
     }
     resource function getMetrics(http:Caller caller, http:Request req) {
-        observe:Metric[] metrics = observe:getAllMetrics();
+        observe:Metric?[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
-        foreach var metric in metrics {
-            string  qualifiedMetricName = metric.name.replaceAll("/", "_");
+        foreach var m in metrics {
+            observe:Metric metric = <observe:Metric> m;
+            string  qualifiedMetricName = metric.name.replaceAll("/", "_").replaceAll("\\.", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -63,7 +64,7 @@ service PrometheusReporter on prometheusListener {
                     payload += "\n";
                 } else {
                     foreach var aSnapshot in summaries {
-                        tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
+                        tags[EXPIRY_TAG] = string.convert(aSnapshot.timeWindow);
                         payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName + " for window of "
                                                     + aSnapshot.timeWindow);
                         payload += generateMetricInfo(qualifiedMetricName, METRIC_TYPE_SUMMARY);
@@ -73,7 +74,7 @@ service PrometheusReporter on prometheusListener {
                         payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
                         aSnapshot.stdDev);
                         foreach var percentileValue in aSnapshot.percentileValues  {
-                            tags[PERCENTILE_TAG] = <string>percentileValue.percentile;
+                            tags[PERCENTILE_TAG] = string.convert(percentileValue.percentile);
                             payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
                         }
                         _ = tags.remove(EXPIRY_TAG);
@@ -84,7 +85,7 @@ service PrometheusReporter on prometheusListener {
         }
         http:Response res = new;
         res.setPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -112,9 +113,9 @@ function generateMetricHelp(string name, string description) returns string {
 function generateMetric(string name, map<string>? labels, int|float value) returns string {
     string strValue = "";
     if (value is int) {
-        strValue = (<string>value) + ".0";
-    } else if (value is float) {
-        strValue = <string>value;
+        strValue = (string.convert(value)) + ".0";
+    } else {
+        strValue = string.convert(value);
     }
 
     if (labels is map<string>) {

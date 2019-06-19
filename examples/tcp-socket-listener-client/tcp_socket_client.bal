@@ -24,16 +24,28 @@ service ClientService = service {
     }
 
     // This is invoked when the server sends any content.
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
-        io:ReadableCharacterChannel characterChannel =
-                        new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-        var str = characterChannel.read(25);
-        if (str is string) {
-            io:println(untaint str);
+    resource function onReadReady(socket:Caller caller) {
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                io:ReadableByteChannel byteChannel =
+                    io:createReadableChannel(content);
+                io:ReadableCharacterChannel characterChannel =
+                    new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+                var str = characterChannel.read(25);
+                if (str is string) {
+                    io:println(untaint str);
+                } else {
+                    io:println("Error while reading characters ", str);
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
         } else {
-            io:println(str);
+            io:println(result);
         }
+
         // Close the connection between the server and the client.
         var closeResult = caller->close();
         if (closeResult is error) {
@@ -43,13 +55,8 @@ service ClientService = service {
         }
     }
 
-    // This is invoked once the connection is closed.
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave from: ", caller.remotePort);
-    }
-
     // This resource is invoked for the error situation
-    // if it happens during the `onConnect`, `onReadReady`, and `onClose` functions.
+    // if it happens during the `onConnect` and `onReadReady` functions.
     resource function onError(socket:Caller caller, error err) {
         io:println(err);
     }

@@ -19,13 +19,15 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Checkbox, Form, Header, Icon, Select } from "semantic-ui-react";
+import { Button, Checkbox, Form, Select } from "semantic-ui-react";
 
 export interface OpenApiAddParameterProps {
     openApiJson: Swagger.OpenAPIObject;
     onAddParameter: (parameter: Swagger.ParameterObject) => void;
     operation: string;
     resourcePath: string;
+    index: number;
+    onClose: (index: number) => void;
 }
 
 export interface OpenApiAddParameterState {
@@ -74,13 +76,22 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
 
     public render() {
         const { parameterIn, parameterType } = this.state;
-        const { onAddParameter } = this.props;
+        const { onAddParameter, onClose, index } = this.props;
 
         return (
             <Form size="mini" className="add-operation">
                 <div className="form-box">
-                    <Header floated="left" as="h3">Add Parameter</Header>
-                    <Icon circular className="fw fw-delete" />
+                    <Button
+                        size="mini"
+                        floated="right"
+                        className="btn-close"
+                        compact
+                        circular
+                        onClick={() => {
+                        onClose(index);
+                    }}>
+                        <i className="fw fw-close"></i>
+                    </Button>
                 </div>
                 <Form.Field>
                     <label>Name</label>
@@ -149,6 +160,7 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
                 </Form.Field>
                 <Button size="mini" onClick={() => {
                     onAddParameter(this.state.parameterObj);
+                    onClose(index);
                 }}>Save</Button>
             </Form>
         );

@@ -19,12 +19,11 @@ package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -32,8 +31,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
@@ -46,7 +45,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOptions;
+import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
+import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
 /**
  * Extern function for initializing gRPC client endpoint.
@@ -63,15 +63,13 @@ import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOpt
 )
 public class Init extends BlockingNativeCallableUnit {
 
-    private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
-
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        // Creating client endpoint with channel as native data.
-        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        String urlString = context.getStringArgument(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void init(Strand strand, ObjectValue clientEndpoint, String urlString,
+                            MapValue clientEndpointConfig, MapValue globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
         try {
@@ -91,14 +89,17 @@ public class Init extends BlockingNativeCallableUnit {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        populateSenderConfigurationOptions(senderConfiguration, endpointConfig);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+        MapValue userDefinedPoolConfig = (MapValue) clientEndpointConfig.get(
+                HttpConstants.USER_DEFINED_POOL_CONFIG);
+        ConnectionManager poolManager = userDefinedPoolConfig == null ? getConnectionManager(globalPoolConfig) :
+                getConnectionManager(userDefinedPoolConfig);
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
         senderConfiguration.setForceHttp2(true);
-        HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
-                senderConfiguration);
+        HttpClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory()
+                .createHttpClientConnector(properties, senderConfiguration, poolManager);
 
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
         clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
-
     }
 }

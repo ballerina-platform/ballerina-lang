@@ -48,7 +48,7 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     private BalServer sepBalserverInstance;
 
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
-    public void start() throws BallerinaTestException, IOException {
+    public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" +
                 File.separator + "transaction").getAbsolutePath();

@@ -2,15 +2,7 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
-boolean serviceStarted;
-
-function startService() {
-    //serviceStarted = test:startServices("http-load-balancer");
-}
-
 @test:Config {
-    before: "startService",
-    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function
@@ -66,8 +58,4 @@ function testFunc() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
-}
-
-function stopService() {
-    //test:stopServices("http_load_balancer");
 }

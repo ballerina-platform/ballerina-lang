@@ -15,34 +15,31 @@
  */
 package org.ballerinalang.langserver.codelenses.providers;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,29 +53,12 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
  * @since 0.990.3
  */
 @JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
-public class DocsCodeLensesProvider implements LSCodeLensesProvider {
-    private boolean isEnabled = true;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "docs.CodeLenses";
-    }
-
+public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
+        super("docs.CodeLenses");
         BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isEnabled() {
-        return isEnabled;
     }
 
     /**
@@ -98,74 +78,118 @@ public class DocsCodeLensesProvider implements LSCodeLensesProvider {
 
     private void addDocLenses(List<CodeLens> lenses, String fileUri, BLangPackage bLangPackage,
                               TopLevelNode topLevelNode, LSContext context) {
-        Pair<String, String> node = resolveTopLevelType(topLevelNode);
-        String nodeType = node.getLeft();
-        String nodeName = node.getRight();
+        TopLevelNodeDetail nodeDetail = resolveTopLevelTypeDetails(topLevelNode);
+        if (nodeDetail == null) {
+            // Skip, unknown construct
+            return;
+        }
+        String nodeType = nodeDetail.type;
+        String nodeName = nodeDetail.name;
+        Position nodePosition = nodeDetail.position;
+        Position nodeTopMostPos = nodeDetail.topMostPosition;
+        boolean hasDocumentation = nodeDetail.hasDocumentation;
         DocAttachmentInfo info = getDocumentationEditForNodeByPosition(
                 nodeType, bLangPackage, topLevelNode.getPosition().getStartLine() - 1, context);
-        boolean isDocumentable = (info != null);
-        Class<? extends TopLevelNode> aTopLeveNodeClass = topLevelNode.getClass();
+        if (info == null) {
+            // Skip, can not document
+            return;
+        }
         if (topLevelNode instanceof AnnotatableNode &&
                 (((AnnotatableNode) topLevelNode).getFlags() == null ||
                         !((AnnotatableNode) topLevelNode).getFlags().contains(Flag.PUBLIC))) {
-            // If NOT Public; skip
+            // Skip, does not have public modifier
             return;
         }
-        int line = topLevelNode.getPosition().getStartLine() - 1;
-        int col = topLevelNode.getPosition().getStartColumn();
-        boolean hasDocumentation = false;
-        for (Field field : aTopLeveNodeClass.getFields()) {
-            try {
-                if (field.getName().equals("markdownDocumentationAttachment")
-                        && field.get(topLevelNode) != null
-                        && field.get(topLevelNode) instanceof BLangMarkdownDocumentation) {
-                    BLangMarkdownDocumentation docs = (BLangMarkdownDocumentation) field.get(topLevelNode);
-                    line = docs.getPosition().getStartLine() - 1;
-                    col = docs.getPosition().getStartColumn();
-                    hasDocumentation = true;
-                }
-            } catch (IllegalAccessException e) {
-                // ignore
-            }
-        }
-        if (isDocumentable) {
-            Command command;
-            if (hasDocumentation) {
-                CommandArgument nameArg = new CommandArgument(CommandConstants.ARG_KEY_FUNCTION_NAME, nodeName);
-                List<Object> args = new ArrayList<>(Collections.singletonList(nameArg));
-                command = new Command("Preview Docs", "ballerina.showDocs", args);
-            } else {
-                CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
-                CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, fileUri);
-                CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
-                                                                String.valueOf(line));
-                List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
-                command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                                      CommandConstants.CMD_ADD_DOCUMENTATION, args);
-            }
-            Position pos = new Position(line, col);
-            CodeLens lens = new CodeLens(new Range(pos, pos), command, null);
-            lenses.add(lens);
+        Command command;
+        if (hasDocumentation) {
+            CommandArgument nameArg = new CommandArgument(CommandConstants.ARG_KEY_FUNCTION_NAME, nodeName);
+            List<Object> args = new ArrayList<>(Collections.singletonList(nameArg));
+            command = new Command("Preview Docs", "ballerina.showDocs", args);
+            lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
+        } else {
+            CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
+            CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, fileUri);
+            CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
+                                                            String.valueOf(nodePosition.getLine()));
+            List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
+            command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
+                                  AddDocumentationExecutor.COMMAND, args);
+            lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
         }
     }
 
-    private Pair<String, String> resolveTopLevelType(TopLevelNode topLevelNode) {
-        if (topLevelNode instanceof BLangTypeDefinition) {
+    private TopLevelNodeDetail resolveTopLevelTypeDetails(TopLevelNode topLevelNode) {
+        if (topLevelNode.getWS() == null) {
+            // Skip $anon$ constructs
+            return null;
+        } else if (topLevelNode instanceof BLangTypeDefinition) {
             BLangTypeDefinition definition = (BLangTypeDefinition) topLevelNode;
-            if (definition.typeNode instanceof BLangObjectTypeNode) {
-                if (!((BLangObjectTypeNode) definition.typeNode).flagSet.contains(Flag.SERVICE)) {
-                    return new ImmutablePair<>("object", definition.name.value);
-                }
-            } else if (definition.typeNode instanceof BLangRecordTypeNode) {
-                return new ImmutablePair<>("record", definition.name.value);
-            }
+            return TopLevelNodeDetail.fromTypeDefinition(definition);
         } else if (topLevelNode instanceof BLangFunction) {
             BLangFunction func = (BLangFunction) topLevelNode;
-            return new ImmutablePair<>("function", func.name.value);
+            return TopLevelNodeDetail.fromFunction(func);
         } else if (topLevelNode instanceof BLangService) {
             BLangService service = (BLangService) topLevelNode;
-            return new ImmutablePair<>("service", service.name.value);
+            return TopLevelNodeDetail.fromService(service);
         }
-        return new ImmutablePair<>("", "");
+        return null;
+    }
+
+    private static class TopLevelNodeDetail {
+        String type;
+        String name;
+        Position position;
+        Position topMostPosition;
+        boolean hasDocumentation;
+
+        TopLevelNodeDetail(String type, String name, Position position,
+                           Position topmostPos, boolean hasDocumentation) {
+            this.type = type;
+            this.name = name;
+            this.position = position;
+            this.topMostPosition = topmostPos;
+            this.hasDocumentation = hasDocumentation;
+        }
+
+        static TopLevelNodeDetail fromFunction(BLangFunction func) {
+            if (BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
+                // Skip main function
+                return null;
+            }
+            int sLine = func.pos.sLine - 1;
+            sLine = getTopMostLocOfAnnotations(func.annAttachments, sLine);
+            sLine = getTopMostLocOfDocs(func.markdownDocumentationAttachment, sLine);
+            boolean hasDocs = (func.markdownDocumentationAttachment != null);
+            Position pos = new Position(func.pos.sLine - 1, 0);
+            Position topmostPos = new Position(sLine, 0);
+            return new TopLevelNodeDetail("function", func.name.value, pos, topmostPos, hasDocs);
+        }
+
+        static TopLevelNodeDetail fromService(BLangService service) {
+            int sLine = service.pos.sLine - 1;
+            sLine = getTopMostLocOfAnnotations(service.annAttachments, sLine);
+            sLine = getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
+            boolean hasDocs = (service.markdownDocumentationAttachment != null);
+            Position pos = new Position(service.pos.sLine - 1, 0);
+            Position topmostPos = new Position(sLine, 0);
+            return new TopLevelNodeDetail("service", service.name.value, pos, topmostPos, hasDocs);
+        }
+
+        static TopLevelNodeDetail fromTypeDefinition(BLangTypeDefinition definition) {
+            boolean hasDocs = (definition.markdownDocumentationAttachment != null);
+            int sLine = definition.pos.sLine - 1;
+            sLine = getTopMostLocOfAnnotations(definition.annAttachments, sLine);
+            sLine = getTopMostLocOfDocs(definition.markdownDocumentationAttachment, sLine);
+            Position pos = new Position(definition.pos.sLine - 1, 0);
+            Position topmostPos = new Position(sLine, 0);
+            if (definition.typeNode instanceof BLangObjectTypeNode) {
+                if (!((BLangObjectTypeNode) definition.typeNode).flagSet.contains(Flag.SERVICE)) {
+                    return new TopLevelNodeDetail("object", definition.name.value, pos, topmostPos, hasDocs);
+                }
+            } else if (definition.typeNode instanceof BLangRecordTypeNode) {
+                return new TopLevelNodeDetail("record", definition.name.value, pos, topmostPos, hasDocs);
+            }
+            return null;
+        }
     }
 }

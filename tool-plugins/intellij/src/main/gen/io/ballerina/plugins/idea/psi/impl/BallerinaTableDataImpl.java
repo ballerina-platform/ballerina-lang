@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableDataImpl extends BallerinaCompositeElementImpl implements BallerinaTableData {
+public class BallerinaTableDataImpl extends ASTWrapperPsiElement implements BallerinaTableData {
 
   public BallerinaTableDataImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaTableDataImpl extends BallerinaCompositeElementImpl implem
   @Override
   @NotNull
   public BallerinaExpressionList getExpressionList() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class));
+    return findNotNullChildByClass(BallerinaExpressionList.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
   @NotNull
   public PsiElement getRightBrace() {
-    return notNullChild(findChildByType(RIGHT_BRACE));
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

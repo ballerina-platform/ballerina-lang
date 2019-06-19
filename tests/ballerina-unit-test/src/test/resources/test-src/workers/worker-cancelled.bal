@@ -2,6 +2,7 @@ import ballerina/io;
 
 channel<string> strChn = new;
 channel<int> intChn = new;
+boolean waiting = true;
 
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
@@ -15,6 +16,7 @@ function workerCancelledBeforeSend() {
     io:println("**going**");
     100 -> intChn, 88;
     io:println("**end**");
+    while(waiting){}
 }
 
 function testFunc() {
@@ -26,6 +28,7 @@ function testFunc() {
         if (result is error) {
             io:println(result.reason());
         }
+        waiting = false;
     }
     int intResult = <- intChn, 88;
     "message" -> wy;

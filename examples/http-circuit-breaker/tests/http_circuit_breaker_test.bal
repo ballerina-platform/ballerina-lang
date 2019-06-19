@@ -2,21 +2,10 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
-boolean serviceStarted;
-
-function startService() {
-    //serviceStarted = test:startServices("http-circuit-breaker");
-}
-
-@test:Config {
-    before: "startService",
-    after: "stopService"
-}
+@test:Config
 function testFunc() {
     // Invoking the main function.
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Check whether the server has started.
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string responseString = "Hello World!!!";
     // Send a GET request to the specified endpoint
@@ -83,8 +72,4 @@ function testFunc() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
-}
-
-function stopService() {
-    //test:stopServices("http_circuit_breaker");
 }

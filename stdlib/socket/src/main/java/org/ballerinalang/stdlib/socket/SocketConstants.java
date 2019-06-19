@@ -28,12 +28,11 @@ public class SocketConstants {
     public static final String SERVER_SOCKET_KEY = "ServerSocket";
     public static final String SOCKET_KEY = "Socket";
     public static final String SOCKET_PACKAGE = "ballerina/socket";
-    public static final String RESOURCE_ON_ACCEPT = "onAccept";
     public static final String RESOURCE_ON_CONNECT = "onConnect";
     public static final String RESOURCE_ON_READ_READY = "onReadReady";
     public static final String RESOURCE_ON_ERROR = "onError";
-    public static final String RESOURCE_ON_CLOSE = "onClose";
     public static final String CLIENT = "Client";
+    public static final String UDP_CLIENT = "UdpClient";
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_HOST = "host";
     public static final String CONFIG_FIELD_PORT = "port";
@@ -49,4 +48,13 @@ public class SocketConstants {
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String SOCKET_SERVICE = "socketService";
     public static final String IS_CLIENT = "isClient";
+
+    // If default length pass as the read length then the entire buffer read.
+    public static final int DEFAULT_EXPECTED_READ_LENGTH = -100;
+
+    // Default read timeout set as 5 min.
+    public static final long DEFAULT_READ_TIMEOUT_VALUE = 1000 * 60 * 5;
+    public static final String READ_TIMEOUT = "readTimeout";
+    public static final String CONFIG_READ_TIMEOUT = "b7a.socket.read.timeout";
+
 }

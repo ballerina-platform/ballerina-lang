@@ -50,7 +50,7 @@ class WebSubUtils {
         BMap<String, BValue> inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
         BMap<String, BValue> mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
         populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
-        populateEntityBody(null, httpRequest, inRequestEntity, true);
+        populateEntityBody(null, httpRequest, inRequestEntity, true, true);
         return httpRequest;
     }
 

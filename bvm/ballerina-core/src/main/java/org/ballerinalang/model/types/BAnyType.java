@@ -49,4 +49,9 @@ public class BAnyType extends BType {
     public int getTag() {
         return TypeTags.ANY_TAG;
     }
+
+    @Override
+    public boolean isNilable() {
+        return true;
+    }
 }

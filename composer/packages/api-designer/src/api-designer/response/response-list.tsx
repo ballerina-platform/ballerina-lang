@@ -34,7 +34,7 @@ class OpenApiResponseList extends React.Component<OpenApiResponseListProps, any>
         const { responsesList } = this.props;
 
         return (
-            <Table basic="very" celled collapsing>
+            <Table single line>
                 <Table.Header>
                 <Table.Row>
                     <Table.HeaderCell>Name</Table.HeaderCell>

@@ -28,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -239,14 +240,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @return Item at the given index in the sequence
      */
     public abstract BXML<?> getItem(long index);
-
-    /**
-     * Get the length of this XML sequence.
-     * 
-     * @return length of this XML sequence.
-     */
-    public abstract int length();
-
+    
     /**
      * Builds itself.
      */

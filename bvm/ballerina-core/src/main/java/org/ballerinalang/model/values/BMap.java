@@ -202,7 +202,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * Get the size of the map.
      * @return returns the size of the map
      */
-    public int size() {
+    public long size() {
         readLock.lock();
         try {
             return map.size();
@@ -301,12 +301,18 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                     break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
+                case TypeTags.MAP_TAG:
+                    // Map<json> is json.
+                    if (((BMapType) type).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                        return getJSONString();
+                    }
+                    // Fallthrough
                 default:
                     String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
                     for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
                         String key;
                         Map.Entry<K, V> e = i.next();
-                        key = keySeparator + (String) e.getKey() + keySeparator;
+                        key = keySeparator + e.getKey() + keySeparator;
                         V value = e.getValue();
                         sj.add(key + ":" + getStringValue(value));
                     }
@@ -394,7 +400,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType, unresolvedValues);
-                    type = memberType;
+                    if (memberType.getTag() == TypeTags.ANYDATA_TAG) {
+                        type = BVM.resolveMatchingTypeForUnion(this, memberType);
+                    } else {
+                        type = memberType;
+                    }
                     break;
                 }
             }
@@ -558,7 +568,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     private String getStringValue(V value) {
         if (value == null) {
-            return null;
+            return "()";
         } else if (value instanceof BString) {
             return "\"" + value.stringValue() + "\"";
         } else {

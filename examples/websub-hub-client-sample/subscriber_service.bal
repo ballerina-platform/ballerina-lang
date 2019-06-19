@@ -19,7 +19,7 @@ service websubSubscriber on websubEP {
 
     // Resource accepting content delivery requests.
     resource function onNotification(websub:Notification notification) {
-        var payload = notification.getPayloadAsString();
+        var payload = notification.getTextPayload();
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {

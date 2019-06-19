@@ -20,37 +20,116 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for authorization config inheritance scenarios.
+ * Test cases for authentication config inheritance scenarios.
  */
 @Test(groups = "auth-test")
 public class AuthnConfigInheritanceTest extends AuthBaseTest {
 
-    private final int servicePort = 9091;
+    private final int servicePort = 9090;
 
-    @Test(description = "invalid scope test case")
-    public void testAuthzFailureWithInheritedConfigs() throws Exception {
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
-                headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    @Test(description = "Secured resource, secured service test case with no auth headers")
+    public void testNoAuthHeaders1() throws Exception {
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
+                serverInstance.getServerHome());
+        assertUnauthorized(response);
     }
 
-    @Test(description = "Authn and authz failure test case")
-    public void testAuthFailureWithInheritedConfigs() throws Exception {
+    @Test(description = "Non secured resource, secured service test case with no auth headers")
+    public void testNoAuthHeaders2() throws Exception {
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
+                serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Secured resource, non secured service test case with no auth headers")
+    public void testNoAuthHeaders3() throws Exception {
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
+                serverInstance.getServerHome());
+        assertUnauthorized(response);
+    }
+
+    @Test(description = "Non secured resource, non secured service test case with no auth headers")
+    public void testNoAuthHeaders4() throws Exception {
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
+                serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Secured resource, secured service test case with valid auth headers")
+    public void testValidAuthHeaders1() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Non secured resource, secured service test case with valid auth headers")
+    public void testValidAuthHeaders2() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Secured resource, non secured service test case with valid auth headers")
+    public void testValidAuthHeaders3() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Non secured resource, non secured service test case with valid auth headers")
+    public void testValidAuthHeaders4() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Secured resource, secured service test case with invalid auth headers")
+    public void testInvalidAuthHeaders1() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
                 headersMap, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        assertUnauthorized(response);
+    }
+
+    @Test(description = "Non secured resource, secured service test case with invalid auth headers")
+    public void testInvalidAuthHeaders2() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Secured resource, non secured service test case with invalid auth headers")
+    public void testInvalidAuthHeaders3() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
+                headersMap, serverInstance.getServerHome());
+        assertUnauthorized(response);
+    }
+
+    @Test(description = "Non secured resource, non secured service test case with invalid auth headers")
+    public void testInvalidAuthHeaders4() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
+                headersMap, serverInstance.getServerHome());
+        assertOK(response);
     }
 }

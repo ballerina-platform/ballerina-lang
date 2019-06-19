@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,13 +44,13 @@ public class BallerinaNullableTypeNameImpl extends BallerinaTypeNameImpl impleme
   @Override
   @NotNull
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getQuestionMark() {
-    return notNullChild(findChildByType(QUESTION_MARK));
+    return findNotNullChildByType(QUESTION_MARK);
   }
 
 }

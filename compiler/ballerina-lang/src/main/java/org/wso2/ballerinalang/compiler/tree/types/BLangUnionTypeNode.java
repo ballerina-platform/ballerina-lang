@@ -53,7 +53,7 @@ public class BLangUnionTypeNode extends BLangType implements UnionTypeNode {
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner(" | ");
+        StringJoiner stringJoiner = new StringJoiner("|");
         memberTypeNodes.forEach(memberTypeNode -> stringJoiner.add(memberTypeNode.toString()));
         return stringJoiner.toString();
     }

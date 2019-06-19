@@ -19,14 +19,20 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code UnionType} represents a union type in Ballerina.
@@ -36,7 +42,7 @@ import java.util.StringJoiner;
 public class BUnionType extends BType implements UnionType {
     private boolean nullable;
 
-    public LinkedHashSet<BType> memberTypes;
+    private LinkedHashSet<BType> memberTypes;
 
     public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
@@ -46,12 +52,17 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public Set<BType> getMemberTypes() {
-        return memberTypes;
+        return Collections.unmodifiableSet(this.memberTypes);
     }
 
     @Override
     public TypeKind getKind() {
         return TypeKind.UNION;
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
@@ -71,7 +82,8 @@ public class BUnionType extends BType implements UnionType {
                 .filter(memberType -> memberType.tag != TypeTags.NIL)
                 .forEach(memberType -> joiner.add(memberType.toString()));
         String typeStr = joiner.toString();
-        return nullable ? typeStr + Names.QUESTION_MARK.value : typeStr;
+        boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
+        return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
     @Override
@@ -83,5 +95,92 @@ public class BUnionType extends BType implements UnionType {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    /**
+     * Creates a union type using the types specified in the `types` set. The created union will not have union types in
+     * its member types set. If the set contains the nil type, calling isNullable() will return true.
+     *
+     * @param tsymbol Type symbol for the union.
+     * @param types   The types to be used to define the union.
+     * @return The created union type.
+     */
+    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
+        LinkedHashSet<BType> memberTypes = toFlatTypeSet(types);
+        boolean hasNilableType = memberTypes.stream().anyMatch(t -> t.isNullable() && t.tag != TypeTags.NIL);
+        if (hasNilableType) {
+            memberTypes = memberTypes.stream().filter(t -> t.tag != TypeTags.NIL)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(BType::isNullable));
+    }
+
+    /**
+     * Creates a union type using the provided types. If the set contains the nil type, calling isNullable() will return
+     * true.
+     *
+     * @param tsymbol Type symbol for the union.
+     * @param types   The types to be used to define the union.
+     * @return The created union type.
+     */
+    public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
+        LinkedHashSet<BType> memberTypes = Arrays.stream(types).collect(Collectors.toCollection(LinkedHashSet::new));
+        return create(tsymbol, memberTypes);
+    }
+
+    /**
+     * Adds the specified type as a member of the union. If the specified type is also a union, all the member types of
+     * it are added to the union. If the newly added type is nil or is a nil-able type, the union type will also be a
+     * nil-able type.
+     *
+     * @param type Type to be added to the union.
+     */
+    public void add(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            assert type instanceof BUnionType;
+            this.memberTypes.addAll(toFlatTypeSet(((BUnionType) type).memberTypes));
+        } else {
+            this.memberTypes.add(type);
+        }
+
+        this.nullable = this.nullable || type.isNullable();
+    }
+
+    /**
+     * Adds all the types in the specified set as members of the union.
+     *
+     * @param types Types to be added to the union.
+     */
+    public void addAll(LinkedHashSet<BType> types) {
+        types.forEach(this::add);
+    }
+
+    public void remove(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            assert type instanceof BUnionType;
+            this.memberTypes.removeAll(((BUnionType) type).getMemberTypes());
+        } else {
+            this.memberTypes.remove(type);
+        }
+
+        if (type.isNullable()) {
+            this.nullable = false;
+        }
+    }
+
+    /**
+     * Returns an iterator to iterate over the member types of the union.
+     *
+     * @return  An iterator over the member set.
+     */
+    public Iterator<BType> iterator() {
+        return this.memberTypes.iterator();
+    }
+
+    private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
+        return types.stream()
+                .flatMap(type -> type.tag == TypeTags.UNION ?
+                        ((BUnionType) type).memberTypes.stream() : Stream.of(type))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

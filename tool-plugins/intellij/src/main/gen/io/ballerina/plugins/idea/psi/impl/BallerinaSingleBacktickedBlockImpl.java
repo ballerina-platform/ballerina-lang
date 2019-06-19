@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSingleBacktickedBlockImpl extends BallerinaCompositeElementImpl implements BallerinaSingleBacktickedBlock {
+public class BallerinaSingleBacktickedBlockImpl extends ASTWrapperPsiElement implements BallerinaSingleBacktickedBlock {
 
   public BallerinaSingleBacktickedBlockImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +57,7 @@ public class BallerinaSingleBacktickedBlockImpl extends BallerinaCompositeElemen
   @Override
   @NotNull
   public PsiElement getSingleBacktickMarkdownStart() {
-    return notNullChild(findChildByType(SINGLE_BACKTICK_MARKDOWN_START));
+    return findNotNullChildByType(SINGLE_BACKTICK_MARKDOWN_START);
   }
 
 }

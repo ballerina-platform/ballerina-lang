@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -108,7 +108,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <execution>
+                    <!-- <execution>
                         <id>run tests</id>
                         <goals>
                             <goal>exec</goal>
@@ -122,7 +122,7 @@
                             </arguments>
                             <skip>${vscodeTestSkip}</skip>
                         </configuration>
-                    </execution>
+                    </execution> -->
                     <execution>
                         <id>vsix-package</id>
                         <goals>
@@ -137,6 +137,22 @@
                                 <argument>--</argument>
                                 <argument>--out</argument>
                                 <argument>target/ballerina-vscode-plugin-${project.version}.vsix</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>update-version</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>update-version</argument>
+                                <argument>--</argument>
+                                <argument>${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -221,7 +237,7 @@
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
                             <includeArtifactIds>ballerina-tools</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/test/</outputDirectory>
+                            <outputDirectory>extractedDistribution</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
@@ -245,31 +261,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>${maven.replacer.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>replace-version</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>${basedir}/package.json</include>
-                    </includes>
-                    <replacements>
-                        <replacement>
-                            <token>"version": "(.*?)",</token>
-                            <value>"version": "${project.version}",</value>
-                        </replacement>
-                    </replacements>
-                </configuration>
             </plugin>
         </plugins>
     </build>

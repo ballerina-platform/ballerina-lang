@@ -122,13 +122,14 @@ function testFuncWithUnionTypedDefaultParam() returns json {
 
 // ------------------- Test function signature with null as default parameter value
 
-function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
+function funcWithNilDefaultParamExpr_1(string? s = ()) returns string? {
     return s;
 }
 
-type Student record {
+type Student record {|
     int a = 0;
-};
+    anydata...;
+|};
 
 function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
     return s;

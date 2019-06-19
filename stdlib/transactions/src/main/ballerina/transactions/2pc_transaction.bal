@@ -25,7 +25,7 @@ type TwoPhaseCommitTransaction object {
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants = {};
-    UProtocol[] coordinatorProtocols = [];
+    UProtocol?[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
@@ -158,15 +158,23 @@ type TwoPhaseCommitTransaction object {
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        future<((PrepareResult|error)?, Participant)>[] results = [];
-        foreach var (key, participant) in self.participants {
+        future<[(PrepareResult|error)?, Participant]>?[] results = [];
+        foreach var [key, participant] in self.participants {
             string participantId = participant.participantId;
-            future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
+            future<[(PrepareResult|error)?, Participant]> f = start participant.prepare(protocol);
             results[results.length()] = f;
         }
-        foreach var f in results {
-            ((PrepareResult|error)?, Participant) r = wait f;
-            var (result, participant) = r;
+        foreach var res in results {
+            future<[(PrepareResult|error)?, Participant]> f;
+            if (res is future<[(PrepareResult|error)?, Participant]>) {
+                f = res;
+            } else {
+                error err = error("Unexpected nil found");
+                panic err;
+            }
+
+            [(PrepareResult|error)?, Participant] r = wait f;
+            var [result, participant] = r;
             string participantId = participant.participantId;
             if (result is PrepareResult) {
                 if (result == PREPARE_RESULT_PREPARED) {
@@ -207,13 +215,21 @@ type TwoPhaseCommitTransaction object {
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
-        future<(NotifyResult|error)?>[] results = [];
-        foreach var (key, participant) in self.participants {
+        future<(NotifyResult|error)?>?[] results = [];
+        foreach var [key, participant] in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
             results[results.length()] = f;
 
         }
-        foreach var f in results {
+        foreach var r in results {
+            future<(NotifyResult|error)?> f;
+            if (r is future<(NotifyResult|error)?>) {
+                f = r;
+            } else {
+                error err = error("Unexpected nil found");
+                panic err;
+            }
+
             (NotifyResult|error)? result = wait f;
             if (result is error) {
                 notifyResult = result;

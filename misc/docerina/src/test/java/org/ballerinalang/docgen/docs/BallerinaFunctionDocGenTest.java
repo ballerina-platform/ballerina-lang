@@ -18,7 +18,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.docgen.model.PackageDoc;
+import org.ballerinalang.docgen.model.ModuleDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with one Function")
     public void testABalWithOneFunction() {
         try {
-            Map<String, PackageDoc> docsMap =
+            Map<String, ModuleDoc> docsMap =
                     BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
@@ -74,7 +74,7 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with multiple Functions")
     public void testABalWithMultipleFunctions() {
         try {
-            Map<String, PackageDoc> docsMap =
+            Map<String, ModuleDoc> docsMap =
                     BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
@@ -102,7 +102,7 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with a native function")
     public void testABalWithNativeFunction() {
         try {
-            Map<String, PackageDoc> docsMap =
+            Map<String, ModuleDoc> docsMap =
                     BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "natives.bal", "", true);
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);

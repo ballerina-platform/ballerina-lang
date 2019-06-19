@@ -18,7 +18,6 @@
 package org.ballerinalang.testerina.util;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
@@ -39,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -198,10 +196,7 @@ public class TesterinaUtils {
      */
     public static void executeTests(Path sourceRootPath, Map<BLangPackage, CompiledBinaryFile.ProgramFile>
             programFileMap) {
-        // Load configuration file. The default config file is taken "ballerina.conf" in the source root path
-        LauncherUtils.loadConfigurations(sourceRootPath, new HashMap<>(), null, false);
-
-        // Set org-name and version to the TesterinaRegistry
+        // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
 
         BTestRunner testRunner = new BTestRunner();

@@ -51,10 +51,10 @@ function testSimpleSelectAll() returns (int) {
     Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
     table<Person> personTableCopy = from personTable
     select *;
@@ -75,10 +75,10 @@ function testSimpleSelectAllWithLimit() returns (int) {
     Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
     table<Person> personTableCopy = from personTable select * limit 2;
     while (personTableCopy.hasNext()) {
@@ -98,10 +98,10 @@ function testSimpleSelectFewFields() returns (int) {
     Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
     table<Student> studentTable = from personTable
     select name, id as index, age;
@@ -129,15 +129,15 @@ function testSimpleSelectWithJoin() returns (int) {
     Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
-    _ = orderTable.add(o1);
-    _ = orderTable.add(o2);
-    _ = orderTable.add(o3);
-    _ = orderTable.add(o4);
+    checkpanic orderTable.add(o1);
+    checkpanic orderTable.add(o2);
+    checkpanic orderTable.add(o3);
+    checkpanic orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
     tempPersonTable.id == tempOrderTable.personId select tempOrderTable.orderId as orderId, tempPersonTable.name as
@@ -167,15 +167,15 @@ function testSelectWithJoinAndWhere() returns (int) {
     Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
-    _ = orderTable.add(o1);
-    _ = orderTable.add(o2);
-    _ = orderTable.add(o3);
-    _ = orderTable.add(o4);
+    checkpanic orderTable.add(o1);
+    checkpanic orderTable.add(o2);
+    checkpanic orderTable.add(o3);
+    checkpanic orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable where name != "jane" as tempPersonTable join orderTable
     where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId select
@@ -206,15 +206,15 @@ function testSelectWithJoinAndWhereWithGroupBy() returns (int) {
     Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
-    _ = orderTable.add(o1);
-    _ = orderTable.add(o2);
-    _ = orderTable.add(o3);
-    _ = orderTable.add(o4);
+    checkpanic orderTable.add(o1);
+    checkpanic orderTable.add(o2);
+    checkpanic orderTable.add(o3);
+    checkpanic orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
     tempPersonTable.id == tempOrderTable.personId
@@ -245,15 +245,15 @@ function testSelectWithJoinAndWhereWithGroupByWithLimit() returns (int) {
     Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
-    _ = orderTable.add(o1);
-    _ = orderTable.add(o2);
-    _ = orderTable.add(o3);
-    _ = orderTable.add(o4);
+    checkpanic orderTable.add(o1);
+    checkpanic orderTable.add(o2);
+    checkpanic orderTable.add(o3);
+    checkpanic orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
     tempPersonTable.id == tempOrderTable.personId
@@ -276,12 +276,86 @@ function testTableToString() returns table<record {}> {
     Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
 
-    _ = personTable.add(p1);
-    _ = personTable.add(p2);
-    _ = personTable.add(p3);
-    _ = personTable.add(p4);
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
 
     table<Person> personTableCopy = from personTable select *;
 
     return personTableCopy;
+}
+
+function testSimpleSelectAllWithCondition() returns int {
+    table<Person> personTable = table{};
+    int recordCount = 0;
+    Person p1 = { id: 1, age: 25, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 26, salary: 400.50, name: "kane", married: false };
+    Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
+    Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
+
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
+
+    if (recordCount == 0) {
+        table<Person> personTableCopy = from personTable select * limit 2;
+        while (personTableCopy.hasNext()) {
+            _ = personTableCopy.getNext();
+            recordCount = recordCount + 1;
+        }
+    }
+
+    return recordCount;
+}
+
+function testSelectWithJoinAndWhereWithGroupByWithLimitInIfCondition() returns (int) {
+
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
+
+    int recordCount = 0;
+    Person p1 = { id: 1, age: 25, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 26, salary: 400.50, name: "kane", married: false };
+    Person p3 = { id: 3, age: 27, salary: 500.50, name: "jack", married: true };
+    Person p4 = { id: 4, age: 28, salary: 600.50, name: "alex", married: false };
+
+    Order o1 = { personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75 };
+    Order o2 = { personId: 1, orderId: 2314, items: "dhal, rice, carrot", amount: 14.75 };
+    Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
+    Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
+
+    checkpanic personTable.add(p1);
+    checkpanic personTable.add(p2);
+    checkpanic personTable.add(p3);
+    checkpanic personTable.add(p4);
+
+    checkpanic orderTable.add(o1);
+    checkpanic orderTable.add(o2);
+    checkpanic orderTable.add(o3);
+    checkpanic orderTable.add(o4);
+
+    table<OrderDetails> orderDetailsTable = joinWithBallerinaSQLQuery(personTable, orderTable);
+
+    while (orderDetailsTable.hasNext()) {
+        var rs = orderDetailsTable.getNext();
+        recordCount = recordCount + 1;
+    }
+    return recordCount;
+}
+
+function joinWithBallerinaSQLQuery(table<Person>|error personTable, table<Order>|error orderTable) returns
+        table<OrderDetails> {
+    table<OrderDetails> orderDetailsTable = table{};
+    if (personTable is table<Person>) {
+        if (orderTable is table<Order>) {
+            orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
+            tempPersonTable.id == tempOrderTable.personId
+            select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
+            items, tempOrderTable.amount as amount group by tempOrderTable.orderId, tempPersonTable.name,
+            tempOrderTable.items, tempOrderTable.amount limit 2;
+        }
+    }
+    return orderDetailsTable;
 }

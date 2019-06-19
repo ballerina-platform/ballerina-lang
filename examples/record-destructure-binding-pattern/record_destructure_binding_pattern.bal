@@ -6,33 +6,32 @@ type Person record {
     string country;
 };
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 type Country record {
     string name;
     Capital capital;
 };
 
-type Capital record {
+type Capital record {|
     string name;
-    !...;
-};
+|};
 
 public function main() {
 
     string firstName;
     int personAge;
-    map<anydata> otherDetails = {};
-    // This record de-structure binding pattern will destructure a `record` of type `Person` and assign the values
+    map<anydata|error> otherDetails = {};
+    // This record destructure binding pattern will destructure a `record` of type `Person` and assign the values
     // to three variable references as follows:
     // The value of the field `name` in the `Person` record will be assigned to the variable `firstName`.
     // The value of the field `age` in the `Person` record will be assigned to the variable `personAge`.
     // `...otherDetails` is a rest parameter. Since `Person` is an open record, the remaining field values that have
-    // not been matched in the record binding pattern, will be assigned as a `map<anydata>` to the variable `otherDetails`.
+    // not been matched in the record binding pattern, will be assigned as a `map<anydata|error>` to the variable
+    // `otherDetails`.
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
@@ -49,16 +48,17 @@ public function main() {
 
     string empName;
     int empAge;
-    // The `!...` symbol will specify that there should not be any other fields other than `name` and `age`, hence
+    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
     // `Employee` should be a closed record.
-    { name: empName, age: empAge, !... } = getEmployee();
+    {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
     string countryName;
     string capitalName;
-    // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
-    { name: countryName, capital: {name: capitalName, !... }} = getCountry();
+    // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
+    // destructured as follows:
+    { name: countryName, capital: {| name: capitalName |}} = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
 }

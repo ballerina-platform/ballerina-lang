@@ -36,8 +36,9 @@ service echo on echoEP {
             var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
                 io:println("Number of bytes written: ", writeResult);
-                _ = caller->accepted();
-            } else if (writeResult is error) {
+                checkpanic caller->accepted();
+            } else {
+                io:println("Write error!!!");
                 string errMsg = <string>writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
@@ -46,7 +47,7 @@ service echo on echoEP {
                     io:println("Error sending response: ", responseError.detail().message);
                 }
             }
-        } else if (payload is error) {
+        } else {
             string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
             resp.setPayload(untaint errMsg);
@@ -64,24 +65,30 @@ service ClientService = service {
         io:println("connect: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller) {
         io:println("New content received for callback");
-        var str = getString(content);
-        if (str is string) {
-            io:println(untaint str);
-        } else if (str is error) {
-            io:println(str.reason());
-        }
-        var closeResult = caller->close();
-        if (closeResult is error) {
-            io:println(closeResult.detail().message);
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                var str = getString(content);
+                if (str is string) {
+                    io:println(untaint str);
+                } else {
+                    io:println(str.reason());
+                }
+                var closeResult = caller->close();
+                if (closeResult is error) {
+                    io:println(closeResult.detail().message);
+                } else {
+                    io:println("Client connection closed successfully.");
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
         } else {
-            io:println("Client connection closed successfully.");
+            io:println(result);
         }
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
     }
 
     resource function onError(socket:Caller caller, error er) {

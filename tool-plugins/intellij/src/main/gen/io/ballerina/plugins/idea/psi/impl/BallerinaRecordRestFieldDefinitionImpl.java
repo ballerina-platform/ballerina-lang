@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRestFieldDefinition {
+public class BallerinaRecordRestFieldDefinitionImpl extends ASTWrapperPsiElement implements BallerinaRecordRestFieldDefinition {
 
   public BallerinaRecordRestFieldDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -42,27 +43,21 @@ public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeEl
   }
 
   @Override
-  @Nullable
-  public BallerinaSealedLiteral getSealedLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSealedLiteral.class);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getEllipsis() {
-    return findChildByType(ELLIPSIS);
+    return findNotNullChildByType(ELLIPSIS);
   }
 
   @Override
   @NotNull
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findNotNullChildByType(SEMICOLON);
   }
 
 }

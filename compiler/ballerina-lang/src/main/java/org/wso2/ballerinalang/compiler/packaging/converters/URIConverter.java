@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
@@ -47,7 +48,7 @@ import java.util.stream.Stream;
 public class URIConverter implements Converter<URI> {
 
     private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
-                                                        ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
+            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.CODE_GEN); // TODO check phase
     private final URI base;
     private boolean isBuild = true;
     private PrintStream outStream = System.err;
@@ -116,14 +117,15 @@ public class URIConverter implements Converter<URI> {
 
             String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION +
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
+            String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_pull/packaging_pull.balx",
-                    "invokePull", u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
+                    u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
-                    supportedVersionRange, String.valueOf(isBuild));
+                    supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
             // Check if error has occurred or not.
             if (execute.isPresent()) {
-                String errorMessage = getInnerErrorMessage(execute.get());
+                String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
                 if (!errorMessage.trim().equals("")) {
                     outStream.println(errorMessage);
                 }
@@ -136,19 +138,6 @@ public class URIConverter implements Converter<URI> {
             outStream.println(e.getMessage());
         }
         return Stream.of();
-    }
-    
-    /**
-     * Get nested error message.
-     * @param embeddedExecutorError The execution error.
-     * @return Error message.
-     */
-    private String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
-        if (embeddedExecutorError.getCause() == null) {
-            return embeddedExecutorError.getMessage();
-        } else {
-            return getInnerErrorMessage(embeddedExecutorError.getCause());
-        }
     }
 
     @Override

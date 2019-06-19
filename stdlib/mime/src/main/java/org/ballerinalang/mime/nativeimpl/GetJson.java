@@ -19,9 +19,14 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
@@ -34,7 +39,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
@@ -49,49 +54,81 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetJson extends BlockingNativeCallableUnit {
+public class GetJson extends AbstractGetPayloadHandler {
 
     @Override
-    public void execute(Context context) {
-        BRefType<?> result;
+    @SuppressWarnings("unchecked")
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (MimeUtil.isJSONContentType(entityStruct)) {
-                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                if (dataSource != null) {
-                    // If the value is a already JSON, then return it as is.
-                    if (isJSON(dataSource)) {
-                        result = (BRefType<?>) dataSource;
-                    } else {
-                        // Else, build the JSON from the string representation of the payload.
-                        BString payload = MimeUtil.getMessageAsString(dataSource);
-                        result = JsonParser.parse(payload.stringValue());
-                    }
+            BRefType<?> result;
+            BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
+            if (dataSource != null) {
+                // If the value is already a JSON, then return as it is.
+                if (isJSON(dataSource)) {
+                    result = (BRefType<?>) dataSource;
                 } else {
-                    result = EntityBodyHandler.constructJsonDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                    // Else, build the JSON from the string representation of the payload.
+                    BString payload = MimeUtil.getMessageAsString(dataSource);
+                    result = JsonParser.parse(payload.stringValue());
                 }
-                context.setReturnValues(result);
-            } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json compatible since the " +
-                        "received content-type is : " + baseType));
+                setReturnValuesAndNotify(context, callback, result);
+                return;
             }
-        } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while extracting json data from entity: " + e.getMessage()));
+
+            if (isStreamingRequired(entity)) {
+                result = EntityBodyHandler.constructJsonDataSource(entity);
+                updateDataSourceAndNotify(context, callback, entity, result);
+            } else {
+                constructNonBlockingDataSource(context, callback, entity, SourceType.JSON);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
+    }
+
+    public static Object getJson(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        RefValue result = null;
+        try {
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                // If the value is already a JSON, then return as it is.
+                if (isJSON(dataSource)) {
+                    result = (RefValue) dataSource;
+                } else {
+                    // Else, build the JSON from the string representation of the payload.
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = (RefValue) JSONParser.parse(payload);
+                }
+                return result;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
+                updateDataSource(entityObj, result);
+            } else {
+                callback = new NonBlockingCallback(strand);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
+            }
+        } catch (Exception ex) {
+            return createErrorAndNotify(callback,
+                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
+        }
+        return result;
     }
 
     private boolean isJSON(BValue value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        if (value.getType().getTag() == TypeTags.STRING) {
-            return false;
-        }
+        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
+    }
 
-        return MimeUtil.isJSONCompatible(value.getType());
+    private static boolean isJSON(Object value) {
+        // If the value is string, it could represent any type of payload.
+        // Therefore it needs to be parsed as JSON.
+        return TypeChecker.getType(value).getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(
+                TypeChecker.getType(value));
     }
 }

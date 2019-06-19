@@ -20,12 +20,9 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <listeners>
-        <listener class-name="org.ballerinalang.stdlib.common.BLogInitializer"/>
-    </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.net.websub.*"/>
+            <!-- <package name="org.ballerinalang.net.websub.*"/> -->
         </packages>
     </test>
 </suite>

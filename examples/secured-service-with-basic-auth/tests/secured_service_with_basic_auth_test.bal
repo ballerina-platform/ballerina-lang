@@ -23,8 +23,10 @@ function testAuthSuccess() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            username: "tom",
-            password: "password1"
+            config: {
+                username: "tom",
+                password: "password1"
+            }
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -42,8 +44,10 @@ function testAuthnFailure() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            username: "tom",
-            password: "password"
+            config: {
+                username: "tom",
+                password: "password"
+            }
         }
     });
     // Send a `GET` request to the specified endpoint.
@@ -61,8 +65,10 @@ function testAuthzFailure() {
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
             scheme: http:BASIC_AUTH,
-            username: "dick",
-            password: "password2"
+            config: {
+                username: "dick",
+                password: "password2"
+            }
         }
     });
     // Send a `GET` request to the specified endpoint

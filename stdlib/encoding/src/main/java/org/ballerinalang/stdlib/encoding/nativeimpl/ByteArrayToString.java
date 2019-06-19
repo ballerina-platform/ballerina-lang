@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -29,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Convert byte array to string.
@@ -36,8 +39,7 @@ import java.io.UnsupportedEncodingException;
  * @since 0.980
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "byteArrayToString",
+        orgName = "ballerina", packageName = "encoding", functionName = "byteArrayToString",
         args = {
                 @Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "encoding", type = TypeKind.STRING)
@@ -56,6 +58,18 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
             context.setReturnValues(new BString(value));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("unsupported encoding: " + encoding , e);
+        }
+    }
+
+    public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
+        try {
+            // TODO : Remove null check once extern functions are supported with default value parameters.
+            if (encoding == null) {
+                encoding = StandardCharsets.UTF_8.name();;
+            }
+            return new String(bytes.getBytes(), encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("unsupported encoding: " + encoding , e);
         }
     }
 }

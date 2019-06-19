@@ -76,7 +76,7 @@ public function main() {
         if (rResult is error) {
             log:printError("Error occurred while reading json: ",
                             err = rResult);
-        } else if (rResult is json){
+        } else {
             io:println(rResult);
         }
     }

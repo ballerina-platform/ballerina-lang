@@ -43,7 +43,7 @@ service dataService on dataServiceListener {
             } else {
                 panic xmlConversionRet;
             }
-        } else if (selectRet is error) {
+        } else {
             log:printError("Select data from Data table failed: " + selectRet.reason());
         }
     }

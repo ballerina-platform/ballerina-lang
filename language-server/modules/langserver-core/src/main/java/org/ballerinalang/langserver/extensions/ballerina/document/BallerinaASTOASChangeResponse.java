@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonElement;
 
 /**
- * Represents a Ballerina swagger change response.
+ * Represents a Ballerina OpenApi change response.
  *
  * @since 0.981.2
  */

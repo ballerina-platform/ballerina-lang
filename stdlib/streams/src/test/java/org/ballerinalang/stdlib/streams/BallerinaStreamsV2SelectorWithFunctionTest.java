@@ -39,6 +39,7 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     private CompileResult resultForFunctionArgs;
     private CompileResult resultForFunctionArgs2;
     private CompileResult resultForFunctionArgs3;
+    private CompileResult resultForFunctionArgs4;
     private CompileResult resultWithAlias;
     private CompileResult resultForFunctionArgsWithAlias;
     private CompileResult resultForFunctionArgs2WithAlias;
@@ -53,6 +54,8 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
                 compile("test-src/streamingv2-select-with-function-args-test2.bal");
         resultForFunctionArgs3 = BCompileUtil.
                 compile("test-src/streamingv2-select-with-function-args-test3.bal");
+        resultForFunctionArgs4 = BCompileUtil.
+                compile("test-src/streamingv2-select-with-member-func-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/alias/streamingv2-select-with-function-test.bal");
         resultForFunctionArgsWithAlias = BCompileUtil.
@@ -213,5 +216,24 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 90);
         Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 100);
+    }
+
+    @Test(description = "Test streaming query with member functions in select clause")
+    public void testSelectQueryWithMemberFunc() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs4, "startSelectQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 70);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 120);
     }
 }

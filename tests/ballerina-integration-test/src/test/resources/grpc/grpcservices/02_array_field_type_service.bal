@@ -39,7 +39,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println("Result: " + result);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testStringArrayInput(grpc:Caller caller, TestString req) {
@@ -55,7 +55,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println("Result: " + result);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testFloatArrayInput(grpc:Caller caller, TestFloat req) {
@@ -71,7 +71,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println("Result: " + result);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testBooleanArrayInput(grpc:Caller caller, TestBoolean req) {
@@ -87,7 +87,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println("Result: " + result);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testStructArrayInput(grpc:Caller caller, TestStruct req) {
@@ -103,7 +103,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println("Result: " + result);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testIntArrayOutput(grpc:Caller caller) {
@@ -114,7 +114,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println(intArray);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testStringArrayOutput(grpc:Caller caller) {
@@ -125,7 +125,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println(stringArray);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testFloatArrayOutput(grpc:Caller caller) {
@@ -136,7 +136,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println(floatArray);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testBooleanArrayOutput(grpc:Caller caller) {
@@ -147,7 +147,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println(booleanArray);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testStructArrayOutput(grpc:Caller caller) {
@@ -160,7 +160,7 @@ service HelloWorld3 on ep2 {
         } else {
             io:println(structArray);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

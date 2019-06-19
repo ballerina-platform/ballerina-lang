@@ -29,9 +29,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.ballerinalang.util.BLangConstants.COLON;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
-
 /**
  * This represents the Ballerina module provider.
  *
@@ -44,32 +41,18 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Optional<EmbeddedExecutorError> executeFunction(String programArg, String functionName, String... args) {
-        if (functionName == null) {
-            functionName = MAIN_FUNCTION_NAME;
-        }
-        String balxPath = programArg;
-        
-        if (programArg.contains(COLON)) {
-            String[] programArgConstituents = programArg.split(COLON);
-            functionName = programArgConstituents[programArgConstituents.length - 1];
-            if (functionName.isEmpty() || programArg.endsWith(COLON)) {
-                throw new BLangCompilerException("usage error: expected function name after final ':'");
-            }
-            balxPath = programArg.replace(COLON.concat(functionName), "");
-        }
-        
-        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + balxPath);
+    public Optional<EmbeddedExecutorError> executeFunction(String programArg, String... args) {
+        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + programArg);
         if (resource == null) {
             throw new BLangCompilerException("missing internal modules when executing");
         }
         
         try {
             URI balxResource = resource.toURI();
-            BValue[] returns = ExecutorUtils.executeFunction(balxResource, functionName, args);
+            BValue returns = ExecutorUtils.executeFunction(balxResource, args);
             // Check if the return is an error
-            if (returns.length == 1 && returns[0] instanceof BError) {
-                BError bError = (BError) returns[0];
+            if (returns instanceof BError) {
+                BError bError = (BError) returns;
                 return Optional.of(createEmbeddedExecutorError(bError));
             } else {
                 return Optional.empty();
@@ -104,7 +87,7 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
      */
     private EmbeddedExecutorError createEmbeddedExecutorError(BError bError) {
         EmbeddedExecutorError error = new EmbeddedExecutorError();
-        error.setMessage(bError.reason);
+        error.setMessage(bError.getReason());
         BError cause = bError.cause;
         if (cause != null) {
             error.setCause(createEmbeddedExecutorError(cause));

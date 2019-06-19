@@ -43,7 +43,7 @@ function initProjectionQuery() {
 }
 
 function generateChildrenDayWishMessage(string name) returns string {
-    string template = string `Hi {{name}}!!!`;
+    string template = string `Hi ${name}!!!`;
     return template + " , wish you a happy children's day";
 }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,8 +17,13 @@
  */
 package org.ballerinalang.langserver.definition;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -30,96 +35,185 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private Path definitionsPath = new File(getClass().getClassLoader().getResource("definition").getFile()).toPath();
-    private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
-    private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
-    private Path balPath3 = definitionsPath.resolve("test.definition.pkg").resolve("definition3.bal");
-    private Path testBalPath = definitionsPath.resolve("test.definition.pkg").resolve("tests").resolve("test1.bal");
-    private Endpoint serviceEndpoint;
+    private Path configRoot;
+    private Path sourceRoot;
+    private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
+    protected Gson gson = new Gson();
+    protected JsonParser parser = new JsonParser();
+    protected Endpoint serviceEndpoint;
 
     @BeforeClass
     public void init() throws Exception {
+        configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
+        sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        TestUtil.openDocument(this.serviceEndpoint, balPath1);
-        TestUtil.openDocument(this.serviceEndpoint, balPath2);
-        TestUtil.openDocument(this.serviceEndpoint, balPath3);
     }
-    
-    @Test(description = "Test goto definitions", dataProvider = "definitionsDataProvider", enabled = false)
-    public void testGoToDefinitions(Position position, DefinitionTestDataModel dataModel) throws IOException {
-        JsonParser parser = new JsonParser();
-        String actualStr = TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint);
-        JsonObject expected = parser.parse(getExpectedValue(dataModel.getExpectedFileName(),
-                dataModel.getDefinitionFileURI())).getAsJsonObject();
-        JsonObject actual = parser.parse(actualStr).getAsJsonObject();
-        Assert.assertEquals(actual, expected,
-                "Did not match the definition content for " + dataModel.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
+
+    @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
+    public void test(String configPath, String configDir) throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
+                .resolve(configPath).toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, sourceRoot);
     }
-    
+
+    @Test(description = "Test Go to definition between two files in same module")
+    public void testDifferentFiles() throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
+                .resolve("defMultiFile1.json").toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
+        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, projectPath);
+    }
+
+    @Test(description = "Test Go to definition between two modules")
+    public void testDifferentModule() throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
+                .resolve("defMultiPkg1.json").toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
+        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, projectPath);
+    }
+
+    private void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
+            throws IOException {
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+
+        JsonArray expected = configObject.getAsJsonArray("result");
+        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
+        this.alterExpectedUri(expected, root);
+        this.alterActualUri(actual);
+        Assert.assertEquals(actual, expected);
+    }
+
     @DataProvider
-    public Object[][] definitionsDataProvider() throws IOException {
+    public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
-                {new Position(23, 7),
-                        new DefinitionTestDataModel("localFunctionInSameFile.json", balPath1, balPath1)},
-                {new Position(44, 7),
-                        new DefinitionTestDataModel("localFunctionInAnotherFile.json", balPath2, balPath1)},
-                {new Position(36, 7),
-                        new DefinitionTestDataModel("recordInSameFile.json", balPath1, balPath1)},
-                {new Position(13, 7),
-                        new DefinitionTestDataModel("recordInAnotherFile.json", balPath2, balPath1)},
-                {new Position(41, 53),
-                        new DefinitionTestDataModel("readOnlyVariableInSameFile.json", balPath1, balPath1)},
-                {new Position(11, 18),
-                        new DefinitionTestDataModel("readOnlyVariableInAnotherFile.json", balPath1, balPath2)},
-                {new Position(47, 9),
-                        new DefinitionTestDataModel("localVariableInFunction.json", balPath1, balPath1)},
-                {new Position(51, 12),
-                        new DefinitionTestDataModel("localVariableInIfStatement.json", balPath1, balPath1)},
-                {new Position(40, 10),
-                        new DefinitionTestDataModel("localVariableInForeachStatement.json", balPath1, balPath1)},
-                {new Position(39, 25),
-                        new DefinitionTestDataModel("localVariableOnForeachStatement.json", balPath1, balPath1)},
-                {new Position(39, 25),
-                        new DefinitionTestDataModel("localVariableOfRecord.json", balPath1, balPath1)},
-                {new Position(11, 5),
-                        new DefinitionTestDataModel("localVariableOfEndpoint.json", balPath3, balPath3)},
-                {new Position(30, 6),
-                        new DefinitionTestDataModel("goToDefFromTestSource.json", balPath1, testBalPath)}
+                {"defXMLNS1.json", "xmlns"},
+                {"defXMLNS2.json", "xmlns"},
+                {"defXMLNS3.json", "xmlns"},
+                {"defFunction1.json", "function"},
+                {"defFunction3.json", "function"},
+                {"defFunction4.json", "function"},
+                {"defFunction5.json", "function"},
+                {"defService1.json", "service"},
+                {"defService2.json", "service"},
+                {"defService3.json", "service"},
+                {"defService4.json", "service"},
+                {"defService5.json", "service"},
+                {"defArrays1.json", "array"},
+                {"defArrays2.json", "array"},
+                {"defArrays3.json", "array"},
+                {"defArrays4.json", "array"},
+                {"defArrays5.json", "array"},
+                {"defArrays6.json", "array"},
+                {"defArrays7.json", "array"},
+                {"defArrays8.json", "array"},
+                {"defArrays9.json", "array"},
+                {"defArrays10.json", "array"},
+                {"defArrays11.json", "array"},
+                {"defArrays12.json", "array"},
+                {"defArrays13.json", "array"},
+                {"defArrays14.json", "array"},
+                {"defArrays15.json", "array"},
+                {"defArrays16.json", "array"},
+                {"defArrays17.json", "array"},
+                {"defArrays19.json", "array"},
+                {"defAssignment1.json", "assignment"},
+                {"defAssignment2.json", "assignment"},
+                {"defAssignment3.json", "assignment"},
+                {"defAssignment4.json", "assignment"},
+                {"defAssignment6.json", "assignment"},
+                {"defCompoundAssignment1.json", "compoundassignment"},
+                {"defForeach1.json", "foreach"},
+                {"defForeach2.json", "foreach"},
+                {"defForeach3.json", "foreach"},
+                {"defForeach4.json", "foreach"},
+                {"defForeach5.json", "foreach"},
+                {"defForeach6.json", "foreach"},
+                {"defForeach7.json", "foreach"},
+                {"defForeach8.json", "foreach"},
+                {"defForeach9.json", "foreach"},
+                {"defForeach10.json", "foreach"},
+                {"defForeach11.json", "foreach"},
+                {"defForeach12.json", "foreach"},
+                {"defForeach13.json", "foreach"},
+                {"defForeach14.json", "foreach"},
+                {"defForeach15.json", "foreach"},
+                {"defForeach16.json", "foreach"},
+                {"defForeach17.json", "foreach"},
+                {"defForeach18.json", "foreach"},
+                {"defForeach19.json", "foreach"},
+                {"defForeach20.json", "foreach"},
+                {"defForeach21.json", "foreach"},
+                {"defForeach22.json", "foreach"},
+                {"defForeach23.json", "foreach"},
+                {"defForeach24.json", "foreach"},
+                {"defForeach25.json", "foreach"},
+                {"defForeach26.json", "foreach"},
+                {"defIfElse1.json", "ifelse"},
+                {"defIfElse2.json", "ifelse"},
+                {"defIfElse3.json", "ifelse"},
+                {"defIfElse4.json", "ifelse"},
+                {"defIfElse5.json", "ifelse"},
+                {"defIfElse6.json", "ifelse"},
+                {"defMatchStmt1.json", "matchstmt"},
+                {"defMatchStmt2.json", "matchstmt"},
+                {"defMatchStmt3.json", "matchstmt"},
+                {"defMatchStmt4.json", "matchstmt"},
+                {"defMatchStmt5.json", "matchstmt"},
+                {"defMatchStmt6.json", "matchstmt"},
+                {"defTransaction1.json", "transaction"},
+                {"defGlobal1.json", "global"},
+                {"defRecord1.json", "record"},
+                {"defError1.json", "error"},
+                {"defWaitExpression1.json", "waitexpression"},
+                {"defExpressionConnectorInit.json", "expression"},
+                {"defExpressionNamedArgs.json", "expression"},
         };
     }
     
     @AfterClass
     public void shutDownLanguageServer() throws IOException {
-        TestUtil.closeDocument(this.serviceEndpoint, balPath1);
-        TestUtil.closeDocument(this.serviceEndpoint, balPath2);
-        TestUtil.closeDocument(this.serviceEndpoint, balPath3);
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    /**
-     * Get the expected value from the expected file.
-     *
-     * @param expectedFile    json file which contains expected content.
-     * @param expectedFileURI string value of the expected file URI.
-     * @return string content read from the json file.
-     */
-    private String getExpectedValue(String expectedFile, String expectedFileURI) throws IOException {
-        Path expectedFilePath = definitionsPath.resolve("expected").resolve(expectedFile);
+    private void alterExpectedUri(JsonArray expected, Path root) throws IOException {
+        for (JsonElement jsonElement : expected) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
+            Path expectedPath = Paths.get(root.toUri());
+            for (String uriComponent : uriComponents) {
+                expectedPath = expectedPath.resolve(uriComponent);
+            }
+            item.remove("uri");
+            item.addProperty("uri", expectedPath.toFile().getCanonicalPath());
+        }
+    }
 
-        byte[] expectedByte = Files.readAllBytes(expectedFilePath);
-        String positionRange = new String(expectedByte).trim();
-
-        return "{\"id\":\"324\",\"result\":[{\"uri\":" +
-                "\"" + expectedFileURI + "\"," +
-                "\"range\":" + positionRange + "}]," +
-                "\"jsonrpc\":\"2.0\"}";
+    private void alterActualUri(JsonArray actual) throws IOException {
+        for (JsonElement jsonElement : actual) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String uri = item.get("uri").toString().replace("\"", "");
+            String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+            item.remove("uri");
+            item.addProperty("uri", canonicalPath);
+        }
     }
 }

@@ -28,45 +28,45 @@ type WebSocketConnector object {
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame) returns error? {
         string text = "";
         if (data is byte) {
-            text = <string>(<int>data);
+            text = string.convert(int.convert(data));
         } else if (data is int) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is float) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is boolean) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is string) {
             text = data;
         } else if (data is xml) {
             text = string.convert(data);
         } else if (data is byte[]) {
             text = encoding:byteArrayToString(data);
-        } else if (data is json) {
+        } else {
             text = data.toString();
         }
         return self.externPushText(text, finalFrame);
     }
 
-    extern function externPushText(string text, boolean finalFrame) returns error?;
+    function externPushText(string text, boolean finalFrame) returns error? = external;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public extern function pushBinary(byte[] data, boolean finalFrame) returns error?;
+    public function pushBinary(byte[] data, boolean finalFrame) returns error? = external;
 
     # Ping the connection.
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public extern function ping(byte[] data) returns error?;
+    public function ping(byte[] data) returns error? = external;
 
     # Send pong message to the connection.
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public extern function pong(byte[] data) returns error?;
+    public function pong(byte[] data) returns error? = external;
 
     # Close the connection.
     #
@@ -91,12 +91,12 @@ type WebSocketConnector object {
         }
     }
 
-    extern function externClose(int statusCode, string reason, int timeoutInSecs) returns error?;
+    function externClose(int statusCode, string reason, int timeoutInSecs) returns error? = external;
 
     # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
     # WebSocketListener can be called only in upgrade or onOpen resources.
     #
     # + return - `error` if an error occurs when sending
-    public extern function ready() returns error?;
+    public function ready() returns error? = external;
 
 };

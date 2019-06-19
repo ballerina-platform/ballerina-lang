@@ -41,6 +41,7 @@ public class WebSubTestUtils {
     public static final String CONTENT_TYPE_JSON = "json";
     public static final String CONTENT_TYPE_XML = "xml";
     public static final String CONTENT_TYPE_STRING = "string";
+    public static final String PATH_SEPARATOR = "/";
 
     public static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
         try {

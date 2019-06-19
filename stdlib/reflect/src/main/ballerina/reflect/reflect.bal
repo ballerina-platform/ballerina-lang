@@ -14,23 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type anyStruct record {
+public type anyStruct record {|
     any...;
-};
+|};
 
 public type annotationData record {
     string name;
     string moduleName;
     string moduleVersion;
-    record { any...; } value;
+    record {| any...; |} value;
 };
 
-public extern function getServiceAnnotations(service serviceType) returns (annotationData[]);
+public function getServiceAnnotations(service serviceType) returns annotationData[] = external;
 
-public extern function getResourceAnnotations(service serviceType, string resourceName) returns (annotationData[]);
+public function getResourceAnnotations(service serviceType, string resourceName) returns annotationData[] = external;
 
-public extern function getStructAnnotations(typedesc structType) returns (annotationData[]);
+public function getStructAnnotations(typedesc structType) returns annotationData[] = external;
 
-public extern function getStructFieldAnnotations(typedesc structType, string fieldName) returns (annotationData[]);
+public function getStructFieldAnnotations(typedesc structType, string fieldName) returns annotationData[] = external;
 
-public extern function getFunctionAnnotations(any functionPointer) returns (annotationData[]);
+public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;

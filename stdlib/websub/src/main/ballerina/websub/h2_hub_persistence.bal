@@ -16,6 +16,7 @@
 
 import ballerina/h2;
 import ballerina/log;
+import ballerina/sql;
 
 const string CREATE_TOPICS_TABLE = "CREATE TABLE IF NOT EXISTS topics (topic VARCHAR(255), PRIMARY KEY (topic))";
 const string INSERT_INTO_TOPICS = "INSERT INTO topics (topic) VALUES (?)";
@@ -31,6 +32,7 @@ const string DELETE_FROM_SUBSCRIPTIONS = "DELETE FROM subscriptions WHERE topic=
 const string SELECT_FROM_SUBSCRIPTIONS = "SELECT topic, callback, secret, lease_seconds, created_at FROM subscriptions";
 
 # Represents H2 based hub persistence configuration and functions.
+# + subscriptionDbClient - Database clint used to persist subscription data
 public type H2HubPersistenceStore object {
 
     // TODO: make private
@@ -59,20 +61,20 @@ public type H2HubPersistenceStore object {
         sql:Parameter para4 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.leaseSeconds };
         sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.createdAt };
 
-        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
-        if (rowCount is int) {
-            log:printDebug("Successfully removed " + rowCount + " entries for existing subscription");
+        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        if (ret is sql:UpdateResult) {
+            log:printDebug("Successfully removed " + ret.updatedRowCount + " entries for existing subscription");
         } else {
-            string errCause = <string> rowCount.detail().message;
+            string errCause = <string> ret.detail().message;
             log:printError("Error occurred deleting subscription data: " + errCause);
         }
 
-        rowCount = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
+        ret = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
                                                     untaint para3, untaint para4, untaint para5);
-        if (rowCount is int) {
-            log:printDebug("Successfully updated " + rowCount + " entries for subscription");
+        if (ret is sql:UpdateResult) {
+            log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for subscription");
         } else {
-            string errCause = <string> rowCount.detail().message;
+            string errCause = <string> ret.detail().message;
             log:printError("Error occurred updating subscription data: " + errCause);
         }
     }
@@ -83,12 +85,12 @@ public type H2HubPersistenceStore object {
     public function removeSubscription(SubscriptionDetails subscriptionDetails) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.topic };
         sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.callback };
-        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
 
-        if (rowCount is int) {
-            log:printDebug("Successfully updated " + rowCount + " entries for unsubscription");
+        if (ret is sql:UpdateResult) {
+            log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for unsubscription");
         } else {
-            string errCause = <string> rowCount.detail().message;
+            string errCause = <string> ret.detail().message;
             log:printError("Error occurred updating unsubscription data: " + errCause);
         }
     }
@@ -98,11 +100,11 @@ public type H2HubPersistenceStore object {
     # + topic - The topic to add
     public function addTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
-        var rowCount = self.subscriptionDbClient->update(INSERT_INTO_TOPICS, para1);
-        if (rowCount is int) {
-            log:printDebug("Successfully updated " + rowCount + " entries for topic registration");
+        var ret = self.subscriptionDbClient->update(INSERT_INTO_TOPICS, para1);
+        if (ret is sql:UpdateResult) {
+            log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic registration");
         } else {
-            string errCause = <string> rowCount.detail().message;
+            string errCause = <string> ret.detail().message;
             log:printError("Error occurred updating topic registration data: " + errCause);
         }
     }
@@ -112,11 +114,11 @@ public type H2HubPersistenceStore object {
     # + topic - The topic to remove
     public function removeTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
-        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_TOPICS, para1);
-        if (rowCount is int) {
-            log:printDebug("Successfully updated " + rowCount + " entries for topic unregistration");
+        var ret = self.subscriptionDbClient->update(DELETE_FROM_TOPICS, para1);
+        if (ret is sql:UpdateResult) {
+            log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic unregistration");
         } else {
-            string errCause = <string> rowCount.detail().message;
+            string errCause = <string> ret.detail().message;
             log:printError("Error occurred updating topic unregistration data: " + errCause);
         }
     }

@@ -22,17 +22,12 @@ listener socket:Listener server1 = new(60152);
 listener socket:Listener server2 = new(60152);
 
 service echoServer1 on server1 {
-    resource function onAccept(socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        _ = caller->write(content);
+    resource function onReadReady(socket:Caller caller) {
         io:println("Server write");
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
     }
 
     resource function onError(socket:Caller caller, error er) {
@@ -41,17 +36,12 @@ service echoServer1 on server1 {
 }
 
 service echoServer2 on server2 {
-    resource function onAccept(socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        _ = caller->write(content);
+    resource function onReadReady(socket:Caller caller) {
         io:println("Server write");
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
     }
 
     resource function onError(socket:Caller caller, error er) {

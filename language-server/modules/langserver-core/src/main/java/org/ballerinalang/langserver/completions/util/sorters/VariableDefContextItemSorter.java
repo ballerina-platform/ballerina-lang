@@ -17,8 +17,9 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,12 +38,13 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @param completionItems List of initial completion items
      */
     @Override
-    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
         String variableType = this.getVariableType(ctx);
-        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
-                .stream()
-                .map(Token::getText)
+        // TODO: Revamp with the latest token analyzing
+        List<String> poppedTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .map(CommonToken::getText)
                 .collect(Collectors.toList());
 
         if (poppedTokens.contains("=")) {
@@ -69,11 +71,9 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @param ctx   Document Service context (Completion context)
      * @return      {@link String} type of the variable
      */
-    String getVariableType(LSServiceOperationContext ctx) {
-        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
-        return poppedTokens.get(0);
+    String getVariableType(LSContext ctx) {
+        // TODO: Use the content parsing to determine the rule
+        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        return lhsTokens.get(0).getText();
     }
 }

@@ -43,33 +43,32 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on ordering", err = err);
         }
     }
 
     @http:ResourceConfig {
-        methods: ["POST"]
+        methods: ["POST"],
+        path: "/notify/{subscriber}"
     }
-    resource function notify(http:Caller caller, http:Request req) {
+    resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
-        string mode = "";
-        string contentType = "";
-        var jsonPayload = req.getJsonPayload();
-        if (jsonPayload is json) {
-            mode = jsonPayload.mode.toString();
-            contentType = jsonPayload.content_type.toString();
-        } else {
-            panic jsonPayload;
-        }
+        json jsonPayload = <json> req.getJsonPayload();
+        string mode = jsonPayload.mode.toString();
+        string contentType = jsonPayload.content_type.toString();
 
-        http:Response response = new;
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted();
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
+        }
+
+        if (subscriber != "skip_subscriber_check") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree?topic=" +
+                    WEBSUB_TOPIC_ONE + "&fooVal=barVal");
         }
 
         if (mode == "internal") {
@@ -89,14 +88,10 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            var j = json.convert(details[0]);
-            if (j is json) {
-                var err = caller->respond(j);
-                if (err is error) {
-                    log:printError("Error responding on topicInfo request", err = err);
-                }
-            } else {
-                panic j;
+            json j = <json> json.convert(details[0]);
+            var err = caller->respond(j);
+            if (err is error) {
+                log:printError("Error responding on topicInfo request", err = err);
             }
         } else {
             map<string> allTopics = {};
@@ -106,14 +101,10 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            var j = json.convert(allTopics);
-            if (j is json) {
-                var err = caller->respond(j);
-                if (err is error) {
-                    log:printError("Error responding on topicInfo request", err = err);
-                }
-            } else {
-                panic j;
+            json j = <json> json.convert(allTopics);
+            var err = caller->respond(j);
+            if (err is error) {
+                log:printError("Error responding on topicInfo request", err = err);
             }
         }
     }
@@ -127,8 +118,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on ordering", err = err);
         }
@@ -138,24 +128,57 @@ service publisherTwo on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        checkSubscriberAvailability(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub");
-        var err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
-        if (err is error) {
-            log:printError("Error publishing update directly", err = err);
-        }
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub",
+                                                     {"action":"publish","mode":"internal-hub"});
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo",
+                                                     {"action":"publish","mode":"internal-hub-two"});
 
-        checkSubscriberAvailability(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo");
-        err = webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"});
-        if (err is error) {
-            log:printError("Error publishing update directly", err = err);
-        }
-
-        http:Response response = new;
-        response.statusCode = 202;
-        err = caller->respond(response);
+        var err = caller->accepted();
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
+    }
+}
+
+service contentTypePublisher on publisherServiceEP {
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/notify/{port}"
+    }
+    resource function notify(http:Caller caller, http:Request req, string port) {
+        json jsonPayload = <json> req.getJsonPayload();
+        string mode = jsonPayload.mode.toString();
+        string contentType = jsonPayload.content_type.toString();
+
+        var err = caller->accepted();
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
+        }
+
+        if (port != "skip_subscriber_check") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + port + "/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + port + "/websubTwo");
+        }
+
+        if (mode == "internal") {
+            err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update directly", err = err);
+            }
+        } else {
+            err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update remotely", err = err);
+            }
+        }
+    }
+}
+
+function checkSubscrberAvailabilityAndPublishDirectly(string topic, string subscriber, json payload) {
+    checkSubscriberAvailability(topic, subscriber);
+    var err = webSubHub.publishUpdate(topic, payload);
+    if (err is error) {
+        log:printError("Error publishing update directly", err = err);
     }
 }
 
@@ -209,21 +232,18 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
             return {"action":"publish","mode":"internal-hub"};
-        } else {
-            return {"action":"publish","mode":"remote-hub"};
         }
+        return {"action":"publish","mode":"remote-hub"};
     } else if (contentType == "string") {
         if (mode == "internal") {
             return "Text update for internal Hub";
-        } else {
-            return "Text update for remote Hub";
         }
+        return "Text update for remote Hub";
     } else if (contentType == "xml") {
         if (mode == "internal") {
             return xml `<websub><request>Notification</request><type>Internal</type></websub>`;
-        } else {
-            return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
         }
+        return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }

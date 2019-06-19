@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -73,14 +72,11 @@ public final class ClientCall {
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
-        outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
-        if (advertisedEncodings != null) {
-            outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
-        }
+        outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
-        outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
+        outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
+        outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }
@@ -92,10 +88,10 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException(String.valueOf("Client connection us already setup."));
+            throw new IllegalStateException("Client connection us already setup.");
         }
         if (cancelCalled) {
-            throw new IllegalStateException(String.valueOf("Client call was cancelled."));
+            throw new IllegalStateException("Client call was cancelled.");
         }
         Compressor compressor;
         String compressorName = outboundMessage.getHeader("grpc-encoding");

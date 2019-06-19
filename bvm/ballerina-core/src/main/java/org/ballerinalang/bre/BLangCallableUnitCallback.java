@@ -83,6 +83,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
             strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
             strand.popFrame();
             strand.setError(error);
+            BVM.handleError(strand);
             BVMScheduler.schedule(strand);
             return;
         }

@@ -1,2 +1,2 @@
 // Compound assignment operators can be used to simplify the code and increase readability. These operators can only be
-// used as statements (i.e. cannot be used as expressions).
+// used as statements (i.e., they cannot be used as expressions).

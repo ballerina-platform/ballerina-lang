@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -57,7 +58,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
@@ -67,16 +72,18 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.MapCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
@@ -93,7 +100,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -233,6 +242,9 @@ public class CompiledPackageSymbolEnter {
         // Define constants.
         defineSymbols(dataInStream, rethrow(this::defineConstants));
 
+        // Set symbol of constant references if needed.
+        updateUnresolvedConstantReferences();
+
         // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
@@ -277,8 +289,6 @@ public class CompiledPackageSymbolEnter {
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
-            case CP_ENTRY_BYTE:
-                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:
@@ -312,9 +322,63 @@ public class CompiledPackageSymbolEnter {
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool[uniqueNameCPIndex];
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
+            case CP_ENTRY_MAP:
+                return readMapConstantPoolEntry(dataInStream, constantPool);
             default:
                 throw new BLangCompilerException("invalid constant pool entry " + cpEntryType.getValue());
         }
+    }
+
+    private ConstantPoolEntry readMapConstantPoolEntry(DataInputStream dataInStream,
+                                                       ConstantPoolEntry[] constantPool) throws IOException {
+        LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+        // Read the size of the constant value map.
+        int size = dataInStream.readInt();
+
+        for (int i = 0; i < size; i++) {
+
+            // Read the CP index of the key.
+            int keyCPIndex = dataInStream.readInt();
+            UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
+
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            if (isSimpleLiteral) {
+                // Read value type tag.
+                int typeTag = dataInStream.readInt();
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.literalValueTypeTag = typeTag;
+                constantValue.isSimpleLiteral = true;
+
+                // Read the value accordingly.
+                if (typeTag == TypeTags.NIL) {
+                    // Do nothing.
+                } else if (typeTag == TypeTags.BOOLEAN) {
+                    constantValue.booleanValue = dataInStream.readBoolean();
+                    valueMap.put(keyInfo, constantValue);
+                } else {
+                    constantValue.valueCPEntryIndex = dataInStream.readInt();
+                    valueMap.put(keyInfo, constantValue);
+                }
+            } else {
+                int valueCPIndex = dataInStream.readInt();
+
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = valueCPIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                valueMap.put(keyInfo, constantValue);
+            }
+        }
+
+        return new MapCPEntry(null, valueMap);
     }
 
     private void defineSymbols(DataInputStream dataInStream,
@@ -333,6 +397,10 @@ public class CompiledPackageSymbolEnter {
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
                 this.env.repoHierarchy);
+
+        if (importPackageSymbol == null) {
+            throw new BLangCompilerException("missing symbol in " + this.env.pkgSymbol + " for import " + importPkgID);
+        }
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -348,6 +416,7 @@ public class CompiledPackageSymbolEnter {
         BInvokableType funcType = createInvokableType(funcSig);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.retType = funcType.retType;
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -424,6 +493,9 @@ public class CompiledPackageSymbolEnter {
                 break;
             case TypeTags.RECORD:
                 typeDefSymbol = readRecordTypeSymbol(dataInStream, typeDefName, flags);
+                break;
+            case TypeTags.ERROR:
+                typeDefSymbol = readErrorTypeSymbol(dataInStream, typeDefName, flags);
                 break;
             case TypeTags.FINITE:
                 typeDefSymbol = readFiniteTypeSymbol(dataInStream, typeDefName, flags);
@@ -506,6 +578,31 @@ public class CompiledPackageSymbolEnter {
         return symbol;
     }
 
+
+    private BErrorTypeSymbol readErrorTypeSymbol(DataInputStream dataInStream, String name, int flags)
+            throws  IOException {
+        BErrorTypeSymbol symbol = Symbols.createErrorSymbol(flags, names.fromString(name), this.env.pkgSymbol.pkgID,
+                                                            null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BErrorType type = new BErrorType(symbol);
+        symbol.type = type;
+
+        String reasonTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType reasonType = new UnresolvedType(reasonTypeDesc,
+                                                       errReasonType -> type.reasonType = errReasonType);
+        this.env.unresolvedTypes.add(reasonType);
+
+        String detailTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType detailType = new UnresolvedType(detailTypeDesc,
+                                                       errDetailType -> type.detailType = errDetailType);
+        this.env.unresolvedTypes.add(detailType);
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
     private BTypeSymbol readFiniteTypeSymbol(DataInputStream dataInStream,
                                              String name, int flags) throws IOException {
         BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags, names.fromString(name),
@@ -541,52 +638,41 @@ public class CompiledPackageSymbolEnter {
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) this.env.constantPool[typeDescCPIndex];
         String typeDesc = typeDescCPEntry.getValue();
 
-        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        BLangLiteral litExpr = createLiteralBasedOnDescriptor(typeDesc);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
                 litExpr.value = dataInStream.readBoolean();
-                litExpr.typeTag = TypeTags.BOOLEAN;
                 break;
             case TypeDescriptor.SIG_INT:
+            case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
-                litExpr.typeTag = TypeTags.INT;
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = byteCPEntry.getValue();
-                litExpr.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = Double.toString(floatCPEntry.getValue());
-                litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = decimalEntry.getValue();
-                litExpr.typeTag = TypeTags.DECIMAL;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = stringCPEntry.getValue();
-                litExpr.typeTag = TypeTags.STRING;
                 break;
             case TypeDescriptor.SIG_NULL:
-                litExpr.typeTag = TypeTags.NIL;
                 break;
             default:
                 throw new BLangCompilerException("unknown default value type " + typeDesc);
         }
 
-        litExpr.type = symTable.getTypeFromTag(litExpr.typeTag);
+        litExpr.type = getBTypeFromDescriptor(typeDesc);
 
         finiteType.valueSpace.add(litExpr);
     }
@@ -610,7 +696,8 @@ public class CompiledPackageSymbolEnter {
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
             varSymbol.type = type;
             varSymbol.varIndex = new RegIndex(memIndex, type.tag);
-            BField structField = new BField(varSymbol.name, varSymbol);
+            // Here the field doesn't need the position as it comes from a compiled package.
+            BField structField = new BField(varSymbol.name, null, varSymbol);
             objectType.fields.add(structField);
         });
 
@@ -632,87 +719,194 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-
     private void defineConstants(DataInputStream dataInStream) throws IOException {
+        // Get the name.
         String constantName = getUTF8CPEntryValue(dataInStream);
-        String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
-        BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+        // Get the flags.
+        int flags = dataInStream.readInt();
+
+        Scope enclScope = this.env.pkgSymbol.scope;
+        BConstantSymbol constantSymbol;
+
+        boolean isSimpleLiteral = dataInStream.readBoolean();
+        if (isSimpleLiteral) {
+            // Get finite type.
+            String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+
+            // Get value type.
+            String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+            // Get the simple literal value.
+            Object object = readSimpleLiteralValue(dataInStream, valueType.tag);
+
+            // Create the constant symbol.
+            constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
+                    finiteType, valueType, enclScope.owner);
+            constantSymbol.literalValue = object;
+            constantSymbol.literalValueTypeTag = valueType.tag;
+        } else {
+            // Read value type. Don't need the finite type since the literal is not a simple literal.
+            String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+            BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+            // Create the constant symbol.
+            constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
+                    valueType, valueType, enclScope.owner);
+
+            // Read the constant value CP entry index.
+            int constantValueCPEntry = dataInStream.readInt();
+
+            // Get the corresponding MapCPEntry.
+            MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[constantValueCPEntry];
+
+            // Since this is a top level map literal, set the symbol to the MapCPEntry. This will be later used to
+            // identify references.
+            mapCPEntry.setConstantSymbol(constantSymbol);
+
+            // Read the map literal.
+            BLangMapLiteral mapLiteral = readConstantValueMap(dataInStream, valueType);
+
+            // If the mapCPEntry does not contain a literalValue, that means we are encountering this value for the
+            // first time. Then we update the constant symbol's literal value and the mapCPEntries literal value with
+            // the map literal which we have read.
+            if (mapCPEntry.literalValue == null) {
+                constantSymbol.literalValue = mapCPEntry.literalValue = mapLiteral;
+            } else {
+                // If the mapCPEntry's literal value is not null, that means we have encountered this value
+                // earlier. In such case, set the mapCPEntry's literal value as the constant symbol's literal value.
+                // This is done to make sure all the references have the same literal value. Otherwise the `===` will
+                // fail for them.
+                constantSymbol.literalValue = mapCPEntry.literalValue;
+            }
+
+            constantSymbol.literalValueTypeTag = valueType.tag;
+            constantSymbol.cpEntryIndex = constantValueCPEntry;
+        }
+
+        // Define constant.
+        enclScope.define(constantSymbol.name, constantSymbol);
+        // Read attributes.
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        // Set documentations.
+        setDocumentation(constantSymbol, attrDataMap);
+    }
+
+    private Object readSimpleLiteralValue(DataInputStream dataInStream, int typeTag) throws IOException {
+        // Get the value.
+        int valueCPIndex;
+        switch (typeTag) {
+            case TypeTags.BOOLEAN:
+                return dataInStream.readBoolean();
+            case TypeTags.BYTE:
+            case TypeTags.INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                return integerCPEntry.getValue();
+            case TypeTags.FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                return floatCPEntry.getValue();
+            case TypeTags.DECIMAL:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return decimalEntry.getValue();
+            case TypeTags.STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return stringCPEntry.getValue();
+            case TypeTags.NIL:
+                return null;
+            default:
+                throw new RuntimeException("unexpected type tag: " + typeTag);
+        }
+    }
+
+    private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
         String valueTypeSig = getUTF8CPEntryValue(dataInStream);
         BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
-        int flags = dataInStream.readInt();
+        int typeTag = valueType.tag;
 
-        // Create constant symbol.
-        Scope enclScope = this.env.pkgSymbol.scope;
-        BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
+        // Read the value.
+        Object value = readSimpleLiteralValue(dataInStream, typeTag);
 
-        enclScope.define(constantSymbol.name, constantSymbol);
-
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-        setDocumentation(constantSymbol, attrDataMap);
-
-        // Read value of the constant and set it in the symbol.
-        BLangLiteral constantValue = getConstantValue(attrDataMap);
-        constantSymbol.literalValue = constantValue.value;
-        constantSymbol.literalValueType = constantValue.type;
-        constantSymbol.literalValueTypeTag = constantValue.typeTag;
-    }
-
-    private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
-        // Constants must have a value attribute.
-        byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
-        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
         // Create a new literal.
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
-        String typeDesc = getUTF8CPEntryValue(documentDataStream);
-        int valueCPIndex;
-        switch (typeDesc) {
-            case TypeDescriptor.SIG_BOOLEAN:
-                literal.value = documentDataStream.readBoolean();
-                literal.typeTag = TypeTags.BOOLEAN;
-                break;
-            case TypeDescriptor.SIG_INT:
-                valueCPIndex = documentDataStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = integerCPEntry.getValue();
-                literal.typeTag = TypeTags.INT;
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = documentDataStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = byteCPEntry.getValue();
-                literal.typeTag = TypeTags.BYTE;
-                break;
-            case TypeDescriptor.SIG_FLOAT:
-                valueCPIndex = documentDataStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = floatCPEntry.getValue();
-                literal.typeTag = TypeTags.FLOAT;
-                break;
-            case TypeDescriptor.SIG_DECIMAL:
-                valueCPIndex = documentDataStream.readInt();
-                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = decimalEntry.getValue();
-                literal.typeTag = TypeTags.DECIMAL;
-                break;
-            case TypeDescriptor.SIG_STRING:
-                valueCPIndex = documentDataStream.readInt();
-                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = stringCPEntry.getValue();
-                literal.typeTag = TypeTags.STRING;
-                break;
-            case TypeDescriptor.SIG_NULL:
-                literal.value = null;
-                literal.typeTag = TypeTags.NIL;
-                break;
-            default:
-                // Todo - Allow json and xml.
-                throw new RuntimeException("unknown constant value type " + typeDesc);
-        }
-        literal.type = symTable.getTypeFromTag(literal.typeTag);
+        literal.value = value;
+        literal.type = symTable.getTypeFromTag(typeTag);
+
         return literal;
+    }
+
+    private BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type) throws IOException {
+
+        LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
+
+        // Read the map literal size.
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+            String key = getUTF8CPEntryValue(dataInStream);
+
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            boolean isConstRef = dataInStream.readBoolean();
+
+            // Get the value.
+            BLangExpression value;
+            if (isSimpleLiteral) {
+                // Read the simple literal.
+                value = readSimpleLiteral(dataInStream);
+            } else {
+                // Get the type of the record literal.
+                String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+                BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+                int valueCPEntryIndex = dataInStream.readInt();
+                MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[valueCPEntryIndex];
+
+                BLangMapLiteral recordLiteral = readConstantValueMap(dataInStream, valueType);
+
+                // If the current map entry is a reference value, create a new BLangConstRef and set the symbol which
+                // is retrieved from the mapCPEntry (in defineConstants we set the symbol). But sometimes this symbol
+                // can be null because we might encounter the reference before the constant definition.
+                //
+                // Eg - const map<map<boolean>> bm3 = { "key2": bm1 };
+                //      const map<boolean> bm1 = { "key1": true };
+                //
+                // In such situations, we need to update the BLangConstRef's symbol with the constant symbol once we
+                // create a symbol for that. In such cases, we add the BLangConstRef and the mapCPEntry to a map and
+                // after reading all of the constants, we iterate through them and update the symbol of
+                // BLangConstRef's accordingly.
+                if (isConstRef) {
+                    BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
+                    constRef.desugared = true;
+                    constRef.type = valueType;
+
+                    value = constRef;
+
+                    // Add the BLangConstRef and the corresponding MapCPEntry to the map so we can properly update
+                    // them later.
+                    this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
+                } else {
+                    // If it is not a constant reference, we update the mapCPEntry's value.
+                    value = mapCPEntry.literalValue = recordLiteral;
+                }
+            }
+            // Create a new literal for the key.
+            BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            keyLiteral.value = key;
+            keyLiteral.type = symTable.stringType;
+
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = new BLangRecordLiteral.BLangRecordKeyValue();
+            recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+            recordKeyValue.valueExpr = value;
+
+            keyValues.push(recordKeyValue);
+        }
+        // Create a new map literal.
+        return new BLangRecordLiteral.BLangMapLiteral(null, keyValues, type);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
@@ -853,8 +1047,8 @@ public class CompiledPackageSymbolEnter {
                 return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
+                IntegerCPEntry byteEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                return new DefaultValueLiteral(byteEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
@@ -1006,7 +1200,7 @@ public class CompiledPackageSymbolEnter {
     private BInvokableType createInvokableType(String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new CompilerTypeCreater(), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new CompilerTypeCreator(), chars, 0, typeStack);
         return (BInvokableType) typeStack.pop();
     }
 
@@ -1089,8 +1283,26 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
+    private void updateUnresolvedConstantReferences() {
+        for (Map.Entry<BLangConstRef, MapCPEntry> entry : this.env.unresolvedConstReferences.entrySet()) {
+            BLangConstRef ref = entry.getKey();
+            MapCPEntry cpEntry = entry.getValue();
+            // Set the symbol of the constant reference.
+            ref.symbol = cpEntry.getConstantSymbol();
+        }
+        // Clear the map.
+        this.env.unresolvedConstReferences.clear();
+    }
+
     private BType getBTypeFromDescriptor(String typeSig) {
-        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
+        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreator(), typeSig);
+    }
+
+    private BLangLiteral createLiteralBasedOnDescriptor(String typeSig) {
+        BType type = getBTypeFromDescriptor(typeSig);
+        NodeKind nodeKind = type.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
+        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
+                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
     /**
@@ -1104,9 +1316,11 @@ public class CompiledPackageSymbolEnter {
         BPackageSymbol pkgSymbol;
         ConstantPoolEntry[] constantPool;
         List<UnresolvedType> unresolvedTypes;
+        Map<BLangConstRef, MapCPEntry> unresolvedConstReferences;
 
         CompiledPackageSymbolEnv() {
             this.unresolvedTypes = new ArrayList<>();
+            this.unresolvedConstReferences = new HashMap<>();
         }
     }
 
@@ -1125,7 +1339,7 @@ public class CompiledPackageSymbolEnter {
      *
      * @since 0.975.0
      */
-    private class CompilerTypeCreater implements TypeCreater<BType> {
+    private class CompilerTypeCreator implements TypeCreator<BType> {
 
         @Override
         public BType getBasicType(char typeChar) {
@@ -1221,8 +1435,7 @@ public class CompiledPackageSymbolEnter {
                 case 'O':
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    return new BUnionType(unionTypeSymbol, new LinkedHashSet<>(memberTypes),
-                            memberTypes.contains(symTable.nilType));
+                    return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(memberTypes));
                 case 'P':
                     BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
@@ -1245,10 +1458,10 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
                 return symTable.errorType;
             }
-            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                     env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
             BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
             errorSymbol.type = errorType;

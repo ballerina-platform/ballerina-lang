@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaTableLiteral {
+public class BallerinaTableLiteralImpl extends ASTWrapperPsiElement implements BallerinaTableLiteral {
 
   public BallerinaTableLiteralImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl imp
   @Override
   @Nullable
   public BallerinaTableColumnDefinition getTableColumnDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableColumnDefinition.class);
+    return findChildByClass(BallerinaTableColumnDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaTableDataArray getTableDataArray() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableDataArray.class);
+    return findChildByClass(BallerinaTableDataArray.class);
   }
 
   @Override
@@ -74,7 +75,7 @@ public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl imp
   @Override
   @NotNull
   public PsiElement getTable() {
-    return notNullChild(findChildByType(TABLE));
+    return findNotNullChildByType(TABLE);
   }
 
 }

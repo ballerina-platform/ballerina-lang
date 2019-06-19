@@ -81,7 +81,7 @@ function streamFunc() {
     streams:Aggregator[] aggregators = [];
     aggregators[0] = iSumAggregator;
 
-    streams:Filter outFilter = streams:createFilter(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Filter outFilter = streams:createFilter(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter, note the "OUTPUT" prefix
             return <int>m["OUTPUT.sum"] > getValue();
@@ -89,7 +89,7 @@ function streamFunc() {
     );
 
     // create selector
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) { outFilter.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) { outFilter.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
             return e.data["inputStream.category"];
@@ -107,7 +107,7 @@ function streamFunc() {
 
     inputStream.subscribe(function (InputRecord i) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(i, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(i, "inputStream");
             select.process(eventArr);
         }
     );

@@ -108,7 +108,7 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException("error occured while deleting '" + path + "'", e);
+            throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
         }
     }
 }

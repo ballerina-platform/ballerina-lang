@@ -42,12 +42,11 @@ public class SocketBaseTest extends BaseTest {
     public void start() throws BallerinaTestException {
         executor = Executors.newSingleThreadExecutor();
         MockSocketServer mockSocketServer = new MockSocketServer();
-        executor.execute(mockSocketServer);
         String privateKey = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "public.crt").toAbsolutePath().toString());
-        int[] requiredPorts = new int[] { 58291, MockSocketServer.SERVER_PORT, 61598 };
+        int[] requiredPorts = new int[] { 58291, MockSocketServer.SERVER_PORT, 61598, 61599 };
 
         String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "socket")
@@ -55,6 +54,7 @@ public class SocketBaseTest extends BaseTest {
         String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "services", args, requiredPorts);
+        executor.execute(mockSocketServer);
     }
 
     @AfterGroups(value = "socket-test",

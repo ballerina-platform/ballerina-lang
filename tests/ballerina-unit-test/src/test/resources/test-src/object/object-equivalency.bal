@@ -477,64 +477,6 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     return (result1, result2, result3);
 }
 
-function testStructEquivalencyWithFunctionType () returns (string, string)|error {
-    string s1;
-    string s2;
-    SomeOtherStruct x = new;
-    x.s = "sss";
-    AnyStruct aa = new;
-    s1 = check aa.shout(x);
-    _ = aa.call();
-
-    SomeStruct ss = new;
-    ss.s = "s";
-    AnyStruct aaa = ss;
-    s2 = check aaa.shout(x);
-    _ = aaa.call();
-    return (s1,s2);
-}
-
-type AnyStruct object {
-    function shout (AnotherAnyStruct aa) returns (string|error);
-
-    function call () returns (AnotherAnyStruct);
-};
-
-function AnyStruct.shout (AnotherAnyStruct aa) returns (string|error) {
-    any a = aa;
-    var j = check json.stamp(a);
-    return "anyStruct" + j.toString();
-}
-
-function AnyStruct.call () returns (AnotherAnyStruct) {
-    return new AnotherAnyStruct() ;
-}
-
-type SomeStruct object {
-    public string s = "";
-
-    function shout (SomeOtherStruct aa) returns (string|error);
-
-    function call () returns (SomeOtherStruct);
-};
-
-function SomeStruct.shout (SomeOtherStruct aa) returns (string|error) {
-    return "someStruct" + io:sprintf("%s", aa);
-}
-
-function SomeStruct.call () returns (SomeOtherStruct) {
-    SomeOtherStruct s = new;
-    s.s= "return";
-    return s;
-}
-
-type SomeOtherStruct object {
-    public string s = "";
-};
-
-type AnotherAnyStruct object {
-};
-
 type Foo "a" | "b" | "c";
 
 type Person object {
@@ -590,10 +532,9 @@ function testObjectEqViewFromThirdPackage() returns (string|error) {
     var fooObj = trap <eq2:FooObj> barObj;
     if fooObj is error {
         panic fooObj;
-    } else if fooObj is eq2:FooObj {
+    } else {
         return fooObj.name;
     }
-    return "";
 }
 
 public type ObjectWithoutNew object {
@@ -732,4 +673,30 @@ function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
     PersonInOrder p4 = p3;
 
     return (p4, p2);
+}
+
+type ObjectWithAnyTypeVariables object {
+    public any x;
+    public any y;
+
+    function __init() {
+        self.x = "B";
+        self.y = 100;
+    }
+};
+
+type ObjectWithoutAnyTypeVariables object {
+    public string x;
+    public int y;
+
+    function __init() {
+        self.x = "A";
+        self.y = 12;
+    }
+};
+
+function testInherentTypeViolationWithNilType() {
+    ObjectWithoutAnyTypeVariables o1 = new;
+    ObjectWithAnyTypeVariables o2 = o1;
+    o2.x = (); // panic
 }

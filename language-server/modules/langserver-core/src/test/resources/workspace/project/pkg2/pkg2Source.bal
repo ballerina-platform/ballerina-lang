@@ -25,6 +25,6 @@ service testDocService on listenerEp {
         // Send a response back to caller
         // Errors are ignored with '_'
         // -> indicates a synchronous network-bound call
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }

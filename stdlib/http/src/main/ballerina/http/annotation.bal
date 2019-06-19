@@ -28,18 +28,17 @@
 # + chunking - Configures the chunking behaviour for the service
 # + cors - The cross origin resource sharing configurations for the service
 # + versioning - The version of the service to be used
-# + authConfig - Authentication configurations for securing the service
-public type HttpServiceConfig record {
-    Listener[] endpoints = [];
+# + auth - Authentication configurations for secure the service
+public type HttpServiceConfig record {|
+    Listener?[] endpoints = [];
     string host = "b7a.default";
     string basePath = "";
     CompressionConfig compression = {};
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ListenerAuthConfig? authConfig = {};
-    !...;
-};
+    ServiceResourceAuth auth?;
+|};
 
 # Configurations for CORS support.
 #
@@ -49,15 +48,14 @@ public type HttpServiceConfig record {
 # + exposeHeaders - The whitelisted headers which clients are allowed to access
 # + allowCredentials - Specifies whether credentials are required to access the service
 # + maxAge - The maximum duration to cache the preflight from client side
-public type CorsConfig record {
+public type CorsConfig record {|
     string[] allowHeaders = [];
     string[] allowMethods = [];
     string[] allowOrigins = [];
     string[] exposeHeaders = [];
     boolean allowCredentials = false;
     int maxAge= -1;
-    !...;
-};
+|};
 
 
 # Configurations for service versioning.
@@ -65,12 +63,11 @@ public type CorsConfig record {
 # + pattern - Expected version pattern in the request URL
 # + allowNoVersion - Allow requests with missing version path segment in the URL to be dispatched
 # + matchMajorVersion - Allow requests with only the major version specified in the URL to be dispatched
-public type Versioning record {
+public type Versioning record {|
     string pattern = "v{major}.{minor}";
     boolean allowNoVersion = false;
     boolean matchMajorVersion = false;
-    !...;
-};
+|};
 
 # Configurations for a WebSocket service.
 #
@@ -82,14 +79,13 @@ public type Versioning record {
 #                          in the `http:Listener`.
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative or zero, the default frame size will be used.
-public type WSServiceConfig record {
-    Listener[] endpoints = [];
+public type WSServiceConfig record {|
+    Listener?[] endpoints = [];
     string path = "";
     string[] subProtocols = [];
     int idleTimeoutInSeconds = 0;
     int maxFrameSize = 0;
-    !...;
-};
+|};
 
 // TODO: Enable this when Ballerina supports service life time
 //public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
@@ -113,8 +109,8 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 # + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
 # + transactionInfectable - Allow to participate in the distributed transactions if value is true
 # + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
-# + authConfig - Authentication Configs to secure the resource
-public type HttpResourceConfig record {
+# + auth - Authentication Configs to secure the resource
+public type HttpResourceConfig record {|
     string[] methods = [];
     string path = "";
     string body = "";
@@ -123,39 +119,32 @@ public type HttpResourceConfig record {
     CorsConfig cors = {};
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
-    ListenerAuthConfig? authConfig = ();
-    !...;
-};
+    ServiceResourceAuth auth?;
+|};
 
 # Resource configuration to upgrade from HTTP to WebSocket.
 #
 # + upgradePath - Path which is used to upgrade from HTTP to WebSocket
 # + upgradeService - Callback service for a successful upgrade
-public type WebSocketUpgradeConfig record {
+public type WebSocketUpgradeConfig record {|
     string upgradePath = "";
     service upgradeService?;
-    !...;
-};
+|};
 
 # Configures the authentication scheme for a service or a resource.
 #
-# + authentication - Enables/disables authentication
-# + authProviders - Array of authentication provider IDs
-# + scopes - Array of scopes
-public type ListenerAuthConfig record {
-    Authentication? authentication = ();
-    string[]? authProviders = ();
-    string[]? scopes = ();
-    !...;
-};
-
-# Can be used for enabling/disabling authentication in an HTTP service.
-#
 # + enabled - Specifies whether authentication is enabled
-public type Authentication record {
-    boolean enabled = false;
-    !...;
-};
+# + authnHandlers - Array of authentication handlers or Array of arrays of authentication handlers. Array is used to
+# say at least one of the authenticaion handlers should successfully authenticated. Array of arrays is used to say
+# at least one authentication handler from the sub arrays should successfully authenticated.
+# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
+# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
+# authorized.
+public type ServiceResourceAuth record {|
+    boolean enabled = true;
+    AuthnHandler[]|AuthnHandler[][] authnHandlers?;
+    string[]|string[][] scopes?;
+|};
 
 # The annotation which is used to configure an HTTP resource.
 public annotation <resource> ResourceConfig HttpResourceConfig;

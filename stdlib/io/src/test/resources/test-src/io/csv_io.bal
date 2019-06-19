@@ -27,10 +27,14 @@ io:WritableCSVChannel? wch = ();
 
 const string IO_ERROR_CODE = "{ballerina/io}IOError";
 
-function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
-    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-    rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(untaint byteChannel, encoding);
+        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+    } else {
+        return byteChannel;
+    }    
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
@@ -39,10 +43,14 @@ function initWritableCsvChannel(string filePath, string encoding, io:Separator f
     wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
-function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) {
-    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
-    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-    rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
+function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
+    var byteChannel = untaint io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
+    } else {
+        return byteChannel;
+    }    
 }
 
 function nextRecord() returns (string[]|error) {
@@ -62,29 +70,30 @@ function writeRecord(string[] fields) {
 }
 
 function close() {
-    _ = rch.close();
-    _ = wch.close();
+    checkpanic rch.close();
+    checkpanic wch.close();
 }
 
 function hasNextRecord() returns boolean? {
     return rch.hasNext();
 }
 
-function getTable(string filePath, string encoding, io:Separator fieldSeperator) returns float|error {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-    io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeperator);
-    float total = 0.0;
-    var tableResult = csv.getTable(Employee);
-    if (tableResult is table<Employee>) {
-        foreach var x in tableResult {
-            total = total + x.salary;
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns float|error {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+        float total = 0.0;
+        var tableResult = csv.getTable(Employee);
+        if (tableResult is table<Employee>) {
+            foreach var x in tableResult {
+                total = total + x.salary;
+            }
+            return total;
+        } else {
+            return tableResult;
         }
-        return total;
-    } else if (tableResult is error) {
-        return tableResult;
     } else {
-        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
-        return e;
-    }
+        return byteChannel;
+    }    
 }

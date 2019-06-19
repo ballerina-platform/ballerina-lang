@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub;
 
-public interface BallerinaFunctionDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaFunctionDefinitionStub> {
+public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
   BallerinaAttachedObject getAttachedObject();
@@ -39,13 +37,16 @@ public interface BallerinaFunctionDefinition extends BallerinaNamedElement, Ball
   BallerinaTypeName getTypeName();
 
   @Nullable
+  PsiElement getAssign();
+
+  @Nullable
   PsiElement getDot();
 
   @Nullable
   PsiElement getSemicolon();
 
   @Nullable
-  PsiElement getExtern();
+  PsiElement getExternal();
 
   @NotNull
   PsiElement getFunction();

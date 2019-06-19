@@ -42,16 +42,14 @@ public class TypeTags {
     // All the above types are branded types
     public static final int ANY = INVOKABLE + 1;
     public static final int ENDPOINT = ANY + 1;
-    public static final int SERVICE = ENDPOINT + 1;
-    public static final int ARRAY = SERVICE + 1;
+    public static final int ARRAY = ENDPOINT + 1;
     public static final int UNION = ARRAY + 1;
     public static final int PACKAGE = UNION + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
     public static final int ANNOTATION = XMLNS + 1;
-    public static final int XML_ATTRIBUTES = ANNOTATION + 1;
-    public static final int SEMANTIC_ERROR = XML_ATTRIBUTES + 1;
+    public static final int SEMANTIC_ERROR = ANNOTATION + 1;
     public static final int ERROR = SEMANTIC_ERROR + 1;
     public static final int ITERATOR = ERROR + 1;
     public static final int TUPLE = ITERATOR + 1;
@@ -62,6 +60,8 @@ public class TypeTags {
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int CHANNEL = BYTE_ARRAY + 1;
+
+    public static final int SERVICE = OBJECT;
 
     private TypeTags() {
     }

@@ -33,18 +33,20 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
 
-final boolean scheduleInit = scheduleTimer(1000, 60000);
+listener task:Listener timer = new({
+    interval: 60000,
+    initialDelay: 1000
+});
 
-function scheduleTimer(int delay, int interval) returns boolean {
-    (function() returns error?) onTriggerFunction = cleanupTransactions;
-    task:Timer timer = new(onTriggerFunction, (), interval, delay = delay);
-    timer.start();
-    return true;
+service scheduleTimer on timer {
+    resource function onTrigger() {
+        checkpanic cleanupTransactions();
+    }
 }
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach var (key, twopcTxn) in participatedTransactions {
+        foreach var [key, twopcTxn] in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -80,7 +82,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach var (key, twopcTxn) in initiatedTransactions {
+        foreach var [key, twopcTxn] in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -89,7 +91,7 @@ function cleanupTransactions() returns error? {
                         log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
                                 ". Result: " + result);
                         removeInitiatedTransaction(twopcTxn.transactionId);
-                    } else if (result is error) {
+                    } else {
                         log:printError("Auto-commit of participated transaction: " +
                         twopcTxn.transactionId + " failed", err = result);
                     }
@@ -121,27 +123,30 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 }
 
 function protoName(UProtocol p) returns string {
-    if (p is LocalProtocol) {
+    if (p is RemoteProtocol) {
         return p.name;
     } else {
-        return p.name;
+        return <string> p.name;
     }
 }
 
-function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
+function protocolCompatible(string coordinationType, UProtocol?[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
-    foreach var participantProtocol in participantProtocols {
-        foreach var validProtocol in validProtocols {
-            if (protoName(participantProtocol) == validProtocol) {
-                participantProtocolIsValid = true;
-                break;
-            } else {
-                participantProtocolIsValid = false;
+    foreach var p in participantProtocols {
+        if (p is UProtocol) {
+            UProtocol participantProtocol = p;
+            foreach var validProtocol in validProtocols {
+                if (protoName(participantProtocol) == validProtocol) {
+                    participantProtocolIsValid = true;
+                    break;
+                } else {
+                    participantProtocolIsValid = false;
+                }
             }
-        }
-        if (!participantProtocolIsValid) {
-            break;
+            if (!participantProtocolIsValid) {
+                break;
+            }
         }
     }
     return participantProtocolIsValid;
@@ -160,7 +165,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
         } else {
             return;
         }
-    } else if (resPayload is error) {
+    } else {
         panic resPayload;
     }
 }
@@ -225,7 +230,7 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
     if (initiatedTxn is ()) {
         error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
         return err;
-    } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+    } else {
         if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
             error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
             return err;
@@ -249,11 +254,6 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
             log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
             return txnCtx;
         }
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
@@ -340,7 +340,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
         //map data = { cause: err };
         error err = error(msg);
         return err;
-    } else if (result is RegistrationResponse) {
+    } else {
         RemoteProtocol[] coordinatorProtocols = result.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
         twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
@@ -351,11 +351,6 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
         };
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
         return txnCtx;
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
@@ -369,6 +364,6 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-extern function getAvailablePort() returns int;
+function getAvailablePort() returns int = external;
 
-extern function getHostAddress() returns string;
+function getHostAddress() returns string = external;

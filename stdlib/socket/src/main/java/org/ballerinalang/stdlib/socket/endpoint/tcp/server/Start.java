@@ -45,13 +45,14 @@ import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
+import java.util.concurrent.RejectedExecutionException;
 
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
-import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 /**
  * Start server socket listener.
@@ -110,8 +111,12 @@ public class Start implements NativeCallableUnit {
             callback.notifySuccess();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils
-                    .createSocketError(context, "Unable to start the socket service: " + e.getMessage()));
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Unable to start the socket service: " + e.getMessage()));
+            callback.notifySuccess();
+        } catch (RejectedExecutionException e) {
+            log.error(e.getMessage(), e);
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket listener."));
             callback.notifySuccess();
         }
     }

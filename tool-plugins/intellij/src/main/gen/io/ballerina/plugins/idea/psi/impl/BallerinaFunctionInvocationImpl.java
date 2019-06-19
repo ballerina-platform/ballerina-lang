@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaFunctionInvocationImpl extends BallerinaCompositeElementImpl implements BallerinaFunctionInvocation {
+public class BallerinaFunctionInvocationImpl extends ASTWrapperPsiElement implements BallerinaFunctionInvocation {
 
   public BallerinaFunctionInvocationImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaFunctionInvocationImpl extends BallerinaCompositeElementIm
   @Override
   @Nullable
   public BallerinaInvocationArgList getInvocationArgList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaInvocationArgList.class);
+    return findChildByClass(BallerinaInvocationArgList.class);
   }
 
   @Override
   @NotNull
   public BallerinaFunctionNameReference getFunctionNameReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaFunctionNameReference.class));
+    return findNotNullChildByClass(BallerinaFunctionNameReference.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override

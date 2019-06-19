@@ -12,12 +12,13 @@ public function main() {
     // You can pass the value of the `future` variable around
     // and call its results later.
     int result = squarePlusCube(f1);
+    // Wait for future `f1` to finish.
+    _ = wait f1;
     io:println("SQ + CB = ", result);
 
-    // Call the `countInfinity()` function, that runs forever in asynchronous 
+    // Call the `countInfinity()` function, that runs forever in asynchronous
     // mode.
     future<()> f2 = start countInfinity();
-    runtime:sleep(1000);
     // Check if the function call is done.
     io:println(f2.isDone());
     // Check if someone cancelled the asynchronous execution.
@@ -26,18 +27,13 @@ public function main() {
     boolean cancelled = f2.cancel();
     io:println(cancelled);
     io:println("Counting done in one second: ", count);
-    // After cancelling the asynchronous execution of `f2`, check if the
-    // function call is done and if someone cancelled the execution.
-    io:println(f2.isDone());
-    io:println(f2.isCancelled());
 
     // Asynchronously invoke the action call `get()`.
     future<http:Response|error> f3 = start clientEndpoint->get("/get?test=123");
-    io:println(sum(25, 75));
     // Check if the action call is done.
     io:println(f3.isDone());
     // Wait for action call `f3` to finish.
-    var response = wait f3;
+    http:Response|error response = wait f3;
     // Print the response payload of the action call if successful, or print the
     // reason for failure.
     if (response is http:Response) {
@@ -63,6 +59,8 @@ public function main() {
     future<int> f6 = start sum(40, 60);
     future<int> f7 = start cube(3);
     future<string> f8 = start greet("Moose");
+    // A `runtime:sleep` is added to delay the execution.
+    runtime:sleep(2000);
 
     // You can wait for all the given futures to complete.
     // The result of this `wait` action can be assigned to a map or a record.

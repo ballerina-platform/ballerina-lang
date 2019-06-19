@@ -38,12 +38,12 @@ import javax.jms.Message;
  * Get expiration time of a JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getExpiration",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         returnType = { @ReturnType(type = TypeKind.INT) },
         isPublic = true
 )

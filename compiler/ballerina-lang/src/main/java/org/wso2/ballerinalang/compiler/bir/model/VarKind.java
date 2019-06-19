@@ -41,7 +41,17 @@ public enum VarKind {
     /**
      * Special variable which holds the return value of a function.
      */
-    RETURN((byte) 4);
+    RETURN((byte) 4),
+
+    /**
+     * User-defined global variable.
+     */
+    GLOBAL((byte) 5),
+
+    /**
+     * self referencing variable.
+     */
+    SELF((byte) 6);
 
     byte value;
 

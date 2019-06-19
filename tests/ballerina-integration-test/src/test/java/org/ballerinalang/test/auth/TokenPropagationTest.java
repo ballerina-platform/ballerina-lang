@@ -16,12 +16,10 @@
  *  under the License.
  */
 
-
 package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -30,16 +28,73 @@ import java.util.Map;
 /**
  * Test cases for verifying token propagation scenario.
  */
-@Test(groups = "auth-test")
+@Test(groups = "broken")
 public class TokenPropagationTest extends AuthBaseTest {
 
-    @Test(description = "With JWT Token propagation, authn success test")
-    public void testTokenPropagationSuccess() throws Exception {
+    @Test(description = "Test JWT Token propagation with basic auth as the inbound authentication mechanism")
+    public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9192, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
                 headers, serverInstance.getServerHome());
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertOK(response);
+    }
+
+    @Test(description = "Test behaviour when JWT Token propagation is disabled, resulting in authn failure")
+    public void testWithoutTokenPropagation() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
+                headers, serverInstance.getServerHome());
+        assertUnauthorized(response);
+    }
+
+    @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, without " +
+            "token reissuing")
+    public void testTokenPropagationWithJwtAuthInbound() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJpbmEiLCJpc3M" +
+                "iOiJleGFtcGxlMSIsImV4cCI6MjgxODQxNTAxOSwiaWF0IjoxNTI0NTc1MDE5LCJqdGkiOiJmNWFkZWQ1MDU4NWM0NmYyYjh" +
+                "jYTIzM2QwYzJhM2M5ZCIsImF1ZCI6WyJiYWxsZXJpbmEiLCJiYWxsZXJpbmEub3JnIiwiYmFsbGVyaW5hLmlvIl0sInNjb3B" +
+                "lIjoiaGVsbG8ifQ.W_lvdp_o3o7MBVWeumg2fvIVSFWoGl9OFv2qyAz_g2afJwUWrFYOUd-1rj9lebZrQzqTd6RRX65MVF3G" +
+                "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
+                "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
+                "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
+                headers, serverInstance.getServerHome());
+
+        assertOK(response);
+    }
+
+    @Test(description = "Test JWT Token propagation with JWT auth as the inbound authentication mechanism, with " +
+            "token reissuing")
+    public void testTokenPropagationWithJwtAuthInboundAndTokenReissuing() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJpbmEiLCJpc3M" +
+                "iOiJleGFtcGxlMSIsImV4cCI6MjgxODQxNTAxOSwiaWF0IjoxNTI0NTc1MDE5LCJqdGkiOiJmNWFkZWQ1MDU4NWM0NmYyYjh" +
+                "jYTIzM2QwYzJhM2M5ZCIsImF1ZCI6WyJiYWxsZXJpbmEiLCJiYWxsZXJpbmEub3JnIiwiYmFsbGVyaW5hLmlvIl0sInNjb3B" +
+                "lIjoiaGVsbG8ifQ.W_lvdp_o3o7MBVWeumg2fvIVSFWoGl9OFv2qyAz_g2afJwUWrFYOUd-1rj9lebZrQzqTd6RRX65MVF3G" +
+                "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
+                "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
+                "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
+                headers, serverInstance.getServerHome());
+        assertOK(response);
+    }
+
+    @Test(description = "Negative test for JWT Token propagation with JWT auth as the inbound authentication " +
+            "mechanism, with token reissuing. Newly issued token's issuer is not what is expected.")
+    public void testTokenPropagationWithJwtAuthInboundAndTokenReissuingNegative() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJpbmEiLCJpc3M" +
+                "iOiJleGFtcGxlMSIsImV4cCI6MjgxODQxNTAxOSwiaWF0IjoxNTI0NTc1MDE5LCJqdGkiOiJmNWFkZWQ1MDU4NWM0NmYyYjh" +
+                "jYTIzM2QwYzJhM2M5ZCIsImF1ZCI6WyJiYWxsZXJpbmEiLCJiYWxsZXJpbmEub3JnIiwiYmFsbGVyaW5hLmlvIl0sInNjb3B" +
+                "lIjoiaGVsbG8ifQ.W_lvdp_o3o7MBVWeumg2fvIVSFWoGl9OFv2qyAz_g2afJwUWrFYOUd-1rj9lebZrQzqTd6RRX65MVF3G" +
+                "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
+                "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
+                "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9109, "passthrough"),
+                headers, serverInstance.getServerHome());
+        assertUnauthorized(response);
     }
 }

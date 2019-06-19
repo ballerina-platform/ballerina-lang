@@ -1,8 +1,11 @@
-import { configure } from '@storybook/react';
+import { configure } from "@storybook/react";
+import { getAllCodePoints } from "@ballerina/font";
+import "@ballerina/theme";
 
 function loadStories() {
     document.body.classList.add("diagram");
-    require('../stories/editable-diagram.tsx');
+    window.BallerinaFontCodepoints = getAllCodePoints();
+    require("../stories/editable-diagram.tsx");
 }
 
 configure(loadStories, module);

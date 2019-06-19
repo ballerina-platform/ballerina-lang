@@ -149,6 +149,8 @@ public class Parser {
         DefaultErrorStrategy customErrorStrategy = context.get(DefaultErrorStrategy.class);
         if (customErrorStrategy == null) {
             customErrorStrategy = new BallerinaParserErrorStrategy(context, diagnosticSrc);
+        } else {
+            ((BallerinaParserErrorStrategy) customErrorStrategy).setDiagnosticSrc(diagnosticSrc);
         }
         return customErrorStrategy;
     }

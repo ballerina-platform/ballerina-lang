@@ -14,21 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type Foo record {|
     int ra = 0;
     any...;
-};
+|};
 
 type Bar object {
     int oa = 0;
 };
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type ValueType int|float|string|boolean|byte;
 type DataType ValueType|table<any>|json|xml|Bar|map<anydata>|anydata[]|();
@@ -95,7 +94,7 @@ function testInvalidArrayAssignments() {
     Bar[] abar = [];
     ad = abar;
 
-    (function (string) returns boolean)[] afp = [];
+    (function (string) returns boolean)?[] afp = [];
     ad = afp;
 
     any[] aa = [];
@@ -104,7 +103,7 @@ function testInvalidArrayAssignments() {
     typedesc[] atd = [];
     ad = atd;
 
-    stream<any>[] ast = [];
+    stream<any>?[] ast = [];
     ad = ast;
 
     any[][] a2a = [];
@@ -148,4 +147,9 @@ function testInvalidMapInsertions() {
 
     DataType dt = "hello world!";
     m.datatype = dt;
+}
+
+function testErrorAsAnydata() {
+    error e = error("test err");
+    anydata ad = e;
 }

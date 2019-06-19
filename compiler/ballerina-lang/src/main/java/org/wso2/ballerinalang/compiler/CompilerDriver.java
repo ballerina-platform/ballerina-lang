@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import java.util.HashSet;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -98,7 +99,7 @@ public class CompilerDriver {
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
-        this.compilerPhase = getCompilerPhase();
+        this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
     }
 
@@ -116,6 +117,11 @@ public class CompilerDriver {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
         }
 
+    }
+
+    void loadUtilsPackage() {
+        // Load utils package.
+        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
     }
 
     // Private methods
@@ -220,20 +226,14 @@ public class CompilerDriver {
     }
 
     public BLangPackage codegen(BLangPackage pkgNode) {
-        if (this.compilerPhase == CompilerPhase.BIR_GEN) {
-            return this.birGenerator.genBIR(pkgNode);
+        if (this.compilerPhase == CompilerPhase.BIR_GEN) { //TODO temp fix, remove this - rajith
+            String orgName = pkgNode.packageID.getOrgName().getValue();
+            if (!"ballerina".equals(orgName)) { // TODO temporary fix, remove this - rajith
+                return this.birGenerator.genBIR(pkgNode);
+            }
+            this.birGenerator.genBIR(pkgNode);
         }
-
         return this.codeGenerator.generateBALO(pkgNode);
-    }
-
-    private CompilerPhase getCompilerPhase() {
-        String phaseName = options.get(CompilerOptionName.COMPILER_PHASE);
-        if (phaseName == null || phaseName.isEmpty()) {
-            return CompilerPhase.CODE_GEN;
-        }
-
-        return CompilerPhase.fromValue(phaseName);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {

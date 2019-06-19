@@ -51,4 +51,5 @@ public class TableConstants {
     static final String SQL_TYPE_BLOB = "BLOB";
     static final String SQL_TYPE_ARRAY = "ARRAY";
     static final String SQL_TYPE_CLOB = "CLOB";
+    static final String SQL_TYPE_VARCHAR = "VARCHAR";
 }

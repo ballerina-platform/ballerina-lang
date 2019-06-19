@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.encoding;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -32,7 +34,7 @@ import java.util.Formatter;
 /**
  * Utility functions relevant to encoding operations.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class EncodingUtil {
 
@@ -112,5 +114,15 @@ public class EncodingUtil {
                 Constants.ENCODING_ERROR);
         errorRecord.put(Constants.MESSAGE, new BString(errMsg));
         return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
+    }
+
+    /**
+     * Create encoding error.
+     *
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static ErrorValue createEncodingError(String errMsg) {
+        return BallerinaErrors.createError(Constants.ENCODING_ERROR_CODE, errMsg);
     }
 }

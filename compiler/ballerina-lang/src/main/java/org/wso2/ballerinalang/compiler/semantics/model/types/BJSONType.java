@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
@@ -46,5 +47,10 @@ public class BJSONType extends BBuiltInRefType {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }

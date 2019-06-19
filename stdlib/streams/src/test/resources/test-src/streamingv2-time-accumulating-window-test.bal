@@ -77,7 +77,6 @@ function testAccumulatingTimeWindow() {
         from inputStreamTimeAccumulatingWindow window timeAccum(1000)
         select inputStreamTimeAccumulatingWindow.name, inputStreamTimeAccumulatingWindow.age,
                 inputStreamTimeAccumulatingWindow.status, inputStreamTimeAccumulatingWindow.school, count() as count
-        group by inputStreamTimeAccumulatingWindow.school
         => (Person [] emp) {
             foreach var e in emp {
                 outputStreamTimeAccumulatingWindow.publish(e);

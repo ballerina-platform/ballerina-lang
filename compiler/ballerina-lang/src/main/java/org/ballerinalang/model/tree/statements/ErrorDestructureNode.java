@@ -19,7 +19,7 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 
 /**
  * error (reason, detail) = error ("Error", {message: "Error Message"});.
@@ -27,13 +27,8 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
  * @since 0.985.0
  */
 public interface ErrorDestructureNode extends StatementNode {
-    ExpressionNode getReason();
 
-    ExpressionNode getDetail();
-
-    void addReasonRef(VariableReferenceNode variableReferenceNode);
-
-    void addDetailRef(VariableReferenceNode variableReferenceNode);
+    BLangErrorVarRef getVarRef();
 
     ExpressionNode getExpression();
 

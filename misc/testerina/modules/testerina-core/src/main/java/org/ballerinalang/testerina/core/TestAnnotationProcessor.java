@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
@@ -33,7 +34,6 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -103,6 +103,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             // Get the test suite related to the package from registry
             suite = registry.getTestSuites().get(packageName);
         }
+        // Remove the duplicated annotations.
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
         // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
@@ -120,7 +122,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[2];
                 // If package property not present the package is .
                 // TODO: when default values are supported in annotation struct we can remove this
-                vals[0] = ".";
+                vals[0] = packageName;
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
                     List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getKeyValuePairs();
@@ -235,7 +237,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         if (suite == null) {
-            throw new BallerinaException("No test suite found for [module]: " + programFile.getEntryPkgName());
+            throw LauncherUtils.createLauncherException("No test suite found for [module]: "
+                    + programFile.getEntryPkgName());
         }
         // By default the test init function is set as the init function of the test suite
         FunctionInfo initFunction = programFile.getEntryPackage().getTestInitFunctionInfo();
@@ -271,7 +274,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
 
             for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
-                for (Instruction ins : packageInfo.getInstructions()) {
+                int limit = getTestInstructionsPosition(packageInfo);
+                Instruction[] instructions = packageInfo.getInstructions();
+                for (int i = 0; i < limit; i++) {
+                    Instruction ins = instructions[i];
                     if (ins instanceof Instruction.InstructionCALL) {
                         // replace the function pointer of the instruction with the mock function pointer
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
@@ -347,10 +353,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getBeforeTestFunction())).findFirst().get());
                 } else {
-                    String msg = String
-                        .format("Cannot find the specified before function : [%s] for testerina function" +
-                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
+                    String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
+                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw LauncherUtils.createLauncherException(msg);
                 }
             }
             if (test.getAfterTestFunction() != null) {
@@ -358,10 +363,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
                 } else {
-                    String msg = String
-                        .format("Cannot find the specified after function : [%s] for testerina function" +
-                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
+                    String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
+                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw LauncherUtils.createLauncherException(msg);
                 }
             }
 
@@ -378,29 +382,30 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
                                 String message = String.format("Data provider function [%s] should return an array of" +
                                         " arrays or an array of tuples.", dataProvider);
-                                throw new BallerinaException(message);
+                                throw LauncherUtils.createLauncherException(message);
                             }
                         } else {
                             String message = String.format("Data provider function [%s] should return an array of " +
                                     "arrays or an array of tuples.", dataProvider);
-                            throw new BallerinaException(message);
+                            throw LauncherUtils.createLauncherException(message);
                         }
                     } else {
                         String message = String.format("Data provider function [%s] should have only one return type" +
                                 ".", dataProvider);
-                        throw new BallerinaException(message);
+                        throw LauncherUtils.createLauncherException(message);
                     }
                     return func;
                 }).get());
 
                 if (test.getDataProviderFunction() == null) {
                     String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
-                    throw new BallerinaException(message);
+                    throw LauncherUtils.createLauncherException(message);
                 }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                 if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
-                    throw new BallerinaException("Cannot find the specified dependsOn function : " + dependsOnFn);
+                    throw LauncherUtils.createLauncherException("Cannot find the specified dependsOn function : "
+                            + dependsOnFn);
                 }
                 test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
                                                        .findFirst().get());
@@ -459,7 +464,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     if (idx == -1) {
                         String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
                                                                ".", test.getTestFunction().getName(), dependsOnFn);
-                        throw new BallerinaException(message);
+                        throw LauncherUtils.createLauncherException(message);
                     }
                     dependencyMatrix[i].add(idx);
                 }
@@ -506,7 +511,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // Check if there was a cycle
         if (cnt != numberOfNodes) {
             String message = "Cyclic test dependency detected";
-            throw new BallerinaException(message);
+            throw LauncherUtils.createLauncherException(message);
         }
 
         i = numberOfNodes - 1;
@@ -539,5 +544,13 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private String getPackageName(PackageNode packageNode) {
         BLangPackage bLangPackage = ((BLangPackage) packageNode);
         return bLangPackage.packageID.toString();
+    }
+
+    private static int getTestInstructionsPosition(PackageInfo packageInfo) {
+        FunctionInfo testInitFunctionInfo = packageInfo.getTestInitFunctionInfo();
+        if (testInitFunctionInfo != null) {
+            return testInitFunctionInfo.getDefaultWorkerInfo().getCodeAttributeInfo().getCodeAddrs();
+        }
+        return packageInfo.getInstructions().length;
     }
 }

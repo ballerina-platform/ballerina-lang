@@ -53,12 +53,12 @@ public class ChannelRegisterCallback {
     /**
      * Notifies the worker to resume the hold thread.
      *
-     * @param client whether this was call as a socket client notify.
+     * @param serviceAttached whether to invoke onConnect or not.
      */
-    public void notifyRegister(boolean client) {
+    public void notifyRegister(boolean serviceAttached) {
         callableUnitCallback.notifySuccess();
         context.setReturnValues();
-        if (client) {
+        if (serviceAttached) {
             SelectorDispatcher.invokeOnConnect(socketService);
         }
     }

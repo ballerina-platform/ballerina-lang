@@ -47,7 +47,7 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 
     if x is float|int {
         io:println("int");
-    } else if x is int|() {
+    } else {
         io:println("null");
     }
 
@@ -75,14 +75,14 @@ function testUnionTypeArrays() returns int {
     ParamAny para1 = { value: "Colombo" };
     ParamAny para2 = { value: 10 };
     ParamAny[] paramAnyArray = [para1, para2];
-    GlobalParam[] globalParamArray = paramAnyArray;
+    GlobalParam?[] globalParamArray = paramAnyArray;
     return globalParamArray.length();
 }
 
 
 function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     int[] intArray = [10, 20, 30];
-    GlobalParam[] globalParamArray = intArray;
+    GlobalParam?[] globalParamArray = intArray;
     return globalParamArray.length();
 }
 
@@ -99,23 +99,20 @@ function testRecordLiteralAssignment() returns string {
     Person|RecPerson x = {name:"John", id:12};
     if x is Person {
         return "Invalid";
-    } else if x is RecPerson {
+    } else {
         return <string> x.name;
     }
-    return "";
 }
 
-type Foo record {
+type Foo record {|
     string s;
     int i = 0;
-    !...;
-};
+|};
 
-type Bar record {
+type Bar record {|
     string x;
     int y = 0;
-    !...;
-};
+|};
 
 function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
@@ -126,15 +123,22 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
     if (var1 is Foo) {
         returnValues[0] = "FOO";
-    } else if (var1 is Bar) {
+    } else {
         returnValues[0] = "BAR";
     }
 
     if (var2 is Foo) {
         returnValues[1] = "FOO";
-    } else if (var2 is Bar) {
+    } else {
         returnValues[1] = "BAR";
     }
 
     return returnValues;
+}
+
+function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns ((float|decimal), (float|decimal), (float|decimal)) {
+    float|decimal a = 1.0;
+    float|decimal b = 1.0f;
+    float|decimal c = 1.0d;
+    return (a, b, c);
 }

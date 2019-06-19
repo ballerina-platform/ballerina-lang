@@ -40,12 +40,12 @@ public function main() {
     boolean b = true;
     io:println(b);
 
-    // The `nil` type has the single value `nil` and is used to represent the absence of any other value.
-    // The `nil` value is represented by `()`.
+    // The nil type has a single value and is used to represent the absence of any other value.
+    // Both, the nil type and the nil value are written as `()`.
     () n = ();
     io:println(n);
-    // The `nil` value can also be written as `null`, representing JSON `null`.
-    // Usage of `null` as the value for a `nil` typed variable is only expected in JSON contexts.
-    n = null;
-    io:println(n);
+    // Another representation for the nil value is the `null` literal.
+    // However, the use of the `null` literal in only allowed in JSON contexts.
+    json j = null;
+    io:println(j);
 }

@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/h2;
+import ballerina/sql;
 
 // Create an endpoint for H2 database. Change the DB details before running the sample.
 h2:Client testDB = new ({
@@ -29,16 +30,16 @@ public function main() {
     // aborting. Only integer literals or constants are allowed for `retry count`.
     transaction with retries = 4 {
         // This is the first remote function participant in the transaction.
-        var count = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
+        ret = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
         // This is the second remote function participant in the transaction.
-        count = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
+        ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
-        if (count is int) {
-            io:println("Inserted count: " + count);
+        if (ret is sql:UpdateResult) {
+            io:println("Inserted count: " + ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction
             // and exit the transaction block without retrying.
-            if (count == 0) {
+            if (ret.updatedRowCount == 0) {
                 abort;
             }
         } else {
@@ -70,13 +71,16 @@ public function main() {
     handleUpdate(ret, "Drop table SALARY");
 
     // Close the connection pool.
-    testDB.stop();
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return of the update operation.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
     }

@@ -33,6 +33,8 @@ import org.ballerinalang.net.websub.hub.Hub;
 import org.ballerinalang.net.websub.hub.HubSubscriber;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -57,24 +59,32 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
 )
 public class GetSubscribers extends BlockingNativeCallableUnit {
 
+    private static final Logger log = LoggerFactory.getLogger(GetSubscribers.class);
+
     @Override
     public void execute(Context context) {
-        String topic = context.getStringArgument(0);
-        List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
+        BValueArray subscriberDetailArray = null;
+        try {
+            String topic = context.getStringArgument(0);
+            List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
 
-        final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
-        final StructureTypeInfo structInfo = packageInfo.getStructInfo(SUBSCRIPTION_DETAILS);
-        BValueArray subscriberDetailArray = new BValueArray(structInfo.getType());
+            final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
+            final StructureTypeInfo structInfo = packageInfo.getStructInfo(SUBSCRIPTION_DETAILS);
+            subscriberDetailArray = new BValueArray(structInfo.getType());
 
-        for (HubSubscriber subscriber : subscribers) {
-            if (subscriber.getTopic().equals(topic)) {
-                BMap<String, BValue> subscriberDetail = BLangVMStructs.createBStruct(
-                        structInfo, subscriber.getCallback(),
-                        subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_LEASE_SECONDS),
-                        subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATED_AT));
-                subscriberDetailArray.append(subscriberDetail);
+            for (HubSubscriber subscriber : subscribers) {
+                if (topic.equals(subscriber.getTopic())) {
+                    BMap<String, BValue> subscriberDetail = BLangVMStructs.createBStruct(
+                            structInfo, subscriber.getCallback(),
+                            subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_LEASE_SECONDS),
+                            subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATED_AT));
+                    subscriberDetailArray.append(subscriberDetail);
+                }
             }
+        } catch (Exception ex) {
+            log.error("Error occurred while getting available subscribers.", ex);
+        } finally {
+            context.setReturnValues(subscriberDetailArray);
         }
-        context.setReturnValues(subscriberDetailArray);
     }
 }

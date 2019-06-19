@@ -19,15 +19,18 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form, Input } from "semantic-ui-react";
+import { Button, Form, Input, Label, Transition } from "semantic-ui-react";
 
 export interface AddOpenApiPathProps {
-    onAddOpenApiPath: (resource: Swagger.PathItemObject) => void;
+    openApiJson: Swagger.OpenAPIObject;
+    onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
+    onClose: () => void;
 }
 
 export interface AddOpenApiPathState {
     openApiResourceObj: OpenApiResource;
     operationMethods: OpenApiOperationMethod[];
+    showState: ShowState;
 }
 
 export interface OpenApiResource {
@@ -38,6 +41,12 @@ export interface OpenApiResource {
 export interface OpenApiOperationMethod {
     text: string;
     value: string;
+    checked: boolean;
+}
+
+export interface ShowState {
+    show: boolean;
+    state: string;
 }
 
 class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPathState> {
@@ -50,10 +59,17 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                 methods: [],
                 name: ""
             },
-            operationMethods: []
+            operationMethods: [],
+            showState: {
+                show: false,
+                state: ""
+            }
         };
 
         this.clearFields = this.clearFields.bind(this);
+        this.onAddPath = this.onAddPath.bind(this);
+        this.onShowMessage = this.onShowMessage.bind(this);
+        this.handleOnInputChange = this.handleOnInputChange.bind(this);
 
     }
 
@@ -68,8 +84,9 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
 
         availableMethods.forEach((method) => {
             methodOpts.push({
+                checked: false,
                 text: method,
-                value: method.toLowerCase(),
+                value: method.toLowerCase()
             });
         });
 
@@ -79,23 +96,23 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
     }
 
     public render() {
-        const { operationMethods } = this.state;
-        const { onAddOpenApiPath } = this.props;
+        const { operationMethods, showState } = this.state;
+        const { onAddOpenApiPath, onClose } = this.props;
 
         return (
             <Form size="mini" className="add-resource">
                 <Form.Field>
-                    <label>Resource Name</label>
+                    <h4>Resource Name</h4>
+                    <Button size="mini" floated="right" className="btn-close" circular onClick={() => {
+                        onClose();
+                    }}>
+                        <i className="fw fw-close"></i>
+                    </Button>
                     <Input label="/"
                         placeholder="Example: users/{userId}"
-                    value={this.state.openApiResourceObj.name}
+                        value={this.state.openApiResourceObj.name}
                         onChange={(e) => {
-                            this.setState({
-                                openApiResourceObj: {
-                                    ...this.state.openApiResourceObj,
-                                    name: e.target.value.replace(/^\//, "").trim()
-                                }
-                            });
+                            this.handleOnInputChange(e.target.value.replace(/^\//, "").trim());
                         }}
                     />
                 </Form.Field>
@@ -107,6 +124,8 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                                 size="mini"
                                 label={method.text}
                                 value={method.value}
+                                defaultChecked={method.checked}
+                                disabled={method.checked}
                                 onChange={(e: React.SyntheticEvent, data: any) => {
                                     if (data.checked) {
                                         this.setState({
@@ -121,12 +140,70 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                         );
                     })}
                 </Form.Group>
-                <Button size="mini" onClick={() => {
-                    onAddOpenApiPath(this.state.openApiResourceObj);
+                <Button size="mini" primary onClick={() => {
+                    onAddOpenApiPath(this.state.openApiResourceObj, this.onAddPath);
                     this.clearFields();
                 }}>Add Resource</Button>
+                <Transition visible={showState.show && showState.state === "successful"}
+                    onComplete={this.onShowMessage} animation="scale" duration={500}>
+                    <Label color="green">
+                        successfully added the path.
+                    </Label>
+                </Transition>
+                <Transition visible={showState.show && showState.state === "error"}
+                    onComplete={this.onShowMessage} animation="scale" duration={500}>
+                    <Label color="red">
+                        Error occured while adding path.
+                    </Label>
+                </Transition>
             </Form>
         );
+    }
+
+    private handleOnInputChange(pathName: string) {
+        const { operationMethods } = this.state;
+        const { openApiJson } = this.props;
+
+        if (openApiJson.paths["/" + pathName]) {
+            operationMethods.map((option: OpenApiOperationMethod) => {
+                if (Object.keys(openApiJson.paths["/" + pathName]).includes(option.value)) {
+                    option.checked = true;
+                }
+            });
+        } else {
+            operationMethods.map((option: OpenApiOperationMethod) => {
+                option.checked = false;
+            });
+        }
+
+        this.setState({
+            openApiResourceObj: {
+                ...this.state.openApiResourceObj,
+                name: pathName
+            },
+            operationMethods,
+        });
+
+    }
+
+    private onAddPath(state: boolean) {
+        this.setState({
+            showState: {
+                show: true,
+                state: state ? "successful" : "error"
+            }
+        });
+    }
+
+    private onShowMessage() {
+        setTimeout(() => {
+            this.setState({
+                showState: {
+                    show: false,
+                    state: ""
+                }
+            });
+        } , 1500);
     }
 
     private clearFields() {

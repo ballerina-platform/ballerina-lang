@@ -57,7 +57,7 @@ public interface BValue {
      *                      freeze result of this attempt
      */
     default void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
+        throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
     }
 
     /**
@@ -68,6 +68,16 @@ public interface BValue {
      */
     default boolean isFrozen() {
         return false;
+    }
+
+    /**
+     * Method to returns an integer representing the number of items that a value contains, where the meaning of item
+     * depends on the basic type of value.
+     *
+     * @return  Length of the given value
+     */
+    default long size() {
+        return -1;
     }
 
     /**

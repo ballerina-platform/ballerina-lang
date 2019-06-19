@@ -42,8 +42,8 @@ function testFreezeOnArrayWithoutAnydata() {
     PersonObj[] a1 = [];
     _ = a1.freeze();
 
-    (PersonObjTwo|PersonObj)[] a2 = [];
-    _ = a2.freeze();
+    (PersonObjTwo|PersonObj)?[] a2 = [];
+    _ = checkpanic a2.freeze();
 }
 
 function testFreezeOnTupleWithoutAnydata() {
@@ -65,8 +65,8 @@ function testInvalidAssignmentWithFreeze() {
     map<(string|PersonObj, FreezeAllowedDepartment|float)> m2 = {};
     map<(any, any)> m3 = m2.freeze();
 
-    (boolean|PersonObj|float)[] a1 = [];
-    (boolean|PersonObj|float)[] a2 = a1.freeze();
+    (boolean|PersonObj|float)?[] a1 = [];
+    (boolean|PersonObj|float)?[] a2 = a1.freeze();
 
     any[] a3 = a1.freeze();
 
@@ -101,12 +101,12 @@ type PersonObjTwo object {
     }
 };
 
-type Department record {
+type Department record {|
     PersonObj head;
     PersonObjTwo...;
-};
+|};
 
-type FreezeAllowedDepartment record {
+type FreezeAllowedDepartment record {|
     PersonObj|string head;
     (PersonObjTwo|string)...;
-};
+|};

@@ -22,7 +22,6 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -42,13 +41,13 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<SymbolTable> SYMBOL_TABLE_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<List<Either<SymbolInformation, DocumentSymbol>>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+    public static final LSContext.Key<String> CURRENT_PKG_NAME_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<PackageID> CURRENT_PACKAGE_ID_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> SOURCE_ROOT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<LSContext> OPERATION_META_CONTEXT_KEY
             = new LSContext.Key<>();

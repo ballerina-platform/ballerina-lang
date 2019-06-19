@@ -21,7 +21,7 @@
     "@theia/preview": "next",
     "@types/request-promise": "^4.1.42",
     "request-promise": "^4.2.2",
-    "semantic-ui-react": "^0.78.2",
+    "semantic-ui-react": "^0.85.0",
     "typescript": "^3.1.6",
     "vscode-ripgrep": "^1.2.5",
     "vscode-textmate": "^4.0.1"

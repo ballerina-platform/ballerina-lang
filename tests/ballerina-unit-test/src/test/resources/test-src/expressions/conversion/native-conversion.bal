@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -25,28 +25,24 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...;
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name = "";
     int age = 0;
-    !...;
-};
+|};
 
-type Person4 record {
+type Person4 record {|
     string name = "";
     Person4? parent = ();
     map<anydata>? address?;
-    !...;
-};
+|};
 
-type Student record {
+type Student record {|
     string name = "";
     int age = 0;
     string school = "";
-    !...;
-};
+|};
 
 function testStructToMap () returns (map<any> | error) {
     Person p = {name:"Child",
@@ -66,11 +62,11 @@ function testMapToStruct () returns Person|error {
     Person parent = {
                         name:"Parent",
                         age:50,
-                        parent:null,
-                        address:null,
-                        info:null,
-                        marks:null,
-                        a:null,
+                        parent:(),
+                        address:(),
+                        info:(),
+                        marks:(),
+                        a:(),
                         score:4.57,
                         alive:false,
                         children:()
@@ -97,11 +93,11 @@ function testNestedMapToNestedStruct() returns Person|error {
     map<any> parent = {
         name:"Parent",
         age:50,
-        parent:null,
-        address:null,
-        info:null,
-        marks:null,
-        a:null,
+        parent:(),
+        address:(),
+        info:(),
+        marks:(),
+        a:(),
         score:4.57,
         alive:false
     };
@@ -214,11 +210,11 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
     Person parent = {
                         name:"Parent",
                         age:50,
-                        parent:null,
-                        address:null,
-                        info:null,
-                        marks:null,
-                        a:null,
+                        parent:(),
+                        address:(),
+                        info:(),
+                        marks:(),
+                        a:(),
                         score:5.67,
                         alive:false
                     };
@@ -243,15 +239,14 @@ function testMapWithIncompatibleArrayToStruct () returns Person {
     }
 }
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
     Person partner;
     json info;
     map<string> address;
     int[] marks;
-    !...;
-};
+|};
 
 function testMapWithIncompatibleStructToStruct () returns Employee {
     int[] marks = [87, 94, 72];
@@ -416,15 +411,13 @@ function testJsonArrayToStruct () returns Person {
     }
 }
 
-type Info record {
+type Info record {|
     map<any> foo;
-    !...;
-};
+|};
 
-type Info2 record {
+type Info2 record {|
     byte[] infoBlob = [];
-    !...;
-};
+|};
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     byte[] b = [];
@@ -446,9 +439,9 @@ function testJsonIntToString () returns string|error {
     return  string.convert(value);
 }
 
-function testFloatToInt() returns (int) {
+function testFloatToInt() returns int|error {
     float f = 10.05344;
-    int i = int.convert(f);
+    int|error i = int.convert(f);
     return i;
 }
 
@@ -486,16 +479,14 @@ function testIncompatibleJsonToBoolean () returns boolean|error {
     return value;
 }
 
-type Address record {
+type Address record {|
     string city;
     string country;
-    !...;
-};
+|};
 
-type AnyArray record {
+type AnyArray record {|
     anydata[] a;
-    !...;
-};
+|};
 
 function testJsonToAnyArray () returns AnyArray|error {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
@@ -503,10 +494,9 @@ function testJsonToAnyArray () returns AnyArray|error {
     return value;
 }
 
-type IntArray record {
+type IntArray record {|
     int[] a;
-    !...;
-};
+|};
 
 function testJsonToIntArray () returns IntArray|error {
     json j = {a:[4, 3, 9]};
@@ -515,10 +505,9 @@ function testJsonToIntArray () returns IntArray|error {
 }
 
 
-type StringArray record {
+type StringArray record {|
     string[] a;
-    !...;
-};
+|};
 
 function testJsonToStringArray () returns StringArray|error {
     json j = {a:["a", "b", "c"]};
@@ -537,10 +526,9 @@ function testJsonIntArrayToStringArray () returns json|error {
     return j2;
 }
 
-type XmlArray record {
+type XmlArray record {|
     xml[] a;
-    !...;
-};
+|};
 
 function testJsonToXmlArray () returns XmlArray {
     json j = {a:["a", "b", "c"]};
@@ -593,17 +581,20 @@ function testNullJsonToStruct () returns Person {
     }
 }
 
-function testNullStructToJson () returns (json | error) {
+function testNullStructToJson () returns json {
     Person? p = ();
     var j = json.convert(p);
-    return j;
+    if (j is json) {
+        return j;
+    } else {
+        panic j;
+    }
 }
 
-type PersonA record {
+type PersonA record {|
     string name = "";
     int age = 0;
-    !...;
-};
+|};
 
 function JsonToStructWithErrors () returns (PersonA | error) {
     json j = {name:"supun"};
@@ -613,10 +604,9 @@ function JsonToStructWithErrors () returns (PersonA | error) {
     return pA;
 }
 
-type PhoneBook record {
+type PhoneBook record {|
     string[] names = [];
-    !...;
-};
+|};
 
 function testStructWithStringArrayToJSON () returns json|error {
     PhoneBook phonebook = {names:["John", "Doe"]};
@@ -624,22 +614,20 @@ function testStructWithStringArrayToJSON () returns json|error {
     return phonebookJson;
 }
 
-type person record {
+type person record {|
     string fname = "";
     string lname = "";
     int age = 0;
-    !...;
-};
+|};
 
-type movie record {
+type movie record {|
     string title = "";
     int year = 0;
     string released = "";
     string[] genre = [];
     person[] writers = [];
     person[] actors = [];
-    !...;
-};
+|};
 
 function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     movie theRevenant = {title:"The Revenant",
@@ -661,15 +649,14 @@ function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     }
 }
 
-type StructWithOptionals record {
+type StructWithOptionals record {|
     string s?;
     int a?;
     float f?;
     boolean b?;
     json j?;
     byte[] blb?;
-    !...;
-};
+|};
 
 function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | error) {
     json j = {};
@@ -678,9 +665,9 @@ function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | er
     return testStruct;
 }
 
-function testSameTypeConversion() returns (int) {
+function testSameTypeConversion() returns int|error {
     float f = 10.05;
-    var i =  int.convert(f);
+    var i =  check int.convert(f);
     i =  int.convert(i);
     return i;
 }
@@ -708,14 +695,14 @@ function structWithComplexMapToJson() returns (json | error) {
     map<string> e = {"foo":"bar"};
     PersonA f = {};
     int [] g = [1, 8, 7];
-    map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
+    map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":()};
     
     Info info = {foo : m};
     var js =  json.convert(info);
     return js;
 }
 
-type ComplexArrayStruct record {
+type ComplexArrayStruct record {|
     int[] a;
     float[] b;
     boolean[] c;
@@ -723,8 +710,7 @@ type ComplexArrayStruct record {
     map<anydata>[] e;
     PersonA[] f;
     json[] g;
-    !...;
-};
+|};
 
 function structWithComplexArraysToJson() returns (json | error) {
     json g = {"foo":"bar"};
@@ -806,18 +792,17 @@ function testJsonToMapConstrainedFail() returns map<any> {
     var result = map<T1>.convert(j2);
     if (result is map<T1>) {
         m = result;
-    } else if (result is error){
+    } else {
         panic result;
     }
     return m;
 }
 
-type T2 record {
+type T2 record {|
     int x = 0;
     int y = 0;
     int z = 0;
-    !...;
-};
+|};
 
 function testStructArrayConversion1() returns T1|error {
     T1[] a = [];
@@ -939,7 +924,7 @@ function testJsonToArrayFail() {
     var result = int[].convert(j);
     if (result is int[]) {
         int[] x = result;
-    } else if (result is error) {
+    } else {
         panic result;
     }
 }
@@ -978,7 +963,7 @@ function testRecordToJsonWithIsJson() returns boolean {
 function testImplicitConversionToInt() returns map<any>|error {
     json operationReq = {"fromString": "10", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     int a = check int.convert(operationReq.fromInt);
     int b = check int.convert(operationReq.fromString);
@@ -992,7 +977,7 @@ function testImplicitConversionToInt() returns map<any>|error {
 function testImplicitConversionToFloat() returns map<any>|error {
     json operationReq = {"fromString": "10.2", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     float a = check float.convert(operationReq.fromInt);
     float b = check float.convert(operationReq.fromString);
@@ -1008,7 +993,7 @@ function testImplicitConversionToByte() returns map<any>|error {
     anydata fromInt = <int>2 ;
     any fromFloat = <float>4.45;
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 3.456;
+    anydata fromDecimal = 3.456d;
     any fromBoolean = true;
     byte a = check byte.convert(fromInt);
     byte b = check byte.convert(fromString);
@@ -1022,7 +1007,7 @@ function testImplicitConversionToByte() returns map<any>|error {
 function testImplicitConversionToString() returns map<any>|error {
     json operationReq = {"fromString": "hello", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     string a = check string.convert(operationReq.fromInt);
     string b = check string.convert(operationReq.fromString);
@@ -1036,7 +1021,7 @@ function testImplicitConversionToString() returns map<any>|error {
 function testImplicitConversionToDecimal() returns map<any>|error {
     json operationReq = {"fromString": "10.33", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     decimal a = check decimal.convert(operationReq.fromInt);
     decimal b = check decimal.convert(operationReq.fromString);
@@ -1050,7 +1035,7 @@ function testImplicitConversionToDecimal() returns map<any>|error {
 function testImplicitConversionToBoolean() returns map<any>|error {
     json operationReq = {"fromString": "true", "fromInt": 0, "fromFloat":0.0};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = false;
     boolean a = check boolean.convert(operationReq.fromInt);
     boolean b = check boolean.convert(operationReq.fromString);
@@ -1072,4 +1057,17 @@ function testConvertWithFuncCall() returns int {
 
 function getString(any s) returns string {
     return "5";
+}
+
+function testConvertWithFuncReturnUnion() returns int {
+    var val = getLength("125");
+    if (val is int) {
+        return val;
+    } else {
+        return -1;
+    }
+}
+
+function getLength(string s) returns int|error {
+    return int.convert(s);
 }

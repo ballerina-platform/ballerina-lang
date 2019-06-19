@@ -18,13 +18,12 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the month value for the given time.
@@ -33,10 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "getMonth",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
+        functionName = "getMonth"
 )
 public class Month extends AbstractTimeFunction {
 
@@ -44,5 +40,9 @@ public class Month extends AbstractTimeFunction {
     public void execute(Context context) {
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         context.setReturnValues(new BInteger(getMonth(timeStruct)));
+    }
+
+    public static long getMonth(Strand strand, MapValue<String, Object> timeRecord) {
+        return getMonth(timeRecord);
     }
 }

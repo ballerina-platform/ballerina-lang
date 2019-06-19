@@ -39,14 +39,14 @@ type Participant abstract object {
 
     string participantId = "";
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant];
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
 type RemoteParticipant object {
 
-    private string participantId;
+    string participantId;
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
@@ -56,14 +56,14 @@ type RemoteParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return (self.prepareMe(remoteProto.url), self);
+                return [self.prepareMe(remoteProto.url), self];
             }
         }
-        return ((), self); // No matching protocol
+        return [(), self]; // No matching protocol
     }
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
@@ -102,7 +102,7 @@ type RemoteParticipant object {
         if (result is error) {
             log:printError("Remote participant: " + self.participantId + " failed", err = result);
             return result;
-        } else if (result is string) {
+        } else {
             if (result == "aborted") {
                 log:printInfo("Remote participant: " + self.participantId + " aborted.");
                 return PREPARE_RESULT_ABORTED;
@@ -132,7 +132,7 @@ type RemoteParticipant object {
         if (result is error) {
             log:printError("Remote participant: " + self.participantId + " replied with an error", err = result);
             return result;
-        } else if (result is string) {
+        } else {
             if (result == NOTIFY_RESULT_ABORTED_STR) {
                 log:printInfo("Remote participant: " + self.participantId + " aborted");
                 return NOTIFY_RESULT_ABORTED;
@@ -148,7 +148,7 @@ type RemoteParticipant object {
 
 type LocalParticipant object {
 
-    private string participantId;
+    string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
@@ -159,14 +159,15 @@ type LocalParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return (self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId), self);
+                return [self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId),
+                self];
             }
         }
-        return ((), self);
+        return [(), self];
     }
 
     function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {
@@ -203,7 +204,7 @@ type LocalParticipant object {
                     return self.notifyMe(action, self.participatedTxn.transactionBlockId);
                 }
             }
-        } else if (protocolName is ()) {
+        } else {
             NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
                                                                          : NOTIFY_RESULT_ABORTED;
             foreach var localProto in self.participantProtocols {

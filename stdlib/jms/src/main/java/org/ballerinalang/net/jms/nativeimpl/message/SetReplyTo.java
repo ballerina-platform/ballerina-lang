@@ -40,14 +40,14 @@ import javax.jms.Message;
  * Set a string property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "setReplyTo",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
-        args = { @Argument(type = TypeKind.OBJECT, structType = "Session",
-                           structPackage = "ballerina/jms", name = "replyTo")
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        args = {@Argument(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
+                          structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS, name = "replyTo")
         },
         isPublic = true
 )
@@ -61,6 +61,7 @@ public class SetReplyTo extends AbstractBlockingAction {
                                                            JmsConstants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> destinationBObject = ((BMap<String, BValue>) context.getRefArgument(1));
         Destination destination = BallerinaAdapter.getNativeObject(destinationBObject,
                                                                    JmsConstants.JMS_DESTINATION_OBJECT,

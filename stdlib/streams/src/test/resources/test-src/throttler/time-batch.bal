@@ -25,10 +25,10 @@ public type TimeBatch object {
     public int expiredEventTime = -1;
     public int startTime = -1;
     public any[] windowParameters;
-    public function (streams:StreamEvent[])? nextProcessPointer;
+    public function (streams:StreamEvent?[])? nextProcessPointer;
 
-    public function __init(function(streams:StreamEvent[])? nextProcessPointer, any[] windowParameters) {
-        self.scheduler = new(function (streams:StreamEvent[] events) {
+    public function __init(function(streams:StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
+        self.scheduler = new(function (streams:StreamEvent?[] events) {
                 self.process(events);
             });
         self.expiredEventQueue = new;
@@ -50,7 +50,7 @@ public type TimeBatch object {
         }
     }
 
-    public function process(streams:StreamEvent[] streamEvents) {
+    public function process(streams:StreamEvent?[] streamEvents) {
         lock {
             if (self.expiredEventTime == -1) {
                 int currentTime = time:currentTime().time;
@@ -113,7 +113,7 @@ public type TimeBatch object {
     }
 };
 
-public function timeBatch(any[] windowParameters, function (streams:StreamEvent[])? nextProcessPointer = ())
+public function timeBatch(any[] windowParameters, function (streams:StreamEvent?[])? nextProcessPointer = ())
                     returns streams:Window {
     TimeBatch timeBatchProcessor = new(nextProcessPointer, windowParameters);
     return timeBatchProcessor;

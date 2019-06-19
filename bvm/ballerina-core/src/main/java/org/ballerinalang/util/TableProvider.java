@@ -49,8 +49,8 @@ public class TableProvider {
     private int indexID;
 
     private TableProvider() {
-        tableID = 0;
-        indexID = 0;
+        tableID = 99999; // using some large number here to avoid table id clash with jBallerina tests
+        indexID = 99999; // using some large number here to avoid table id clash with jBallerina tests
     }
 
     public static TableProvider getInstance() {
@@ -105,10 +105,9 @@ public class TableProvider {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
-    public String insertData(String tableName, BMap<String, BValue> constrainedType) {
+    public void insertData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
-        return tableName;
     }
 
     public void deleteData(String tableName, BMap<String, BValue> constrainedType) {
@@ -163,9 +162,10 @@ public class TableProvider {
                     sb.append(TableConstants.SQL_TYPE_BIGINT);
                     break;
                 case TypeTags.STRING_TAG:
-                    sb.append(TableConstants.SQL_TYPE_CLOB);
+                    sb.append(TableConstants.SQL_TYPE_VARCHAR);
                     break;
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                     sb.append(TableConstants.SQL_TYPE_DOUBLE);
                     break;
                 case TypeTags.BOOLEAN_TAG:

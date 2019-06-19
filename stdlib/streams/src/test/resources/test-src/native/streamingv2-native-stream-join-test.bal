@@ -94,7 +94,7 @@ function joinFunc() {
 
     // Selector
     streams:Select select =
-    streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
@@ -113,14 +113,14 @@ function joinFunc() {
 
     // Join processor
     streams:StreamJoinProcessor joinProcessor =
-    streams:createStreamJoinProcessor(function (streams:StreamEvent[] e) {select.process(e);}, "FULLOUTERJOIN",
+    streams:createStreamJoinProcessor(function (streams:StreamEvent?[] e) {select.process(e);}, "FULLOUTERJOIN",
         conditionFunc = conditionFunc);
 
     // Window processors
     streams:Window lengthWindowA = streams:length([1],
-        nextProcessPointer = function (streams:StreamEvent[] e) {joinProcessor.process(e);});
+        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(e);});
     streams:Window lengthWindowB = streams:length([1],
-        nextProcessPointer = function (streams:StreamEvent[] e) {joinProcessor.process(e);});
+        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(e);});
 
     // Set the window processors to the join processor
     joinProcessor.setLHS("stockStream", lengthWindowA);
@@ -131,12 +131,12 @@ function joinFunc() {
     stockStream.subscribe(function (Stock i) {
             map<anydata> keyVal = <map<anydata>>map<anydata>.stamp
             (i.clone());
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "stockStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "stockStream");
             lengthWindowA.process(eventArr);
         }
     );
     twitterStream.subscribe(function (Twitter i) {
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(i, "twitterStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(i, "twitterStream");
             lengthWindowB.process(eventArr);
         }
     );

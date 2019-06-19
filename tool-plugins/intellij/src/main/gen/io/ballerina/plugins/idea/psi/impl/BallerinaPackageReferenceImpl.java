@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,16 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaPackageReferenceStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaPackageReferenceImpl extends BallerinaNamedElementImpl<BallerinaPackageReferenceStub> implements BallerinaPackageReference {
-
-  public BallerinaPackageReferenceImpl(@NotNull BallerinaPackageReferenceStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaPackageReferenceImpl extends ASTWrapperPsiElement implements BallerinaPackageReference {
 
   public BallerinaPackageReferenceImpl(@NotNull ASTNode node) {
     super(node);
@@ -51,18 +45,13 @@ public class BallerinaPackageReferenceImpl extends BallerinaNamedElementImpl<Bal
   @Override
   @NotNull
   public PsiElement getColon() {
-    return notNullChild(findChildByType(COLON));
+    return findNotNullChildByType(COLON);
   }
 
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
-  }
-
-  @Nullable
-  public PsiReference getReference() {
-    return BallerinaPsiImplUtil.getReference(this);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

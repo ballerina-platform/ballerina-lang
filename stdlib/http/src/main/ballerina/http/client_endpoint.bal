@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/io;
 
 ////////////////////////////////
@@ -24,11 +25,13 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
+# + url - Target service url
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
 public type Client client object {
 
+    public string url;
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
@@ -40,6 +43,7 @@ public type Client client object {
     # + config - The configurations to be used when initializing the client
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
+        self.url = url;
         var result = initialize(url, self.config);
         if (result is error) {
             panic result;
@@ -205,63 +209,77 @@ public type Client client object {
 #
 # + url - URL of the target service
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
-public type TargetService record {
+public type TargetService record {|
     string url = "";
     SecureSocket? secureSocket = ();
-    !...;
-};
+|};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
-# + chunking - The chunking behaviour of the request
 # + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
-# + retryConfig - Configurations associated with Retry
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
-public type ClientEndpointConfig record {
-    CircuitBreakerConfig? circuitBreaker = ();
+# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
+# + retryConfig - Configurations associated with Retry
+public type ClientEndpointConfig record {|
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
-    string httpVersion = "1.1";
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = {};
+    PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
-    !...;
-};
+    OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
+|};
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
+# Provides settings related to HTTP/1.x protocol.
+#
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + chunking - The chunking behaviour of the request
+public type Http1Settings record {|
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = CHUNKING_AUTO;
+|};
 
-# Provides configurations for controlling the retry behaviour in failure scenarios.
+function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+                    returns Client = external;
+
+# Provides settings related to HTTP/2 protocol.
+#
+# + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
+public type Http2Settings record {|
+    boolean http2PriorKnowledge = false;
+|};
+
+# Provides configurations for controlling the retrying behavior in failure scenarios.
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
 # + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
-public type RetryConfig record {
+public type RetryConfig record {|
     int count = 0;
     int interval = 0;
     float backOffFactor = 0.0;
     int maxWaitInterval = 0;
     int[] statusCodes = [];
-    !...;
-};
+|};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
@@ -278,9 +296,11 @@ public type RetryConfig record {
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-public type SecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
+public type SecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
@@ -291,18 +311,18 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...;
-};
+    int handshakeTimeout?;
+    int sessionTimeout?;
+|};
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
 #
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
-public type FollowRedirects record {
+public type FollowRedirects record {|
     boolean enabled = false;
     int maxCount = 5;
-    !...;
-};
+|};
 
 # Proxy server configurations to be used with the HTTP client endpoint.
 #
@@ -310,59 +330,135 @@ public type FollowRedirects record {
 # + port - Proxy server port
 # + userName - Proxy server username
 # + password - proxy server password
-public type ProxyConfig record {
+public type ProxyConfig record {|
     string host = "";
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
+|};
 
-# Provides configurations for throttling connections of the endpoint.
+# The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
-#                          indicates that the number of connections are not restricted.
-# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
-# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
-public type ConnectionThrottling record {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
-    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
-    int maxActiveStreamsPerConnection = 20000;
-    !...;
-};
+# + scheme - Authentication scheme
+# + config - Configuration related to the selected authenticator.
+public type OutboundAuthConfig record {|
+    OutboundAuthScheme scheme;
+    BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
+|};
 
-# AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.
 #
-# + scheme - Scheme of the configuration (Basic, OAuth2, JWT etc.)
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
-# + accessToken - Access token for OAuth2 authentication
-# + refreshToken - Refresh token for OAuth2 authentication
-# + refreshUrl - Refresh token URL for OAuth2 authentication
-# + consumerKey - Consumer key for OAuth2 authentication
-# + consumerSecret - Consumer secret for OAuth2 authentication
-# + tokenUrl - Token URL for OAuth2 authentication
-# + clientId - Clietnt ID for OAuth2 authentication
-# + clientSecret - Client secret for OAuth2 authentication
-# + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
+public type BasicAuthConfig record {|
+    string username;
+    string password;
+|};
+
+# The `OAuth2AuthConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
+#
+# + grantType - OAuth2 grant type
+# + config - Configurations for the given grant type
+public type OAuth2AuthConfig record {|
+    OAuth2GrantType grantType;
+    ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
+|};
+
+# The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
+#
+# + tokenUrl - Token URL for the authorization server
+# + clientId - Client ID for the client credentials grant authentication
+# + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope of the access request
-public type AuthConfig record {
-    AuthScheme scheme;
-    string username = "";
-    string password = "";
-    string accessToken = "";
-    string refreshToken = "";
-    string refreshUrl = "";
-    string consumerKey = "";
-    string consumerSecret = "";
-    string tokenUrl = "";
-    string clientId = "";
-    string clientSecret = "";
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type ClientCredentialsGrantConfig record {|
+    string tokenUrl;
+    string clientId;
+    string clientSecret;
+    string[] scopes?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
-    string[] scopes = [];
-    !...;
-};
+|};
+
+# The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
+#
+# + tokenUrl - Token URL for the authorization server
+# + username - Username for password grant authentication
+# + password - Password for password grant authentication
+# + clientId - Client ID for password grant authentication
+# + clientSecret - Client secret for password grant authentication
+# + scopes - Scope of the access request
+# + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type PasswordGrantConfig record {|
+    string tokenUrl;
+    string username;
+    string password;
+    string clientId?;
+    string clientSecret?;
+    string[] scopes?;
+    RefreshConfig refreshConfig?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `DirectTokenConfig` record configures the access token directly.
+#
+# + accessToken - Access token for the authorization server
+# + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type DirectTokenConfig record {|
+    string accessToken?;
+    DirectTokenRefreshConfig refreshConfig?;
+    int clockSkew = 0;
+    boolean retryRequest = true;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.
+#
+# + refreshUrl - Refresh token URL for the refresh token server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type RefreshConfig record {|
+    string refreshUrl;
+    string[] scopes?;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+# The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for 
+# the grant type of the direct token grant type.
+#
+# + refreshUrl - Refresh token URL for the refresh token server
+# + refreshToken - Refresh token for the refresh token server
+# + clientId - Client ID for authentication with the authorization server
+# + clientSecret - Client secret for authentication with the authorization server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to the authorization server
+public type DirectTokenRefreshConfig record {|
+    string refreshUrl;
+    string refreshToken;
+    string clientId;
+    string clientSecret;
+    string[] scopes?;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+|};
+
+// TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
+# The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
+#
+//# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+public type JwtAuthConfig record {|
+    //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+|};
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
     boolean httpClientRequired = false;
@@ -374,7 +470,7 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Clie
     var cbConfig = config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         if (url.hasSuffix("/")) {
-            int lastIndex = url.length() -1;
+            int lastIndex = url.length() - 1;
             url = url.substring(0, lastIndex);
         }
     } else {
@@ -428,7 +524,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
-        boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
+        boolean[] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
             var redirectClient = createRedirectClient(uri, configuration);
@@ -447,8 +543,8 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         time:Time circuitStartTime = time:currentTime();
-        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
-        Bucket[] bucketArray = [];
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis / cbConfig.rollingWindow.bucketSizeMillis);
+        Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
             bucketArray[bucketIndex] = {};
@@ -456,19 +552,19 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                            failureThreshold:cbConfig.failureThreshold,
-                                                            resetTimeMillis:cbConfig.resetTimeMillis,
-                                                            statusCodes:statusCodes,
-                                                            noOfBuckets:numberOfBuckets,
-                                                            rollingWindow:cbConfig.rollingWindow
-                                                        };
+            failureThreshold: cbConfig.failureThreshold,
+            resetTimeMillis: cbConfig.resetTimeMillis,
+            statusCodes: statusCodes,
+            noOfBuckets: numberOfBuckets,
+            rollingWindow: cbConfig.rollingWindow
+        };
         CircuitHealth circuitHealth = {
-                                        startTime:circuitStartTime,
-                                        lastRequestTime:circuitStartTime,
-                                        lastErrorTime:circuitStartTime,
-                                        lastForcedOpenTime:circuitStartTime,
-                                        totalBuckets: bucketArray
-                                      };
+            startTime: circuitStartTime,
+            lastRequestTime: circuitStartTime,
+            lastErrorTime: circuitStartTime,
+            lastForcedOpenTime: circuitStartTime,
+            totalBuckets: bucketArray
+        };
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
         //remove following once we can ignore
@@ -498,7 +594,7 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             } else {
                 return httpCachingClient;
             }
-        } else{
+        } else {
             var httpSecureClient = createHttpSecureClient(url, configuration);
             if (httpSecureClient is Client) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
@@ -517,6 +613,6 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 }
 
 function createClient(string url, ClientEndpointConfig config) returns Client|error {
-    HttpClient simpleClient =  new(url, config);
+    HttpClient simpleClient = new(url, config);
     return simpleClient;
 }

@@ -1,178 +1,185 @@
 ## Module overview
 
-This module includes functions to manage task timers and task appointments.
+Task Listeners and Task Schedulers can be used to perform tasks periodically. This module provides the functionality to configure and manage Task Listeners and Task Schedulers.
 
-### Task timers
+- [Task Listeners](#task-listeners)
+    - [The Timer configuration for a Listener](#The-Timer-configuration-for-a-Listener)
+    - [The Appointment configuration for a Listener](#The-Appointment-configuration-for-a-Listener)
+- [Task Schedulers](#Task-Schedulers)
+    - [The Timer configuration for a Scheduler](#The-Timer-configuration-for-a-Scheduler)
+    - [The Appointment configuration for a Scheduler](#The-Appointment-configuration-for-a-Scheduler)
 
-Timers execute periodic tasks. The initial execution of a task happens after a specific time period from the task 
-registration, which is denoted using `delay`. Use the `interval` to specify the frequency at which tasks execute. 
-If the `delay` is not specified, the `interval` is taken as the `delay`. The `delay` and `interval` times are defined 
-in milliseconds.
+### Task Listeners
 
-The tasks that need to be executed is defined in the `onTriggerFunction` function.  If an error is returned when 
-executing the `onTriggerFunction` function, the `onErrorFunction` is executed.
+A Task `Listener` can be used to create a service listener, which will be triggered at specified times.
 
-The example given below defines the `doTask` function as the  `onTriggerFunction` function. It is executed a second 
-after the task registers and runs every 0.5 seconds. If the function returns an error, the  `onError` function is 
-executed. This function is responsible for handling errors that takes place while doing the specified task.
+Below are the two types of configurations that can be used to configure a Task Listener, either as a timer or as an appointment.
 
-```ballerina
+- `TimerConfiguration`
+- `AppointmentConfiguration`
 
-    (function() returns error?) onTriggerFunction = doTask;
-    (function(error)) onErrorFunction = onError;
-    timer = new task:Timer(onTriggerFunction, onErrorFunction, 500, delay = 1000);
-    timer.start();
+#### The Timer configuration for a Listener 
 
-```
+The `TimerConfiguration` can be used to configure a task that needs to be executed periodically. The `TimerConfiguration` consists of three fields out of which two are optional.
 
-### Task appointments
+- `interval` - The time interval to wait for the listener to get triggered. This should be given in milliseconds.
+- `initialDelay` - The initial delay before the task gets triggered first. If this is set to `0`, the task will execute immediately. If the field is not set, the `interval` will be applied as the initial delay by default. This is optional and should be given in milliseconds.
+- `noOfRecurrences` - The number of times a particular task needs to be executed. This is optional and should be given as an `int`.
 
-A task appointment is similar to a real-world appointment. The task appointment is configured to run at a given time 
-pattern. A cron expression is used to define the time, and the frequency a task appointment needs to run. 
-
-The `onTriggerFunction` function of the task is called when the appointment is due.  If an error is returned when 
-executing the `onTriggerFunction` function, the `onErrorFunction` is called.
-
-The example given below triggers the `onTrigger` function every 5 seconds. If an error is returned, the `cleanupError` 
-function is called.
+The following example creates a listener, which registers a task with an initial delay of 3000 milliseconds and is executed every 1000 milliseconds for 10 times. The `onTrigger ` resource function is triggered when the clock goes off. The `count` variable is incremented by the task.
 
 ```ballerina
-    (function() returns error?) onTriggerFunction = onTrigger;
-    (function (error)) onErrorFunction = cleanupError;
-    app = new task:Appointment(onTriggerFunction, onErrorFunction, "0/05 * * * * ?");
-    app.schedule();
-```
-
-## Samples
-
-### Tasks timer
-
-In this sample, a task is registered with a delay of 1000 milliseconds and is made to run every 1000 milliseconds. 
-The `onTrigger ` function is triggered when the clock goes off. The `onError` function is executed if an error is 
-returned from the `onTrigger` function. Further, the count variable is incremented by the task and if the count is 
-equal to 10, an error is returned. If the count is equal to 20, the task is stopped using the `stopTask()` function.
-
-```ballerina
-import ballerina/io;
-import ballerina/runtime;
+import ballerina/log;
 import ballerina/task;
 
+// Task Timer configuration record to configure a Task Listener.
+task:TimerConfiguration timerConfiguration = {
+    interval: 1000,
+    initialDelay: 3000,
+    // Number of recurrences will limit the number of times the timer runs.
+    noOfRecurrences: 10
+};
+
+// Initialize the listener using pre defined configurations.
+listener task:Listener timer = new(timerConfiguration);
+
 int count = 0;
-task:Timer? timer = ();
 
-public function main(string... args) {
-    io:println("tasks sample is running");
-    scheduleTimer(1000,1000);
-    // Keep the program running for 100*1000 milliseconds.
-    runtime:sleep(100*1000);
-}
-
-function scheduleTimer(int delay, int interval) {
-    // Point to the trigger function.
-    (function() returns error?) onTriggerFunction = onTrigger;
-    // Point to the error function.
-    (function (error)) onErrorFunction = onError;
-    // Register a task with given ‘onTrigger’ and ‘onError’ functions, and with given ‘delay’ and ‘interval’ times.
-    timer = new task:Timer(onTriggerFunction, onErrorFunction, interval, delay = delay);
-    // Start the timer.
-    timer.start();
-}
-
-// Define the ‘onError’ function for the task timer.
-function onError(error e) {
-    io:print("[ERROR] failed to execute timed task");
-    io:println(e);
-}
-
-// Define the ‘onTrigger’ function for the task timer.
-function onTrigger() returns error? {
-    count = count + 1;
-    if(count == 10) {
-        error e = error("Task cannot be performed when the count is 10");
-        //The ‘onError’ function is called when the error is returned.
-        return e;
+// Creating a service on the task Listener.
+service timerService on timer {
+    // This resource triggers when the timer goes off.
+    resource function onTrigger() {
+        count = count + 1;
+        log:printInfo("Cleaning up...");
+        log:printInfo(string.convert(count));
     }
-
-    if(count == 20) {
-        var stopResult = stopTask();
-        if (stopResult is error) {
-            return stopResult;
-        }
-    }
-    io:println("on trigger : count value is: " + count);
-    return;
 }
-
-// Define the function to stop the task.
-function stopTask() returns error? {
-    io:println("Stopping task");
-    timer.stop();
-    count = -1;
-    return;
-}
-
 ```
 
-### Tasks appointment
+#### The Appointment configuration for a Listener
 
-In this sample, a task appointment is registered with a cron expression to run every 5 seconds. Therefore, the 
-`onTrigger ` function is triggered every 5 seconds. The `onError` function is executed if an error is returned from 
-the `onTrigger` function. Further, the count variable is incremented by the task and if the count is equal to 10, an 
-error is returned. If the count is equal to 20, the task is stopped.
+The `AppointmentConfiguration` can be used to schedule an appointment. This Listener configuration consists of two main fields.
 
+  - `appointmentDetails` - Appointment details is a union of `task:AppointmentData` and `string`. `AppointmentDetails` can be given as either a CRON Expression (as a `string`), or an `AppointmentData` record type. An `AppointmentData` record includes seven fields to provide the appointment details.
+  - `noOfRecurrences` - The number of times a particular task needs to be executed. This is optional and should be given as an `int`.
+  
+The following example creates a task appointment, which registers a service using a CRON expression to execute the task every 5 seconds for 11 times. The `count` variable is incremented by the task.
 
 ```ballerina
-import ballerina/io;
-import ballerina/runtime;
+import ballerina/log;
 import ballerina/task;
 
+// Task Appointment configuration record to task Listener.
+// Task Appointment can have either a a cronExpression (`string`)
+// or a `AppointmentData` record the `appointmentData` field.
+// Optionally a `noOfRecurrences` can be provided to limit the number of runs
+// an appointment should run.
+task:AppointmentConfiguration appointmentConfiguration = {
+    // This cron expression will schedule the appointment once every 2 seconds.
+    appointmentDetails: "0/2 * * * * ?",
+    // Number of recurrences will limit the number of times the timer runs.
+    noOfRecurrences: 11
+};
+
+// Initialize the listener using pre defined configurations.
+listener task:Listener appointment = new(appointmentConfiguration);
+
 int count = 0;
-task:Appointment? app = ();
 
-public function main(string... args) {
-    io:println("tasks sample is running");
-    // To schedule the appointment with given cron expression.
-    scheduleAppointment("0/05 * * * * ?");
-    // Keep the program running for 100*1000 seconds
-    runtime:sleep(100*1000);
-}
-function scheduleAppointment(string cronExpression) {
-    // Define on trigger function
-    (function() returns error?) onTriggerFunction = onTrigger;
-    // Define on error function
-    (function (error)) onErrorFunction = onError;
-    // Schedule appointment.
-    app = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
-    app.schedule();
-}
-
-function onTrigger() returns error? {
-    count = count + 1;
-    io:println("tasks is triggered and the value of count is : " + count);
-
-    if(count == 10) {
-        error e = error("Task appointment cannot be executed when the count is 10");
-        // The ‘onError’ function is called when the error is returned.
-        return e;
+// Creating a service on the task Listener.
+service appointmentService on appointment {
+    // This resource triggers when the appointment is due.
+    resource function onTrigger() {
+        count = count + 1;
+        log:printInfo("Cleaning up...");
+        log:printInfo(string.convert(count));
     }
+}
+```
 
-    if(count == 20) {
-        cancelAppointment();
-        io:println("appointment cancelled");
+### Task Schedulers
+
+A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler is triggered. 
+
+A `Scheduler` consists of the following APIs.
+
+- `start()` - Starts the Task Scheduler and executes the services attached to it.
+- `stop()` - Stops the task. This will shutdown all the processes scheduled on the Scheduler.
+- `pause()` - Pauses the Scheduler. This will temporarily halt the execution of the task.
+- `resume()` - Resumes a task, which has been paused.
+- `attach()` - Attaches a service to the Scheduler. An optional `attachment` parameter can be passed to the function so that it will propagate into the resource.
+- `detach()` - Detaches any service(s) that is/are attached to the task.
+
+Similar to Task Listeners, below are the two types of configurations that an be used to configure a Task Scheduler, either as a timer or as an appointment.
+
+- `TimerConfiguration`
+- `AppointmentConfiguration`
+
+>**Info:** The configurations are similar to the [`Task Listener`](#task-listeners).
+
+#### The Timer configuration for a Scheduler
+
+A `Scheduler` can be used to create timers via its `TimerConfiguration`.
+
+The following example creates a `task:Scheduler` as a timer. The `createTimer()` function uses its input values to create a Task Scheduler dynamically. It attaches the `timerService` to the `timer` Scheduler it created. Calling the `timer.start()` function starts the `timer` Scheduler.
+
+```ballerina
+public function createTimer(int interval, int delay, int recurrences) {
+    task:TimerConfiguration timerConfiguration = {
+            interval: interval,
+            delay: delay,
+            noOfRecurrences: recurrences
+    };
+    task:Scheduler timer = new(timerConfiguration);
+    
+    var result  = timer.attach(timerService);
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
     }
-    return ();
+    result = timer.start();
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
 }
 
-// Define the ‘onError’ function for the task timer.
-function onError(error e) {
-    io:print("[ERROR] failed to execute timed task");
-    io:println(e);
+service timerService = service {
+    resource function onTrigger() {
+        // Task to run when the timer triggers.
+    }
+};
+```
+
+#### The Appointment configuration for a Scheduler
+
+A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
+
+The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached to the Scheduler using the `attach()` function. Calling the `appointment.start()` function starts the `appointment` Scheduler.
+
+```ballerina
+public function createAppointment(string cronExpression, int recurrences) {
+    task:AppointmentConfiguration appointmentConfiguration = {
+            appointmentDetails: cronExpression,
+            noOfRecurrences: recurrences
+    };
+    task:Scheduler appointment = new(appointmentConfiguration);
+    
+    var result  = appointment.attach(appointmentService);
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
+    result = appointment.start();
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
 }
 
-// Define the function to stop the task.
-function cancelAppointment() {
-    app.cancel();
-    count = -1;
-}
-
+service appointmentService = service {
+    resource function onTrigger() {
+        // Task to run when the appointment triggers.
+    }
+};
 ```

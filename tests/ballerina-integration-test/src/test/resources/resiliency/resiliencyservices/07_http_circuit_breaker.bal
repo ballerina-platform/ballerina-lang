@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-public int counter = 1;
+int counter = 1;
 
 listener http:Listener circuitBreakerEP00 = new(9306);
 
@@ -59,7 +59,7 @@ service circuitbreaker00 on circuitBreakerEP00 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendRes.detail().message;

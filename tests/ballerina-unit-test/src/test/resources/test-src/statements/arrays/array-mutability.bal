@@ -26,19 +26,17 @@ type Employee record {
 };
 
 // Assignable to Employee type and Person Type
-type Intern record {
+type Intern record {|
     string name = "";
     boolean intern = false;
     int salary = 0;
-    !...;
-};
+|};
 
 // Assignable to Person type
-type Student record {
+type Student record {|
     string name = "";
     int studentId = 0;
-    !...;
-};
+|};
 
 Person[] personArray = [];
 Employee[] employeeArray = [];
@@ -87,8 +85,8 @@ function testCovarianceIntOrNilArray() {
 }
 
 function testCovarianceBooleanOrFloatOrRecordArray() {
-    (boolean|float)[] x = [true, 2.0, true, 15.0];
-    (boolean|float|Person)[] y = x;
+    (boolean|float)?[] x = [true, 2.0, true, 15.0];
+    (boolean|float|Person)?[] y = x;
     y[0] = 1.0;
     y[1] = person1;  // Runtime Exception
 }
@@ -107,7 +105,7 @@ function testMultiDimensionalSealedArrays() {
 }
 
 function testOpenSealedArrays() {
-    int[!...] x19 = [1, 2, 3, 4];
+    int[*] x19 = [1, 2, 3, 4];
     int[] x20 = x19;
     x20[4] = 5; // Runtime Exception
 }
@@ -160,7 +158,7 @@ function testUnionOfArrays() returns string {
 function testUnionOfArrays2() {
     int[]|boolean[] x2 = [true];
 
-    (int|boolean)[] x1 = x2;
+    (int|boolean)?[] x1 = x2;
 
     x1[0] = 3; // Runtime Exception
 }
@@ -180,7 +178,7 @@ function testJsonArrayMutability2() {
 }
 
 function testChainingAssignment() {
-    (int|string)[] first = [];
+    (int|string)?[] first = [];
     (int|string?)[] second = first;
     (int|string|boolean?)[] thrid = second;
     (int|string|boolean|Person?)[] fourth = thrid;

@@ -27,7 +27,9 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
     const body = `
         <div class='api-container'>
             <div class='message'></div>
-            <div class='api-visualizer' id='api-visualizer'></div>
+            <div class='api-visualizer' id='api-visualizer'>
+                <i class="fw fw-loader fw-spin fw-3x root-loader"></i>
+            </div>
         </div>
     `;
     const bodyCss = "api-designer";
@@ -50,21 +52,21 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
                 }
             });
 
-            function getSwaggerJson(docUri, serviceName) {
+            function getOpenApiJson(docUri, serviceName) {
                 return new Promise((resolve, reject) => {
-                    webViewRPCHandler.invokeRemoteMethod('getSwaggerDef', [docUri, serviceName], (resp) => {
+                    webViewRPCHandler.invokeRemoteMethod('getOpenApiDef', [docUri, serviceName], (resp) => {
                         resolve(resp);
                     });
                 })
             }
 
             function onDidJsonChange(event, oasJson) {
-                webViewRPCHandler.invokeRemoteMethod('triggerSwaggerDefChange', [JSON.stringify(oasJson), docUri]);
+                webViewRPCHandler.invokeRemoteMethod('triggerOpenApiDefChange', [JSON.stringify(oasJson), docUri]);
             }
 
             function drawAPIEditor() {
                 if(updatedJSON === '') {
-                    getSwaggerJson(docUri, selectedService).then((response)=>{
+                    getOpenApiJson(docUri, selectedService).then((response)=>{
                         try {
                             let width = window.innerWidth - 6;
                             let height = window.innerHeight;

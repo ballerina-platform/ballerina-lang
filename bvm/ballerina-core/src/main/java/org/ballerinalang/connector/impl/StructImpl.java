@@ -79,6 +79,13 @@ public class StructImpl extends AnnotatableNode implements Struct {
         return ((BInteger) value.get(fieldName)).intValue();
     }
 
+    public long getDefaultableIntField(String fieldName) {
+        if (value.get(fieldName) != null) {
+            return getIntField(fieldName);
+        }
+        return 0;
+    }
+
     @Override
     public double getFloatField(String fieldName) {
         return ((BFloat) value.get(fieldName)).floatValue();

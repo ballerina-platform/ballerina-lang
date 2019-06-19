@@ -22,7 +22,7 @@ import * as React from "react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../context/open-api-context";
 
-import InlineEdit from "../utils/inline-edit";
+import InlineEdit from "../utils/inline-edit/inline-edit";
 
 export interface OpenApiLicenseProps {
     license?: Swagger.LicenseObject;
@@ -42,24 +42,24 @@ class OpenApiLicense extends React.Component<OpenApiLicenseProps, any> {
                     if (license) {
                         return (
                             <InlineEdit
-                                text={license}
+                                editableObject={license}
                                 changeModel={context!.openApiJson}
                                 changeAttribute={{key: "info.license", changeValue: ""}}
                                 placeholderText="+ License info"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                         );
                     } else {
                         return (
                             <InlineEdit
-                                text={{
+                                editableObject={{
                                     name: "",
                                     url: "",
                                 }}
                                 changeModel={context!.openApiJson}
                                 changeAttribute={{key: "info.license", changeValue: ""}}
                                 placeholderText="+ License info"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                         );
                     }

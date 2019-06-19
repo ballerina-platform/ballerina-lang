@@ -69,7 +69,7 @@ function testAccessMapInStruct () returns (any, any, any, string) {
         return (result.address.city, result["address"]["city"], result.address["city"], city);
     } else {
         io:println("Person is null");
-        return (null, null, null, city);
+        return ((), (), (), city);
     }
 }
 

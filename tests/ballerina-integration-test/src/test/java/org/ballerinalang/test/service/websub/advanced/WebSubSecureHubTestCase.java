@@ -31,6 +31,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_XML;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARATOR;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL_THREE;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
@@ -45,6 +46,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
+    private static final int WEBSUB_PORT = 8484;
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - " +
@@ -86,7 +88,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{8484});
+        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{WEBSUB_PORT});
     }
 
     @Test
@@ -95,7 +97,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherThree.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherFour.waitForText(LOG_LEECHER_TIMEOUT);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         requestUpdate(PUBLISHER_NOTIFY_URL_THREE, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
     }
 

@@ -4,6 +4,7 @@
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
+    [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Ballerina is a compiled, type safe, concurrent programming language designed to make it simple to write microservices that integrate APIs.
@@ -40,6 +41,8 @@ You can use one of the following options to try out Ballerina.
 
 You can download the Ballerina distribution at http://ballerina.io.
 
+>**Tip:** You can use several [tools and IDEs](https://ballerina.io/learn/tools-ides/) to create, document, and test Ballerina code.
+
 ### Install from source
 
 Alternatively, you can install Ballerina from the source using the following instructions.
@@ -64,8 +67,17 @@ Alternatively, you can install Ballerina from the source using the following ins
     ```bash
     git submodule update --init 
     ```
-2. Run the Maven command ``mvn clean install`` from the repository root directory.
-3. Extract the Ballerina distribution created at `distribution/zip/ballerina-tools/target/ballerina-tools-<version>-SNAPSHOT.zip`.
+2. Build project with gradle.
+  Use following command on Unix/macOS:
+   ```
+   ./gradlew build
+   ```
+  or the following command on Windows:
+    ```
+    gradlew build
+    ```
+
+3. Extract the Ballerina distribution created at `distribution/zip/ballerina-tools/build/ballerina-tools-<version>-SNAPSHOT.zip`.
 
 ## Contributing to Ballerina
 

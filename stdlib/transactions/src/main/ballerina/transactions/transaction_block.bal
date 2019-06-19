@@ -215,7 +215,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
     var txn = participatedTransactions[participatedTxnId];
     if (txn is TwoPhaseCommitTransaction) {
         return txn.markForAbortion();
-    } else if (txn is ()) {
+    } else {
         var initiatedTxn = initiatedTransactions[transactionId];
         if (initiatedTxn is TwoPhaseCommitTransaction) {
             return initiatedTxn.markForAbortion();
@@ -223,11 +223,6 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
             error err = error("Unknown transaction");
             panic err;
         }
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
@@ -252,7 +247,7 @@ function endTransaction(string transactionId, string transactionBlockId) returns
         var initiatedTxn = initiatedTransactions[transactionId];
         if (initiatedTxn is ()) {
             return "";
-        } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+        } else {
             if (initiatedTxn.state == TXN_STATE_ABORTED) {
                 return initiatedTxn.abortInitiatorTransaction();
             } else {
@@ -260,11 +255,6 @@ function endTransaction(string transactionId, string transactionBlockId) returns
                 removeInitiatedTransaction(transactionId);
                 return ret;
             }
-        } else {
-            // TODO: Ideally there shouldn't be an `else if` above but `else`. Once the limitations in type checking are
-            // fixed this `else` block should be removed and the above `else if` block should be replaced with an else.
-            error e = error("Unreachable code");
-            panic e;
         }
     } else {
         return "";  // Nothing to do on endTransaction if you are a participant
@@ -291,47 +281,48 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-extern function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Commit local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-extern function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-extern function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Get the current transaction id. This function is useful for user code to save state against a transaction ID,
 # so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
 # transaction  that is passed in to those functions.
 #
 # + return - A string representing the ID of the current transaction.
-public extern function getCurrentTransactionId() returns string;
+public function getCurrentTransactionId() returns string = external;
 
-extern function isNestedTransaction() returns boolean;
+function isNestedTransaction() returns boolean = external;
 
-extern function setTransactionContext(TransactionContext transactionContext);
+function setTransactionContext(TransactionContext transactionContext) = external;
                 
-extern function registerLocalParticipant(string transactionBlockId, function () committedFunc,
-                                          function () abortedFunc);
+function registerLocalParticipant(string transactionBlockId, function () committedFunc,
+                                        function () abortedFunc) = external;
 
 
-extern function registerRemoteParticipant(string transactionBlockId, function () committedFunc,
-                                          function () abortedFunc);
+function registerRemoteParticipant(string transactionBlockId, function () committedFunc,
+                                        function () abortedFunc) = external;
 
-extern function notifyLocalParticipantOnFailure();
+function notifyLocalParticipantOnFailure() = external;
 
-extern function notifyRemoteParticipantOnFailure();
+function notifyRemoteParticipantOnFailure() = external;
 
-extern function notifyResourceManagerOnAbort(string transactionBlockId);
+function notifyResourceManagerOnAbort(string transactionBlockId) = external;
 
-extern function rollbackTransaction(string transactionBlockId) returns error?;
+function rollbackTransaction(string transactionBlockId) returns error? = external;
 
-extern function cleanupTransactionContext(string transactionBlockId);
+function cleanupTransactionContext(string transactionBlockId) = external;
+
 

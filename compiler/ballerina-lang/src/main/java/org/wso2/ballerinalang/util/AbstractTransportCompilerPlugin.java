@@ -51,6 +51,6 @@ public abstract class AbstractTransportCompilerPlugin extends AbstractCompilerPl
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(symbolTable.errorType);
         memberTypes.add(symbolTable.nilType);
-        this.errorOrNil = new BUnionType(null, memberTypes, true);
+        this.errorOrNil = BUnionType.create(null, memberTypes);
     }
 }

@@ -1,0 +1,18 @@
+repositories {
+    mavenLocal()
+    maven {
+        url = 'http://maven.wso2.org/nexus/content/repositories/releases/'
+    }
+
+    maven {
+        url = 'http://maven.wso2.org/nexus/content/repositories/snapshots/'
+    }
+
+    maven {
+        url = 'http://maven.wso2.org/nexus/content/groups/wso2-public/'
+    }
+
+    maven {
+        url = 'http://repo.maven.apache.org/maven2'
+    }
+}

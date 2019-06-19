@@ -32,4 +32,6 @@ public function main(string... args) {
         msg -> xmlChn;
         io:println("Sent message from w3");
     }
+
+    wait w1;
 }

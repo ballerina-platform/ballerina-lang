@@ -6,84 +6,109 @@
   "source": "function/source/iterableOperation4.bal",
   "items": [
     {
-      "label":"foreach(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"foreach(function((string, string) entry) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "foreach(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "foreach(function((string, anydata) entry) {\n\t${1}\n});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"map(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"map(function((string, string) entry) returns (any) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "map(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "map(function ((string, anydata) entry) returns any {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"filter(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"filter(function((string, string) entry) returns (boolean) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "filter(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "filter(function((string, anydata) entry) returns (boolean) {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"count()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"count();",
-      "insertTextFormat":"Snippet"
+      "label": "count()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "count()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"length()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"length();",
-      "insertTextFormat":"Snippet"
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"freeze()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"freeze();",
-      "insertTextFormat":"Snippet"
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"isFrozen()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"isFrozen();",
-      "insertTextFormat":"Snippet"
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"stamp(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"stamp(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"clone()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"clone();",
-      "insertTextFormat":"Snippet"
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"convert(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"convert(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hasKey(string s)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "hasKey(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remove(string s)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clear()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "clear()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "keys()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "values()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "values()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

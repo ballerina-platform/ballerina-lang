@@ -19,8 +19,14 @@ import ballerina/io;
 io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
-function initReadableChannel(string filePath) {
-    rch = untaint io:openReadableFile(filePath);
+function initReadableChannel(string filePath) returns error? {
+
+    var result = io:openReadableFile(filePath);
+    if (result is io:ReadableByteChannel) {
+        rch = untaint result;
+    } else {
+        return result;
+    }
 }
 
 function initWritableChannel(string filePath) {
@@ -29,14 +35,11 @@ function initWritableChannel(string filePath) {
 
 function readBytes(int numberOfBytes) returns byte[]|error {
     var result = rch.read(numberOfBytes);
-    if (result is (byte[], int)) {
-        var (bytes, val) = result;
+    if (result is [byte[], int]) {
+        var [bytes, val] = result;
         return bytes;
-    } else if (result is error) {
-        return result;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return result;
     }
 }
 
@@ -45,11 +48,8 @@ function writeBytes(byte[] content, int startOffset) returns int|error {
     var result = wch.write(content, startOffset);
     if (result is int) {
         return result;
-    } else if (result is error) {
-        return result;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return result;
     }
 }
 

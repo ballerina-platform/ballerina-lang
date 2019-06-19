@@ -57,8 +57,8 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransaction");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true, "'committed' block did not get executed");
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false, "'aborted' block executed");
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue(), "'committed' block did not get executed");
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue(), "'aborted' block executed");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -66,9 +66,8 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testTransactionRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true,
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue(),
                 "Statements after Tx failing statements did not invoked");
-
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)

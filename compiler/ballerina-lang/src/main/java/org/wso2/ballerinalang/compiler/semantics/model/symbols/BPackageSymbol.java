@@ -22,6 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ public class BPackageSymbol extends BTypeSymbol {
     public CompiledPackage compiledPackage;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
-    public BIRNode.BIRPackage bir;
+    public BIRNode.BIRPackage bir;   // TODO try to remove this
+    public BIRPackageFile birPackageFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;

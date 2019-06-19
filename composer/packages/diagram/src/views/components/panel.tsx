@@ -1,10 +1,10 @@
 
 import { ASTUtil, Function as BalFunction } from "@ballerina/ast-model";
-import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramContext } from "../../diagram/diagram-context";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+import { getCodePoint } from "../../utils";
 import { FunctionViewState, SimpleBBox } from "../../view-model/index";
 import { EditableSVGText } from "./editable-svg-text";
 import { SourceLinkedLabel } from "./source-linked-label";

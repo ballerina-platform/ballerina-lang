@@ -19,23 +19,34 @@
  */
 import * as vscode from 'vscode';
 
-let outputChannel: vscode.OutputChannel | undefined;
+const outputChannel = vscode.window.createOutputChannel("Ballerina");
 const logLevelDebug: boolean = vscode.workspace.getConfiguration('ballerina').get('debugLog') === true;
 
-if (logLevelDebug) {
-    outputChannel = vscode.window.createOutputChannel("Ballerina");
+function withNewLine(value: string) {
+    if (!value.endsWith('\n')) {
+        return value+='\n';
+    }
+    return value;
 }
 
+// This function will log the value to the Ballerina output channel only if debug log is enabled
 export function log(value: string) : void {
-    if (!value.endsWith('\n')) {
-        value+='\n';
+    const output = withNewLine(value);
+    console.log(output);
+    if (logLevelDebug) {
+        outputChannel.append(output);
     }
-    console.log(value);
-    if (outputChannel) {
-        outputChannel.append(value);
-    }
+}
+
+// This function will log the value to the Ballerina output channel
+export function info(value: string) : void {
+    const output = withNewLine(value);
+    console.log(output);
+    outputChannel.append(output);
 }
 
 export function getOutputChannel() {
-    return outputChannel;
+    if (logLevelDebug) {
+        return outputChannel;
+    }
 }

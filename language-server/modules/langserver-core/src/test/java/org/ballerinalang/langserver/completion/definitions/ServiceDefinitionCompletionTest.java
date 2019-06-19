@@ -43,6 +43,12 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
             {"serviceBodyCompletion3.json", "service"},
             {"serviceBodyCompletion4.json", "service"},
             {"serviceBodyCompletion5.json", "service"},
+            {"serviceVariableAndFieldsCompletion1.json", "service"},
+            {"httpServiceBodyResourceCompletion.json", "service"},
+            {"websocketServiceBodyResourceCompletion.json", "service"},
+            {"websubServiceBodyResourceCompletion.json", "service"},
+            {"grpcServiceBodyResourceCompletion.json", "service"},
+            {"serviceDefinitionContextSuggestion1.json", "service"},
         };
     }
 }

@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.encoding.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -31,11 +33,10 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
 /**
  * Extern function ballerina.encoding:encodeHex.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeHex",
+        orgName = "ballerina", packageName = "encoding", functionName = "encodeHex",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },
@@ -49,5 +50,9 @@ public class EncodeHex extends BlockingNativeCallableUnit {
         BValueArray input = (BValueArray) context.getRefArgument(0);
         String output = EncodingUtil.encodeHex(input.getBytes());
         context.setReturnValues(new BString(output));
+    }
+
+    public static String encodeHex(Strand strand, ArrayValue input) {
+        return EncodingUtil.encodeHex(input.getBytes());
     }
 }

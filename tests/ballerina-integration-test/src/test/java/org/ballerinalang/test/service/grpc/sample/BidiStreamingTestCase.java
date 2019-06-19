@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +41,7 @@ public class BidiStreamingTestCase extends GrpcBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test
+    @Test(description = "Test bidirectional streaming client")
     public void testBidiStreamingClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "bidirectional_streaming_client" +

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<BallerinaFunctionDefinitionStub> implements BallerinaFunctionDefinition {
-
-  public BallerinaFunctionDefinitionImpl(@NotNull BallerinaFunctionDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implements BallerinaFunctionDefinition {
 
   public BallerinaFunctionDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,25 +45,31 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
   @Override
   @Nullable
   public BallerinaAttachedObject getAttachedObject() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAttachedObject.class);
+    return findChildByClass(BallerinaAttachedObject.class);
   }
 
   @Override
   @Nullable
   public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+    return findChildByClass(BallerinaCallableUnitBody.class);
   }
 
   @Override
   @Nullable
   public BallerinaCallableUnitSignature getCallableUnitSignature() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitSignature.class);
+    return findChildByClass(BallerinaCallableUnitSignature.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
   }
 
   @Override
@@ -85,14 +86,14 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
 
   @Override
   @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
+  public PsiElement getExternal() {
+    return findChildByType(EXTERNAL);
   }
 
   @Override
   @NotNull
   public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+    return findNotNullChildByType(FUNCTION);
   }
 
   @Override
@@ -113,11 +114,13 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
     return findChildByType(REMOTE);
   }
 
+  @Override
   @Nullable
   public PsiElement getIdentifier() {
     return BallerinaPsiImplUtil.getIdentifier(this);
   }
 
+  @Override
   @Nullable
   public String getName() {
     return BallerinaPsiImplUtil.getName(this);

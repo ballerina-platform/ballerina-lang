@@ -18,6 +18,6 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "The output from is check expression: value is nil");
-    test:assertEquals(outputs[1], "The output from elvis operator: value is nil");
+    test:assertEquals(outputs[0], "The output from the type-guard: value is nil");
+    test:assertEquals(outputs[1], "The output from the elvis operator: value is nil");
 }

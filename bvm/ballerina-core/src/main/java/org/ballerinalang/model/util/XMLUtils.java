@@ -60,6 +60,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -91,7 +92,9 @@ public class XMLUtils {
             Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
                                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
-        } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
+        } catch (AlgorithmAlreadyRegisteredException e) {
+            // ignore
+        } catch (InvalidCanonicalizerException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }
@@ -336,6 +339,11 @@ public class XMLUtils {
     public static BXML<?> createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
+        // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
+        content = content
+                .replace("&gt;", ">")
+                .replace("&lt;", "<")
+                .replace("&amp;", "&");
 
         OMText omText = OM_FACTORY.createOMText(content);
         return new BXMLItem(omText);
@@ -424,11 +432,11 @@ public class XMLUtils {
     }
 
     private static boolean isXmlSequenceEqual(BXMLSequence xmlSequenceOne, BXMLSequence xmlSequenceTwo) {
-        if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
+        if (xmlSequenceOne.size() != xmlSequenceTwo.size()) {
             return false;
         }
 
-        for (int i = 0; i < xmlSequenceOne.length(); i++) {
+        for (int i = 0; i < xmlSequenceOne.value().size(); i++) {
             if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
                     getRefValue(i))) {
                 return false;

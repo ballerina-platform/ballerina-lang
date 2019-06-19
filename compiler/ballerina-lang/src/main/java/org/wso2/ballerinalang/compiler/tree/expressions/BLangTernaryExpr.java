@@ -20,11 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @since 0.94
@@ -34,15 +30,6 @@ public class BLangTernaryExpr extends BLangExpression implements TernaryExpressi
     public BLangExpression expr;
     public BLangExpression thenExpr;
     public BLangExpression elseExpr;
-
-    // Cache of the type guards
-    public Map<BVarSymbol, BVarSymbol> ifTypeGuards;
-    public Map<BVarSymbol, BVarSymbol> elseTypeGuards;
-
-    public BLangTernaryExpr() {
-        this.ifTypeGuards = new HashMap<>();
-        this.elseTypeGuards = new HashMap<>();
-    }
 
     @Override
     public ExpressionNode getCondition() {

@@ -1,3 +1,4 @@
+import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
 import ballerina/log;
@@ -8,8 +9,10 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        username: "tom",
-        password: "1234"
+        config: {
+            username: "tom",
+            password: "1234"
+        }
     }
 });
 
@@ -20,7 +23,7 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
-        var result = response.getPayloadAsString();
+        var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
                                         : result);
     } else {
@@ -28,21 +31,17 @@ public function main() {
     }
 }
 
-// Create a basic authentication provider with the relevant configurations.
-http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
-};
+// Create a Basic authentication handler with the relevant configurations.
+auth:ConfigAuthStoreProvider basicAuthProvider = new;
+http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 listener http:Listener ep  = new(9090, config = {
-    authProviders: [basicAuthProvider],
+    auth: {
+        authnHandlers: [basicAuthnHandler]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -50,8 +49,8 @@ listener http:Listener ep  = new(9090, config = {
 
 @http:ServiceConfig {
     basePath: "/hello",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 service echo on ep {
@@ -61,6 +60,9 @@ service echo on ep {
         path: "/sayHello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

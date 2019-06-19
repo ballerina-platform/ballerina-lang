@@ -20,7 +20,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
+import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
@@ -43,9 +43,9 @@ import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.swagger.CodeGenerator;
-import org.ballerinalang.swagger.model.GenSrcFile;
-import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.model.GenSrcFile;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -100,7 +100,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request) {
+    public CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request) {
         String fileUri = request.getBallerinaDocument().getUri();
         Path formattingFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
@@ -110,9 +110,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            String swaggerDefinition = SwaggerConverterUtils
+            String openApiDefinition = OpenApiConverterUtils
                     .generateOAS3Definitions(fileContent, request.getBallerinaService());
-            reply.setBallerinaOASJson(convertToJson(swaggerDefinition));
+            reply.setBallerinaOASJson(convertToJson(openApiDefinition));
         } catch (Exception e) {
             reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
@@ -139,9 +139,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             //Generate compilation unit for provided Open Api Sep JSON
-            File tempOasJsonFile = getSwaggerFile(params.getOASDefinition());
+            File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.MOCK,
+            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.GEN_SERVICE,
                     tempOasJsonFile.getPath());
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
@@ -258,7 +258,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = new LSServiceOperationContext();
             astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, false,
+            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, true,
                     LSCustomErrorStrategy.class, false);
             astContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
             reply.setAst(getTreeForContent(astContext));
@@ -332,11 +332,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private JsonElement getTreeForContent(LSContext context) throws LSCompilerException, JSONGenerationException {
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolFindVisitor symbolFindVisitor = new SymbolFindVisitor(compilerContext);
+        VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
 
         if (bLangPackage.symbol != null) {
-            symbolFindVisitor.visit(bLangPackage);
-            Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap = symbolFindVisitor.getVisibleSymbolsMap();
+            visibleEndpointVisitor.visit(bLangPackage);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
             String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream()
                     .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
@@ -344,7 +344,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .findFirst()
                     .orElse(null);
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>(),
-                    symbolMetaInfoMap);
+                    visibleEPsByNode);
             FormattingSourceGen.build(jsonAST.getAsJsonObject(), "CompilationUnit");
             return jsonAST;
         }
@@ -352,13 +352,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     /**
-     * A Util method to create a temporary swagger JSON file to be used to convert into ballerina definition.
+     * A Util method to create a temporary openapi JSON file to be used to convert into ballerina definition.
      *
-     * @param oasDefinition Swagger JSON string for file creation
+     * @param oasDefinition OpenApi JSON string for file creation
      * @return Temporary file created with provided string
      * @throws IOException will throw IO Exception if file error
      */
-    private File getSwaggerFile(String oasDefinition) throws IOException {
+    private File getOpenApiFile(String oasDefinition) throws IOException {
         File oasTempFile = File.createTempFile("oasTempFile", ".json");
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
                 StandardCharsets.UTF_8))) {
@@ -624,12 +624,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      * Util method to match given resource in a service node.
      *
      * @param astResource     service node
-     * @param swaggerResource resource which needs to be checked
+     * @param openApiResource resource which needs to be checked
      * @return true if matched else false
      */
-    private boolean matchResource(JsonObject astResource, JsonObject swaggerResource) {
+    private boolean matchResource(JsonObject astResource, JsonObject openApiResource) {
         return astResource.getAsJsonObject("name").get("value").getAsString()
-                .equals(swaggerResource.getAsJsonObject("name").get("value").getAsString());
+                .equals(openApiResource.getAsJsonObject("name").get("value").getAsString());
     }
 
     /**

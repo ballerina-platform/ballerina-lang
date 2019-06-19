@@ -22,11 +22,8 @@ function getJson(string content, string encoding) returns json|error {
     var closeResult = reader.close();
     if (readResult is json) {
         return readResult;
-    } else if (readResult is error) {
-        return readResult;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return readResult;
     }
 }
 
@@ -36,10 +33,7 @@ function getXml(string content, string encoding) returns xml?|error {
     var closeResult = reader.close();
     if (readResult is xml?) {
         return readResult;
-    } else if (readResult is error) {
-        return readResult;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return readResult;
     }
 }

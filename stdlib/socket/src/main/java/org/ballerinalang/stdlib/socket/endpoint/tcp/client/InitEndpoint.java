@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,16 +38,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
-import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -60,7 +58,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Client", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -85,10 +83,12 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             Map<String, Resource> resourceMap = null;
             // Client has a callback service, so filter out resources for future dispatching.
             if (service != null) {
-                resourceMap = getResourceRegistry(service);
+                resourceMap = SocketUtils.getResourceRegistry(service);
             }
-            clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap));
             clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
+            final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
+            long timeout = ((BInteger) readTimeoutBValue).intValue();
+            clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap, timeout));
             context.setReturnValues();
         } catch (SocketException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the local socket port"));
@@ -96,36 +96,5 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             log.error("Unable to initiate the client socket", e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initiate the socket"));
         }
-    }
-
-    private Map<String, Resource> getResourceRegistry(Service service) {
-        Map<String, Resource> registry = new HashMap<>(4);
-        byte resourceCount = 0;
-        for (Resource resource : service.getResources()) {
-            switch (resource.getName()) {
-                case RESOURCE_ON_CONNECT:
-                    registry.put(RESOURCE_ON_CONNECT, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_READ_READY:
-                    registry.put(RESOURCE_ON_READ_READY, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_ERROR:
-                    registry.put(RESOURCE_ON_ERROR, resource);
-                    resourceCount++;
-                    break;
-                case RESOURCE_ON_CLOSE:
-                    registry.put(RESOURCE_ON_CLOSE, resource);
-                    resourceCount++;
-                    break;
-                default:
-                    // Do nothing.
-            }
-            if (resourceCount == 4) {
-                break;
-            }
-        }
-        return registry;
     }
 }

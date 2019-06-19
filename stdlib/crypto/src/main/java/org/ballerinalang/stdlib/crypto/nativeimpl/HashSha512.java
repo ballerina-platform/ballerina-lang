@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -31,7 +33,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 /**
  * Extern function ballerina.crypto:hashSha512.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
@@ -46,5 +48,10 @@ public class HashSha512 extends BlockingNativeCallableUnit {
         BValue inputBValue = context.getRefArgument(0);
         byte[] input = ((BValueArray) inputBValue).getBytes();
         context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-512", input)));
+    }
+
+    public static ArrayValue hashSha512(Strand strand, ArrayValue inputValue) {
+        return new ArrayValue(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
+
     }
 }

@@ -23,7 +23,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
+import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
+import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
+import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -91,7 +98,7 @@ public class CommandExecutionTest {
         List<Object> args = Arrays.asList(
                 new CommandArgument("module", configJsonObject.get("module").getAsString()),
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_IMPORT_MODULE);
+        JsonObject responseJson = getCommandResponse(args, ImportModuleExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -107,7 +114,7 @@ public class CommandExecutionTest {
                 new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()),
                 new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_DOCUMENTATION);
+        JsonObject responseJson = getCommandResponse(args, AddDocumentationExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -121,7 +128,7 @@ public class CommandExecutionTest {
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Collections.singletonList(
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_ALL_DOC);
+        JsonObject responseJson = getCommandResponse(args, AddAllDocumentationExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -129,7 +136,7 @@ public class CommandExecutionTest {
 
     @Test(description = "Test Create Initializer for object", enabled = false)
     public void testCreateInitializer() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_INITIALIZER);
+        log.info("Test workspace/executeCommand for command {}", CreateObjectInitializerExecutor.COMMAND);
         String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -138,7 +145,7 @@ public class CommandExecutionTest {
                 new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()),
                 new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_INITIALIZER);
+        JsonObject responseJson = getCommandResponse(args, CreateObjectInitializerExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: createInitializer.json");
@@ -155,7 +162,7 @@ public class CommandExecutionTest {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_FUNCTION);
+        JsonObject responseJson = getCommandResponse(args, CreateFunctionExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -172,7 +179,24 @@ public class CommandExecutionTest {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_VARIABLE);
+        JsonObject responseJson = getCommandResponse(args, CreateVariableExecutor.COMMAND);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
+    }
+
+    @Test(dataProvider = "ignore-return-data-provider")
+    public void testIgnoreReturnValue(String config, String source) {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, IgnoreReturnExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -199,7 +223,7 @@ public class CommandExecutionTest {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
                                          arguments.get("node.column").getAsString()));
-            JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_TEST);
+            JsonObject responseJson = getCommandResponse(args, CreateTestExecutor.COMMAND);
             JsonElement resultElm = responseJson.get("result");
             if (resultElm.getAsBoolean()) {
                 Assert.fail("This test should expected to fail but received:\n" + resultElm.toString());
@@ -228,10 +252,10 @@ public class CommandExecutionTest {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
                                          arguments.get("node.column").getAsString()));
-            JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_TEST);
+            JsonObject responseJson = getCommandResponse(args, CreateTestExecutor.COMMAND);
             JsonElement resultElm = responseJson.get("result");
             String content = resultElm.getAsJsonObject().get("edit").getAsJsonObject()
-                    .getAsJsonArray("documentChanges").get(0).getAsJsonObject().getAsJsonArray("edits").get(0)
+                    .getAsJsonArray("documentChanges").get(1).getAsJsonObject().getAsJsonArray("edits").get(0)
                     .getAsJsonObject().get("newText").getAsString();
 
             // Need to write all text-edits into the test file
@@ -308,7 +332,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_IMPORT_MODULE);
+        log.info("Test workspace/executeCommand for command {}", ImportModuleExecutor.COMMAND);
         return new Object[][] {
                 {"importPackage1.json", "importPackage1.bal"},
                 {"importPackage2.json", "importPackage2.bal"},
@@ -317,7 +341,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "add-doc-data-provider")
     public Object[][] addDocDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_ADD_DOCUMENTATION);
+        log.info("Test workspace/executeCommand for command {}", AddDocumentationExecutor.COMMAND);
         return new Object[][] {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
@@ -331,7 +355,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "add-all-doc-data-provider")
     public Object[][] addAllDocDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_ADD_ALL_DOC);
+        log.info("Test workspace/executeCommand for command {}", AddAllDocumentationExecutor.COMMAND);
         return new Object[][] {
                 {"addAllDocumentation.json", "commonDocumentation.bal"},
                 {"addAllDocumentationWithAnnotations.json", "addAllDocumentationWithAnnotations.bal"}
@@ -340,7 +364,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "create-function-data-provider")
     public Object[][] createFunctionDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_FUNCTION);
+        log.info("Test workspace/executeCommand for command {}", CreateFunctionExecutor.COMMAND);
         return new Object[][] {
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
@@ -349,7 +373,7 @@ public class CommandExecutionTest {
 
     @DataProvider(name = "create-variable-data-provider")
     public Object[][] createVariableDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_VARIABLE);
+        log.info("Test workspace/executeCommand for command {}", CreateVariableExecutor.COMMAND);
         return new Object[][] {
                 {"createVariable1.json", "createVariable.bal"},
                 {"createVariable2.json", "createVariable.bal"},
@@ -357,9 +381,17 @@ public class CommandExecutionTest {
         };
     }
 
+    @DataProvider(name = "ignore-return-data-provider")
+    public Object[][] ignoreReturnValueDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", IgnoreReturnExecutor.COMMAND);
+        return new Object[][] {
+                {"ignoreReturnValue.json", "createVariable.bal"},
+        };
+    }
+
     @DataProvider(name = "testgen-data-provider")
     public Object[][] testGenerationDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", CommandConstants.CMD_CREATE_TEST);
+        log.info("Test workspace/executeCommand for command {}", CreateTestExecutor.COMMAND);
         return new Object[][]{
 //                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCallableUnitSignatureImpl extends BallerinaCompositeElementImpl implements BallerinaCallableUnitSignature {
+public class BallerinaCallableUnitSignatureImpl extends ASTWrapperPsiElement implements BallerinaCallableUnitSignature {
 
   public BallerinaCallableUnitSignatureImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaCallableUnitSignatureImpl extends BallerinaCompositeElemen
   @Override
   @NotNull
   public BallerinaAnyIdentifierName getAnyIdentifierName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaAnyIdentifierName.class));
+    return findNotNullChildByClass(BallerinaAnyIdentifierName.class);
   }
 
   @Override
   @Nullable
   public BallerinaFormalParameterList getFormalParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFormalParameterList.class);
+    return findChildByClass(BallerinaFormalParameterList.class);
   }
 
   @Override
   @Nullable
   public BallerinaReturnParameter getReturnParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReturnParameter.class);
+    return findChildByClass(BallerinaReturnParameter.class);
   }
 
   @Override

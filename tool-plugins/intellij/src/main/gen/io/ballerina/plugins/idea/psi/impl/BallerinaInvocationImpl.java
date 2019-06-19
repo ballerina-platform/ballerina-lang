@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaInvocationImpl extends BallerinaCompositeElementImpl implements BallerinaInvocation {
+public class BallerinaInvocationImpl extends ASTWrapperPsiElement implements BallerinaInvocation {
 
   public BallerinaInvocationImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaInvocationImpl extends BallerinaCompositeElementImpl imple
   @Override
   @NotNull
   public BallerinaAnyIdentifierName getAnyIdentifierName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaAnyIdentifierName.class));
+    return findNotNullChildByClass(BallerinaAnyIdentifierName.class);
   }
 
   @Override
   @Nullable
   public BallerinaInvocationArgList getInvocationArgList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaInvocationArgList.class);
+    return findChildByClass(BallerinaInvocationArgList.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaInvocationImpl extends BallerinaCompositeElementImpl imple
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
@@ -74,7 +75,7 @@ public class BallerinaInvocationImpl extends BallerinaCompositeElementImpl imple
   @Override
   @NotNull
   public PsiElement getRightParenthesis() {
-    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
+    return findNotNullChildByType(RIGHT_PARENTHESIS);
   }
 
 }

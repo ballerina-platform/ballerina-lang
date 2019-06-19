@@ -18,7 +18,7 @@
 public type Client client object {
     *AbstractSQLClient;
 
-    # The call operation implementation for SQL connector to invoke stored procedures/functions.
+    # The call remote function implementation for SQL connector to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -30,7 +30,7 @@ public type Client client object {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
-    # The select operation implementation for SQL Client to select data from tables.
+    # The select remote function implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -42,16 +42,19 @@ public type Client client object {
         return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
-    # The update operation implementation for SQL Client to update data and schema of the database.
+    # The update remote function implementation for SQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, Param... parameters) returns int|error {
-        return nativeUpdate(self, sqlQuery, ...parameters);
+    # + return - A `sql:UpdateResult` with the updated row count and key column values,
+    #            else `error` will be returned if there is any error
+    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
+                               returns UpdateResult|error {
+        return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
-    # The batchUpdate operation implementation for SQL Client to batch data insert.
+    # The batchUpdate remote function implementation for SQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -64,41 +67,26 @@ public type Client client object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error {
+    public remote function batchUpdate(@sensitive string sqlQuery, Param?[]... parameters) returns int[]|error {
         return nativeBatchUpdate(self, sqlQuery, ...parameters);
-    }
-
-    # The updateWithGeneratedKeys operation implementation for SQL Client which returns the auto
-    # generated keys during the `update` remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-       Param... parameters) returns (int, string[])|error {
-        return nativeUpdateWithGeneratedKeys(self, sqlQuery,keyColumns, ...parameters);
     }
 };
 
-extern function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
-   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error;
+function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
+   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
 
-extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-   returns @tainted table<record {}>[]|()|error;
+function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+   returns @tainted table<record {}>[]|()|error = external;
 
-extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, Param... parameters) returns int|error;
+function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
+                             Param... parameters) returns UpdateResult|error = external;
 
-extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
-    returns int[]|error;
-
-extern function nativeUpdateWithGeneratedKeys(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns,
-    Param... parameters) returns (int, string[])|error;
+function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
+    returns int[]|error = external;
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
-public extern function close(Client sqlClient);
+# + return - Possible error during closing
+public function close(Client sqlClient) returns error? = external;
 

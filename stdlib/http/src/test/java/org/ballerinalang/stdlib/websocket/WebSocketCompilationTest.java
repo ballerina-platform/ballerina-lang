@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.websocket;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -155,7 +155,7 @@ public class WebSocketCompilationTest {
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
                                   "onOpen resource is not supported for WebSocketClientService",
-                                  24, 5);
+                                  22, 5);
     }
 
     @Test(description = "WebSocket upgrade resource config has a no upgradeService")

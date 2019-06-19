@@ -48,8 +48,8 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test(description = "Test socket clinet callback service read ready")
-    public void testSocketClinetCallbackServerEcho() throws Exception {
+    @Test(description = "Test socket client callback service read ready")
+    public void testSocketClientCallbackServerEcho() throws Exception {
         String requestMessage = "Hello Ballerina";
         LogLeecher serverLeecher = new LogLeecher(requestMessage);
         serverInstance.addLogLeecher(serverLeecher);
@@ -66,9 +66,7 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
     @Test(description = "Check numbers of joinees and leavers")
     public void testSocketServerJoinLeave() throws BallerinaTestException {
         LogLeecher joineeServerLeecher = new LogLeecher("Join: 5");
-        LogLeecher leaverServerLeecher = new LogLeecher("Leave: 5");
         serverInstance.addLogLeecher(joineeServerLeecher);
-        serverInstance.addLogLeecher(leaverServerLeecher);
         for (int i = 0; i < 5; i++) {
             try (SocketChannel socketChannel = SocketChannel.open()) {
                 socketChannel.configureBlocking(true);
@@ -85,7 +83,28 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
             }
         }
         joineeServerLeecher.waitForText(20000);
-        leaverServerLeecher.waitForText(20000);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test(description = "Check read timeout")
+    public void testSocketReadTimeout() {
+        LogLeecher timeoutLeecher = new LogLeecher("Read timed out");
+        serverInstance.addLogLeecher(timeoutLeecher);
+        try (SocketChannel socketChannel = SocketChannel.open()) {
+            socketChannel.configureBlocking(true);
+            socketChannel.connect(new InetSocketAddress("localhost", 61599));
+            ByteBuffer buf = ByteBuffer.allocate(64);
+            String welcomeMsg = "Hello Ballerina";
+            buf.put(welcomeMsg.getBytes(StandardCharsets.UTF_8));
+            buf.flip();
+            while (buf.hasRemaining()) {
+                socketChannel.write(buf);
+            }
+            Thread.sleep(2000L);
+            timeoutLeecher.waitForText(22000);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
         serverInstance.removeAllLeechers();
     }
 }

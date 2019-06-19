@@ -30,11 +30,10 @@ public interface EmbeddedExecutor {
     /**
      * Executes a function of a balx file.
      * @param programArg Path of the balx.
-     * @param functionName The name of the function.
      * @param args The arguments for the function.
      * @return Program execution output.
      */
-    Optional<EmbeddedExecutorError> executeFunction(String programArg, String functionName, String... args);
+    Optional<EmbeddedExecutorError> executeFunction(String programArg, String... args);
     
     /**
      * Executes a service of a balx file.

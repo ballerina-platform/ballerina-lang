@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaReturnParameterDocumentationLineImpl extends BallerinaCompositeElementImpl implements BallerinaReturnParameterDocumentationLine {
+public class BallerinaReturnParameterDocumentationLineImpl extends ASTWrapperPsiElement implements BallerinaReturnParameterDocumentationLine {
 
   public BallerinaReturnParameterDocumentationLineImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +51,13 @@ public class BallerinaReturnParameterDocumentationLineImpl extends BallerinaComp
   @Override
   @NotNull
   public BallerinaReturnParameterDocumentation getReturnParameterDocumentation() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaReturnParameterDocumentation.class));
+    return findNotNullChildByClass(BallerinaReturnParameterDocumentation.class);
   }
 
   @Override
   @NotNull
   public PsiElement getReturnParameterDocumentationStart() {
-    return notNullChild(findChildByType(RETURN_PARAMETER_DOCUMENTATION_START));
+    return findNotNullChildByType(RETURN_PARAMETER_DOCUMENTATION_START);
   }
 
 }

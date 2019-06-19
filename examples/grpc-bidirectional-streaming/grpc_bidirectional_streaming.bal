@@ -12,21 +12,24 @@ service Chat on new grpc:Listener(9090) {
 
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
-        log:printInfo(string `{{caller.getId()}} connected to chat`);
-        self.consMap[<string>caller.getId()] = caller;
+        log:printInfo(string `${caller.getId()} connected to chat`);
+        self.consMap[string.convert(caller.getId())] = caller;
     }
 
     //This `resource` is triggered when the caller sends a request message to the `service`.
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
         grpc:Caller ep;
-        string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
+        string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         log:printInfo("Server received message: " + msg);
         foreach var con in self.consMap {
-            (_, ep) = con;
+            string callerId;
+            (callerId, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                             + <string>err.detail().message);
+            } else {
+                log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }
         }
     }
@@ -40,15 +43,18 @@ service Chat on new grpc:Listener(9090) {
     //This `resource` is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller ep;
-        string msg = string `{{caller.getId()}} left the chat`;
+        string msg = string `${caller.getId()} left the chat`;
         log:printInfo(msg);
-        var v = self.consMap.remove(<string>caller.getId());
+        var v = self.consMap.remove(string.convert(caller.getId()));
         foreach var con in self.consMap {
-            (_, ep) = con;
+            string callerId;
+            (callerId, ep) = con;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                         + <string>err.detail().message);
+            } else {
+                log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }
         }
     }

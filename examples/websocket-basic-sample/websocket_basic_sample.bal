@@ -34,9 +34,13 @@ service basic on new http:WebSocketListener(9090) {
                 log:printError("Error sending ping", err = err);
             }
         } else if (text == "closeMe") {
-            _ = caller->close(statusCode = 1001,
+            error? result = caller->close(statusCode = 1001,
                             reason = "You asked me to close the connection",
                             timeoutInSecs = 0);
+            if (result is error) {
+                log:printError("Error occurred when closing connection",
+                                                                    err = result);
+            }
         } else {
             var err = caller->pushText("You said: " + text);
             if (err is error) {
@@ -79,7 +83,7 @@ service basic on new http:WebSocketListener(9090) {
         var err = caller->close(statusCode = 1001, reason =
                                     "Connection timeout");
         if (err is error) {
-            log:printError("Error occured when closing the connection",
+            log:printError("Error occurred when closing the connection",
                                 err = err);
         }
     }
@@ -94,7 +98,6 @@ service basic on new http:WebSocketListener(9090) {
     // This resource is triggered when a client connection is closed from the client side.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
                                 string reason) {
-        io:println(string `Client left with {{statusCode}} because
-                    {{reason}}`);
+        io:println(string `Client left with ${statusCode} because ${reason}`);
     }
 }

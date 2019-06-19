@@ -25,13 +25,12 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
-import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
@@ -107,15 +106,13 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
                 for (BLangRecordLiteral.BLangRecordKeyValue compressionConfig
                         : ((BLangRecordLiteral) keyValue.valueExpr).getKeyValuePairs()) {
                     if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
-                        BLangArrayLiteral valueArray = (BLangArrayLiteral) compressionConfig.valueExpr;
+                        BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {
                             break;
                         }
                         for (ExpressionNode expressionNode : valueArray.getExpressions()) {
                             String contentType = expressionNode.toString();
-                            try {
-                                MimeUtil.validateContentType(contentType);
-                            } catch (MimeTypeParseException e) {
+                            if (!MimeUtil.isValidateContentType(contentType)) {
                                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                                    "Invalid Content-Type value for compression: '" + contentType + "'");
                                 return;

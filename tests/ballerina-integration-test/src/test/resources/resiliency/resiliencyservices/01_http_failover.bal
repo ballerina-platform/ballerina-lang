@@ -33,7 +33,7 @@ http:FailoverClient foBackendEP00 = new({
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        { url: "http://localhost:3000/inavalidEP" },
+        { url: "http://localhost:3467/inavalidEP" },
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/mock" },
         { url: "http://localhost:8080/mock" }
@@ -46,7 +46,7 @@ http:FailoverClient foBackendFailureEP00 = new({
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        { url: "http://localhost:3000/inavalidEP" },
+        { url: "http://localhost:3467/inavalidEP" },
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/echo" }
     ]
@@ -79,7 +79,7 @@ service failoverDemoService00 on failoverEP00 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -101,7 +101,7 @@ service failoverDemoService00 on failoverEP00 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -123,7 +123,7 @@ service failoverDemoService00 on failoverEP00 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -139,7 +139,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = <string> foBackendEP00.succeededEndpointIndex;
+        string startIndex = string.convert(foBackendEP00.succeededEndpointIndex);
         var backendRes = foBackendEP00->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
@@ -147,7 +147,7 @@ service failoverDemoService00 on failoverEP00 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);
@@ -179,7 +179,7 @@ service echo00 on backendEP00 {
     }
 }
 
-public int counter00 = 1;
+int counter00 = 1;
 // Define the sample service to mock a healthy service.
 @http:ServiceConfig {
     basePath: "/mock"
@@ -202,7 +202,7 @@ service mock00 on backendEP00 {
                 log:printError(<string> mimeEntity.detail().message);
                 response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
-            } else if (mimeEntity is mime:Entity[]) {
+            } else {
                 foreach var bodyPart in mimeEntity {
                     if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                         && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {

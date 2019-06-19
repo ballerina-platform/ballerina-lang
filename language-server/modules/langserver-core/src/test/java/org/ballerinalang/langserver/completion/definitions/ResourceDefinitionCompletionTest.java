@@ -35,7 +35,6 @@ public class ResourceDefinitionCompletionTest extends CompletionTest {
         log.info("Test textDocument/completion for Resource Definitions Scope");
         return new Object[][] {
                 {"emptyLinePrimitiveDataTypes.json", "resource"},
-                {"nonEmptyLinePrimitiveDataTypes.json", "resource"},
                 {"userDefinedRecordEmptyLine.json", "resource"},
                 {"userDefinedRecordNonEmptyLine.json", "resource"},
                 {"userDefinedFunctionsEmptyLine.json", "resource"},

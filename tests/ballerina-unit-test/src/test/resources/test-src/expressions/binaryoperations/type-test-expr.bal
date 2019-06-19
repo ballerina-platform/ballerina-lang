@@ -42,15 +42,13 @@ function testNestedTypeCheck() returns (any, any, any) {
 function bar (string | int | boolean i)  returns string {
     if (i is int){
         return "int";
-    } else if (i is string | boolean) {
+    } else {
         if (i is string) {
             return "string";
-        } else if (i is boolean) {
+        } else {
             return "boolean";
         }
     }
-
-    return "n/a";
 }
 
 function testTypeInAny() returns (string) {
@@ -216,10 +214,9 @@ type A3 record {
     int x = 0;
 };
 
-type B3 record {
+type B3 record {|
     int x = 0;
-    !...;
-};
+|};
 
 function testSealedRecordTypes() returns (boolean, boolean) {
     A3 a3 = {};
@@ -658,10 +655,10 @@ function testFiniteTypeInTuplePoisoning() returns (State, State) {
 }
 
 public const APPLE = "apple";
-public const ORRANGE = "orrange";
+public const ORANGE = "orange";
 public const GRAPE = "grape";
 
-type Fruit APPLE | ORRANGE | GRAPE;
+type Fruit APPLE | ORANGE | GRAPE;
 
 function testFiniteType_1() returns string {
     any a = APPLE;
@@ -679,4 +676,110 @@ function testFiniteType_2() returns string {
     }
 
     return "a is not an Apple";
+}
+
+function testFiniteTypeAsBroaderType_1() returns boolean {
+    any a = GRAPE;
+    return a is string;
+}
+
+type FRUIT_OR_COUNT "apple"|2|"grape"|10;
+
+function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
+    FRUIT_OR_COUNT fc1 = GRAPE;
+    FRUIT_OR_COUNT fc2 = 10;
+
+    return (fc1 is string, fc2 is int);
+}
+
+type FooBarOneBoolean "foo"|"bar"|1|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type FalseFooThree false|"foo"|3;
+type IntTwo int|2.0;
+
+function testUnionWithFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is FooBarBaz, f2 is IntTwo);
+}
+
+function testUnionWithFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is IntTwo, f2 is FooBarBaz);
+}
+
+function testFiniteTypeAsFiniteTypeTrue() returns boolean {
+    FooBarBaz f1 = "foo";
+    return f1 is FalseFooThree;
+}
+
+function testFiniteTypeAsFiniteTypeFalse() returns boolean {
+    FooBarBaz f1 = "bar";
+    return f1 is FalseFooThree;
+}
+
+function testIntersectingUnionTrue() returns (boolean, boolean) {
+    string|int|typedesc x = 1;
+    return (x is int|boolean, x is json);
+}
+
+function testIntersectingUnionFalse() returns (boolean, boolean) {
+    string|int|typedesc x = int;
+    return (x is int|boolean, x is anydata);
+}
+
+function testValueTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    string s = "orange";
+    float f = 2.0;
+    return (s is Fruit, f is IntTwo);
+}
+
+function testValueTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    string s = "mango";
+    float f = 12.0;
+    return (s is Fruit, f is IntTwo);
+}
+
+const ERR_REASON = "error reason";
+const ERR_REASON_TWO = "error reason two";
+
+type Details record {
+    string message;
+};
+
+type MyError error<ERR_REASON, Details>;
+type MyErrorTwo error<ERR_REASON_TWO, Details>;
+
+function testError_1() returns (boolean, boolean, boolean, boolean) {
+    error e = error("error reason one");
+    any|error f = e;
+    boolean b1 = f is error;
+    boolean b2 = f is MyError;
+
+    e = error(ERR_REASON, { errDetail: "error detail" });
+    f = e;
+    boolean b3 = f is error;
+    boolean b4 = f is MyError;
+    return (b1, b2, b3, b4);
+}
+
+function testError_2() returns (boolean, boolean, boolean) {
+    MyError e = error(ERR_REASON, { message: "detail message" });
+    any|error f = e;
+    return (f is MyError, f is error, f is MyErrorTwo);
+}
+
+function testClosedArrayAsOpenArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is anydata[] && b is (int|string)[];
+}
+
+function testClosedArrayAsInvalidClosedArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is (int|string)[4] || b is (int|string)[2];
 }

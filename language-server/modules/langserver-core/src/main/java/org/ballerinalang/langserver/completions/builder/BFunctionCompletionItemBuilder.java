@@ -19,8 +19,9 @@ package org.ballerinalang.langserver.completions.builder;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -101,7 +102,7 @@ public final class BFunctionCompletionItemBuilder {
         String pkgID = bInvokableSymbol.pkgID.toString();
 
         MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        String description = markdownDocAttachment.description;
+        String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
         List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
         List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
 
@@ -130,9 +131,9 @@ public final class BFunctionCompletionItemBuilder {
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
-            documentation = CommonUtil.MARKDOWN_MARKUP_KIND + documentation + CommonUtil.MD_LINE_SEPARATOR
+            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR
                     + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
-                    + bInvokableSymbol.retType.tsymbol.toString();
+                    + bInvokableSymbol.retType.toString();
         }
         docMarkupContent.setValue(documentation);
 
@@ -155,15 +156,15 @@ public final class BFunctionCompletionItemBuilder {
             String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
             functionName = functionName.replace(receiverType + ".", "");
         }
+        functionName = functionName.equals("__init") ? "new" : functionName;
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
-        List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
         if (bInvokableSymbol.kind == null
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
-            List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
+            List<String> funcArguments = FunctionGenerator.getFuncArguments(bInvokableSymbol);
             if (!funcArguments.isEmpty()) {
                 int funcArgumentsCount = funcArguments.size();
                 for (int itr = 0; itr < funcArgumentsCount; itr++) {
@@ -183,17 +184,7 @@ public final class BFunctionCompletionItemBuilder {
                 signature.append(getParameterSignature(parameterDefs.get(itr), false));
                 insertText.append(getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
 
-                if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
-                    signature.append(", ");
-                    insertText.append(", ");
-                }
-            }
-            for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
-                signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
-                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true,
-                                                         defaultParameterDefs.size() + itr + 1));
-
-                if (itr < defaultParameterDefs.size() - 1) {
+                if (itr != parameterDefs.size() - 1) {
                     signature.append(", ");
                     insertText.append(", ");
                 }
@@ -201,6 +192,10 @@ public final class BFunctionCompletionItemBuilder {
         }
         signature.append(")");
         insertText.append(")");
+        if (bInvokableSymbol.type.getReturnType() == null
+                || bInvokableSymbol.type.getReturnType() instanceof BNilType) {
+            insertText.append(";");
+        }
         String initString = "(";
         String endString = ")";
 
@@ -262,7 +257,7 @@ public final class BFunctionCompletionItemBuilder {
                     || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
                 typeName = tSymbol.getName().getValue();
             } else {
-                typeName = CommonUtil.getLastItem(nameComps).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                typeName = CommonUtil.getLastItem(nameComps).getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
 

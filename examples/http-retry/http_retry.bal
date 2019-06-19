@@ -13,7 +13,7 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // Number of retry attempts before giving up.
             count: 3,
 
-            // Multiplier of the retry interval to exponentailly
+            // Multiplier of the retry interval to exponentially
             // increase; retry interval.
             backOffFactor: 2.0,
 
@@ -70,7 +70,7 @@ service retryDemoService on new http:Listener(9090) {
     }
 }
 
-public int counter = 0;
+int counter = 0;
 
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.

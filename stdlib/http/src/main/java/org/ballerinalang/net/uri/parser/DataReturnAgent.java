@@ -19,7 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 /**
  * This class is use to set and return data in the template tree.
@@ -29,6 +29,7 @@ public class DataReturnAgent<DataType> {
 
     private DataType data;
     private BallerinaException ballerinaException;
+    private org.ballerinalang.util.exceptions.BallerinaException ballerinaBException;
 
     /**
      * Set data.
@@ -50,8 +51,26 @@ public class DataReturnAgent<DataType> {
      * Set Error.
      * @param ballerinaException the error to be set.
      */
+    //TODO Remove after migration : implemented using bvm values/types
+    public void setBError(org.ballerinalang.util.exceptions.BallerinaException ballerinaException) {
+        this.ballerinaBException = ballerinaException;
+    }
+
+    /**
+     * Set Error.
+     * @param ballerinaException the error to be set.
+     */
     public void setError(BallerinaException ballerinaException) {
         this.ballerinaException = ballerinaException;
+    }
+
+    /**
+     * Get Error.
+     * @return the Throwable which caused the error.
+     */
+    //TODO Remove after migration : implemented using bvm values/types
+    public org.ballerinalang.util.exceptions.BallerinaException getBError() {
+        return ballerinaBException;
     }
 
     /**

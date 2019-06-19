@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -20,6 +20,8 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
@@ -30,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Check the freeze status of a given value.
  *
- * @since 0.991.0
+ * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina",
         packageName = "utils",
@@ -42,7 +44,11 @@ public class IsFrozen extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         BValue value = ctx.getNullableRefArgument(0);
-        boolean frozen = (value == null || value.isFrozen()) ? true : false;
+        boolean frozen = value == null || value.isFrozen();
         ctx.setReturnValues(new BBoolean(frozen));
+    }
+
+    public static boolean isFrozen(Strand strand, Object value) {
+        return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
     }
 }

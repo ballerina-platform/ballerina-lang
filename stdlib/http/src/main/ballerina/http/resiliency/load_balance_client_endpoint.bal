@@ -23,7 +23,7 @@
 public type LoadBalanceClient client object {
 
     public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
-    public Client[] loadBalanceClientsArray;
+    public Client?[] loadBalanceClientsArray;
     public LoadBalancerRule lbRule;
     public boolean failover;
 
@@ -59,8 +59,8 @@ public type LoadBalanceClient client object {
     # The HEAD remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function head(string path, RequestMessage message = ()) returns Response|error;
 
@@ -83,8 +83,8 @@ public type LoadBalanceClient client object {
     # The OPTIONS remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function options(string path, RequestMessage message = ()) returns Response|error;
 
@@ -116,8 +116,8 @@ public type LoadBalanceClient client object {
     # The GET remote function implementation of the LoadBalancer Connector.
 
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function get(string path, RequestMessage message = ()) returns Response|error;
 
@@ -127,7 +127,8 @@ public type LoadBalanceClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
+    #            fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
 
     # The getResponse implementation of the LoadBalancer Connector.
@@ -165,12 +166,11 @@ public type LoadBalanceClient client object {
 # + message - An error message explaining about the error
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
-public type LoadBalanceActionErrorData record {
+public type LoadBalanceActionErrorData record {|
     string message = "";
     int statusCode = 0;
-    error[] httpActionErr = [];
-    !...;
-};
+    error?[] httpActionErr = [];
+|};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
@@ -203,7 +203,9 @@ public remote function LoadBalanceClient.forward(string path, Request request) r
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-public remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+public remote function LoadBalanceClient.execute(string httpVerb, string path, RequestMessage message)
+                                                                                        returns Response|error {
+
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
@@ -218,7 +220,9 @@ public remote function LoadBalanceClient.get(string path, RequestMessage message
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+public remote function LoadBalanceClient.submit(string httpVerb, string path, RequestMessage message)
+                                                                                        returns HttpFuture|error {
+
     error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
@@ -286,7 +290,9 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
             var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
             if (serviceResponse is Response) {
                 return serviceResponse;
-            } else if (serviceResponse is error) {
+            } else if (serviceResponse is HttpFuture) {
+                return getInvalidTypeError();
+            } else {
                 if (lb.failover) {
                     loadBlancerInRequest = check createFailoverRequest(loadBlancerInRequest, requestEntity);
                     loadBalanceActionErrorData.httpActionErr[lbErrorIndex] = serviceResponse;
@@ -296,7 +302,7 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
                     return serviceResponse;
                 }
             }
-        } else if (loadBalanceClient is error) {
+        } else {
             return loadBalanceClient;
         }
     }
@@ -307,7 +313,15 @@ function performLoadBalanceAction(LoadBalanceClient lb, string path, Request req
 function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
                                                     returns error {
     int nErrs = loadBalanceActionErrorData.httpActionErr.length();
-    string lastErrorMessage = <string> loadBalanceActionErrorData.httpActionErr[nErrs - 1].detail().message;
+    error? er = loadBalanceActionErrorData.httpActionErr[nErrs - 1];
+    error actError;
+    if (er is error) {
+        actError = er;
+    } else {
+        error err = error("Unexpected nil");
+        panic err;
+    }
+    string lastErrorMessage = <string> actError.detail().message;
     loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     LoadBalanceActionError err = error(HTTP_ERROR_CODE, loadBalanceActionErrorData);
@@ -317,55 +331,54 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 
 # The configurations related to the load balance client endpoint.
 #
-# + circuitBreaker - Circuit Breaker configuration
-# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
 # + forwarded - The choice of setting forwarded/x-forwarded header
-# + keepAlive - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
-# + chunking - The chunking behaviour of the request
 # + followRedirects - Redirect related options
-# + retryConfig - Retry related options
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy related options
-# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
+# + circuitBreaker - Circuit Breaker configuration
+# + retryConfig - Retry related options
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
-public type LoadBalanceClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker = ();
+public type LoadBalanceClientEndpointConfiguration record {|
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    string httpVersion = "1.1";
     string forwarded = "disable";
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    PoolConfiguration? poolConfig = ();
     TargetService[] targets = [];
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
+    OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
-    !...;
-};
+|};
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
+        http1Settings: lbConfig.http1Settings,
+        http2Settings: lbConfig.http2Settings,
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
-        keepAlive:lbConfig.keepAlive,
-        chunking:lbConfig.chunking,
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
         proxy:lbConfig.proxy,
-        connectionThrottling:lbConfig.connectionThrottling,
+        poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,
         compression:lbConfig.compression,
@@ -375,13 +388,14 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                    returns Client[]|error {
-    Client[] httpClients = [];
+                                                                                    returns Client?[]|error {
+    Client cl;
+    Client?[] httpClients = [];
     int i = 0;
-
     foreach var target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        httpClients[i] = new(target.url , config = epConfig);
+        cl =  new(target.url , config = epConfig);
+        httpClients[i] = cl;
         i += 1;
     }
     return httpClients;

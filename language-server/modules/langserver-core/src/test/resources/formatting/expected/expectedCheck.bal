@@ -6,6 +6,8 @@ function parse(string num) returns int | error {
 
 function scale1(string num) returns int | error {
     int x = check parse(num);
+    int y = 0;
+    y = check parse(num);
     return x * 10;
 }
 
@@ -39,4 +41,34 @@ service myService2 on new http:Listener(9090) {
     resource function foo(http:Caller caller, http:Request req) returns error? {
         check caller->respond("Hello");
     }
+}
+
+function scale3(string num) returns int | error {
+    int x = check start parse(num);
+    int y = 0;
+    y = check parse(num);
+    return x * 10;
+}
+
+function scale4(string num) returns int | error {
+    int x = check
+    start parse(num);
+    int y = 0;
+    y = check
+    parse(num);
+    return x * 10;
+}
+
+function scale5(string num) returns int | error {
+    int x =
+    check
+    start
+    parse(num)
+    ;
+    int y = 0;
+    y =
+    check
+    parse(num)
+    ;
+    return x * 10;
 }

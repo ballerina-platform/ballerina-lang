@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.database.sql;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -28,10 +29,13 @@ import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * Test class for SQL Connector actions test.
@@ -80,8 +84,8 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BInteger) returns[1]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -95,8 +99,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -110,7 +113,7 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest for int float types")
     public void testSelectIntFloatData() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectIntFloatData");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertSame(returns[2].getClass(), BFloat.class);
@@ -127,6 +130,7 @@ public class SQLActionsTest {
         Assert.assertEquals(longVal.intValue(), longExpected);
         Assert.assertEquals(floatVal.floatValue(), floatExpected, DELTA);
         Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
+        Assert.assertEquals(((BDecimal) returns[4]).decimalValue(), new BigDecimal("1234.567"));
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -155,6 +159,62 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParametersWithDirectValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParametersWithDirectVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testBlobInParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter");
+        BInteger retInt = (BInteger) returns[0];
+        BValueArray retBytes = (BValueArray) returns[1];
+        Assert.assertEquals(retInt.intValue(), 1);
+        Assert.assertEquals(new String(retBytes.getBytes()), "blob data");
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testNullINParameterValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testNullINParameterBlobValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameterBlobValue");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -198,6 +258,14 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testBatchUpdateSingleValParamArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateSingleValParamArray");
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
@@ -295,13 +363,20 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
-        Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid update of record field: modification not allowed on frozen value.*")
+    public void testUpdateReslt() {
+        BRunUtil.invoke(resultNegative, "testUpdateReslt");
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed parameter array update")
@@ -312,7 +387,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory multiple times")
-    public void testSelectLoadToMemory() throws Exception {
+    public void testSelectLoadToMemory() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, "
@@ -322,13 +397,20 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory after closing")
-    public void testLoadToMemorySelectAfterTableClose() throws Exception {
+    public void testLoadToMemorySelectAfterTableClose() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "Trying to perform hasNext operation over a closed table {})");
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test stopping a database client")
+    public void testStopClient() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient");
+        Assert.assertNotNull(returns);
+        Assert.assertNull(returns[0]);
     }
 
     @AfterSuite

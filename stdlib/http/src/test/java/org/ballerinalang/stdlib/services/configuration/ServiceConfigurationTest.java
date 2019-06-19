@@ -19,18 +19,16 @@
 package org.ballerinalang.stdlib.services.configuration;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -53,17 +51,16 @@ public class ServiceConfigurationTest {
 
     @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "service-config.conf").toString(), null);
 
         String serviceFile = Paths.get(resourceRoot, "test-src", "services", "configuration",
                 "service_configuration.bal").toString();
-        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+        BCompileUtil.compile(serviceFile);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(7070, requestMsg);
 
         Assert.assertNotNull(responseMsg);
     }

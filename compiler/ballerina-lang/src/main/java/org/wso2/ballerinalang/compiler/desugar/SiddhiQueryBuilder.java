@@ -44,11 +44,12 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -344,7 +345,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             String op = " == ";
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
-                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
+                if (literal.type.tag == TypeTags.NIL && literal.value == null) {
                     op = " is "; // siddhi equivalent of '==' with null on rhs ( e.g. where e2 is null)
                 }
             }
@@ -358,7 +359,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         } else if (expr.opKind == OperatorKind.NOT_EQUAL) {
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
-                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
+                if (literal.type.tag == TypeTags.NIL && literal.value == null) {
                     exprStack.pop();
                     expr.lhsExpr.accept(this);
                     expr.rhsExpr.accept(this);
@@ -433,7 +434,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     @Override
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
-        if (bLangLiteral.typeTag == TypeTags.STRING) {
+        if (bLangLiteral.type.tag == TypeTags.STRING) {
             literal = String.format("'%s'", literal);
         }
         exprStack.push(literal);
@@ -552,14 +553,23 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         }
     }
 
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        List<BLangExpression> expressionList = bracedOrTupleExpr.getExpressions();
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        List<BLangExpression> expressionList = listConstructorExpr.getExpressions();
         for (BLangExpression expression : expressionList) {
             expression.accept(this);
             String expr = exprStack.pop();
             String expressionWithBrace = "( " + expr + " ) ";
             exprStack.push(expressionWithBrace);
         }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression.accept(this);
+        String expr = exprStack.pop();
+        String expressionWithBrace = "( " + expr + " ) ";
+        exprStack.push(expressionWithBrace);
     }
 
     private String getSiddhiQuery() {

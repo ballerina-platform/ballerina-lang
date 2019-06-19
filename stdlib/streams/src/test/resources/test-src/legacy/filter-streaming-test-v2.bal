@@ -62,7 +62,16 @@ function startFilterQuery() returns (Employee[]) {
     teacherStream6.publish(t2);
     teacherStream6.publish(t3);
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+
+        if((globalEmployeeArray.length()) == 2 || count == 5) {
+            break;
+        }
+    }
+
     return globalEmployeeArray;
 }
 

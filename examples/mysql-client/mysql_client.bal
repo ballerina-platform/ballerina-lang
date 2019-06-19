@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/mysql;
+import ballerina/sql;
 
 // Create a client endpoint for MySQL database. Change the DB details before running the sample.
 mysql:Client testDB = new({
@@ -8,7 +9,6 @@ mysql:Client testDB = new({
         name: "testdb",
         username: "test",
         password: "test",
-        poolOptions: { maximumPoolSize: 5 },
         dbOptions: { useSSL: false }
     });
 
@@ -49,12 +49,18 @@ public function main() {
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
+
+    // Stop database client
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return value of the `update` remote function.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + <string>returned.detail().message);
     }

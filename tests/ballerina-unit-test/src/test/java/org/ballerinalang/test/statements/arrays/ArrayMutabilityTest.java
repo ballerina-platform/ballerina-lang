@@ -18,13 +18,13 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +54,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant array with record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*assertion error: expected 'Intern', found 'Employee'.*")
+                    ".*error:.*incompatible types: 'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
@@ -87,7 +87,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*incompatible types: expected 'boolean\\|float', found 'Person'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
+                            "'boolean\\|float\\|null', found 'Person'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
@@ -157,7 +158,8 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of arrays through chained assignments",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*incompatible types: expected 'int\\|string', found 'boolean'.*")
+                    "error: \\{ballerina\\}InherentTypeViolation .*?\"message\":\"incompatible types: expected " +
+                            "\\'int\\|string\\|null\\', found \\'boolean\\'.*")
     public void testChainingAssignment() {
         BRunUtil.invoke(compileResult, "testChainingAssignment");
     }
@@ -165,24 +167,22 @@ public class ArrayMutabilityTest {
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'Employee[]', found 'Person[]'", 35, 21);
+                "incompatible types: expected 'Employee[]', found 'Person[]'", 34, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'Employee[][]', found 'Person[][]'", 41, 23);
+                "incompatible types: expected 'Employee[][]', found 'Person[][]'", 40, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'Person[]', found 'Employee[][]'", 44, 20);
+                "incompatible types: expected 'Person[]', found 'Employee[][]'", 43, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'Person[][][]', found 'Employee[][]'", 45, 24);
+                "incompatible types: expected 'Person[][][]', found 'Employee[][]'", 44, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int|Person[]', found 'int|Person?[]'", 49, 26);
+                "incompatible types: expected 'int[3]', found 'int[]'", 51, 18);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int[3]', found 'int[]'", 52, 18);
+                "incompatible types: expected 'int[3][3]', found 'int[3][]'", 54, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int[3][3]', found 'int[3][]'", 55, 21);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'Animal[]', found 'Cat[]'", 81, 28);
+                "incompatible types: expected 'Animal[]', found 'Cat[]'", 80, 28);
         BAssertUtil.validateError(resultNegative, i,
-                "incompatible types: expected 'int[]|boolean[]', found 'int|boolean[]'", 91, 10);
+                "incompatible types: expected 'int[]|boolean[]', found 'int|boolean?[]'", 90, 10);
     }
 }

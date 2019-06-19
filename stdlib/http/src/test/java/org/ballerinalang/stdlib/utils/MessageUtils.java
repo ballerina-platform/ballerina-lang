@@ -22,14 +22,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.HttpConstants;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.Header;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * RequestResponseUtil Class contains method for generating a message.
@@ -37,10 +34,6 @@ import java.util.Locale;
  * @since 0.990.3
  */
 public class MessageUtils {
-
-    public static CarbonMessage generateRawMessage() {
-        return new DefaultCarbonMessage();
-    }
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method) {
         return generateHTTPMessage(path, method, null, null);
@@ -50,13 +43,13 @@ public class MessageUtils {
         return generateHTTPMessage(path, method, null, payload);
     }
 
-    public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, HttpHeaders headers,
             String payload) {
         HTTPTestRequest carbonMessage = getHttpTestRequest(path, method);
         HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
-            for (Header header : headers) {
-                httpHeaders.set(header.getName(), header.getValue());
+            for (Map.Entry<String, String> header : headers) {
+                httpHeaders.set(header.getKey(), header.getValue());
             }
         }
         if (payload != null) {
@@ -64,6 +57,7 @@ public class MessageUtils {
         } else {
             carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
+        carbonMessage.setLastHttpContentArrived();
         return carbonMessage;
     }
 
@@ -79,8 +73,8 @@ public class MessageUtils {
                 HttpConstants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(HttpConstants.TO, path);
-        carbonMessage.setProperty(HttpConstants.REQUEST_URL, path);
-        carbonMessage.setProperty(HttpConstants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
+        carbonMessage.setRequestUrl(path);
+        carbonMessage.setHttpMethod(method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
                 new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);

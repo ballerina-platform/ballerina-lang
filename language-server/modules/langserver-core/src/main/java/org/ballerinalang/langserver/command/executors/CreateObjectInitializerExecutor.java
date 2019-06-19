@@ -53,7 +53,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateObjectInitializerExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_INITIALIZER";
+    public static final String COMMAND = "CREATE_INITIALIZER";
 
     /**
      * {@inheritDoc}
@@ -82,7 +82,6 @@ public class CreateObjectInitializerExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;

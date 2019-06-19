@@ -8,10 +8,10 @@ final float constNegativeFloat = -88.2;
 
 final float constNegativeFloatWithSpace = -      3343.88;
 
-float glbVarFloat = variable:constFloat;
+float glbVarFloat = variable:getConstFloat();
 
 function accessConstantFromOtherPkg() returns (float) {
-    return variable:constFloat;
+    return variable:getConstFloat();
 }
 
 function assignConstFromOtherPkgToGlobalVar() returns (float) {

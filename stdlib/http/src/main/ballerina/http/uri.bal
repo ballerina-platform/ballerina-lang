@@ -18,12 +18,12 @@
 #
 # + url - URL to be encoded
 # + charset - Charactor set that URL to be encoded in
-# + return - The `string` Value of the encoded url or an `error` that occured during encoding
-public extern function encode(string url, string charset) returns string|error;
+# + return - The `string` Value of the encoded url or an `error` that occurred during encoding
+public function encode(string url, string charset) returns string|error = external;
 
 # Decodes the given URL.
 #
 # + url - URL to be decoded
 # + charset - Charactor set that URL to be decoded from
-# + return - The `string` Value of the decoded url or an `error` that occured during decoding
-public extern function decode(string url, string charset) returns string|error;
+# + return - The `string` Value of the decoded url or an `error` that occurred during decoding
+public function decode(string url, string charset) returns string|error = external;

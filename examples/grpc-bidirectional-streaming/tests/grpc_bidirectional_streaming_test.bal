@@ -43,7 +43,7 @@ function testBidiStreamingService() {
     string expected = "Sam: Hi";
     test:assertEquals(responseMsg, expected);
     // Once all messages are sent, client send complete message to notify the server, I am done.
-    _ = ep->complete();
+    checkpanic ep->complete();
 }
 
 service MessageListener = service {

@@ -25,7 +25,7 @@ public type Customer record {
 };
 
 public type Result record {
-   int val;
+    int val;
 };
 
 function testSelect() returns (int[]) {
@@ -51,7 +51,7 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
@@ -66,11 +66,11 @@ function testUpdate() returns (int) {
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:UpdateResult) {
+        insertCount = insertCountRet.updatedRowCount;
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -85,13 +85,13 @@ function testCall() returns (string) {
 
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
-    table<record {}>[] dts= [];
+    table<record {}>[] dts = [];
     if (ret is table<record {}>[]) {
         dts = ret;
     } else if (ret is ()) {
         return "nil";
-    } else if (ret is error) {
-        return <string> ret.detail().message;
+    } else {
+        return <string>ret.detail().message;
     }
 
     string name = "";
@@ -101,11 +101,11 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return name;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert() returns string|int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -114,21 +114,17 @@ function testGeneratedKeyOnInsert() returns (string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    string returnVal = "";
+    string|int returnVal = "";
 
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
-            creditLimit,country) values ('Sam', 1200, 'USA')", ());
+    var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
 
-    if (x is (int, string[])) {
-        int a;
-        string[] b;
-        (a, b) = x;
-        returnVal = b[0];
-    } else if (x is error) {
-        returnVal = <string> x.detail().message;
+    if (x is sql:UpdateResult) {
+        returnVal = x.updatedRowCount;
+    } else {
+        returnVal = <string>x.detail().message;
     }
 
-    testDB.stop();
+    checkpanic testDB.stop();
     return returnVal;
 }
 
@@ -148,24 +144,24 @@ function testBatchUpdate() returns (int[]) {
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
     sql:Parameter para3 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Australia" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4];
 
     //Batch 2
     sql:Parameter para5 = { sqlType: sql:TYPE_INTEGER, value: 11 };
     sql:Parameter para6 = { sqlType: sql:TYPE_VARCHAR, value: "John" };
     sql:Parameter para7 = { sqlType: sql:TYPE_DOUBLE, value: 3400.2 };
     sql:Parameter para8 = { sqlType: sql:TYPE_VARCHAR, value: "UK" };
-    sql:Parameter[] parameters2 = [para5, para6, para7, para8];
+    sql:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
-    int [] ret = [];
+    int[] ret = [];
     if (x is int[]) {
         ret = x;
-    } else if (x is error) {
+    } else {
         ret = [];
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
@@ -178,16 +174,15 @@ function testUpdateInMemory() returns (int, string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
+    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
     creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:UpdateResult) {
+        insertCount = insertCountRet.updatedRowCount;
     }
-    io:println(insertCount);
 
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
@@ -198,7 +193,7 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    testDB.stop();
+    checkpanic testDB.stop();
     return (insertCount, s);
 }
 
@@ -215,14 +210,14 @@ function testInitWithNilDbOptions() returns (int[]) {
 
 function testInitWithDbOptions() returns (int[]) {
     h2:Client testDB = new({
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
-            "PAGE_SIZE": 512 }
-    });
+            path: "./target/H2Client/",
+            name: "TestDBH2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 },
+            dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
+                "PAGE_SIZE": 512 }
+        });
     return selectFunction(testDB);
 }
 
@@ -258,7 +253,7 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
@@ -268,17 +263,17 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     int[] customerIds = [];
     if (val is table<Customer>) {
         int i = 0;
-            while (val.hasNext()) {
-                var rs = val.getNext();
-                if (rs is Customer) {
-                    customerIds[i] = rs.customerId;
-                    i += 1;
-                }
+        while (val.hasNext()) {
+            var rs = val.getNext();
+            if (rs is Customer) {
+                customerIds[i] = rs.customerId;
+                i += 1;
             }
-    } else if (val is error) {
+        }
+    } else {
         customerIds = [];
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
@@ -301,10 +296,10 @@ function testH2MemDBUpdate() returns (int, string) {
             data = io:sprintf("%s", j);
         }
     }
-    int insertCount = -1;
-    if (insertCountRet is int) {
-        insertCount = insertCountRet;
+    int insertCount = 0;
+    if (insertCountRet is sql:UpdateResult) {
+        insertCount = insertCountRet.updatedRowCount;
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return (insertCount, data);
 }

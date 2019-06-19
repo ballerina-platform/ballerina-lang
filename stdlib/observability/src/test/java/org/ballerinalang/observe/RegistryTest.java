@@ -27,7 +27,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -41,8 +40,7 @@ public class RegistryTest extends MetricTest {
 
     @BeforeClass
     public void setup() {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
         compileResult = BCompileUtil.
                 compileAndSetup(testResourceRoot.resolve("metrics_registry_test.bal").toString());

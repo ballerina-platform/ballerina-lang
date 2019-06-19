@@ -25,7 +25,7 @@ h2:Client testDB = new({
       boolean cancel_w1 = f1.cancel();
       // Send to channel
       100 -> intChn, 88;
-      testDB.stop();
+      checkpanic testDB.stop();
  }
 
 function startTrx() {
@@ -36,7 +36,7 @@ function startTrx() {
         io:println(trx);
         // Receive from channel
         int intResult = <- intChn, 88;
-        _ = testDB->update("Insert into FactoryEmployee (firstName,lastName,registrationID,
+        _ = checkpanic testDB->update("Insert into FactoryEmployee (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 211, 5000.75, 'USA')");
         trx = trx + " endTrx";
         io:println(trx);

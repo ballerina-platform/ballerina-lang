@@ -67,7 +67,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
      */
     public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {
 
-        public BLangStructFunctionVarRef(BLangVariableReference varRef, BVarSymbol varSymbol) {
+        public BLangStructFunctionVarRef(BLangExpression varRef, BVarSymbol varSymbol) {
             this.expr = varRef;
             this.symbol = varSymbol;
         }

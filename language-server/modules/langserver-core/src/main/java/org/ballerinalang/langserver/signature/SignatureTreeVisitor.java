@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.signature;
 
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -79,7 +80,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private void init(CompilerContext compilerContext) {
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     @Override
@@ -244,6 +244,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
 
         symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
-        lsContext.put(SignatureKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
+        lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }

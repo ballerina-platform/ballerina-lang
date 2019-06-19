@@ -6,10 +6,6 @@ import ballerina/runtime;
 any[] outputs = [];
 int counter = 0;
 
-function startService() {
-    //serviceStarted = test:startServices("join-multiple-streams");
-}
-
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
@@ -20,21 +16,17 @@ public function mockPrint(any... s) {
 }
 
 @test:Config {
-    before: "startService",
-    after: "stopService"
 }
 function testFunc() {
     // Invoke the main function. 
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Chck whether the server is started
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     json clientResp1 = { "message": "Raw material request successfully received" };
     json clientResp2 = { "message": "Production input request successfully received" };
 
     http:Request req = new;
     req.setJsonPayload({ "name": "Teak", "amount": 1000.0 });
-    // Send a `GET` request to the specified endpoint.
+    // Send a `POST` request to the specified endpoint.
     var response = httpEndpoint->post("/rawmaterial", req);
 
         if (response is http:Response) {
@@ -43,6 +35,9 @@ function testFunc() {
         } else {
             test:assertFail(msg = "Failed to call the endpoint:");
         }
+
+    // Introducce an idle time to make sure requests are send in order.
+    runtime:sleep(3000);
 
     http:Request req2 = new;
     req2.setJsonPayload({ "name": "Teak", "amount": 500.0 });
@@ -60,8 +55,4 @@ function testFunc() {
     string out = "ALERT!! : Material usage is higher than the expected limit for material : Teak , usage difference (%) : 50.0";
     test:assertEquals(outputs.length(), 1);
     test:assertEquals(outputs[0], out);
-}
-
-function stopService() {
-    //test:stopServices("join_multiple_streams");
 }

@@ -27,18 +27,14 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
 
-# Cleanup task which cleans the cache periodically.
-task:Timer cacheCleanupTimer = createCacheCleanupTask();
-
 # Represents a cache entry.
 #
 # + value - cache value
 # + lastAccessedTime - last accessed time in ms of this value which is used to remove LRU cached values
-type CacheEntry record {
+type CacheEntry record {|
     any value;
     int lastAccessedTime;
-    !...;
-};
+|};
 
 # Represents a cache.
 public type Cache object {
@@ -74,6 +70,23 @@ public type Cache object {
         self.expiryTimeMillis = expiryTimeMillis;
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
+
+        task:TimerConfiguration cacheCleanupTimerConfiguration = {
+            interval: CACHE_CLEANUP_INTERVAL,
+            initialDelay: CACHE_CLEANUP_START_DELAY
+        };
+        task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+        var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
+        if (attachCacheCleanerResult is error) {
+            error e = error("Failed to create the cache cleanup task.", { message : attachCacheCleanerResult.detail().message });
+            panic e;
+        }
+        var timerStartResult = cacheCleanupTimer.start();
+        if (timerStartResult is error) {
+            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
+            panic e;
+        }
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -96,7 +109,7 @@ public type Cache object {
     # + value - value to be cached
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrecy might cause issues.
-        lock {
+         lock {
             int cacheCapacity = self.capacity;
             int cacheSize = self.entries.length();
 
@@ -114,7 +127,7 @@ public type Cache object {
             if (!cacheMap.hasKey(self.uuid)) {
                 cacheMap[self.uuid] = self;
             }
-        }
+         }
     }
 
     # Evicts the cache when cache is full.
@@ -203,7 +216,7 @@ public type Cache object {
 
 # Removes expired cache entries from all caches.
 #
-# + return - Any error which occured during cache expiration
+# + return - Any error which occurred during cache expiration
 function runCacheExpiry() returns error? {
 
     // We need to keep track of empty caches. We remove these to prevent OOM issues.
@@ -309,12 +322,9 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     }
 }
 
-# Creates a new cache cleanup task.
-#
-# + return - cache cleanup task ID
-function createCacheCleanupTask() returns task:Timer {
-    (function () returns error?) onTriggerFunction = runCacheExpiry;
-    task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
-    timer.start();
-    return timer;
-}
+# Cleanup service which cleans the cache periodically.
+service cacheCleanupService = service {
+    resource function onTrigger() {
+        checkpanic runCacheExpiry();
+    }
+};

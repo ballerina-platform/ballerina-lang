@@ -51,8 +51,6 @@ public class HttpConstants {
     public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
-    public static final String HTTP_METHOD = "HTTP_METHOD";
-    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -159,7 +157,6 @@ public class HttpConstants {
     public static final String HTTP_CLIENT = "Client";
     public static final String HTTP_CALLER = "HttpCaller";
 
-    public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
@@ -319,7 +316,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "name";
+    public static final String SSL_PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
@@ -330,6 +327,8 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
+    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
+    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
@@ -344,7 +343,7 @@ public class HttpConstants {
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
-
+    public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
     
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
@@ -354,6 +353,9 @@ public class HttpConstants {
     public static final String CLIENT_EP_FORWARDED = "forwarded";
     public static final String TARGET_SERVICES = "targets";
     public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
+    public static final String HTTP2_PRIOR_KNOWLEDGE = "http2PriorKnowledge";
+    public static final String HTTP1_SETTINGS = "http1Settings";
+    public static final String HTTP2_SETTINGS = "http2Settings";
 
     //Connection Throttling field names
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
@@ -361,6 +363,16 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
             "maxActiveStreamsPerConnection";
+
+    //Client connection pooling configs
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
+    public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
+    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
+    public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
+    public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
+    public static final String CONNECTION_MANAGER = "ConnectionManager";
+    public static final int POOL_CONFIG_INDEX = 1;
+    public static final String USER_DEFINED_POOL_CONFIG = "poolConfig";
 
     //FollowRedirect field names
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";

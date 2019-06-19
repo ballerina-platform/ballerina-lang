@@ -18,10 +18,13 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -95,8 +98,11 @@ public abstract class BNewArray implements BRefType, BCollection {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                                                            RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
-
         if ((int) index < 0 || index >= maxArraySize) {
+            if (this.arrayType != null && this.arrayType.getTag() == TypeTags.TUPLE_TAG) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                        RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            }
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                                                            RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -111,7 +117,8 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if ((requestedCapacity) - currentArraySize >= 0) {
+        if ((requestedCapacity - currentArraySize) >= 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) this.arrayType).getState() == BArrayState.UNSEALED) {
             // Here the growth rate is 1.5. This value has been used by many other languages
             int newArraySize = currentArraySize + (currentArraySize >> 1);
 

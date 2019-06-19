@@ -153,7 +153,7 @@ public class ValueSpaceGenerator {
         } else if (bType instanceof BUnionType) {
             // Check for union assignment int|string
             BUnionType bUnionType = (BUnionType) bType;
-            Set<BType> memberTypes = bUnionType.memberTypes;
+            Set<BType> memberTypes = bUnionType.getMemberTypes();
             if (!memberTypes.isEmpty()) {
                 return getValueSpaceByType(importsAcceptor, currentPkgId, memberTypes.stream().findFirst().get(),
                                            template);
@@ -291,6 +291,11 @@ public class ValueSpaceGenerator {
             case "byte":
                 String[] resultBlob = new String[]{"0"};
                 populateValueSpace(resultBlob, template, () -> String.valueOf("0"));
+                break;
+            case "error":
+                String[] resultErr = new String[]{"error(\"\")"};
+                String msg = RandomStringUtils.randomAlphabetic(RANDOM_WORDS_LENGTH);
+                populateValueSpace(resultErr, template, () -> "error(\"" + msg + "\")");
                 break;
             default:
                 String[] result = new String[]{"()"};

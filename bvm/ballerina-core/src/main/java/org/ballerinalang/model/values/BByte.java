@@ -30,24 +30,28 @@ import java.util.Map;
  *
  * @since 0.980
  */
-public final class BByte extends BValueType implements BRefType<Byte> {
+public final class BByte extends BValueType implements BRefType<Long> {
 
-    private byte value;
+    private long value;
+
+    public BByte(long value) {
+        this.value = value;
+    }
 
     public BByte(byte value) {
-        this.value = value;
+        this.value = Byte.toUnsignedLong(value);
     }
 
     private BType type = BTypes.typeByte;
 
     @Override
-    public byte byteValue() {
+    public long byteValue() {
         return this.value;
     }
 
     @Override
     public long intValue() {
-        return Byte.toUnsignedInt(value);
+        return this.value;
     }
 
     @Override
@@ -57,17 +61,17 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public BigDecimal decimalValue() {
-        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
+        return (new BigDecimal(this.value, MathContext.DECIMAL128)).setScale(1, BigDecimal.ROUND_HALF_EVEN);
     }
 
     @Override
     public boolean booleanValue() {
-        return false;
+        return value != 0;
     }
 
     @Override
     public String stringValue() {
-        return String.valueOf(Byte.toUnsignedInt(value));
+        return Long.toString(this.value);
     }
 
     @Override
@@ -95,7 +99,7 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     }
 
     @Override
-    public Byte value() {
+    public Long value() {
         return this.value;
     }
 
@@ -106,6 +110,6 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public int hashCode() {
-        return Byte.hashCode(value);
+        return Long.hashCode(value);
     }
 }

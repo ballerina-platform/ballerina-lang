@@ -245,7 +245,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var in conversion
-    string str = <string> a;
+    string str = string.convert(a);
 
     // uninitialized var XML
     xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
@@ -253,9 +253,9 @@ function testUninitializedVarReferrencing() {
                     <!-- refering to uninitialized {{a}} -->
                     <?target content {{a}}?>
                 </foo>`;
-                
+
     // uninitialized var in string template
-    string text = string `hello {{a}}`;
+    string text = string `hello ${a}`;
 
     // uninitialized var index/field based access
     _ = m.foo;
@@ -295,15 +295,7 @@ function testDataflow_11() returns string {
     }
 }
 
-public int globalVar;
-
-function updateGlobalVar() {
-    globalVar = 4;
-}
-
-function testGlobalVar() returns int {
-    return globalVar;
-}
+int globalVar = 4;
 
 type Foo object {
     int a = globalVar;
@@ -318,10 +310,6 @@ type Foo object {
         self.c = c;
         self.e = e;
         self.f = f;
-    }
-
-    function getGlobalVar() returns int {
-        return globalVar;
     }
 
     function getA() returns int {
@@ -392,24 +380,7 @@ service echo on echoEP {
     }
 }
 
-string yyy;
-function testWorkers() returns string {
-    worker w1 returns string {
-        io:println(yyy);
-        yyy = "w1";
-        return yyy;
-    }
-
-    worker w2 returns string {
-        io:println(yyy);
-        yyy = "w2";
-        return "hello";
-    }
-    
-    return "hello";
-}
-
-function testCounpundAssignment() {
+function testCompoundAssignment() {
     int a;
     a += 2;
 }
@@ -465,9 +436,6 @@ type C object {
     function __init() {
     }
 };
-
-public int publicGlobalVar_1;
-int publicGlobalVar_2;
 
 public type D record {
     string a;
@@ -562,20 +530,19 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
     Age age;
     (string, int) extra;
-    !...;
-};
+|};
 
 function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;
     boolean married;
     int theAge;
     string format;
-    map<any> theMap;
+    map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);
@@ -605,16 +572,6 @@ function testDataflow_12() returns string {
     return val;
 }
 
-(function () returns (int)) fa;
-
-function testDataflow_13() returns (int, int) {
-    int a = fa.call();
-    int b = fb.call();
-    return (a, b);
-}
-
-(function () returns (int)) fb;
-
 type F object {
     public int a;
     public int b;
@@ -627,6 +584,6 @@ function F.__init() {
     self.a = 1;
 }
 
-public function testDataFlow_14(){
+public function testDataFlow_13(){
     object { public string s; } o = new;
 }

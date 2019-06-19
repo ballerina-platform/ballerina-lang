@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -78,6 +79,11 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
@@ -86,7 +92,7 @@ public class BArrayType extends BType implements ArrayType {
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
         String tempSize = (state == BArrayState.OPEN_SEALED) ? "!..." : String.valueOf(size);
-        if (sb.indexOf("[") != -1) {
+        if (eType.tag == TypeTags.ARRAY) {
             return (state != BArrayState.UNSEALED) ?
                     sb.insert(sb.indexOf("["), "[" + tempSize + "]").toString() :
                     sb.insert(sb.indexOf("["), "[]").toString();

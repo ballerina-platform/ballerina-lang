@@ -1,11 +1,11 @@
 import ballerina/http;
 
 function main(string... args) {
-    worker default {
+    worker worker1 {
         int a = 0;
     }
 
-    worker worker1 {
+    worker worker2 {
         int b = 0;
     }
 }

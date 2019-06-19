@@ -25,16 +25,15 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfig record {
+public type ClientEndpointConfig record {|
     string host;
     int port = 3306;
     string name = "";
     string username = "";
     string password = "";
-    sql:PoolOptions poolOptions = {};
+    sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
-    !...;
-};
+|};
 
 # Represents an MySQL client endpoint.
 #
@@ -44,14 +43,14 @@ public type Client client object {
     *sql:AbstractSQLClient;
     private ClientEndpointConfig config;
     private sql:Client sqlClient;
+    private boolean clientActive = true;
 
     # Gets called when the MySQL client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.config = c;
-        self.sqlClient = createClient(c);
+        self.sqlClient = createClient(c, sql:getGlobalPoolConfigContainer().getGlobalPoolConfig());
     }
 
-    # The call operation implementation for MySQL Client to invoke stored procedures/functions.
+    # The call remote function implementation for MySQL Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -60,10 +59,13 @@ public type Client client object {
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
                                returns @tainted table<record {}>[]|()|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
-    # The select operation implementation for MySQL Client to select data from tables.
+    # The select remote function implementation for MySQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -72,20 +74,29 @@ public type Client client object {
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   sql:Param... parameters) returns @tainted table<record {}>|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
 
-    # The update operation implementation for MySQL Client to update data and schema of the database.
+    # The update remote function implementation for MySQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
-        return self.sqlClient->update(sqlQuery, ...parameters);
+    # + return - A `sql:UpdateResult` with the updated row count and key column values,
+    #            else `error` will be returned if there is any error
+    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
+                               returns sql:UpdateResult|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
+        return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
-    # The batchUpdate operation implementation for MySQL Client to batch data insert.
+    # The batchUpdate remote function implementation for MySQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -94,33 +105,27 @@ public type Client client object {
     #            an`error` will be returned if there is any error.
     #            A number greater than or equal to zero - indicates that the command was processed successfully
     #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
-    #                            is unknown
+    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+    #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param[]... parameters) returns int[]|error {
+    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
     }
 
-    # The updateWithGeneratedKeys operation implementation for MySQL Client which returns the auto
-    # generated keys during the update remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   sql:Param... parameters) returns (int, string[])|error {
-        return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
+    # Stops the JDBC client.
+    # + return - Possible error during closing
+    public function stop() returns error? {
+        self.clientActive = false;
+        return sql:close(self.sqlClient);
     }
 
-    # Stops the JDBC client.
-    public function stop() {
-        sql:close(self.sqlClient);
+    function handleStoppedClientInvocation() returns error {
+        return error("{ballerina/sql}DatabaseError", { message: "Client has been stopped"});
     }
 };
 
-extern function createClient(ClientEndpointConfig config) returns sql:Client;
-
+function createClient(ClientEndpointConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client = external;

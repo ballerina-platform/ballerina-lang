@@ -41,7 +41,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     public BLangSimpleVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override
@@ -66,6 +65,10 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
+        String varName = "_";
+        if (symbol != null && symbol.name != null) {
+            varName = symbol.name.value;
+        }
+        return String.valueOf(type) + " " + varName + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

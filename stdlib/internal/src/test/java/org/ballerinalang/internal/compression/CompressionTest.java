@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.internal.compression;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,6 +35,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -51,11 +53,12 @@ public class CompressionTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/compression/compression.bal");
+        Path balPath = Paths.get("src", "test", "resources", "test-src", "compression", "compression.bal");
+        compileResult = BCompileUtil.compile(balPath.toAbsolutePath().toString());
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with src and destination directory path")
-    public void testDecompressFile() throws IOException, URISyntaxException {
+    public void testDecompressFile() throws URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -379,7 +382,7 @@ public class CompressionTest {
             }
             zipFile.close();
         } catch (IOException e) {
-            new BLangRuntimeException("Error occured when retrieving the files from the archived file");
+            new BLangRuntimeException("Error occurred when retrieving the files from the archived file");
         }
         return filesContained;
     }

@@ -21,7 +21,6 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
@@ -223,21 +222,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
-    }
-
-    @Deprecated
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo == null || packageName == null || annotationName == null) {
-            return null;
-        }
-        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
-                return annotationInfo;
-            }
-        }
-        return null;
     }
 
     @Override
