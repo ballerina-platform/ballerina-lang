@@ -969,7 +969,7 @@ public class BRunUtil {
                 BObjectType bvmObjectType =
                         new BObjectType(null, objectType.getName(), objectType.getPackage().getName(),
                                         objectType.flags);
-                Map<String, BField> objectFields = new HashMap<>();
+                Map<String, BField> objectFields = new LinkedHashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
                     if (selfTypeStack.contains(field)) {
                         continue;
