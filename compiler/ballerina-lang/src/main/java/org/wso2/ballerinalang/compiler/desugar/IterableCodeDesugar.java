@@ -360,6 +360,7 @@ public class IterableCodeDesugar {
                 tupleExpr.exprs.add(ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol));
             }
             tupleExpr.type = new BTupleType(getTupleTypeList(ctx.getFirstOperation().inputType));
+            tupleExpr.pos = pos;
             assignmentStmt.expr = tupleExpr;
         }
 
