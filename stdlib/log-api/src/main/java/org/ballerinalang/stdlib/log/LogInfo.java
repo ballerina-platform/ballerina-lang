@@ -39,13 +39,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class LogInfo extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        logMessage(ctx, BLogLevel.INFO, (pkg, message) -> {
-            getLogger(pkg).info(message);
-        });
     }
 
     public static void printInfo(Strand strand, Object msg) {
-        logMessage(msg, BLogLevel.INFO, (pkg, message) -> {
+        String packagePath = getPackagePath();
+        logMessage(strand, msg, BLogLevel.INFO, packagePath, (pkg, message) -> {
             getLogger(pkg).info(message);
         });
     }
