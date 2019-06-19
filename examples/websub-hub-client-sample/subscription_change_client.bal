@@ -1,4 +1,4 @@
-// The Ballerina main program that demonstrates the usage of the Hub client endpoint to subscribe/unsubscribe to notifications.
+// The Ballerina main program, which demonstrates the usage of the Hub client endpoint to subscribe/unsubscribe to notifications.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
@@ -8,7 +8,7 @@ websub:Client websubHubClientEP = new
 
 public function main() {
 
-    // Send the subscription request for the subscriber service.
+    // Sends the subscription request for the subscriber service.
     websub:SubscriptionChangeRequest subscriptionRequest = {
         topic: "http://websubpubtopic.com",
         callback: "http://localhost:8181/websub",
@@ -26,10 +26,10 @@ public function main() {
                                             <string>response.detail().message);
     }
 
-    // Wait for the initial notification, before unsubscribing.
+    // Waits for the initial notification before unsubscribing.
     runtime:sleep(5000);
 
-    // Send unsubscription request for the subscriber service.
+    // Sends the unsubscription request to the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {
         topic: "http://websubpubtopic.com",
         callback: "http://localhost:8181/websub"

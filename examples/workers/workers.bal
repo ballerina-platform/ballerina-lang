@@ -10,7 +10,7 @@ public function main() {
 
     // This block belongs to the worker `w1`.
     worker w1 {
-        // Calculate sum(n)
+        // Calculates the sum(n).
         int n = 10000000;
         int sum = 0;
         foreach var i in 1...n {
@@ -21,7 +21,7 @@ public function main() {
 
     // This block belongs to the worker `w2`.
     worker w2 {
-        // Calculate sum(n^2)
+        // Calculates the sum(n^2).
         int n = 10000000;
         int sum = 0;
         foreach var i in 1...n {
@@ -31,7 +31,7 @@ public function main() {
             " positive numbers = ", sum);
     }
 
-    // Wait for both workers to finish.
+    // Waits for both workers to finish.
     _ = wait {w1, w2};
 
     io:println("Worker execution finished");
