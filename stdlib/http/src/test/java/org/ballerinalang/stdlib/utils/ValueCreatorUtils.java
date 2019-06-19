@@ -44,7 +44,7 @@ public class ValueCreatorUtils {
         return request;
     }
 
-    public static ObjectValue createEntity() {
+    public static ObjectValue createEntityObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
     }
 

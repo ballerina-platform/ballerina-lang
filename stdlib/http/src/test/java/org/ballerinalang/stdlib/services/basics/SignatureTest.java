@@ -91,7 +91,8 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*expected 'person' as param name, but found 'ballerina'.*")
+            expectedExceptionsMessageRegExp = ".*expected 'person' as param name, but found 'ballerina'.*",
+            enabled = false)
     public void testSignatureWithMismatchedBodyParam() {
         CompileResult compileResult = BCompileUtil.compileOnBVM(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());

@@ -64,16 +64,13 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntity;
+import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
@@ -83,12 +80,6 @@ import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObje
 public class RequestNativeFunctionSuccessTest {
 
     private CompileResult compileResult;
-    private final String reqStruct = HttpConstants.REQUEST;
-    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
-    private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private final String entityStruct = HttpConstants.ENTITY;
-    private final String mediaTypeStruct = MEDIA_TYPE;
-    private final String reqCacheControlStruct = REQUEST_CACHE_CONTROL;
     private static final int TEST_PORT = 9090;
 
     @BeforeClass
@@ -144,7 +135,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Test getBinaryPayload method of the request")
     public void testGetBinaryPayloadMethod() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "ballerina";
         enrichTestEntity(entity, OCTET_STREAM, payload);
@@ -160,7 +151,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Test getBinaryPayload method behaviour over non-blocking execution")
     public void testGetBinaryPayloadNonBlocking() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "ballerina";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -177,7 +168,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Enable this once the getContentLength() is added back in http package")
     public void testGetContentLength() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
         String payload = "ballerina";
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add(HttpHeaderNames.CONTENT_LENGTH.toString(), payload.length());
@@ -216,7 +207,7 @@ public class RequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_GET);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
 
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
         ObjectValue mediaType = createMediaTypeObject();
         HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
 
@@ -248,7 +239,7 @@ public class RequestNativeFunctionSuccessTest {
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);
 
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
         ObjectValue mediaType = createMediaTypeObject();
         HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
 
@@ -263,7 +254,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetJsonPayload() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "{'code':'123'}";
         enrichTestEntity(entity, APPLICATION_JSON, payload);
@@ -279,7 +270,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetJsonPayloadNonBlocking() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "{'code':'123'}";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -311,7 +302,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetTextPayload() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "ballerina";
         enrichTestEntity(entity, TEXT_PLAIN, payload);
@@ -327,7 +318,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetTextPayloadNonBlocking() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "ballerina";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -343,7 +334,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Test getTextPayload method with JSON payload")
     public void testGetTextPayloadMethodWithJsonPayload() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "{\"code\":\"123\"}";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -360,7 +351,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test(description = "Test getTextPayload method with Xml payload")
     public void testGetTextPayloadMethodWithXmlPayload() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichEntityWithDefaultMsg(entity, payload);
@@ -390,7 +381,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetXmlPayload() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichTestEntity(entity, APPLICATION_XML, payload);
@@ -406,7 +397,7 @@ public class RequestNativeFunctionSuccessTest {
     @Test
     public void testGetXmlPayloadNonBlocking() {
         ObjectValue inRequest = createRequestObject();
-        ObjectValue entity = createEntity();
+        ObjectValue entity = createEntityObject();
 
         String payload = "<name>ballerina</name>";
         enrichEntityWithDefaultMsg(entity, payload);
