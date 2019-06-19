@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -36,13 +37,13 @@ import java.io.UnsupportedEncodingException;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.string",
-        functionName = "toByteArray",
+        functionName = "toBytes",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class ToByteArray extends BlockingNativeCallableUnit {
+public class ToBytes extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         try {
@@ -57,7 +58,7 @@ public class ToByteArray extends BlockingNativeCallableUnit {
         }
     }
 
-    public static ArrayValue toByteArray(Strand strand, String value, String encoding) {
+    public static ArrayValue toBytes(Strand strand, String value, String encoding) {
         StringUtils.checkForNull(value, encoding);
         try {
             byte[] bytes = value.getBytes(encoding);

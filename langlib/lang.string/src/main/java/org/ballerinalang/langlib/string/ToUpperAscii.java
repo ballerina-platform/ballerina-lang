@@ -21,40 +21,38 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Extern function ballerina.model.strings:replace.
+ * Extern function ballerina.model.strings:toUpper.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.string",
-        functionName = "replace",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "regex", type = TypeKind.STRING),
-                @Argument(name = "replaceWith", type = TypeKind.STRING)},
+        functionName = "toUpperAscii",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Replace extends BlockingNativeCallableUnit {
+public class ToUpperAscii extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String s = context.getStringArgument(0);
-        String regex = context.getStringArgument(1);
-        String replaceWith = context.getStringArgument(2);
-
-        String replacedString = s.replace(regex, replaceWith);
-        context.setReturnValues(new BString(replacedString));
+        String param1 = context.getStringArgument(0);
+        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
+        context.setReturnValues(upperCaseString);
     }
 
-    public static String replace(Strand strand, String value, String regex, String replaceWith) {
-        StringUtils.checkForNull(value, regex, replaceWith);
-        return value.replace(regex, replaceWith);
+    public static String toUpper(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.toUpperCase(Locale.getDefault());
     }
 }
