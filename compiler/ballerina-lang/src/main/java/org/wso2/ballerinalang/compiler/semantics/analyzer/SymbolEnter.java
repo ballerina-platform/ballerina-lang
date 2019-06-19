@@ -412,7 +412,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
-        defineSymbol(xmlnsNode.pos, xmlnsSymbol);
+        defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -931,7 +931,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
             return;
         }
 
@@ -957,7 +957,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {

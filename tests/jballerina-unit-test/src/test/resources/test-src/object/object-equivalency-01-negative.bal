@@ -427,12 +427,12 @@ public type PersonNotInOrder object {
     public string address = "";
 };
 
-function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
+function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     PersonInOrder p1 = new("John", 35);
     PersonNotInOrder p2 = p1;
 
     PersonNotInOrder p3 = new ("Doe", 45);
     PersonInOrder p4 = p3;
 
-    return (p4, p2);
+    return [p4, p2];
 }

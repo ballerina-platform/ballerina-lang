@@ -79,12 +79,12 @@ function stampAnydataToRecordArray() returns Teacher[]|error  {
     return returnValue;
 }
 
-function stampAnydataToTuple() returns (string,Teacher)|error  {
-    (string, Teacher)  tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
-    "Hindu College" });
+function stampAnydataToTuple() returns [string,Teacher]|error  {
+    [string, Teacher]  tupleValue = ["Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
+    "Hindu College" }];
 
     anydata anydataValue = tupleValue;
-    (string,Teacher)|error  returnValue = (string, Teacher).stamp(anydataValue);
+    [string,Teacher]|error  returnValue = [string, Teacher].stamp(anydataValue);
 
     return returnValue;
 }
