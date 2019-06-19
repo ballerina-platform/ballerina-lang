@@ -58,10 +58,12 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     } else if (targetType is bir:BFiniteType) {
         generateCheckCastToFiniteType(mv, sourceType, targetType);
         return;
+    } else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint is bir:BTypeAny)) {
+        // do nothing
+    } else {
+        // do the ballerina checkcast
+        checkCast(mv, targetType);
     }
-
-    // do the ballerina checkcast
-    checkCast(mv, targetType);
 
     // cast to the specific java class
     string? targetTypeClass = getTargetClass(sourceType, targetType);

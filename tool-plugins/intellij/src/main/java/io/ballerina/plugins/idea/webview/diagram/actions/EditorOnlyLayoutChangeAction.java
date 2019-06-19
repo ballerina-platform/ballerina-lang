@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.ballerina.plugins.idea.preloading;
+package io.ballerina.plugins.idea.webview.diagram.actions;
 
-import org.wso2.lsp4intellij.IntellijLanguageClient;
-import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import io.ballerina.plugins.idea.webview.diagram.split.SplitFileEditor;
 
 /**
- * Language Server Definition Register Service.
+ * Editor layout change action.
  */
-public class LanguageServerRegisterService {
-
-    static void register(String[] args) {
-        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", args));
+public class EditorOnlyLayoutChangeAction extends BaseChangeSplitLayoutAction {
+    protected EditorOnlyLayoutChangeAction() {
+        super(SplitFileEditor.SplitEditorLayout.FIRST);
     }
 }
