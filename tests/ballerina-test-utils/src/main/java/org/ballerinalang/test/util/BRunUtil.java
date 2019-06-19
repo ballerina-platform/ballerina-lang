@@ -258,9 +258,27 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, Object[] args,
-                                  Class<?>[] paramTypes) {
-        return invokeOnJBallerina(compileResult, functionName, args, paramTypes);
+    public static BValue[] invoke(CompileResult compileResult, String functionName, Object[] args) {
+        return invokeOnJBallerina(compileResult, functionName, args, getJvmParamTypes(args));
+    }
+
+    private static Class<?>[] getJvmParamTypes(Object[] args) {
+        Class<?>[] paramTypes = new Class<?>[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+
+            if (arg instanceof ObjectValue) {
+                paramTypes[i] = ObjectValue.class;
+            } else if (arg instanceof XMLValue) {
+                paramTypes[i] = XMLValue.class;
+            } else if (arg instanceof String) {
+                paramTypes[i] = String.class;
+            } else {
+                // This is done temporarily, until blocks are added here for all possible cases.
+                throw new RuntimeException("unknown param type: " + arg.getClass());
+            }
+        }
+        return paramTypes;
     }
 
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {

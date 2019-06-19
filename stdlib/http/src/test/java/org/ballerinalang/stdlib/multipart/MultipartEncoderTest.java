@@ -223,7 +223,7 @@ public class MultipartEncoderTest {
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64EncodeByteChannel",
-                                                new Object[]{ byteChannelStruct }, new Class<?>[]{ ObjectValue.class });
+                                                new Object[]{ byteChannelStruct });
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
