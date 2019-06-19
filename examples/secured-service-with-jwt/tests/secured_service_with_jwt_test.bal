@@ -19,7 +19,7 @@ function testFunc() {
 
 function testAuthSuccess() {
     // create client
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
     http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
@@ -38,7 +38,7 @@ function testAuthSuccess() {
 
 function testAuthnFailure() {
     // Create a client.
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
     http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {
@@ -57,7 +57,7 @@ function testAuthnFailure() {
 
 function testAuthzFailure() {
     // Create a client.
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({});
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
     http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
         auth: {

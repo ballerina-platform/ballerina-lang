@@ -31,8 +31,12 @@ public type InboundBasicAuthProvider object {
     # Provides authentication based on the provided configuration.
     #
     # + basicAuthConfig - Basic auth provider configurations
-    public function __init(BasicAuthConfig basicAuthConfig) {
-        self.basicAuthConfig = basicAuthConfig;
+    public function __init(BasicAuthConfig? basicAuthConfig) {
+        if (basicAuthConfig is BasicAuthConfig) {
+            self.basicAuthConfig = basicAuthConfig;
+        } else {
+            self.basicAuthConfig = { tableName: CONFIG_USER_SECTION };
+        }
     }
 
     # Attempts to authenticate with credential.
@@ -79,7 +83,7 @@ public type InboundBasicAuthProvider object {
 #
 # + tableName - Table name of the toml file of user-store.
 public type BasicAuthConfig record {|
-    string tableName = CONFIG_USER_SECTION;
+    string tableName;
 |};
 
 # Reads the scope(s) for the user with the given username.

@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/encoding;
 
 function testCreateInboundBasicAuthProvider() returns auth:InboundBasicAuthProvider {
-    auth:InboundBasicAuthProvider basicAuthProvider = new({});
+    auth:InboundBasicAuthProvider basicAuthProvider = new(());
     return basicAuthProvider;
 }
 
@@ -43,13 +43,13 @@ function testAuthenticationWithEmptyUsername() returns boolean|error {
 }
 
 function testAuthenticationWithEmptyPassword() returns boolean|error {
-    auth:InboundBasicAuthProvider basicAuthProvider = new({});
+    auth:InboundBasicAuthProvider basicAuthProvider = new(());
     string usernameAndPassword = "isuru:";
     return authenticate(usernameAndPassword);
 }
 
 function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns boolean|error {
-    auth:InboundBasicAuthProvider basicAuthProvider = new({});
+    auth:InboundBasicAuthProvider basicAuthProvider = new(());
     string usernameAndPassword = "invalid:";
     return authenticate(usernameAndPassword);
 }
@@ -90,7 +90,7 @@ function testAuthenticationPlainNegative() returns boolean|error {
 }
 
 function authenticate(string usernameAndPassword) returns boolean|error {
-    auth:InboundBasicAuthProvider basicAuthProvider = new({});
+    auth:InboundBasicAuthProvider basicAuthProvider = new(());
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return basicAuthProvider.authenticate(credential);
 }

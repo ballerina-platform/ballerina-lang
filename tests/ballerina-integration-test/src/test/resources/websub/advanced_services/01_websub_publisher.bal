@@ -26,7 +26,7 @@ const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
-auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
+auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
 http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
