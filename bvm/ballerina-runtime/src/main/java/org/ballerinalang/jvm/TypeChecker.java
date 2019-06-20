@@ -336,7 +336,6 @@ public class TypeChecker {
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                                                                 .allMatch(bValue -> checkIsType(bValue, targetType));
@@ -374,6 +373,8 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+            case TypeTags.SERVICE_TAG:
+                return checkIsServiceType(sourceType);
             default:
                 return false;
         }
@@ -469,12 +470,11 @@ public class TypeChecker {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
             // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL) &&
-                    (sourceField == null || Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL))) {
+            if (sourceField == null && !Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)) {
                 return false;
             }
 
-            if (sourceField == null || !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
+            if (sourceField != null && !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -486,7 +486,8 @@ public class TypeChecker {
         }
 
         // If it's an open record, check if they are compatible with the rest field of the target type.
-        return sourceFields.values().stream().filter(field -> !targetFieldNames.contains(field.name))
+        return sourceFields.values().stream()
+                .filter(field -> !targetFieldNames.contains(field.name))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
@@ -697,6 +698,19 @@ public class TypeChecker {
         }
 
         return isSameType(source.retType, targetType.retType);
+    }
+
+    private static boolean checkIsServiceType(BType sourceType) {
+        if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
+            return true;
+        }
+
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            int flags = ((BObjectType) sourceType).flags;
+            return (flags & Flags.SERVICE) == Flags.SERVICE;
+        }
+
+        return false;
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,

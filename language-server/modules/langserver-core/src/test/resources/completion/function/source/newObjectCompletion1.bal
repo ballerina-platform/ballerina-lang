@@ -16,6 +16,7 @@ type ObjectName object {
 };
 
 function get() returns ObjectName {
-    ObjectName o = new("arg");
+    http:Response res = new();
+    ObjectName o = new(1, "hello", res);
     return o;
 }

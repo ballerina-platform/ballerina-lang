@@ -99,6 +99,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/jwt",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jwt;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/crypto",
       "kind": "Module",
       "detail": "Package",
@@ -139,6 +161,28 @@
             }
           },
           "newText": "import ballerina/h2;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/privacy",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "privacy",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/privacy;\n"
         }
       ]
     },
@@ -297,6 +341,50 @@
       ]
     },
     {
+      "label": "ballerina/ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "ldap",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/ldap;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/streams",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/streams;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/artemis",
       "kind": "Module",
       "detail": "Package",
@@ -385,6 +473,28 @@
       ]
     },
     {
+      "label": "ballerina/oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/oauth2;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/internal",
       "kind": "Module",
       "detail": "Package",
@@ -403,6 +513,28 @@
             }
           },
           "newText": "import ballerina/internal;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jvm;\n"
         }
       ]
     },
@@ -535,6 +667,28 @@
             }
           },
           "newText": "import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/observe",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
         }
       ]
     },
@@ -715,10 +869,10 @@
       ]
     },
     {
-      "label": "ballerina/websub",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "websub",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -732,7 +886,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/websub;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },
