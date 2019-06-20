@@ -32,7 +32,7 @@ function Person.checkAndModifyAge(int condition, int a) {
 }
 
 public function main() {
-    // Initializing a `Person` object.
+    // Initializes a `Person` object.
     Person p1 = new(5, "John", "Doe");
     io:println(p1);
 

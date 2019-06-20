@@ -559,7 +559,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
 
         bir:Terminator terminator = bb.terminator;
         if (!isArg) {
-            mv.visitIntInsn(BIPUSH, j);
+            // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
+            mv.visitIntInsn(SIPUSH, j);
             mv.visitVarInsn(ISTORE, stateVarIndex);
         }
 

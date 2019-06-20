@@ -1,14 +1,14 @@
 import ballerina/io;
 
 public function main() {
-    // Define an anonymous function.
+    // Defines an anonymous function.
     function (string, string) returns string anonFunction =
             function (string x, string y) returns string {
                 return x + y;
             };
     io:println("Output: " + anonFunction.call("Hello ", "World.!!!"));
 
-    // Define an anonymous function with `var`.
+    // Defines an anonymous function with `var`.
     var anonFunction2 = function (string x, string y) returns string {
                             return x + y;
                         };
