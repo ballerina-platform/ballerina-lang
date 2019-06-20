@@ -48,10 +48,10 @@ function Person.decrementAndGetSalaryOuterMethod(int amount) returns int {
     return self.decrementAndUpdateSalary(amount);
 }
 
-function testPrivateMethodAccess() returns (int, int, int) {
+function testPrivateMethodAccess() returns [int, int, int] {
     Person person = new(10000);
     var result1 = person.incrementAndGetSalary(5000);
     var result2 = person.decrementAndGetSalary(2500);
     var result3 = person.decrementAndGetSalaryOuterMethod(1000);
-    return (result1, result2, result3);
+    return [result1, result2, result3];
 }

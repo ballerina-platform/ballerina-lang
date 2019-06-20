@@ -1,12 +1,12 @@
 Person p = new;
 
-function testGetDefaultValuesInObjectGlobalVar() returns (int, string, int, string) {
-    return (p.age, p.emp.name, p.foo.key, p.bar.address);
+function testGetDefaultValuesInObjectGlobalVar() returns [int, string, int, string] {
+    return [p.age, p.emp.name, p.foo.key, p.bar.address];
 }
 
-function testGetDefaultValuesInObject() returns (int, string, int, string) {
+function testGetDefaultValuesInObject() returns [int, string, int, string] {
     Person p1 = new;
-    return (p1.age, p1.emp.name, p1.foo.key, p1.bar.address);
+    return [p1.age, p1.emp.name, p1.foo.key, p1.bar.address];
 }
 
 type Person object {

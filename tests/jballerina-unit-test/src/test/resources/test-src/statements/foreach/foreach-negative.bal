@@ -1,7 +1,7 @@
 import ballerina/io;
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (i, s, f) in data {
+    foreach var [i, s, f] in data {
         io:println(i + " " + s + " " + f);
     }
 }
@@ -10,14 +10,14 @@ function test2(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     float i = 10.0;
     boolean s = true;
-    foreach var (i, s) in data {
+    foreach var [i, s] in data {
         io:println(i + " " + s);
     }
 }
 
 function test3(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (i, j) in data {
+    foreach var [i, j] in data {
         io:println(i + " ");
     }
     io:println(i);
@@ -38,7 +38,7 @@ type person record {
 function test5(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     person p = {};
-    foreach var (i, s) in data {
+    foreach var [i, s] in data {
         string s1 = s + s;
         io:println(s1);
     }
@@ -46,7 +46,7 @@ function test5(){
 
 function test6(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (i, j, k) in data {
+    foreach var [i, j, k] in data {
         io:println("hello");
     }
 }
@@ -55,7 +55,7 @@ function test8() returns error? {
     json j = ["a" , "b", "c"];
     var jsonArray = <json[]> j;
 
-    foreach var (x, y) in jsonArray {
+    foreach var [x, y] in jsonArray {
         io:print(x);
         io:println(y);
     }
@@ -81,7 +81,7 @@ function test9(){
 
 function test10(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (i, {j, k: {l, m}}) in data {
+    foreach var [i, {j, k: {l, m}}] in data {
         io:println(i + " " + j + " " + l + " " + m);
     }
 }

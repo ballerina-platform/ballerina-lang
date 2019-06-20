@@ -1,30 +1,30 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Initialize a JMS connection with the provider.
+// Initializes a JMS connection with the provider.
 jms:Connection conn = new({
         initialContextFactory:
          "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616"
     });
 
-// Initialize a JMS session on top of the created connection.
+// Initializes a JMS session on top of the created connection.
 jms:Session jmsSession = new(conn, {
         // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-// Initialize a queue receiver using the created session.
+// Initializes a queue receiver using the created session.
 listener jms:QueueListener consumerEndpoint = new(jmsSession,
     queueName = "MyQueue");
 
-// Bind the created consumer to the listener service.
+// Binds the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
 
     // The `OnMessage` resource gets invoked when a message is received.
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
-        // Create a queue sender.
+        // Creates a queue sender.
         jms:QueueSender queueSender = new({
                 initialContextFactory: 
                 "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
@@ -38,7 +38,7 @@ service jmsListener on consumerEndpoint {
             log:printError("Error retrieving content", err = content);
         }
 
-        // Retrieve JMS message headers
+        // Retrieves the JMS message headers.
         var id = message.getCorrelationID();
         if (id is string) {
             log:printInfo("Correlation ID: " + id);
@@ -55,7 +55,7 @@ service jmsListener on consumerEndpoint {
             log:printError("Error getting message type", err = msgType);
         }
 
-        // Retrieve custom JMS string property.
+        // Retrieves the custom JMS string property.
         var size = message.getStringProperty("ShoeSize");
         if (size is string) {
             log:printInfo("Shoe size: " + size);
@@ -65,18 +65,18 @@ service jmsListener on consumerEndpoint {
             log:printError("Error getting string property", err = size);
         }
 
-        // Create a new text message.
+        // Creates a new text message.
         var msg = queueSender.session.createTextMessage(
                                          "Hello From Ballerina!");
         if (msg is jms:Message) {
-            // Set JMS header, Correlation ID.
+            // Sets the JMS header and Correlation ID.
             var cid = msg.setCorrelationID("Msg:1");
             if (cid is error) {
                 log:printError("Error setting correlation id",
                     err = cid);
             }
 
-            // Set JMS string property.
+            // Sets the JMS string property.
             var stringProp = msg.setStringProperty("Instruction",
                 "Do a perfect Pirouette");
             if (stringProp is error) {

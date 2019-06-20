@@ -34,7 +34,7 @@ public type ImportModule record {
 public type TypeDef record {
     Name name = {};
     DiagnosticPos pos;
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
 };
@@ -51,14 +51,14 @@ public type Function record {|
     FunctionParam?[] params = [];
     BasicBlock?[][] paramDefaultBBs = [];
     ErrorEntry?[] errorEntries = [];
-    boolean isDeclaration = false;
-    boolean isInterface = false;
     VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
     ChannelDetail[] workerChannels;
     BType? receiverType;
+    boolean restParamExist;
+    AnnotationAttachment?[] annotAttachments = [];
 |};
 
 public type BasicBlock record {|
@@ -80,6 +80,22 @@ public type ChannelDetail record {|
 
 public type Name record {|
     string value = "";
+|};
+
+public type AnnotationAttachment record {|
+    ModuleID moduleId;
+    DiagnosticPos pos;
+    Name annotTagRef;
+    AnnotationValue?[] annotValues = [];
+|};
+
+public type AnnotationValue record {|
+    map<AnnotationValueEntry> valueEntryMap = {};
+|};
+
+public type AnnotationValueEntry record {|
+    BType literalType;
+    anydata value;
 |};
 
 public const BINARY_ADD = "ADD";
@@ -176,6 +192,18 @@ public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TER
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
                                 |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK
                                 |TERMINATOR_WAIT_ALL;
+                                
+                                
+// Flags
+public const int PUBLIC = 1;
+public const int NATIVE = 2;
+public const int ATTACHED = 8;
+public const int INTERFACE = 128;
+public const int REQUIRED = 256;
+public const int PRIVATE = 1024;
+public const int OPTIONAL = 8192;
+public const SERVICE = 524288;
+
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -229,7 +257,7 @@ public type GlobalVariableDcl record {|
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
 |};
 
 public const TYPE_ANY = "any";
@@ -326,19 +354,19 @@ public type Self record {|
 public type BAttachedFunction record {|
     Name name = {};
     BInvokableType funcType;
-    Visibility visibility;
+    int flags;
 |};
 
 public type BRecordField record {
     Name name;
-    Visibility visibility;
+    int flags;
     BType typeValue;
     //TODO add position
 };
 
 public type BObjectField record {
     Name name;
-    Visibility visibility;
+    int flags;
     BType typeValue;
     //TODO add position
 };
@@ -357,7 +385,7 @@ public type BFutureType record {|
 
 public type BFiniteType record {|
     Name name = {};
-    Visibility visibility;
+    int flags;
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
@@ -378,14 +406,6 @@ public type BInvokableType record {
     BType?[] paramTypes = [];
     BType retType?;
 };
-
-public const VISIBILITY_PACKAGE_PRIVATE = "PACKAGE_PRIVATE";
-public const VISIBILITY_PRIVATE = "PRIVATE";
-public const VISIBILITY_PUBLIC = "PUBLIC";
-public const VISIBILITY_OPTIONAL = "OPTIONAL";
-
-public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC|VISIBILITY_OPTIONAL;
-
 
 // Instructions
 

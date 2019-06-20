@@ -8,16 +8,16 @@ function testSingleNamedReturnParamZeroReturnArgs(int a, string b) returns (int)
     return p;
 }
 
-function testTwoNamedReturnParam(int a, string b) returns (int, string) {
+function testTwoNamedReturnParam(int a, string b) returns [int, string] {
     int p = a + 2;
     string name = b + ", john";
 
-    return (p, name);
+    return [p, name];
 }
 
-function testTwoNamedReturnParamZeroReturnArgs(int a, string b) returns (int, string) {
+function testTwoNamedReturnParamZeroReturnArgs(int a, string b) returns [int, string] {
     int p = a + 2;
     string name = b + ", john";
 
-    return (p,name);
+    return [p,name];
 }

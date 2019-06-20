@@ -41,7 +41,7 @@ function typeDescOrAObject() returns typedesc {
 }
 
 function typeDescOfLiterals() returns
-    (typedesc, typedesc, typedesc, typedesc, typedesc, typedesc, typedesc) {
+    [typedesc, typedesc, typedesc, typedesc, typedesc, typedesc, typedesc] {
     var a = typeof 1;
     var b = typeof 2.0;
     var c = typeof 2.1f;
@@ -49,17 +49,17 @@ function typeDescOfLiterals() returns
     var e = typeof true;
     var f = typeof false;
     var g = typeof ();
-    return (a, b, c, d, e, f, g);
+    return [a, b, c, d, e, f, g];
 }
 
 function typeDescOfExpressionsOfLiterals() returns
-    (typedesc, typedesc) {
+    [typedesc, typedesc] {
     int i = 0;
     int j = 4;
     int k = 4;
     float f = 0.0;
     float ff = 22.0;
-    return (typeof (i+j*k), typeof (f*ff));
+    return [typeof (i+j*k), typeof (f*ff)];
 }
 
 function takesATypedescParam(typedesc param) returns typedesc {

@@ -74,7 +74,7 @@ dependencies {
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-formatter')
     dist project(':ballerina-packerina')
-    // dist project(':protobuf-ballerina')
+    dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
@@ -345,4 +345,12 @@ project.afterEvaluate {
                 check.dependsOn dependencyCheck
             }
         }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createZip, extension: 'zip'
+        }
+    }
 }

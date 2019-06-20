@@ -39,7 +39,7 @@ public function main(string... args) {
 function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
             returns JarFile {
     currentBIRContext = birContext;
-    var (entryMod, _) = lookupModule(entryModId);
+    var [entryMod, _] = lookupModule(entryModId);
 
     if (dumpBir) {
        bir:BirEmitter emitter = new(entryMod);

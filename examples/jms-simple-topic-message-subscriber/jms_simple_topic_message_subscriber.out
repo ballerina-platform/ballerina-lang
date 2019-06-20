@@ -1,7 +1,8 @@
-# Start the Artemis message broker
-# Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to <BALLERINA_HOME>/bre/lib
+# Before running this example, start the Artemis message broker.
+# Next, copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar 
+# files to the <BALLERINA_HOME>/bre/lib directory.
 
 # Navigate to the directory that contains the
-# 'jms_simple_topic_message_subscriber.bal' file and execute the 'ballerina run' command.
+# 'jms_simple_topic_message_subscriber.bal' file, and execute the 'ballerina run' command.
 $ ballerina run jms_simple_topic_message_subscriber.bal
 # The JMS subscriber runs as a Ballerina service and listens to the subscribed topic.

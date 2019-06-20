@@ -642,15 +642,12 @@ type InstructionGenerator object {
             self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
             self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
                     io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
-        } else if (varRefType is bir:BRecordType) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
-        } else if (varRefType is bir:BMapType && !mapLoadIns.except) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-            io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
-        } else {
+        } else if (mapLoadIns.except) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
-                    io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+        } else {
+            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
         }
 
         // store in the target reg
@@ -854,7 +851,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = [inst, methodClass];
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

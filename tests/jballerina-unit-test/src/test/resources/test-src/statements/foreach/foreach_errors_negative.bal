@@ -80,7 +80,7 @@ function testMapWithErrors2() returns string {
 
 
     string result1 = "";
-    foreach (string, error<string, map<string>>) (key, error(reason, detail)) in errMap { // incompatible types: expected '(string,error)', found '(string,error)'
+    foreach [string, error<string, map<string>>] [key, error(reason, detail)] in errMap { // incompatible types: expected '(string,error)', found '(string,error)'
 
     }
     return result1;
@@ -93,11 +93,11 @@ function testMapWithErrors3() returns string {
     map<error<string, map<string|boolean>>> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
-    foreach var (key, error(reason, detail)) in errMap {
+    foreach var [key, error(reason, detail)] in errMap {
         map<string> x = detail; // incompatible types: expected 'map<string>', found 'map<string|boolean>'
     }
 
-    foreach var (key, error(reason1, { message }))in errMap {
+    foreach var [key, error(reason1, { message })] in errMap {
         string|boolean x = message; // incompatible types: expected 'string|boolean', found 'string|boolean?'
     }
     return result1;
