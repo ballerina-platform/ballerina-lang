@@ -23,6 +23,7 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 /**
  * Jar integration testcase.
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class JarIntegrationTest {
 
     private static final byte[] BAL_CONTENT = "good bal".getBytes(StandardCharsets.UTF_8);

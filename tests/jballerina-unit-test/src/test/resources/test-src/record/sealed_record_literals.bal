@@ -12,12 +12,12 @@ type Person record {|
     Person? child = ();
 |};
 
-function testStructLiteral1 () returns (Department) {
+function testStructLiteral1 () returns Department {
     Department p = {};
     return p;
 }
 
-function testStructLiteral2 () returns (Person) {
+function testStructLiteral2 () returns Person {
     Person p = {};
     return p;
 }

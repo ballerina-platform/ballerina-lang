@@ -21,7 +21,7 @@ public type employee1 record {|
     int id = 0;
 |};
 
-function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
+function testEquivalenceOfPrivateStructsInSamePackage () returns string {
     employee1 e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
@@ -48,7 +48,7 @@ public type employee2 record {|
     int id = 0;
 |};
 
-function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
+function testEquivalenceOfPublicStructsInSamePackage () returns string {
     employee2 e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
@@ -58,7 +58,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
 }
 
 
-function testEqOfPublicStructs () returns (string) {
+function testEqOfPublicStructs () returns string {
     eq:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
@@ -77,7 +77,7 @@ public type employee3 record {|
     int id = 0;
 |};
 
-function testEqOfPublicStructs1 () returns (string) {
+function testEqOfPublicStructs1 () returns string {
     employee3 e = {age:14, name:"rat"};
     e.ssn = "234-56-1234:employee";
 
@@ -86,7 +86,7 @@ function testEqOfPublicStructs1 () returns (string) {
     return p.ssn;
 }
 
-function testEqOfPublicStructs2 () returns (string) {
+function testEqOfPublicStructs2 () returns string {
     eq2:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-3345:employee";
 
@@ -120,7 +120,7 @@ type userFoo record {|
 |};
 
 
-function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
+function testRuntimeEqPrivateStructsInSamePackage () returns string|error {
     userFoo uFoo = {age:10, name:"ttt", address:"102 Skyhigh street #129, San Jose"};
 
     userA uA = uFoo;
@@ -152,7 +152,7 @@ public type userPFoo record {|
     string zipcode = "23468";
 |};
 
-function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
+function testRuntimeEqPublicStructsInSamePackage () returns string|error {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     userPA uA = uFoo;
@@ -161,7 +161,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs () returns (string|error) {
+function testRuntimeEqPublicStructs () returns string|error {
     req:closedUserPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     userPA uA = uFoo;
@@ -170,7 +170,7 @@ function testRuntimeEqPublicStructs () returns (string|error) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs1 () returns (string|error) {
+function testRuntimeEqPublicStructs1 () returns string|error {
     req:closedUserPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
