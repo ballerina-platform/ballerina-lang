@@ -50,6 +50,6 @@ public type PQR object {
     }
 };
 
-function test1 () returns (int, int){
-    return (startCount, attachCount);
+function test1 () returns [int, int] {
+    return [startCount, attachCount];
 }

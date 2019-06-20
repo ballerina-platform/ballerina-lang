@@ -49,9 +49,9 @@ public function Manager1.getSalary() returns float {
     return self.salary;
 }
 
-public function testSimpleObjectTypeReference() returns (int, string, float, string) {
+public function testSimpleObjectTypeReference() returns [int, string, float, string] {
     Manager1 mgr = new Manager1();
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 type Manager2 object {
@@ -76,9 +76,9 @@ public function Manager2.getSalary() returns float {
     return self.salary;
 }
 
-public function testInitTypeReferenceObjectWithNew() returns (int, string, float, string) {
+public function testInitTypeReferenceObjectWithNew() returns [int, string, float, string] {
     Manager2 mgr = new Manager2();
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 type Manager3 object {
@@ -108,10 +108,10 @@ public function Manager3.getSalary() returns float {
     return self.salary;
 }
 
-public function testObjectWithChainedTypeReferences() returns (int, string, float, string) {
+public function testObjectWithChainedTypeReferences() returns [int, string, float, string] {
     Manager3 mgr = new Manager3();
     mgr.name = "John";
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 // Test invoking object member method with default values
@@ -149,7 +149,7 @@ type Person3 abstract object {
     public function getName(string greeting = "Hi") returns string;
 };
 
-public function testAbstractObjectFuncWithDefaultVal() returns (string, float) {
+public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
     Manager4 mgr = new Manager4("Jane");
-    return (mgr.getName(), mgr.getBonus(0.1));
+    return [mgr.getName(), mgr.getBonus(0.1)];
 }

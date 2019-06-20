@@ -700,13 +700,17 @@ public class TypeChecker {
         return isSameType(source.retType, targetType.retType);
     }
 
-    private static boolean checkIsServiceType(BType targetType) {
-        if (targetType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
-            return false;
+    private static boolean checkIsServiceType(BType sourceType) {
+        if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
+            return true;
         }
 
-        int flags = ((BObjectType) targetType).flags;
-        return (flags & Flags.SERVICE) == Flags.SERVICE;
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            int flags = ((BObjectType) sourceType).flags;
+            return (flags & Flags.SERVICE) == Flags.SERVICE;
+        }
+
+        return false;
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,

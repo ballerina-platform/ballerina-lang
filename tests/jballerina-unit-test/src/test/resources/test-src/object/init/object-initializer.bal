@@ -34,14 +34,14 @@ function person.getAge() {
     self.age = 12;
 }
 
-function testObjectInitializerInSamePackage1() returns (int, string){
+function testObjectInitializerInSamePackage1() returns [int, string]{
     person p = new(n = "Peter");
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
-function testObjectInitializerInAnotherPackage() returns (int, string){
+function testObjectInitializerInAnotherPackage() returns [int, string]{
     inp:employee e = new("Peter");
-    return (e.age, e.name);
+    return [e.age, e.name];
 }
 
 type employee object {
@@ -55,12 +55,12 @@ type employee object {
     }
 };
 
-function testObjectInitializerOrder() returns (int, string){
+function testObjectInitializerOrder() returns [int, string]{
     employee p = new (a = 40, "B");
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
-function testObjectInitializerUsedAsAFunction() returns (int, string, int, string) {
+function testObjectInitializerUsedAsAFunction() returns [int, string, int, string] {
     person p = new(n = "Peter");
     int age1 = p.age;
     string name1 = p.name;
@@ -68,7 +68,7 @@ function testObjectInitializerUsedAsAFunction() returns (int, string, int, strin
     p.name = "Jack";
 
     p.__init(a = 20, n = "James");
-    return (p.age, p.name, age1, name1);
+    return [p.age, p.name, age1, name1];
 }
 
 type Person object {
@@ -154,10 +154,10 @@ function getError2(int errId) returns string|Err {
     return e;
 }
 
-function testCustomErrorReturn() returns (Person3|Err, Person3|error) {
+function testCustomErrorReturn() returns [Person3|Err, Person3|error] {
     Person3|Err p1 = new("Pubudu", 27);
     Person3|error p2 = new("Pubudu", 27);
-    return (p1, p2);
+    return [p1, p2];
 }
 
 type Person4 object {
@@ -192,8 +192,8 @@ function getMultipleErrors(boolean isFoo) returns string|FooErr|BarErr {
     }
 }
 
-function testMultipleErrorReturn() returns (Person4|FooErr|BarErr, Person4|FooErr|BarErr) {
+function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooErr|BarErr] {
     Person4|FooErr|BarErr p1 = new(true);
     Person4|FooErr|BarErr p2 = new(false);
-    return (p1, p2);
+    return [p1, p2];
 }
