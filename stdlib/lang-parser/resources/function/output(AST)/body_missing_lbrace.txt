@@ -2,8 +2,8 @@ function foo ()}
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 1:16: expected LBRACE; found '}'
-ERROR [sachini/parserModule] - LBRACE inserted
+ERROR [ballerina-parser/parserModule] - 1:16: expected LBRACE; found '}'
+ERROR [ballerina-parser/parserModule] - LBRACE inserted
 
 {
 	"nodeKind": "package",

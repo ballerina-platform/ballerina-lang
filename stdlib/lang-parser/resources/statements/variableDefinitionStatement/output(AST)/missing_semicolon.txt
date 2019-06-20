@@ -4,8 +4,8 @@ int a = 2
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
-ERROR [sachini/parserModule] - SEMICOLON inserted
+ERROR [ballerina-parser/parserModule] - 3:1: expected SEMICOLON; found '}'
+ERROR [ballerina-parser/parserModule] - SEMICOLON inserted
 
 {
 	"nodeKind": "package",

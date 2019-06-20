@@ -3,7 +3,7 @@
 The parser is implemented following the LL(K) recursive Descent parsing pattern. This pattern analyses the syntactic structure using k>1 lookahead tokens.
 
 **Token Structure**
-```
+```ballerina
 Token record {
     int tokenType;
     string text;
@@ -289,7 +289,7 @@ Sample serialized json output:
 ```
 
 
-#### Unit tests
+#### Unit Tests
 To execute the Unit tests, run the following command from the <PROJECT_ROOT_DIRECTORY>
 
  `ballerina test parserModule` 

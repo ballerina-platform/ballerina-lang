@@ -33,7 +33,6 @@ function parseFile(string fileLocation) returns PackageNode? {
     if (bReader is error) {
         log:printError("error occurred while processing chars ", err = bReader);
         closeRc(sourceChannel);
-
         return ();
     } else {
         Lexer lex = new(bReader);
@@ -41,7 +40,6 @@ function parseFile(string fileLocation) returns PackageNode? {
         Parser parser = new(pBuffer);
         PackageNode pkgNode = parser.parse();
         closeRc(sourceChannel);
-
         return pkgNode;
     }
 }

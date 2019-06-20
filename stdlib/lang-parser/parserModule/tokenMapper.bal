@@ -51,12 +51,8 @@ const NOT_EQUAL = 22;
 const REF_NOT_EQUAL = 23;
 const REF_EQUAL = 24;
 
-
 //unary operators
 const NOT = 25;
-//sub and add tokens will be renamed as unaryMinus and unaryPlus,
-//in the parser during unary expressions
-
 const BIT_COMPLEMENT = 26;
 const UNTAINT = 27;
 const UNARY_MINUS = 28;
@@ -103,10 +99,6 @@ const LEFT_CLOSED_RECORD_DELIMITER = 57;
 const DOUBLE_GT = 58;
 const DOUBLE_LT = 59;
 const TRIPLE_GT = 60;
-
-//incomplete token range 61-70
-//const INCOMPLETE_SY = 61;
-
 
 string[] tokenNames = ["LBRACE", "RBRACE", "SEMICOLON", "COMMA", "DOT", "COLON", "LPAREN", "RPAREN", "QUESTION_MARK",
 "LEFT_BRACKET", "RIGHT_BRACKET", "HASH", "ADD", "SUB", "DIV", "MUL", "MOD", "GT", "GT_EQUAL", "LT", "LT_EQUAL",
@@ -183,9 +175,6 @@ const doubleGtSym = ">>";
 const doubleLtSym = "<<";
 const tripleGtSym = ">>>";
 
-//const atSym = "$";
-
-
 #object which fills tokens into separate maps based on the size of the symbol
 type TokenMapper object {
     map<int> tokenMap = {};
@@ -250,6 +239,5 @@ type TokenMapper object {
         self.tokenMap[doubleLtSym] = DOUBLE_LT;
         self.tokenMap[tripleGtSym] = TRIPLE_GT;
 
-    //self.tokenMap[atSym] = INCOMPLETE_SY;
     }
 };

@@ -4,9 +4,9 @@ int a = x +
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 2:11 : invalid binary expression, binary RHS expression not found
-ERROR [sachini/parserModule] - 3:1: expected SEMICOLON; found '}'
-ERROR [sachini/parserModule] - SEMICOLON inserted
+ERROR [ballerina-parser/parserModule] - 2:11 : invalid binary expression, binary RHS expression not found
+ERROR [ballerina-parser/parserModule] - 3:1: expected SEMICOLON; found '}'
+ERROR [ballerina-parser/parserModule] - SEMICOLON inserted
 
 {
 	"nodeKind": "package",

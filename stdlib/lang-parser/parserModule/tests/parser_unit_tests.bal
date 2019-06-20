@@ -25,6 +25,8 @@ function parseAst(string fileLocation) returns json {
         json | error jsonOut = json.convert(pkNode);
         if (jsonOut is json) {
             return jsonOut;
+        } else {
+        	test:assertFail(msg = "JSON conversion failed: " + <string> jsonOut.detail().message);
         }
     }
 }

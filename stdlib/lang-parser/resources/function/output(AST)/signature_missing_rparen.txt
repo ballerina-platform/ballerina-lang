@@ -3,7 +3,7 @@ function foo ({
 
 serialized json output:
 
-ERROR [sachini/parserModule] - 1:15: expected RPAREN; found '{'
+ERROR [ballerina-parser/parserModule] - 1:15: expected RPAREN; found '{'
 
 {
 	"nodeKind": "package",

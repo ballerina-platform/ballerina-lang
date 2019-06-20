@@ -23,7 +23,7 @@ public type ParserBufferReader object {
     private int capacity;
     //pointer which reads the token array
     private int readPointer = 0;
-    //counter to fill the buffer initialy
+    //counter to fill the buffer initially
     private int bufferSize = 0;
     private Lexer lexer;
     private Token[] tokenArray = [];
@@ -55,7 +55,6 @@ public type ParserBufferReader object {
         //a token will be stored , to replace the cosumed token
         self.storeToken();
         self.readPointer = (self.readPointer + 1) % self.capacity;
-
         return returnToken;
     }
 

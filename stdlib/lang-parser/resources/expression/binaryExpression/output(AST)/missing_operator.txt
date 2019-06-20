@@ -4,7 +4,7 @@ int a = b d;
 
 serialized json output:
 
- ERROR [sachini/parserModule] - 2:11: invalid token 'd'
+ ERROR [ballerina-parser/parserModule] - 2:11: invalid token 'd'
 
 
 {

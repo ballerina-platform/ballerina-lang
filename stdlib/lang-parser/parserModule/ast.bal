@@ -107,7 +107,7 @@ type FunctionSignatureNode record {
 };
 
 type ErrorFunctionSignatureNode record {
-	*FunctionSignatureNode;
+    *FunctionSignatureNode;
 };
 
 type FunctionBodyNode BlockNode | ErrorBlockNode;
@@ -166,7 +166,7 @@ type BinaryExpressionNode record {
 };
 
 type UnaryExpressionNode record {
-   *Node;
+    *Node;
     OperatorKind operatorKind;
     ExpressionNode uExpression;
 };

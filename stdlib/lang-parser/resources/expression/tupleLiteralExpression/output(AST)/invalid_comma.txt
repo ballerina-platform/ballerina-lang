@@ -3,7 +3,7 @@ int a = (,);
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - 2:10: invalid token ','
+ERROR [ballerina-parser/parserModule] - 2:10: invalid token ','
 
 {
 	"nodeKind": "package",

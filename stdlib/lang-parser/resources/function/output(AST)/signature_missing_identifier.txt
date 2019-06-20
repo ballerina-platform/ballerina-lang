@@ -3,7 +3,7 @@ function (){
 
 serialized json output:
 
- ERROR [sachini/parserModule] - 1:10: expected IDENTIFIER; found '('
+ ERROR [ballerina-parser/parserModule] - 1:10: expected IDENTIFIER; found '('
 
 {
 	"nodeKind": "package",

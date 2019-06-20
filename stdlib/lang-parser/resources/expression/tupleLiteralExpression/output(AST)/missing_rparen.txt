@@ -3,7 +3,7 @@ int a = (b + c;
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - 2:9 : invalid tuple literal, missing ')'
+ERROR [ballerina-parser/parserModule] - 2:9 : invalid tuple literal, missing ')'
 
 
 {

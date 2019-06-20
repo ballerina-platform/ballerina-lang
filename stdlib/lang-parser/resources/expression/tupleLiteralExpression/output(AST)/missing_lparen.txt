@@ -3,8 +3,8 @@ int a = b + c);
 }
 
 serialized json output;
-ERROR [sachini/parserModule] - 0:-1 : invalid tuple literal, missing '('
-ERROR [sachini/parserModule] - LPAREN inserted
+ERROR [ballerina-parser/parserModule] - 0:-1 : invalid tuple literal, missing '('
+ERROR [ballerina-parser/parserModule] - LPAREN inserted
 
 {
 	"nodeKind": "package",

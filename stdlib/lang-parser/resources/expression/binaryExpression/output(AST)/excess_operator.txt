@@ -3,7 +3,7 @@ int a = b ++;
 }
 
 serialized json output:
-ERROR [sachini/parserModule] - 2:12 : missing unary expression
+ERROR [ballerina-parser/parserModule] - 2:12 : missing unary expression
 
 {
 	"nodeKind": "package",

@@ -22,7 +22,7 @@ import ballerina/log;
 # symbol recognizers, identifers, reserved words and numeric recognizers
 # to build tokens
 public type Lexer object {
-    TokenMapper tknMapper = new;
+    TokenMapper tokenMapper = new;
     //token position relative to the line number
     int position = 0;
     //line number of the token in the source
@@ -30,7 +30,7 @@ public type Lexer object {
     //index of the token relative to the input file
     int tokenIndex = 0;
     //initializing the whitespace stack
-    WhiteSpaceStack wpStack = new;
+    WhiteSpaceStack wsStack = new;
     //instance of the bufferReader object
     private BufferReader buffer;
 
@@ -45,7 +45,7 @@ public type Lexer object {
 
     # The characters from the buffer stream will be tokenized and a token will be returned.
     #
-    # +return - Token
+    # + return - Token
     public function nextToken() returns Token {
         //current character
         string currChar = "";
@@ -61,60 +61,60 @@ public type Lexer object {
                 if (isEnter(currChar)) {
                     self.position = 0;
                     self.lineNum += 1;
-                    self.wpStack.push(currChar);
+                    self.wsStack.push(currChar);
                 } else if (isTab(currChar)) {
                     self.position = self.position + 3;
-                    self.wpStack.push(currChar);
+                    self.wsStack.push(currChar);
                 } else {
-                    self.wpStack.push(currChar);
+                    self.wsStack.push(currChar);
                 }
                 continue;
             }
 
             //tokenization for symbols
-            string validSy = currChar;
+            string validSymbol = currChar;
             //track if the symbols is in the symbol map
-            boolean isValidSy = true;
+            boolean isValidSymbol = true;
             //count to track the length of the symbol
             int endPosCount = 0;
             //check if the token is found in the map
-            var tokenSymbol = self.tknMapper.tokenMap[validSy];
+            var tokenSymbol = self.tokenMapper.tokenMap[validSymbol];
 
             if (tokenSymbol is int) {
                 endPosCount += 1;
                 //check EOF
                 if (self.buffer.lookAhead() == END_OF_FILE) {
-                    isValidSy = false;
+                    isValidSymbol = false;
                 }
-                while (isValidSy) {
+                while (isValidSymbol) {
                     //check EOF
                     if (self.buffer.lookAhead() == END_OF_FILE) {
                         break;
                     }
                     //check with the look ahead token to see if there is a valid symbol
-                    string validSy2 = validSy + self.buffer.lookAhead();
-                    var tokenSymbol2 = self.tknMapper.tokenMap[validSy2];
+                    string validSymbol2 = validSymbol + self.buffer.lookAhead();
+                    var tokenSymbol2 = self.tokenMapper.tokenMap[validSymbol2];
                     if (tokenSymbol2 is int) {
                         endPosCount += 1;
                         //consume the lexeme
                         currChar = self.nextLexeme();
                         self.position += 1;
-                        validSy = validSy2;
+                        validSymbol = validSymbol2;
                         tokenSymbol = tokenSymbol2;
                     } else {
-                        isValidSy = false;
+                        isValidSymbol = false;
                     }
                 }
                 //check if the token is an incomplete token,(no valid token found)
                 if (tokenSymbol >= 61 && tokenSymbol <= 70) {
                     self.tokenIndex += 1;
-                    return self.getToken(LEXER_ERROR_TOKEN, validSy, self.position - (endPosCount - 1));
+                    return self.getToken(LEXER_ERROR_TOKEN, validSymbol, self.position - (endPosCount - 1));
                 } else {
                     self.tokenIndex += 1;
-                    return self.getToken(tokenSymbol, validSy, self.position - (endPosCount - 1));
+                    return self.getToken(tokenSymbol, validSymbol, self.position - (endPosCount - 1));
                 }
             } else if (currChar == singleQuoteSym) { //quoted string literal
-                string str = currChar;
+                string stringLiteral = currChar;
                 //empty string literal - ex:""
                 if (self.buffer.lookAhead() == singleQuoteSym) {
                     currChar = self.nextLexeme();
@@ -133,21 +133,21 @@ public type Lexer object {
                     self.position += 1;
                     strPos += 1;
                     //append the string with the current character
-                    str = str + currChar;
+                    stringLiteral = stringLiteral + currChar;
                     if (self.buffer.lookAhead() == singleQuoteSym) {
                         currChar = self.nextLexeme();
                         self.position += 1;
                         strPos += 1;
-                        str = str + currChar;
+                        stringLiteral = stringLiteral + currChar;
                         incompleteStr = false;
                         self.tokenIndex += 1;
-                        return self.getToken(QUOTED_STRING_LITERAL, str, self.position - strPos);
+                        return self.getToken(QUOTED_STRING_LITERAL, stringLiteral, self.position - strPos);
                     }
                     //loop until Eof
                     if (self.buffer.lookAhead() == END_OF_FILE) {
                         incompleteStr = false;
                         //if no inverted comma is found,all the characters until Eof is captured and returned as an Lexer Error Token
-                        return self.getToken(LEXER_ERROR_TOKEN, str, self.position - strPos);
+                        return self.getToken(LEXER_ERROR_TOKEN, stringLiteral, self.position - strPos);
                     }
                 }
             } else if (isDigit(currChar)) { // integers
@@ -162,9 +162,8 @@ public type Lexer object {
                     digitPos += 1;
                     numb = numb + currChar;
                 }
-                //no identifier can be names with number to the front, if occured, it is returned as an lexer Error Token
+                //no identifier can be names with number to the front, if occurred, it is returned as an lexer Error Token
                 if (isLetter(self.buffer.lookAhead())) {
-                    validNum = false;
                     //consume all the characters which are letters
                     while (isLetter(self.buffer.lookAhead())) {
                         currChar = self.nextLexeme();
@@ -190,7 +189,6 @@ public type Lexer object {
                 }
 
                 int checkReserved = getReservedKey(word);
-
                 if (checkReserved != EOF) {
                     self.tokenIndex += 1;
                     return self.getToken(checkReserved, word, self.position - wordLength);
@@ -219,11 +217,9 @@ public type Lexer object {
             endPos: self.position,
             lineNumber: self.lineNum,
             index: self.tokenIndex,
-            whiteSpace: self.wpStack.getWhiteSpace()
+            whiteSpace: self.wsStack.getWhiteSpace()
         };
-
     }
-
 };
 
 # Token record.
@@ -247,7 +243,7 @@ public type Token record {
 
 # Checks whether the current character is a white space.
 #
-# + return -  boolean true if the character is a whitepsace character.
+# + return - boolean true if the character is a whitespace character.
 function isWhiteSpace(string currentCharacter) returns boolean {
     string spaceRegEx = "[ \t\r\n\f]";
     return checkpanic currentCharacter.matches(spaceRegEx);
