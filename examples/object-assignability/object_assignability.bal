@@ -10,7 +10,7 @@ public type Person object {
     }
 };
 
-// Defines an object called `Employee` with public fields, methods and the initializer.
+// Defines an object called `Employee` with public fields, methods, and the initializer.
 public type Employee object {
     public int age;
     public string name;
@@ -32,7 +32,7 @@ public type Employee object {
 };
 
 public function main() {
-    // Create an object of type `Employee` and assign that to a variable of type `Person`.
+    // Creates an object of the type `Employee` and assigns that to a variable of the type `Person`.
     Person p1 = new Employee(50, "John", "street1");
     io:println(p1);
 

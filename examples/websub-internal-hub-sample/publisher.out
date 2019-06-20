@@ -1,6 +1,6 @@
 # This sample requires starting up the Subscriber Service after the Publisher starts up the hub and registers the topic.
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run publisher.bal
 Starting up the Ballerina Hub Service
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:9191

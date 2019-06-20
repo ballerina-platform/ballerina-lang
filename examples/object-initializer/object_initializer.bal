@@ -1,7 +1,7 @@
 import ballerina/io;
 
-// Defines an object called `Person`. Each object has its own `__init()` method which gets
-// invoked when creating objects. You can place the logic for initializing the fields of the
+// Defines an object called `Person`. Each object has its own `__init()` method, which gets
+// invoked when creating the objects. You can place the logic for initializing the fields of the
 // object within the body of the `__init()` method.
 type Person object {
 
@@ -25,7 +25,7 @@ function validateName(string name) returns string|error {
 
 public function main() {
     // Since the `__init()` method potentially returns an `error`, the `p1` variable should
-    // be of type `Person|error`.
+    // be of the type `Person|error`.
     Person|error p1 = new("John", 25);
     io:println(p1);
 
