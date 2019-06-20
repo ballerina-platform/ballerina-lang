@@ -149,10 +149,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
-        InboundMessageHolder inboundMessageHolder = http2ServerChannel.getInboundMessage(streamId);
-        if (inboundMessageHolder != null) {
-            inboundMessageHolder.setHttp2OutboundRespListener(this);
-        }
+//        InboundMessageHolder inboundMessageHolder = http2ServerChannel.getInboundMessage(streamId);
+//        if (inboundMessageHolder != null) {
+//            inboundMessageHolder.setHttp2OutboundRespListener(this);
+//        }
         ResponseWriter writer = new ResponseWriter(streamId);
         if (backOffEnabled) {
             remoteFlowControlListener.addResponseWriter(writer);

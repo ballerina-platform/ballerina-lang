@@ -72,14 +72,15 @@ public class ReceivingHeaders implements ListenerState {
                     inboundMessageHolder != null ? inboundMessageHolder.getInboundMsgOrPushResponse() : null;
             if (sourceReqCMsg != null) {
                 readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
-                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
+                //CHECK: Following should be removed only when the response has been sent back to the caller
+//                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
             } else if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
                 // if the header frame is an initial header frame and also it has endOfStream
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
                 setEventListeners(ctx, streamId, sourceReqCMsg);
-                notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
+
             }
             http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
         } else {
@@ -87,7 +88,6 @@ public class ReceivingHeaders implements ListenerState {
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
             setEventListeners(ctx, streamId, sourceReqCMsg);
-            notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }
     }
@@ -98,6 +98,7 @@ public class ReceivingHeaders implements ListenerState {
         http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);
         http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()
                 .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
+        notifyRequestListener(http2SourceHandler, inboundMsgHolder, streamId);
     }
 
     @Override

@@ -26,6 +26,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.util.Map;
@@ -38,7 +39,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
 
 /**
- * Timeout handler for server. Timer applies to individual streams.
+ * Timeout handler for HTTP/2 server. Timer applies to individual streams.
  */
 public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
@@ -67,13 +68,13 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
     @Override
     public boolean onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
-        updateLastReadTime(streamId, endOfStream);
+        updateLastReadTime(streamId);
         return true;
     }
 
     @Override
     public boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
-        updateLastReadTime(streamId, endOfStream);
+        updateLastReadTime(streamId);
         return true;
     }
 
@@ -85,13 +86,13 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
     @Override
     public boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
-        updateLastWriteTime(streamId);
+        updateLastWriteTime(streamId, endOfStream);
         return true;
     }
 
     @Override
     public boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
-        updateLastWriteTime(streamId);
+        updateLastWriteTime(streamId, endOfStream);
         return true;
     }
 
@@ -156,7 +157,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //            }
 //            http2ServerChannel.removeInFlightMessage(streamId);
 
-            //TODO:what happens if the timeout triggered while receiving inbound request??
+            //TODO:what happens if the timeout triggered while only half of the inbound request has been received??
 
             if (msgHolder.getInboundMsgOrPushResponse() != null) {
 //                if (msgHolder.isPushResponse()) {
@@ -165,10 +166,21 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //                                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
 //                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
 //                } else {
-                    msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyHttpListener(
+                //response listenr is null
+//                msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyHttpListener(
+//                        new EndpointTimeOutException(
+//                                IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
+//                                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+
+                try {
+                    msgHolder.getInboundMsgOrPushResponse().getHttpResponseFuture().notifyErrorListener(
                             new EndpointTimeOutException(
                                     IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                } catch (ServerConnectorException e) {
+                    LOG.error(e.getMessage());
+                }
+
 //                }
             }
             http2ServerChannel.getStreamIdRequestMap().remove(streamId);
@@ -178,11 +190,13 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 //            Http2TargetHandler clientOutboundHandler =
 //                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
 //            clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+
+            //TODO: Figure out a way to send the RST stream. When the respond has not been called respListener is null
             msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
         }
     }
 
-    private void updateLastReadTime(int streamId, boolean endOfStream) {
+    private void updateLastReadTime(int streamId) {
         InboundMessageHolder inboundMessage = http2ServerChannel.getInboundMessage(streamId);
 //        if (outboundMsgHolder == null) {
 //            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
@@ -190,17 +204,21 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         if (inboundMessage != null) {
             inboundMessage.setLastReadWriteTime(ticksInNanos());
         }
-        if (endOfStream) {
-            onStreamClose(streamId);
-        }
+//        if (endOfStream) {
+//            onStreamClose(streamId);
+//        }
     }
 
-    private void updateLastWriteTime(int streamId) {
+    private void updateLastWriteTime(int streamId, boolean endOfStream) {
         InboundMessageHolder inboundMessage = http2ServerChannel.getInboundMessage(streamId);
         if (inboundMessage != null) {
             inboundMessage.setLastReadWriteTime(ticksInNanos());
         } else {
             LOG.debug("InboundMessageHolder may have already been removed for streamId: {}", streamId);
+        }
+
+        if (endOfStream) {
+            onStreamClose(streamId);
         }
     }
 }

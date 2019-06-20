@@ -41,6 +41,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
@@ -80,18 +81,21 @@ public class Http2StateUtil {
      * @param httpRequestMsg     the http request message
      * @param streamId           the id of the stream
      */
-    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler, HttpCarbonMessage httpRequestMsg,
+    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler, InboundMessageHolder inboundMessageHolder,
                                              int streamId) {
+        HttpCarbonMessage  httpRequestMsg = inboundMessageHolder.getInboundMsgOrPushResponse();
         if (http2SourceHandler.getServerConnectorFuture() != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
-                    http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
-                    http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
-                    http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener(),
-                    http2SourceHandler.getHttp2ServerChannel()));
+                Http2OutboundRespListener http2OutboundRespListener = new Http2OutboundRespListener(
+                        http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
+                        http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
+                        http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
+                        http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener(),
+                        http2SourceHandler.getHttp2ServerChannel());
+                outboundRespFuture.setHttpConnectorListener(http2OutboundRespListener);
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
+                inboundMessageHolder.setHttp2OutboundRespListener(http2OutboundRespListener);
             } catch (Exception e) {
                 LOG.error("Error while notifying listeners", e);
             }
@@ -153,6 +157,9 @@ public class Http2StateUtil {
             if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
                 return;
             }
+        }
+        if (endStream) {
+            respListener.getHttp2ServerChannel().getStreamIdRequestMap().remove(streamId);
         }
         ChannelFuture channelFuture = encoder.writeHeaders(
             ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());

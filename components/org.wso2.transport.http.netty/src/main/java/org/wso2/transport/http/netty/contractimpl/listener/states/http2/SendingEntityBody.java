@@ -173,6 +173,7 @@ public class SendingEntityBody implements ListenerState {
         encoder.flowController().writePendingBytes();
         ctx.flush();
         if (endStream) {
+            http2OutboundRespListener.getHttp2ServerChannel().getStreamIdRequestMap().remove(streamId);
             Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
         } else {
             Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, http2OutboundRespListener);

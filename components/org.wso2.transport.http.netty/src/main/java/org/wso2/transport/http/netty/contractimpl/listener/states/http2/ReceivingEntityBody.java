@@ -77,7 +77,8 @@ public class ReceivingEntityBody implements ListenerState {
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                 sourceReqCMsg.setLastHttpContentArrived();
-                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
+                //CHECK:Following should be removed only after the respond call
+//                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));

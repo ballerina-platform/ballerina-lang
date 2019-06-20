@@ -142,7 +142,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             http2ServerChannel.getStreamIdRequestMap().put(STREAM_ID_ONE, inboundMsgHolder);
             http2ServerChannel.getDataEventListeners()
                     .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, STREAM_ID_ONE));
-            notifyRequestListener(this, requestCarbonMessage, STREAM_ID_ONE);
+            notifyRequestListener(this, inboundMsgHolder, STREAM_ID_ONE);
         }
     }
 
