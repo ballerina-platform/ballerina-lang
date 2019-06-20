@@ -44,17 +44,7 @@ public class VerifyRsaSha384Signature extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue dataBValue = context.getRefArgument(0);
-        BValue signatureBValue = context.getRefArgument(1);
-        BMap<String, BValue> publicKey = (BMap<String, BValue>) context.getRefArgument(2);
-        byte[] data = ((BValueArray) dataBValue).getBytes();
-        byte[] signature = ((BValueArray) signatureBValue).getBytes();
-        try {
-            context.setReturnValues(new BBoolean(CryptoUtils.verify(context, "SHA384withRSA",
-                    (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY), data, signature)));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
-        }
+
     }
 
     public static Object verifyRsaSha384Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
