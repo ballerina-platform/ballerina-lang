@@ -52,10 +52,10 @@
             "type": "object",
             "title": "Ballerina",
             "properties": {
-                "ballerina.override.home": {
+                "ballerina.plugin.dev.mod": {
                     "type": "boolean",
                     "default": false,
-                    "description": "If set to true, Ballerina home specified in preferences will be used"
+                    "description": "Enable plugin development mode"
                 },
                 "ballerina.home": {
                     "type": "string",
