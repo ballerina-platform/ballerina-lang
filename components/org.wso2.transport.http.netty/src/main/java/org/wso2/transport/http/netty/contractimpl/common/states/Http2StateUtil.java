@@ -54,9 +54,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
@@ -64,7 +62,6 @@ import static org.wso2.transport.http.netty.contract.Constants.LOCAL_ADDRESS;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.contract.Constants.REQUEST_URL;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 
 /**
@@ -118,8 +115,8 @@ public class Http2StateUtil {
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
-        sourceReqCMsg.setProperty(HTTP_VERSION, protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCMsg.setProperty(HTTP_METHOD, httpRequest.method().name());
+        sourceReqCMsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        sourceReqCMsg.setHttpMethod(httpRequest.method().name());
 
         InetSocketAddress localAddress = null;
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
@@ -131,7 +128,7 @@ public class Http2StateUtil {
         sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, http2SourceHandler.getInterfaceId());
         sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
         String uri = httpRequest.uri();
-        sourceReqCMsg.setProperty(REQUEST_URL, uri);
+        sourceReqCMsg.setRequestUrl(uri);
         sourceReqCMsg.setProperty(TO, uri);
         return sourceReqCMsg;
     }
@@ -312,23 +309,23 @@ public class Http2StateUtil {
     }
 
     /**
-     * Returns the stream id of next stream.
+     * Returns the stream id of next stream. This method should only be called from an io thread.
      *
      * @param conn the HTTP2 connection
      * @return the next stream id
      */
-    private static synchronized int getNextStreamId(Http2Connection conn) {
+    private static int getNextStreamId(Http2Connection conn) {
         return conn.local().incrementAndGetNextStreamId();
     }
 
     /**
-     * Creates a stream with given stream id.
+     * Creates a stream with given stream id. This method should only be called from an io thread.
      *
      * @param conn     the HTTP2 connection
      * @param streamId the id of the stream
      * @throws Http2Exception if a protocol-related error occurred
      */
-    private static synchronized void createStream(Http2Connection conn, int streamId) throws Http2Exception {
+    private static void createStream(Http2Connection conn, int streamId) throws Http2Exception {
         conn.local().createStream(streamId, false);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Stream created streamId: {}", streamId);
@@ -342,7 +339,8 @@ public class Http2StateUtil {
      * @param http2ClientChannel the client channel related to the handler
      * @param outboundMsgHolder  the outbound message holder
      */
-    public static void onPushPromiseRead(Http2PushPromise http2PushPromise, Http2ClientChannel http2ClientChannel,
+    public static void onPushPromiseRead(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                                         Http2ClientChannel http2ClientChannel,
                                          OutboundMsgHolder outboundMsgHolder) {
         int streamId = http2PushPromise.getStreamId();
         int promisedStreamId = http2PushPromise.getPromisedStreamId();
@@ -359,6 +357,12 @@ public class Http2StateUtil {
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         http2PushPromise.setOutboundMsgHolder(outboundMsgHolder);
         outboundMsgHolder.addPromise(http2PushPromise);
+
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onStreamInit(ctx, promisedStreamId)) {
+                return;
+            }
+        }
     }
 
     /**

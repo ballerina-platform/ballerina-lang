@@ -81,7 +81,8 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
-        onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
+    public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                                   OutboundMsgHolder outboundMsgHolder) {
+        onPushPromiseRead(ctx, http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 }

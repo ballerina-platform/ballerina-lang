@@ -88,6 +88,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
+import static org.wso2.transport.http.netty.contract.Constants.OK_200;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
@@ -113,12 +114,11 @@ public class Util {
         return value;
     }
 
-    private static int getIntValue(HttpCarbonMessage msg, String key, int defaultValue) {
-        Integer value = (Integer) msg.getProperty(key);
+    private static int getIntValue(HttpCarbonMessage msg) {
+        Integer value = msg.getHttpStatusCode();
         if (value == null) {
-            return defaultValue;
+            return OK_200;
         }
-
         return value;
     }
 
@@ -174,7 +174,7 @@ public class Util {
     }
 
     public static HttpResponseStatus getHttpResponseStatus(HttpCarbonMessage msg) {
-        int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
+        int statusCode = Util.getIntValue(msg);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
         return new HttpResponseStatus(statusCode, reasonPhrase);
@@ -212,9 +212,9 @@ public class Util {
 
     private static HttpVersion getHttpVersion(HttpCarbonMessage outboundRequestMsg) {
         HttpVersion httpVersion;
-        if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
+        if (null != outboundRequestMsg.getHttpVersion()) {
             httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX
-                    + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
+                    + outboundRequestMsg.getHttpVersion(), true);
         } else {
             httpVersion = new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true);
         }
@@ -223,8 +223,8 @@ public class Util {
 
     private static HttpMethod getHttpMethod(HttpCarbonMessage outboundRequestMsg) {
         HttpMethod httpMethod;
-        if (null != outboundRequestMsg.getProperty(Constants.HTTP_METHOD)) {
-            httpMethod = new HttpMethod((String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD));
+        if (null != outboundRequestMsg.getHttpMethod()) {
+            httpMethod = new HttpMethod(outboundRequestMsg.getHttpMethod());
         } else {
             httpMethod = new HttpMethod(Constants.HTTP_POST_METHOD);
         }
@@ -726,9 +726,8 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
         inboundRequestMsg.setProperty(Constants.SRC_HANDLER, sourceHandler);
         HttpVersion protocolVersion = httpRequestHeaders.protocolVersion();
-        inboundRequestMsg.setProperty(Constants.HTTP_VERSION,
-                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        inboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpRequestHeaders.method().name());
+        inboundRequestMsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        inboundRequestMsg.setHttpMethod(httpRequestHeaders.method().name());
         InetSocketAddress localAddress = null;
 
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
@@ -747,7 +746,7 @@ public class Util {
 
         inboundRequestMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, sourceHandler.getRemoteAddress());
-        inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequestHeaders.uri());
+        inboundRequestMsg.setRequestUrl(httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(MUTUAL_SSL_HANDSHAKE_RESULT,
                 ctx.channel().attr(Constants.MUTUAL_SSL_RESULT_ATTRIBUTE).get());
@@ -770,7 +769,7 @@ public class Util {
                 new PooledDataStreamerFactory(ctx.alloc()));
 
         inboundResponseMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-        inboundResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponseHeaders.status().code());
+        inboundResponseMsg.setHttpStatusCode(httpResponseHeaders.status().code());
 
         //copy required properties for service chaining from incoming carbon message to the response carbon message
         //copy shared worker pool
@@ -791,7 +790,7 @@ public class Util {
             throws ConfigurationException {
         switch (keepAliveConfig) {
         case AUTO:
-            return Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0;
+            return Float.valueOf(outboundRequestMsg.getHttpVersion()) > Constants.HTTP_1_0;
         case ALWAYS:
             return true;
         case NEVER:

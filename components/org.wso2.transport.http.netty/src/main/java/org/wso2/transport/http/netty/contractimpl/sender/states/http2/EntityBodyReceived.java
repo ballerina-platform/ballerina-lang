@@ -100,7 +100,8 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+    public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                                   OutboundMsgHolder outboundMsgHolder) {
         LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 }

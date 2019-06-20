@@ -220,7 +220,7 @@ public class SendingEntityBody implements ListenerState {
      * @param outboundResponseMsg Represent the outbound response
      */
     private void triggerPipeliningLogic(HttpCarbonMessage outboundResponseMsg) {
-        String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+        String httpVersion = inboundRequestMsg.getHttpVersion();
         if (outboundResponseMsg.isPipeliningEnabled() && Constants.HTTP_1_1_VERSION.equalsIgnoreCase
                 (httpVersion)) {
             Queue responseQueue;

@@ -67,7 +67,7 @@ public class Http2ClientTimeoutTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
+        listenerConfiguration.setVersion(Constants.HTTP_2_0);
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
@@ -78,7 +78,7 @@ public class Http2ClientTimeoutTestCase {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);

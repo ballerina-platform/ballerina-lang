@@ -41,7 +41,6 @@ import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants
@@ -90,7 +89,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        if (outboundResponseMsg.getProperty(HTTP_STATUS_CODE).equals(HttpResponseStatus.CONTINUE.code())) {
+        if (outboundResponseMsg.getHttpStatusCode() == HttpResponseStatus.CONTINUE.code()) {
             messageStateContext.setListenerState(
                     new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
         } else {

@@ -48,7 +48,6 @@ import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
@@ -111,7 +110,8 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+    public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
+                                   OutboundMsgHolder outboundMsgHolder) {
         LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 
@@ -225,7 +225,7 @@ public class ReceivingHeaders implements SenderState {
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         responseCarbonMsg.setProperty(DIRECTION, DIRECTION_RESPONSE);
-        responseCarbonMsg.setProperty(HTTP_STATUS_CODE, httpResponse.status().code());
+        responseCarbonMsg.setHttpStatusCode(httpResponse.status().code());
 
         /* copy required properties for service chaining from incoming carbon message to the response carbon message
         copy shared worker pool */

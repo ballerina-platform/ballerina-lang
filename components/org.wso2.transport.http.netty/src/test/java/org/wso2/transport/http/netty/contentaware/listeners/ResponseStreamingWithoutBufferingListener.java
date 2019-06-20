@@ -39,7 +39,6 @@ import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 
 /**
  * A Message Processor which respond in streaming manner without buffering.
@@ -57,7 +56,7 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
             outboundResponse.setHeader(CONNECTION.toString(), KEEP_ALIVE.toString());
             outboundResponse.setHeader(TRANSFER_ENCODING.toString(), CHUNKED.toString());
             outboundResponse.setHeader(CONTENT_TYPE.toString(), TEXT_PLAIN.toString());
-            outboundResponse.setProperty(HTTP_STATUS_CODE, OK.code());
+            outboundResponse.setHttpStatusCode(OK.code());
             try {
                 inboundRequest.respond(outboundResponse);
             } catch (ServerConnectorException e) {

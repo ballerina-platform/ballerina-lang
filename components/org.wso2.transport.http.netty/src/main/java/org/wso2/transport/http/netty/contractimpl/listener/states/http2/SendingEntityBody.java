@@ -52,8 +52,6 @@ import java.util.Calendar;
 
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG_FORMAT;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
@@ -197,14 +195,14 @@ public class SendingEntityBody implements ListenerState {
         if (headers.contains(HttpHeaderNames.REFERER)) {
             referrer = headers.get(HttpHeaderNames.REFERER);
         }
-        String method = (String) inboundRequestMsg.getProperty(HTTP_METHOD);
+        String method = inboundRequestMsg.getHttpMethod();
         String uri = (String) inboundRequestMsg.getProperty(TO);
         HttpMessage request = inboundRequestMsg.getNettyHttpRequest();
         String protocol;
         if (request != null) {
             protocol = request.protocolVersion().toString();
         } else {
-            protocol = (String) inboundRequestMsg.getProperty(HTTP_VERSION);
+            protocol = inboundRequestMsg.getHttpVersion();
         }
 
         // Populate response parameters

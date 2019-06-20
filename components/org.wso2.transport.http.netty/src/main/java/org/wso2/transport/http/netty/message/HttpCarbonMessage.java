@@ -71,6 +71,10 @@ public class HttpCarbonMessage {
     private boolean pipeliningEnabled;
     private boolean passthrough = false;
     private boolean lastHttpContentArrived = false;
+    private String httpVersion;
+    private String httpMethod;
+    private String requestUrl;
+    private Integer httpStatusCode;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -276,6 +280,38 @@ public class HttpCarbonMessage {
         properties.remove(key);
     }
 
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public void setHttpVersion(String httpVersion) {
+        this.httpVersion = httpVersion;
+    }
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
+    }
+
+    public void setRequestUrl(String requestUrl) {
+        this.requestUrl = requestUrl;
+    }
+
+    public Integer getHttpStatusCode() {
+        return httpStatusCode;
+    }
+
+    public void setHttpStatusCode(Integer httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+    }
+
     private void setBlockingEntityCollector(BlockingEntityCollector blockingEntityCollector) {
         this.blockingEntityCollector = blockingEntityCollector;
     }
@@ -340,6 +376,10 @@ public class HttpCarbonMessage {
 
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
+        newCarbonMessage.setHttpStatusCode(this.getHttpStatusCode());
+        newCarbonMessage.setHttpMethod(this.getHttpMethod());
+        newCarbonMessage.setRequestUrl(this.getRequestUrl());
+        newCarbonMessage.setHttpVersion(this.getHttpVersion());
 
         return newCarbonMessage;
     }
@@ -483,7 +523,7 @@ public class HttpCarbonMessage {
      */
     public void removeInboundContentListener() {
         contentObservable.notifyReadInterest();
-        String httpVersion = (String) this.getProperty(Constants.HTTP_VERSION);
+        String httpVersion = this.getHttpVersion();
         if (Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion)) {
             contentObservable.removeListener();
         }
