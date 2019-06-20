@@ -123,7 +123,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
@@ -136,7 +136,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFunctionPointerPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
