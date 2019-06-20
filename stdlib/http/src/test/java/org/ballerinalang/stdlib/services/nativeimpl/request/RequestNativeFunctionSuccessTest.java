@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.model.util.JsonParser;
