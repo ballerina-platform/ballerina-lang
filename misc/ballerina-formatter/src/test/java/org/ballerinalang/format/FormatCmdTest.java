@@ -22,17 +22,15 @@ public class FormatCmdTest {
         argList.add("pkg2");
         argList.add("asd");
         try {
-            FormatUtil.execute(argList, true, false, sourceRoot);
+            FormatUtil.execute(argList, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
-            if (exception.size() == 2) {
-                Assert.assertEquals(exception.get(0), "ballerina: " + Messages.getArgumentError(),
-                        "actual exception didn't match the expected.");
-                Assert.assertEquals(exception.get(1), "Run 'ballerina help' for usage.",
+            if (exception.size() == 1) {
+                Assert.assertEquals(exception.get(0), "error: " + Messages.getArgumentError(),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
-                        + " exceptions where there needs to be 2 exception");
+                        + " exceptions where there needs to be 1 exception");
             }
         }
     }
@@ -41,7 +39,7 @@ public class FormatCmdTest {
     public void formatCLINotAProjectTest() {
         Path sourceRoot = RES_DIR.resolve("notAProject");
         try {
-            FormatUtil.execute(null, true, false, sourceRoot);
+            FormatUtil.execute(null, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -60,7 +58,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("pkg1");
         try {
-            FormatUtil.execute(argList, true, false, sourceRoot);
+            FormatUtil.execute(argList, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -79,7 +77,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
         try {
-            FormatUtil.execute(argList, true, false, sourceRoot);
+            FormatUtil.execute(argList, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -97,7 +95,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.txt").toString());
         try {
-            FormatUtil.execute(argList, true, false, RES_DIR);
+            FormatUtil.execute(argList, false, false, RES_DIR);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -116,7 +114,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.bal").toString());
         try {
-            FormatUtil.execute(argList, true, false, RES_DIR);
+            FormatUtil.execute(argList, false, false, RES_DIR);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -135,7 +133,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
-            FormatUtil.execute(argList, true, false, RES_DIR);
+            FormatUtil.execute(argList, false, false, RES_DIR);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -152,7 +150,7 @@ public class FormatCmdTest {
     @Test(description = "Test to check the exception for general error in File IO or a argument.")
     public void formatCLIGeneralExceptionTest() {
         try {
-            FormatUtil.execute(null, true, false, null);
+            FormatUtil.execute(null, false, false, null);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {

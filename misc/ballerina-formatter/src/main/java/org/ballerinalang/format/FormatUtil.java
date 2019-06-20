@@ -40,9 +40,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -66,11 +66,11 @@ public class FormatUtil {
      * Execute formatter.
      *
      * @param argList        argument list from the console
-     * @param overWriteFile  file overwrite confirmation
      * @param helpFlag       flag to get the help page
+     * @param dryRun         run the whole formatting
      * @param sourceRootPath execution path
      */
-    static void execute(List<String> argList, boolean overWriteFile, boolean helpFlag, Path sourceRootPath) {
+    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath) {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
@@ -78,7 +78,7 @@ public class FormatUtil {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp(Messages.getArgumentError());
+            throw LauncherUtils.createLauncherException(Messages.getArgumentError());
         }
 
         String moduleName;
@@ -93,46 +93,44 @@ public class FormatUtil {
                 if (FormatUtil.isBalFile(argList.get(0))) {
                     ballerinaFilePath = argList.get(0);
                     Path filePath = Paths.get(ballerinaFilePath);
+                    // If the file doesn't exist or is a directory.
                     if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
-                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+                    String sourceRoot = LSCompilerUtil.getSourceRoot(filePath.toAbsolutePath());
+                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
+                            filePath.toAbsolutePath().toString());
                     if ("".equals(packageName)) {
                         Path path = filePath.getFileName();
                         if (path != null) {
                             packageName = path.toString();
                         }
                     }
+
+                    // Compile the given ballerina file.
                     BLangPackage bLangPackage = compileFile(Paths.get(sourceRoot), packageName);
 
                     // If there are compilation errors do not continue the process.
                     if (bLangPackage.diagCollector.hasErrors()) {
                         return;
                     }
+
                     BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().get(0);
+
+                    // Format and get the generated formatted source code content.
                     String formattedSourceCode = format(compilationUnit);
-                    if (overWriteFile) {
-                        FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
-                        outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
-                    } else {
-                        outStream.println(Messages.getConfirmationMessage());
-                        Scanner userInput = new Scanner(System.in, "UTF-8");
-                        boolean wait = true;
-                        while (wait) {
-                            String input = userInput.nextLine();
-                            if (input != null) {
-                                if (input.equals("y")) {
-                                    FormatUtil.writeFile(ballerinaFilePath, formattedSourceCode);
-                                    outStream.println(Messages.getSuccessMessage(ballerinaFilePath));
-                                    wait = false;
-                                } else {
-                                    outStream.println(Messages.getCancelMessage());
-                                    wait = false;
-                                }
-                            }
+                    if (doChangesAvailable(compilationUnit, formattedSourceCode)) {
+                        if (!dryRun) {
+                            // Write the formatted content back to the file.
+                            FormatUtil.writeFile(filePath.toAbsolutePath().toString(), formattedSourceCode);
+                            outStream.println(Messages.getModifiedFiles() + System.lineSeparator() + ballerinaFilePath);
+                            outStream.println(System.lineSeparator() + Messages.getSuccessMessage());
+                        } else {
+                            outStream.println(Messages.getFilesToModify() + System.lineSeparator() + ballerinaFilePath);
                         }
+                    } else {
+                        outStream.println(Messages.getNoChanges());
                     }
                 } else if (Files.isRegularFile(Paths.get(argList.get(0)))) {
                     // If file is a regular file but not a ballerina source file
@@ -166,25 +164,9 @@ public class FormatUtil {
                         return;
                     }
 
-                    if (overWriteFile) {
-                        iterateAndFormat(bLangPackage, sourceRootPath);
-                    } else {
-                        outStream.println(Messages.getConfirmationMessage());
-                        Scanner userInput = new Scanner(System.in, "UTF-8");
-                        boolean wait = true;
-                        while (wait) {
-                            String input = userInput.nextLine();
-                            if (input != null) {
-                                if (input.equals("y")) {
-                                    iterateAndFormat(bLangPackage, sourceRootPath);
-                                    wait = false;
-                                } else {
-                                    outStream.println(Messages.getCancelMessage());
-                                    wait = false;
-                                }
-                            }
-                        }
-                    }
+                    // Iterate and format the ballerina package.
+                    List<String> formattedFiles = iterateAndFormat(bLangPackage, sourceRootPath, dryRun);
+                    generateChangeReport(formattedFiles, dryRun);
                 }
             } else {
                 // Check whether the given source root is not
@@ -204,29 +186,13 @@ public class FormatUtil {
                     return;
                 }
 
-                if (overWriteFile) {
-                    for (BLangPackage bLangPackage : packages) {
-                        iterateAndFormat(bLangPackage, sourceRootPath);
-                    }
-                } else {
-                    outStream.println(Messages.getConfirmationMessage());
-                    Scanner userInput = new Scanner(System.in, "UTF-8");
-                    boolean wait = true;
-                    while (wait) {
-                        String input = userInput.nextLine();
-                        if (input != null) {
-                            if (input.equals("y")) {
-                                for (BLangPackage bLangPackage : packages) {
-                                    iterateAndFormat(bLangPackage, sourceRootPath);
-                                }
-                                wait = false;
-                            } else {
-                                outStream.println(Messages.getCancelMessage());
-                                wait = false;
-                            }
-                        }
-                    }
+                List<String> formattedFiles = new ArrayList<>();
+                // Iterate and format all the ballerina packages.
+                for (BLangPackage bLangPackage : packages) {
+                    formattedFiles.addAll(iterateAndFormat(bLangPackage, sourceRootPath, dryRun));
                 }
+
+                generateChangeReport(formattedFiles, dryRun);
             }
         } catch (IOException | JSONGenerationException | NullPointerException e) {
             throw LauncherUtils.createLauncherException(Messages.getException());
@@ -360,22 +326,36 @@ public class FormatUtil {
         return FormattingSourceGen.getSourceOf(model);
     }
 
-    private static void iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath)
+    private static boolean doChangesAvailable(BLangCompilationUnit compilationUnit, String formattedSource)
+            throws JSONGenerationException {
+        JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
+        JsonObject model = modelElement.getAsJsonObject();
+        FormattingSourceGen.build(model, "CompilationUnit");
+        String originalSource = FormattingSourceGen.getSourceOf(model);
+        return !originalSource.equals(formattedSource);
+    }
+
+    private static List<String> iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath, boolean dryRun)
             throws IOException, JSONGenerationException {
+        List<String> formattedFiles = new ArrayList<>();
+
         // Iterate compilation units and format.
         for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
-            formatAndWrite(compilationUnit, sourceRootPath);
+            formatAndWrite(compilationUnit, sourceRootPath, formattedFiles, dryRun);
         }
 
         // Iterate testable packages and format.
         for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
             for (BLangCompilationUnit compilationUnit : testablePackage.getCompilationUnits()) {
-                formatAndWrite(compilationUnit, sourceRootPath);
+                formatAndWrite(compilationUnit, sourceRootPath, formattedFiles, dryRun);
             }
         }
+
+        return formattedFiles;
     }
 
-    private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath)
+    private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
+                                       List<String> formattedFiles, boolean dryRun)
             throws JSONGenerationException, IOException {
         String fileName = sourceRootPath.toString() + File.separator
                 + compilationUnit.getPosition().getSource().getPackageName()
@@ -385,8 +365,32 @@ public class FormatUtil {
         // Format and get the formatted source.
         String formattedSource = format(compilationUnit);
 
-        // Write formatted content to the file.
-        FormatUtil.writeFile(fileName, formattedSource);
-        outStream.println(Messages.getSuccessMessage(fileName));
+        if (doChangesAvailable(compilationUnit, formattedSource)) {
+            if (!dryRun) {
+                // Write formatted content to the file.
+                FormatUtil.writeFile(fileName, formattedSource);
+            }
+            formattedFiles.add(fileName);
+        }
+    }
+
+    private static void generateChangeReport(List<String> formattedFiles, boolean dryRun) {
+        if (formattedFiles.size() > 0) {
+            StringBuilder fileList = new StringBuilder();
+            if (dryRun) {
+                fileList.append(Messages.getFilesToModify()).append(System.lineSeparator());
+            } else {
+                fileList.append(Messages.getModifiedFiles()).append(System.lineSeparator());
+            }
+            for (String file : formattedFiles) {
+                fileList.append(file).append(System.lineSeparator());
+            }
+            outStream.println(fileList.toString());
+            if (!dryRun) {
+                outStream.println(Messages.getSuccessMessage());
+            }
+        } else {
+            outStream.println(Messages.getNoChanges());
+        }
     }
 }

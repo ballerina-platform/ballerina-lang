@@ -4,7 +4,7 @@ NAME
     https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide
 
 SYNOPSIS
-    ballerina format [ballerinaFile|moduleName] [-ow|--over-write]
+    ballerina format [ballerinaFile | moduleName] [-d | --dry-run]
 
 DESCRIPTION
     Format Ballerina source files according to the ballerina style guide.
@@ -12,8 +12,8 @@ DESCRIPTION
     Formatting can be performed on Ballerina project, on a Ballerina Module,
     on a Ballerina file.
 
-    Formatted content will be written on to the original files and will ask
-    for confirmation before proceeding to replace the original content.
+    Formatted content will be written on to the original files and using the dry run
+    option user will be able to check which files will be formatted after execution.
 
     If Ballerina sources contains syntax errors they will be notified and
     formatting won't proceed until they are fixed.
@@ -32,26 +32,24 @@ SUB COMMANDS
         Formatted source will replace the given files content with user consent.
 
 OPTIONS
-    -ow
-    --over-write
-        By providing this option user can over write the original file content without blocked by consent message.
-        CAUTION: This process is not reversible unless your file is under a VCS.
-            If you don't want your original source file content to be replaced with
-            Formatted code please do not use this command.
+    -d
+    --dry-run
+        By providing this option user can dry run formatter and see which files will
+        be formatted after execution.
 
     -h
     --help
         Show help file for the format command.
 
 EXAMPLES
-    Format Ballerina project
+    Format Ballerina project.
     $ ballerina format
 
-    Format Ballerina module
+    Format Ballerina module.
     $ ballerina format module1
 
-    Format Ballerina file
+    Format Ballerina file.
     $ ballerina format hello.bal
 
-    Overwrite without confirmation
-    $ ballerina format -ow
+    Dry run to see which files will be formatted.
+    $ ballerina format -d

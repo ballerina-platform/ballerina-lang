@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Class to implement "format" command for ballerina.
- * Ex: ballerina format [ballerinaFile|ModuleName] [-ow|--over-write]
+ * Ex: ballerina format [ballerinaFile | ModuleName] [-d | --dry-run]
  */
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
 public class FormattingCmd implements BLauncherCmd {
@@ -33,17 +33,17 @@ public class FormattingCmd implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
-    @CommandLine.Option(names = {"-ow", "--over-write"}, hidden = true)
-    private boolean overWriteFile;
-
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
+
+    @CommandLine.Option(names = {"-d", "--dry-run"}, hidden = true)
+    private boolean dryRun;
 
     @Override
     public void execute() {
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        FormatUtil.execute(argList, overWriteFile, helpFlag, sourceRootPath);
+        FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
     }
 
     @Override
