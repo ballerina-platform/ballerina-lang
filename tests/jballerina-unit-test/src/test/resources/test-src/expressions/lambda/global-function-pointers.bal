@@ -26,13 +26,13 @@ function test2() returns (string){
     return glf2.call("test2", true);
 }
 
-function test3() returns (string, string, string) {
+function test3() returns [string, string, string] {
     glf3 = foo;
     string x = glf3.call("test",3);
     string y = foo("test",3);
     glf3 = fooReverse;
     string z = glf3.call("test",3);
-    return (x, y, z);
+    return [x, y, z];
 }
 
 function bar (string x, boolean y) returns (string) {

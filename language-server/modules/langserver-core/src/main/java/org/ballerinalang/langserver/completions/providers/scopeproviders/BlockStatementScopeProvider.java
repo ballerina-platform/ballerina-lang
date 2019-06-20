@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -52,6 +53,10 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
         if (ctx.get(CompletionKeys.IN_INVOCATION_PARAM_CONTEXT_KEY) != null
                 && ctx.get(CompletionKeys.IN_INVOCATION_PARAM_CONTEXT_KEY)) {
             return Optional.ofNullable(this.getProvider(InvocationArgsContextProvider.class));
+        }
+        if (ctx.get(CompletionKeys.IN_CONDITION_CONTEXT_KEY) != null
+                && ctx.get(CompletionKeys.IN_CONDITION_CONTEXT_KEY)) {
+            return Optional.ofNullable(this.getProvider(IfWhileConditionContextProvider.class));
         }
         if (lhsTokens == null || lhsTokens.isEmpty()) {
             // Within the block statement and no syntax error

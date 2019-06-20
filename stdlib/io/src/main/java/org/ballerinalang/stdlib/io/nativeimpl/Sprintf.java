@@ -21,11 +21,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueArray;
@@ -205,7 +205,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 try {
                     char formatSpecifier = format.charAt(j);
                     //TODO : Recheck following casting
-                    RefValue ref = (RefValue) args.getRefValue(k);
+                    Object ref = args.getRefValue(k);
                     switch (formatSpecifier) {
                         case 'b':
                         case 'B':
@@ -216,8 +216,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                                         org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
-                            //TODO recheck ref.toString()
-                            result.append(String.format("%" + padding + formatSpecifier, ref.toString()));
+                            result.append(String.format("%" + padding + formatSpecifier, ref));
                             break;
                         case 'x':
                         case 'X':
@@ -263,17 +262,16 @@ public class Sprintf extends BlockingNativeCallableUnit {
     }
 
     private static void formatHexString(ArrayValue args, StringBuilder result, int k, StringBuilder padding, char x) {
-        RefValue ref = (RefValue) args.getRefValue(k);
-        if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
-                TypeTags.BYTE_TAG ==
-                        ((org.ballerinalang.jvm.types.BArrayType) ref.getType()).getElementType().getTag()) {
-            ArrayValue byteArray = ((ArrayValue) ref);
+        final Object argsValues = args.get(k);
+        final BType type = TypeChecker.getType(argsValues);
+        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((org.ballerinalang.jvm.types.BArrayType) type)
+                .getElementType().getTag()) {
+            ArrayValue byteArray = ((ArrayValue) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }
         } else {
-            //TODO recheck ref.toString()
-            result.append(String.format("%" + padding + x, ref.toString()));
+            result.append(String.format("%" + padding + x, argsValues));
         }
     }
 }

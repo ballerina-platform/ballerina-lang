@@ -66,7 +66,7 @@ remote function PersonTwo.decrementAndGetSalary(int amount) returns int {
     return self.salary;
 }
 
-function testAbstractClientObject() returns (int, int, int, int) {
+function testAbstractClientObject() returns [int, int, int, int] {
     PersonOne personOne = new(10000);
     PersonTwo personTwo = new(10000);
 
@@ -74,5 +74,5 @@ function testAbstractClientObject() returns (int, int, int, int) {
     var result2 = personOne->decrementAndGetSalary(2500);
     var result3 = personTwo->incrementAndGetSalary(5000);
     var result4 = personTwo->decrementAndGetSalary(2500);
-    return (result1, result2, result3, result4);
+    return [result1, result2, result3, result4];
 }

@@ -92,12 +92,29 @@ function testOptFieldToOptField1() returns AnotherPerson4 {
     return ap;
 }
 
-function testOptFieldToOptField2() returns (AnotherPerson4, int) {
+function testOptFieldToOptField2() returns [AnotherPerson4, int] {
     Person2 p = {name:"John Doe", age:25};
     AnotherPerson4 ap = p;
 
     p = {name:"Jane Doe"};
     AnotherPerson4 ap2 = p;
 
-    return (ap, ap2.age);
+    return [ap, ap2.age];
+}
+
+public type PublicPerson record {|
+    string name;
+    int age;
+|};
+
+function testHeterogeneousTypedescEq() returns Person1 {
+    PublicPerson p = {name:"John Doe", age:25};
+    Person1 p1 = p;
+    return p1;
+}
+
+function testHeterogeneousTypedescEq2() returns PublicPerson {
+    Person1 p1 = {name:"John Doe", age:25};
+    PublicPerson p = p1;
+    return p;
 }

@@ -236,6 +236,7 @@ const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
 const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
 
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
@@ -253,6 +254,8 @@ const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -264,6 +267,7 @@ const string STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
+const string SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
@@ -272,6 +276,7 @@ const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 const string FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
+const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
@@ -282,6 +287,7 @@ const string TYPES_ERROR =  "typeError";
 // error related constants
 const string PANIC_FIELD =  "panic";
 const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
+const string SET_DETAIL_TYPE_METHOD = "setDetailType";
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
@@ -290,6 +296,9 @@ const string THROWABLE = "java/lang/Throwable";
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
+const string BALLERINA = "ballerina";
+const string BUILT_IN_PACKAGE_NAME = "builtin";
+
 
 // scheduler related constants
 const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";

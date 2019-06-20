@@ -9,7 +9,7 @@ type EmployeeSalary record {
     float salary;
 };
 
-function main(string... args) {
+public function main(string... args) {
     table<Employee> tbEmployee = table {
         { key id, name, salary },
         [ { 1, "Mary",  300.5 },

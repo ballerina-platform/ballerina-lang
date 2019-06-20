@@ -138,20 +138,15 @@ public class ReadBytes implements NativeCallableUnit {
     }
 
     public static Object read(Strand strand, ObjectValue channel, long nBytes) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         byte[] content = new byte[arraySize];
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
         Register register = EventRegister.getFactory().register(event, ReadBytes::readChannelResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -164,7 +159,6 @@ public class ReadBytes implements NativeCallableUnit {
         ArrayValue contentTuple = new ArrayValue(readTupleJvmType);
         EventContext eventContext = result.getContext();
         Throwable error = eventContext.getError();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {

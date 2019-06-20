@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -62,9 +63,14 @@ public class BasicPublish extends BlockingNativeCallableUnit {
         BValue msgContent = context.getRefArgument(1);
         String routingKey = context.getStringArgument(0);
         String exchange = context.getStringArgument(1);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.basicPublish(channel, routingKey, msgContent.stringValue().getBytes(StandardCharsets.UTF_8),
                     exchange);
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context);
+            }
         } catch (RabbitMQConnectorException exception) {
             LOGGER.error("I/O exception while publishing a message", exception);
             RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);

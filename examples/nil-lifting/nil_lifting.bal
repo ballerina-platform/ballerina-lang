@@ -21,7 +21,7 @@ function getPerson(string name, int age) returns Person? {
     if (name == "" || age == 0) {
         return;
     } else {
-        // Define a `Person` record.
+        // Defines a `Person` record.
         Person p = {
             name: name,
             age: age,
@@ -43,8 +43,8 @@ public function main() {
 
     // The field access operator is a lifted operator in Ballerina.
     // The types of both `p1` and `p1.addr` are optional types.
-    // If the type of either `p1` or `p1.addr` is `()` at run time, `()` would
-    // be assigned to the `city1` variable, else the `string` value of `p1.addr.city`
+    // If the type of either `p1` or `p1.addr` is `()` during the run time, `()` would
+    // be assigned to the `city1` variable. Else, the `string` value of `p1.addr.city`
     // would be assigned.
     string? city1 = p1.addr.city;
     // The value "Santa Clara" is displayed in the console.
@@ -52,11 +52,11 @@ public function main() {
 
     // Invoking `getPerson()` as follows will result in `()` being assigned to `p2`.
     Person? p2 = getPerson("", 0);
-    // The `city2` variable will thus contain `nil` as the value.
+    // Thus, the `city2` variable will contain `nil` as the value.
     string? city2 = p2.addr.city;
     io:println(city2);
 
-    // Here, the Elvis operator is used to eliminate `nil`.
+    // In this example, the Elvis operator is used to eliminate `nil`.
     // If the value of the first expression is not `nil`, the Elvis operator returns that value.
     // If the value of the first expression is `nil`, the operator returns the value of the second expression.
     string defaultCity = "San Jose";

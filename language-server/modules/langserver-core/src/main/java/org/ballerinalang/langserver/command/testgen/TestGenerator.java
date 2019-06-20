@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.createTemplateArray;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByNode;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByType;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 
 /**
  * This class is responsible for generating tests for a given source file.

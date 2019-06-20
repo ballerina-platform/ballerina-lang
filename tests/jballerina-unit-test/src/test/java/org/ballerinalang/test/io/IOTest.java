@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.io;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -49,7 +48,7 @@ public class IOTest {
     @BeforeClass
     public void setup() {
         bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
-        characterInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/char_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
     }
 
     @Test(description = "Test 'readBytes' function in ballerina/io package")
@@ -60,30 +59,30 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
+        BRunUtil.invoke(bytesInputOutputProgramFile, "initReadableChannel", args);
 
         //Reads the 1st three bytes "123"
         byte[] expectedBytes = "123".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
-        BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
+        BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
-        returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
+        returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
-        returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
+        returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
-        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeReadableChannel");
+        BRunUtil.invoke(bytesInputOutputProgramFile, "closeReadableChannel");
     }
 
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
@@ -94,34 +93,34 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
-        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initReadableChannel", args);
 
         String expectedCharacters = "aaa";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
-        BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
+        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readCharacters", args);
         readCharacters = (BString) returns[0];
 
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
         expectedCharacters = "bbǊ";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
-        returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
+        returns = BRunUtil.invoke(characterInputOutputProgramFile, "readCharacters", args);
         readCharacters = (BString) returns[0];
 
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
         expectedCharacters = "";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
-        returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
+        returns = BRunUtil.invoke(characterInputOutputProgramFile, "readCharacters", args);
         readCharacters = (BString) returns[0];
 
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
-        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
+        BRunUtil.invoke(characterInputOutputProgramFile, "closeReadableChannel");
     }
 
     private static String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
+        URL fileResource = IOTest.class.getClassLoader().getResource(relativePath);
         String pathValue = "";
         if (null != fileResource) {
             Path path = Paths.get(fileResource.toURI());

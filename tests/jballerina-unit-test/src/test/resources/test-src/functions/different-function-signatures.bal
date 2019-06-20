@@ -1,45 +1,45 @@
 //------------ Testing a function with all types of parameters ---------
 
 function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z)
-        returns (int, float, string, int, string, int[]) {
-    return (a, b, c, d, e, z);
+        returns [int, float, string, int, string, int[]] {
+    return [a, b, c, d, e, z];
 }
 
-function testInvokeFunctionInOrder1() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionInOrder1() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", 40, 50, 60);
 }
 
-function testInvokeFunctionInOrder2() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionInOrder2() returns [int, float, string, int, string, int[]] {
     int[] array = [40, 50, 60];
     return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...array);
 }
 
-function testInvokeFunctionInMixOrder1() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionInMixOrder1() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50, d=30, 60);
 }
 
-function testInvokeFunctionInMixOrder2() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionInMixOrder2() returns [int, float, string, int, string, int[]] {
     int[] array = [40, 50, 60];
     return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", ...array, d=30);
 }
 
-function testInvokeFunctionWithoutRestArgs() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionWithoutRestArgs() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", d=30);
 }
 
-function testInvokeFunctionWithoutSomeNamedArgs() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionWithoutSomeNamedArgs() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(c="Alex", 10, 20.0);
 }
 
-function testInvokeFunctionWithRequiredArgsOnly() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionWithRequiredArgsOnly() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, 20.0);
 }
 
-function testInvokeFunctionWithRequiredAndRestArgs() returns (int, float, string, int, string, int[]) {
+function testInvokeFunctionWithRequiredAndRestArgs() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, 20.0, 40, 50, 60);
 }
 
-function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) {
+function funcInvocAsRestArgs() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...getIntArray());
 }
 
@@ -50,11 +50,11 @@ function getIntArray() returns (int[]) {
 //------------- Testing a function having required and rest parameters --------
 
 function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
-            (int, float, string, int, string) {
-    return (a, b, c, d, e);
+            [int, float, string, int, string] {
+    return [a, b, c, d, e];
 }
 
-function testInvokeFuncWithoutRestParams() returns (int, float, string, int, string) {
+function testInvokeFuncWithoutRestParams() returns [int, float, string, int, string] {
     return functionWithoutRestParams(10, e="Bob", 20.0, d=30);
 }
 
@@ -62,19 +62,19 @@ function testInvokeFuncWithoutRestParams() returns (int, float, string, int, str
 
 
 function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
-                                                                                                    returns (int, float, string, int, string) {
-    return (a, b, c, d, e);
+                                                                                                    returns [int, float, string, int, string] {
+    return [a, b, c, d, e];
 }
 
-function testInvokeFuncWithOnlyNamedParams1() returns (int, float, string, int, string) {
+function testInvokeFuncWithOnlyNamedParams1() returns [int, float, string, int, string] {
     return functionWithOnlyNamedParams(b = 20.0, e="Bob", d=30, a=10 , c="Alex");
 }
 
-function testInvokeFuncWithOnlyNamedParams2() returns (int, float, string, int, string) {
+function testInvokeFuncWithOnlyNamedParams2() returns [int, float, string, int, string] {
     return functionWithOnlyNamedParams(e="Bob", d=30, c="Alex");
 }
 
-function testInvokeFuncWithOnlyNamedParams3() returns (int, float, string, int, string) {
+function testInvokeFuncWithOnlyNamedParams3() returns [int, float, string, int, string] {
     return functionWithOnlyNamedParams();
 }
 
@@ -135,8 +135,8 @@ function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
     return s;
 }
 
-function testFuncWithNilDefaultParamExpr() returns (any, any) {
-    return (funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2());
+function testFuncWithNilDefaultParamExpr() returns [any, any] {
+    return [funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2()];
 }
 
 // ------------------- Test function signature for attached functions ------------------
@@ -156,18 +156,18 @@ public type Employee object {
     }
 };
 
-function testAttachedFunction() returns (int, int) {
+function testAttachedFunction() returns [int, int] {
     Employee emp = new;
-    return (emp.getSalary("Alex"), emp.getSalary("Alex", b = 10));
+    return [emp.getSalary("Alex"), emp.getSalary("Alex", b = 10)];
 }
 
 
-function testDefaultableParamInnerFunc () returns (int, string) {
+function testDefaultableParamInnerFunc () returns [int, string] {
     Person p = new;
     return p.test1(a = 50);
 }
 
-function testDefaultableParamOuterFunc () returns (int, string) {
+function testDefaultableParamOuterFunc () returns [int, string] {
     Person p = new;
     return p.test2(a = 40);
 }
@@ -175,17 +175,17 @@ function testDefaultableParamOuterFunc () returns (int, string) {
 type Person object {
     public int age = 0;
 
-    function test1(int a = 77, string n = "inner default") returns (int, string);
+    function test1(int a = 77, string n = "inner default") returns [int, string];
 
-    function test2(int a = 89, string n = "hello") returns (int, string) {
+    function test2(int a = 89, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
-        return (intVal, val);
+        return [intVal, val];
     }
 };
 
-function Person.test1(int a = 77, string n = "hello") returns (int, string) {
+function Person.test1(int a = 77, string n = "hello") returns [int, string] {
     string val = n + " world";
     int intVal = a + 10;
-    return (intVal, val);
+    return [intVal, val];
 }

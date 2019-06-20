@@ -325,7 +325,7 @@ task createDistribution(type: Copy) {
 build {
     dependsOn createZip
     dependsOn createDistribution
-    finalizedBy ':ballerina-tools-integration-test:test'
+    // finalizedBy ':ballerina-tools-integration-test:test'
 }
 
 artifacts {
@@ -344,4 +344,12 @@ project.afterEvaluate {
                 check.dependsOn dependencyCheck
             }
         }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createZip, extension: 'zip'
+        }
+    }
 }

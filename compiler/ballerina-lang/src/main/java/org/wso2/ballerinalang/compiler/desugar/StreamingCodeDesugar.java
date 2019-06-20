@@ -66,13 +66,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -369,11 +369,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         orderByObjSymbol.pkgID, orderingFuncArrayType, env.scope.owner);
 
         //create RHS expression for the ordering function array
-        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         orderingFuncArrExpr.exprs = new ArrayList<>();
         orderingFuncArrExpr.type = orderingFuncArrayType;
 
-        BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
         sortModesArrayExpr.type = new BArrayType(symTable.stringType);
 
@@ -575,7 +575,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangSimpleVarRef createResultArrayRefInForEach(DiagnosticPos pos, BType outputType, BSymbol symbol,
                                                             BLangBlockStmt body) {
         BType outputArrayType = new BArrayType(outputType);
-        BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralExpr.exprs = new ArrayList<>();
         arrayLiteralExpr.type = outputArrayType;
         BLangSimpleVariable outputArrayVariable =
@@ -743,7 +743,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     // [streams:sum(), streams:count(), .. etc ]
     private BLangArrayLiteral createAggregatorArray(BLangSelectClause selectClause) {
-        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
 
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
@@ -895,7 +895,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createGroupByLambdas(BLangSelectClause selectClause) {
-        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arr.exprs = new ArrayList<>();
         selectClause.getGroupBy().getVariables()
                 .forEach(groupingVar -> arr.exprs.add(createGroupByLambda((BLangExpression) groupingVar)));
@@ -1292,7 +1292,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
 
         //converting the window parameters into an array of parameters
-        BLangArrayLiteral windowParamArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral windowParamArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         windowParamArrExpr.exprs = new ArrayList<>();
         windowParamArrExpr.type = symTable.anyType;
         windowParamArrExpr.exprs.addAll(invocation.argExprs);

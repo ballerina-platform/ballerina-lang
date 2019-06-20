@@ -163,17 +163,14 @@ public abstract class BIRNode {
      */
     public static class BIRGlobalVariableDcl extends BIRVariableDcl {
         /**
-         * Visibility of this variable.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value represents Flags.
          */
-        public Visibility visibility;
+        public int flags;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, Visibility visibility, BType type,
+        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
                                     Name name, VarScope scope, VarKind kind) {
             super(pos, type, name, scope, kind);
-            this.visibility = visibility;
+            this.flags = flags;
         }
 
         @Override
@@ -215,22 +212,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Indicate whether this is a function definition or a declaration.
+         * Value represents flags.
          */
-        public boolean isDeclaration;
-
-        /**
-         * Indicate whether this is a function definition or an interface.
-         */
-        public boolean isInterface;
-
-        /**
-         * Visibility of this function.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
-         */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Type of this function. e.g., (int, int) returns (int).
@@ -303,11 +287,13 @@ public abstract class BIRNode {
          */
         public TaintTable taintTable;
 
-        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type, BType receiverType,
+        public List<BIRAnnotationAttachment> annotAttachments;
+
+        public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, BType receiverType,
                            Name workerName, int sendInsCount, TaintTable taintTable) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
             this.parameters = new LinkedHashMap<>();
@@ -319,6 +305,7 @@ public abstract class BIRNode {
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
             this.taintTable = taintTable;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -365,13 +352,7 @@ public abstract class BIRNode {
 
         public List<BIRFunction> attachedFuncs;
 
-        /**
-         * Visibility of this type definition.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
-         */
-        public Visibility visibility;
+        public int flags;
 
         public BType type;
 
@@ -381,11 +362,11 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility,
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags,
                                  BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
         }
@@ -453,12 +434,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Visibility of this annotation.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value represents flags.
          */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Attach points, this is needed only in compiled symbol enter as it is.
@@ -470,11 +448,11 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(DiagnosticPos pos, Name name, Visibility visibility,
+        public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
                              int attachPoints, BType annotationType) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.attachPoints = attachPoints;
             this.annotationType = annotationType;
         }
@@ -498,12 +476,9 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Visibility of this constant.
-         * 0 - package_private
-         * 1 - private
-         * 2 - public
+         * Value for the Flags.
          */
-        public Visibility visibility;
+        public int flags;
 
         /**
          * Type of the constant.
@@ -515,11 +490,11 @@ public abstract class BIRNode {
          */
         public ConstValue constValue;
 
-        public BIRConstant(DiagnosticPos pos, Name name, Visibility visibility,
-                             BType type, ConstValue constValue) {
+        public BIRConstant(DiagnosticPos pos, Name name, int flags,
+                           BType type, ConstValue constValue) {
             super(pos);
             this.name = name;
-            this.visibility = visibility;
+            this.flags = flags;
             this.type = type;
             this.constValue = constValue;
         }
@@ -529,6 +504,59 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+    }
+
+    /**
+     * Represents an annotation attachment in BIR node tree.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationAttachment extends BIRNode {
+
+        public Name annotTagRef;
+
+        // The length == 0 means that the value of this attachment is 'true'
+        // The length > 1 means that there are one or more attachments of this annotation
+        public List<BIRAnnotationValue> annotValues;
+
+        public BIRAnnotationAttachment(DiagnosticPos pos, Name annotTagRef) {
+            super(pos);
+            this.annotTagRef = annotTagRef;
+            this.annotValues = new ArrayList<>();
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * Represents the record value of an annotation attachment.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationValue {
+        public Map<String, BIRAnnotationValueEntry> annotValEntryMap;
+
+        public BIRAnnotationValue(Map<String, BIRAnnotationValueEntry> annotValEntryMap) {
+            this.annotValEntryMap = annotValEntryMap;
+        }
+    }
+
+    /**
+     * Represent one key/value pair entry in an annotation attachment value.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationValueEntry {
+        public BType type;
+        public Object value;
+
+        public BIRAnnotationValueEntry(BType type, Object value) {
+            this.type = type;
+            this.value = value;
+        }
     }
 
     /**

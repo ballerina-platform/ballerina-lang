@@ -19,8 +19,6 @@ package org.ballerinalang.langserver.completions;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -29,7 +27,6 @@ import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
@@ -41,8 +38,6 @@ public class CompletionKeys {
     private CompletionKeys() {
     }
     public static final LSContext.Key<BLangNode> SCOPE_NODE_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Node> BLOCK_OWNER_KEY
             = new LSContext.Key<>();
@@ -58,11 +53,6 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
-    // Todo: Remove this key
-    public static final LSContext.Key<Stack<Token>> FORCE_CONSUMED_TOKENS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
@@ -71,10 +61,14 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<CommonToken>> RHS_TOKENS_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> IN_FUNCTION_PARAMETER_CONTEXT_KEY
+    public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
+            = new LSContext.Key<>();
+    
+    // Following key is used for the completion within the if else/ while condition context
+    public static final LSContext.Key<Boolean> IN_CONDITION_CONTEXT_KEY
             = new LSContext.Key<>();
 }

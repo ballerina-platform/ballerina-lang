@@ -102,18 +102,13 @@ public class ReadFloat64 implements NativeCallableUnit {
     }
 
     public static Object readFloat64(Strand strand, ObjectValue dataChannelObj) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(callback);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_64, eventContext);
         Register register = EventRegister.getFactory().register(event, ReadFloat64::readChannelResponse);
         eventContext.setRegister(register);
         register.submit();
-        //TODO : Remove callback once strand non-blocking support is given
-        callback.sync();
-        return callback.getReturnValue();
+        return null;
     }
 
     /**
@@ -125,7 +120,6 @@ public class ReadFloat64 implements NativeCallableUnit {
     private static EventResult readChannelResponse(EventResult<Double, EventContext> result) {
         EventContext eventContext = result.getContext();
         Throwable error = eventContext.getError();
-        //TODO : Remove callback once strand non-blocking support is given
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));

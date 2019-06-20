@@ -37,10 +37,10 @@ function stampJSONToObject() returns EmployeeObj {
     return employeeObj;
 }
 
-function stampJSONToTuple() returns (string, string) {
+function stampJSONToTuple() returns [string, string] {
 
     json jsonValue = { name: "Raja", status: "single" };
-    (string, string) tupleValue = (string, string).stamp(jsonValue);
+    [string, string] tupleValue = [string, string].stamp(jsonValue);
 
     return tupleValue;
 }

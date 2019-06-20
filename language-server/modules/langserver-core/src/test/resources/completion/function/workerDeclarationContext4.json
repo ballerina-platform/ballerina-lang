@@ -246,6 +246,26 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Http1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "insertText": "Http1Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Http2Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/2 protocol.\n"
+      },
+      "insertText": "Http2Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "RetryConfig",
       "kind": "Class",
       "detail": "Record",
@@ -433,6 +453,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "HttpVersion",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the supported HTTP protocols.\n\n`HTTP_1_0`: HTTP/1.0 protocol\n`HTTP_1_1`: HTTP/1.1 protocol\n`HTTP_2_0`: HTTP/2.0 protocol"
+      },
+      "insertText": "HttpVersion",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Chunking",
       "kind": "Enum",
       "detail": "Union",
@@ -457,7 +487,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
+        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`SUBMIT`: Submits a http request and returns an HttpFuture object\n`NONE`: No operation should be performed"
       },
       "insertText": "HttpOperation",
       "insertTextFormat": "Snippet"
@@ -1014,6 +1044,13 @@
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
       "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpResponse",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "HttpResponse",
       "insertTextFormat": "Snippet"
     }
   ]

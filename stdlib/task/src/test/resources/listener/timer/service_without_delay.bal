@@ -20,10 +20,16 @@ task:TimerConfiguration configuration = {
     interval: 2000
 };
 
+int count = 0;
+
 listener task:Listener timer = new(configuration);
+
+function getCount() returns int {
+    return count;
+}
 
 service timerService on timer {
     resource function onTrigger() {
-
+        count = count + 1;
     }
 }

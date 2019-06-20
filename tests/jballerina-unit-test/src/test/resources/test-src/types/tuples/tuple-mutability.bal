@@ -43,43 +43,43 @@ Employee employee1 = { name: "John", intern: true };
 Intern intern1 = { name: "John", intern: true, salary: 100 };
 Student student1 = { name: "John", studentId: 1 };
 
-function testValidTupleAssignment() returns (boolean, int) {
+function testValidTupleAssignment() returns [boolean, int] {
 
-    (Employee, Employee) employeeTuple = (employee1, employee1);
-    (Person, Person) personTuple = employeeTuple; // covariance
+    [Employee, Employee] employeeTuple = [employee1, employee1];
+    [Person, Person] personTuple = employeeTuple; // covariance
 
     personTuple[0] = employee1;
     personTuple[1] = intern1;
     Employee e = <Employee> personTuple[0];
     Intern i = <Intern> personTuple[1];
-    return (e.intern, i.salary);
+    return [e.intern, i.salary];
 }
 
 function testInvalidCast()  {
-    (Employee, Employee) employeeTuple = (employee1, employee1);
-    (Person, Person) personTuple = employeeTuple;
+    [Employee, Employee] employeeTuple = [employee1, employee1];
+    [Person, Person] personTuple = employeeTuple;
     personTuple[0] = employee1;
 
     Intern e = <Intern> personTuple[0]; // Runtime Exception
 }
 
 function testAssignmentOfSuperTypeMember() {
-    (Employee, Employee) employeeTuple = (employee1, employee1);
-    (Person, Person) personTuple = employeeTuple;
+    [Employee, Employee] employeeTuple = [employee1, employee1];
+    [Person, Person] personTuple = employeeTuple;
     personTuple[0] = person1; // Runtime Exception
 }
 
 function testInvalidAssignment() {
-    (Employee, Employee) employeeTuple = (employee1, employee1);
-    (Person, Person) personTuple = employeeTuple;
+    [Employee, Employee] employeeTuple = [employee1, employee1];
+    [Person, Person] personTuple = employeeTuple;
     personTuple[0] = student1; // Runtime Exception
 }
 
 function testDifferentTypeCovariance() returns int {
-    (Employee, Employee) tuple = (employee1, employee1);
-    (Employee, Person) tuple2 = tuple;
-    (int, Intern, Intern) tuple3 = (12, intern1, intern1);
-    (int|string, Person, Employee) tuple4 = tuple3;
+    [Employee, Employee] tuple = [employee1, employee1];
+    [Employee, Person] tuple2 = tuple;
+    [int, Intern, Intern] tuple3 = [12, intern1, intern1];
+    [int|string, Person, Employee] tuple4 = tuple3;
     tuple4[0] = 12;
     tuple4[1] = intern1;
     tuple4[2] = intern1;
@@ -88,40 +88,40 @@ function testDifferentTypeCovariance() returns int {
 }
 
 function testCovarianceIntOrNilTuple() {
-    (int, int, ()) x = (1, 2, ());
-    (int, int?, ()) y = x;
+    [int, int, ()] x = [1, 2, ()];
+    [int, int?, ()] y = x;
     y[0] = 5;
     y[1] = 6;
     y[1] = (); // Runtime Exception
 }
 
 function testCovarianceBooleanOrFloatOrRecordTuple() {
-    (boolean|float, int) x = (true, 5);
-    (boolean|float|Person, int?) y = x;
+    [boolean|float, int] x = [true, 5];
+    [boolean|float|Person, int?] y = x;
     y[0] = 1.0;
     y[0] = person1;  // Runtime Exception
 }
 
-function testComplexTupleTypes() returns (float, json, boolean, json, float) {
-    ((float|boolean), float) var1 = (12.0, 5.0);
-    (json|int, Person) var2 = (true, person1);
-    ((int|boolean, float), (float|json, string)) var3 = ((true, 6.0), ("json", "string"));
-    (((float|boolean, int), float), boolean) var4 = (((12.0, 2), 3.0), true);
+function testComplexTupleTypes() returns [float, json, boolean, json, float] {
+    [(float|boolean), float] var1 = [12.0, 5.0];
+    [json|int, Person] var2 = [true, person1];
+    [[int|boolean, float], [float|json, string]] var3 = [[true, 6.0], ["json", "string"]];
+    [[[float|boolean, int], float], boolean] var4 = [[[12.0, 2], 3.0], true];
 
     float|boolean x1 = var1[0];
     float x2 = var1[1];
     json|int x3 = var2[0];
-    (int|boolean, float) x4 = var3[0];
+    [int|boolean, float] x4 = var3[0];
     int|boolean x5 = var3[0][0];
     float|json x6 = var3[1][0];
     float|boolean x7 = var4[0][0][0];
 
-    return (x1 is float ? x1 : 0.0, x3, x5 is boolean ? x5 : false, x6, x7 is float ? x7 : 0.0);
+    return [x1 is float ? x1 : 0.0, x3, x5 is boolean ? x5 : false, x6, x7 is float ? x7 : 0.0];
 }
 
 function testWithTryCatch() returns int {
-    (int, int, ()) x = (1, 2, ());
-    (int, int?, ()) y = x;
+    [int, int, ()] x = [1, 2, ()];
+    [int, int?, ()] y = x;
 
     y[0] = 5;
     y[1] = 5;
@@ -129,6 +129,6 @@ function testWithTryCatch() returns int {
     return y[1] ?: 1;
 }
 
-function nilValueAssignment((int, int?, ()) y) {
+function nilValueAssignment([int, int?, ()] y) {
     y[1] = (); // Runtime Exception
 }

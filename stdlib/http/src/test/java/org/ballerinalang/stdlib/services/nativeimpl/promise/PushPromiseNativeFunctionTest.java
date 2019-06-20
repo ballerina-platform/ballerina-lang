@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.promise;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  */
 public class PushPromiseNativeFunctionTest {
 
-    private CompileResult result;
+    private CompileResult result, bvmResult;
     private final String promiseStruct = HttpConstants.PUSH_PROMISE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
@@ -45,12 +45,13 @@ public class PushPromiseNativeFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/services/nativeimpl/promise/promise-native-function.bal";
         result = BCompileUtil.compile(sourceFilePath);
+        bvmResult = BCompileUtil.compileOnBVM(sourceFilePath);
     }
 
     @Test(description = "Test addHeader function of PushPromise")
     public void testAddHeader() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         String headerName = "header1";
         String headerValue = "value1";
 
@@ -70,13 +71,13 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test getHeader function of PushPromise")
     public void testGetHeader() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -90,7 +91,7 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test getHeaders function of PushPromise")
     public void testGetHeaders() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header";
@@ -98,7 +99,7 @@ public class PushPromiseNativeFunctionTest {
         String headerValue2 = "value2";
         http2PushPromise.addHeader(headerName, headerValue1);
         http2PushPromise.addHeader(headerName, headerValue2);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -113,13 +114,13 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test removeHeader function of PushPromise")
     public void testRemoveHeader() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -136,7 +137,7 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test removeAllHeaders function of PushPromise")
     public void testRemoveAllHeaders() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String header1Name = "header1";
@@ -145,7 +146,7 @@ public class PushPromiseNativeFunctionTest {
         String header2Name = "header2";
         String header2Value = "value2";
         http2PushPromise.addHeader(header2Name, header2Value);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BValue[] inputArg = {promise};
         BValue[] returnVal = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
@@ -162,13 +163,13 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test setHeader function of PushPromise")
     public void testSetHeader() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         String targetHeaderValue = "value2";
         BString key = new BString(headerName);
@@ -187,13 +188,13 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test hasHeader function of PushPromise")
     public void testHasHeader() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
         String headerValue = "value1";
         http2PushPromise.addHeader(headerName, headerValue);
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BString key = new BString(headerName);
         BValue[] inputArg = {promise, key};
@@ -207,14 +208,14 @@ public class PushPromiseNativeFunctionTest {
     @Test(description = "Test getHeaderNames function of PushPromise")
     public void testGetHeaderNames() {
         BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+                BCompileUtil.createAndGetStruct(bvmResult.getProgFile(), protocolPackageHttp, promiseStruct);
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName1 = "header1";
         String headerName2 = "header2";
         http2PushPromise.addHeader(headerName1, "value1");
         http2PushPromise.addHeader(headerName2, "value2");
-        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+        BHttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         BValue[] inputArg = {promise};
         BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaderNames", inputArg);
@@ -224,7 +225,7 @@ public class PushPromiseNativeFunctionTest {
         String result1 = ((BValueArray) returnVal[0]).getString(0);
         String result2 = ((BValueArray) returnVal[0]).getString(1);
         Assert.assertTrue((result1.equals(headerName1) && result2.equals(headerName2) ||
-                           result1.equals(headerName2) && result2.equals(headerName1)),
+                                  result1.equals(headerName2) && result2.equals(headerName1)),
                           "Expected header names not found");
         Assert.assertEquals(((BValueArray) returnVal[0]).getString(1), headerName2);
     }

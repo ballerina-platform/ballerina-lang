@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetGenerator;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -45,10 +46,10 @@ public class WorkerDeclarationContextProvider extends LSCompletionProvider {
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         Boolean inWorkerReturnCtx = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
-
-        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (invocationOrDelimiterTokenType > -1) {
             List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_TOKENS_KEY).stream()
                     .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                     .collect(Collectors.toList());

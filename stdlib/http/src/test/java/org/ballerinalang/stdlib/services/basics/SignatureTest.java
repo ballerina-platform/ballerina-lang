@@ -18,10 +18,9 @@
 
 package org.ballerinalang.stdlib.services.basics;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -87,7 +86,7 @@ public class SignatureTest {
     public void testSignatureWithInvalidBodyIntParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath()).getAbsolutePath());
-        BServiceUtil.runService(compileResult);
+        // BServiceUtil.runService(compileResult);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -95,7 +94,7 @@ public class SignatureTest {
     public void testSignatureWithMismatchedBodyParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());
-        BServiceUtil.runService(compileResult);
+        // BServiceUtil.runService(compileResult);
     }
 
     @Test

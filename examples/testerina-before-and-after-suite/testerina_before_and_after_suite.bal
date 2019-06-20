@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/test;
 
-// The function annotated with `BeforeSuite` is executed before all test functions in the module.
+// The function annotated with `BeforeSuite` is executed before all the test functions in the module.
 @test:BeforeSuite
 function beforeSuit() {
     io:println("I'm the before suite function!");

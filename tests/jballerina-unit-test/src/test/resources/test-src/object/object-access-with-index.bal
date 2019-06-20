@@ -22,17 +22,17 @@ type Family object {
     public string[] children = [];
 };
 
-function testCreateObject () returns (string, map<any>, int) {
+function testCreateObject () returns [string, map<any>, int] {
     map<any> address1 = {};
     map<any> address = {"country":"USA", "state":"CA"};
     Person emp = new ();
     emp.name = "Jack";
     emp.adrs = address;
     emp.age = 25;
-    return (emp["name"], emp["adrs"], emp["age"]);
+    return [emp["name"], emp["adrs"], emp["age"]];
 }
 
-function testObjectOfObject () returns (string) {
+function testObjectOfObject () returns string {
 
     map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = new ();
@@ -53,7 +53,7 @@ function testObjectOfObject () returns (string) {
     }
 }
 
-function testReturnObjectAttributes () returns (string) {
+function testReturnObjectAttributes () returns string {
     map<any> address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = new ();
@@ -72,7 +72,7 @@ function testReturnObjectAttributes () returns (string) {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testExpressionAsIndex () returns (string) {
+function testExpressionAsIndex () returns string {
     Family family = new ();
     family.spouse = "Kate";
     int a = 2;
@@ -81,7 +81,7 @@ function testExpressionAsIndex () returns (string) {
     return family.children[a * b - 8];
 }
 
-function testObjectExpressionAsIndex () returns (string) {
+function testObjectExpressionAsIndex () returns string {
     string country = "";
     Department dpt = new ([]);
     Family fmly = new ();
@@ -104,20 +104,20 @@ function testObjectExpressionAsIndex () returns (string) {
     return dpt["employees"][0]["family"]["children"][dpt["employees"][0]["family"]["noOfChildren"] - 1];
 }
 
-function testDefaultVal () returns (string, string, int) {
+function testDefaultVal () returns [string, string, int] {
     Person p = new ();
-    return (p["name"], p["lname"], p["age"]);
+    return [p["name"], p["lname"], p["age"]];
 }
 
-function testNestedFieldDefaultVal () returns (string, string, int) {
+function testNestedFieldDefaultVal () returns [string, string, int] {
     Department dpt = new ([]);
     dpt["employees"] = [];
     dpt["employees"][0]= new Person();
     dpt["employees"][0]["lname"] = "Smith";
-    return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
+    return [dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]];
 }
 
-function testGetNonInitAttribute () returns (string) {
+function testGetNonInitAttribute () returns string {
     Person emp1 = new ();
     Person emp2 = new ();
     Person[] emps = [emp1, emp2];
@@ -130,7 +130,7 @@ function testGetNonInitArrayAttribute () returns (string) {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testGetNonInitLastAttribute () returns (Person) {
+function testGetNonInitLastAttribute () returns Person {
     Department dpt = new ([]);
     return dpt["employees"][0];
 }

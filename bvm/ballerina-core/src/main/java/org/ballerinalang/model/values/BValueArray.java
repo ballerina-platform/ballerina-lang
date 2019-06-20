@@ -167,6 +167,9 @@ public class BValueArray extends BNewArray implements Serializable {
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+        } else {
+            refValues = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(refValues, type.getZeroValue());
         }
 
         super.arrayType = new BArrayType(type, size);
@@ -462,7 +465,9 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     public byte[] getBytes() {
-        return byteValues.clone();
+        byte[] bytes = new byte[this.size];
+        System.arraycopy(byteValues, 0, bytes, 0, this.size);
+        return bytes;
     }
 
     public String[] getStringArray() {

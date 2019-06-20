@@ -18,6 +18,8 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.TypedescValue;
+
 /**
  * {@code BTypeType} represents type of type in Ballerina type system.
  *
@@ -25,18 +27,18 @@ package org.ballerinalang.jvm.types;
  */
 public class BTypedescType extends BType {
 
-    public BTypedescType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Object.class);
+    public BTypedescType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Object.class);
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new TypedescValue(BTypes.typeNull);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override

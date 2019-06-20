@@ -31,10 +31,10 @@ public class BJSONType extends BType {
      * Create a {@code BJSONType} which represents the JSON type.
      *
      * @param typeName string name of the type
-     * @param pkgPath of the type
+     * @param pkg of the type
      */
-    public BJSONType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, MapValueImpl.class);
+    public BJSONType(String typeName, BPackage pkg) {
+        super(typeName, pkg, MapValueImpl.class);
     }
 
     public BJSONType() {
@@ -48,7 +48,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<>();
+        return (V) new MapValueImpl<>(this);
     }
 
     @Override
@@ -59,5 +59,9 @@ public class BJSONType extends BType {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj) && obj instanceof BJSONType;
+    }
+
+    public boolean isNilable() {
+        return true;
     }
 }

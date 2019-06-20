@@ -86,14 +86,14 @@ function testOptFieldToOptField1() returns AnotherPerson4 {
     return ap;
 }
 
-function testOptFieldToOptField2() returns (AnotherPerson4, int) {
+function testOptFieldToOptField2() returns [AnotherPerson4, int] {
     Person2 p = {name:"John Doe", age:25};
     AnotherPerson4 ap = p;
 
     p = {name:"Jane Doe"};
     AnotherPerson4 ap2 = p;
 
-    return (ap, ap2.age);
+    return [ap, ap2.age];
 }
 
 // Test for rest fields types.
@@ -137,4 +137,22 @@ function testAdditionalFieldsToRest() returns AnotherPerson1 {
     Person3 p = {name:"John Doe", age:25, address:"Colombo, Sri Lanka", weight:70.0};
     AnotherPerson1 ap = p;
     return ap;
+}
+
+public type OpenPublicPerson record {
+    string name;
+    int age;
+    string address;
+};
+
+function testHeterogeneousTypedescEq3() returns AnotherPerson1 {
+    OpenPublicPerson p = {name:"John Doe", age:25, address:"Colombo, Sri Lanka"};
+    AnotherPerson1 ap = p;
+    return ap;
+}
+
+function testHeterogeneousTypedescEq4() returns AnotherPerson1 {
+    OpenPublicPerson op = {name:"John Doe", age:25, address:"Colombo, Sri Lanka"};
+    AnotherPerson1 p = op;
+    return p;
 }

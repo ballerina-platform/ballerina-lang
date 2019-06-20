@@ -4,13 +4,13 @@ plugins {
     id "com.github.spotbugs" version "1.6.10"
     id "com.dorongold.task-tree" version "1.3.1"
     id "com.github.johnrengelman.shadow" version "5.0.0"
+    id 'maven-publish'
+    id 'net.researchgate.release' version '2.6.0'
 }
 
-// TODO: remove following, when moved to gradle release plugin
-def mvnVersion = new XmlSlurper().parse("${project.rootDir}/pom.xml").version
 allprojects {
-    group = 'org.ballerinalang'
-    version = mvnVersion
+    group = project.group
+    version = project.version
 
     task printPath {
         doLast{
@@ -20,6 +20,29 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version = project.version
+            }
+        }
+        repositories {
+            maven {
+                if(project.version.endsWith('-SNAPSHOT')) {
+                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+                } else {
+                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+                }
+                credentials {
+                    username System.getenv("NEXUS_USERNAME")
+                    password System.getenv("NEXUS_PASSWORD")
+                }
+            }
+        }
+    }
 }
 
 buildScan {
@@ -32,3 +55,5 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
+
+afterReleaseBuild.dependsOn publish

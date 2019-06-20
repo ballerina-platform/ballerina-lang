@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -97,7 +97,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -119,7 +119,7 @@ public class CommandUtil {
     public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
                                                                           int line) {
         List<CodeAction> actions = new ArrayList<>();
-        if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
+        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
             actions.add(getInitializerGenerationCommand(docUri, line));
         }
         actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
@@ -149,8 +149,8 @@ public class CommandUtil {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 
-        boolean isService = UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
-        boolean isFunction = UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
+        boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
+        boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
             return actions;
         }
@@ -366,7 +366,7 @@ public class CommandUtil {
                 foundType = typeName;
             } else {
                 edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
-                foundType = alias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName;
+                foundType = alias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
             }
         }
         return foundType;
@@ -476,9 +476,9 @@ public class CommandUtil {
         }
     }
 
-    public static Node getBLangNodeByPosition(int line, int column, String uri,
-                                              WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                              LSContext context) {
+    private static Node getBLangNodeByPosition(int line, int column, String uri,
+                                               WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                               LSContext context) {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);

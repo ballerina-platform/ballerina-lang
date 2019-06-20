@@ -17,6 +17,12 @@
  
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
@@ -34,9 +40,9 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-websub')
+    // implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
-    implementation project(':ballerina-grpc')
+    // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-rabbitmq')

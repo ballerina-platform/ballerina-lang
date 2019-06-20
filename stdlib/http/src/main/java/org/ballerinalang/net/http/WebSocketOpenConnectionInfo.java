@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
@@ -30,24 +28,22 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BMap<String, BValue> webSocketEndpoint;
+    private final ObjectValue webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
     private String aggregateString = "";
-    private Context context;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
-                                       BMap<String, BValue> webSocketEndpoint, Context context) {
+                                       ObjectValue webSocketEndpoint) {
         this.webSocketService = webSocketService;
         this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
-        this.context = context;
     }
 
     public WebSocketService getService() {
         return webSocketService;
     }
 
-    public BMap<String, BValue> getWebSocketEndpoint() {
+    public ObjectValue getWebSocketEndpoint() {
         return webSocketEndpoint;
     }
 
@@ -69,9 +65,5 @@ public class WebSocketOpenConnectionInfo {
 
     void resetAggregateString() {
         this.aggregateString = "";
-    }
-
-    public Context getContext() {
-        return context;
     }
 }

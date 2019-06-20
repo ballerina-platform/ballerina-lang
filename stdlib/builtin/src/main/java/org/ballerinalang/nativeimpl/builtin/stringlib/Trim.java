@@ -49,6 +49,7 @@ public class Trim extends BlockingNativeCallableUnit {
     }
 
     public static String trim(Strand strand, String value) {
+        StringUtils.checkForNull(value);
         return value.trim();
     }
 }

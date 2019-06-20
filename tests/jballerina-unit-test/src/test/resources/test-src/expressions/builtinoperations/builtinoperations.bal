@@ -13,43 +13,43 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-function testIsNaN() returns (boolean, boolean, boolean) {
+function testIsNaN() returns [boolean, boolean, boolean] {
     float f = 0.0/0.0;
     boolean bool = f.isNaN();
-    return (bool, f.isInfinite(), f.isFinite());
+    return [bool, f.isInfinite(), f.isFinite()];
 }
 
-function testIsInfinite() returns (boolean, boolean, boolean) {
+function testIsInfinite() returns [boolean, boolean, boolean] {
     float f = 1.0/0.0;
     boolean bool = f.isInfinite();
-    return (bool, f.isFinite(), f.isNaN());
+    return [bool, f.isFinite(), f.isNaN()];
 }
 
-function testIsFinite() returns (boolean, boolean, boolean) {
+function testIsFinite() returns [boolean, boolean, boolean] {
     float f = 6.0/2.5;
     boolean bool = f.isFinite();
-    return (bool, f.isInfinite(), f.isNaN());
+    return [bool, f.isInfinite(), f.isNaN()];
 }
 
-function testWithCalc() returns (boolean, boolean, boolean) {
+function testWithCalc() returns [boolean, boolean, boolean] {
     float f = 6.0/2.0;
     f = f + 20;
     f = f / 0.0;
     boolean bool = f.isInfinite();
-    return (bool, f.isFinite(), f.isNaN());
+    return [bool, f.isFinite(), f.isNaN()];
 }
 
-function testModWithDivisorAsZero() returns (boolean, boolean, boolean) {
+function testModWithDivisorAsZero() returns [boolean, boolean, boolean] {
     float a = 10.0 % 0.0;
-    return (a.isNaN(), a.isInfinite(), a.isFinite());
+    return [a.isNaN(), a.isInfinite(), a.isFinite()];
 }
 
-function testModWithDivisorAsFinite() returns (boolean, boolean, boolean) {
+function testModWithDivisorAsFinite() returns [boolean, boolean, boolean] {
     float a = 10.0 % 3.0;
-    return (a.isNaN(), a.isInfinite(), a.isFinite());
+    return [a.isNaN(), a.isInfinite(), a.isFinite()];
 }
 
-function testModZeroByZero() returns (boolean, boolean, boolean) {
+function testModZeroByZero() returns [boolean, boolean, boolean] {
     float a = 0.0 % 0.0;
-    return (a.isNaN(), a.isInfinite(), a.isFinite());
+    return [a.isNaN(), a.isInfinite(), a.isFinite()];
 }

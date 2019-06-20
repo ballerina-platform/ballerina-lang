@@ -7,13 +7,13 @@ type Employee record {
 };
 
 public function main() {
-    // Define a `stream` constrained by the `Employee` type.
+    // Defines a `stream`, which is constrained by the `Employee` type.
     stream<Employee> employeeStream = new;
 
-    // Subscribe to the `employeeStream` using a function that accepts `Employee` values.
+    // Subscribes to the `employeeStream` using a function that accepts `Employee` values.
     employeeStream.subscribe(printEmployeeName);
 
-    // Publish `Employee` values to the `stream`.
+    // Publishes `Employee` values to the `stream`.
     Employee e1 = { id: 1, name: "Jane" };
     Employee e2 = { id: 2, name: "Anne" };
     Employee e3 = { id: 3, name: "John" };
@@ -22,33 +22,33 @@ public function main() {
     employeeStream.publish(e2);
     employeeStream.publish(e3);
 
-    // Allow for receipt by subscribers. The `printEmployeeName()` function should be invoked for each published value.
+    // Allows receipt by subscribers. The `printEmployeeName()` function should be invoked for each published value.
     runtime:sleep(1000);
 
 
-    // Define a stream constrained by the `float` type.
+    // Defines a stream, which is constrained by the `float` type.
     stream<float> temperatureStream = new;
 
-    // Subscribe to the `temperatureStream` using a function that accepts `float` values.
+    // Subscribes to the `temperatureStream` using a function that accepts `float` values.
     temperatureStream.subscribe(printTemperature);
 
-    // Publish `float` values to the stream, indicating temperature.
+    // Publishes `float` values to the stream indicating the temperature.
     temperatureStream.publish(28.0);
     temperatureStream.publish(30.1);
     temperatureStream.publish(29.5);
 
-    // Wait for the subscriber to receive the values. The `printTemperature()` function should be invoked for each
-    // published value.
+    // Waits for the subscriber to receive the values. The `printTemperature()` function 
+    // should be invoked for each published value.
     runtime:sleep(1000);
 
 
-    // Define a `stream` that accepts values of the `anydata` type.
+    // Defines a `stream`, which accepts values of the `anydata` type.
     stream<anydata> updateStream = new;
 
-    // Subscribe to the `stream` using a function that accepts values of the `anydata` type.
+    // Subscribes to the `stream` using a function that accepts values of the `anydata` type.
     updateStream.subscribe(printEvent);
 
-    // Publish values to the `stream`.
+    // Publishes values to the `stream`.
     updateStream.publish("Hello Ballerina!");
     updateStream.publish(1.0);
     updateStream.publish(e1);

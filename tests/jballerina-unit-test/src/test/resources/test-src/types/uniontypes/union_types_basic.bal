@@ -1,13 +1,13 @@
 import ballerina/io;
 
-function testUnionTypeBasics1() returns (int|float|string, int|string) {
+function testUnionTypeBasics1() returns [int|float|string, int|string] {
     int|float|string aaa = 12330;
     int|string bbb = "string value";
 
     aaa = 12.0;
     bbb = "sameera";
 
-    return (aaa, bbb);
+    return [aaa, bbb];
 }
 
 function testUnionTypeBasics2() returns (int|float|string|boolean) {
@@ -136,9 +136,9 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
     return returnValues;
 }
 
-function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns ((float|decimal), (float|decimal), (float|decimal)) {
+function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns [(float|decimal), (float|decimal), (float|decimal)] {
     float|decimal a = 1.0;
     float|decimal b = 1.0f;
     float|decimal c = 1.0d;
-    return (a, b, c);
+    return [a, b, c];
 }

@@ -23,7 +23,7 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
         <packages>
-            <package name="org.ballerinalang.messaging.artemis"/>
+            <!-- <package name="org.ballerinalang.messaging.artemis"/> -->
         </packages>
     </test>
 </suite>

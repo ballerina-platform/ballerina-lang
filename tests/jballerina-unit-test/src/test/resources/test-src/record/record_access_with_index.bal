@@ -19,11 +19,11 @@ type Family record {
     string[] children = [];
 };
 
-function testCreateStruct () returns (string?, map<any>?, int?) {
+function testCreateStruct () returns [string?, map<any>?, int?] {
     map<any> address1 = {};
     map<any> address = {"country":"USA", "state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
-    return (emp["name"], emp["adrs"], emp["age"]);
+    return [emp["name"], emp["adrs"], emp["age"]];
 }
 
 function testStructOfStruct () returns (string) {
@@ -53,7 +53,7 @@ function testReturnStructAttributes () returns string? {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testExpressionAsIndex () returns (string) {
+function testExpressionAsIndex () returns string {
     Family family = {spouse:"Kate"};
     int a = 2;
     int b = 5;
@@ -80,16 +80,16 @@ function testStructExpressionAsIndex () returns string? {
     return dpt["employees"][0]["family"]["children"][(dpt["employees"][0]["family"]["noOfChildren"] ?: 1) - 1];
 }
 
-function testDefaultVal () returns (string?, string?, int?) {
+function testDefaultVal () returns [string?, string?, int?] {
     Person p = {};
-    return (p["name"], p["lname"], p["age"]);
+    return [p["name"], p["lname"], p["age"]];
 }
 
-function testNestedFieldDefaultVal () returns (string?, string?, int?) {
+function testNestedFieldDefaultVal () returns [string?, string?, int?] {
     Department dpt = {};
     dpt["employees"] = [];
     dpt["employees"][0] = {lname:"Smith"};
-    return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
+    return [dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]];
 }
 
 type StructField record {
@@ -292,7 +292,7 @@ type Quux record {|
     Qux fieldOne;
 |};
 
-function testDynamicIndexAccessWithRecordInsideRecord() returns (int?, int?) {
+function testDynamicIndexAccessWithRecordInsideRecord() returns [int?, int?] {
     Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
     Quux qu = { fieldOne: q };
 
@@ -301,7 +301,7 @@ function testDynamicIndexAccessWithRecordInsideRecord() returns (int?, int?) {
     int? r1 = qu["fieldOne"]["fieldOne"];
     int? r2 = qu[index][index];
 
-    return (r1, r2);
+    return [r1, r2];
 }
 
 type Finite "fieldOne"|"fieldTwo"|"fieldThree"|"fieldFive";

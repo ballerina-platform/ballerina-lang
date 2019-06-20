@@ -46,14 +46,14 @@ Employee employee1 = { name: "John", intern: true };
 Intern intern1 = { name: "John", intern: true, salary: 100 };
 Student student1 = { name: "John", studentId: 1 };
 
-function testValidArrayAssignment() returns (boolean, int)|error {
+function testValidArrayAssignment() returns [boolean, int]|error {
     personArray = employeeArray;
     personArray[0] = employee1;
     personArray[1] = intern1;
 
     Employee e =  <Employee> personArray[0];
     Intern i =  <Intern> personArray[1];
-    return (e.intern, i.salary);
+    return [e.intern, i.salary];
 }
 
 function testInvalidCast() returns error? {
@@ -126,8 +126,8 @@ type Dog object { // Assignable to Animal Object
         return self.name;
     }
 
-    public function getNameAndAge() returns (string, int) {
-        return (self.name, self.age);
+    public function getNameAndAge() returns [string, int] {
+        return [self.name, self.age];
     }
 };
 

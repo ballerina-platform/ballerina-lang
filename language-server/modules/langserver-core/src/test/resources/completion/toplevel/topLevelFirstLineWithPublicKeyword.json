@@ -48,10 +48,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "annotation",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "label": "Annotation",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "annotation ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     }
   ]

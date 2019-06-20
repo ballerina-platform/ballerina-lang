@@ -1,8 +1,9 @@
-# Start the Artemis message broker
-# Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to <BALLERINA_HOME>/bre/lib
+# Before running the example, start the Artemis message broker.
+# Next, copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar 
+# files to the <BALLERINA_HOME>/bre/lib directory.
 
 # Navigate to the directory that contains the
-# 'jms_queue_message_receiver_with_client_acknowledgment.bal' file and execute the 'ballerina run' command.
+# 'jms_queue_message_receiver_with_client_acknowledgment.bal' file, and execute the 'ballerina run' command.
 $ ballerina run jms_queue_message_receiver_with_client_acknowledgment.bal
 
 # The JMS queue receiver runs as a Ballerina service and listens to the subscribed queue.

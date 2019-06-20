@@ -87,12 +87,12 @@ public type MediaType object {
 
     # Gets “primaryType/subtype+suffix” combination in string format.
     #
-    # + return - Base type as a `string` from MediaType struct
+    # + return - Base type as a string from MediaType struct
     public function getBaseType() returns (string);
 
-    # Converts the media type to a `string`, suitable to be used as the value of a corresponding HTTP header.
+    # Converts the media type to a string, suitable to be used as the value of a corresponding HTTP header.
     #
-    # + return - Content type with parameters as a `string`
+    # + return - Content type with parameters as a string
     public function toString() returns (string);
 };
 
@@ -377,7 +377,7 @@ public type Entity object {
 
 public function Entity.setFileAsEntityBody(@sensitive string filePath,
                                      @sensitive string contentType = "application/octet-stream") {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+    io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
     self.setByteChannel(byteChannel, contentType = contentType);
 }
 
