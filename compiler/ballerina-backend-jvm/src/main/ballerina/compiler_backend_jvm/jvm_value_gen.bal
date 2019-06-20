@@ -80,7 +80,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -193,7 +193,6 @@ public type ObjectGenerator object {
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
-
                 // load self
                 mv.visitVarInsn(ALOAD, 0);
 
@@ -214,13 +213,11 @@ public type ObjectGenerator object {
                 }
 
                 mv.visitMethodInsn(INVOKESTATIC, className, getName(func), methodSig, false);
-
                 if (retType is () || retType is bir:BTypeNil) {
                     mv.visitInsn(ACONST_NULL);
                 } else {
                     addBoxInsn(mv, retType);
                 }
-
                 mv.visitInsn(ARETURN);
             } else {
                 // use index access, since retType can be nil.
@@ -246,13 +243,11 @@ public type ObjectGenerator object {
                 }
 
                 mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
-
                 if (retType is () || retType is bir:BTypeNil) {
                     mv.visitInsn(ACONST_NULL);
                 } else {
                     addBoxInsn(mv, retType);
                 }
-
                 mv.visitInsn(ARETURN);
             }
             i += 1;
@@ -273,14 +268,15 @@ public type ObjectGenerator object {
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
-        sorter.sortByHash(fields);
+        bir:BObjectField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
 
-        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
-        foreach var optionalField in fields {
+        foreach var optionalField in sortedFields {
             bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
@@ -292,35 +288,42 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
         mv.visitEnd();
     }
 
     private function createSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT),
-                (), ());
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
-
         int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
         jvm:Label defaultCaseLabel = new jvm:Label();
+
+        // code gen type checking for inserted value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", 
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
-        sorter.sortByHash(fields);
+        bir:BObjectField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
 
-        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         // case body
         int i = 0;
-        foreach var optionalField in fields {
+        foreach var optionalField in sortedFields {
             bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitVarInsn(ALOAD, 2);
+            mv.visitVarInsn(ALOAD, valueRegIndex);
             addUnboxInsn(mv, field.typeValue);
             mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
             mv.visitInsn(RETURN);
@@ -328,7 +331,7 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
         mv.visitEnd();
     }
 

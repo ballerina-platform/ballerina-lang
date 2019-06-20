@@ -1327,7 +1327,7 @@ function getModuleStartFuncName(bir:Package module) returns string {
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
-        var (importedPkg, isFromCache) = lookupModule(importModuleToModuleId(mod));
+        var [importedPkg, isFromCache] = lookupModule(importModuleToModuleId(mod));
 
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));

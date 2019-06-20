@@ -34,17 +34,17 @@ function testArrayIndexToIntAssignStmt(int[] arr) returns int {
     return a;
 }
 
-function testMultiReturn() returns (int, string, int) {
+function testMultiReturn() returns [int, string, int] {
     int a;
     string name;
     int b;
 
-    (a, name, b) = testMultiReturnInternal();
-    return (a, name, b);
+    [a, name, b] = testMultiReturnInternal();
+    return [a, name, b];
 }
 
-function testMultiReturnInternal() returns (int, string, int) {
-    return (5, "john", 6);
+function testMultiReturnInternal() returns [int, string, int] {
+    return [5, "john", 6];
 }
 
 function testIntCastFloatStmt (int a) returns float {

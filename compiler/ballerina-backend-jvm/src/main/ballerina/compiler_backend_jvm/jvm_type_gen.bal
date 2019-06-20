@@ -372,6 +372,12 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:
 }
 
 # Create a runtime type instance for the service.
+#
+# + mv - method visitor
+# + objectType - object type
+# + typeDef - type definition of the service
+# + pkgName - name of the module the service belongs to
+# + strandIndex - the index for the strand if execution of annotation lambdas is required
 function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName,
                            int? strandIndex = ()) {
     // Create the object type
@@ -599,17 +605,19 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
                             io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, BTYPE), false);
 }
 
-function typeRefToClassName(bir:TypeRef typeRef) returns string{
-    return typeRef.externalPkg.org + "/" +  typeRef.externalPkg.name;
+function typeRefToClassName(bir:TypeRef typeRef, string className) returns string {
+    return getModuleLevelClassName(typeRef.externalPkg.org, typeRef.externalPkg.name, className);
 }
+
 
 // -------------------------------------------------------
 //              Type loading methods
 // -------------------------------------------------------
+
 function loadExternalOrLocalType(jvm:MethodVisitor mv,  bir:TypeDef|bir:TypeRef typeRef) {
     if (typeRef is bir:TypeRef) {
         string fieldName = getTypeFieldName(typeRef.name.value);
-        string externlTypeOwner =  typeRefToClassName(typeRef) + "/" + MODULE_INIT_CLASS_NAME;
+        string externlTypeOwner =  typeRefToClassName(typeRef, MODULE_INIT_CLASS_NAME);
         mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, io:sprintf("L%s;", BTYPE));
     } else {
         bir:BType bType = typeRef.typeValue;

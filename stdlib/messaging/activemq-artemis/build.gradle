@@ -50,5 +50,9 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - ActiveMQ Artemis'
 

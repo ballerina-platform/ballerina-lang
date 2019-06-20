@@ -335,7 +335,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                               && currentRetryCount < (retryCount)) {
-                (interval, currentRetryCount) =
+                [interval, currentRetryCount] =
                                 calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             } else {
                 return backendResponse;
@@ -346,19 +346,19 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
                 int responseStatusCode = response.statusCode;
                 if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                                   && currentRetryCount < (retryCount)) {
-                    (interval, currentRetryCount) =
+                    [interval, currentRetryCount] =
                                     calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
                 } else {
                     // We return the HttpFuture object as this is called by submit method.
                     return backendResponse;
                 }
             } else {
-                (interval, currentRetryCount) =
+                [interval, currentRetryCount] =
                                 calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
                 httpConnectorErr = response;
             }
         } else {
-            (interval, currentRetryCount) =
+            [interval, currentRetryCount] =
                             calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             httpConnectorErr = backendResponse;
         }
@@ -383,12 +383,12 @@ function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns
 }
 
 function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int currentRetryCount, int currentDelay)
-                                                 returns (int, int) {
+                                                 returns [int, int] {
     int interval = currentDelay;
     if (currentRetryCount != 0) {
         interval = getWaitTime(retryClient.retryInferredConfig.backOffFactor,
                     retryClient.retryInferredConfig.maxWaitInterval, interval);
     }
     int retryCount = currentRetryCount + 1;
-    return (interval, retryCount);
+    return [interval, retryCount];
 }

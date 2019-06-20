@@ -56,4 +56,8 @@ dependencies {
     implementation project(':ballerina-encoding')
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - Transactions Implementation'

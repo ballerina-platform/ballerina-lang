@@ -15,9 +15,9 @@
 // under the License.
 
 function invalidTupleAssignment() {
-    (int, boolean) x1 = (1);
-    (int, boolean, string) x2 = (1, false);
-    (int, boolean, string) x3 = (1, false, "abc");
+    [int, boolean] x1 = [1];
+    [int, boolean, string] x2 = [1, false];
+    [int, boolean, string] x3 = [1, false, "abc"];
 }
 
 type Person record {
@@ -30,27 +30,27 @@ type Employee record {
 };
 
 function invalidTupleAssignmentToUnion() {
-    (int, boolean, string)? x1 = (1, false, "abc");
-    (int, boolean, string) | (any, boolean, string) | () x2 = (1, false, "abc"); // ambiguous
+    [int, boolean, string]? x1 = [1, false, "abc"];
+    [int, boolean, string] | [any, boolean, string] | () x2 = [1, false, "abc"]; // ambiguous
     Employee p = {name:"foo", id:"12"};
-    (Person, int) k1 = (p, 3);
-    (Person, int) | () k2 = (p, 3);
-    (Person, int) | (Employee, int) | () k3 = (p, 3); // ambiguous
+    [Person, int] k1 = [p, 3];
+    [Person, int] | () k2 = [p, 3];
+    [Person, int] | [Employee, int] | () k3 = [p, 3]; // ambiguous
 }
 
 function tupleAssignmentToAnyAndVar () {
     var x1 = (1); // brace hence valid
     any x2 = (1); // brace hence valid
-    var x3 = (1, 2);
-    any x4 = (1, 2);
+    var x3 = [1, 2]; // valid after 2019R1+, type will get resolved to int[]
+    any x4 = [1, 2]; // valid after 2019R1+, type will get resolved to int[]
 }
 
 function testInvalidNumberedLiterals () {
-    (float, int, string) x = (1.2, 3);
+    [float, int, string] x = [1.2, 3];
 }
 
 function testInvalidIndexAccess () {
-    (float, int, string) x = (1.2, 3, "abc");
+    [float, int, string] x = [1.2, 3, "abc"];
     any x1 = x[-1];
     any x2 = x[3];
     int index = 0;
@@ -58,13 +58,13 @@ function testInvalidIndexAccess () {
 }
 
 function testInvalidAccessToTupleUsingExpr() {
-    (string, boolean, int) tuple = ("str", true, 10);
+    [string, boolean, int] tuple = ["str", true, 10];
     string index = "0";
     var result = tuple[index]; // incompatible types: expected 'int', found 'string'
 }
 
 function testInvalidInsertionToTuple() {
-    (string, boolean, int) tuple = ("str", true, 10);
+    [string, boolean, int] tuple = ["str", true, 10];
     int index = 0;
     tuple[index] = 1.1; // incompatible types: expected 'string|boolean|int', found 'float'
     string y = tuple[index]; // incompatible types: expected 'string', found 'string|boolean|int'
@@ -80,7 +80,7 @@ type FiniteFour FiniteThree|"S2";
 type FiniteFive FiniteTwo|SIX;
 
 function testInvalidInsertionToTupleUsingFiniteType() {
-    (string, boolean, int) tuple = ("str", true, 10);
+    [string, boolean, int] tuple = ["str", true, 10];
     FiniteOne f1 = "S1";
     FiniteTwo f2 = 3;
     FiniteThree f3 = 2;

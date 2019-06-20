@@ -35,8 +35,8 @@ function initWritableChannel(string filePath) {
 
 function readBytes(int numberOfBytes) returns byte[]|error {
     var result = rch.read(numberOfBytes);
-    if (result is (byte[], int)) {
-        var (bytes, val) = result;
+    if (result is [byte[], int]) {
+        var [bytes, val] = result;
         return bytes;
     } else {
         return result;

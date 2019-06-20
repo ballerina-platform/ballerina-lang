@@ -19,12 +19,12 @@ function getNestedRecord() returns Data2 {
     return d2;
 }
 
-function getTuple() returns (int, string) {
-    return (1, "A");
+function getTuple() returns [int, string] {
+    return [1, "A"];
 }
 
-function getNestedTuple() returns (int, (string, float)) {
-    return (1, ("A", 5.6));
+function getNestedTuple() returns [int, [string, float]] {
+    return [1, ["A", 5.6]];
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -59,13 +59,13 @@ function testFinalNestedRecordVariableWithType() {
 // ---------------------------------------------------------------------------------------------------------------------
 
 function testFinalTupleVariableWithoutType() {
-    final var (i, j) = getTuple();
+    final var [i, j]= getTuple();
     i = 2;
     j = "B";
 }
 
 function testFinalTupleVariableWithType() {
-    final (int, string) (i, j) = getTuple();
+    final [int, string] [i, j] = getTuple();
     i = 2;
     j = "B";
 }
@@ -73,13 +73,13 @@ function testFinalTupleVariableWithType() {
 // ---------------------------------------------------------------------------------------------------------------------
 
 function testFinalNestedTupleVariableWithoutType() {
-    final var (i, j) = getNestedTuple();
+    final var [i, j] = getNestedTuple();
     i = 2;
-    j = ("C", 1.4);
+    j = ["C", 1.4];
 }
 
 function testFinalNestedTupleVariableWithType() {
-    final (int, (string, float)) (i, (j, k)) = getNestedTuple();
+    final [int, [string, float]] [i, [j, k]] = getNestedTuple();
     i = 2;
     j = "B";
     k = 3.4;

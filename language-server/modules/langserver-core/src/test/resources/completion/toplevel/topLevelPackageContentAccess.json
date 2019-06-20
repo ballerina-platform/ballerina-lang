@@ -62,13 +62,13 @@
       ]
     },
     {
-      "label": "parseHeader(string headerValue)((string,map)|error)",
+      "label": "parseHeader(string headerValue)([string,map]|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n(string,map)|error"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n[string,map]|error"
         }
       },
       "insertText": "parseHeader(${1:headerValue})",
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE requestAction, http:Client httpClient, string verb = )(ballerina/http:Response|ballerina/http:HttpFuture|error)",
+      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE requestAction, http:Client httpClient)(ballerina/http:Response|ballerina/http:HttpFuture|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -99,7 +99,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
         }
       },
-      "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient}, verb = ${5:\"\"})",
+      "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -452,6 +452,56 @@
       ]
     },
     {
+      "label": "Http1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "insertText": "Http1Settings",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "Http2Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/2 protocol.\n"
+      },
+      "insertText": "Http2Settings",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "RetryConfig",
       "kind": "Class",
       "detail": "Record",
@@ -506,7 +556,7 @@
       "kind": "Class",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
       },
       "insertText": "FollowRedirects",
       "insertTextFormat": "Snippet",
@@ -1681,7 +1731,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+        "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
       "insertText": "HttpFuture",
       "insertTextFormat": "Snippet",
@@ -2052,6 +2102,31 @@
       ]
     },
     {
+      "label": "HttpVersion",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the supported HTTP protocols.\n\n`HTTP_1_0`: HTTP/1.0 protocol\n`HTTP_1_1`: HTTP/1.1 protocol\n`HTTP_2_0`: HTTP/2.0 protocol"
+      },
+      "insertText": "HttpVersion",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "Chunking",
       "kind": "Enum",
       "detail": "Union",
@@ -2106,7 +2181,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
+        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`SUBMIT`: Submits a http request and returns an HttpFuture object\n`NONE`: No operation should be performed"
       },
       "insertText": "HttpOperation",
       "insertTextFormat": "Snippet",
@@ -2309,6 +2384,28 @@
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
       "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "HttpResponse",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "HttpResponse",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

@@ -216,6 +216,7 @@ public class SourcePruneTest {
                 {"src_prune_config73.json"},
                 {"src_prune_config74.json"},
                 {"src_prune_config75.json"},
+                {"src_prune_config76.json"},
         };
     }
 }
