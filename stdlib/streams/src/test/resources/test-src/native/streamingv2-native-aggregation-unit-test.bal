@@ -129,7 +129,7 @@ function streamFunc() {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
-            return e.get["inputStream.category"];
+            return e.get("inputStream.category");
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
             streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];

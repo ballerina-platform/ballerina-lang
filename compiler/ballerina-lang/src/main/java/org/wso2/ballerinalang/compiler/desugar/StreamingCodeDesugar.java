@@ -1417,8 +1417,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
                 streamEventParameter = createStringLiteral(expr.pos, (expr).toString());
                 exprs.set(i, streamEventParameter);
-            } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
-                BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) expr;
+            } else if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                BLangListConstructorExpr arrayLiteral = (BLangListConstructorExpr) expr;
                 convertFieldAccessArgsToStringLiteral(arrayLiteral.exprs);
             } else {
                 expr.typeChecked = false;
