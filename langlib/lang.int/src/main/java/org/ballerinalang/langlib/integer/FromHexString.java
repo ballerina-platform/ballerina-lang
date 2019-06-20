@@ -20,12 +20,22 @@ package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.int:fromHexString(string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.int", functionName = "fromHexString",
+        args = {@Argument(name = "n", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
+        isPublic = true
+)
 public class FromHexString {
 
     public static Object fromHexString(Strand strand, String s) {
