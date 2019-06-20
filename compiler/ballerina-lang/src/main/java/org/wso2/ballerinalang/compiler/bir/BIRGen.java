@@ -1360,14 +1360,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private BIROperand createErrorTargetOperandForNilReturnInvocation() {
-        BUnionType errorOrNil = BUnionType.create(symTable.errSymbol, symTable.errorType, symTable.nilType);
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(errorOrNil, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        return new BIROperand(tempVarDcl);
-    }
-
     @Override
     public void visit(BLangWaitExpr waitExpr) {
         createWait(waitExpr);
