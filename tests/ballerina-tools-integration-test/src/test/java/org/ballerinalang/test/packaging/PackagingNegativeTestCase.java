@@ -66,7 +66,7 @@ public class PackagingNegativeTestCase extends BaseTest {
             String content = "[project]\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
-        String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
+        String msg = "ballerina: an orgName is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
         String[] clientArgs = {moduleName};
@@ -83,7 +83,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"bcintegrationtest\"";
+            String content = "[project]\n orgName = \"bcintegrationtest\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "ballerina: a package version is required when pushing. This is not specified in Ballerina.toml " +
@@ -102,7 +102,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"ballerina\"\n version = \"0.0.2\"";
+            String content = "[project]\n orgName = \"ballerina\"\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "ballerina: invalid organization name: 'ballerina'. 'ballerina' and 'ballerinax' are reserved " +
@@ -122,7 +122,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         if (Files.exists(manifestFilePath)) {
             writeToFile(manifestFilePath, "");
         }
-        String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
+        String msg = "ballerina: an orgName is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
         String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
@@ -303,7 +303,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Test uninstall without an org-name")
     public void testUninstallWithoutOrg() throws Exception {
-        String msg = "error: no org-name is provided";
+        String msg = "error: no orgName is provided";
         balClient.runMain("uninstall", new String[] {"testxyz"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
@@ -367,7 +367,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"foo-bar\"\n version = \"0.0.2\"";
+            String content = "[project]\n orgName = \"foo-bar\"\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +

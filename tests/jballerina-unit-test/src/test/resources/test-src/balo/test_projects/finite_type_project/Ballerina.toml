@@ -1,4 +1,4 @@
 [project]
 # Name of the package
-org-name = "finiteTypeTest"
+orgName = "finiteTypeTest"
 version = "v1"
