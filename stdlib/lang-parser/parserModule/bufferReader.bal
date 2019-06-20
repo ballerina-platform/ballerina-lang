@@ -61,7 +61,8 @@ public type BufferReader object {
     # + return - string
     function consume() returns string {
         string currChar = self.characterArray[self.readPointer];
-        //the buffersize will not be equal to the capacity, if the input file has less number of characters than the buffer size
+        //if the input file has less number of characters than the buffer size,
+        //the buffer size will not be equal to the capacity.
         if (!self.isEof && self.bufferSize == self.capacity) {
             var storeResult = self.storeCharacter();
             if (storeResult is error) {

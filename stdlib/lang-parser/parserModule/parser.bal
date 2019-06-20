@@ -87,10 +87,10 @@ type Parser object {
         } else {
             if (self.LAToken(1) == LEXER_ERROR_TOKEN) {
                 log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos + ": expected " +
-                tokenNames[expectedToken] + ";found an invalid token '" + self.LookaheadToken(1).text + "'");
+                    tokenNames[expectedToken] + ";found an invalid token '" + self.LookaheadToken(1).text + "'");
             } else {
                 log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos + ": expected " +
-                tokenNames[expectedToken] + "; found '" + self.LookaheadToken(1).text + "'");
+                    tokenNames[expectedToken] + "; found '" + self.LookaheadToken(1).text + "'");
             }
             Token panicToken = self.panicRecovery(expectedToken, rule);
             return panicToken;
@@ -122,7 +122,7 @@ type Parser object {
     function deleteToken() returns Token {
         Token invalidToken = self.parserBuffer.consumeToken();
         log:printError(invalidToken.lineNumber + ":" + invalidToken.startPos + ": invalid token '" +
-        invalidToken.text + "'");
+            invalidToken.text + "'");
         self.errorTokens[self.errorCount] = invalidToken;
         self.errorCount += 1;
         self.invalidOccurence = true;
@@ -152,7 +152,8 @@ type Parser object {
             } else {
                 int[] exprPanic = [ASSIGN, SEMICOLON, RBRACE, EOF];
                 while (panicMode) {
-                    if (self.LAToken(1) == exprPanic[0] || self.LAToken(1) == exprPanic[1] || self.LAToken(1) == exprPanic[3]) {
+                    if (self.LAToken(1) == exprPanic[0] || self.LAToken(1) == exprPanic[1] ||
+                        self.LAToken(1) == exprPanic[3]) {
                         break;
                     } else if (self.LAToken(1) == exprPanic[2] && self.LookaheadToken(1).whiteSpace == "\n") {
                         break;
@@ -289,7 +290,6 @@ type Parser object {
     # + return - FunctionUnitSignatureNode
     function parseCallableUnitSignature() returns FunctionUnitSignatureNode {
         Token identifier = self.matchToken(IDENTIFIER, FN_SIGNATURE_NODE);
-
         //if the identifier is mismatched, then panic recovery method is executed and
         // tokens upto lbrace will be consumed.
         // the error tokens will be added to errToken list
@@ -439,7 +439,8 @@ type Parser object {
     function parseVariableDefinitionStatementNode() returns VariableDefStNode {
         //value type token
         Token valTypeToken = self.parseValueTypeName();
-        //it is not necessary to check the validity of the value type since we only call this method if its a valid value type name.
+        //it is not necessary to check the validity of the value type since,
+        //we only call this method if its a valid value type name.
         ValueKind valueKind1 = self.matchValueType(valTypeToken);
         Token identifier = self.matchToken(IDENTIFIER, VAR_DEF_STATEMENT_NODE);
 
@@ -523,9 +524,11 @@ type Parser object {
         Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
         self.errorRecovered = true;
         ExpressionNode exprNode = self.expressionBuilder(VAR_DEF_STATEMENT_NODE);
-        //if no semicolon found in the end of the expr, then errorRecovered will set to false within the expressionBuilder method itself
+        //if no semicolon found in the end of the expr,
+        //then errorRecovered will set to false within the expressionBuilder method itself
         if (exprNode is ()) {
-            log:printError(assign.lineNumber + ":" + assign.endPos + " : no valid expression found in variable definition statement.");
+            log:printError(assign.lineNumber + ":" + assign.endPos +
+                " : no valid expression found in variable definition statement.");
             self.errorRecovered = false;
         }
         if (self.errorRecovered == false || self.invalidOccurence == true) {
@@ -712,7 +715,8 @@ type Parser object {
             else if (operator.tokenType == COMMA) {
                 if (self.expectOperand == true) {
                     log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
-                    //token deletion without calling the method as the comma token is already consumed and pushed to the opr stack
+                    //token deletion without calling the method,
+                    //as the comma token is already consumed and pushed to the opr stack
                     self.errorTokens[self.errorCount] = operator;
                     self.errorCount += 1;
                     self.invalidOccurence = true;
@@ -733,7 +737,7 @@ type Parser object {
                 if (expr1 is ()) {
                     self.errorRecovered = false;
                     log:printError(operator.lineNumber + ":" + operator.startPos +
-                    " : invalid binary expression, binary RHS expression not found");
+                        " : invalid binary expression, binary RHS expression not found");
                     BinaryExpressionNode binaryExpression = {
                         nodeKind: BINARY_EXP_NODE,
                         tokenList: [operator],
@@ -806,10 +810,10 @@ type Parser object {
     function parseExpression() returns boolean {
         if (self.LAToken(1) == LPAREN) {
             self.priorOperator = false;
-            //Lapren is expected after a operator,
+            //Lparen is expected after a operator,
             //After consuming an operator, the expectOperand must be set to True.
             //but here since the expectOperand is False, that means the previous token must be an operand
-            //which causes an invalid occurence scenario.
+            //which causes an invalid occurrence scenario.
             //therefore the token is deleted and added to the errToken list
             if (self.expectOperand == false) {
                 Token invalidToken = self.deleteToken();
@@ -870,7 +874,8 @@ type Parser object {
 
             //if the expression stack is empty then that means no prior expression , so this is a unary expr
             if (self.expStack.isEmpty() == true || self.priorOperator == true) {
-                if (self.LAToken(1) == SUB || self.LAToken(1) == ADD || (self.LAToken(1) >= NOT && self.LAToken(1) <= UNTAINT)) { // unary operators
+                if (self.LAToken(1) == SUB || self.LAToken(1) == ADD ||
+                   (self.LAToken(1) >= NOT && self.LAToken(1) <= UNTAINT)) { // unary operators
 
                     if (self.LAToken(1) == SUB) {
                         Token unarySub = self.matchToken(SUB, EXPRESSION_NODE);
@@ -887,7 +892,8 @@ type Parser object {
                     self.expectOperand = true;
                     self.priorOperator = true;
                     return true;
-                } else { //Operator which is not an unary operator - Ex:(,2) -> in such instance where the comma is in invalid position comma is deleted and added to the errorlist.
+                } else { //Operator which is not an unary operator,
+                //Eg:(,2) in such instance where the comma is in invalid position comma is deleted and added to the errorlist.
                     Token invalidToken = self.deleteToken();
                     return true;
                 }
@@ -895,7 +901,8 @@ type Parser object {
                 //setting the prior operator to true
                 self.priorOperator = true;
                 while (self.operatorStack.opPrecedence(self.operatorStack.peek()) >= self.operatorStack.opPrecedence(self.LAToken(1))) {
-                    //if the lookahead token is a comma and also the opr stack peek is also a comma, then we dont pop the comma from the stack Ex: (2,3)
+                    //if the lookahead token is a comma and also the opr stack peek is also a comma,
+                    //then we dont pop the comma from the stack Eg: (2,3)
                     //it will be popped in the end when we reach the RPAREN
                     if (self.operatorStack.peek() == COMMA) {
                         if (self.LAToken(1) == COMMA) {
@@ -956,7 +963,8 @@ type Parser object {
                 Token operator = self.operatorStack.pop();
                 if (operator.tokenType == PARSER_ERROR_TOKEN) {
                     //considering only possible option to return parser error token would be a missing lparen
-                    log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing '('");
+                    log:printError(operator.lineNumber + ":" + operator.startPos +
+                        " : invalid tuple literal, missing '('");
                     Token insertlParen = self.insertToken(LPAREN);
                     insertlParen.text = "(";
                     self.operatorStack.push(insertlParen);
@@ -964,8 +972,10 @@ type Parser object {
                     break;
                 } else if (operator.tokenType == COMMA) {
                     if (self.expectOperand == true) {
-                        log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
-                        //token deletion without calling the method as the comma token is already consumed and pushed to the opr stack
+                        log:printError(operator.lineNumber + ":" + operator.startPos +
+                            " : missing expression after comma");
+                        //token deletion without calling the method,
+                        // because the comma token is already consumed and pushed to the opr stack
                         self.errorTokens[self.errorCount] = operator;
                         self.errorCount += 1;
                         self.invalidOccurence = true;
@@ -1007,7 +1017,7 @@ type Parser object {
                 } else {
                     if (self.expectOperand == true) {
                         log:printError(operator.lineNumber + ":" + operator.startPos +
-                        " : invalid binary expression, binary RHS expression not found");
+                            " : invalid binary expression, binary RHS expression not found");
                         self.invalidOccurence = true;
                         OperatorKind opKind = self.matchOperatorType(operator);
                         ExpressionNode expr1 = self.expStack.pop();
@@ -1119,7 +1129,6 @@ type Parser object {
             return ERROR_OP;
         }
     }
-
 };
 
 # Operator stack to store the operators
@@ -1187,7 +1196,8 @@ type OperatorStack object {
             return 5;
         } else if (opToken == DIV || opToken == MUL || opToken == MOD) {
             return 6;
-        } else if (opToken == UNARY_MINUS || opToken == UNARY_PLUS || opToken == NOT || opToken == BIT_COMPLEMENT || opToken == UNTAINT) {
+        } else if (opToken == UNARY_MINUS || opToken == UNARY_PLUS || opToken == NOT || opToken == BIT_COMPLEMENT ||
+                   opToken == UNTAINT) {
             return 7;
         }
         return -1;

@@ -46,10 +46,11 @@ const ERROR_IDENTIFIER_NODE = "errorIdentifier";
 const ERROR_EXPRESSION_NODE = "failedExpression";
 
 type NodeKind PACKAGE_NODE | FUNCTION_NODE | STATEMENT_NODE | VAR_DEF_STATEMENT_NODE | EXPRESSION_NODE |
- BINARY_EXP_NODE | IDENTIFIER_NODE | VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
- RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
- EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE | ERROR_FN_SIGNATURE_NODE | ERROR_BLOCK_NODE |
- ERROR_VAR_DEF_STATEMENT_NODE | ERROR_VAR_DEF_IDENTIFIER_NODE | ERROR_CONTIUE_STATEMENT_NODE | ERROR_STATEMENT_NODE | ERROR_IDENTIFIER_NODE | ERROR_EXPRESSION_NODE;
+    BINARY_EXP_NODE | IDENTIFIER_NODE | VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL |
+    QUO_STRING_LITERAL | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE |
+    EMPTY_TUPLE_LITERAL_NODE | UNARY_EXPRESSION_NODE | CONTINUE_STATEMENT_NODE | ERROR_FN_SIGNATURE_NODE |
+    ERROR_BLOCK_NODE | ERROR_VAR_DEF_STATEMENT_NODE | ERROR_VAR_DEF_IDENTIFIER_NODE | ERROR_CONTIUE_STATEMENT_NODE |
+    ERROR_STATEMENT_NODE | ERROR_IDENTIFIER_NODE | ERROR_EXPRESSION_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
@@ -79,7 +80,8 @@ const BIT_COMPLEMENT_OP = "~";
 const UNTAINT_TYPE = "untaint";
 
 type OperatorKind PLUS_OP | MINUS_OP | DIVISION_OP | MULTIPLICATION_OP | ERROR_OP | COLON_OP | COMMA_OP |
- MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP | NOT_OP | BIT_COMPLEMENT_OP | UNTAINT_TYPE;
+    MOD_OP | LT_EQUAL_OP | GT_EQUAL_OP | GT_OP | LT_OP | EQUAL_OP | NOT_EQUAL_OP | REF_EQUAL_OP | REF_NOT_EQUAL_OP |
+    NOT_OP | BIT_COMPLEMENT_OP | UNTAINT_TYPE;
 
 type Node record {
     NodeKind nodeKind;
@@ -118,7 +120,7 @@ type BlockNode record {
 };
 
 type ErrorBlockNode record {
-	*BlockNode;
+    *BlockNode;
 };
 
 type StatementNode VariableDefStNode | ContinueStNode | ErrorStatementNode;
@@ -133,7 +135,7 @@ type VariableDefinitionStatementNode record {
 };
 
 type ErrorVarDefStatementNode record {
-	*VariableDefinitionStatementNode;
+    *VariableDefinitionStatementNode;
 };
 
 type ContinueStNode ContinueStatementNode | ErrorContinueStatementNode;
@@ -144,17 +146,17 @@ type ContinueStatementNode record {
 };
 
 type ErrorContinueStatementNode record {
-	*ContinueStatementNode;
+    *ContinueStatementNode;
 };
 
 type ErrorStatementNode record {
-	*Node;
+    *Node;
 };
 
 type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | TupleLiteralNode | UnaryExpressionNode | ErrorExpressionNode;
 
 type ErrorExpressionNode record {
-	*Node;
+    *Node;
     ExpressionNode errorExpression?;
 };
 
@@ -179,7 +181,7 @@ type IdentifierNode record {
 };
 
 type ErrorIdentifierNode record {
-	*Node;
+    *Node;
     string? identifier;
 };
 
@@ -191,7 +193,7 @@ type VarRefIdentifier record {
 };
 
 type ErrorVarRefIdentifierNode record {
-	*Node;
+    *Node;
     string? varIdentifier;
 };
 

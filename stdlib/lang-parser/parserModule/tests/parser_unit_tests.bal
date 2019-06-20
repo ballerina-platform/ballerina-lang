@@ -106,7 +106,6 @@ function testVarDefStValid() {
     json actual = parseAst("resources/statements/variableDefinitionStatement/varDefSts_valid.bal");
     json expected = validVarDefStatement();
     test:assertEquals(actual, expected);
-
 }
 
 @test:Config

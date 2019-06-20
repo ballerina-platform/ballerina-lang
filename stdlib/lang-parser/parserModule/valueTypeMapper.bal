@@ -28,5 +28,4 @@ type ValueTypeMapper object {
             CONTINUE: CONTINUE_TYPE
         };
     }
-
 };

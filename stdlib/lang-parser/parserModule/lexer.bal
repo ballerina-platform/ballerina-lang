@@ -146,7 +146,8 @@ public type Lexer object {
                     //loop until Eof
                     if (self.buffer.lookAhead() == END_OF_FILE) {
                         incompleteStr = false;
-                        //if no inverted comma is found,all the characters until Eof is captured and returned as an Lexer Error Token
+                        //if no inverted comma is found,
+                        //all the characters until Eof is captured and returned as an Lexer Error Token
                         return self.getToken(LEXER_ERROR_TOKEN, stringLiteral, self.position - strPos);
                     }
                 }
