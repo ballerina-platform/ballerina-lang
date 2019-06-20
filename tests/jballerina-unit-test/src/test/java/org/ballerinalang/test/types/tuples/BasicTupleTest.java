@@ -51,10 +51,9 @@ public class BasicTupleTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), " test1 expr \n" +
                 " test2 \n" +
-                " test3 foo test3 \n" +
+                " test3 3 \n" +
                 " test4 4 \n" +
-                " test5 5 \n" +
-                " test6 foo test6 \n ");
+                " test5 foo test5 \n ");
     }
 
     @Test(description = "Test Function invocation using tuples")

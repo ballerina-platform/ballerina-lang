@@ -535,10 +535,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleVariable varNode) {
 
         if (varNode.isDeclaredWithVar) {
-            List<BType> memberTypes = varNode.memberVariables
-                    .stream().map(v -> symTable.noType)
-                    .collect(Collectors.toList());
-            expType = new BTupleType(memberTypes);
+            expType = resolveTupleType(varNode);
             handleDeclaredWithVar(varNode);
             return;
         }
@@ -560,6 +557,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeChecker.checkExpr(varNode.expr, env, varNode.type);
+    }
+
+    private BType resolveTupleType(BLangTupleVariable varNode) {
+        List<BType> memberTypes = new ArrayList<>(varNode.memberVariables.size());
+        for (BLangVariable memberVariable : varNode.memberVariables) {
+            if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+                memberTypes.add(resolveTupleType((BLangTupleVariable) memberVariable));
+            } else {
+                memberTypes.add(symTable.noType);
+            }
+        }
+        return new BTupleType(memberTypes);
     }
 
     public void visit(BLangErrorVariable varNode) {
@@ -627,6 +636,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 simpleVariable.symbol.type = rhsType;
                 break;
             case TUPLE_VARIABLE:
+                if (variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "tuple binding pattern");
+                    variable.type = symTable.semanticError;
+                    return;
+                }
                 if (TypeTags.TUPLE != rhsType.tag) {
                     dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
                     variable.type = symTable.semanticError;
