@@ -39,7 +39,7 @@
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
-            <package name="org.ballerinalang.test.privacy.*"/>
+            <!-- <package name="org.ballerinalang.test.privacy.*"/> -->
             <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
@@ -58,6 +58,7 @@
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
+            <package name="org.ballerinalang.test.expressions.fieldaccess.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
@@ -87,6 +88,15 @@
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
+            <package name="org.ballerinalang.test.object.*" />
+            <package name="org.ballerinalang.test.dataflow.analysis.*" />
+            <package name="org.ballerinalang.test.documentation.*" />
+            <package name="org.ballerinalang.test.endpoint.*" />
+            <package name="org.ballerinalang.test.enum.*" />
+            <!-- <package name="org.ballerinalang.test.loc.*" /> -->
+            <package name="org.ballerinalang.test.packaging.*" />
+            <package name="org.ballerinalang.test.types.xml.*" />
+            <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.annotations"/>
         </packages>
 
@@ -97,41 +107,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
-            <class name="org.ballerinalang.test.object.ObjectFunctionsWithDefaultableArguments" />
-            <class name="org.ballerinalang.test.object.ObjectAttachedFunctionPointerTest" >
-                <methods>
-                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer1"></exclude>
-                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer2"></exclude>
-                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer3"></exclude>
-                    <exclude name="testInvokeAttachedFunctionAsFunctionPointer4"></exclude>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.ObjectTest" >
-                <methods>
-                    <!-- Fails due to link error at runtime -->
-                    <exclude name="testObjectWithMissingNativeImpl" />
-
-                    <!-- fails in getBIRModuleBinary -->
-                    <exclude name="testObjectAnyTypeFieldAsConstructorParam" />
-                    <exclude name="testObjectWithAttachedFunction" />
-                    <exclude name="testStructPrint" />
-
-                    <!-- fails because of missing lambda functions support -->
-                    <exclude name="testFunctionReferencesFromObjects" />
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
-            <class name="org.ballerinalang.test.object.ObjectEquivalencyNegativeTest" />
             <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
-            <class name="org.ballerinalang.test.object.AbstractObjectTest">
-                <methods>
-                    <!-- Fails because index based access is not implemented -->
-                    <exclude name="testAbstractAnonObjectInFunction" />
-                    <exclude name="testAbstractAnonObjectInMatch" />
-                    <exclude name="testAbstractAnonObjectInVarDef" />
-                    <exclude name="testAbstractObjectInObject" />
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
                 <methods>
                     <exclude name="testSemanticErrorsWithResources"/>
@@ -218,20 +194,6 @@
             <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
-            <class name="org.ballerinalang.test.record.ClosedRecordOptionalFieldsTest"/>
-            <class name="org.ballerinalang.test.record.OpenRecordOptionalFieldsTest"/>
-            <class name="org.ballerinalang.test.record.RecordAccessWithIndexTest"/>
-            <class name="org.ballerinalang.test.record.RecordFieldsAccessNegativeTest"/>
-
-            <class name="org.ballerinalang.test.types.xml.XMLAccessTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLAttributesTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLLiteralTest">
-                <methods>
-                    <exclude name="testServiceLevelXML"></exclude>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
-            <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
             <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
             <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
         </classes>

@@ -26,8 +26,8 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
-            <!-- <package name="org.ballerinalang.langserver.*"/> -->
-        </packages>
+        <classes>
+             <class name="org.ballerinalang.langserver.completion.definitions.FunctionDefinitionCompletionTest"/> 
+        </classes>
     </test>
 </suite>

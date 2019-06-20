@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
@@ -44,6 +45,7 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BMapType;
@@ -84,6 +86,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -112,6 +115,7 @@ public class BRunUtil {
      * @param functionName  Name of the function to invoke
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invokeStateful(compileResult, functionName, args);
@@ -125,6 +129,7 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
@@ -140,6 +145,7 @@ public class BRunUtil {
      * @param functionName  Name of the function to invoke
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName, String functionName) {
         BValue[] args = {};
         return invokeStateful(compileResult, packageName, functionName, args);
@@ -154,6 +160,7 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
+    @Deprecated
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
                                           String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
@@ -852,6 +859,9 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                if (arrayType.getState() == BArrayState.UNSEALED) {
+                    return new org.ballerinalang.jvm.types.BArrayType(elementType);
+                }
                 return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.getSize());
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
@@ -924,9 +934,12 @@ public class BRunUtil {
                 BValueArray bvmArray;
                 if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
                     bvmArray = new BValueArray(getBVMType(arrayType, new Stack<>()));
+                } else if (arrayType.getState() == ArrayState.UNSEALED) {
+                    bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), -1);
                 } else {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), array.size());
                 }
+
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:
@@ -1061,7 +1074,16 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
                 return BTypes.typeAnydata;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
-                return BTypes.typeError;
+                org.ballerinalang.jvm.types.BErrorType errorType = (org.ballerinalang.jvm.types.BErrorType) jvmType;
+                if (errorType == org.ballerinalang.jvm.types.BTypes.typeError) {
+                    return BTypes.typeError;
+                }
+
+                BType reasonType = getBVMType(errorType.reasonType, selfTypeStack);
+                BType detailType = getBVMType(errorType.detailType, selfTypeStack);
+                BErrorType bvmErrorType =
+                        new BErrorType(errorType.getName(), reasonType, detailType, errorType.getPackage().name);
+                return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType = new BRecordType(null, recordType.getName(),
@@ -1100,7 +1122,7 @@ public class BRunUtil {
                 BObjectType bvmObjectType =
                         new BObjectType(null, objectType.getName(), objectType.getPackage().getName(),
                                         objectType.flags);
-                Map<String, BField> objectFields = new HashMap<>();
+                Map<String, BField> objectFields = new LinkedHashMap<>();
                 for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
                     if (selfTypeStack.contains(field)) {
                         continue;

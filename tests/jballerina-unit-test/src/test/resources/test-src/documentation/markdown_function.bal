@@ -32,12 +32,12 @@ function getX () returns string | error {
 #
 # + aTuple - a `Tuple` where the values should represent name, age and weight of a person, in order
 # + anInt - index
-function updatePeople ((string, int, float) aTuple, int anInt) {
+function updatePeople ([string, int, float] aTuple, int anInt) {
 
 }
 
 #
 # + return - a `Tuple` will be returned and would represent name, age and weight of a person, in order
-function searchPeople () returns ((string, int, float)) {
-    return ("", 1, 1.0);
+function searchPeople () returns [string, int, float] {
+    return ["", 1, 1.0];
 }

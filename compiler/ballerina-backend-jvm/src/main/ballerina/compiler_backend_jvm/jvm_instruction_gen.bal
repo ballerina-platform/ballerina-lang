@@ -572,16 +572,16 @@ type InstructionGenerator object {
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
         bir:BType typeOfMapNewIns = mapNewIns.bType;
-
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
             var typeRef = mapNewIns.typeRef;
-            className = self.currentPackageName;
             if (typeRef is bir:TypeRef) {
-                className = typeRefToClassName(typeRef) + "/";
+                className = typeRefToClassName(typeRef, cleanupTypeName(typeOfMapNewIns.name.value));
+            } else {
+                className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
             }
-            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
             if (typeRef is bir:TypeRef) {
@@ -810,11 +810,14 @@ type InstructionGenerator object {
     function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
-        string className = self.currentPackageName;
+        string className;
         if (typeDefRef is bir:TypeRef) {
-            className = typeRefToClassName(typeDefRef) + "/";
+            className = typeRefToClassName(typeDefRef, typeDefRef.name.value);
+        } else {
+            className = self.currentPackageName + cleanupTypeName(typeDefRef.name.value);
         }
-        className = className + cleanupTypeName(typeDef.name.value);
+
+
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
 

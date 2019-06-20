@@ -20,6 +20,8 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -64,7 +66,18 @@ public class BallerinaValues {
             if (fieldValues.length >= valCount + 1) {
                 value = fieldValues[valCount];
             } else {
-                value = field.getFieldType().getEmptyValue();
+                BType fieldType = field.getFieldType();
+                if (fieldType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+                    // This is a hack to avoid self references. This should be fixed properly.
+                    if (objectTypeName.equals(fieldType.getName())) {
+                        continue;
+                    }
+                    value = createObjectValue(fieldType.getPackage().toString(), fieldType.getName());
+                } else if (fieldType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    value = createRecordValue(fieldType.getPackage().toString(), fieldType.getName());
+                } else {
+                    value = fieldType.getEmptyValue();
+                }
             }
             objectValue.set(field.name, value);
             valCount++;
