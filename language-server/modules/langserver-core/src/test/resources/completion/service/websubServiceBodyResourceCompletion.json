@@ -1,7 +1,7 @@
 {
     "position": {
-        "line": 4,
-        "character": 1
+        "line": 3,
+        "character": 4
     },
     "source": "service/source/websubServiceBodyResourceCompletion.bal",
     "items": [

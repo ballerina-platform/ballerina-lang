@@ -75,7 +75,7 @@
       "label": "openapi:MultiResourceInfo",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "openapi:MultiResourceInfo {\n\t${1}\n}",
+      "insertText": "openapi:MultiResourceInfo {\n\tresourceInformation: ${1:{}}}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

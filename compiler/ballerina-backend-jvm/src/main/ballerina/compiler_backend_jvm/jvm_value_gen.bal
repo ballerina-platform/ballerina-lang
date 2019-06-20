@@ -273,14 +273,15 @@ public type ObjectGenerator object {
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
-        sorter.sortByHash(fields);
+        bir:BObjectField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
 
-        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
-        foreach var optionalField in fields {
+        foreach var optionalField in sortedFields {
             bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
@@ -292,7 +293,7 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
         mv.visitEnd();
     }
 
@@ -307,15 +308,16 @@ public type ObjectGenerator object {
 
         // sort the fields before generating switch case
         NodeSorter sorter = new();
-        sorter.sortByHash(fields);
+        bir:BObjectField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
 
-        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
-        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels,
+        jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         // case body
         int i = 0;
-        foreach var optionalField in fields {
+        foreach var optionalField in sortedFields {
             bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
@@ -328,7 +330,7 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
         mv.visitEnd();
     }
 

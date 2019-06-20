@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-(int, string, boolean, (), float, decimal) data = (20, "string", true, (), 15.5, 20.2);
+[int, string, boolean, (), float, decimal] data = [20, "string", true, (), 15.5, 20.2];
 string output = "";
 int sum = 0;
 int negSum = 0;
@@ -68,7 +68,7 @@ function testTupleWithBasicTypes() returns string {
 }
 
 function testTupleWithBasicTypesAddingInt() returns int {
-    (int, int, string, int, string) ldata = (10, 5, "string", 3, "string");
+    [int, int, string, int, string] ldata = [10, 5, "string", 3, "string"];
     int i = 0;
     foreach int|string v in ldata {
         if v is int {
@@ -78,8 +78,8 @@ function testTupleWithBasicTypesAddingInt() returns int {
     return i;
 }
 
-function testIntTupleComplex() returns (int, int, string) {
-    (int, int, int, int, int, int, int, int) tupleData = (1, -3, 5, -30, 4, 11, 25, 10);
+function testIntTupleComplex() returns [int, int, string] {
+    [int, int, int, int, int, int, int, int] tupleData = [1, -3, 5, -30, 4, 11, 25, 10];
     output = "";
     sum = 0;
     negSum = 0;
@@ -97,13 +97,13 @@ function testIntTupleComplex() returns (int, int, string) {
         }
         i += 1;
     }
-    return (sum, negSum, output);
+    return [sum, negSum, output];
 }
 
 function testTupleWithTypeAny() returns int {
     Employee e = new;
     Person p = { name: "Peter", age: 12 };
-    (Person, int, Employee, int, string) ldata = (p, 5, e, 3, "string");
+    [Person, int, Employee, int, string] ldata = [p, 5, e, 3, "string"];
     int i = 0;
     foreach any v in ldata {
         if v is int {
@@ -115,7 +115,7 @@ function testTupleWithTypeAny() returns int {
 
 function testTupleWithTypeAnydata() returns int {
     Person p = { name: "Peter", age: 12 };
-    (Person, int, string, int, string) ldata = (p, 5, "string", 3, "string");
+    [Person, int, string, int, string] ldata = [p, 5, "string", 3, "string"];
     int i = 0;
     foreach anydata v in ldata {
         if v is int {
@@ -126,7 +126,7 @@ function testTupleWithTypeAnydata() returns int {
 }
 
 function testBreak() returns string {
-    (string, string, string) sTuple = ("d0", "d1", "d2");
+    [string, string, string] sTuple = ["d0", "d1", "d2"];
     output = "";
     int i = 0;
     foreach var v in sTuple {
@@ -141,7 +141,7 @@ function testBreak() returns string {
 }
 
 function testContinue() returns string {
-    (string, string, string) sTuple = ("d0", "d1", "d2");
+    [string, string, string] sTuple = ["d0", "d1", "d2"];
     output = "";
     int i = 0;
     foreach var v in sTuple {
@@ -157,7 +157,7 @@ function testContinue() returns string {
 }
 
 function testReturn() returns string {
-    (string, string, string) sTuple = ("d0", "d1", "d2");
+    [string, string, string] sTuple = ["d0", "d1", "d2"];
     output = "";
     int i = 0;
     foreach var v in sTuple {
@@ -172,7 +172,7 @@ function testReturn() returns string {
 
 function testNestedWithBreakContinue() returns string {
     output = "";
-    (string, string, string, string) sTuple = ("d0", "d1", "d2", "d3");
+    [string, string, string, string] sTuple = ["d0", "d1", "d2", "d3"];
     int i = 0;
     foreach var v in sTuple {
         concatString(i, v);
@@ -192,7 +192,7 @@ function testNestedWithBreakContinue() returns string {
 
 function testTupleWithNullElements() returns string {
     output = "";
-    (string, (), string, ()) sTuple = ("d0", (), "d2", ());
+    [string, (), string, ()] sTuple = ["d0", (), "d2", ()];
     int i = 0;
     foreach var v in sTuple {
         if v is string {
