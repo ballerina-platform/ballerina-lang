@@ -226,27 +226,27 @@ public class InitHandler {
     private static String getManifestContent(Manifest manifest) {
         StringBuilder manifestContent = new StringBuilder("[project]");
         manifestContent.append("\n");
-        if (null != manifest.getName() && !manifest.getName().isEmpty()) {
-            manifestContent.append("org-name = \"");
-            manifestContent.append(manifest.getName());
+        if (null != manifest.getProject().getOrgName() && !manifest.getProject().getOrgName().isEmpty()) {
+            manifestContent.append("orgName = \"");
+            manifestContent.append(manifest.getProject().getOrgName());
             manifestContent.append("\"\n");
         }
         
-        if (null != manifest.getVersion() && !manifest.getVersion().isEmpty()) {
+        if (null != manifest.getProject().getVersion() && !manifest.getProject().getVersion().isEmpty()) {
             manifestContent.append("version = \"");
-            manifestContent.append(manifest.getVersion());
+            manifestContent.append(manifest.getProject().getVersion());
             manifestContent.append("\"\n\n");
         }
     
-        if (null != manifest.getAuthors() && !manifest.getAuthors().isEmpty()) {
+        if (null != manifest.getProject().getAuthors() && !manifest.getProject().getAuthors().isEmpty()) {
             manifestContent.append("authors = [");
-            manifestContent.append(String.join(", ", "\"" + manifest.getAuthors() + "\""));
+            manifestContent.append(String.join(", ", "\"" + manifest.getProject().getAuthors() + "\""));
             manifestContent.append("]\n\n");
         }
     
-        if (null != manifest.getKeywords() && !manifest.getKeywords().isEmpty()) {
+        if (null != manifest.getProject().getKeywords() && !manifest.getProject().getKeywords().isEmpty()) {
             manifestContent.append("keywords = [");
-            manifestContent.append(String.join(", ", "\"" + manifest.getKeywords() + "\""));
+            manifestContent.append(String.join(", ", "\"" + manifest.getProject().getKeywords() + "\""));
             manifestContent.append("]\n\n");
         }
         

@@ -18,6 +18,7 @@
 package org.ballerinalang.toml.model;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  * @since 0.964
  */
 public class Manifest {
-    private Project project;
+    private Project project = new Project();
     private Map<String, Object> dependencies = new LinkedHashMap<>();
     
     public Project getProject() {
@@ -77,12 +78,12 @@ public class Manifest {
      * Project definition.
      */
     public static class Project {
-        private String orgName;
-        private String version;
-        private String license;
-        private List<String> authors;
-        private String repository;
-        private List<String> keywords;
+        private String orgName = "";
+        private String version = "";
+        private String license = "";
+        private List<String> authors = new LinkedList<>();
+        private String repository = "";
+        private List<String> keywords = new LinkedList<>();
         
         public String getOrgName() {
             return orgName;

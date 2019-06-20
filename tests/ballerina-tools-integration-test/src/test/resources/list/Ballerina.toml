@@ -1,3 +1,3 @@
 [project]
-org-name = "myorg"
+orgName = "myorg"
 version = "1.0.0"
