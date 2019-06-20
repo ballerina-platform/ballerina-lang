@@ -1133,9 +1133,9 @@ if (hasInitFunction(pkg)) {
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
             }
         }
-
-        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
     }
+
+    scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
     
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
