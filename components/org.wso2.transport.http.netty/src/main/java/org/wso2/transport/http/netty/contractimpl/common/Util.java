@@ -40,7 +40,10 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ConfigurationException;
@@ -340,12 +343,16 @@ public class Util {
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
-            if (sslConfig.getTrustStore() != null) {
-                sslHandlerFactory.createSSLContextFromKeystores(false);
-                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
-                        sslHandlerFactory);
+            if (!sslConfig.isDisableSsl()) {
+                if (sslConfig.getTrustStore() != null) {
+                    sslHandlerFactory.createSSLContextFromKeystores(false);
+                    sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
+                            sslConfig.isHostNameVerificationEnabled(), sslHandlerFactory);
+                } else {
+                    sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
+                }
             } else {
-                sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
+                sslEngine = createInsecureSslEngine(socketChannel, host, port);
             }
             sslHandler = new SslHandler(sslEngine);
             setSslHandshakeTimeOut(sslConfig, sslHandler);
@@ -369,6 +376,14 @@ public class Util {
             setHostNameVerfication(sslEngine);
         }
         return sslEngine;
+    }
+
+    private static SSLEngine createInsecureSslEngine(SocketChannel socketChannel, String host, int port)
+            throws SSLException {
+        SslContext sslContext = SslContextBuilder.forClient().sslProvider(SslProvider.JDK)
+                .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+        SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
+        return sslHandler.engine();
     }
 
     /**
