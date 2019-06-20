@@ -17,14 +17,21 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * Abstract class to be extended by all the ballerina objects.
@@ -113,5 +120,40 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public Object copy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
+            if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
+                continue;
+            }
+            String fieldName = field.getKey();
+            sj.add(fieldName + ":" + getStringValue(get(fieldName)));
+        }
+
+        return sj.toString();
+    }
+
+    private String getStringValue(Object value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof String) {
+            return "\"" + value.toString() + "\"";
+        } else {
+            return value.toString();
+        }
+    }
+
+    protected void checkFieldUpdate(String fieldName, Object value) {
+        BType fieldType = type.getFields().get(fieldName).type;
+        if (TypeChecker.checkIsType(value, fieldType)) {
+            return;
+        }
+
+        throw BallerinaErrors.createError(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                "invalid value for object field '" + fieldName + "': expected value of type '" + fieldType +
+                        "', found '" + TypeChecker.getType(value) + "'");
     }
 }

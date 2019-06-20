@@ -556,25 +556,9 @@ public class Desugar extends BLangNodeVisitor {
             recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
         }
 
+        // TODO:
         // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
         // referenced types are invoked on the current record type.
-        for (BLangType typeRef : recordTypeNode.typeRefs) {
-            BVarSymbol receiverSym = recordTypeNode.initFunction.receiver.symbol;
-            BInvokableSymbol dupInitFuncSym = ASTBuilderUtil.duplicateInvokableSymbol(
-                    ((BRecordTypeSymbol) typeRef.type.tsymbol).initializerFunc.symbol);
-            dupInitFuncSym.receiverSymbol = receiverSym;
-
-            BLangInvocation initInv = ASTBuilderUtil.createInvocationExpr(typeRef.pos, dupInitFuncSym,
-                                                                          new ArrayList<>(), symResolver);
-            initInv.expr = ASTBuilderUtil.createVariableRef(recordTypeNode.initFunction.receiver.pos, receiverSym);
-            initInv = rewriteExpr(initInv);
-
-            BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(typeRef.pos,
-                                                                               recordTypeNode.initFunction.body);
-            exprStmt.expr = initInv;
-            initInv.parent = exprStmt;
-            exprStmt.parent = recordTypeNode.initFunction.body;
-        }
 
         result = recordTypeNode;
     }
