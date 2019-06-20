@@ -1824,8 +1824,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      *      2. If function taints a passed in argument, it must annotate respective parameter @tainted.
      *      3. Function must not return a values who's taintedness is unknown.
      */
-    private void validateReturnAndParameterTaintedAnnotations(BLangInvokableNode invokableNode,
-                                                              Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+    private void validateReturnAndParameterTaintedAnnotations(
+            BLangInvokableNode invokableNode,
+            Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+
         if (this.analyzerPhase != AnalyzerPhase.INITIAL_ANALYSIS
                 || this.analyzerPhase != AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS) {
             return;

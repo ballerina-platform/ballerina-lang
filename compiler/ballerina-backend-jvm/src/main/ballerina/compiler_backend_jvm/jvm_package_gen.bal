@@ -121,7 +121,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         addDefaultableBooleanVarsToSignature(func);
     }
     typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted map<(bir:AsyncCall|bir:FPLoad,string)>> lambdas);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);

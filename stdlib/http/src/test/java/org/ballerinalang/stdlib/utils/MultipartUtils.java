@@ -297,7 +297,7 @@ public class MultipartUtils {
     private static String getBodyPartName(ObjectValue bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
-            MapValueImpl paramMap = HeaderUtil.getParamMap(contentDisposition);
+            MapValueImpl paramMap = (MapValueImpl) HeaderUtil.getParamMap(contentDisposition);
             if (paramMap != null) {
                 BString bodyPartName = paramMap.get(CONTENT_DISPOSITION_NAME) != null ?
                         (BString) paramMap.get(CONTENT_DISPOSITION_NAME) : null;

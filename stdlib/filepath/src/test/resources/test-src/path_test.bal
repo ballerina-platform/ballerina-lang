@@ -17,7 +17,7 @@
 import ballerina/filepath;
 
 function testGetAbsolutePath(string path) returns string|error {
-    string untaintPath = untaint path;
+    string untaintPath = <@untainted> path;
     return filepath:absolute(untaintPath);
 }
 
@@ -62,7 +62,7 @@ function testRelativePath(string base, string target) returns string|error {
 }
 
 function testResolvePath(string path) returns string|error {
-    string untaintPath = untaint path;
+    string untaintPath = <@untainted> path;
     return filepath:resolve(untaintPath);
 }
 

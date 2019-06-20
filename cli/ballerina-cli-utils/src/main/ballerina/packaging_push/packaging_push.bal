@@ -55,7 +55,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     // Artifact
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
-    filePart.setFileAsEntityBody(<@untainted string> dirPath);
+    filePart.setFileAsEntityBody(untaint dirPath);
     var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;
@@ -181,7 +181,7 @@ function getContentDispositionForFormData(string partName) returns (mime:Content
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
-    stringBodyPart.setText(<@untainted string> value);
+    stringBodyPart.setText(untaint value);
     var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;
