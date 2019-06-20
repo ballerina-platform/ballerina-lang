@@ -294,10 +294,10 @@ public class LSCompiler {
 
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
-        Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?
-                Names.ANON_ORG : new Name(manifest.getName());
-        Name version = manifest.getVersion() == null || manifest.getVersion().isEmpty() ?
-                Names.DEFAULT_VERSION : new Name(manifest.getVersion());
+        Name orgName = manifest.getProject().getOrgName() == null || manifest.getProject().getOrgName().isEmpty() ?
+                Names.ANON_ORG : new Name(manifest.getProject().getOrgName());
+        Name version = manifest.getProject().getVersion() == null || manifest.getProject().getVersion().isEmpty() ?
+                Names.DEFAULT_VERSION : new Name(manifest.getProject().getVersion());
         return new PackageID(orgName, new Name(pkgName), version);
     }
 }
