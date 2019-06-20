@@ -1,2 +1,2 @@
-// The `map` type in Ballerina defines a mutable mapping from keys that are strings to values of the type specified as
+// The `map` type in Ballerina defines a mutable mapping from keys (that are strings) to values of the type specified as
 // the map's constraint type.

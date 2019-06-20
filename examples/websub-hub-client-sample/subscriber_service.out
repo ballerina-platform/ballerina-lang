@@ -1,6 +1,6 @@
-# Note how the update published after unsubscription is not received by the subscriber service.
+# The update published after unsubscription is not received by the subscriber service.
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
+# `.bal` file, and use the `ballerina run` command.
 $ ballerina run subscriber_service.bal
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:8181
 ballerina: Intent Verification agreed - Mode [subscribe], Topic [http://websubpubtopic.com], Lease Seconds [86400]

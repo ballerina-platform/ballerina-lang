@@ -1,9 +1,9 @@
 import ballerina/io;
 import ballerina/test;
 
-// This test function depends on `testFunction3`.
+// This test function depends on the `testFunction3`.
 @test:Config {
-    // You can provide a list of depends on functions here.
+    // You can provide a list of the dependent functions here.
     dependsOn: ["testFunction3"]
 }
 function testFunction1() {
@@ -11,7 +11,7 @@ function testFunction1() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// This test function depends on `testFunction1`.
+// This test function depends on the `testFunction1`.
 @test:Config {
     dependsOn: ["testFunction1"]
 }
@@ -20,8 +20,8 @@ function testFunction2() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// This is a rondom test function, this will randomly execute without depending on other functions.
-// But note that other function do depend on this.
+// This is a rondom test function. This will randomly execute without depending on other functions.
+// However,the other function does depend on this.
 @test:Config
 function testFunction3() {
     io:println("I'm in test function 3!");
