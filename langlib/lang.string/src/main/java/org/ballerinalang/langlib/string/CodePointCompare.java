@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.Strand;
  */
 public class CodePointCompare {
 
-    public static int iterator(Strand strand, String str1, String str2) {
+    public static int codePointCompare(Strand strand, String str1, String str2) {
         return 0;
     }
 }

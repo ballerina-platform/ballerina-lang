@@ -51,7 +51,7 @@ public class ToLowerAscii extends BlockingNativeCallableUnit {
         context.setReturnValues(lowerCaseString);
     }
 
-    public static String toLower(Strand strand, String value) {
+    public static String toLowerAscii(Strand strand, String value) {
         StringUtils.checkForNull(value);
         return value.toLowerCase(Locale.getDefault());
     }
