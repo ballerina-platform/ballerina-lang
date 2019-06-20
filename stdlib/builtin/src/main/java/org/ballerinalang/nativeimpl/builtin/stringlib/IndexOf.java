@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,28 +28,31 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function ballerina.model.strings:length.
+ * Extern function ballerina.model.strings:indexOf.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.string",
-        functionName = "length",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        functionName = "indexOf",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "substring", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Length extends BlockingNativeCallableUnit {
+public class IndexOf extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String param1 = context.getStringArgument(0);
-        BInteger intValue = new BInteger(param1.length());
+        String subString = context.getStringArgument(1);
+
+        BInteger intValue = new BInteger(param1.indexOf(subString));
         context.setReturnValues(intValue);
     }
 
-    public static long length(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.length();
+    public static long indexOf(Strand strand, String value, String subString) {
+        StringUtils.checkForNull(value, subString);
+        return value.indexOf(subString);
     }
 }

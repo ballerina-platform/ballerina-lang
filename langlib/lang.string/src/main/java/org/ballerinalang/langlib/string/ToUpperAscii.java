@@ -23,34 +23,36 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Extern function ballerina.model.strings:length.
+ * Extern function ballerina.model.strings:toUpper.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.string",
-        functionName = "length",
+        functionName = "toUpperAscii",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Length extends BlockingNativeCallableUnit {
+public class ToUpperAscii extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String param1 = context.getStringArgument(0);
-        BInteger intValue = new BInteger(param1.length());
-        context.setReturnValues(intValue);
+        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
+        context.setReturnValues(upperCaseString);
     }
 
-    public static long length(Strand strand, String value) {
+    public static String toUpper(Strand strand, String value) {
         StringUtils.checkForNull(value);
-        return value.length();
+        return value.toUpperCase(Locale.getDefault());
     }
 }

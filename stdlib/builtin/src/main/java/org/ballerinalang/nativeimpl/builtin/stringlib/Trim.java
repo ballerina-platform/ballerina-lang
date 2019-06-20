@@ -21,36 +21,35 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function ballerina.model.strings:length.
+ * Extern function ballerina.model.strings:trim.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.string",
-        functionName = "length",
+        functionName = "trim",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Length extends BlockingNativeCallableUnit {
+public class Trim extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String param1 = context.getStringArgument(0);
-        BInteger intValue = new BInteger(param1.length());
-        context.setReturnValues(intValue);
+        BString trimmedString = new BString(param1.trim());
+        context.setReturnValues(trimmedString);
     }
 
-    public static long length(Strand strand, String value) {
+    public static String trim(Strand strand, String value) {
         StringUtils.checkForNull(value);
-        return value.length();
+        return value.trim();
     }
 }

@@ -14,142 +14,60 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Compares two strings, ignoring the case of the strings.
-#
-# + str - The source string
-# + anotherString - The string to be compared
-# + return - True if the strings are equal; false otherwise
-public function equalsIgnoreCase(string str, string anotherString) returns boolean = external;
-
-# Returns a string with all the characters converted to uppercase.
-#
-# + str - The source string
-# + return - The string converted to uppercase
-public function toUpper(string str) returns string = external;
-
-# Returns a new string that is the substring of the specified string.
-#
-# + str - The source string
-# + startIndex - The starting index
-# + endIndex - The ending index
-# + return - The derived sub string
-public function substring(string str, int startIndex, int endIndex) returns string = external;
-
-# Returns the first index of the last occurence of the substring within the specified string.
-#
-# + str - The source string
-# + substr - The substring to search for
-# + return - The index of the last occurence of the substring
-public function lastIndexOf(string str, string substr) returns int = external;
-
-# Replaces the first instance of the replacePattern with the replaceWith string and returns the result.
-#
-# + str - The source string
-# + regex - The pattern to search for
-# + replaceWith - The replacement string
-# + return - The derived string
-public function replaceFirst(string str, string regex, string replaceWith) returns string = external;
-
-# Returns the length of the specified string.
-#
-# + str - The source string
-# + return - The length of the specified string
 public function length(string str) returns int = external;
 
-# Returns a Boolean value indicating whether a string contains the specified substring.
-#
-# + str - The source string
-# + substr - The substring to be compared
-# + return - True if the string contains the substring; false otherwise
-public function contains(string str, string substr) returns boolean = external;
+# Returns an iterator over the string
+# The iterator will return the substrings of length 1 in order.
+public function iterator(string str) returns abstract object {
+    public function next() returns record {| string value; |}?;
+} = external;
 
-# Returns the first index of the first occurence of the substring within the specified string.
-#
-# + str - The source string
-# + substr - The substring to search for
-# + return - The index of the first occurence of the substring
-public function indexOf(string str, string substr) returns int = external;
+# Concatenate all the `strs`. Empty string if empty.
+public function concat(string... strs) returns string = external;
 
-# Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.
-#
-# + str - The source string
-# + return - The derived string
+public function getCodePoint(string str, int i) returns int = external;
+
+// todo: endIndx should be a defaultable param: int endIndx = str.length()
+public function substring(string str, int startIndex, int endIndex) returns string = external;
+
+# Lexicographically compare strings using their Unicode code points
+# This will allow strings to be ordered in a consistent and well-defined way,
+# but the ordering will not typically be consistent with cultural expectations
+# for sorted order.
+public function codePointCompare(string str1, string str2) returns int = external;
+
+public function ^"join"(string separator, string... strs) returns string = external;
+
+# Returns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`
+# or nil if it does not occur
+public function indexOf(string str, string substr, int startIndx = 0) returns int? = external;
+
+public function startsWith(string str, string substr) returns boolean = external;
+
+public function endsWith(string str, string substr) returns boolean = external;
+
+# Standard lib (not lang lib) should have a Unicode module (or set of modules)
+# to deal with Unicode properly. These will need to be updated as each
+# new Unicode version is released.
+# Return A-Z into a-z and leave other characters unchanged
+public function toLowerAscii(string str) returns string = external;
+
+# Return a-z into A-Z and leave other characters unchanged
+public function toUpperAscii(string str) returns string = external;
+
+# Remove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`
 public function trim(string str) returns string = external;
 
-# Returns a Boolean value indicating whether the string ends with specified suffix.
-#
-# + str - The source string
-# + suffix - The suffix to be compared
-# + return - True if the string ends with the suffix; false otherwise
-public function hasSuffix(string str, string suffix) returns boolean = external;
+# Represents `str` as an array of bytes using UTF-8
+public function toBytes(string str) returns byte[] = external;
 
-# Returns an unescaped string by omitting the escape characters of the original string.
-#
-# + str - The source string
-# + return - The derived string
-public function unescape(string str) returns string = external;
+# Convert back to a string from its UTF-8 representation in `bytes`.
+public function fromBytes(byte[] bytes) returns string|error = external;
 
-# Returns a string with all the characters converted to lowercase.
-#
-# + str - The source string
-# + return - The string converted to lowercase
-public function toLower(string str) returns string = external;
+# Returns an array with an int for each code point in `str`.
+public function toCodePointInts(string str) returns int[] = external;
 
-# Returns a Boolean value indicating whether a string starts with the specified prefix.
-#
-# + str - The source string
-# + prefix - The prefix to be compared
-# + return - True if the string starts with the prefix; false otherwise
-public function hasPrefix(string str, string prefix) returns boolean = external;
-
-# Replaces each substring of the string that matches the given regular expression with the given replacement.
-#
-# + str - The source string
-# + regex - The regular expression to search for
-# + replaceWith - The replacement string
-# + return - The derived string
-public function replaceAll(string str, string regex, string replaceWith) returns string = external;
-
-# Replaces all instances of the replacePattern string with the replaceWith string and returns the result.
-#
-# + str - The source string
-# + regex - The pattern to search for
-# + replaceWith - The replacement string
-# + return - The derived string
-public function replace(string str, string regex, string replaceWith) returns string = external;
-
-# Splits the string with the given regular expression to produce a string array.
-#
-# + str - The source string
-# + regex - The regex to split the string
-# + return - The split string array
-public function split(string str, string regex) returns string[] = external;
-
-# Finds all the strings matching the regular expression.
-#
-# + str - The source string
-# + regex - Regular expression
-# + return - The matching string array.
-#            Error will be returned if there exist a syntax error in pattern
-public function findAll(string str, string regex) returns string[]|error = external;
-
-# Returns a Boolean value indicating whether the string matches the regular expression.
-#
-# + str - The source string
-# + regex - Regular expression
-# + return - True if the string matches the regex; false otherwise.
-#            Error will be returned if there exist a syntax error in pattern.
-public function matches(string str, string regex) returns boolean|error = external;
-
-# Converts string to a byte array.
-#
-# + str - The source string
-# + encoding - Encoding to be used in the conversion
-# + return - The byte array representation of the given String
-public function toByteArray(string str, string encoding) returns byte[] = external;
-
-# Returns a hash code for this string.
-#
-# + str - The source string
-# + return - a hash code value for this string.
-public function hashCode(string str) returns int = external;
+# Creates a string from an array of ints representing its code points.
+# Returns an error if any member of `codePoints` is negative or greater than 0x10FFFF
+# or is a surrogate (i.e. in the range 0xD800 or 0xDFFF inclusive).
+public function fromCodePointInts(int[] codePoints) returns string|error = external;

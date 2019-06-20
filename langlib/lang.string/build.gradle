@@ -32,4 +32,4 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'ballerina/lang.int Implementation'
+description = 'ballerina/lang.string Implementation'
