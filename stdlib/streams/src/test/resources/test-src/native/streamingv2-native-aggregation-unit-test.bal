@@ -150,8 +150,8 @@ function streamFunc() {
 
             // got rid of type casting
             return {
-                "id": e.get["inputStream.id"],
-                "category": e.get["inputStream.category"],
+                "id": e.get("inputStream.id"),
+                "category": e.get("inputStream.category"),
                 "iSum": iSumAggregator1.process(e.get("inputStream.intVal"), e.eventType),
                 "fSum": fSumAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
                 "count": countAggregator1.process((), e.eventType),
