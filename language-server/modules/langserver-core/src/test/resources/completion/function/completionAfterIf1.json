@@ -129,7 +129,7 @@
       "label": "channel",
       "kind": "Keyword",
       "detail": "Channel",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "channel",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +137,7 @@
       "label": "xml",
       "kind": "Keyword",
       "detail": "Xml",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -148,7 +148,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$8\u003e"
         }
       },
       "sortText": "120",
@@ -162,7 +162,7 @@
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "TableConfig",
       "insertTextFormat": "Snippet"
     },
@@ -170,7 +170,7 @@
       "label": "byte",
       "kind": "Keyword",
       "detail": "Byte",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -181,7 +181,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$10\u003e"
         }
       },
       "sortText": "120",
@@ -206,7 +206,7 @@
       "label": "stream",
       "kind": "Keyword",
       "detail": "Stream",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -214,7 +214,7 @@
       "label": "AbstractListener",
       "kind": "Class",
       "detail": "Object",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "AbstractListener",
       "insertTextFormat": "Snippet"
     },
@@ -222,7 +222,7 @@
       "label": "map",
       "kind": "Keyword",
       "detail": "Map",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -230,7 +230,7 @@
       "label": "table",
       "kind": "Keyword",
       "detail": "Table",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -238,7 +238,7 @@
       "label": "anydata",
       "kind": "Keyword",
       "detail": "Anydata",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -246,7 +246,7 @@
       "label": "future",
       "kind": "Keyword",
       "detail": "Future",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -254,7 +254,7 @@
       "label": "typedesc",
       "kind": "Keyword",
       "detail": "Typedesc",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -262,7 +262,7 @@
       "label": "float",
       "kind": "Keyword",
       "detail": "Float",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -270,7 +270,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Nil",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
@@ -278,7 +278,7 @@
       "label": "decimal",
       "kind": "Keyword",
       "detail": "Decimal",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -286,7 +286,7 @@
       "label": "string",
       "kind": "Keyword",
       "detail": "String",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -297,7 +297,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
       "sortText": "120",
@@ -308,7 +308,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -316,7 +316,7 @@
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -324,7 +324,7 @@
       "label": "any",
       "kind": "Keyword",
       "detail": "Any",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -332,7 +332,7 @@
       "label": "int",
       "kind": "Keyword",
       "detail": "Int",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -340,7 +340,7 @@
       "label": "boolean",
       "kind": "Keyword",
       "detail": "Boolean",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -348,16 +348,16 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Service",
-      "sortText": "170",
+      "sortText": "110",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/transactions",
+      "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "transactions",
+      "insertText": "jwt",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -371,16 +371,16 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/transactions;\n"
+          "newText": "import ballerina/jwt;\n"
         }
       ]
     },
     {
-      "label": "ballerina/websub",
+      "label": "ballerina/crypto",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "websub",
+      "insertText": "crypto",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -394,16 +394,16 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/websub;\n"
+          "newText": "import ballerina/crypto;\n"
         }
       ]
     },
     {
-      "label": "ballerina/grpc",
+      "label": "ballerina/h2",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "grpc",
+      "insertText": "h2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -417,16 +417,16 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/grpc;\n"
+          "newText": "import ballerina/h2;\n"
         }
       ]
     },
     {
-      "label": "ballerina/reflect",
+      "label": "ballerina/privacy",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "reflect",
+      "insertText": "privacy",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -440,16 +440,16 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/reflect;\n"
+          "newText": "import ballerina/privacy;\n"
         }
       ]
     },
     {
-      "label": "ballerina/log",
+      "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "log",
+      "insertText": "cache",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -463,30 +463,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/log;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/time",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "time",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/time;\n"
+          "newText": "import ballerina/cache;\n"
         }
       ]
     },
@@ -514,29 +491,6 @@
       ]
     },
     {
-      "label": "ballerina/runtime",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/runtime;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/file",
       "kind": "Module",
       "detail": "Package",
@@ -560,11 +514,11 @@
       ]
     },
     {
-      "label": "ballerina/sql",
+      "label": "ballerina/grpc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "sql",
+      "insertText": "grpc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -578,7 +532,237 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/sql;\n"
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/config",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "config",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/config;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/auth",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "auth",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/auth;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/filepath",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "filepath",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/filepath;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "ldap",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/ldap;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/streams",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "streams",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/streams;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "artemis",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/artemis;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "reflect",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/reflect;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "io",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/oauth2;\n"
         }
       ]
     },
@@ -602,6 +786,236 @@
             }
           },
           "newText": "import ballerina/internal;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jvm;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "encoding",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/encoding;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/utils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "utils",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/utils;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/rabbitmq",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/rabbitmq;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "openapi",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/openapi;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/math",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "math",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/math;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/time",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "time",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/observe",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/system",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "system",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/system;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "transactions",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions;\n"
         }
       ]
     },
@@ -675,11 +1089,11 @@
       ]
     },
     {
-      "label": "ballerina/encoding",
+      "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "encoding",
+      "insertText": "task",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -693,7 +1107,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/encoding;\n"
+          "newText": "import ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/log",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "log",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/log;\n"
         }
       ]
     },
@@ -721,167 +1158,6 @@
       ]
     },
     {
-      "label": "ballerina/task",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "task",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/task;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/crypto",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "crypto",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/io",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "io",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/io;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/cache",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "cache",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/auth",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "auth",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/auth;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/jms",
       "kind": "Module",
       "detail": "Package",
@@ -905,11 +1181,11 @@
       ]
     },
     {
-      "label": "ballerina/system",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "system",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -923,16 +1199,16 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/system;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerina/sql",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "h2",
+      "insertText": "sql",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -946,76 +1222,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/h2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/openapi",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "openapi",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/openapi;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/math",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "math",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/math;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/config",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "config",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/config;\n"
+          "newText": "import ballerina/sql;\n"
         }
       ]
     }
