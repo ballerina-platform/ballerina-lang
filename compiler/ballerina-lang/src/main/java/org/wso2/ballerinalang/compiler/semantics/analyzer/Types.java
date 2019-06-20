@@ -2476,7 +2476,9 @@ public class Types {
             case TypeTags.BYTE:
                 return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
             case TypeTags.DECIMAL:
-                return literalType.tag == TypeTags.FLOAT;
+                return literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.INT;
+            case TypeTags.FLOAT:
+                return literalType.tag == TypeTags.INT;
             default:
                 return false;
         }

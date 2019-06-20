@@ -275,9 +275,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        this.currDependentSymbol.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         analyzeBranch(funcNode.body, funcEnv);
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -905,12 +907,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        this.currDependentSymbol.push(constant.symbol);
+        boolean validVariable = constant.symbol != null;
+        if (validVariable) {
+            this.currDependentSymbol.push(constant.symbol);
+        }
         try {
             analyzeNode(constant.expr, env);
-            return;
         } finally {
-            this.currDependentSymbol.pop();
+            if (validVariable) {
+                this.currDependentSymbol.pop();
+            }
         }
     }
 

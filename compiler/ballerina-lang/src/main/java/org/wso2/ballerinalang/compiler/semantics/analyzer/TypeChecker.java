@@ -3693,6 +3693,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkConstantAccess(BLangFieldBasedAccess fieldAccessExpr, BType varRefType) {
+        if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
         // Check constant map literal access.
         BLangExpression expression = fieldAccessExpr.getExpression();
         if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {

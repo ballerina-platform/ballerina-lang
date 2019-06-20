@@ -237,7 +237,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Resolve type node of constants. This is done after visiting the type definitions because otherwise if the
         // constant's type node is a type, it wont get resolved.
-        resolveConstantTypeNode(pkgNode.constants, pkgEnv);
+//        resolveConstantTypeNode(pkgNode.constants, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
