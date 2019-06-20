@@ -86,10 +86,11 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
     }
 
     static String getPackagePath() {
-        int lastIndex = Thread.currentThread().getStackTrace()[3].getClassName().lastIndexOf(".");
+        String className = Thread.currentThread().getStackTrace()[3].getClassName();
+        int lastIndex = className.lastIndexOf(".");
         if (lastIndex != -1) {
-            return Thread.currentThread().getStackTrace()[3].getClassName().substring(0, lastIndex).replace(".", "/");
+            return className.substring(0, lastIndex).replace(".", "/");
         }
-        return null;
+        return ".";
     }
 }
