@@ -51,20 +51,23 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_COMPOSER_LIB_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXECUTABLE_NAME;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
 
 /**
  * Contains util classes related to Ballerina SDK.
  */
-public class BallerinaSdkUtil {
+public class BallerinaSdkUtils {
 
-    private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
-    private static final String BALLERINA_EXEC_PATH = "bin" + File.separator + "ballerina";
 
-    private BallerinaSdkUtil() {
+    private BallerinaSdkUtils() {
 
     }
 
@@ -196,8 +199,8 @@ public class BallerinaSdkUtil {
             return false;
         }
         // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
-        String balShellScript = Paths.get(sdkPath, "bin", "ballerina").toString();
-        String balBatchScript = Paths.get(sdkPath, "bin", "ballerina.bat").toString();
+        String balShellScript = Paths.get(sdkPath, "bin", BALLERINA_EXECUTABLE_NAME).toString();
+        String balBatchScript = Paths.get(sdkPath, "bin", BALLERINA_EXECUTABLE_NAME).toString() + ".bat";
 
         return (new File(balShellScript).exists() || new File(balBatchScript).exists());
     }
@@ -208,10 +211,10 @@ public class BallerinaSdkUtil {
             return false;
         }
         // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
-        String launcherShellScript = Paths.get(sdkPath, "lib", "tools", "lang-server", "launcher",
-                "language-server-launcher.sh").toString();
-        String launcherBatchScript = Paths.get(sdkPath, "lib", "tools", "lang-server", "launcher",
-                "language-server-launcher.bat").toString();
+        String launcherShellScript = Paths.get(sdkPath, BALLERINA_LS_LAUNCHER_PATH,
+                BALLERINA_LS_LAUNCHER_NAME).toString() + ".sh";
+        String launcherBatchScript = Paths.get(sdkPath, BALLERINA_LS_LAUNCHER_PATH,
+                BALLERINA_LS_LAUNCHER_NAME).toString() + ".bat";
 
         return new File(launcherShellScript).exists() || new File(launcherBatchScript).exists();
     }
@@ -222,7 +225,7 @@ public class BallerinaSdkUtil {
             return false;
         }
         // Checks for composer library resource directory existence.
-        String composerLib = Paths.get(sdkPath, "lib", "tools", "composer-library").toString();
+        String composerLib = Paths.get(sdkPath, BALLERINA_COMPOSER_LIB_PATH).toString();
         return new File(composerLib).exists();
     }
 

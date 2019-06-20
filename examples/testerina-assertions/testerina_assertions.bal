@@ -1,7 +1,7 @@
 import ballerina/test;
 
-// `assertEquals()` function allows you to compare primitive types (e.g., int) to composite objects.
-// Compare values of type `int`.
+// The `assertEquals()` function allows you to compare primitive types (e.g., int) against composite objects.
+// Compares values of the type `int`.
 @test:Config
 function testAssertIntEquals() {
     int answer = 0;
@@ -11,7 +11,7 @@ function testAssertIntEquals() {
     test:assertEquals(answer, 8, msg = "int values not equal");
 }
 
-// Compare values of type `float`.
+// Compares values of the type `float`.
 @test:Config
 function testAssertFloatEquals() {
     float a = 10.000;
@@ -20,7 +20,7 @@ function testAssertFloatEquals() {
     test:assertEquals(answer, 30.050, msg = "float values not equal");
 }
 
-// Compare values of type `string`.
+// Compares values of the type `string`.
 @test:Config
 function testAssertStringEquals() {
     string a = "John";
@@ -29,7 +29,7 @@ function testAssertStringEquals() {
     test:assertEquals(concatenated, "JohnDoe", msg = "string values not equal");
 }
 
-// Compare values of type `json`.
+// Compares values of the type `json`.
 @test:Config
 function testAssertJsonEquals() {
     json a = { "name": "Ballerina" };
@@ -37,7 +37,7 @@ function testAssertJsonEquals() {
     test:assertEquals(a, b, msg = "JSON values not equal");
 }
 
-// Compare values of type `boolean`.
+// Compares values of the type `boolean`.
 @test:Config
 function testAssertBooleanEquals() {
     boolean x = true;
@@ -45,7 +45,7 @@ function testAssertBooleanEquals() {
     test:assertEquals(x, y, msg = "boolean values not equal");
 }
 
-// Compare values of type `string[]`.
+// Compares values of the type `string[]`.
 @test:Config
 function testAssertStringArrayEquals() {
     string[] x = ["A", "B", "C"];
@@ -53,7 +53,7 @@ function testAssertStringArrayEquals() {
     test:assertEquals(x, y, msg = "string array values not equal");
 }
 
-// Compare values of type `int[]`.
+// Compares values of the type `int[]`.
 @test:Config
 function testAssertIntArrayEquals() {
     int[] x = [1, 2, 3];
@@ -61,7 +61,7 @@ function testAssertIntArrayEquals() {
     test:assertEquals(x, y, msg = "int array values not equal");
 }
 
-// Compare values of type `float[]`.
+// Compares values of the type `float[]`.
 @test:Config
 function testAssertFloatArrayEquals() {
     float[] x = [1.1, 2.2, 3.3];
@@ -69,7 +69,7 @@ function testAssertFloatArrayEquals() {
     test:assertEquals(x, y, msg = "float array values not equal");
 }
 
-// Compare distinct values of type `string`.
+// Compares distinct values of the type `string`.
 @test:Config
 function testAssertNotEqualsString() {
     string s1 = "abc";
@@ -77,7 +77,7 @@ function testAssertNotEqualsString() {
     test:assertNotEquals(s1, s2, msg = "string values are equal");
 }
 
-// Compare distinct values of type `json`.
+// Compares distinct values of the type `json`.
 @test:Config
 function testAssertNotEqualsJson() {
     json s1 = { "a": "b" };
@@ -85,21 +85,21 @@ function testAssertNotEqualsJson() {
     test:assertNotEquals(s1, s2, msg = "JSON values are equal");
 }
 
-// Asserting `true`.
+// Asserts `true`.
 @test:Config
 function testAssertTrue() {
     boolean value = true;
     test:assertTrue(value, msg = "AssertTrue failed");
 }
 
-// Asserting `false`.
+// Asserts `false`.
 @test:Config
 function testAssertFalse() {
     boolean value = false;
     test:assertFalse(value, msg = "AssertFalse failed");
 }
 
-// Intentionally failing a test-example.
+// A test-example, which is failing intentionally.
 @test:Config
 function testAssertFail() {
     if (true) {

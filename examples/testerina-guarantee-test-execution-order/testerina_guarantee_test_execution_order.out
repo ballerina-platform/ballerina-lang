@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-# Note that you need to have the ballerina-tools distribution
-# installed in order to run this command.
+# `.bal` file, and execute the `ballerina run` command.
+# You need to have the ballerina-tools distribution
+# installed to execute this command.
 $ ballerina test testerina_guarantee_test_execution_order.bal
 Compiling tests
     testerina_guarantee_test_execution_order.bal
