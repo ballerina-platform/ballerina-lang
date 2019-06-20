@@ -251,13 +251,13 @@ public class PackageLoader {
         String pkgAlias = orgName + "/" + pkgName;
         if (!lockEnabled) {
             // TODO: make getDependencies return a map
-            Optional<Dependency> dependency = manifest.getDependencies()
+             Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
-                                                      .filter(d -> d.getPackageName().equals(pkgAlias))
+                                                      .filter(d -> d.getModuleName().equals(pkgAlias))
                                                       .findFirst();
             if (dependency.isPresent()) {
                 if (pkgId.version.value.isEmpty()) {
-                    pkgId.version = new Name(dependency.get().getVersion());
+                    pkgId.version = new Name(dependency.get().getMetadata().getVersion());
                 } else {
                     throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
                                                              " with the version in the source for module " + pkgAlias);
@@ -273,7 +273,7 @@ public class PackageLoader {
                                                                     .filter(pkg -> {
                                                                         String org = pkg.getOrg();
                                                                         if (org.isEmpty()) {
-                                                                            org = manifest.getName();
+                                                                            org = manifest.getProject().getOrgName();
                                                                         }
                                                                         String alias = org + "/" + pkg.getName();
                                                                         return alias.equals(enclPkgAlias);

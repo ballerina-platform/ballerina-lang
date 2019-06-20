@@ -119,7 +119,7 @@ public class PathConverter implements Converter<Path> {
         if (pkgId.version.value.isEmpty() && !pkgId.orgName.equals(Names.BUILTIN_ORG)
                 && !pkgId.orgName.equals(Names.ANON_ORG)) {
             Manifest manifest = TomlParserUtils.getManifest(root);
-            pkgId.version = new Name(manifest.getVersion());
+            pkgId.version = new Name(manifest.getProject().getVersion());
         }
     
         if (Files.isRegularFile(path)) {
