@@ -108,24 +108,34 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] parameterTypes = onTextMessageResource.getParameterType();
-        Object[] bValues = new Object[parameterTypes.length];
+        Object[] bValues = new Object[parameterTypes.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[1] = true;
         boolean finalFragment = textMessage.isFinalFragment();
         BType dataType = parameterTypes[1];
         int dataTypeTag = dataType.getTag();
         if (dataTypeTag == TypeTags.STRING_TAG) {
-            bValues[1] = textMessage.getText();
+            bValues[2] = textMessage.getText();
+            bValues[3] = true;
             if (parameterTypes.length == 3) {
-                bValues[2] = textMessage.isFinalFragment();
+                bValues[4] = textMessage.isFinalFragment();
+                bValues[5] = true;
             }
-            Executor.submit(wsService.getBalService(), onTextMessageResource.getName(),
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(), onTextMessageResource.getName(),
                             new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
         } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 connectionInfo.appendAggregateString(textMessage.getText());
-                dispatchResourceWithAggregatedData(webSocketConnection, wsService, bValues, dataType,
-                                                   connectionInfo.getAggregateString());
+                Object aggregate = getAggregatedObject(webSocketConnection, dataType,
+                                                       connectionInfo.getAggregateString());
+                if (aggregate != null) {
+                    bValues[2] = aggregate;
+                    bValues[3] = true;
+                    Executor.submit(wsService.getScheduler(), wsService.getBalService(),
+                                    WebSocketConstants.RESOURCE_NAME_ON_TEXT,
+                                    new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
+                }
                 connectionInfo.resetAggregateString();
             } else {
                 connectionInfo.appendAggregateString(textMessage.getText());
@@ -135,28 +145,24 @@ public class WebSocketDispatcher {
         }
     }
 
-    private static void dispatchResourceWithAggregatedData(WebSocketConnection webSocketConnection,
-                                                           WebSocketService wsService, Object[] bValues,
-                                                           BType dataType, String aggregateString) {
+    private static Object getAggregatedObject(WebSocketConnection webSocketConnection, BType dataType,
+                                              String aggregateString) {
         try {
             switch (dataType.getTag()) {
                 case TypeTags.JSON_TAG:
-                    bValues[1] = JSONParser.parse(aggregateString);
-                    break;
+                    return JSONParser.parse(aggregateString);
                 case TypeTags.XML_TAG:
                     XMLValue bxml = XMLFactory.parse(aggregateString);
                     if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
                         throw new BallerinaException("Invalid XML data");
                     }
-                    bValues[1] = bxml;
-                    break;
+                    return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
-                    bValues[1] = JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                                                               (BStructureType) dataType);
-                    break;
+                    return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
+                                                         (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        bValues[1] = new ArrayValue(
+                        return new ArrayValue(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
                     }
                     break;
@@ -164,18 +170,12 @@ public class WebSocketDispatcher {
                     //Throw an exception because a different type is invalid.
                     //Cannot reach here because of compiler plugin validation.
                     throw new BallerinaConnectorException("Invalid resource signature.");
-
             }
-            Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_TEXT,
-                            new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
-            //TODO remove following after testing code
-//            Executor.submit(onTextMessageResource,
-//                            new WebSocketResourceCallableUnitCallback(webSocketConnection),
-//                            null, null, bValues);
         } catch (BallerinaException ex) {
             webSocketConnection.terminateConnection(1003, ex.getMessage());
             log.error("Data binding failed. Hence connection terminated. ", ex);
         }
+        return null;
     }
 
     static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -189,17 +189,17 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] paramDetails = onBinaryMessageResource.getParameterType();
-        Object[] bValues = new Object[paramDetails.length];
+        Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new ArrayValue(binaryMessage.getByteArray());
+        bValues[1] = true;
+        bValues[2] = new ArrayValue(binaryMessage.getByteArray());
+        bValues[3] = true;
         if (paramDetails.length == 3) {
-            bValues[2] = binaryMessage.isFinalFragment();
+            bValues[4] = binaryMessage.isFinalFragment();
+            bValues[5] = true;
         }
-        Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_BINARY,
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_BINARY,
                         new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
-        //TODO remove following after testing code
-//        Executor.submit(onBinaryMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
-//                        null, bValues);
 
     }
 
@@ -222,10 +222,12 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
-        Object[] bValues = new Object[paramTypes.length];
+        Object[] bValues = new Object[paramTypes.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new ArrayValue(controlMessage.getByteArray());
-        Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PING,
+        bValues[1] = true;
+        bValues[2] = new ArrayValue(controlMessage.getByteArray());
+        bValues[3] = true;
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PING,
                         new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
     }
 
@@ -239,10 +241,12 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] paramDetails = onPongMessageResource.getParameterType();
-        Object[] bValues = new Object[paramDetails.length];
+        Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new ArrayValue(controlMessage.getByteArray());
-        Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PONG,
+        bValues[1] = true;
+        bValues[2] = new ArrayValue(controlMessage.getByteArray());
+        bValues[3] = true;
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_PONG,
                         new WebSocketResourceCallableUnitCallback(webSocketConnection), null, bValues);
     }
 
@@ -265,10 +269,13 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] paramDetails = onCloseResource.getParameterType();
-        Object[] bValues = new Object[paramDetails.length];
+        Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = closeCode;
-        bValues[2] = closeReason == null ? "" : closeReason;
+        bValues[1] = true;
+        bValues[2] = closeCode;
+        bValues[3] = true;
+        bValues[4] = closeReason == null ? "" : closeReason;
+        bValues[5] = true;
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -292,8 +299,8 @@ public class WebSocketDispatcher {
             }
         };
         //TODO this is temp fix till we get the service.start() API
-        Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE, onCloseCallback, null,
-                        bValues);
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_CLOSE,
+                        onCloseCallback, null, bValues);
     }
 
     static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
@@ -312,9 +319,11 @@ public class WebSocketDispatcher {
             ErrorHandlerUtils.printError(throwable);
             return;
         }
-        Object[] bValues = new Object[onErrorResource.getParameterType().length];
+        Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = getError(connectionInfo, throwable);
+        bValues[1] = true;
+        bValues[2] = getError(throwable);
+        bValues[3] = true;
         //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
@@ -328,28 +337,16 @@ public class WebSocketDispatcher {
             }
         };
         //TODO this is temp fix till we get the service.start() API
-        Executor.submit(webSocketService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback,
-                        null, bValues);
+        Executor.submit(webSocketService.getScheduler(), webSocketService.getBalService(),
+                        WebSocketConstants.RESOURCE_NAME_ON_ERROR, onErrorCallback, null, bValues);
     }
 
-    private static ErrorValue getError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+    private static ErrorValue getError(Throwable throwable) {
         String errMsg = throwable.getMessage();
         if (errMsg == null) {
             errMsg = "Unexpected internal error";
         }
-        //TODO clean this after testing
-//        Context context = connectionInfo.getContext();
-//        if (context != null) {
-            return HttpUtil.getError(errMsg);
-//        } else {
-//            ProgramFile programFile = connectionInfo.getBalService().getServiceInfo().getPackageInfo()
-//                    .getProgramFile();
-//            BMap<String, BValue> httpErrorRecord = BLangConnectorSPIUtil.createBStruct(
-//                    programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_ERROR_RECORD);
-//            httpErrorRecord.put(HttpConstants.HTTP_ERROR_MESSAGE, new BString(errMsg));
-//            return new BError(BTypes.typeError, errMsg, httpErrorRecord);
-//
-//        }
+        return HttpUtil.getError(errMsg);
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {
@@ -366,8 +363,9 @@ public class WebSocketDispatcher {
             return;
         }
         BType[] paramDetails = onIdleTimeoutResource.getParameterType();
-        Object[] bValues = new Object[paramDetails.length];
+        Object[] bValues = new Object[paramDetails.length * 2];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[1] = true;
         //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
             @Override
@@ -382,8 +380,8 @@ public class WebSocketDispatcher {
             }
         };
         //TODO this is temp fix till we get the service.start() API
-        Executor.submit(wsService.getBalService(), WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT,
-                        onIdleTimeoutCallback, null, bValues);
+        Executor.submit(wsService.getScheduler(), wsService.getBalService(),
+                        WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT, onIdleTimeoutCallback, null, bValues);
     }
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {

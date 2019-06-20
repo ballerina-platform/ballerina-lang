@@ -87,9 +87,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 //            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
 //                            null, observerContext, signatureParams);
             //TODO this is temp fix till we get the service.start() API
-            Executor.submit(wsService.getBalService(), balResource.getName(),
-                            new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService), null,
-                            signatureParams);
+            Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+                            balResource.getName(), new OnUpgradeResourceCallableUnitCallback(
+                            webSocketHandshaker, wsService), null, signatureParams);
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
         }
@@ -108,7 +108,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         @Override
         public void notifySuccess() {
             if (!webSocketHandshaker.isCancelled() && !webSocketHandshaker.isHandshakeStarted()) {
-                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
+                WebSocketUtil.handleHandshake(wsService, connectionManager, null,
+                                              webSocketHandshaker, null);
             } else {
                 if (!webSocketHandshaker.isCancelled()) {
                     AttachedFunction onOpenResource = wsService.getResourceByName(
