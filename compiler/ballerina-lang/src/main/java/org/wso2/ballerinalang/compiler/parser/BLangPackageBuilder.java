@@ -725,7 +725,7 @@ public class BLangPackageBuilder {
 
         if (constReasonMatchPattern) {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            reasonLiteral.setValue(reason);
+            reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
             errorVariable.reasonMatchConst = reasonLiteral;
 
             errorVariable.reason = (BLangSimpleVariable)

@@ -46,11 +46,6 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     public boolean reasonVarPrefixAvailable;
     public BLangLiteral reasonMatchConst;
 
-    // Only match this error variable if structure and this expected reason is matched.
-    // const re = "{IO}Error";
-    // match errVar { error(re, ...var details) => ...}
-    public BSymbol expectedMatchedReason;
-
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
         this.detail = new ArrayList<>();

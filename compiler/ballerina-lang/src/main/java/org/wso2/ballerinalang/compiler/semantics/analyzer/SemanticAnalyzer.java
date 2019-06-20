@@ -570,10 +570,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable varNode) {
+        // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
             return;
         }
+
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
@@ -582,23 +584,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // reason must be a const of subtype of string.
         // then we match the error with this specific reason.
         if (!varNode.reasonVarPrefixAvailable) {
-            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null,
-                    ((BErrorType) varNode.type).detailType);
-            varNode.type = errorType;
+            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null, null);
 
+            if (varNode.type.tag == TypeTags.UNION) {
+                Set<BType> members = types.expandAndGetMemberTypesRecursive(varNode.type);
+                List<BErrorType> errorMembers = members.stream()
+                        .filter(m -> m.tag == TypeTags.ERROR)
+                        .map(m -> (BErrorType) m)
+                        .collect(Collectors.toList());
+
+                if (errorMembers.isEmpty()) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_ERROR_MATCH_PATTERN);
+                    return;
+                } else if (errorMembers.size() == 1) {
+                    errorType.detailType = errorMembers.get(0).detailType;
+                    errorType.reasonType = errorMembers.get(0).reasonType;
+                } else {
+                    errorType.detailType = symTable.pureTypeConstrainedMap;
+                    errorType.reasonType = symTable.stringType;
+                }
+                varNode.type = errorType;
+            } else if (varNode.type.tag == TypeTags.ERROR) {
+                errorType.detailType = ((BErrorType) varNode.type).detailType;
+                varNode.type = errorType;
+            }
+
+            // Set error reason type.
+            // For var error binding pattern, set reason to string
+            // For error match pattern with error reason const to match, set the reason type to provided reason's type.
             if (varNode.reasonMatchConst != null) {
                 BTypeSymbol reasonConstTypeSymbol = new BTypeSymbol(SymTag.FINITE_TYPE,
                         Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID, null, this.env.scope.owner);
                 LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
+                varNode.reasonMatchConst.type = symTable.stringType;
+                typeChecker.checkExpr(varNode.reasonMatchConst, env);
                 members.add(varNode.reasonMatchConst);
                 errorType.reasonType = new BFiniteType(reasonConstTypeSymbol, members);
             } else {
-                BSymbol reason = symResolver.lookupSymbol(env, names.fromIdNode(varNode.reason.name), SymTag.CONSTANT);
-                if (reason == symTable.notFoundSymbol) {
-                    dlog.error(varNode.pos, DiagnosticCode.CANNOT_FIND_MATCH_ERROR_REASON_CONST, varNode.reason);
-                }
-                errorType.reasonType = reason.type;
-                //varNode.expectedMatchedReason = reason;
+                errorType.reasonType = symTable.stringType;
             }
         }
         if (!validateErrorVariable(varNode)) {
