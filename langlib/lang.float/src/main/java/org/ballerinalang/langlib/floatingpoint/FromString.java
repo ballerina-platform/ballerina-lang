@@ -20,12 +20,22 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:fromString(string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.float", functionName = "fromString",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
+        isPublic = true
+)
 public class FromString {
 
     public static Object fromString(Strand strand, String s) {

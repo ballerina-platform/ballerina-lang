@@ -20,12 +20,22 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.float:min(float...).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.float", functionName = "min",
+        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+        isPublic = true
+)
 public class Min {
 
     public static double min(Strand strand, ArrayValue ns) {
