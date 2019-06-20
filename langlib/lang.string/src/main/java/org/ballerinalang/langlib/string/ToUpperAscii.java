@@ -51,7 +51,7 @@ public class ToUpperAscii extends BlockingNativeCallableUnit {
         context.setReturnValues(upperCaseString);
     }
 
-    public static String toUpper(Strand strand, String value) {
+    public static String toUpperAscii(Strand strand, String value) {
         StringUtils.checkForNull(value);
         return value.toUpperCase(Locale.getDefault());
     }

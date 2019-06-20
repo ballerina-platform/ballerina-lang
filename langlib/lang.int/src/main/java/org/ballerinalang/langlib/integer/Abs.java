@@ -16,18 +16,28 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function lang.string:codePointCompare(string, string).
+ * Native implementation of lang.int:abs(int).
  *
  * @since 1.0
  */
-public class CodePointCompare {
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.int", functionName = "abs",
+        args = {@Argument(name = "n", type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
+        isPublic = true
+)
+public class Abs {
 
-    public static int codePointCompare(Strand strand, String str1, String str2) {
-        return 0;
+    public static long abs(Strand strand, long n) {
+        return Math.abs(n);
     }
 }
