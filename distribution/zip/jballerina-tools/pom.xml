@@ -347,6 +347,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>composer-library</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
         </dependency>
         <dependency>
@@ -485,7 +490,8 @@
                                 ballerina-packerina,
                                 language-server-compiler,
                                 language-server-core,
-                                language-server-stdio-launcher
+                                language-server-stdio-launcher,
+                                composer-library
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
