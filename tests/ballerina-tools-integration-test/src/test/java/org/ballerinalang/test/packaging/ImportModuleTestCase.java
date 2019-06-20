@@ -151,7 +151,7 @@ public class ImportModuleTestCase extends BaseTest {
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
-        String content = "[project]\norg-name = \"natasha\"\nversion = \"1.0.0\"\n";
+        String content = "[project]\norgName = \"natasha\"\nversion = \"1.0.0\"\n";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
         // Module fanny/mod2 will be picked from home repository since it was installed before
@@ -192,7 +192,7 @@ public class ImportModuleTestCase extends BaseTest {
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
-        String content = "[project]\norg-name = \"natasha\"\nversion = \"1.0.0\"\n";
+        String content = "[project]\norgName = \"natasha\"\nversion = \"1.0.0\"\n";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
         // Module manny/mod2 will be picked from home repository since it was installed before

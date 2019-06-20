@@ -265,7 +265,7 @@ public class ModuleBuildTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("invalidManifest");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
-        String invalidContent = "[project]\n org-name = \"bcintegrationtest\"\n version = \"1.0.0";
+        String invalidContent = "[project]\n orgName = \"bcintegrationtest\"\n version = \"1.0.0";
         Files.write(projectPath.resolve("Ballerina.toml"), invalidContent.getBytes(),
                     StandardOpenOption.TRUNCATE_EXISTING);
 

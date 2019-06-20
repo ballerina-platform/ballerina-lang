@@ -1,5 +1,5 @@
 [project]
 # Name of the package
-org-name = "natasha"
+orgName = "natasha"
 #The current version of foo bar
 version = "1.0.0"
