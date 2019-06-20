@@ -27,7 +27,7 @@ import java.util.List;
  * Ex: ballerina format [ballerinaFile | ModuleName] [-d | --dry-run]
  */
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
-public class FormattingCmd implements BLauncherCmd {
+public class FormatCmd implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
 
     @CommandLine.Parameters
