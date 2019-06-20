@@ -1,0 +1,112 @@
+configurations {
+    birJar { transitive false }
+    bir
+    externalMapping { transitive false }
+}
+
+dependencies {
+    birJar project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+}
+
+project.ext.moduleName = files(file('src/main/ballerina').listFiles()).filter { File f ->
+    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
+}.singleFile.name
+
+def generatedBirDir = "$buildDir/generated-bir/ballerina/" + project.ext.moduleName + "/0.0.0/"
+
+task createBirCache {
+    dependsOn configurations.bir
+
+    doLast {
+        configurations.bir.each { artifact ->
+            copy {
+                def nameSansExt = artifact.name.take(artifact.name.lastIndexOf('.'))
+                from artifact
+                into "$buildDir/bir-cache/"
+            }
+        }
+    }
+}
+
+task copyExternalMappingNextToBir(type: Copy) {
+    dependsOn compileJava
+    from "$buildDir/classes/java/main/META-INF/this.map.json"
+    into generatedBirDir
+    rename { project.ext.moduleName + ".map.json" }
+}
+
+task createBirCacheMappings {
+    dependsOn configurations.externalMapping
+    doLast {
+        configurations.externalMapping.each { jsonFile ->
+            copy {
+                def nameSansExt = jsonFile.name.take(jsonFile.name.lastIndexOf('.'))
+                from jsonFile
+                into "$buildDir/bir-cache/ballerina/" + nameSansExt + "/0.0.0"
+            }
+        }
+    }
+}
+
+task createBir {
+    dependsOn createBalo
+
+    doLast {
+        copy {
+            def zipFile = fileTree("$buildDir/generated-balo").collectMany {
+                zipTree(it).matching { include "**/*.bir" }.files
+            }.first()
+            from zipFile
+            into generatedBirDir
+        }
+    }
+
+    inputs.dir "$buildDir/generated-balo"
+    outputs.dir "$buildDir/generated-bir"
+}
+
+task createBirAndMappings {
+    dependsOn createBir
+    dependsOn copyExternalMappingNextToBir
+}
+
+
+task createBirJar(type: Exec) {
+    dependsOn configurations.birJar
+    dependsOn configurations.bir
+    dependsOn createBir
+    dependsOn createBirCache
+    dependsOn copyExternalMappingNextToBir
+    
+    workingDir "$buildDir/generated-bir-jar"
+    doFirst {
+        def zipFile = fileTree("$buildDir/generated-balo").matching { include "**/*.zip" }.first()
+        def nameSansExt = zipFile.name.take(zipFile.name.lastIndexOf('.'))
+
+        configurations.birJar.each {
+            commandLine 'sh',
+                    new File(it, '/bin/ballerina'),
+                    'run',
+                    new File(it, '/bin/compiler_backend_jvm.balx'),
+                    'z',
+                    nameSansExt,
+                    "$buildDir/generated-balo/repo/ballerina/" + nameSansExt + "/0.0.0",
+                    "$buildDir/",
+                    "x",
+                    "y",
+                    'true',
+                    generatedBirDir +  project.ext.moduleName + '.map.json'
+        }
+    }
+
+    inputs.files configurations.bir
+    inputs.files configurations.birJar
+    inputs.dir "$buildDir/generated-bir"
+    outputs.dir "$buildDir/generated-bir-jar"
+    outputs.cacheIf { true }
+}
+
+
+artifacts {
+    bir file("$buildDir/generated-bir/"), { builtBy(createBirAndMappings) }
+}

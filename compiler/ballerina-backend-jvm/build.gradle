@@ -15,7 +15,7 @@
  *
  */
  
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baloProject.gradle"
 
 configurations {
     baloOldImpl
@@ -28,73 +28,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-bir')
 
-    baloOldImpl project(path: ':ballerina-bootstrapper', configuration: 'balPack')
-
-    //transitive
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack2')
 }
 
-task ballerinaInit(type: Exec) {
-    dependsOn(':ballerina-bootstrapper:assemble')
-    workingDir "$buildDir/../src/main/ballerina"
-    configurations.baloOldImpl.each {
-        commandLine 'sh', it.path + '/bin/ballerina', 'init'
-    }
-}
-
-task createBalx(type: Exec, dependsOn: ballerinaInit) {
-    dependsOn(':ballerina-bir:assemble')
-    dependsOn(':ballerina-jvm:assemble')
-    workingDir "$buildDir/../src/main/ballerina"
-    configurations.baloOldImpl.each {
-        commandLine 'sh', it.path + '/bin/ballerina', 'build', '--skiptests', 'compiler_backend_jvm'
-    }
-}
-
-task copyBalx(type: Copy, dependsOn: createBalx) {
-    from "$buildDir/../src/main/ballerina/target/compiler_backend_jvm.balx"
-    into "$buildDir/generated-balx/"
-}
-
-task createCorrectFolderStructure(type: Copy, dependsOn: copyBalx) {
-    configurations.baloOldImpl.each {
-        from file("$buildDir/../src/main/ballerina/.ballerina/repo/ballerina/compiler_backend_jvm/compiler_backend_jvm.zip")
-        into "$buildDir/generated-balo/repo/ballerina/compiler_backend_jvm/0.0.0"
-    }
-}
-
-task copyBaloToPack(type: Copy, dependsOn: createCorrectFolderStructure) {
-    configurations.baloOldImpl.each {
-        from file("$buildDir/generated-balo/repo/ballerina")
-        into it.path + '/lib/repo/ballerina'
-    }
-}
-
-task copyBalxToPack(type: Copy, dependsOn: copyBaloToPack) {
-    configurations.baloOldImpl.each {
-        from file("$buildDir/generated-balx")
-        into it.path + '/bin'
-    }
-}
-
-task copyNativesToPack(type: Copy, dependsOn: copyBalxToPack) {
-    configurations.baloOldImpl.each {
-        from "$buildDir/libs/"
-        into it.path + '/bre/lib'
-    }
-}
-
-assemble.dependsOn copyNativesToPack
-
-jar {
-  from ("$buildDir/generated-balx") {
-      into "META-INF/ballerina"
-  }
-  dependsOn copyBalx
-}
-
-artifacts.add('genBalo', file("$buildDir/generated-balo/")) {
-    builtBy('copyNativesToPack')
-}

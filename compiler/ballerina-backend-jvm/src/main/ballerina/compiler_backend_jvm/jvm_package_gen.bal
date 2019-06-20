@@ -33,6 +33,8 @@ map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
+map<string> externalMapCache = {};
+
 string currentClass = "";
 
 function lookupFullQualifiedClassName(string key) returns string {
@@ -239,15 +241,29 @@ function computeLockNameFromString(string varName) returns string {
 function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
         string orgName = modId.org;
         string moduleName = modId.name;
+        string versionName = modId.modVersion;
 
         var pkgFromCache = compiledPkgCache[orgName + moduleName];
         if (pkgFromCache is bir:Package) {
             return (pkgFromCache, true);
         }
-        var parsedPkg = currentBIRContext.lookupBIRModule(modId);
+        var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(modId, ".bir")));
+        var mappingPath = calculateBirCachePath(modId, ".map.json");
+        var externalMap = readMap(mappingPath);
+        foreach var (key,val) in externalMap {
+            externalMapCache[key] = val;
+        }
         compiledPkgCache[orgName + moduleName] = parsedPkg;
         return (parsedPkg, false);
 
+}
+
+function calculateBirCachePath(bir:ModuleID modId, string ext) returns string {
+    string nonEmptyVersion = modId.modVersion;
+    if (nonEmptyVersion == "") {
+        nonEmptyVersion = "0.0.0";
+    }
+    return "../bir-cache/" + modId.org + "/" + modId.name + "/" + nonEmptyVersion + "/" + modId.name + ext;
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
@@ -350,7 +366,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             bir:Function currentFunc = getFunction(func);
             functionName = getFunction(func).name.value;
             if (isExternFunc(getFunction(func))) { // if this function is an extern
-                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
+                var result = lookupExternClassName(cleanupPackageName(pkgName), functionName);
                 if (result is string) {
                     moduleClass = result;
                 } else {
@@ -402,7 +418,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                     continue;
                 }
 
-                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                var result = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (result is string) {
                     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
                     bir:BType? attachedType = currentFunc.receiverType;
@@ -474,4 +490,22 @@ function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) retu
     } else {
         return moduleId.modVersion == importModule.modVersion.value;
     }
+}
+
+// TODO: this only works for 1000000 byte or less files, get a proper method in stdlib
+function readFileFully(string path) returns byte[] {
+    io:ReadableByteChannel srcCh = io:openReadableFile(path);
+    int readCount;
+    byte[] readContent;
+    (byte[], int)|error result = srcCh.read(1000000);
+    if (result is error) {
+        panic result;
+    } else {
+        (readContent, readCount) = result;
+        return readContent;
+    }
+}
+
+public function lookupExternClassName(string pkgName, string functionName) returns string? {
+    return externalMapCache[pkgName + "/" + functionName];
 }

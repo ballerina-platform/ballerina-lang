@@ -42,13 +42,14 @@ public function main(string... args) {
     string pathToCompilerBackend = args[4];
     string libDir = args[5];
     boolean dumpBir = boolean.convert(args[6]);
+    string mapPath = untaint args[7];
 
-    bir:BIRContext birContext = createBIRContext(pathToEntryMod, pathToCompilerBackend, libDir);
-    writeJarFile(generateJarBinary(progName, pathToEntryMod, birContext, dumpBir), progName, targetPath);
+    writeJarFile(generateJarBinary(progName, pathToEntryMod, mapPath, dumpBir), progName, targetPath);
 }
 
-function generateJarBinary(string progName, string pathToEntryMod, bir:BIRContext birContext, boolean dumpBir) returns JarFile {
-    currentBIRContext = birContext;
+function generateJarBinary(string progName, string pathToEntryMod, string mapPath, boolean dumpBir) returns JarFile {
+    externalMapCache = readMap(mapPath);
+
     byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
     bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
 
@@ -63,6 +64,23 @@ function generateJarBinary(string progName, string pathToEntryMod, bir:BIRContex
     generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value), jarFile, true);
 
     return jarFile;
+}
+
+function readMap(string path) returns map<string> {
+    io:ReadableByteChannel rbc = io:openReadableFile(path);
+    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+    var result = untaint rch.readJson();
+    var didClose = rch.close();
+    if (result is error) {
+        panic result;
+    } else {
+        var externalMap = map<string>.convert(result);
+        if (externalMap is error){
+            panic externalMap;
+        } else {
+            return externalMap;
+        }
+    }
 }
 
 public function createModuleId(string orgName, string moduleName, string moduleVersion) returns bir:ModuleID {

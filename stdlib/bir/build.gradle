@@ -15,12 +15,9 @@
  *
  */
  
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baloProject.gradle"
 
 configurations {
-    cliUtils
-    baloOldImpl
-    genBalo
     balSource
 }
 
@@ -31,9 +28,8 @@ configurations.testRuntimeClasspath {
 }
 
 dependencies {
-    baloOldImpl  project(path: ':ballerina-bootstrapper', configuration: 'balPack')
+    balo project(path: ':ballerina-bootstrapper', configuration: 'pack1')
 
-    implementation project(':ballerina-bootstrapper')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-builtin')
@@ -49,60 +45,10 @@ dependencies {
     testCompile 'io.netty:netty-transport'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-
-    cliUtils project(':ballerina-cli-utils')
 }
 
 description = 'Ballerina - BIR Model'
 
-task ballerinaInit(type: Exec) {
-    dependsOn(':ballerina-bootstrapper:assemble')
-    workingDir "$buildDir/../src/main/ballerina"
-    configurations.baloOldImpl.each {
-        commandLine 'sh', it.path + '/bin/ballerina', 'init'
-    }
+artifacts {
+    balSource file("src/main/ballerina/")
 }
-
-task createBalx(type: Exec, dependsOn: ballerinaInit) {
-    dependsOn(':ballerina-bootstrapper:assemble')
-    workingDir "$buildDir/../src/main/ballerina"
-    configurations.baloOldImpl.each {
-        commandLine 'sh', it.path + '/bin/ballerina', 'build', '--skiptests', 'bir'
-    }
-}
-
-task createCorrectFolderStructure(type: Copy, dependsOn: createBalx) {
-    configurations.baloOldImpl.each {
-        from file("$buildDir/../src/main/ballerina/.ballerina/repo/ballerina/bir/bir.zip")
-        into "$buildDir/generated-balo/repo/ballerina/bir/0.0.0"
-    }
-}
-
-task copyBirBaloToPack(type: Copy, dependsOn: createCorrectFolderStructure) {
-    configurations.baloOldImpl.each {
-        from file("$buildDir/generated-balo/repo/ballerina")
-        into it.path + '/lib/repo/ballerina'
-    }
-}
-
-task copyBirNativesToPack(type: Copy, dependsOn: copyBirBaloToPack) {
-    configurations.baloOldImpl.each {
-        from "$buildDir/libs/"
-        into it.path + '/bre/lib'
-    }
-}
-
-artifacts.add('genBalo', file("$buildDir/generated-balo/")) {
-    builtBy('createCorrectFolderStructure')
-}
-
-artifacts.add('balSource', file("src/main/ballerina/"))
-
-assemble.dependsOn copyBirNativesToPack
-
-// test {
-//     dependsOn genBalx
-// 
-//     useTestNG() {
-//         suites 'src/test/resources/testng.xml'
-//     }

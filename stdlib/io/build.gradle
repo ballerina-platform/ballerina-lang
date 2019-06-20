@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/birProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -48,6 +49,11 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
+    bir project(path: ':ballerina-builtin', configuration: 'bir')
+    bir project(path: ':ballerina-time', configuration: 'bir')
+
 }
 
 createBalo {

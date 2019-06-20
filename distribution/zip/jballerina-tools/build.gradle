@@ -74,7 +74,7 @@ dependencies {
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     docerina project(':docerina-gradle-plugin')
-    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'balPack')
+    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'pack3')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
@@ -96,10 +96,6 @@ dependencies {
 //    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
-    distBal project(path: ':ballerina-bir', configuration: 'genBalo')
-    distBal project(path: ':ballerina-jvm', configuration: 'genBalo')
-    distBal project(path: ':ballerina-backend-jvm', configuration: 'genBalo')
 
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')

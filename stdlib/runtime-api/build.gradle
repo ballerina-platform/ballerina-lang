@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/birProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
@@ -30,6 +31,9 @@ dependencies {
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
+    bir project(path: ':ballerina-builtin', configuration: 'bir')
 }
 
 createBalo {
