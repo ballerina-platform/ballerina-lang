@@ -53,8 +53,6 @@ public class BLangConstant extends BLangVariable implements ConstantNode, Annota
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
 
-//    public String originalValue;
-
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
@@ -101,16 +99,6 @@ public class BLangConstant extends BLangVariable implements ConstantNode, Annota
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
     }
-
-//    @Override
-//    public String getOriginalValue() {
-//        return originalValue;
-//    }
-//
-//    @Override
-//    public void setOriginalValue(String originalValue) {
-//        this.originalValue = originalValue;
-//    }
 
     @Override
     public NodeKind getKind() {

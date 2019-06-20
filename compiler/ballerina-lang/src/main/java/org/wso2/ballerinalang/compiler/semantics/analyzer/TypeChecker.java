@@ -174,7 +174,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
-    private ConstantValueChecker constantValueChecker;
 
     /**
      * Expected types or inherited types.
@@ -204,7 +203,6 @@ public class TypeChecker extends BLangNodeVisitor {
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
-        this.constantValueChecker = ConstantValueChecker.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {

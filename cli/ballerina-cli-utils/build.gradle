@@ -31,7 +31,7 @@ configurations.testCompileClasspath {
 // Task to generate balx for the pull command.
 // task genBalxForPull(type: JavaExec) {
 //     dependsOn createBalHome
-//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/lib"
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
 
 //     main 'org.ballerinalang.cli.utils.GenerateBalx'
 //     classpath = sourceSets.main.runtimeClasspath
@@ -51,7 +51,7 @@ configurations.testCompileClasspath {
 // // Task to generate balx for the push command.
 // task genBalxForPush(type: JavaExec) {
 //     dependsOn createBalHome
-//     systemProperty "ballerina.home", "${project.buildDir}/ballerina-home/main"
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
 //     main 'org.ballerinalang.cli.utils.GenerateBalx'
 //     classpath = sourceSets.main.runtimeClasspath

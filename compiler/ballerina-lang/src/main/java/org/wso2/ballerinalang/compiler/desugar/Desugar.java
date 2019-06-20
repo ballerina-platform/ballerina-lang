@@ -32,7 +32,6 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -2210,13 +2209,6 @@ public class Desugar extends BLangNodeVisitor {
                 addToLocks(fieldAccessExpr, targetVarRef);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
-//            BLangExpression expression = fieldAccessExpr.getExpression();
-//            if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-//                // Retrieve the field access expression's value. Result cannot be `null` here since we validate the
-//                // existence of the key in ConstantValueChecker.
-//                result = constantValueResolver.getValue(fieldAccessExpr.field, (BLangMapLiteral) expression);
-//                return;
-//            }
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);

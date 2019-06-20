@@ -772,16 +772,15 @@ public class CompiledPackageSymbolEnter {
             // first time. Then we update the constant symbol's literal value and the mapCPEntries literal value with
             // the map literal which we have read.
             if (mapCPEntry.literalValue == null) {
-//                constantSymbol.value = mapCPEntry.literalValue = mapLiteral;
+                // constantSymbol.value = mapCPEntry.literalValue = mapLiteral;
             } else {
                 // If the mapCPEntry's literal value is not null, that means we have encountered this value
                 // earlier. In such case, set the mapCPEntry's literal value as the constant symbol's literal value.
                 // This is done to make sure all the references have the same literal value. Otherwise the `===` will
                 // fail for them.
-//                constantSymbol.value = mapCPEntry.literalValue;
+                // constantSymbol.value = mapCPEntry.literalValue;
             }
 
-            constantSymbol.literalValueTypeTag = valueType.tag;
             constantSymbol.cpEntryIndex = constantValueCPEntry;
         }
 

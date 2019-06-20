@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1618,20 +1617,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-//        boolean variableStore = this.varAssignment;
-//        this.varAssignment = false;
-//        if (variableStore) {
-//            throw new IllegalStateException("Constants cannot be updated");
-//        }
-//
-//        BIRVariableDcl tempVarDcl =
-//                new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-//        this.env.enclFunc.localVars.add(tempVarDcl);
-//        BIROperand tempVarRef = new BIROperand(tempVarDcl);
-//        BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
-//        emit(new Move(constRef.pos, fromVarRef, tempVarRef));
-//        this.env.targetOperand = tempVarRef;
-//        this.varAssignment = variableStore;
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
 

@@ -34,9 +34,6 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BLangConstantValue value;
     public BType literalType;
 
-    @Deprecated
-    public int literalValueTypeTag;
-
     // Keep the cp entry index in the symbol so it can be easily accessed in constant references.
     public int cpEntryIndex = -1;
 

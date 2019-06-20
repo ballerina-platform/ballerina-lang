@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -112,7 +111,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -228,16 +226,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type definitions.
         this.typePrecedence = 0;
-        
-        // Visit constants.
+
+        // First visit constants.
         pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
 
         // Visit type definitions.
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
-
-        // Resolve type node of constants. This is done after visiting the type definitions because otherwise if the
-        // constant's type node is a type, it wont get resolved.
-//        resolveConstantTypeNode(pkgNode.constants, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
@@ -1066,22 +1060,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     // Private methods
-
-    private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
-        // Resolve the type node and update the type of the typeNode.
-        for (BLangConstant constant : constants) {
-            if (constant.typeNode != null) {
-                constant.symbol.type =
-                        constant.symbol.literalType = symResolver.resolveTypeNode(constant.typeNode, env);
-
-                if (constant.symbol.type != symTable.semanticError &&
-                        !types.isAllowedConstantType(constant.symbol.type)) {
-                    dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
-                            constant.typeNode);
-                }
-            }
-        }
-    }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
         return annotationAttachmentList.stream()

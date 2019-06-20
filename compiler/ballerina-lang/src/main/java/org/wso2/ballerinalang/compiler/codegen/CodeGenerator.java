@@ -2139,7 +2139,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             // Get key-value info.
             ConstantValue constantValue = new ConstantValue();
-//            constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.value);
+            // constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.value);
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {

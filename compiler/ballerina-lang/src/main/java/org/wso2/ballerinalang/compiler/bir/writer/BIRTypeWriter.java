@@ -378,7 +378,7 @@ public class BIRTypeWriter implements TypeVisitor {
                 break;
             case TypeTags.STRING:
             case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry((String) value));
+                buff.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
                 buff.writeByte((Boolean) value ? 1 : 0);
