@@ -208,8 +208,8 @@ public class InitCommand implements BLauncherCmd {
                 out.print("\n");
             } else {
                 manifest = new Manifest();
-                manifest.setName(guessOrgName());
-                manifest.setVersion(DEFAULT_VERSION);
+                manifest.getProject().setOrgName(guessOrgName());
+                manifest.getProject().setVersion(DEFAULT_VERSION);
                 if (isDirEmpty(projectPath)) {
                     SrcFile srcFile = new SrcFile("", FileType.SERVICE);
                     sourceFiles.add(srcFile);
@@ -249,7 +249,7 @@ public class InitCommand implements BLauncherCmd {
                 orgName = scanner.nextLine().trim();
             } while (!validateOrgName(orgName));
             // Set org-name
-            manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
+            manifest.getProject().setOrgName(orgName.isEmpty() ? defaultOrg : orgName);
             String version;
             do {
                 out.print("Version: (" + DEFAULT_VERSION + ") ");
@@ -257,7 +257,7 @@ public class InitCommand implements BLauncherCmd {
                 version = version.isEmpty() ? DEFAULT_VERSION : version;
             } while (!validateVersion(out, version));
 
-            manifest.setVersion(version);
+            manifest.getProject().setVersion(version);
         }
         return manifest;
     }
