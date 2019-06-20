@@ -128,7 +128,7 @@
             <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
-            <!--<class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
+            <!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
 
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
