@@ -80,23 +80,23 @@ task genBalxForSearch(type: JavaExec) {
 }
 
 // Task to generate balx for the token updater.
-task genBalxForTokenUpdater(type: JavaExec) {
-    dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
-
-    main 'org.ballerinalang.cli.utils.GenerateBalx'
-    classpath = sourceSets.main.runtimeClasspath
-
-    def targetDir = "$buildDir/generated-balx/packaging_token_updater"
-    outputs.dir(targetDir)
-    // Do not cache the output
-    outputs.cacheIf { true }
-
-    def src = "src/main/ballerina/packaging_token_updater"
-    def fileName = "packaging_token_updater.bal"
-    def target = "$targetDir/packaging_token_updater.balx"
-    args(src, fileName, target)
-}
+//task genBalxForTokenUpdater(type: JavaExec) {
+//    dependsOn createBalHome
+//    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
+//
+//    main 'org.ballerinalang.cli.utils.GenerateBalx'
+//    classpath = sourceSets.main.runtimeClasspath
+//
+//    def targetDir = "$buildDir/generated-balx/packaging_token_updater"
+//    outputs.dir(targetDir)
+//    // Do not cache the output
+//    outputs.cacheIf { true }
+//
+//    def src = "src/main/ballerina/packaging_token_updater"
+//    def fileName = "packaging_token_updater.bal"
+//    def target = "$targetDir/packaging_token_updater.balx"
+//    args(src, fileName, target)
+//}
 
 dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
@@ -139,7 +139,7 @@ artifacts {
     balx file: file("src/main/ballerina/packaging_pull"), builtBy: genBalxForPull
     balx file: file("src/main/ballerina/packaging_push"), builtBy: genBalxForPush
     balx file: file("src/main/ballerina/packaging_search"), builtBy: genBalxForSearch
-    balx file: file("src/main/ballerina/packaging_token_updater"), builtBy: genBalxForTokenUpdater
+//    balx file: file("src/main/ballerina/packaging_token_updater"), builtBy: genBalxForTokenUpdater
 }
 
 jar {
@@ -148,7 +148,8 @@ jar {
     }
 
     // The jar should be created after balxs for push, pull, search and token updater are created.
-    dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
+    dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch]
+//    dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
 }
 
 clean {
