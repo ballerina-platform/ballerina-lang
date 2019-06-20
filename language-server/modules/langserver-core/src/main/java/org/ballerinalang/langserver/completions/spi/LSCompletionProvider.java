@@ -125,7 +125,7 @@ public abstract class LSCompletionProvider {
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
+                String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
@@ -397,7 +397,7 @@ public abstract class LSCompletionProvider {
                 BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
                 CompletionItem newCItem;
                 if (initFunction == null) {
-                    newCItem = BFunctionCompletionItemBuilder.build(null, "386)", "new();");
+                    newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();");
                 } else {
                     newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol);
                 }
