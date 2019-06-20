@@ -1,3 +1,3 @@
 // Record destructure binding patterns are used to destructure and assign the values of each field in the destructed record to variable references.
-// The record destructuring binding patterns will be used to refer existing variables as a record and destructure the
-// the given value on the right hand side and assign the values to each individual variable of the record at runtime.
+// The record destructuring binding patterns will be used to refer to existing variables as a record, destructure 
+// the given value on the right hand side, and assign the values to each individual variable of the record during the runtime.

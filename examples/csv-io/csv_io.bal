@@ -9,12 +9,12 @@ type Employee record {
 
 // This function reads records one by one and prints the records.
 function process(io:ReadableCSVChannel csvChannel) returns error? {
-    // Read all the records from the provided file
+    // Reads all the records from the provided file
     // until there are no more records.
     while (csvChannel.hasNext()) {
-        // Read the records.
+        // Reads the records.
         var records = check csvChannel.getNext();
-        // Print the records.
+        // Prints the records.
         if (records is string[]) {
             io:println(records);
         }
@@ -22,19 +22,19 @@ function process(io:ReadableCSVChannel csvChannel) returns error? {
     return;
 }
 
-//Specify the location of the `.CSV` file.
+//Specifies the location of the `.CSV` file.
 public function main() {
     string srcFileName = "./files/sample.csv";
-    // Open a CSV channel in `write` mode and write some data to
-    // ./files/sample.csv for later use.
+    // Opens a CSV channel in the `write` mode and writes some data to
+    // the ./files/sample.csv file for later use.
     // The record separator of the `.CSV` file is a
-    // new line, and the field separator is a comma (,).
+    // new line and the field separator is a comma (,).
     io:WritableCSVChannel wCsvChannel = io:openWritableCsvFile(srcFileName);
     string[][] data = [["1", "James", "10000"], ["2", "Nathan", "150000"],
     ["3", "Ronald", "120000"], ["4", "Roy", "6000"], ["5", "Oliver", "1100000"]];
     writeDataToCSVChannel(wCsvChannel, ...data);
     closeWritableCSVChannel(wCsvChannel);
-    // Open a CSV channel in `read` mode which is the default mode.
+    // Opens a CSV channel in the `read` mode, which is the default mode.
     io:ReadableCSVChannel rCsvChannel = io:openReadableCsvFile(srcFileName);
     io:println("Start processing the CSV file from ", srcFileName);
     var processedResult = process(rCsvChannel);
@@ -43,11 +43,11 @@ public function main() {
                         err = processedResult);
     }
     io:println("Processing completed.");
-    // Close the CSV channel.
+    // Closes the CSV channel.
     closeReadableCSVChannel(rCsvChannel);
-    // Open a CSV channel in `read` mode which is the default mode.
+    // Opens a CSV channel in the `read` mode, which is the default mode.
     io:ReadableCSVChannel rCsvChannel2 = io:openReadableCsvFile(srcFileName);
-    // Read the `.CSV` file as a `table`.
+    // Reads the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
     if (tblResult is table<Employee>) {
@@ -59,7 +59,7 @@ public function main() {
                         err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
-    // Open a CSV channel in "write" mode and write the `table` to a `.CSV` file.
+    // Opens a CSV channel in the "write" mode and writes the `table` to a `.CSV` file.
     string targetFileName = "./files/output.csv";
     io:WritableCSVChannel wCsvChannel2 = io:openWritableCsvFile(targetFileName);
     io:println("Creating a table and adding data");
@@ -89,7 +89,7 @@ function createTableAndAddData() returns table<Employee> {
     return employeeTable;
 }
 
-// Write data to a given CSV Channel.
+// Writes data to a given CSV Channel.
 function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
                                 string[]... data) {
     foreach var rec in data {
@@ -101,7 +101,7 @@ function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
     }
 }
 
-// Close Readable CSV channel.
+// Closes the Readable CSV channel.
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
@@ -110,7 +110,7 @@ function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
     }
 }
 
-// Close Writable CSV channel.
+// Closes the Writable CSV channel.
 function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {

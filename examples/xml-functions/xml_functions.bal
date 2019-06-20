@@ -8,50 +8,50 @@ public function main() {
 
     xml book = xml `<book/>`;
 
-    // Get the type of the XML element.
+    // Gets the type of the XML element.
     io:println(bookComment.getItemType());
 
-    // Get the name of an XML element.
+    // Gets the name of an XML element.
     io:println(bookName.getElementName());
 
-    // Get the text content of an XML element.
+    // Gets the text content of an XML element.
     io:println(bookName.getTextValue());
 
-    // Check if the XML element is empty.
+    // Checks if the XML element is empty.
     io:println(content.isEmpty());
 
-    // Check if the XML element has only one value.
+    // Checks if the XML element has only one value.
     io:println(content.isSingleton());
 
-    // Get a subsequence of an XML sequence.
+    // Gets a subsequence of an XML sequence.
     xml x = content.slice(2, 3);
     io:println(x);
 
-    // Get all the element-type items in an XML sequence.
+    // Gets all the element-type items in an XML sequence.
     x = content.elements();
     io:println(x);
 
-    // Retrieve an XML element by name.
+    // Retrieves an XML element by its name.
     x = content.select("name");
     io:println(x);
 
-    // Set the child elements of an XML element.
+    // Sets the children elements of an XML element.
     book.setChildren(content);
     io:println(book);
 
-    // Get all the child elements of an XML element.
+    // Gets all the children elements of an XML element.
     x = book.*;
     io:println(x);
 
-    // Retrieve a particular child of an XML element by name.
+    // Retrieves a particular child of an XML element by its name.
     x = book.selectDescendants("name");
     io:println(x);
 
-    // Remove any text items from an XML sequence that are all whitespace.
+    // Removes any text items from an XML sequence that are all whitespaces.
     x = content.strip();
     io:println(x);
 
-    // Make a copy of an XML element.
+    // Makes a copy of an XML element.
     x = bookComment.copy();
     io:println(x);
 }
