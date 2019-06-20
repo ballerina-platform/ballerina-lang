@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Min {
 
     public static double min(Strand strand, ArrayValue ns) {
-        double min = Double.MAX_VALUE;
+        double min = Double.POSITIVE_INFINITY;
         int size = ns.size();
         for (int i = 0; i < size; i++) {
             double current = ns.getFloat(i);
