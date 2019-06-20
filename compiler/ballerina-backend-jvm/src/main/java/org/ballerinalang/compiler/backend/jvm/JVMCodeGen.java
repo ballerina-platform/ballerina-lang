@@ -73,12 +73,13 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
         String packageName = (String) args[2]; // name of the package/file being codegenerated
         Path sourceRootPath = (Path) args[3]; // path to the bir of the file being codegenerated
         Path ballerinaHome = (Path) args[4]; // path to home dir of pack that runs compiler backend
-        byte[] jarContent = generateJarBinary(dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome);
+        Path libDir = (Path) args[5]; // path to home dir of pack that runs compiler backend
+        byte[] jarContent = generateJarBinary(dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome, libDir);
         return Optional.of(jarContent);
     }
 
     private static byte[] generateJarBinary(boolean dumpBIR, BLangPackage bLangPackage, String packageName,
-                                            Path sourceRootPath, Path ballerinaHome) {
+                                            Path sourceRootPath, Path ballerinaHome, Path libDir) {
         // TODO: use .bat for windows.
         String[] commands = {
                 "sh",
@@ -90,7 +91,7 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
                 getPathToBIR(bLangPackage, sourceRootPath).toString(), // pathToEntryMod
                 Paths.get("").toAbsolutePath().toString(), // targetPath
                 ballerinaHome.resolve("bin").toString(), // pathToCompilerBackend
-                ballerinaHome.getParent().toString(), // libDir
+                libDir.toString(), // libDir
                 String.valueOf(dumpBIR) // dumpBIR
         };
         ProcessBuilder balProcess = new ProcessBuilder(commands);

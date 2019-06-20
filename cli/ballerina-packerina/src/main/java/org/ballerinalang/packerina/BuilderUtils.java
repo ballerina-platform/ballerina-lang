@@ -56,7 +56,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  */
 public class BuilderUtils {
     private static final String BALLERINA_HOME = "BALLERINA_HOME";
-    private static final String UPDATE_CLASSPATH = "UPDATE_CLASSPATH";
     private static PrintStream outStream = System.out;
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
@@ -113,8 +112,8 @@ public class BuilderUtils {
                     getBackendCodeGenerator();
 
             Path ballerinaHome = Paths.get(System.getenv(BALLERINA_HOME));
-            Optional result = jvmCodeGen.generate(
-                    dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome.resolve("build"));
+            Optional result = jvmCodeGen.generate(dumpBIR, bLangPackage, packageName,
+                    sourceRootPath, ballerinaHome.resolve("build"), ballerinaHome.getParent());
             if (!result.isPresent()) {
                 throw new RuntimeException("Compiled binary jar is not found");
             }

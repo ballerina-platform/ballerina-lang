@@ -62,13 +62,13 @@ public class CreateBIRContext extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String sourceDir = context.getStringArgument(0);
+        String projectDir = context.getStringArgument(0);
         String pathToCompilerBackend = context.getStringArgument(1);
         String libDir = context.getStringArgument(2);
 
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(CompilerOptionName.PROJECT_DIR, sourceDir);
+        options.put(CompilerOptionName.PROJECT_DIR, projectDir);
         System.setProperty("ballerina.home", libDir);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
 

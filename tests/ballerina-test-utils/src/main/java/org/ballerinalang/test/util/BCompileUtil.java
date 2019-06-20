@@ -572,8 +572,24 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.write(bLangPackage, packageName);
+        // TODO: We may have to write the birs of imports as well?
+//        for (BLangImportPackage importedModule : bLangPackage.imports) {
+//            if (!"ballerina".equals(importedModule.orgName.value)) {
+//                CompileResult result =
+//                        compile(context, importedModule.getQualifiedPackageName(), CompilerPhase.BIR_GEN, false);
+//                if (compileResult.getErrorCount() > 0) {
+//                    return compileResult;
+//                }
+//                BLangPackage importPkg = (BLangPackage) result.getAST();
+//                compiler.write(importPkg, importedModule.getQualifiedPackageName());
+//            }
+//        }
         CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
-        Optional result = jvmCodeGen.generate(false, bLangPackage, packageName, sourceRoot);
+        Path ballerinaHome = Paths.get(System.getProperty("distribution.path"));
+        Optional result = jvmCodeGen.generate(false, bLangPackage, packageName, Paths.get(sourceRoot),
+                ballerinaHome, Paths.get(System.getProperty("ballerina.home")));
         if (!result.isPresent()) {
             throw new RuntimeException("Compiled binary jar is not found");
         }
