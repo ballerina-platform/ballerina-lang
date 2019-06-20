@@ -71,10 +71,9 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 .collect(Collectors.toList());
         List<Integer> defaultTokenTypes = defaultTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
         List<SymbolInfo> symbolInfoList = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-        int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        if (invocationOrDelimiterTokenType > -1) {
-            int delimiter = -1;
-            String varName = defaultTokens.get(defaultTokenTypes.indexOf(invocationOrDelimiterTokenType - 1)).getText();
+        int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (delimiter > -1) {
+            String varName = defaultTokens.get(defaultTokenTypes.indexOf(delimiter) - 1).getText();
             List<SymbolInfo> filteredList = FilterUtils.filterVariableEntriesOnDelimiter(ctx, varName, delimiter
                     , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter), false);
             filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
