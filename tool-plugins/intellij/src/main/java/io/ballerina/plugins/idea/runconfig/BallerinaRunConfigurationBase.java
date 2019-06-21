@@ -41,7 +41,7 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -107,7 +107,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     @NotNull
     @Override
     public Collection<Module> getValidModules() {
-        return BallerinaSdkUtil.getBallerinaModules(getProject());
+        return BallerinaSdkUtils.getBallerinaModules(getProject());
     }
 
     @Override

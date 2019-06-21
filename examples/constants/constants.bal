@@ -7,10 +7,10 @@ const string GET = "GET";
 const POST = "POST";
 
 // Constants can be used to create type definitions. The type definition below specifies that a variable of the type
-// `ACTION` can only hold either `GET` or `POST`.
+// `ACTION` can only hold either `GET` or `POST` as its value.
 type ACTION GET|POST;
 
-// Integer constant.
+// An integer constant.
 const int I = 125;
 
 // Constants of the `map` type can be defined as well. The constraint of these constant maps should be either a simple type
@@ -29,7 +29,7 @@ public function main() {
     ACTION post = "POST";
     testAction(POST);
 
-    // We can concatenate `I` with any other integer value.
+    // `I` can be concatenated with any other integer value.
     int value = I + 10;
     io:println(value);
 

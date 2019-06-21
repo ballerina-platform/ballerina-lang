@@ -1,8 +1,8 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This initializes a JMS connection with the provider. This example makes
-// use of the ActiveMQ Artemis broker for demonstration while it can be tried
+// This initializes a JMS connection with the provider. This example uses
+// the ActiveMQ Artemis broker for demonstration. However, it can be tried
 // with other brokers that support JMS.
 
 jms:Connection jmsConnection = new({
@@ -11,17 +11,17 @@ jms:Connection jmsConnection = new({
         providerUrl: "tcp://localhost:61616"
     });
 
-// This initializes a JMS session on top of the created connection.
+// Initializes a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-// This initializes a queue receiver on top of the created sessions.
+// Initializes a queue receiver on top of the created sessions.
 listener jms:QueueListener queueReceiver = new(jmsSession, queueName = "MyQueue");
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
-    // This keeps the JMS session alive until the message is received by the JMS provider.
+    // Keeps the JMS session alive until the message is received by the JMS provider.
     // If the message is not received within five seconds, the session times out.
     var result = caller->receive(timeoutInMilliSeconds = 5000);
 

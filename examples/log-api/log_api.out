@@ -1,6 +1,6 @@
-# As shown in the output, only `INFO` and higher level logs are logged by default.
+# As shown in the output, only the `INFO` and higher level logs are logged by default.
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run log_api.bal
 2018-05-30 11:00:50,875 ERROR [] - error log
 2018-05-30 11:00:50,883 ERROR [] - error log with cause : {message:"error occurred", cause:null}
