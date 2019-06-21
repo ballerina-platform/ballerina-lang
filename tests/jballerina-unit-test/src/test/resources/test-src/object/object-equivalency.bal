@@ -454,7 +454,7 @@ type addressStruct object {
     function toString() returns string;
 };
 
-function addressStruct.toString() returns string{
+function addressStruct.toString() returns string {
     return self.no + self.city;
 }
 
@@ -470,7 +470,7 @@ function officeAddressStruct.toString() returns string{
     return self.department + self.no + self.city;
 }
 
-function testObjectEquivalencyWithArguments() returns (string, string, string){
+function testObjectEquivalencyWithArguments() returns [string, string, string] {
     personC p = new;
     p.name = "tom";
     addressStruct a = new;
@@ -490,7 +490,7 @@ function testObjectEquivalencyWithArguments() returns (string, string, string){
     // testing value passing.
     p.setContact(o);
     string result3 = p.getAddress();
-    return (result1, result2, result3);
+    return [result1, result2, result3];
 }
 
 type Foo "a" | "b" | "c";
@@ -523,13 +523,13 @@ type Employee object {
 };
 
 function testTupleMatchWithObjectEquivalency() returns string {
-  future<(Foo, Person) | () | error> f = start getPerson();
-    ((Foo, Person) | () | error) res = wait f;
+  future<[Foo, Person] | () | error> f = start getPerson();
+    ([Foo, Person] | () | error) res = wait f;
 
     int[] i = [1, 2, 3];
 
     foreach var y in i {
-        if res is (Foo, Person) {
+        if res is [Foo, Person] {
             return "SUCCESS";
         } else {
             return "ERROR";
@@ -537,10 +537,10 @@ function testTupleMatchWithObjectEquivalency() returns string {
     }
 }
 
-function getPerson() returns (Foo, Person) | () | error {
+function getPerson() returns [Foo, Person] | () | error {
     Foo f = "b";
     Employee p = new("foo","20");
-    return (f,p);
+    return [f,p];
 }
 
 public type ObjectWithoutNew object {
@@ -564,14 +564,14 @@ public type ObjectWithNew object {
     }
 };
 
-function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, ObjectWithoutNew) {
+function testObjectEqualityWithDefaultConstructor() returns [ObjectWithNew, ObjectWithoutNew] {
     ObjectWithoutNew obj1 = new();
     ObjectWithNew obj2 = new();
 
     ObjectWithNew obj3 = obj1;
     ObjectWithoutNew obj4 = obj2;
     
-    return (obj3, obj4);
+    return [obj3, obj4];
 }
 
 type A object {
@@ -612,14 +612,14 @@ type D object {
     }
 };
 
-function testObjectEqualityWithRecursiveTypes() returns (A, B) {
+function testObjectEqualityWithRecursiveTypes() returns [A, B] {
     A obj1 = new();
     B obj2 = new();
 
     B obj3 = obj1;
     A obj4 = obj2;
     
-    return (obj3, obj4);
+    return [obj3, obj4];
 }
 
 public type PersonInOrder object {
@@ -671,14 +671,14 @@ public type PersonNotInOrder object {
     public string address = "";
 };
 
-function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
+function testObjectMemberOrder() returns [PersonInOrder, PersonNotInOrder] {
     PersonInOrder p1 = new("John", 35);
     PersonNotInOrder p2 = p1;
 
     PersonNotInOrder p3 = new ("Doe", 45);
     PersonInOrder p4 = p3;
 
-    return (p4, p2);
+    return [p4, p2];
 }
 
 type ObjectWithAnyTypeVariables object {

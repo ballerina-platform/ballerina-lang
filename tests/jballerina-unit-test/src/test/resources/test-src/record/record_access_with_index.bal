@@ -53,7 +53,7 @@ function testReturnStructAttributes () returns string? {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testExpressionAsIndex () returns (string) {
+function testExpressionAsIndex () returns string {
     Family family = {spouse:"Kate"};
     int a = 2;
     int b = 5;

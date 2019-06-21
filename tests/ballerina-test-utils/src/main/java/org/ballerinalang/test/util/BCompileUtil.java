@@ -559,7 +559,7 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());

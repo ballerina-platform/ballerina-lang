@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
-import { WebViewRPCHandler } from '../utils';
+import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
@@ -69,10 +69,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		'ballerinaDiagram',
 		"Ballerina Diagram",
 		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
-		{
-			enableScripts: true,
-			retainContextWhenHidden: true,
-		}
+		getCommonWebViewOptions()
 	);
 
 	diagramViewPanel.iconPath = {
@@ -86,7 +83,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	}
 	activeEditor = editor;
 	rpcHandler = WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
-	const html = render(context, langClient, editor.document.uri);
+	const html = render(editor.document.uri);
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
