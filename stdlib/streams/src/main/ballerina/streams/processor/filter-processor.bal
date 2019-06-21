@@ -42,8 +42,10 @@ public type Filter object {
                 index += 1;
             }
         }
-        if (index > 0) {
-            self.nextProcessorPointer.call(newStreamEventArr);
+        worker w {
+            if (index > 0) {
+                self.nextProcessorPointer.call(newStreamEventArr);
+            }
         }
     }
 };

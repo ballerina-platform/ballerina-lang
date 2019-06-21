@@ -113,7 +113,7 @@ public type TimeWindow object {
             }
             self.expiredEventQueue.resetToFront();
         }
-
+        worker w {
         any nextProcessFuncPointer = self.nextProcessPointer;
         if (nextProcessFuncPointer is function (StreamEvent?[])) {
             if (streamEventChunk.getSize() != 0) {
@@ -125,6 +125,7 @@ public type TimeWindow object {
                 }
                 nextProcessFuncPointer.call(events);
             }
+        }
         }
     }
 
