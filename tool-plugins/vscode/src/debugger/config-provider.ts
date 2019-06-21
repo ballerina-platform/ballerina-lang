@@ -4,7 +4,8 @@ import {
     ProviderResult, debug, ExtensionContext, window
 } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
-import { ExtendedLangClient } from 'src/core/extended-language-client';
+import { ExtendedLangClient } from '../core/extended-language-client';
+import { BALLERINA_HOME } from '../core/preferences';
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -14,7 +15,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
             ballerinaExtInstance.showMessageInstallBallerina();
             return;
         } else {
-            config['ballerina.home'] = ballerinaHome;
+            config[BALLERINA_HOME] = ballerinaHome;
         }
 
         if (!config.type) {

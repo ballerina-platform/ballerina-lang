@@ -1,4 +1,7 @@
 'use strict';
+
+import { BALLERINA_HOME } from "./preferences";
+
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,7 +20,7 @@
  * under the License.
  *
  */
-export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check `ballerina.home` in settings";
+export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check `" + BALLERINA_HOME + "` in settings";
 export const INSTALL_BALLERINA: string = "Unable to auto detect ballerina in your environment. Please download and install Ballerina or provide ballerina home path in settings.";
 export const DOWNLOAD_BALLERINA: string = "https://ballerina.io/downloads/";
 export const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
