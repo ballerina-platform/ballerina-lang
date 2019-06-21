@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "inner2Rec: {\n\t${1}\n}",
+      "insertText": "inner2Rec: {${1}}",
       "insertTextFormat": "Snippet"
     },
     {

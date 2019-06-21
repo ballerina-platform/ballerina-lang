@@ -6,7 +6,7 @@
   "source": "function/source/chainCompletion3.bal",
   "items": [
     {
-      "label": "setFileAsEntityBody(string filePath, string contentType \u003d application/octet-stream)",
+      "label": "setFileAsEntityBody(string filePath)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -16,7 +16,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setFileAsEntityBody(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"});",
+      "insertText": "setFileAsEntityBody(${1:filePath});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -146,7 +146,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setJson(json jsonContent, string contentType \u003d application/json)",
+      "label": "setJson(json jsonContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -156,7 +156,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setJson(${1:jsonContent}, contentType \u003d ${2:\"application/json\"});",
+      "insertText": "setJson(${1:jsonContent});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -174,7 +174,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setXml(xml xmlContent, string contentType \u003d application/xml)",
+      "label": "setXml(xml xmlContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -184,7 +184,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setXml(${1:xmlContent}, contentType \u003d ${2:\"application/xml\"});",
+      "insertText": "setXml(${1:xmlContent});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -202,7 +202,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setText(string textContent, string contentType \u003d text/plain)",
+      "label": "setText(string textContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -212,7 +212,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setText(${1:textContent}, contentType \u003d ${2:\"text/plain\"});",
+      "insertText": "setText(${1:textContent});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -230,7 +230,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setByteArray(byte[] blobContent, string contentType \u003d application/octet-stream)",
+      "label": "setByteArray(byte[] blobContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -240,7 +240,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setByteArray(${1:blobContent}, contentType \u003d ${2:\"application/octet-stream\"});",
+      "insertText": "setByteArray(${1:blobContent});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -258,7 +258,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setByteChannel(io:ReadableByteChannel byteChannel, string contentType \u003d application/octet-stream)",
+      "label": "setByteChannel(io:ReadableByteChannel byteChannel)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -268,7 +268,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setByteChannel(${1:byteChannel}, contentType \u003d ${2:\"application/octet-stream\"});",
+      "insertText": "setByteChannel(${1:byteChannel});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -314,7 +314,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
+      "label": "setBodyParts(mime:Entity[] bodyParts)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -324,7 +324,7 @@
         }
       },
       "sortText": "121",
-      "insertText": "setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"});",
+      "insertText": "setBodyParts(${1:bodyParts});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -440,17 +440,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "__init()",
+      "label": "new()",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "__init();",
+      "insertText": "new();",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "cType",
       "kind": "Variable",
-      "detail": "ballerina/mime:MediaType",
+      "detail": "mime:MediaType",
       "sortText": "221",
       "insertText": "cType",
       "insertTextFormat": "Snippet"
@@ -474,7 +474,7 @@
     {
       "label": "cDisposition",
       "kind": "Variable",
-      "detail": "ballerina/mime:ContentDisposition",
+      "detail": "mime:ContentDisposition",
       "sortText": "221",
       "insertText": "cDisposition",
       "insertTextFormat": "Snippet"

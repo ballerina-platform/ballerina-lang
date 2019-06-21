@@ -74,7 +74,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(0);
+        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(1);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -86,7 +86,7 @@ public class MarkdownDocumentationTest {
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNull(returnParameter);
 
-        variableNode = packageNode.getGlobalVariables().get(1);
+        variableNode = packageNode.getGlobalVariables().get(2);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNull(documentationAttachment);
@@ -120,7 +120,7 @@ public class MarkdownDocumentationTest {
 
         List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        SimpleVariableNode variableNode = globalVariables.get(0);
+        SimpleVariableNode variableNode = globalVariables.get(1);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -129,7 +129,7 @@ public class MarkdownDocumentationTest {
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNull(returnParameter);
 
-        variableNode = globalVariables.get(1);
+        variableNode = globalVariables.get(2);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -347,7 +347,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
                 "  ``string s = string `hello ${name}`;``\n\n" +
@@ -369,7 +369,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
                 "  ```string s = string `hello ${name}`;```\n" +
