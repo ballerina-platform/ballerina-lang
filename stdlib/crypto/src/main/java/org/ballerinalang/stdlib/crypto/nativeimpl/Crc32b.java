@@ -26,9 +26,9 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
