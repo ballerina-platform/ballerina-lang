@@ -2,7 +2,8 @@ import ballerina/http;
 import ballerina/jwt;
 import ballerina/log;
 
-// Creates an inbound JWT authentication provider with the relevant configurations.
+// Creates an inbound JWT authentication provider with the relevant
+// configurations.
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
@@ -36,7 +37,8 @@ listener http:Listener ep = new(9090, config = {
 @http:ServiceConfig {
     basePath: "/hello"
 }
-// The Auth configuration comprises of two parts - authentication & authorization.
+// The Auth configuration comprises of two parts -
+// authentication & authorization.
 // Authentication can be disabled by setting the `enabled: false` flag.
 // Authorization is based on scopes. A scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as

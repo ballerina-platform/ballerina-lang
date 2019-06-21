@@ -19,10 +19,11 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
 });
 
 // Defines the OAuth2 client endpoint to call the backend services.
-// The OAuth2 authentication with the password grant type is enabled by creating
-// an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed as
-// a record. If the access token expires or becomes invalid, then it will
-// be automatically refreshed with the provided `refreshConfig`.
+// The OAuth2 authentication with the password grant type is enabled by
+// creating an `oauth2:OutboundOAuth2Provider` with the relevant
+// configurations passed as a record. If the access token expires or
+// becomes invalid, then it will be automatically refreshed with the provided
+// `refreshConfig`.
 oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
     username: "b7a.demo@gmail.com",

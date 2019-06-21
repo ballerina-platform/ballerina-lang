@@ -30,7 +30,8 @@ listener http:Listener ep = new(9090, config = {
         scopes: ["scope1"]
     }
 }
-// The Auth configuration comprises of two parts - authentication & authorization.
+// The Auth configuration comprises of two parts -
+// authentication & authorization.
 // Authentication can be disabled by setting the `enabled: false` annotation
 // attribute.
 // Authorization is based on scopes. A scope maps to one or more groups.

@@ -5,9 +5,9 @@ import ballerina/runtime;
 
 // Defines the JWT auth client endpoint to call the backend services.
 // JWT authentication is enabled by creating a `jwt:OutboundJWTAuthProvider`
-// with/without passing the JWT issuer configurations as a record. If the JWT issuer
-// configurations are passed, a new JWT will be issued and it will be used for
-// the outbound authentication.
+// with/without passing the JWT issuer configurations as a record. If the JWT
+// issuer configurations are passed, a new JWT will be issued and it will be
+// used for the outbound authentication.
 jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
 
 // Create a Bearer Auth handler with the created JWT Auth provider.
@@ -46,7 +46,8 @@ public function main() {
     }
 }
 
-// Defines the sample backend service, which is secured with JWT Auth authentication.
+// Defines the sample backend service, which is secured with JWT Auth
+// authentication.
 jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
