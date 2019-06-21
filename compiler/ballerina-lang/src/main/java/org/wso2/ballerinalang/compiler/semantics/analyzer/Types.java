@@ -1755,12 +1755,12 @@ public class Types {
             case TypeTags.BYTE:
                 if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
                         !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
-                    return (long) baseValue == (long) candidateValue;
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
                 }
                 break;
             case TypeTags.INT:
                 if (candidateTypeTag == TypeTags.INT) {
-                    return (long) baseValue == (long) candidateValue;
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
                 }
                 break;
             case TypeTags.FLOAT:

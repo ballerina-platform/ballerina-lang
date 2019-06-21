@@ -287,6 +287,12 @@ public class GlobalVariableRefAnalyzer {
             }
         }
 
+        for (BLangConstant constant : this.pkgNode.constants) {
+            if (constant.symbol != null) {
+                dependents.add(constant.symbol);
+            }
+        }
+
         return dependents;
     }
 

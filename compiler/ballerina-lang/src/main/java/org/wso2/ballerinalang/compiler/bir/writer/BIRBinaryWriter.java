@@ -327,7 +327,7 @@ public class BIRBinaryWriter {
                 break;
             case TypeTags.BYTE:
                 int byteValue = ((Number) constValue.value).intValue();
-                buf.writeByte(addByteCPEntry(byteValue));
+                buf.writeInt(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase

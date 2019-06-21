@@ -35,11 +35,11 @@
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.test.vm.*"/>
+            <!-- <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
-            <!-- <package name="org.ballerinalang.test.privacy.*"/> -->
+            <package name="org.ballerinalang.test.privacy.*"/>
             <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
@@ -93,14 +93,16 @@
             <package name="org.ballerinalang.test.documentation.*" />
             <package name="org.ballerinalang.test.endpoint.*" />
             <package name="org.ballerinalang.test.enum.*" />
-            <!-- <package name="org.ballerinalang.test.loc.*" /> -->
+            <package name="org.ballerinalang.test.loc.*" />
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
-            <package name="org.ballerinalang.test.types.constant.*" />
+            <package name="org.ballerinalang.test.types.constant.*" /> -->
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <package name="org.ballerinalang.test.balo.*"/>
         </packages>
 
-        <classes>
+        <!-- <classes>
             <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
                 <methods>
                     <exclude name="testOptionalArgsInNativeFunc" />
@@ -118,7 +120,6 @@
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
-            <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
 
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
@@ -142,14 +143,14 @@
             <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
             <class name="org.ballerinalang.test.worker.StackOverflowTest">
                 <methods>
-                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
+                    TODO:Need to improve error detail transformation, java errors get returned
                     <exclude name="recursiveFunction"/>
                     <exclude name="testStackOverflowInFunction"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
                 <methods>
-                    <!--TODO:convert within while returns empty-->
+                    TODO:convert within while returns empty
                     <exclude name="largeForkCreationTest"/>
                 </methods>
             </class>
@@ -159,7 +160,7 @@
             <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
             <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
             <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.io.IOTest"/>
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
                     <exclude name="testFunctionPointerNative"/>
@@ -170,22 +171,11 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
-                <methods>
-                    <exclude name="simpleWorkerMessagePassingTest"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
             <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
             <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
-        </classes>
+        </classes> -->
     </test>
 </suite>

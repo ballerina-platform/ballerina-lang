@@ -480,7 +480,7 @@ public abstract class BIRNode {
         public int flags;
 
         /**
-         * Type of the constant.
+         * Type of the constant symbol.
          */
         public BType type;
 

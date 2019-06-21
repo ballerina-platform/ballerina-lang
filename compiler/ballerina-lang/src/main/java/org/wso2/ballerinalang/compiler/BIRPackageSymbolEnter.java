@@ -285,6 +285,8 @@ public class BIRPackageSymbolEnter {
             case CP_ENTRY_SHAPE:
                 env.unparsedBTypeCPs.put(i, readByteArray(dataInStream));
                 return null;
+            case CP_ENTRY_BYTE:
+                return new CPEntry.ByteCPEntry(dataInStream.readByte());
             default:
                 throw new IllegalStateException("unsupported constant pool entry type: " +
                         cpEntryType.name());
@@ -452,34 +454,27 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         BType type = readBType(dataInStream);
-        BType literalType = readBType(dataInStream);
-
         Scope enclScope = this.env.pkgSymbol.scope;
 
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, literalType, type, enclScope.owner);
-        constantSymbol.value = readConstLiteralValue(dataInStream, literalType);
+                this.env.pkgSymbol.pkgID, null, type, enclScope.owner);
+        constantSymbol.value = readConstLiteralValue(dataInStream);
+        constantSymbol.literalType = constantSymbol.value.type;
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
     }
 
-    private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream, BType valueType)
-            throws IOException {
+    private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream) throws IOException {
+        BType valueType = readBType(dataInStream);
         switch (valueType.tag) {
             case TypeTags.INT:
-                int integerCpIndex = dataInStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
-                return new BLangConstantValue(integerCPEntry.value, symTable.intType);
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
             case TypeTags.BYTE:
-                int byteCpIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
-                return new BLangConstantValue(byteCPEntry.value, symTable.byteType);
+                return new BLangConstantValue(getByteCPEntryValue(dataInStream), symTable.byteType);
             case TypeTags.FLOAT:
-                int floatCpIndex = dataInStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
-                return new BLangConstantValue(Double.toString(floatCPEntry.value), symTable.floatType);
+                return new BLangConstantValue(getFloatCPEntryValue(dataInStream), symTable.floatType);
             case TypeTags.STRING:
                 return new BLangConstantValue(getStringCPEntryValue(dataInStream), symTable.stringType);
             case TypeTags.DECIMAL:
@@ -493,8 +488,7 @@ public class BIRPackageSymbolEnter {
                 Map<String, BLangConstantValue> keyValuePairs = new LinkedHashMap<>();
                 for (int i = 0; i < size; i++) {
                     String key = getStringCPEntryValue(dataInStream);
-                    BType type = readBType(dataInStream);
-                    BLangConstantValue value = readConstLiteralValue(dataInStream, type);
+                    BLangConstantValue value = readConstLiteralValue(dataInStream);
                     keyValuePairs.put(key, value);
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
@@ -608,11 +602,28 @@ public class BIRPackageSymbolEnter {
     }
 
     // private utility methods
-    //TODO rename this method to stringcp
     private String getStringCPEntryValue(DataInputStream dataInStream) throws IOException {
         int pkgNameCPIndex = dataInStream.readInt();
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[pkgNameCPIndex];
         return stringCPEntry.value;
+    }
+
+    private long getIntCPEntryValue(DataInputStream dataInStream) throws IOException {
+        int pkgNameCPIndex = dataInStream.readInt();
+        IntegerCPEntry intCPEntry = (IntegerCPEntry) this.env.constantPool[pkgNameCPIndex];
+        return intCPEntry.value;
+    }
+
+    private int getByteCPEntryValue(DataInputStream dataInStream) throws IOException {
+        int byteCpIndex = dataInStream.readInt();
+        ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
+        return byteCPEntry.value;
+    }
+
+    private String getFloatCPEntryValue(DataInputStream dataInStream) throws IOException {
+        int floatCpIndex = dataInStream.readInt();
+        FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
+        return Double.toString(floatCPEntry.value);
     }
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
