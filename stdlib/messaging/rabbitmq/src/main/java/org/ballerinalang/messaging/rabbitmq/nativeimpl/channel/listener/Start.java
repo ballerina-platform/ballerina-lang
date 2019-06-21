@@ -18,42 +18,37 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Starting the channel listener.
@@ -69,12 +64,19 @@ import java.util.Map;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class Start extends BlockingNativeCallableUnit {
-
+    private boolean autoAck;
+    private RabbitMQTransactionContext rabbitMQTransactionContext;
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> channelObj = (BMap<String, BValue>) channelListObject.get("chann");
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        BMap<String, BValue> channelObj =
+                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObj.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<Service> services =
                 (ArrayList<Service>) channelListObject.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
         for (Service service : services) {
@@ -85,48 +87,27 @@ public class Start extends BlockingNativeCallableUnit {
             Map<String, Value> queueConfig = value.getMapField(RabbitMQConstants.QUEUE_CONFIG);
             String queueName = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_NAME).getStringValue();
             Resource onMessageResource = service.getResources()[0];
-            List<ParamDetail> paramDetails = onMessageResource.getParamDetails();
-            BType dataType = paramDetails.get(0).getVarType();
-            switch (dataType.getTag()) {
-                case TypeTags.STRING_TAG:
-                    dispatchTextMessage(onMessageResource, channel, queueName);
+            String ackMode = value.getStringField(RabbitMQConstants.ACK_MODE);
+            switch (ackMode) {
+                case RabbitMQConstants.AUTO_ACKMODE:
+                    autoAck = true;
                     break;
-                case TypeTags.FLOAT_TAG:
-                    dispatchFloatMessage(onMessageResource, channel, queueName);
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        dispatchBytesMessage(onMessageResource, channel, queueName);
-                    } else {
-                        throw new BallerinaException("Unsupported data type for array parameter");
-                    }
-                    break;
-                case TypeTags.INT_TAG:
-                    dispatchIntMessage(onMessageResource, channel, queueName);
-                    break;
-                case TypeTags.JSON_TAG:
-                    dispatchJsonMessage(onMessageResource, channel, queueName);
-                    break;
-                case TypeTags.XML_TAG:
-                    dispatchXmlMessage(onMessageResource, channel, queueName);
+                case RabbitMQConstants.CLIENT_ACKMODE:
+                    autoAck = false;
                     break;
                 default:
-                    throw new BallerinaException("Unsupported type for the resource function");
+                    throw new BallerinaException("Unsupported acknowledgement mode");
             }
-        }
-
-    }
-
-    private static class ResponseCallback implements CallableUnitCallback {
-
-        @Override
-        public void notifySuccess() {
-            // nothing to handle
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            boolean isQosSet = channelObj.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+            if (!isQosSet) {
+                try {
+                    handleBasicQos(channel, value);
+                } catch (RabbitMQConnectorException exception) {
+                    RabbitMQUtils.returnError("Error occurred while setting the QoS settings", context,
+                            exception);
+                }
+            }
+            receiveMessages(onMessageResource, channel, queueName);
         }
     }
 
@@ -134,121 +115,89 @@ public class Start extends BlockingNativeCallableUnit {
      * Dispatch messages in String format.
      *
      * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
+     * @param message  Message content to be dispatched to the resource function.
      */
-    private void dispatchTextMessage(Resource resource, Channel channel, String queue) {
+    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Executor.submit(resource, new RabbitMQResourceCallback(countDownLatch), null, null,
+                getMessageBMap(resource, message, channel, deliveryTag));
         try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        new BString(new String(delivery.getBody(), RabbitMQConstants.CHAR_SET)));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Receive messages from the RabbitMQ server.
+     *
+     * @param resource  Ballerina resource function.
+     * @param channel   RabbitMQ Channel object.
+     * @param queueName Name of the queue messages are consumed from.
+     */
+    private void receiveMessages(Resource resource, Channel channel, String queueName) {
+        try {
+            channel.basicConsume(queueName, autoAck,
+                    new DefaultConsumer(channel) {
+                        @Override
+                        public void handleDelivery(String consumerTag,
+                                                   Envelope envelope,
+                                                   AMQP.BasicProperties properties,
+                                                   byte[] body) throws IOException {
+                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag());
+                        }
+                    });
         } catch (IOException exception) {
             throw new BallerinaException(exception);
         }
     }
 
     /**
-     * Dispatch messages in int format.
+     * Create and get message BMap.
      *
      * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
+     * @param message  Message content received from the RabbitMQ server.
+     * @param channel  RabbitMQ Channel object.
+     * @return Ballerina RabbitMQ message BValue.
      */
-    private void dispatchIntMessage(Resource resource, Channel channel, String queue) {
-        try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        new BInteger(Integer.parseInt(new String(delivery.getBody(), RabbitMQConstants.CHAR_SET))));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
+    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag) {
+        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
+        BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
+                programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.MESSAGE_OBJECT);
+        messageObj.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
+        messageObj.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+        messageObj.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
+        messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
+        if (!Objects.isNull(rabbitMQTransactionContext)) {
+            messageObj.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT, rabbitMQTransactionContext);
         }
+        messageObj.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
+        return messageObj;
     }
 
     /**
-     * Dispatch messages in float format.
+     * Request specific "quality of service" settings.
      *
-     * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
+     * @param channel         RabbitMQ Channel object.
+     * @param annotationValue Struct value of the Annotation.
      */
-    private void dispatchFloatMessage(Resource resource, Channel channel, String queue) {
-        try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        new BFloat(Float.parseFloat(new String(delivery.getBody(), RabbitMQConstants.CHAR_SET))));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
+    private static void handleBasicQos(Channel channel, Struct annotationValue) {
+        long prefetchCount = RabbitMQConstants.DEFAULT_PREFETCH;
+        if (annotationValue.getRefField(RabbitMQConstants.PREFETCH_COUNT) != null) {
+            prefetchCount = annotationValue.getIntField(RabbitMQConstants.PREFETCH_COUNT);
         }
-    }
-
-    /**
-     * Dispatch messages in byte format.
-     *
-     * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
-     */
-    private void dispatchBytesMessage(Resource resource, Channel channel, String queue) {
+        boolean isValidPrefetchSize = annotationValue.getRefField(RabbitMQConstants.PREFETCH_SIZE) != null;
         try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        new BValueArray(delivery.getBody()));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
-        }
-    }
-
-    /**
-     * Dispatch messages in XML format.
-     *
-     * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
-     */
-    private void dispatchXmlMessage(Resource resource, Channel channel, String queue) {
-        try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), RabbitMQConstants.CHAR_SET);
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        XMLUtils.parse(message));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
-        }
-    }
-
-    /**
-     * Dispatch messages in JSON format.
-     *
-     * @param resource Ballerina resource function.
-     * @param channel  RabbitMQ channel.
-     * @param queue    Name of the queue.
-     */
-    private void dispatchJsonMessage(Resource resource, Channel channel, String queue) {
-        try {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), RabbitMQConstants.CHAR_SET);
-                Executor.submit(resource, new ResponseCallback(), null, null,
-                        JsonParser.parse(message));
-            };
-            channel.basicConsume(queue, true, deliverCallback, consumerTag -> {
-            });
-        } catch (IOException exception) {
-            throw new BallerinaException(exception);
+            if (isValidPrefetchSize) {
+                channel.basicQos(Math.toIntExact(annotationValue.getIntField(RabbitMQConstants.PREFETCH_SIZE)),
+                        Math.toIntExact(prefetchCount),
+                        annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
+            } else {
+                channel.basicQos(Math.toIntExact(prefetchCount));
+            }
+        } catch (IOException | ArithmeticException exception) {
+            String errorMessage = "An error occurred while setting the basic quality of service settings ";
+            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
     }
 }

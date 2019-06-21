@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -52,7 +54,7 @@ public class Init extends BlockingNativeCallableUnit {
      * @param path the values of the path.
      * @return reference to the path location.
      */
-    private Path getPath(String path) {
+    private static Path getPath(String path) {
         return Paths.get(path);
     }
 
@@ -61,5 +63,9 @@ public class Init extends BlockingNativeCallableUnit {
         String basePath = context.getStringArgument(0);
         BMap<String, BValue> path = (BMap<String, BValue>) context.getRefArgument(0);
         path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
+    }
+
+    public static void init(Strand strand, ObjectValue ref, String basePath) {
+        ref.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
     }
 }

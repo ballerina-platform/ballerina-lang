@@ -1,11 +1,11 @@
-public function testSimpleObjectAsStruct () returns (int, string, int, string) {
+public function testSimpleObjectAsStruct () returns [int, string, int, string] {
     Person p = new Person();
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testSimpleObjectAsStructWithNew () returns (int, string, int, string) {
+public function testSimpleObjectAsStructWithNew () returns [int, string, int, string] {
     Person p = new;
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 function test() {

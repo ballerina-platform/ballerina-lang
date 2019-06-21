@@ -7,8 +7,8 @@ any glbVarAny = getAnyGlobalVar();
 
 int glbVarInt = variable:getIntValue();
 
-function getGlobalVars() returns (int, string, float, any) {
-    return (variable:getGlbVarInt(), variable:getGlbVarString(), variable:getGlbVarFloat(), variable:getGlbVarAny());
+function getGlobalVars() returns [int, string, float, any] {
+    return [variable:getGlbVarInt(), variable:getGlbVarString(), variable:getGlbVarFloat(), variable:getGlbVarAny()];
 }
 
 function changeGlobalVar(int addVal) returns (float) {

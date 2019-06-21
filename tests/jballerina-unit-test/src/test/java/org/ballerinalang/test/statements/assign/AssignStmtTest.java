@@ -160,20 +160,20 @@ public class AssignStmtTest {
                 ", found 'int'", 3, 9);
         //testAssignCountMismatch1
         BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected " +
-                        "'(int,string)', found '(int,string,int)'", 11,
+                        "'[int,string]', found '[int,string,int]'", 11,
                 17);
         //testAssignCountMismatch2
         BAssertUtil.validateError(resultNegative, 2, "incompatible types: expected " +
-                        "'(int,string,int,int)', found '(int,string,int)'", 21,
+                        "'[int,string,int,int]', found '[int,string,int]'", 21,
                 23);
         //testAssignTypeMismatch1
         BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected " +
-                "'(int,string,int)', found '(string,string,int)'", 30, 20);
+                "'[int,string,int]', found '[string,string,int]'", 30, 20);
         BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected " +
                 "'string', found 'int'", 35, 13);
         //testAssignTypeMismatch2
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected " +
-                "'(int,int,int)', found '(int,string,int)'", 43, 20);
+                "'[int,int,int]', found '[int,string,int]'", 43, 20);
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected " +
                 "'string', found 'int'", 44, 16);
         //testVarRepeatedReturn1

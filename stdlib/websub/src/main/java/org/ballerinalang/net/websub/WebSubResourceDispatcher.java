@@ -22,14 +22,12 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_GET;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_POST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
@@ -57,7 +55,7 @@ class WebSubResourceDispatcher {
                                      WebSubServicesRegistry servicesRegistry)
             throws BallerinaConnectorException, ServerConnectorException {
 
-        String method = (String) inboundRequest.getProperty(HTTP_METHOD);
+        String method = inboundRequest.getHttpMethod();
         HttpResource httpResource = null;
         String resourceName;
 
@@ -102,7 +100,7 @@ class WebSubResourceDispatcher {
                 inboundRequest.setProperty(ANNOTATED_TOPIC, annotatedTopic);
                 inboundRequest.setProperty(HTTP_RESOURCE, ANNOTATED_TOPIC);
             } else {
-                inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                inboundRequest.setHttpStatusCode(404);
                 throw new BallerinaConnectorException("no matching WebSub Subscriber service  resource " + resourceName
                                                               + " found for method : " + method);
             }

@@ -1,7 +1,7 @@
 import ballerina/io;
 
-// This function takes one required parameter, one defaultable parameter and
-// one rest parameter of type `string`. A function can have only one rest
+// This function takes one required parameter, one defaultable parameter, and
+// one rest parameter of the type `string`. A function can have only one rest
 // parameter. The rest parameter can take any number of values and is
 // equivalent to an array of the same type.
 function printFruits(string separator,
@@ -23,22 +23,22 @@ function printFruits(string separator,
 }
 
 public function main() {
-    // Call the function by passing only the required parameter.
+    // Calls the function by passing only the required parameter.
     printFruits(",");
 
-    // Call the function by passing the required parameter, and
+    // Calls the function by passing the required parameter and
     // one value for the rest parameter.
     printFruits(",", "Apples");
 
-    // Call the function by passing the required parameter, defaultable 
+    // Calls the function by passing the required parameter, defaultable 
     // parameter, and one value for the rest parameter.
     printFruits(",", title = "Available Fruits: ", "Apples");
 
-    // Call the function by passing the required parameter, and multiple values
+    // Calls the function by passing the required parameter and multiple values
     // for the rest parameter.
     printFruits(",", "Apples", "Oranges");
 
-    // Call the function by passing all three parameters.
+    // Calls the function by passing all three parameters.
     printFruits(",", title = "Available Fruits: ", "Apples", "Oranges",
                 "Grapes");
 
@@ -47,7 +47,7 @@ public function main() {
     printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
                 "Grapes");
 
-    // Pass an array as the rest parameter instead of calling the 
+    // Passes an array as the rest parameter instead of calling the 
     // function by passing each value separately. 
     string[] fruits = ["Apples", "Oranges", "Grapes"];
     printFruits(",", title = "Available Fruits: ", ...fruits);

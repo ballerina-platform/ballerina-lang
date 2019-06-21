@@ -18,7 +18,7 @@ function testMultiValuedStructInlineInit () returns (Person) {
     return p1;
 }
 
-function testAccessJsonInStruct () returns (string, string, string) | error {
+function testAccessJsonInStruct () returns [string, string, string]| error {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -47,10 +47,10 @@ function testAccessJsonInStruct () returns (string, string, string) | error {
     } else {
         io:println("Person is null");
     }
-    return (status1, status2, status3);
+    return [status1, status2, status3];
 }
 
-function testAccessMapInStruct () returns (any, any, any, string) {
+function testAccessMapInStruct () returns [any, any, any, string] {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -66,10 +66,10 @@ function testAccessMapInStruct () returns (any, any, any, string) {
     var result = p1["parent"];
     if (result is Person) {
         city = string.convert(result.address[cityKey]);
-        return (result.address.city, result["address"]["city"], result.address["city"], city);
+        return [result.address.city, result["address"]["city"], result.address["city"], city];
     } else {
         io:println("Person is null");
-        return ((), (), (), city);
+        return [(), (), (), city];
     }
 }
 
@@ -95,8 +95,8 @@ function testSetValueToJsonInStruct () returns (json) {
     }
 }
 
-function testAccessArrayInStruct () returns (int, int) {
+function testAccessArrayInStruct () returns [int, int] {
     Person p1 = {marks:[87, 94, 72]};
     string statusKey = "status";
-    return (p1.marks[1], p1["marks"][2] ?: 0);
+    return [p1.marks[1], p1["marks"][2] ?: 0];
 }

@@ -98,7 +98,13 @@ public class IndexGenerator {
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs, lsIndex);
         File file = new File(IndexGenerator.class.getProtectionDomain().getCodeSource().getLocation().getFile());
         String saveDumpPath = file.getAbsolutePath().replaceAll("classes.*", "");
-        lsIndex.saveIndexDump(Paths.get(saveDumpPath + "lib/tools/lang-server/resources/lang-server-index.sql"));
+        // Following is to support both the gradle and maven builds
+        if (saveDumpPath.endsWith("build" + CommonUtil.FILE_SEPARATOR)) {
+            saveDumpPath += "ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql";
+        } else {
+            saveDumpPath += "lib/tools/lang-server/resources/lang-server-index.sql";
+        }
+        lsIndex.saveIndexDump(Paths.get(saveDumpPath));
     }
 
     private void insertBLangPackages(List<BLangPackageContent> pkgContentList, LSIndexImpl lsIndex) {

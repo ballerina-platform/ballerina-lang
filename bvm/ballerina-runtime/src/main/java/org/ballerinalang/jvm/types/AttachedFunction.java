@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.StringJoiner;
@@ -49,16 +50,25 @@ public class AttachedFunction extends BFunctionType {
         return sj.toString();
     }
 
+    public BType[] getParameterType() {
+        return type.paramTypes;
+    }
+
+    @Override
+    public String getName() {
+        return this.funcName;
+    }
+
     public void addAnnotation(String key, MapValueImpl annotation) {
         this.type.addAnnotation(key, annotation);
     }
 
-    public MapValueImpl getAnnotation(String pkgPath, String name) {
+    public ArrayValue getAnnotation(String pkgPath, String name) {
         return this.type.getAnnotation(pkgPath, name);
     }
 
     @Override
     public String getAnnotationKey() {
-        return parent.getAnnotationKey() + "." + funcName;
+        return parent.typeName + "." + funcName;
     }
 }

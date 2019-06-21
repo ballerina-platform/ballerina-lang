@@ -29,15 +29,15 @@ Person person1 = { name: "John" };
 Employee employee1 = { name: "John", intern: true };
 
 function mismatchingCovariace() {
-    (Person, Employee) x1 = (person1, employee1);
-    (Person, Person) x = x1;
-    (Employee, Employee) x2 = x1;
+    [Person, Employee] x1 = [person1, employee1];
+    [Person, Person] x = x1;
+    [Employee, Employee] x2 = x1;
 
-    (boolean|float, int?) x3 = (true, ());
-    (boolean|float|Person, int|Person?) x4 = x3;
-    (boolean|float|Person, int) x5 = x3;
+    [boolean|float, int?] x3 = [true, ()];
+    [boolean|float|Person, int|Person?] x4 = x3;
+    [boolean|float|Person, int] x5 = x3;
 
-    ((int|string, boolean), Person) x6 = ((12, true), person1);
-    ((int|string?, boolean?), Person?) x7 = x6;
-    ((int?, boolean?), Person?) x8 = x6;
+    [[int|string, boolean], Person] x6 = [[12, true], person1];
+    [[int|string?, boolean?], Person?] x7 = x6;
+    [[int?, boolean?], Person?] x8 = x6;
 }

@@ -39,10 +39,10 @@ public class BMapType extends BType {
      *
      * @param typeName string name of the type.
      * @param constraint constraint type which particular map is bound to.
-     * @param pkgPath package for the type.
+     * @param pkg package for the type.
      */
-    public BMapType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, MapValueImpl.class);
+    public BMapType(String typeName, BType constraint, BPackage pkg) {
+        super(typeName, pkg, MapValueImpl.class);
         this.constraint = constraint;
     }
 
@@ -73,12 +73,12 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new MapValueImpl<String, V>();
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValueImpl<String, V>();
+        return getZeroValue();
     }
 
     @Override

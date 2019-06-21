@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.test.statements.foreach;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -78,10 +78,10 @@ public class ForeachErrorBindingPatternsTests {
         BAssertUtil.validateError(negative, i++,
                 "incompatible types: expected 'string|boolean', found 'string|boolean?'", 56, 28);
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found '(string,error?)' in type definition",
+                "invalid error variable; expecting an error type but found '[string,error?]' in type definition",
                 68, 17);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected '(string,error)', found '(string,error)'", 83, 13);
+                "incompatible types: expected '[string,error]', found '[string,error]'", 83, 13);
         BAssertUtil.validateError(negative, i++,
                 "incompatible types: expected 'map<string>', found 'map<string|boolean>'", 97, 25);
         BAssertUtil.validateError(negative, i,

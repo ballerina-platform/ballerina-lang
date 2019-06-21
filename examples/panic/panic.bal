@@ -9,7 +9,7 @@ function readRecord(Record? value) {
     if (value is Record) {
          io:println("Record ID: ", value.id, ", value: ", value.name);
     } else {
-        // Panic if `value` is `()`.
+        // Panics if `value` is `()`.
         error err = error("Record is nil");
         panic err;
     }
@@ -23,7 +23,7 @@ public function main() {
     if (r2 is Record) {
         io:println("Record: " + r2.name);
     } else {
-        // Since `r2` is `()` `readRecord()` would panic.
+        // Since `r2` is `()`, `readRecord()` would panic.
         readRecord(r2);
     }
     // The following lines of code will not be executed.

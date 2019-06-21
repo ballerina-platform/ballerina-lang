@@ -18,12 +18,11 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl.connection;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,23 +33,21 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public class ConnectionNativeFunctionTest {
 
-    private CompileResult serviceResult;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
-        String filePath = "test-src/services/nativeimpl/connection/connection-native-function.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, filePath);
+        BCompileUtil.compile("test-src/services/nativeimpl/connection/connection-native-function.bal");
     }
 
     @Test(description = "Test whether the headers and status codes are set correctly.")
     public void testRedirect() {
         String path = "/hello/redirect";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);
+        Assert.assertEquals((int) response.getHttpStatusCode(), 301);
         Assert.assertEquals(response.getHeader("Location"), "location1");
     }
 }

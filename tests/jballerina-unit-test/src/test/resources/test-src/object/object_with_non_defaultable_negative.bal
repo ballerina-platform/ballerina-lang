@@ -1,8 +1,8 @@
 
-public function testObjectWithInterface () returns (int, string) {
+public function testObjectWithInterface () returns [int, string] {
     Person p;
     Employee e;
-    return (p.attachInterface(7), p.month);
+    return [p.attachInterface(7), p.month];
 }
 
 public type Person object {

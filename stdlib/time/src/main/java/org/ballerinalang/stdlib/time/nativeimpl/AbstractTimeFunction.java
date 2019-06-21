@@ -197,10 +197,10 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
             return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), timeValue, zoneId.toString());
         } catch (DateTimeParseException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "parse date \"" + dateValue + "\" for the format \"" + pattern + "\" failed:" + e.getMessage());
+            throw TimeUtils.getTimeError("parse date \"" + dateValue + "\" for the format \"" + pattern + "\" " 
+                                                 + "failed:" + e.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("invalid pattern: " + pattern);
+            throw TimeUtils.getTimeError("invalid pattern: " + pattern);
         }
     }
 
@@ -413,7 +413,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         if (dateTime != null) {
             return dateTime;
         }
-        long timeData = ((Long) timeRecord.get(TIME_FIELD)).intValue();
+        long timeData = (Long) timeRecord.get(TIME_FIELD);
         MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
         ZoneId zoneId;
         if (zoneData != null) {

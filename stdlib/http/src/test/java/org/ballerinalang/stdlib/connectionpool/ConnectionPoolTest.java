@@ -20,12 +20,12 @@ package org.ballerinalang.stdlib.connectionpool;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,12 +45,12 @@ public class ConnectionPoolTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/connection-pool/client-connection-pool.bal";
-        compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
+        compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
     @Test
     public void testGlobalPoolConfig() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testGlobalPoolConfig");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGlobalPoolConfig");
         Assert.assertEquals(returns.length, 3);
         verifyResults((BMap<String, BValue>) returns[0]);
         verifyResults((BMap<String, BValue>) returns[1]);
@@ -59,7 +59,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testSharedConfig() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSharedConfig");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSharedConfig");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);
@@ -69,7 +69,7 @@ public class ConnectionPoolTest {
 
     @Test
     public void testPoolPerClient() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testPoolPerClient");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPoolPerClient");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);

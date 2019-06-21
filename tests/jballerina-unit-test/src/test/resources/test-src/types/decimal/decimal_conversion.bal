@@ -15,7 +15,7 @@
 // under the License.
 
 // Decimal to other types (int, float, string, boolean, any, json) conversion.
-function testDecimalToOtherTypesConversion() returns (int, float, string, boolean, any, json) {
+function testDecimalToOtherTypesConversion() returns [int, float, string, boolean, any, json] {
     decimal d = 23.456;
 
     int i = <int> d;
@@ -25,11 +25,11 @@ function testDecimalToOtherTypesConversion() returns (int, float, string, boolea
     any a = d;
     json j = d;
 
-    return (i, f, s, b, a, j);
+    return [i, f, s, b, a, j];
 }
 
 // Other types (int, float, string, boolean, any, json) to decimal conversion.
-function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal, decimal, decimal, decimal)|error {
+function testOtherTypesToDecimalConversion() returns [decimal, decimal, decimal, decimal, decimal, decimal]|error {
     int i = 12;
     decimal d1 = <decimal> i;
 
@@ -48,5 +48,5 @@ function testOtherTypesToDecimalConversion() returns (decimal, decimal, decimal,
     json j = 23.4;
     decimal d6 = check decimal.convert(j);
 
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }

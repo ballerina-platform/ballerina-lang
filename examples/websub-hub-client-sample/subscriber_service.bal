@@ -1,4 +1,4 @@
-// Ballerina WebSub Subscriber service, which represents the callback registered at the Hub.
+// The Ballerina WebSub Subscriber service, which represents the callback registered at the Hub.
 import ballerina/log;
 import ballerina/websub;
 
@@ -6,9 +6,9 @@ import ballerina/websub;
 listener websub:Listener websubEP = new(8181);
 
 // Annotations specifying the subscription parameters.
-// Note the omission of `subscribeOnStartUp` as an annotation due to which a subscription request would not be sent
-// automatically on start up.
-// Also note the exclusion of the onIntentVerification resource which will result in auto intent-verification.
+// The omission of `subscribeOnStartUp` as an annotation due to which a subscription request would not be sent
+// automatically on the start up.
+// Also, the exclusion of the onIntentVerification resource will result in auto intent-verification.
 @websub:SubscriberServiceConfig {
     path: "/websub",
     topic: "http://websubpubtopic.com",
@@ -17,7 +17,7 @@ listener websub:Listener websubEP = new(8181);
 }
 service websubSubscriber on websubEP {
 
-    // Resource accepting content delivery requests.
+    // This resource accepts content delivery requests.
     resource function onNotification(websub:Notification notification) {
         var payload = notification.getTextPayload();
         if (payload is string) {

@@ -218,6 +218,11 @@
             <artifactId>ballerina-ldap</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- balo dependencies -->
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -361,6 +366,13 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-ldap</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>

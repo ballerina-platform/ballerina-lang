@@ -86,9 +86,9 @@ function anyToAnyExplicitCasting() returns (any) {
 }
 
 
-function multipleReturnWithAny() returns (any, int) {
+function multipleReturnWithAny() returns [any, int] {
   any abc = jsonReturnFunction();
-  return (abc, 7);
+  return [abc, 7];
 }
 
 

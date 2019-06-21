@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -46,12 +47,13 @@ public class RecordTypeNodeScopeProvider extends LSCompletionProvider {
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (invocationOrDelimiterTokenType > -1) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else {
-            List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+            List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredTypes, context));

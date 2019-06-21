@@ -1,4 +1,4 @@
-function testNullInForkJoin () returns (string, string)|error {
+function testNullInForkJoin () returns [string, string]|error {
     string m = "";
     fork {
         worker foo returns int {

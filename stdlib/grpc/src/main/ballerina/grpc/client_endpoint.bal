@@ -52,7 +52,7 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
     public remote function blockingExecute(string methodID, any payload, Headers? headers = ())
-                               returns ((any, Headers)|error) = external;
+                               returns ([any, Headers]|error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #

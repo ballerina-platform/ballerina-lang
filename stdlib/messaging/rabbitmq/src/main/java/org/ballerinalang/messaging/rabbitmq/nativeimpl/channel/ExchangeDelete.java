@@ -22,6 +22,7 @@ import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
@@ -53,12 +54,18 @@ public class ExchangeDelete extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         String exchangeName = context.getStringArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObject.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.exchangeDelete(channel, exchangeName);
+            if (transactionContext != null) {
+                transactionContext.handleTransactionBlock(context);
+            }
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while declaring the exchange", exception);
             RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);

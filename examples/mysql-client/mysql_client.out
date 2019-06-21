@@ -1,5 +1,10 @@
+# Before running the sample, copy the
+// MySQL JDBC driver to the `BALLERINA_HOME/bre/lib` folder, and change the DB
+// connection properties as required. 
+
+
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run mysql_client.bal
 The update operation - Creating a table:
 Create student table status: 0

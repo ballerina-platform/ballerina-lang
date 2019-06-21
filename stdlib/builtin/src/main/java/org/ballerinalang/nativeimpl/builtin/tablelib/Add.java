@@ -61,7 +61,7 @@ public class Add extends BlockingNativeCallableUnit {
     public static Object add(Strand strand, TableValue table, Object data) {
         try {
             return table.performAddOperation((MapValueImpl<String, Object>) data);
-        } catch (BLangFreezeException e) {
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }
     }

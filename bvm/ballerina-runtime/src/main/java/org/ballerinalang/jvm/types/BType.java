@@ -29,12 +29,12 @@ package org.ballerinalang.jvm.types;
  */
 public abstract class BType {
     protected String typeName;
-    protected String pkgPath;
+    protected BPackage pkg;
     protected Class<? extends Object> valueClass;
 
-    protected BType(String typeName, String pkgPath, Class<? extends Object> valueClass) {
+    protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
-        this.pkgPath = pkgPath;
+        this.pkg = pkg;
         this.valueClass = valueClass;
     }
 
@@ -63,9 +63,10 @@ public abstract class BType {
     public abstract <V extends Object> V getEmptyValue();
 
     public abstract int getTag();
-    
+
     public String toString() {
-        return (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
+        return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? typeName :
+                pkg.getName() + ":" + typeName;
     }
 
     public boolean equals(Object obj) {
@@ -75,25 +76,38 @@ public abstract class BType {
 
             // If both package paths are null or both package paths are not null,
             //    then check their names. If not return false
-            if (this.pkgPath == null && other.getPackagePath() == null) {
+
+            if (this.pkg == null || other.pkg == null) {
                 return namesEqual;
-            } else if (this.pkgPath != null && other.getPackagePath() != null) {
-                return this.pkgPath.equals(other.getPackagePath()) && namesEqual;
+            }
+
+            if (this.pkg.getName() == null && other.pkg.getName() == null) {
+                return namesEqual;
+            } else if (this.pkg.getName() != null && other.pkg.getName() != null) {
+                return this.pkg.getName().equals(other.pkg.getName()) && namesEqual;
             }
         }
         return false;
     }
 
+    public boolean isNilable() {
+        return false;
+    }
+
     public int hashCode() {
-        return (pkgPath + ":" + typeName).hashCode();
+        return (pkg.getName() + ":" + typeName).hashCode();
     }
 
     public String getName() {
         return typeName;
     }
 
-    public String getPackagePath() {
-        return pkgPath;
+    public String getQualifiedName() {
+        return pkg == null ? typeName : pkg.toString() + ":" + typeName;
+    }
+
+    public BPackage getPackage() {
+        return pkg;
     }
 
     public boolean isPublic() {
