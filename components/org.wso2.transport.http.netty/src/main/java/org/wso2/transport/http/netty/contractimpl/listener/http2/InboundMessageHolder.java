@@ -22,21 +22,15 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * Message holder for inbound request and push response.
+ * Message holder for inbound request and push response. Keeps track of the last read or write execution time.
  */
 public class InboundMessageHolder {
-    private HttpCarbonMessage inboundMsgOrPushResponse;
+    private HttpCarbonMessage inboundMsg;
     private long lastReadWriteTime;
     private Http2OutboundRespListener http2OutboundRespListener;
-//    private boolean isPushResponse;
-
-//    public InboundMessageHolder(boolean isPushResponse, HttpCarbonMessage inboundMsgOrPushResponse) {
-//        this.inboundMsgOrPushResponse = inboundMsgOrPushResponse;
-//        this.isPushResponse = isPushResponse;
-//    }
 
     public InboundMessageHolder(HttpCarbonMessage inboundMsgOrPushResponse) {
-        this.inboundMsgOrPushResponse = inboundMsgOrPushResponse;
+        this.inboundMsg = inboundMsgOrPushResponse;
     }
 
     /**
@@ -57,20 +51,15 @@ public class InboundMessageHolder {
         this.lastReadWriteTime = lastReadWriteTime;
     }
 
-    public HttpCarbonMessage getInboundMsgOrPushResponse() {
-        return inboundMsgOrPushResponse;
+    public HttpCarbonMessage getInboundMsg() {
+        return inboundMsg;
     }
 
     public Http2OutboundRespListener getHttp2OutboundRespListener() {
         return http2OutboundRespListener;
     }
 
-    public void setHttp2OutboundRespListener(
-            Http2OutboundRespListener http2OutboundRespListener) {
+    public void setHttp2OutboundRespListener(Http2OutboundRespListener http2OutboundRespListener) {
         this.http2OutboundRespListener = http2OutboundRespListener;
     }
-
-//    public boolean isPushResponse() {
-//        return isPushResponse;
-//    }
 }

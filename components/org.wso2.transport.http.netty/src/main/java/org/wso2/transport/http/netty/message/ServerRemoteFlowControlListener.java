@@ -73,8 +73,4 @@ public class ServerRemoteFlowControlListener implements Http2RemoteFlowControlle
             responseWriters.remove(responseWriter.getStreamId(), responseWriter);
         }
     }
-
-    public Http2OutboundRespListener.ResponseWriter getResponseWriter(int streamId) {
-        return responseWriters.get(streamId);
-    }
 }

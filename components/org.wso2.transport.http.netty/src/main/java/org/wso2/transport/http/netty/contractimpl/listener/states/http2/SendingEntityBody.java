@@ -165,7 +165,7 @@ public class SendingEntityBody implements ListenerState {
         for (Http2DataEventListener dataEventListener : http2OutboundRespListener.getHttp2ServerChannel()
                 .getDataEventListeners()) {
             if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
-                return;
+                break;
             }
         }
         ChannelFuture channelFuture = encoder.writeData(

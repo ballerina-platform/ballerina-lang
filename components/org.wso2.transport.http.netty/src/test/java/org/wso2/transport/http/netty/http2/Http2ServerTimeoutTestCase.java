@@ -101,8 +101,7 @@ public class Http2ServerTimeoutTestCase {
                               String expectedError) {
         Throwable errorResponse = new MessageSender(http2ClientConnector).sendMessageAndExpectError(
                 httpCarbonMessage);
-        assertEquals(errorResponse.getMessage(), expectedError,
-                     "Expected response not received");
+        assertEquals(errorResponse.getMessage(), expectedError, "Expected response not received");
     }
 
     @AfterClass

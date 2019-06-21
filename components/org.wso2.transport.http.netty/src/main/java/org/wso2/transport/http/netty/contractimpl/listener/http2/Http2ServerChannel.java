@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class Http2ServerChannel {
     private static final Logger LOG = LoggerFactory.getLogger(Http2ServerChannel.class);
-    // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
+    // streamIdRequestMap contains the mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, InboundMessageHolder> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private Map<String, Http2DataEventListener> dataEventListeners;
 

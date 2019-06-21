@@ -68,7 +68,7 @@ public class ReceivingEntityBody implements ListenerState {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
         HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
-                .getInboundMsgOrPushResponse();
+                .getInboundMsg();
         if (sourceReqCMsg != null) {
             for (Http2DataEventListener listener : http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()) {
                 listener.onDataRead(http2SourceHandler.getChannelHandlerContext(), streamId, data,
@@ -77,8 +77,6 @@ public class ReceivingEntityBody implements ListenerState {
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                 sourceReqCMsg.setLastHttpContentArrived();
-                //CHECK:Following should be removed only after the respond call
-//                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));

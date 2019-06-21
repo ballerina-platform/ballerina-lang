@@ -128,7 +128,6 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         @Override
         public void run() {
             InboundMessageHolder msgHolder = http2ServerChannel.getInboundMessage(streamId);
-
             if (msgHolder != null) {
                 runTimeOutLogic(msgHolder);
             }
@@ -150,73 +149,36 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         }
 
         private void handleTimeout(InboundMessageHolder msgHolder) {
-//            if (msgHolder.getResponse() != null) {
-//                handleIncompleteResponse(msgHolder, true);
-//            } else {
-//                notifyTimeoutError(msgHolder, true);
-//            }
-//            http2ServerChannel.removeInFlightMessage(streamId);
-
-            //TODO:what happens if the timeout triggered while only half of the inbound request has been received??
-
-            if (msgHolder.getInboundMsgOrPushResponse() != null) {
-//                if (msgHolder.isPushResponse()) {
-//                    msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyPushResponse(
-//                            streamId, new EndpointTimeOutException(
-//                                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,
-//                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-//                } else {
-                //response listenr is null
-//                msgHolder.getHttp2OutboundRespListener().getOutboundRespStatusFuture().notifyHttpListener(
-//                        new EndpointTimeOutException(
-//                                IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
-//                                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-
+            if (msgHolder.getInboundMsg() != null) {
                 try {
-                    msgHolder.getInboundMsgOrPushResponse().getHttpResponseFuture().notifyErrorListener(
+                    msgHolder.getInboundMsg().getHttpResponseFuture().notifyErrorListener(
                             new EndpointTimeOutException(
                                     IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 } catch (ServerConnectorException e) {
-                    LOG.error(e.getMessage());
+                    LOG.error(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE + ":" + e.getMessage());
                 }
-
-//                }
             }
             http2ServerChannel.getStreamIdRequestMap().remove(streamId);
         }
 
         private void closeStream(InboundMessageHolder msgHolder, int streamId, ChannelHandlerContext ctx) {
-//            Http2TargetHandler clientOutboundHandler =
-//                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
-//            clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
-
-            //TODO: Figure out a way to send the RST stream. When the respond has not been called respListener is null
             msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
         }
     }
 
     private void updateLastReadTime(int streamId) {
         InboundMessageHolder inboundMessage = http2ServerChannel.getInboundMessage(streamId);
-//        if (outboundMsgHolder == null) {
-//            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
-//        }
         if (inboundMessage != null) {
             inboundMessage.setLastReadWriteTime(ticksInNanos());
         }
-//        if (endOfStream) {
-//            onStreamClose(streamId);
-//        }
     }
 
     private void updateLastWriteTime(int streamId, boolean endOfStream) {
         InboundMessageHolder inboundMessage = http2ServerChannel.getInboundMessage(streamId);
         if (inboundMessage != null) {
             inboundMessage.setLastReadWriteTime(ticksInNanos());
-        } else {
-            LOG.debug("InboundMessageHolder may have already been removed for streamId: {}", streamId);
         }
-
         if (endOfStream) {
             onStreamClose(streamId);
         }

@@ -69,30 +69,28 @@ public class ReceivingHeaders implements ListenerState {
             // Retrieve HTTP request and add last http content with trailer headers.
             InboundMessageHolder inboundMessageHolder = http2SourceHandler.getStreamIdRequestMap().get(streamId);
             HttpCarbonMessage sourceReqCMsg =
-                    inboundMessageHolder != null ? inboundMessageHolder.getInboundMsgOrPushResponse() : null;
+                    inboundMessageHolder != null ? inboundMessageHolder.getInboundMsg() : null;
             if (sourceReqCMsg != null) {
                 readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
-                //CHECK: Following should be removed only when the response has been sent back to the caller
-//                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
             } else if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
                 // if the header frame is an initial header frame and also it has endOfStream
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
-                setEventListeners(ctx, streamId, sourceReqCMsg);
-
+                initializeDataEventListeners(ctx, streamId, sourceReqCMsg);
             }
             http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
         } else {
             // Construct new HTTP Request
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
-            setEventListeners(ctx, streamId, sourceReqCMsg);
+            initializeDataEventListeners(ctx, streamId, sourceReqCMsg);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }
     }
 
-    private void setEventListeners(ChannelHandlerContext ctx, int streamId, HttpCarbonMessage sourceReqCMsg) {
+    private void initializeDataEventListeners(ChannelHandlerContext ctx, int streamId,
+                                              HttpCarbonMessage sourceReqCMsg) {
         InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(sourceReqCMsg);
         // storing to add HttpContent later
         http2SourceHandler.getStreamIdRequestMap().put(streamId, inboundMsgHolder);

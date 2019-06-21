@@ -116,15 +116,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
-//        InboundMessageHolder msgHolder = new InboundMessageHolder(true, outboundResponseMsg);
-//        msgHolder.setHttp2OutboundRespListener(this);
-//        http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-//                                                new Http2ServerTimeoutHandler(
-//                                                        serverChannelInitializer.getSocketIdleTimeout(),
-//                                                        http2ServerChannel));
+        //TODO:Add HTTP/2 server timeout handler for the push response stream
         if (isValidStreamId(promiseId, conn)) {
-//            http2ServerChannel.getDataEventListeners()
-//                    .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, promiseId));
+            //TODO:Call dataEventListener.onStreamInit with the promiseId
             writeMessage(outboundResponseMsg, promiseId, false);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture()
@@ -148,10 +142,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId, boolean backOffEnabled) {
-//        InboundMessageHolder inboundMessageHolder = http2ServerChannel.getInboundMessage(streamId);
-//        if (inboundMessageHolder != null) {
-//            inboundMessageHolder.setHttp2OutboundRespListener(this);
-//        }
         ResponseWriter writer = new ResponseWriter(streamId);
         if (backOffEnabled) {
             remoteFlowControlListener.addResponseWriter(writer);

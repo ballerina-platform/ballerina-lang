@@ -83,7 +83,7 @@ public class Http2StateUtil {
      */
     public static void notifyRequestListener(Http2SourceHandler http2SourceHandler,
                                              InboundMessageHolder inboundMessageHolder, int streamId) {
-        HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsgOrPushResponse();
+        HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsg();
         if (http2SourceHandler.getServerConnectorFuture() != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
@@ -155,7 +155,7 @@ public class Http2StateUtil {
                                                  Http2OutboundRespListener respListener) throws Http2Exception {
         for (Http2DataEventListener dataEventListener : respListener.getHttp2ServerChannel().getDataEventListeners()) {
             if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
-                return;
+                break;
             }
         }
         if (endStream) {
@@ -242,8 +242,7 @@ public class Http2StateUtil {
      */
     public static void releaseDataFrame(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
-                .getInboundMsgOrPushResponse();
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMsg();
         if (sourceReqCMsg != null) {
             sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
             http2SourceHandler.getStreamIdRequestMap().remove(streamId);

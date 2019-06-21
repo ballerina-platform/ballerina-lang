@@ -63,8 +63,6 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(Http2SourceHandler.class);
 
-//    // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
-//    private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private Http2ServerChannel http2ServerChannel = new Http2ServerChannel();
     private ChannelHandlerContext ctx;
     private ServerConnectorFuture serverConnectorFuture;
@@ -88,10 +86,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.targetChannelPool = new ConcurrentHashMap<>();
         setRemoteFlowController();
-        setDataEventListeners(serverChannelInitializer);
+        setDataEventListeners();
     }
 
-    private void setDataEventListeners(HttpServerChannelInitializer serverChannelInitializer) {
+    private void setDataEventListeners() {
         long serverTimeout = serverChannelInitializer.getSocketIdleTimeout() <= 0 ? ENDPOINT_TIMEOUT :
                 serverChannelInitializer.getSocketIdleTimeout();
         http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
@@ -139,7 +137,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             requestCarbonMessage.setLastHttpContentArrived();
             InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(requestCarbonMessage);
-            // storing to add HttpContent later
+            // Storing to add HttpContent later
             http2ServerChannel.getStreamIdRequestMap().put(STREAM_ID_ONE, inboundMsgHolder);
             http2ServerChannel.getDataEventListeners()
                     .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, STREAM_ID_ONE));
@@ -157,9 +155,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
-//            HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
             HttpCarbonMessage sourceReqCMsg = http2ServerChannel.getInboundMessage(streamId)
-                    .getInboundMsgOrPushResponse();
+                    .getInboundMsg();
             // CarbonMessage can be already removed from the map once the LastHttpContent is added because of receiving
             // a data frame when the outbound response is started to send. So, the data frames received after that
             // should be released.
@@ -187,7 +184,6 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void destroy() {
-//        streamIdRequestMap.clear();
         http2ServerChannel.getDataEventListeners().forEach(Http2DataEventListener::destroy);
         http2ServerChannel.destroy();
     }
@@ -204,7 +200,6 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     public Map<Integer, InboundMessageHolder> getStreamIdRequestMap() {
         return http2ServerChannel.getStreamIdRequestMap();
-//        return streamIdRequestMap;
     }
 
     public ChannelHandlerContext getChannelHandlerContext() {
