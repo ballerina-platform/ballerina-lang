@@ -322,11 +322,11 @@ public class HttpService implements Cloneable {
 
     protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,
                                                          String annotationName) {
-        return (MapValue) service.getType().getAnnotation(packagePath + ":" + annotationName);
+        return (MapValue) service.getType().getAnnotation(packagePath, annotationName);
     }
 
     private static boolean hasInterruptibleAnnotation(ObjectValue service) {
-        return service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN + ":" + ANN_NAME_INTERRUPTIBLE) != null;
+        return service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 
     private String urlDecode(String basePath) {

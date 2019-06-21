@@ -58,8 +58,8 @@ public class WebSocketUtil {
 //    }
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
-        return (MapValue) service.getType().getAnnotation(
-                HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
+        return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                          WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
     }
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
