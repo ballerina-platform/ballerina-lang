@@ -19,9 +19,9 @@ import ballerina/encoding;
 import ballerina/log;
 import ballerina/runtime;
 
-# Defines Basic auth header handler for inbound and outbound HTTP traffic.
+# Defines the Basic Auth header handler for inbound and outbound HTTP traffic.
 #
-# + authProvider - AuthProvider instance
+# + authProvider - The AuthProvider instance.
 public type BasicAuthHandler object {
 
     *InboundAuthHandler;
@@ -33,10 +33,10 @@ public type BasicAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    # Checks if the provided request can be authenticated with Basic auth header.
+    # Checks if the provided request can be authenticated with the Basic Auth header.
     #
-    # + req - Request object
-    # + return - `true` if authentication is a success, else `false`
+    # + req - The request object.
+    # + return - Returns `true` if authentication is successful. Else, returns `false`.
     public function canHandle(Request req) returns boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
@@ -45,10 +45,10 @@ public type BasicAuthHandler object {
         return false;
     }
 
-    # Authenticates the incoming request with the use of credentials passed as Basic auth header.
+    # Authenticates the incoming request with the use of the credentials passed as the Basic Auth header.
     #
-    # + req - Request object
-    # + return - `true` if it is possible authenticate with basic auth, else `false`, or `error` in case of errors
+    # + req - The request object.
+    # + return - Returns `true` if it is possible to authenticate with Basic Auth. Else, returns `false` or the `error` in case of an error.
     public function handle(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(5, headerValue.length()).trim();
@@ -60,10 +60,10 @@ public type BasicAuthHandler object {
         }
     }
 
-    # Prepare the request with Basic auth header.
+    # Prepares the request with the Basic Auth header.
     #
-    # + req - `Request` instance
-    # + return - Updated `Request` instance or `error` in case of errors
+    # + req - The`Request` instance.
+    # + return - Returns the updated `Request` instance or the`error` in case of an error.
     public function prepare(Request req) returns Request|error {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
@@ -75,11 +75,11 @@ public type BasicAuthHandler object {
         }
     }
 
-    # Inspect the request, response and calls the auth provider for inspection.
+    # Inspects the request and response and calls the Auth provider for inspection.
     #
-    # req - `Request` instance
-    # resp - `Response` instance
-    # + return - Updated `Request` instance or `error` in case of errors or `()` if nothing to be done
+    # req - The `Request` instance.
+    # resp - The `Response` instance.
+    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be done.
     public function inspect(Request req, Response resp) returns Request|error? {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {

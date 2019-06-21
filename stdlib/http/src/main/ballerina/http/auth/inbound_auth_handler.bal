@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of inbound authentication handler for HTTP traffic.
+# The representation of an inbound authentication handler for HTTP traffic.
 public type InboundAuthHandler abstract object {
 
     # Checks if the request can be authenticated with the relevant `InboundAuthHandler` implementation.
     #
-    # + req - `Request` instance
-    # + return - `true` if can be authenticated, else `false`
+    # + req - The `Request` instanc.
+    # + return - Returns `true` if can be authenticated. Else, returns `false`.
     public function canHandle(Request req) returns boolean;
 
     # Tries to authenticate the request with the relevant `InboundAuthHandler` implementation.

@@ -18,7 +18,7 @@ import ballerina/reflect;
 
 # Representation of the Authentication filter.
 #
-# + authHandlers - Array of authentication handlers
+# + authHandlers - An array of authentication handlers.
 public type AuthnFilter object {
 
     public InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers;
@@ -27,12 +27,12 @@ public type AuthnFilter object {
         self.authHandlers = authHandlers;
     }
 
-    # Request filter method which attempts to authenticated the request.
+    # The request filter method, which attempts to authenticate the request.
     #
     # + caller - Caller for outbound HTTP responses
     # + request - An inboud HTTP request message
     # + context - A filter context
-    # + return - True if the filter succeeds
+    # + return - Returns `true` if the filter succeeds. Else, returns `false`.
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|error authenticated;
         var authHandlers = getAuthHandlers(context);

@@ -166,14 +166,14 @@ public type ServiceEndpointConfiguration record {|
 
 # Authentication configurations for the listener.
 #
-# + authHandlers - Array of inbound authentication handlers or Array of arrays of inbound authentication handlers.
-# Array is used to say at least one of the authenticaion handlers should successfully authenticated. Array of arrays
-# is used to say at least one authentication handler from the sub arrays should successfully authenticated.
-# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
-# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
-# authorized.
-# + positiveAuthzCache - Caching configurations for positive authorizations
-# + negativeAuthzCache - Caching configurations for negative authorizations
+# + authHandlers - An array of inbound authentication handlers or an array consisting of arrays of inbound authentication handlers.
+# An array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays
+# is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
+# + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
+# be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays 
+# should successfully be authorozed.
+# + positiveAuthzCache - The caching configurations for positive authorizations.
+# + negativeAuthzCache - The caching configurations for negative authorizations.
 public type ListenerAuth record {|
     (InboundAuthHandler?)[]|(InboundAuthHandler?)[][] authHandlers;
     string[]|string[][] scopes?;
@@ -243,7 +243,7 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
-# Add authn and authz filters.
+# Adds authentication and authorization filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {

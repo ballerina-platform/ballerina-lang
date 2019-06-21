@@ -14,19 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of outbound authentication handler for HTTP traffic.
+# The representation of an outbound authentication handler for HTTP traffic.
 public type OutboundAuthHandler abstract object {
 
-    # Prepare the request with the relevant authentication requirments.
+    # Prepares the request with the relevant authentication requirements.
     #
-    # + req - `Request` instance
-    # + return - Updated `Request` instance or `error` in case of errors
+    # + req - The `Request` instance.
+    # + return - Returns the updated `Request` instance or the `error` in case of an error.
     public function prepare(Request req) returns Request|error;
 
-    # Inspect the request, response and evaluate what to be done.
+    # Inspects the request and response and evaluates what is to be done.
     #
-    # req - `Request` instance
-    # resp - `Response` instance
-    # + return - Updated `Request` instance or `error` in case of errors or `()` if nothing to be done
+    # req - The `Request` instance.
+    # resp - The `Response` instance.
+    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be returned.
     public function inspect(Request req, Response resp) returns Request|error?;
 };

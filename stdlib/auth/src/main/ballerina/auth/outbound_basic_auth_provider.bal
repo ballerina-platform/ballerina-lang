@@ -17,9 +17,9 @@
 import ballerina/encoding;
 import ballerina/log;
 
-# Represents outbound Basic auth authenticator.
+# Represents the outbound Basic Auth authenticator.
 #
-# + credential - Credential configurations
+# + credential - The credential configurations.
 public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
@@ -28,40 +28,40 @@ public type OutboundBasicAuthProvider object {
 
     # Provides authentication based on the provided basic auth configuration.
     #
-    # + credential - Credential configurations
+    # + credential - The credential configurations.
     public function __init(Credential credential) {
         self.credential = credential;
     }
 
     # Generate token for Basic authentication.
     #
-    # + return - Generated token or `error` if an error occurred during validation
+    # + return - The generated token or the `error` if an error occurred during validation.
     public function generateToken() returns string|error {
         return getAuthTokenForBasicAuth(self.credential);
     }
 
-    # Inspect the incoming data and generate the token for Basic authentication.
+    # Inspects the incoming data and generates the token for Basic authentication.
     #
-    # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
+    # + data - Map of the data, which is extracted from the HTTP response.
+    # + return - The String token, the `error` occurred when generating the token, or `()` if nothing is to be returned.
     public function inspect(map<anydata> data) returns string|error? {
         return ();
     }
 };
 
-# The `Credential` record can be used to configure Basic authentication used by the HTTP endpoint.
+# The `Credential` record can be used to configure Basic authentication, which is used by the HTTP endpoint.
 #
-# + username - Username for Basic authentication
-# + password - Password for Basic authentication
+# + username - The username for Basic authentication.
+# + password - The password for Basic authentication.
 public type Credential record {|
     string username;
     string password;
 |};
 
-# Process the auth token for basic auth.
+# Processes the auth token for Basic Auth.
 #
-# + credential - Credential configurations
-# + return - Auth token or `error` if an error occurred during validation
+# + credential - The credential configurations.
+# + return - The auth token or the `error` if an error occurred during validation.
 function getAuthTokenForBasicAuth(Credential credential) returns string|error {
     string username = credential.username;
     string password = credential.password;

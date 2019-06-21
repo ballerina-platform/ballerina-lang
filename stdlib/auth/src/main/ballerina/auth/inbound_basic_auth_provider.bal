@@ -19,9 +19,9 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/runtime;
 
-# Represents inbound basic auth provider which is configuration file based auth store provider.
+# Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
-# + basicAuthConfig - Basic auth provider configurations
+# + basicAuthConfig - The Basic Auth provider configurations.
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
@@ -30,7 +30,7 @@ public type InboundBasicAuthProvider object {
 
     # Provides authentication based on the provided configuration.
     #
-    # + basicAuthConfig - Basic auth provider configurations
+    # + basicAuthConfig - The Basic Auth provider configurations.
     public function __init(BasicAuthConfig? basicAuthConfig) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
@@ -39,7 +39,7 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-    # Attempts to authenticate with credential.
+    # Attempts to authenticate with credentials.
     #
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
@@ -79,25 +79,25 @@ public type InboundBasicAuthProvider object {
     }
 };
 
-# The `BasicAuthConfig` record can be used to configure inbound Basic authentication configurations.
+# The `BasicAuthConfig` record can be used to configure inbound Basic Authentication configurations.
 #
-# + tableName - Table name of the toml file of user-store.
+# + tableName - The table name of the TOML file of the user-store.
 public type BasicAuthConfig record {|
     string tableName;
 |};
 
-# Reads the scope(s) for the user with the given username.
+# Reads the scope(s) of the user of the given username.
 #
-# + username - Username
-# + tableName - Table name of the toml file of user-store
-# + return - Array of groups for the user denoted by the username
+# + username - The username of the user.
+# + tableName - The table name of the TOML file of the user-store.
+# + return - An array of groups of the user who is denoted by the username.
 function getScopes(string username, string tableName) returns string[] {
-    // first read the user id from user->id mapping
-    // reads the groups for the user-id
+    // First, reads the user ID from the user->id mapping.
+    // Reads the groups of the user-id.
     return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
-# Extract password hash from the configuration file.
+# Extracts the password hash from the configuration file.
 #
 # + configValue - Config value to extract the password from
 # + return - Password hash extracted from the configuration field

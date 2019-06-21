@@ -17,9 +17,9 @@
 import ballerina/auth;
 import ballerina/log;
 
-# Representation of Bearer auth header handler for both inbound and outbound HTTP traffic.
+# Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.
 #
-# + authProvider - `InboundAuthProvider` instance or `OutboundAuthProvider` instance
+# + authProvider - The `InboundAuthProvider` instance or the `OutboundAuthProvider` instance.
 public type BearerAuthHandler object {
 
     *InboundAuthHandler;
@@ -31,10 +31,10 @@ public type BearerAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    # Checks if the request can be authenticated with Bearer auth header.
+    # Checks if the request can be authenticated with the Bearer Auth header.
     #
-    # + req - `Request` instance
-    # + return - `true` if can be authenticated, else `false`
+    # + req - The `Request` instance.
+    # + return - Returns `true` if can be authenticated. Else, returns `false`.
     public function canHandle(Request req) returns boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
@@ -43,10 +43,10 @@ public type BearerAuthHandler object {
         return false;
     }
 
-    # Authenticates the incoming request with the use of credentials passed as Bearer auth header.
+    # Authenticates the incoming request with the use of credentials passed as the Bearer Auth header.
     #
-    # + req - `Request` instance
-    # + return - `true` if authenticated successfully, else `false`, or `error` in case of errors
+    # + req - The `Request` instance.
+    # + return - Returns `true` if authenticated successfully. Else, returns `false` or the `error` in case of an error.
     public function handle(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(6, headerValue.length()).trim();
@@ -58,10 +58,10 @@ public type BearerAuthHandler object {
         }
     }
 
-    # Prepare the request with Bearer auth header.
+    # Prepares the request with the Bearer Auth header.
     #
-    # + req - `Request` instance
-    # + return - Updated `Request` instance or `error` in case of errors
+    # + req - The`Request` instance.
+    # + return - Returns the updated `Request` instance or the `error` in case of an error.
     public function prepare(Request req) returns Request|error {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
@@ -73,11 +73,11 @@ public type BearerAuthHandler object {
         }
     }
 
-    # Inspect the request, response and calls the auth provider for inspection.
+    # Inspects the request and response and calls the Auth provider for inspection.
     #
-    # req - `Request` instance
-    # resp - `Response` instance
-    # + return - Updated `Request` instance or `error` in case of errors or `()` if nothing to be done
+    # req - The `Request` instance.
+    # resp - The `Response` instance.
+    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be returned.
     public function inspect(Request req, Response resp) returns Request|error? {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
