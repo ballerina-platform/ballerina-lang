@@ -43,7 +43,7 @@ public class BalServer {
      * @throws BallerinaTestException if something fails
      */
     public BalServer() throws BallerinaTestException {
-        this(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP));
+        this(System.getProperty(Constant.SYSTEM_PROP_JBALLERINA_SERVER_ZIP));
     }
 
     public BalServer(String serverZipFile) throws BallerinaTestException {
