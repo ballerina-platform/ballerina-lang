@@ -54,7 +54,15 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
-    dist 'org.ow2.asm:asm:6.2.1'
+    // dist 'org.ow2.asm:asm:6.2.1'
+
+    // Following dependencies are required for kraal library
+    dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
+    dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
+    dist 'org.ow2.asm:asm:7.1'
+    dist 'org.ow2.asm:asm-analysis:7.1'
+    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-util:7.1'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-jvm')
@@ -149,6 +157,13 @@ def copyBinSpec = {
         from configurations.bin
         filter { line -> line.replace('${project.version}', "$project.version") }
         into(path + 'bin')
+    }
+}
+
+def copyKraalLib = {
+    path -> copySpec {
+        from('lib')
+        into("$path/bre/lib")
     }
 }
 
@@ -257,6 +272,7 @@ task createZip(type: Zip, dependsOn: ':language-server:language-server-core:buil
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
+    with copyKraalLib(basePath)
 }
 
 task updateBalHome(type: Copy) {
@@ -273,6 +289,7 @@ task updateBalHome(type: Copy) {
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
+    with copyKraalLib(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
@@ -293,6 +310,7 @@ task createDistribution(type: Copy, dependsOn: ':language-server:language-server
     with copyStaticSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
+    with copyKraalLib("")
     destinationDir=file(filePath)
 }
 
