@@ -202,6 +202,9 @@ BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
 
 if [[ $1 == "native-img" ]]; then
     if [[ ! -z "${GRAALVM_HOME}" ]]; then
+        $GRAALVM_HOME/bin/java -cp "$BALLERINA_CLASSPATH" com.hpe.kraal.MainKt \
+            --excludePackages="ballerina" \
+            --excludeClasses="___init" $2 &&
         $GRAALVM_HOME/bin/native-image \
             -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
             -J-Djava.util.concurrent.ForkJoinPool.common.parallelism=1 \
