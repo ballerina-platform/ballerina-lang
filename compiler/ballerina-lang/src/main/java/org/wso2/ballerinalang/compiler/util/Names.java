@@ -36,7 +36,7 @@ public class Names {
     public static final Name LANG = new Name("lang");
     public static final Name LANG_ANNOTATIONS = new Name("lang.annotations");
     public static final Name ARRAY = new Name("array");
-    public static final Name DECIMAL = new Name("lang.decimal");
+    public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
     public static final Name FLOAT = new Name("float");
     public static final Name FUTURE = new Name("future");

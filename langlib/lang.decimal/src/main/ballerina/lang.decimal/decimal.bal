@@ -14,5 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO: Fix me
-int i = 10;
+# Sum of all the arguments
+# 0 if no args
+public function sum(decimal... xs) returns decimal = external;
+
+# Maximum of all the arguments
+public function max(decimal x, decimal... xs) returns decimal = external;
+
+# Minimum of all the arguments
+public function min(decimal x, decimal... xs) returns decimal = external;
+
+# IEEE abs operation
+public function abs(decimal x) returns decimal = external;
+
+# Floating point value that is a mathematical integer and closest to `x`.
+# If there are two such integers, choose the one that is even
+# (this is the round-to-nearest rounding mode, which is the default for IEEE
+# and for Ballerina).
+# Same as Java Math.rint method
+# Same as .NET Math.round method
+# IEEE 754 roundToIntegralTiesToEven operation
+# Note that `<int>x` is the same as `<int>x.round()`
+public function round(decimal x) returns decimal = external;
+
+# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer
+public function floor(decimal x) returns decimal = external;
+
+# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+public function ceiling(decimal x) returns decimal = external;
+
+# Return the decimal value represented by `s`.
+# `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification
+# with the following modifications
+# - the DecimalFloatingPointLiteral may have a leading `+` or `-` sign
+# - a FloatingPointTypeSuffix is not allowed
+# This is the inverse of `value:toString` applied to an `decimal`.
+public function fromString(string s) returns decimal|error = external;
