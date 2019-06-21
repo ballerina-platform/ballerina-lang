@@ -705,7 +705,7 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             int flags = ((BObjectType) sourceType).flags;
             return (flags & Flags.SERVICE) == Flags.SERVICE;
         }
