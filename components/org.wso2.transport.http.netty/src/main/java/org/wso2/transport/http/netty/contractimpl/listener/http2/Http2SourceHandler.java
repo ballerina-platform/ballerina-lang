@@ -49,6 +49,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.contract.Constants.ENDPOINT_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants.STREAM_ID_ONE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
@@ -91,10 +92,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void setDataEventListeners(HttpServerChannelInitializer serverChannelInitializer) {
+        long serverTimeout = serverChannelInitializer.getSocketIdleTimeout() <= 0 ? ENDPOINT_TIMEOUT :
+                serverChannelInitializer.getSocketIdleTimeout();
         http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-                                                new Http2ServerTimeoutHandler(
-                                                        serverChannelInitializer.getSocketIdleTimeout(),
-                                                        http2ServerChannel));
+                                                new Http2ServerTimeoutHandler(serverTimeout, http2ServerChannel));
     }
 
     private void setRemoteFlowController() {

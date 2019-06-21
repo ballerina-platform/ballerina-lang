@@ -49,7 +49,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
     private Http2ServerChannel http2ServerChannel;
     private Map<Integer, ScheduledFuture<?>> timerTasks;
 
-    public Http2ServerTimeoutHandler(long idleTimeMills, Http2ServerChannel serverChannel) {
+    Http2ServerTimeoutHandler(long idleTimeMills, Http2ServerChannel serverChannel) {
         this.idleTimeNanos = Math.max(TimeUnit.MILLISECONDS.toNanos(idleTimeMills), MIN_TIMEOUT_NANOS);
         this.http2ServerChannel = serverChannel;
         timerTasks = new ConcurrentHashMap<>();

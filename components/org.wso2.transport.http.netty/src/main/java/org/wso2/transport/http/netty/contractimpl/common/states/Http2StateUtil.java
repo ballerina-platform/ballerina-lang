@@ -77,13 +77,13 @@ public class Http2StateUtil {
     /**
      * Notifies the registered listeners which listen for the incoming carbon messages.
      *
-     * @param http2SourceHandler the HTTP2 source handler
-     * @param httpRequestMsg     the http request message
-     * @param streamId           the id of the stream
+     * @param http2SourceHandler   the HTTP2 source handler
+     * @param inboundMessageHolder the inbound http request holder
+     * @param streamId             the id of the stream
      */
-    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler, InboundMessageHolder inboundMessageHolder,
-                                             int streamId) {
-        HttpCarbonMessage  httpRequestMsg = inboundMessageHolder.getInboundMsgOrPushResponse();
+    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler,
+                                             InboundMessageHolder inboundMessageHolder, int streamId) {
+        HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsgOrPushResponse();
         if (http2SourceHandler.getServerConnectorFuture() != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();

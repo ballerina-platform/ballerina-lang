@@ -37,11 +37,11 @@ public class Http2ServerChannel {
     private Map<Integer, InboundMessageHolder> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private Map<String, Http2DataEventListener> dataEventListeners;
 
-    public Http2ServerChannel() {
+    Http2ServerChannel() {
         dataEventListeners = new HashMap<>();
     }
 
-    public void destroy() {
+    void destroy() {
         streamIdRequestMap.clear();
     }
 
@@ -49,7 +49,7 @@ public class Http2ServerChannel {
         return streamIdRequestMap;
     }
 
-    public InboundMessageHolder getInboundMessage(int streamId) {
+    InboundMessageHolder getInboundMessage(int streamId) {
         return streamIdRequestMap.get(streamId);
     }
 
@@ -59,7 +59,7 @@ public class Http2ServerChannel {
      * @param name              name of the listener
      * @param dataEventListener the data event listener
      */
-    public void addDataEventListener(String name, Http2DataEventListener dataEventListener) {
+    void addDataEventListener(String name, Http2DataEventListener dataEventListener) {
         dataEventListeners.put(name, dataEventListener);
     }
 
