@@ -102,7 +102,7 @@ public class DirectoryListenerConnectorTest {
     }
 
 
-    @Test(description = "Check the negative test for non valid resources.")
+    @Test(description = "Check the negative test for non valid resources.", enabled = false)
     public void testNegativeWithoutResource() {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-without-resource.bal").toString());
@@ -128,7 +128,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param type.")
+    @Test(description = "Check the negative test for invalid resource param type.", enabled = false)
     public void testNegativeWithoutInvalidParamType() {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-param-type.bal").

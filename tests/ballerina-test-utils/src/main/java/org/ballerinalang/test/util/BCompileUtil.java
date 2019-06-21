@@ -559,7 +559,7 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -587,6 +587,21 @@ public class BCompileUtil {
         runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
         compileResult.setClassLoader(classLoader);
         return compileResult;
+    }
+
+    public static void runMain(CompileResult compileResult, String[] args) {
+        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
+                compileResult.getAST()).packageID.orgName.value,
+                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
+        Method mainMethod = null;
+        try {
+            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
+            mainMethod.invoke(null, (Object) args);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Main method invocation failed", e);
+        }
+
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {

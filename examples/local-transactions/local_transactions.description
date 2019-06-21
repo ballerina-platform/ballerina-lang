@@ -1,7 +1,7 @@
 // A Ballerina transaction is a series of data manipulation statements 
-// that must either fully complete or fully fail, thereby leaving the
-// system in a consistent state. This sample uses H2 database, which is 
+// that must either fully complete or fully fail, thereby, leaving the
+// system in a consistent state. This sample uses an H2 database, which is 
 // created when running the sample. Prior to running this sample, 
-// change the DB connection properties as required.
-// Ballerina transactions are at experimental stage,
-// please use  --experimental flag to enable them.
+// the DB connection properties need to be changed as required.
+// Ballerina transactions are at the experimental stage,
+// Thus, use the --experimental flag to enable them.

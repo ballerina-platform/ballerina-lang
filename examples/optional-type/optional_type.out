@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run optional_type.bal
 {name:"Paul", age:40, addr:null, guardian:null}
 
