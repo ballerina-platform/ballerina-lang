@@ -26,18 +26,18 @@ const WS_PING_INTERVAL = 15000;
 interface WebSocketOnMessageEvt {
     data: WebSocket.Data; 
     type: string; 
-    target: WebSocket
+    target: WebSocket;
 }
 
 interface WebSocketOnCloseEvt {
     wasClean: boolean;
     code: number;
     reason: string;
-    target: WebSocket
+    target: WebSocket;
 }
 
 interface WebSocketOnOpenEvt {
-    target: WebSocket
+    target: WebSocket;
 }
 
 interface WebSocketOnErrorEvt {
@@ -48,7 +48,7 @@ interface WebSocketOnErrorEvt {
 }
 
 /**
- * Handles websocket communitation with debugger backend
+ * Handles websocket communication with debugger backend
  * @class DebugChannel
  * @extends {EventEmitter}
  */
@@ -80,7 +80,7 @@ export class DebugChannel extends EventEmitter {
         const websocket = new WebSocket(this._endpoint);
         websocket.onmessage = (message: WebSocketOnMessageEvt) => { this.parseMessage(message.data); };
         websocket.onopen = (event: WebSocketOnOpenEvt) => { this.onOpen(event); };
-        websocket.onclose = (event: WebSocketOnCloseEvt) => { this.onClose(event); }
+        websocket.onclose = (event: WebSocketOnCloseEvt) => { this.onClose(event); };
         websocket.onerror = (event: WebSocketOnErrorEvt) => { this.onError(event); };
         this._websocket = websocket;
     }
