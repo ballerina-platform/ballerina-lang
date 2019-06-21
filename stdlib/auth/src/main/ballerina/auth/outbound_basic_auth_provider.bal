@@ -26,14 +26,14 @@ public type OutboundBasicAuthProvider object {
 
     public Credential credential;
 
-    # Provides authentication based on the provided basic auth configuration.
+    # Provides authentication based on the provided Basic Auth configuration.
     #
     # + credential - The credential configurations.
     public function __init(Credential credential) {
         self.credential = credential;
     }
 
-    # Generate token for Basic authentication.
+    # Generates a token for Basic authentication.
     #
     # + return - The generated token or the `error` if an error occurred during validation.
     public function generateToken() returns string|error {

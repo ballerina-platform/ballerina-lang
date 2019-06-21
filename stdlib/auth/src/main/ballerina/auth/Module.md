@@ -4,7 +4,7 @@ This module provides default authentication provider configurations that can be 
 
 ### Inbound Authentication Provider
 
-An inbound authentication provider defines an authentication scheme that could be used to authenticate endpoints. The `auth:InboundAuthProvider` acts as the interface for all the inbound authentication providers. Any type of implementation such as LDAP, JDBC, JWT, OAuth2 and file-based should be object-equivalent.
+An inbound authentication provider defines an authentication scheme that could be used to authenticate endpoints. The `auth:InboundAuthProvider` acts as the interface for all the inbound authentication providers. Any type of implementation such as LDAP, JDBC, JWT, OAuth2, and file-based should be object-equivalent.
 
 When creating a new inbound authentication provider, you need to implement the below function.
 - `authenticate` : Authenticates the user based on the user credentials (i.e., the username/password) or a token such as JWT or OAuth2.
