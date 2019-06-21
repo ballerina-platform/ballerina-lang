@@ -37,7 +37,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 15);
+        Assert.assertEquals(negativeResult.getErrorCount(), 14);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -48,8 +48,6 @@ public class AbstractObjectTest {
                 "no implementation found for the function 'getName' of non-abstract object 'Person3'", 40, 5);
         BAssertUtil.validateError(negativeResult, index++,
                 "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                "cannot attach function 'getName' to abstract object 'Person5'", 67, 1);
         BAssertUtil.validateError(negativeResult, index++,
                                   "outside object method definitions are not allowed", 67, 1);
         BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
