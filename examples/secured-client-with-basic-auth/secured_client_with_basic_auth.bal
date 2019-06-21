@@ -3,15 +3,15 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
-// Define the Basic auth client endpoint to call the backend services.
-// Basic authentication is enabled by creating `auth:OutboundBasicAuthProvider`
+// Defines the Basic Auth client endpoint to call the backend services.
+// Basic Authentication is enabled by creating an `auth:OutboundBasicAuthProvider`
 // with the `username` and `password` passed as a record.
 auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({
     username: "tom",
     password: "1234"
 });
 
-// Create a Basic auth handler with the created Basic auth provider.
+// Creates a Basic Auth handler with the created Basic Auth provider.
 http:BasicAuthHandler outboundBasicAuthHandler =
                                             new(outboundBasicAuthProvider);
 
@@ -36,7 +36,7 @@ public function main() {
     }
 }
 
-// Defines the sample backend service, secured with Basic auth authentication.
+// Defines the sample backend service, which is secured with Basic Auth authentication.
 auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
 http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 listener http:Listener ep  = new(9090, config = {

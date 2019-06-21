@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/jwt;
 import ballerina/log;
 
-// Create a inbound JWT authentication provider with the relevant configurations.
+// Creates an inbound JWT authentication provider with the relevant configurations.
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
@@ -13,7 +13,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     }
 });
 
-// Create a Bearer auth handler with the created JWT auth provider.
+// Creates a Bearer Auth handler with the created JWT Auth provider.
 http:BearerAuthHandler jwtAuthHandler = new(jwtAuthProvider);
 
 // The endpoint used here is the `http:Listener`. The JWT authentication

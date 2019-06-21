@@ -3,7 +3,7 @@ import ballerina/log;
 
 string log = "";
 
-// This is the mock function which will replace the real function
+// This is the mock function, which will replace the real function.
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printInfo"
@@ -16,7 +16,7 @@ public function mockPrintInfo(string|(function () returns (string)) msg) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invokes the main function,
     main();
     test:assertEquals(log, "Hello, World!!!");
 }

@@ -2,8 +2,8 @@ import ballerina/http;
 import ballerina/log;
 
 // Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication with client credentials grant type is enabled by
-// creating `oauth2:OutboundOAuth2Provider` with relevant configurations
+// The OAuth2 authentication with client credentials grant type is enabled by
+// creating an `oauth2:OutboundOAuth2Provider` with the relevant configurations
 // passed as a record.
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
     tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
@@ -18,10 +18,10 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
     }
 });
 
-// Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication with password grant type is enabled by creating
-// `oauth2:OutboundOAuth2Provider` with relevant configurations passed as
-// a record. If the access token expires or become invalid, then it will
+// Defines the OAuth2 client endpoint to call the backend services.
+// The OAuth2 authentication with the password grant type is enabled by creating
+// an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed as
+// a record. If the access token expires or becomes invalid, then it will
 // be automatically refreshed with the provided `refreshConfig`.
 oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
     tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
@@ -41,9 +41,9 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
     }
 });
 
-// Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication with direct token mode is enabled by creating
-// `oauth2:OutboundOAuth2Provider` with relevant configurations passed
+// Defines the OAuth2 client endpoint to call the backend services.
+// The OAuth2 authentication with direct token mode is enabled by creating
+// an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed
 // as a record. If the`accessToken` is invalid or not provided, it will
 // be automatically refreshed with the provided `refreshConfig`.
 oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
@@ -64,7 +64,7 @@ http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", config = {
 });
 
 public function main() {
-    // Send a `GET` request to the specified endpoint.
+    // Sends a `GET` request to the specified endpoint.
     var response1 = clientEP1->get("/repositories/b7ademo");
     if (response1 is http:Response) {
         var result = response1.getJsonPayload();

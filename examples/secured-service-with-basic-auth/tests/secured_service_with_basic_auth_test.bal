@@ -20,7 +20,7 @@ function testFunc() {
 }
 
 function testAuthSuccess() {
-    // Create client.
+    // Creates a client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider1 = new({ username: "tom", password: "password1" });
     http:BasicAuthHandler outboundBasicAuthHandler1 = new(outboundBasicAuthProvider1);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
@@ -28,7 +28,7 @@ function testAuthSuccess() {
             authHandler: outboundBasicAuthHandler1
         }
     });
-    // Send a `GET` request to the specified endpoint.
+    // Sends a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         test:assertEquals(response.statusCode, 200,
@@ -39,7 +39,7 @@ function testAuthSuccess() {
 }
 
 function testAuthnFailure() {
-    // Create client.
+    // Creates a client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider2 = new({ username: "tom", password: "password" });
     http:BasicAuthHandler outboundBasicAuthHandler2 = new(outboundBasicAuthProvider2);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
@@ -47,7 +47,7 @@ function testAuthnFailure() {
             authHandler: outboundBasicAuthHandler2
         }
     });
-    // Send a `GET` request to the specified endpoint.
+    // Sends a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         test:assertEquals(response.statusCode, 401,
@@ -58,7 +58,7 @@ function testAuthnFailure() {
 }
 
 function testAuthzFailure() {
-    // Create client.
+    // Creates a client.
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider3 = new({ username: "dick", password: "password2" });
     http:BasicAuthHandler outboundBasicAuthHandler3 = new(outboundBasicAuthProvider3);
     http:Client httpEndpoint = new("https://localhost:9090", config = {

@@ -3,14 +3,14 @@ import ballerina/jwt;
 import ballerina/log;
 import ballerina/runtime;
 
-// Define the JWT auth client endpoint to call the backend services.
-// JWT authentication is enabled by creating `jwt:OutboundJWTAuthProvider`
-// with/without passing JWT issuer configurations as a record. If JWT issuer
+// Defines the JWT auth client endpoint to call the backend services.
+// JWT authentication is enabled by creating a `jwt:OutboundJWTAuthProvider`
+// with/without passing the JWT issuer configurations as a record. If the JWT issuer
 // configurations are passed, a new JWT will be issued and it will be used for
 // the outbound authentication.
 jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
 
-// Create a Bearer auth handler with the created JWT auth provider.
+// Create a Bearer Auth handler with the created JWT Auth provider.
 http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
 
 http:Client httpEndpoint = new("https://localhost:9090", config = {
@@ -20,8 +20,8 @@ http:Client httpEndpoint = new("https://localhost:9090", config = {
 });
 
 public function main() {
-    // Set the JWT token into runtime invocation context mentioning
-    // scheme as `jwt`
+    // Sets the JWT token into the runtime invocation context mentioning
+    // the scheme as `jwt`.
     string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJ" +
         "pbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUyND" +
         "U3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJhd" +
@@ -35,7 +35,7 @@ public function main() {
     runtime:getInvocationContext().authenticationContext.scheme = "jwt";
     runtime:getInvocationContext().authenticationContext.authToken = token;
 
-    // Send a `GET` request to the specified endpoint.
+    // Sends a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         var result = response.getTextPayload();
@@ -46,7 +46,7 @@ public function main() {
     }
 }
 
-// Defines the sample backend service, secured with JWT auth authentication.
+// Defines the sample backend service, which is secured with JWT Auth authentication.
 jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],

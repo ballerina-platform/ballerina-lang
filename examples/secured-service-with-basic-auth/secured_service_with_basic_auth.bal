@@ -2,12 +2,12 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-// Create a Basic auth header handler with the relevant configurations.
+// Creates a Basic Auth header handler with the relevant configurations.
 auth:InboundBasicAuthProvider basicAuthProvider = new(());
 http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 // The endpoint used here is the `http:Listener`, which by default tries to
-// authenticate and authorize each request. The Basic authentication handler is
+// authenticate and authorize each request. The Basic Authentication handler is
 // set to this endpoint using the `authHandlers` attribute. It is optional to
 // override the authentication and authorization at the service level and/or
 // resource level.
