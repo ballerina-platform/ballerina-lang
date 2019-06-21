@@ -1,15 +1,15 @@
 import ballerina/io;
 
 public function main() {
-    // JSON Arrays. They are arrays of any JSON value.
+    // JSON Arrays are arrays including any JSON values.
     json j1 = [1, false, null, "foo", { first: "John", last: "Pala" }];
     io:println(j1);
 
-    // Access JSON array elements by index.
+    // Accesses the JSON array elements by index.
     json j2 = j1[4];
     io:println(j2.first);
 
-    // Add or change elements in a JSON array.
+    // Adds or changes the elements in a JSON array.
     j1[4] = 8.00;
     io:println(j1);
 
@@ -24,12 +24,12 @@ public function main() {
     p.family[2].fname = "Alisha";
     io:println(p);
 
-    // Get the length of the JSON array.
+    // Gets the length of the JSON array.
     json family = p.family;
     int l = family.length();
     io:println("length of array: " + l);
 
-    // Loop through the array.
+    // Loops through the array.
     int i = 0;
     while (i < l) {
         io:println(family[i]);

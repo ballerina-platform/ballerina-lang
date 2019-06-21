@@ -1,7 +1,7 @@
 import ballerina/io;
 
-// Define a record to represent the error details.
-// This record can have fields of types that belong to `anydata|error`.
+// Defines a record to represent the error details.
+// This record can have fields of `anydata|error`types.
 type AccountNotFoundErrorData record {
     int accountID;
 };
@@ -13,7 +13,7 @@ type AccountNotFoundErrorData record {
 type AccountNotFoundError error<string, AccountNotFoundErrorData>;
 
 function getAccountBalance(int accountID) returns int|AccountNotFoundError {
-    // Return an error if the `accountID` is less than zero.
+    // Returns an error if the `accountID` is less than zero.
     if (accountID < 0) {
         string errorReason = "Account Not Found";
         AccountNotFoundErrorData errorDetail = {
@@ -23,7 +23,7 @@ function getAccountBalance(int accountID) returns int|AccountNotFoundError {
                                             error(errorReason, errorDetail);
         return accountNotFoundError;
     }
-    // Return a value if the `accountID` is greater than zero.
+    // Returns a value if the `accountID` is greater than zero.
     return 600;
 }
 
@@ -34,7 +34,7 @@ public function main() {
         io:println("Account Balance: ", result);
     // If an error is returned, print the reason and the account ID from the detail map.
     // The `.reason()` and `.detail()` built-in methods can be called on variables of
-    // type `error` to retrieve the reason and details of the error.
+    // the type `error` to retrieve the reason and details of the error.
     } else {
         io:println("Error: ", result.reason(),
                    ", Account ID: ", result.detail().accountID);
