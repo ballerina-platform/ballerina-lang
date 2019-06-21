@@ -6,6 +6,192 @@
   "source": "toplevel/source/topLevelCompletionAfterFinalKeyword1.bal",
   "items": [
     {
+      "label": "channel",
+      "kind": "Keyword",
+      "detail": "Channel",
+      "insertText": "channel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Keyword",
+      "detail": "Xml",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TableConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "TableConfig represents properties used during table initialization.\n"
+      },
+      "insertText": "TableConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Keyword",
+      "detail": "Byte",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Keyword",
+      "detail": "Stream",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AbstractListener",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "AbstractListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Keyword",
+      "detail": "Map",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Keyword",
+      "detail": "Table",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Keyword",
+      "detail": "Anydata",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "TestObject",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Keyword",
+      "detail": "Future",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Keyword",
+      "detail": "Typedesc",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "Keyword",
+      "detail": "Float",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord",
+      "kind": "Class",
+      "detail": "Record",
+      "insertText": "TestRecord",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Nil",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Keyword",
+      "detail": "Decimal",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Keyword",
+      "detail": "String",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Keyword",
+      "detail": "Json",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Keyword",
+      "detail": "Any",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Keyword",
+      "detail": "Int",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "Keyword",
+      "detail": "Boolean",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/jwt",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jwt;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/crypto",
       "kind": "Module",
       "detail": "Package",
@@ -46,6 +232,28 @@
             }
           },
           "newText": "import ballerina/h2;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/privacy",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "privacy",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/privacy;\n"
         }
       ]
     },
@@ -204,6 +412,50 @@
       ]
     },
     {
+      "label": "ballerina/ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "ldap",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/ldap;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/streams",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/streams;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/artemis",
       "kind": "Module",
       "detail": "Package",
@@ -292,6 +544,28 @@
       ]
     },
     {
+      "label": "ballerina/oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/oauth2;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/internal",
       "kind": "Module",
       "detail": "Package",
@@ -310,6 +584,28 @@
             }
           },
           "newText": "import ballerina/internal;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jvm;\n"
         }
       ]
     },
@@ -442,6 +738,28 @@
             }
           },
           "newText": "import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/observe",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
         }
       ]
     },
@@ -644,10 +962,10 @@
       ]
     },
     {
-      "label": "ballerina/websub",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "websub",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -661,7 +979,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/websub;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },
@@ -686,13 +1004,6 @@
           "newText": "import ballerina/sql;\n"
         }
       ]
-    },
-    {
-      "label": "AbstractListener",
-      "kind": "Class",
-      "detail": "Object",
-      "insertText": "AbstractListener",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

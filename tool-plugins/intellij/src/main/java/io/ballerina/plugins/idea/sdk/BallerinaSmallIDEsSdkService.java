@@ -86,7 +86,7 @@ public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
             String result = null;
             String sdkHomePath = getSdkHomePath(module);
             if (sdkHomePath != null) {
-                result = BallerinaSdkUtil.retrieveBallerinaVersion(sdkHomePath);
+                result = BallerinaSdkUtils.retrieveBallerinaVersion(sdkHomePath);
             }
             return CachedValueProvider.Result.create(result, this);
         });

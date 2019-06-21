@@ -337,7 +337,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        this.acceptNode(groupExpr.expression, symbolEnv);
+        groupExpr.expression.accept(this);
     }
 
     @Override
@@ -709,6 +709,8 @@ public class TreeVisitor extends LSNodeVisitor {
             this.visitMatchPatternClause(patternClause, patternClause.body);
         }
     }
+    
+    
 
     ///////////////////////////////////
     /////   Other Public Methods  /////

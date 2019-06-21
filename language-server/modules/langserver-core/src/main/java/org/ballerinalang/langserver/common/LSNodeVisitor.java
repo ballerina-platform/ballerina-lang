@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -91,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
@@ -1006,6 +1008,31 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangNumericLiteral literalExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
         // no implementation
     }
 }
