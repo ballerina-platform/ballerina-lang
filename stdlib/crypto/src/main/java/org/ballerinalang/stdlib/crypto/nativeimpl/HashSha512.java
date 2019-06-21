@@ -37,7 +37,6 @@ public class HashSha512 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static ArrayValue hashSha512(Strand strand, ArrayValue inputValue) {

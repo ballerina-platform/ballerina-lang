@@ -38,7 +38,6 @@ public class HmacSha384 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static ArrayValue hmacSha384(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {

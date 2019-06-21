@@ -42,7 +42,6 @@ public class SignRsaSha256 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object signRsaSha256(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {

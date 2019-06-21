@@ -46,7 +46,6 @@ public class Crc32b extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static String crc32b(Strand strand, Object entityBody) {

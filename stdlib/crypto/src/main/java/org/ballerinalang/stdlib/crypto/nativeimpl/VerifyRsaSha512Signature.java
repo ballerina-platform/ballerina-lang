@@ -40,7 +40,6 @@ public class VerifyRsaSha512Signature extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object verifyRsaSha512Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,

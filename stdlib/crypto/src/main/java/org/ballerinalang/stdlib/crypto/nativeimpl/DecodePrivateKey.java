@@ -51,7 +51,6 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     @SuppressWarnings("unchecked")
@@ -94,7 +93,7 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                 privateKeyRecord.put(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD, privateKey.getAlgorithm());
                 return privateKeyRecord;
             } else {
-                return CryptoUtils.createCryptoError("ot a valid RSA key");
+                return CryptoUtils.createCryptoError("not a valid RSA key");
             }
         } catch (FileNotFoundException e) {
             throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());

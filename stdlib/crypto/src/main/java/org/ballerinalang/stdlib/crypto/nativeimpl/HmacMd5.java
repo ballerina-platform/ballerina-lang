@@ -38,7 +38,6 @@ public class HmacMd5 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static ArrayValue hmacMd5(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {

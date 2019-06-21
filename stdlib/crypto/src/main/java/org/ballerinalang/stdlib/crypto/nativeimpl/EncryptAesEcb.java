@@ -36,7 +36,6 @@ public class EncryptAesEcb extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object encryptAesEcb(Strand strand, ArrayValue inputValue, ArrayValue keyValue,  Object padding) {

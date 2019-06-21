@@ -36,7 +36,6 @@ public class EncryptAesGcm extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object encryptAesGcm(Strand strand, ArrayValue inputValue, ArrayValue keyValue,

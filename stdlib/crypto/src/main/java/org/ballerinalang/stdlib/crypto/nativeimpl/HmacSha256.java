@@ -38,7 +38,6 @@ public class HmacSha256 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static ArrayValue hmacSha256(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {

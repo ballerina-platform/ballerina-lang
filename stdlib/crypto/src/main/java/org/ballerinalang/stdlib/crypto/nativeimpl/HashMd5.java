@@ -37,7 +37,6 @@ public class HashMd5 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static ArrayValue hashMd5(Strand strand, ArrayValue inputValue) {

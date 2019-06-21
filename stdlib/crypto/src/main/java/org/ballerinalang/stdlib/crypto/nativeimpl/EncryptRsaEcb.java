@@ -41,7 +41,6 @@ public class EncryptRsaEcb extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object encryptRsaEcb(Strand strand, ArrayValue inputValue, Object keyUnion, Object padding) {

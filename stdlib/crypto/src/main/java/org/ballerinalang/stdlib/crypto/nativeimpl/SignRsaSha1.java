@@ -42,7 +42,6 @@ public class SignRsaSha1 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     public static Object signRsaSha1(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {

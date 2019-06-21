@@ -54,7 +54,6 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
     }
 
     @SuppressWarnings("unchecked")
@@ -122,8 +121,7 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
             throw new BallerinaException(
                     "PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
-            throw new BallerinaException(
-                    "Unable to open keystore: " + e.getMessage());
+            throw new BallerinaException("Unable to open keystore: " + e.getMessage());
         }
     }
 }
