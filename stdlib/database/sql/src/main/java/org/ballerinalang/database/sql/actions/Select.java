@@ -21,9 +21,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.database.sql.statement.SelectStatement;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -54,7 +56,7 @@ public class Select extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        String query = context.getStringArgument(0);
+        /*String query = context.getStringArgument(0);
         BStructureType structType = getStructType(context, 1);
         boolean loadSQLTableToMemory = context.getBooleanArgument(0);
 
@@ -63,7 +65,16 @@ public class Select extends AbstractSQLAction {
 
         SQLStatement selectStatement = new SelectStatement(context, datasource, query, parameters, structType,
                 loadSQLTableToMemory);
-        selectStatement.execute();
+        selectStatement.execute();*/
+    }
 
+    public static Object nativeSelect(Strand strand, ObjectValue client, String query, BStructureType recordType,
+            boolean loadSQLTableToMemory, ArrayValue parameters) {
+        SQLDatasource sqlDatasource = retrieveDatasource(client);
+        //        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        //        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
+        SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters, recordType,
+                loadSQLTableToMemory);
+        return selectStatement.execute();
     }
 }
