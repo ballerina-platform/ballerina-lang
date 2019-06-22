@@ -15,7 +15,7 @@ Employee22 employee22 = {
     empNo: 100
 };
 
-(Employee22, Person22) pp = (employee22, person22);
+[Employee22, Person22] pp = [employee22, person22];
 
 type SMS error <string, map<string>>;
 
