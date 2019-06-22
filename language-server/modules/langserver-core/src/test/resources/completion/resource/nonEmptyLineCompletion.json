@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 4,
+    "line": 10,
     "character": 9
   },
-  "source": "resource/source/userDefinedRecordNonEmptyLine.bal",
+  "source": "resource/source/nonEmptyLineCompletion.bal",
   "items": [
     {
       "label": "xmlns",
@@ -115,6 +115,25 @@
       "detail": "Channel",
       "sortText": "110",
       "insertText": "channel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "const2",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "sortText": "110",
+      "insertText": "const2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "const1",
+      "kind": "Unit",
+      "detail": "int",
+      "sortText": "110",
+      "insertText": "const1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -285,9 +304,23 @@
     {
       "label": "request",
       "kind": "Variable",
-      "detail": "ballerina/http:Request",
+      "detail": "http:Request",
       "sortText": "110",
       "insertText": "request",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function4()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function4();",
       "insertTextFormat": "Snippet"
     },
     {
@@ -296,6 +329,34 @@
       "detail": "String",
       "sortText": "110",
       "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function2()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function1(int a, string b)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "function1(${1:a}, ${2:b});",
       "insertTextFormat": "Snippet"
     },
     {
@@ -315,9 +376,25 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "var2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "110",
+      "insertText": "var2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "110",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "serviceName",
       "kind": "Variable",
-      "detail": "serviceName$$service$0",
+      "detail": "serviceName",
       "sortText": "110",
       "insertText": "serviceName",
       "insertTextFormat": "Snippet"
@@ -341,7 +418,7 @@
     {
       "label": "caller",
       "kind": "Variable",
-      "detail": "ballerina/http:Caller",
+      "detail": "http:Caller",
       "sortText": "110",
       "insertText": "caller",
       "insertTextFormat": "Snippet"
