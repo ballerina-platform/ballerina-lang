@@ -24,14 +24,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BHttpUtil;
-import org.ballerinalang.net.http.BWebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.BWebSocketUtil;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
@@ -41,34 +35,22 @@ import org.ballerinalang.net.http.WebSocketUtil;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
         functionName = "externPushText",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina/http"),
-        args = {
-                @Argument(name = "text", type = TypeKind.STRING),
-                @Argument(name = "final", type = TypeKind.BOOLEAN)
-        }
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        )
 )
 public class PushText implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
-            BWebSocketOpenConnectionInfo connectionInfo = (BWebSocketOpenConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            String text = context.getStringArgument(0);
-            boolean finalFrame = context.getBooleanArgument(0);
-            ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-            BWebSocketUtil.handleWebSocketCallback(context, callback, future);
-        } catch (Exception e) {
-            context.setReturnValues(BHttpUtil.getError(context, e));
-            callback.notifySuccess();
-        }
     }
 
-    public static void externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
+    public static Object externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
@@ -81,6 +63,7 @@ public class PushText implements NativeCallableUnit {
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
         }
+        return null;
     }
 
     @Override

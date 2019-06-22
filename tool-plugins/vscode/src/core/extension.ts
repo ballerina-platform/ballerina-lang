@@ -35,6 +35,7 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
+import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
 export class BallerinaExtension {
 
     public ballerinaHome: string;
@@ -64,9 +65,9 @@ export class BallerinaExtension {
             this.registerPreInitHandlers();
 
             // Check if ballerina home is set.
-            if (this.hasBallerinaHomeSetting()) {
+            if (this.overrideBallerinaHome()) {
                 info("Ballerina home is configured in settings.");
-                this.ballerinaHome = this.getBallerinaHome();
+                this.ballerinaHome = this.getConfiguredBallerinaHome();
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
                     info("Configured Ballerina home is not valid.");
@@ -147,9 +148,10 @@ export class BallerinaExtension {
     registerPreInitHandlers(): any {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-            if (params.affectsConfiguration('ballerina.home') ||
-                params.affectsConfiguration('ballerina.allowExperimental') ||
-                params.affectsConfiguration('ballerina.debugLog')) {
+            if (params.affectsConfiguration(BALLERINA_HOME) ||
+                params.affectsConfiguration(OVERRIDE_BALLERINA_HOME) ||
+                params.affectsConfiguration(ALLOW_EXPERIMENTAL) ||
+                params.affectsConfiguration(ENABLE_DEBUG_LOG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
             if (params.affectsConfiguration('ballerina')) {
@@ -326,15 +328,21 @@ export class BallerinaExtension {
      * @memberof BallerinaExtension
      */
     getBallerinaHome(): string {
-        if (this.ballerinaHome) {
-            return this.ballerinaHome;
-        } else {
-            return <string>workspace.getConfiguration().get('ballerina.home');
-        }
+        return this.ballerinaHome;
+    }
+
+    /**
+     * Get ballerina home path configured in preferences.
+     *
+     * @returns {string}
+     * @memberof BallerinaExtension
+     */
+    getConfiguredBallerinaHome(): string {
+        return <string>workspace.getConfiguration().get(BALLERINA_HOME);
     }
 
     isExperimental(): boolean {
-        return <boolean>workspace.getConfiguration().get('ballerina.allowExperimental');
+        return <boolean>workspace.getConfiguration().get(ALLOW_EXPERIMENTAL);
     }
 
     autoDetectBallerinaHome(): string {
@@ -391,12 +399,8 @@ export class BallerinaExtension {
         return ballerinaPath;
     }
 
-    private hasBallerinaHomeSetting(): boolean {
-        const home: string = this.getBallerinaHome();
-        if (home) {
-            return true;
-        }
-        return false;
+    private overrideBallerinaHome(): boolean {
+        return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
     }
 }
 

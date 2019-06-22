@@ -253,7 +253,7 @@
     {
       "label": "res",
       "kind": "Variable",
-      "detail": "ballerina/http:Response",
+      "detail": "http:Response",
       "sortText": "110",
       "insertText": "res",
       "insertTextFormat": "Snippet"
@@ -277,7 +277,7 @@
     {
       "label": "request",
       "kind": "Variable",
-      "detail": "ballerina/http:Request",
+      "detail": "http:Request",
       "sortText": "110",
       "insertText": "request",
       "insertTextFormat": "Snippet"
@@ -309,7 +309,7 @@
     {
       "label": "serviceName",
       "kind": "Variable",
-      "detail": "serviceName$$service$0",
+      "detail": "serviceName",
       "sortText": "110",
       "insertText": "serviceName",
       "insertTextFormat": "Snippet"
@@ -333,7 +333,7 @@
     {
       "label": "caller",
       "kind": "Variable",
-      "detail": "ballerina/http:Caller",
+      "detail": "http:Caller",
       "sortText": "110",
       "insertText": "caller",
       "insertTextFormat": "Snippet"
