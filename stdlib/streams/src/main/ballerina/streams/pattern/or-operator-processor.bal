@@ -49,7 +49,7 @@ public type OrOperatorProcessor object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     #
     # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
-    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
+    public function process(StreamEvent event, string? processorAlias) returns [boolean, boolean] {
         lock {
             self.lockField += 1;
             boolean promote = false;
@@ -58,12 +58,12 @@ public type OrOperatorProcessor object {
             // leftward traversal
             AbstractPatternProcessor? lProcessor = self.lhsProcessor;
             if (lProcessor is AbstractPatternProcessor) {
-                (promote, toNext) = lProcessor.process(event, self.lhsAlias);
+                [promote, toNext] = lProcessor.process(event, self.lhsAlias);
             }
             // rightward traversal
             AbstractPatternProcessor? rProcessor = self.rhsProcessor;
             if ((!promote || toNext) && rProcessor is AbstractPatternProcessor) {
-                (promote, toNext) = rProcessor.process(event, self.rhsAlias);
+                [promote, toNext] = rProcessor.process(event, self.rhsAlias);
             }
             // upward traversal / promote
             if (promote) {
@@ -78,7 +78,7 @@ public type OrOperatorProcessor object {
                     }
                 }
             }
-            return (promoted, toNext);
+            return [promoted, toNext];
         }
     }
 
