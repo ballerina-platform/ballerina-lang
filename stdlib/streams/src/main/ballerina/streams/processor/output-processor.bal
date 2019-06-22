@@ -45,9 +45,7 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        worker w {
         self.outputFunc.call(events);
-        }
     }
 };
 

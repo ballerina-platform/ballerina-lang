@@ -89,11 +89,8 @@ public type Select object {
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
-
-        worker w {
         if (outputStreamEvents.length() > 0) {
             self.nextProcessorPointer.call(outputStreamEvents);
-        }
         }
     }
 
