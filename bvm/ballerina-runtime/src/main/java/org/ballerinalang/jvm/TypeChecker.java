@@ -614,9 +614,9 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage().name).orElse(""),
-                            Optional.ofNullable(rhsField.type.getPackage().name).orElse(""),
-                            lhsField.flags, rhsField.flags) ||
+                !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
+                        .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
+                        .orElse(""), lhsField.flags, rhsField.flags) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
@@ -741,13 +741,10 @@ public class TypeChecker {
             // Both types are array types
             BArrayType lhrArrayType = (BArrayType) expType;
             BArrayType rhsArrayType = (BArrayType) actualType;
-            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+            return checkIsArrayType(rhsArrayType, lhrArrayType, new ArrayList<>());
         }
         // Now one or both types are not array types and they have to be equal
-        if (expType == actualType) {
-            return true;
-        }
-        return false;
+        return expType == actualType;
     }
 
     public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {

@@ -111,12 +111,11 @@ function runPatternQuery() {
     // Selector
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
-            io:println("data: ", e.data);
             return {
                 "aId": 0,
                 "bId": 0,
-                "cId": e.data["c.id"],
-                "dId": e.data["d.id"],
+                "cId": e.get("c.id"),
+                "dId": e.get("d.id"),
                 "abcd": "abcd"
             };
         }
