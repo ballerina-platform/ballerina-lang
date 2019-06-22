@@ -24,9 +24,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get Service's Annotations.
+ * Retrieve a service's annotations.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "reflect",
