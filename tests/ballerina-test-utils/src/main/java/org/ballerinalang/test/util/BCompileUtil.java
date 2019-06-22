@@ -589,6 +589,21 @@ public class BCompileUtil {
         return compileResult;
     }
 
+    public static void runMain(CompileResult compileResult, String[] args) {
+        String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
+                compileResult.getAST()).packageID.orgName.value,
+                ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = compileResult.classLoader.loadClass(initClassName);
+        Method mainMethod = null;
+        try {
+            mainMethod = initClazz.getDeclaredMethod("main", String[].class);
+            mainMethod.invoke(null, (Object) args);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Main method invocation failed", e);
+        }
+
+    }
+
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
         String funcName = cleanupFunctionName(name);
         try {

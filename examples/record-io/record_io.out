@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run record_io.bal
 Start processing the CSV file from ./files/sample.csv to the text file in ./files/sampleResponse.txt
 Processing completed. The processed file is located in ./files/sampleResponse.txt

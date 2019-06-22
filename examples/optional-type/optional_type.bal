@@ -1,6 +1,6 @@
 import ballerina/io;
 
-//This function optionally returns a `string` value. Here, `string?` is equivalent to `string|()`.
+//This function (optionally) returns a `string` value. In this example, `string?` is equivalent to `string|()`.
 function getValue(string key) returns string? {
     // In Ballerina, the `nil` type that is provided as `()` contains a single value named `nil`. This is used
     // to represent the absence of any other value.
@@ -17,8 +17,8 @@ type Address record {
     string zipcode;
 };
 
-// Here, the `addr` and `guardian` fields may or may not contain values. And either all the fields must be assigned with
-// default values e.g. `string name = ""` or be initialized before use.
+// In this example, the `addr` and `guardian` fields may or may not contain values. Also, either all the fields must be assigned with
+// default values (e.g., `string name = ""`) or be initialized before being used.
 type Person record {
     string name;
     int age;
@@ -32,7 +32,7 @@ public function main() {
 
     // It is optional for the `addr` field to have a value. Therefore, it needs to be handled explicitly.
     // The statement `Address addr = p.addr` produces a compilation error.
-    // The next example demonstrates how you can operate on the `Address` record if a value is available.
+    // The below example demonstrates how you can operate on the `Address` record if a value is available.
     Address? addr = p.addr;
     io:println(addr);
 

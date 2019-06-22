@@ -1,5 +1,5 @@
-// The match statement in Ballerina will support value based match patterns only. There are static and structured
+// The match statement in Ballerina will support value-based match patterns only. There are static and structured
 // based match patterns that can be used with the match clauses. Structured match patterns will take structured
 // binding patterns for matching. Tuple binding pattern is one of the structured binding patterns that can be used
-// with the match. The value will be checked for "isLike" relationship with the pattern to match at runtime.
+// with the match. The value will be checked for the "isLike" relationship with the pattern to match at runtime.
 // The match pattern clauses can also have additional type guard conditions as strong match conditions.

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Create a `record` type that represents the `Person`.
+// Creates a `record` type that represents the `Person`.
 type Person record {
     string name;
     int age;
@@ -10,7 +10,7 @@ type Person record {
     string phoneNo;
 };
 
-// Create a `record` type that represents the `Child`.
+// Creates a `record` type that represents the `Child`.
 type Child record {
     string name;
     int age;
@@ -27,7 +27,7 @@ stream<Child> childrenStream = new;
 Child[] globalChildrenArray = [];
 
 function initFilterQuery() {
-    // Streaming query that filters events based on the attribute age.
+    // Streaming query, which filters events based on the age attribute.
     // Filtered events are pushed to a stream called `childrenStream`.
     forever {
         from personStream where personStream.age <= 16
@@ -63,7 +63,7 @@ public function main() {
     // `childrenStream` stream receives a valid event, this function is called.
     childrenStream.subscribe(printChildren);
 
-    // Simulate the sample event that represents the Person.
+    // Simulates the sample event that represents the Person.
     foreach var t in personArray {
         personStream.publish(t);
     }

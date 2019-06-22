@@ -498,21 +498,21 @@
     {
       "label": "cacheControl",
       "kind": "Variable",
-      "detail": "ballerina/http:RequestCacheControl?",
+      "detail": "http:RequestCacheControl?",
       "insertText": "cacheControl",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "mutualSslHandshake",
       "kind": "Variable",
-      "detail": "ballerina/http:MutualSslHandshake?",
+      "detail": "http:MutualSslHandshake?",
       "insertText": "mutualSslHandshake",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "entity",
       "kind": "Variable",
-      "detail": "ballerina/mime:Entity",
+      "detail": "mime:Entity",
       "insertText": "entity",
       "insertTextFormat": "Snippet"
     },

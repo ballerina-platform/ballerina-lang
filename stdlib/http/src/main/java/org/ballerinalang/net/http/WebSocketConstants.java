@@ -18,18 +18,28 @@
 
 package org.ballerinalang.net.http;
 
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+
 /**
  * Constants of WebSocket.
  */
 public class WebSocketConstants {
 
-    public static final String WEBSOCKET_CALLER_NAME = "ballerina/http:WebSocketCaller";
-    public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina/http:WebSocketClient";
+    public static final String BALLERINA_ORG = "ballerina";
+    public static final String PACKAGE_HTTP = "http";
+    public static final String FULL_PACKAGE_HTTP = BALLERINA_PACKAGE_PREFIX + PACKAGE_HTTP;
+    public static final String SEPARATOR = ":";
+    public static final String WEBSOCKET_LISTENER = "WebSocketListener";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
     public static final String WEBSOCKET_CLIENT = "WebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
+    public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
+    public static final String FULL_WEBSOCKET_CALLER_NAME = BALLERINA_PACKAGE_PREFIX + WEBSOCKET_CALLER_NAME;
+    public static final String WEBSOCKET_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CLIENT;
+    public static final String FULL_WEBSOCKET_CLIENT_NAME = BALLERINA_PACKAGE_PREFIX + WEBSOCKET_CLIENT_NAME;
 
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
@@ -76,6 +86,9 @@ public class WebSocketConstants {
     public static final int STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT = 1005;
 
     public static final int DEFAULT_MAX_FRAME_SIZE = 65536;
+
+    // Warning suppression
+    public static final String UNCHECKED = "unchecked";
 
     private WebSocketConstants() {
     }
