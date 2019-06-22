@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined object types in ballerina.
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class ObjectInBaloTest {
 
     private CompileResult result;

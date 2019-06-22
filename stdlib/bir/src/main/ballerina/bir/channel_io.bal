@@ -71,15 +71,15 @@ public type ChannelReader object {
     public function readByteArray(int len) returns byte[] {
         var (arr, arrLen) = check self.byteChannel.read(len);
         if(arrLen != len){
-            error err = error("Unable to read "+len+" bytes");
+            error err = error("Unable to read " + len + " bytes");
             panic err;
         }
         return arr;
     }
 
     public function readByte() returns byte {
-        var (bytes, _mustBe1) = check self.byteChannel.read(1);
-        return bytes[0];
+        var (bytes, _mustBe4) = check self.byteChannel.read(4);
+        return bytes[0] | bytes[2] | bytes[2] | bytes[3];
     }
 };
 

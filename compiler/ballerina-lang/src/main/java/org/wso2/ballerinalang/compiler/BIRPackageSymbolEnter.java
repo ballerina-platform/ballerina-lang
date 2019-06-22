@@ -285,7 +285,7 @@ public class BIRPackageSymbolEnter {
                 env.unparsedBTypeCPs.put(i, readByteArray(dataInStream));
                 return null;
             case CP_ENTRY_BYTE:
-                return new CPEntry.ByteCPEntry(dataInStream.readByte());
+                return new CPEntry.ByteCPEntry(dataInStream.readInt());
             default:
                 throw new IllegalStateException("unsupported constant pool entry type: " +
                         cpEntryType.name());
