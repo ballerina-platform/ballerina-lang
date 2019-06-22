@@ -432,6 +432,7 @@ public class FormattingNodeTree {
             // Handle left expression whitespaces.
             if (node.has("leftExpression")) {
                 node.getAsJsonObject("leftExpression").add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                node.getAsJsonObject("leftExpression").addProperty(FormattingConstants.IS_EXPRESSION, true);
             }
 
             // Handle right expression whitespaces.
@@ -440,6 +441,7 @@ public class FormattingNodeTree {
                 JsonObject rightExprFormatConfig = this.getFormattingConfig(0, 1, 0, false,
                         this.getWhiteSpaceCount(indentWithParentIndentation), true);
                 rightExpression.add(FormattingConstants.FORMATTING_CONFIG, rightExprFormatConfig);
+                rightExpression.addProperty(FormattingConstants.IS_EXPRESSION, true);
             }
         }
     }
