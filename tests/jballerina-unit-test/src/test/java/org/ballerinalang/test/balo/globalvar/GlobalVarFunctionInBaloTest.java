@@ -137,7 +137,7 @@ public class GlobalVarFunctionInBaloTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
-    @Test(description = "Test global variable byte array2", groups = { "brokenOnJBallerina" })
+    @Test(description = "Test global variable byte array2")
     public void testGlobalVarByteArray2() {
         String b1 = "afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=";
         byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
@@ -148,7 +148,7 @@ public class GlobalVarFunctionInBaloTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
-    @Test(description = "Test global variable byte array3", groups = { "brokenOnJBallerina" })
+    @Test(description = "Test global variable byte array3")
     public void testGlobalVarByteArray3() {
         String b1 = "afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df";
         byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);

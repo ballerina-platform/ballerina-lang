@@ -35,11 +35,6 @@ public type PackageParser object {
             kind: kind
         };
 
-        if (kind == VAR_KIND_CONSTANT) {
-            io:println("************** REMOVE ME!!!! ");
-            dcl.moduleId = self.reader.readModuleIDCpRef();
-        }
-
         return dcl;
     }
 

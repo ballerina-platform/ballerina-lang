@@ -228,16 +228,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
+        // Treat constants and type definitions in the same manner, since constants can be used as
+        // types. Also, there can be references between constant and type definitions in both ways.
+        // Thus visit them according to the precedence.
         List<TypeDefinition> typDefs = new ArrayList<>();
         pkgNode.constants.forEach(constant -> typDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
-
-//        // First visit constants.
-//        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
-//
-//        // Visit type definitions.
-//        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
-
         defineTypeNodes(typDefs, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));

@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -110,7 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
@@ -1616,31 +1614,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueStmt) {
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
-    }
-
-    @Override
-    public void visit(BLangConstRef constRef) {
-//        boolean variableStore = this.varAssignment;
-//        this.varAssignment = false;
-//
-//        BSymbol symbol = constRef.symbol;
-//        if (variableStore) {
-//            BIROperand varRef =
-//                    new BIROperand(symbol.pkgID, symbol.name, symbol.type, VarKind.GLOBAL, VarScope.GLOBAL, false);
-//            emit(new Move(constRef.pos, this.env.targetOperand, varRef));
-//        } else {
-//            BIRVariableDcl tempVarDcl = new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names),
-//                    VarScope.FUNCTION, VarKind.TEMP);
-//            this.env.enclFunc.localVars.add(tempVarDcl);
-//            BIROperand tempVarRef = new BIROperand(tempVarDcl);
-//            BIROperand fromVarRef =
-//                    new BIROperand(symbol.pkgID, symbol.name, symbol.type, VarKind.GLOBAL, VarScope.GLOBAL, false);
-//            emit(new Move(constRef.pos, fromVarRef, tempVarRef));
-//            this.env.targetOperand = tempVarRef;
-//        }
-//        this.varAssignment = variableStore;
-
-        throw new UnsupportedOperationException();
     }
 
     @Override
