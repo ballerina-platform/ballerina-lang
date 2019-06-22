@@ -174,12 +174,15 @@ public class LSAnnotationCache {
 
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.TYPE)) {
                     addAttachment(annotationSymbol, typeAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, objectAnnotations, bPackageSymbol.pkgID);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT)) {
                     addAttachment(annotationSymbol, objectAnnotations, bPackageSymbol.pkgID);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
                     addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, objectMethodAnnotations, bPackageSymbol.pkgID);
+                    addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.OBJECT_METHOD)) {
                     addAttachment(annotationSymbol, objectMethodAnnotations, bPackageSymbol.pkgID);
