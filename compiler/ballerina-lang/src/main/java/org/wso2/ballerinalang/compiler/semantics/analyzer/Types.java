@@ -847,7 +847,7 @@ public class Types {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
+    public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
         BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);

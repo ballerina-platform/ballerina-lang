@@ -31,5 +31,5 @@ public function main() {
     // log level to a module, provide the following configuration
     // `<MODULE_NAME>.loglevel`.
     //
-    // e.g. `-e foo.loglevel=DEBUG`
+    // E.g., `-e foo.loglevel=DEBUG`
 }

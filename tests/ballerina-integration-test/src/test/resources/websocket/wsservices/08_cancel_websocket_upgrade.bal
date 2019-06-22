@@ -27,7 +27,7 @@ service simple on ep1 {
             upgradeService: simpleProxy1
         }
     }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
         var returnVal = httpEp->cancelWebSocketUpgrade(404, "Cannot proceed");
         if (returnVal is error) {
              panic returnVal;
@@ -49,7 +49,7 @@ service cannotcancel on ep1 {
             upgradeService: simpleProxy1
         }
     }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
         var returnVal = httpEp->cancelWebSocketUpgrade(200, "Cannot proceed");
         if (returnVal is error) {
              panic returnVal;

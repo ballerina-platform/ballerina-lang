@@ -757,12 +757,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         BArrayState.UNSEALED);
                 listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
             } else if (type.tag == TypeTags.TUPLE) {
-                BTupleType tupleType = (BTupleType) type;
                 List<BType> results = new ArrayList<>();
                 for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-                    BType expType = tupleType.tupleTypes.get(i);
-                    BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
-                    results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                    results.add(checkExpr(listConstructorExpr.exprs.get(i), env));
                 }
                 actualType = new BTupleType(results);
                 listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));

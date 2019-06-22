@@ -299,7 +299,7 @@
     {
       "label": "ep",
       "kind": "Variable",
-      "detail": "ballerina/http:Listener",
+      "detail": "http:Listener",
       "sortText": "110",
       "insertText": "ep",
       "insertTextFormat": "Snippet"
@@ -385,7 +385,7 @@
     {
       "label": "customService",
       "kind": "Variable",
-      "detail": "customService$$service$1",
+      "detail": "customService",
       "sortText": "110",
       "insertText": "customService",
       "insertTextFormat": "Snippet"

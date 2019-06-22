@@ -1,6 +1,6 @@
 import ballerina/mysql;
 
-// The `@sensitive` annotation can be used with parameters of user-defined functions. This allow users to restrict
+// The `@sensitive` annotation can be used with the parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.
 function userDefinedSecureOperation(@sensitive string secureParameter) {
 
@@ -21,13 +21,13 @@ public function main(string... args) {
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    // Sensitive parameters of functions built-in to Ballerina are decorated with the `@sensitive` annotation. This
+    // Sensitive parameters of functions that are built-in to Ballerina are decorated with the `@sensitive` annotation. This
     // ensures that tainted data cannot pass into the security sensitive parameter.
     //
     // For example, the taint checking mechanism of Ballerina completely prevents SQL injection vulnerabilities by
     // disallowing tainted data in the SQL query.
     //
-    // This line results in a compiler error because the query is appended with a user-provided argument.
+    // This line results in a compile error because the query is appended with a user-provided argument.
     var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
             args[0], ());
@@ -62,12 +62,12 @@ public function main(string... args) {
         // denote that the return value should be untrusted (tainted). One such example is the data read from a
         // database.
         //
-        // This line results in a compiler error because a value derived from a database read (tainted) is passed to a
+        // This line results in a compile error because a value derived from a database read (tainted) is passed to a
         // sensitive parameter.
         userDefinedSecureOperation(jsonData.firstname);
 
         string sanitizedData1 = sanitizeAndReturnTainted(jsonData.firstname);
-        // This line results in a compiler error because the `sanitize` function returns a value derived from tainted
+        // This line results in a compile error because the `sanitize` function returns a value derived from the tainted
         // data. Therefore, the return of the `sanitize` function is also tainted.
         userDefinedSecureOperation(sanitizedData1);
 
