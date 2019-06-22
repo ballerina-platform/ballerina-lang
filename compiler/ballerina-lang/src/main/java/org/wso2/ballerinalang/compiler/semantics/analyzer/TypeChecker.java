@@ -3702,7 +3702,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
-        if (symbol.tag != SymTag.CONSTANT || varRefType.tag != TypeTags.MAP) {
+        if ((symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT || varRefType.tag != TypeTags.MAP) {
             return;
         }
 

@@ -18,13 +18,11 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -44,8 +42,7 @@ import java.util.Set;
 /**
  * @since 0.985.0
  */
-public class BLangConstant extends BLangVariable implements ConstantNode, AnnotatableNode, DocumentableNode,
-        TopLevelNode {
+public class BLangConstant extends BLangVariable implements ConstantNode, TypeDefinition {
 
     public BLangIdentifier name;
     public BConstantSymbol symbol;

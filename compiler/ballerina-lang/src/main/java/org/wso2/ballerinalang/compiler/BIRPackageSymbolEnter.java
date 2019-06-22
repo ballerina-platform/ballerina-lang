@@ -210,6 +210,9 @@ public class BIRPackageSymbolEnter {
         // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
+        // Define constants.
+        defineSymbols(dataInStream, rethrow(this::defineConstant));
+
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
@@ -227,10 +230,6 @@ public class BIRPackageSymbolEnter {
 
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
-
-        // Define constants.
-        dataInStream.readLong(); //read and ignore constant byte chunk length.
-        defineSymbols(dataInStream, rethrow(this::defineConstant));
 
         this.typeReader = null;
         return this.env.pkgSymbol;
@@ -389,6 +388,7 @@ public class BIRPackageSymbolEnter {
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
+        boolean isLabel = dataInStream.readByte() == 1;
 
         BType type = readBType(dataInStream);
 
@@ -398,15 +398,20 @@ public class BIRPackageSymbolEnter {
         // Temp solution to add client flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
-        BTypeSymbol symbol = type.tsymbol;
-        symbol.type = type;
-
+        BTypeSymbol symbol;
+        if (isLabel) {
+            symbol = type.tsymbol.createLabelSymbol();
+        } else {
+            symbol = type.tsymbol;
+        }
 
         symbol.name = names.fromString(typeDefName);
+        symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
 
-//        setDocumentation(typeDefSymbol, attrDataMap); //TODO fix
+        // TODO fix
+        // setDocumentation(typeDefSymbol, attrDataMap);
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
@@ -459,6 +464,10 @@ public class BIRPackageSymbolEnter {
         // Create the constant symbol.
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                 this.env.pkgSymbol.pkgID, null, type, enclScope.owner);
+
+        // read and ignore constant value's byte chunk length.
+        dataInStream.readLong();
+
         constantSymbol.value = readConstLiteralValue(dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
 

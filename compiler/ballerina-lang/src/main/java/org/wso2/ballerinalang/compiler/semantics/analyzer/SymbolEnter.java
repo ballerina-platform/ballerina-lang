@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -139,7 +140,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    private List<BLangTypeDefinition> unresolvedTypes;
+    private List<TypeDefinition> unresolvedTypes;
     private List<PackageID> importedPackages;
     private int typePrecedence;
 
@@ -432,11 +433,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             // We need to maintain a list to keep track of all encountered unresolved types. We need to keep track of
             // the location as well since the same unknown type can be specified in multiple places.
             LinkedList<LocationData> unknownTypes = new LinkedList<>();
-            for (BLangTypeDefinition unresolvedType : unresolvedTypes) {
+            for (TypeDefinition unresolvedType : unresolvedTypes) {
                 // We need to keep track of all visited types to print cyclic dependency.
                 LinkedList<String> references = new LinkedList<>();
-                references.add(unresolvedType.name.value);
-                checkErrors(unresolvedType, unresolvedType.typeNode, references, unknownTypes);
+                references.add(unresolvedType.getName().getValue());
+                checkErrors(unresolvedType, (BLangType) unresolvedType.getTypeNode(), references, unknownTypes);
             }
 
             // Create and define dummy symbols and continue. This done to keep the remaining compiler
@@ -448,9 +449,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void checkErrors(BLangTypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
+    private void checkErrors(TypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
                              List<LocationData> encounteredUnknownTypes) {
-        String unresolvedTypeNodeName = unresolvedType.name.value;
+        String unresolvedTypeNodeName = unresolvedType.getName().getValue();
 
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
@@ -1624,7 +1625,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
+    private void createDummyTypeDefSymbol(TypeDefinition typeDefNode, SymbolEnv env) {
+        if (typeDefNode.getKind() == NodeKind.CONSTANT) {
+            return;
+        }
+
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) typeDefNode;
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
                 names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);

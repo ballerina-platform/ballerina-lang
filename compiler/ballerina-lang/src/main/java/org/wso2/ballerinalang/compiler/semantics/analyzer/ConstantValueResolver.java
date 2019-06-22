@@ -90,7 +90,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRef) {
-        if (varRef.symbol.tag != SymTag.CONSTANT) {
+        if ((varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
             this.result = null;
             return;
         }

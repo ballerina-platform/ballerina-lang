@@ -73,6 +73,8 @@ public class BIRBinaryWriter {
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
+        // Write constants
+        writeConstants(birbuf, birPackage.constants);
         // Write type defs
         writeTypeDefs(birbuf, typeWriter, insWriter, birPackage.typeDefs);
         // Write global vars
@@ -83,8 +85,6 @@ public class BIRBinaryWriter {
         writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
         // Write annotations
         writeAnnotations(birbuf, typeWriter, insWriter, birPackage.annotations);
-        // Write constants
-        writeConstants(birbuf, birPackage.constants);
 
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
@@ -161,6 +161,7 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Flags
         buf.writeInt(typeDef.flags);
+        buf.writeByte(typeDef.isLabel ? 1 : 0);
         writeType(buf, typeDef.type);
     }
 
@@ -299,16 +300,9 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
-        ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter constTypeWriter = new BIRTypeWriter(birbuf, cp);
-
-        birbuf.writeInt(birConstList.size());
-        birConstList.forEach(constant -> writeConstant(birbuf, constTypeWriter, constant));
-
-        // Write length of the function body so that it can be skipped easily.
-        int length = birbuf.nioBuffer().limit();
-        buf.writeLong(length);
-        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+        BIRTypeWriter constTypeWriter = new BIRTypeWriter(buf, cp);
+        buf.writeInt(birConstList.size());
+        birConstList.forEach(constant -> writeConstant(buf, constTypeWriter, constant));
     }
 
     private void writeConstant(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRConstant birConstant) {
@@ -316,7 +310,13 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
         writeType(buf, birConstant.type);
-        writeConstValue(buf, birConstant.constValue);
+
+        // write the length of the conctant value, so that it can be skipped.
+        ByteBuf birbuf = Unpooled.buffer();
+        writeConstValue(birbuf, birConstant.constValue);
+        int length = birbuf.nioBuffer().limit();
+        buf.writeLong(length);
+        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void writeConstValue(ByteBuf buf, ConstValue constValue) {

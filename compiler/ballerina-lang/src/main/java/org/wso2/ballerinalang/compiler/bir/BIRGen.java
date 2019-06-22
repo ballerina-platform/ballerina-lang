@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -262,6 +263,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
                                                           astTypeDefinition.symbol.flags,
+                                                          astTypeDefinition.symbol.isLabel,
                                                           astTypeDefinition.typeNode.type,
                                                           new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -285,14 +287,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Add the constant to the package.
         this.env.enclPkg.constants.add(birConstant);
-
-        // Add ref-type constants as global vars
-        if (type.tag == TypeTags.MAP) {
-            BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(astConstant.pos, constantSymbol.flags, type,
-                    this.env.nextGlobalVarId(names), VarScope.GLOBAL, VarKind.GLOBAL);
-            this.env.enclPkg.globalVars.add(birVarDcl);
-            this.env.globalVarMap.put(constantSymbol, birVarDcl);
-        }
     }
 
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
@@ -1246,20 +1240,29 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (variableStore) {
             if (astPackageVarRefExpr.symbol.name != Names.IGNORE) {
-                BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+                BIROperand varRef = new BIROperand(getVarRef(astPackageVarRefExpr));
                 emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
             }
-
         } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type, this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+            BIROperand fromVarRef = new BIROperand(getVarRef(astPackageVarRefExpr));
             emit(new Move(astPackageVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
+    }
+
+    private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
+        BSymbol symbol = astPackageVarRefExpr.symbol;
+        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
+                    symbol.name, VarScope.GLOBAL, VarKind.CONSTANT);
+        }
+
+        return this.env.globalVarMap.get(symbol);
     }
 
     @Override
@@ -1617,23 +1620,27 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        boolean variableStore = this.varAssignment;
-        this.varAssignment = false;
+//        boolean variableStore = this.varAssignment;
+//        this.varAssignment = false;
+//
+//        BSymbol symbol = constRef.symbol;
+//        if (variableStore) {
+//            BIROperand varRef =
+//                    new BIROperand(symbol.pkgID, symbol.name, symbol.type, VarKind.GLOBAL, VarScope.GLOBAL, false);
+//            emit(new Move(constRef.pos, this.env.targetOperand, varRef));
+//        } else {
+//            BIRVariableDcl tempVarDcl = new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names),
+//                    VarScope.FUNCTION, VarKind.TEMP);
+//            this.env.enclFunc.localVars.add(tempVarDcl);
+//            BIROperand tempVarRef = new BIROperand(tempVarDcl);
+//            BIROperand fromVarRef =
+//                    new BIROperand(symbol.pkgID, symbol.name, symbol.type, VarKind.GLOBAL, VarScope.GLOBAL, false);
+//            emit(new Move(constRef.pos, fromVarRef, tempVarRef));
+//            this.env.targetOperand = tempVarRef;
+//        }
+//        this.varAssignment = variableStore;
 
-        if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
-            emit(new Move(constRef.pos, this.env.targetOperand, varRef));
-        } else {
-            BIRVariableDcl tempVarDcl =
-                    new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
-            emit(new Move(constRef.pos, fromVarRef, tempVarRef));
-            this.env.targetOperand = tempVarRef;
-        }
-
-        this.varAssignment = variableStore;
+        throw new UnsupportedOperationException();
     }
 
     @Override

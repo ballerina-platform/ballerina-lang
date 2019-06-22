@@ -37,7 +37,7 @@ public function testObjectWithoutRHSType () returns [int, string, int, string] {
 
 public function testObjectWithAttachedFunc1 () returns [int, string, int, string] {
     foo:Company p = new foo:Company(99, 7);
-    var (a, b) = p.attachFunc1(344, "added values ");
+    var [a, b] = p.attachFunc1(344, "added values ");
     return [a, b, p.year, p.month];
 }
 

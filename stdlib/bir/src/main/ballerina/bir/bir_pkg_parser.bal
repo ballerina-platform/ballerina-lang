@@ -1,3 +1,4 @@
+import ballerina/io;
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -27,11 +28,18 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
+
         VariableDcl dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind
         };
+
+        if (kind == VAR_KIND_CONSTANT) {
+            io:println("************** REMOVE ME!!!! ");
+            dcl.moduleId = self.reader.readModuleIDCpRef();
+        }
+
         return dcl;
     }
 
@@ -51,9 +59,23 @@ public type PackageParser object {
         _ = self.reader.readTypeCpRef();
     }
 
-    function skipConstants() {
-        int constLength = self.reader.readInt64();
-        _ = self.reader.readByteArray(untaint constLength);
+    function parseConstants(GlobalVariableDcl?[] globalVars) {
+        int numConstants = self.reader.readInt32();
+        int numGlobalVars = globalVars.length();      
+        int i = 0;
+        while i < numConstants {
+            string name = self.reader.readStringCpRef();
+            int flags = self.reader.readInt32();
+            var typeValue = self.reader.readTypeCpRef();
+
+            int constValueLength = self.reader.readInt64();
+            _ = self.reader.readByteArray(untaint constValueLength);
+
+            GlobalVariableDcl dcl = {kind:VAR_KIND_CONSTANT, name:{value:name}, typeValue:typeValue, flags:flags};
+            globalVars[numGlobalVars + i] = dcl;
+            self.globalVarMap[name] = dcl;
+            i = i + 1;
+        }
     }
 
     public function parseFunctionParam() returns FunctionParam {
@@ -200,8 +222,11 @@ public type PackageParser object {
     public function parsePackage() returns Package {
         ModuleID pkgId = self.reader.readModuleIDCpRef();
         ImportModule[] importModules = self.parseImportMods();
+
+        GlobalVariableDcl?[] globalVars = [];
+        self.parseConstants(globalVars);
         TypeDef?[] typeDefs = self.parseTypeDefs();
-        GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
+        self.parseGlobalVars(globalVars);
 
         // Parse type def bodies after parsing global vars.
         // This is done avoid cyclic dependencies.
@@ -210,8 +235,6 @@ public type PackageParser object {
         Function?[] funcs = self.parseFunctions(typeDefs);
 
         self.skipAnnotations();
-
-        self.skipConstants();
 
         return { importModules : importModules,
                     typeDefs : typeDefs, 
@@ -302,12 +325,12 @@ public type PackageParser object {
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         string name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
+        int isLabel = self.reader.readInt8();
         var bType = self.reader.readTypeCpRef();
         return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
     }
 
-    function parseGlobalVars() returns GlobalVariableDcl?[] {       
-        GlobalVariableDcl?[] globalVars = []; 
+    function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
         int numGlobalVars = self.reader.readInt32();        
         int i = 0;
         while i < numGlobalVars {
@@ -320,7 +343,6 @@ public type PackageParser object {
             self.globalVarMap[name] = dcl;
             i = i + 1;
         }
-        return globalVars;
     }
 
     public function parseSig(string sig) returns BInvokableType {
@@ -427,7 +449,11 @@ public function parseVarKind(BirChannelReader reader) returns VarKind {
     }  else if (b == 6) {
         SelfVarKind ret = VAR_KIND_SELF;
         return ret;
+    }  else if (b == 7) {
+        ConstantVarKind ret = VAR_KIND_CONSTANT;
+        return ret;
     } 
+
     error err = error("unknown var kind tag " + b);
     panic err;
 }
