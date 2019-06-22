@@ -653,6 +653,15 @@ public class ASTBuilderUtil {
         return recordLiteralNode;
     }
 
+    static BLangRecordLiteral.BLangRecordKeyValue createBLangRecordKeyValue(BLangExpression key,
+                                                                            BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValue recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+        recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
+        recordKeyValue.valueExpr = value;
+        return recordKeyValue;
+    }
+
     static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(DiagnosticPos pos, BArrayType type) {
         final BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode =
                 (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
