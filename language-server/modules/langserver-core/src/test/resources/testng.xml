@@ -28,6 +28,7 @@ under the License.
         </groups>
         <classes>
              <class name="org.ballerinalang.langserver.completion.definitions.FunctionDefinitionCompletionTest"/> 
+             <class name="org.ballerinalang.langserver.formatting.FormattingTest"/>
         </classes>
     </test>
 </suite>

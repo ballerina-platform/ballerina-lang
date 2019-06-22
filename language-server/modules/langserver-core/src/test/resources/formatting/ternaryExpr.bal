@@ -79,32 +79,32 @@ function test10(string s) returns (Person) {
          :bob;
 }
 
-function testNestedTernary1 (int value) returns (string, string) {
+function testNestedTernary1 (int value) returns [string, string] {
     string s1 =   value > 70   ?  "morethan70":value > 40  ?"morethan40"  :value > 20  ?  "morethan20"   :    "lessthan20";
     string s2 =value > 70 ? "morethan70":(  value > 40
        ?  "morethan40" :   (  value > 20   ? "morethan20"
             :  "lessthan20"));
-    return (s1, s2);
+    return [s1, s2];
 }
 
-function testNestedTernary2 (int value) returns (string, string) {
+function testNestedTernary2 (int value) returns [string, string] {
     string s1 =     value > 40?   value > 70   ?   "morethan70" :   "lessthan70" :   value > 20 ?   "morethan20":   "lessthan20";
     string s2 =value > 40?
                ( value > 70
         ? "morethan70" : "lessthan70"):
              (value > 20?"morethan20":        "lessthan20");
-    return (s1, s2);
+    return [s1, s2];
 }
 
-function testNestedTernary3 (int value) returns (string, string) {
+function testNestedTernary3 (int value) returns [string, string] {
     string s1 =value < 40?value > 20?value < 30?"lessthan30":"morethan30":"lessthan20":value>45?"morethan45":"lessthan45";
     string s2 =    value < 40   ?   (value > 20   ?   (  value < 30  ?  "lessthan30"   :   "morethan30")  :  "lessthan20"  ) :
        (   value > 45
   ?"morethan45":           "lessthan45" );
-    return (s1, s2);
+    return [s1, s2];
 }
 
-function testNestedTernary4 (int value) returns (string, string) {
+function testNestedTernary4 (int value) returns [string, string] {
     string s1 =
 value > 40
          ?
@@ -141,7 +141,7 @@ value > 40
        "morethan20"
        :
  "lessthan20");
-    return (s1, s2);
+    return [s1, s2];
 }
 
 function testErrorInTernary() returns int|error {

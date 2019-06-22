@@ -10,9 +10,9 @@ public function name() {
 function testArrayWithTupleWithType() returns string {
     output = "";
 
-    (int, string)[] arr = [(1, "A"), (2, "B"), (3, "C")];
+    [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
 
-    foreach (int, string) (i, v) in arr {
+    foreach [int, string] [i, v] in arr {
         int a = i;
     }
     return output;
@@ -21,9 +21,9 @@ function testArrayWithTupleWithType() returns string {
 function testArrayWithTupleInTupleWithoutType() returns string {
     output = "";
 
-    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
-    foreach var (i, (s, f)) in arr {
-        (string, float) isd = (s, f);
+    [int, [string, float]][] arr = [[1, ["A", 2.0]], [2, ["B", 3.0]], [3, ["C", 4.0]]];
+    foreach var [i, [s, f]] in arr {
+        [string, float] isd = [s, f];
     }
     return output;
 }
@@ -31,10 +31,10 @@ function testArrayWithTupleInTupleWithoutType() returns string {
 function testArrayWithTupleInTupleWithType() returns string {
     output = "";
 
-    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
+    [int, [string, float]][] arr = [[1, ["A", 2.0]], [2, ["B", 3.0]], [3, ["C", 4.0]]];
 
-    foreach (int, (string, float)) (i, (s, f)) in arr {
-        (int, (string, float)) asd = (i, (s, f));
+    foreach [int, [string, float]] [i, [s, f]] in arr {
+        [int, [string, float]] asd = [i, [s, f]];
     }
     return output;
 }
