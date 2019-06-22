@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test annotation access.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public class AnnotationAccessTest {
 

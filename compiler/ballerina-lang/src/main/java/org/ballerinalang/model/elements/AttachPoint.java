@@ -20,7 +20,7 @@ package org.ballerinalang.model.elements;
 /**
  * {@code AttachPoint} represents annotation attach point in ballerina.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public class AttachPoint {
 
