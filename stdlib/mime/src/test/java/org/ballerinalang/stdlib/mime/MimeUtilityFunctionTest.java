@@ -78,6 +78,7 @@ import static org.ballerinalang.stdlib.mime.Util.verifyMimeError;
  *
  * @since 0.963.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
