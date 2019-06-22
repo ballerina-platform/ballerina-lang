@@ -61,7 +61,6 @@ public type PackageParser object {
 
     function parseConstants(GlobalVariableDcl?[] globalVars) {
         int numConstants = self.reader.readInt32();
-        int numGlobalVars = globalVars.length();      
         int i = 0;
         while i < numConstants {
             string name = self.reader.readStringCpRef();
@@ -71,8 +70,12 @@ public type PackageParser object {
             int constValueLength = self.reader.readInt64();
             _ = self.reader.readByteArray(untaint constValueLength);
 
-            GlobalVariableDcl dcl = {kind:VAR_KIND_CONSTANT, name:{value:name}, typeValue:typeValue, flags:flags};
-            globalVars[numGlobalVars + i] = dcl;
+            GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT, 
+                                      name:{value:name}, 
+                                      typeValue:typeValue, 
+                                      flags:flags
+                                    };
+            globalVars[i] = dcl;
             self.globalVarMap[name] = dcl;
             i = i + 1;
         }
@@ -331,7 +334,8 @@ public type PackageParser object {
     }
 
     function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
-        int numGlobalVars = self.reader.readInt32();        
+        int numGlobalVars = self.reader.readInt32();
+        int startIndex = globalVars.length();   
         int i = 0;
         while i < numGlobalVars {
             var kind = parseVarKind(self.reader);
@@ -339,7 +343,7 @@ public type PackageParser object {
             int flags = self.reader.readInt32();
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
-            globalVars[i] = dcl;
+            globalVars[startIndex + i] = dcl;
             self.globalVarMap[name] = dcl;
             i = i + 1;
         }

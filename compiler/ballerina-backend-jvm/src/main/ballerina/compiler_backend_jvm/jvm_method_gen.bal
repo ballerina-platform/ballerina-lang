@@ -1510,7 +1510,6 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     } else if (bType is bir:BInvokableType) {
         typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
     } else {
-        io:println(bType);
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));
         panic err;
@@ -1518,7 +1517,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
 
     jvm:FieldVisitor fv;
     if (isPackage) {
-        fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig);
     } else {
         fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }

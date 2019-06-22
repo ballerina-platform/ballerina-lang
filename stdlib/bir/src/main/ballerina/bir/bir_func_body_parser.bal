@@ -630,7 +630,6 @@ public type FuncBodyParser object {
     }
 
     private function getDecl(VarScope varScope, string varName, VarKind kind) returns VariableDcl {
-        io:println(varScope, " ", varName, " ", kind);
         if (varScope == VAR_SCOPE_GLOBAL) {
             if (kind == VAR_KIND_CONSTANT) {
                 var bType = self.reader.readTypeCpRef();
@@ -641,8 +640,6 @@ public type FuncBodyParser object {
                                         typeValue : bType,
                                         moduleId : pkgId
                                     };
-
-                io:println("---------- ", varDecl);
                 return varDecl;
             }
 

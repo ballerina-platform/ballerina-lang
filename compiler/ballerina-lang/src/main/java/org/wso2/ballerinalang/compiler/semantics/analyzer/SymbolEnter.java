@@ -228,11 +228,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
-        // First visit constants.
-        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
+        List<TypeDefinition> typDefs = new ArrayList<>();
+        pkgNode.constants.forEach(constant -> typDefs.add(constant));
+        pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
 
-        // Visit type definitions.
-        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
+//        // First visit constants.
+//        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
+//
+//        // Visit type definitions.
+//        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
+
+        defineTypeNodes(typDefs, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
@@ -417,14 +423,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
-    private void defineTypeNodes(List<BLangTypeDefinition> typeDefs, SymbolEnv env) {
+    private void defineTypeNodes(List<? extends TypeDefinition> typeDefs, SymbolEnv env) {
         if (typeDefs.size() == 0) {
             return;
         }
+
         this.unresolvedTypes = new ArrayList<>();
-        for (BLangTypeDefinition typeDef : typeDefs) {
-            defineNode(typeDef, env);
+        for (TypeDefinition typeDef : typeDefs) {
+            defineNode((BLangNode) typeDef, env);
         }
+
         if (typeDefs.size() <= unresolvedTypes.size()) {
             // This situation can occur due to either a cyclic dependency or at least one of member types in type
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
@@ -443,7 +451,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Create and define dummy symbols and continue. This done to keep the remaining compiler
             // phases running, and to make the semantic validations happen properly.
             unresolvedTypes.forEach(type -> createDummyTypeDefSymbol(type, env));
-            unresolvedTypes.forEach(type -> defineNode(type, env));
+            unresolvedTypes.forEach(type -> defineNode((BLangNode) type, env));
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
@@ -484,12 +492,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (currentTypeNodeName.startsWith("$")) {
                     return;
                 }
+
                 if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
                     // Cyclic dependency detected. We need to add the `unresolvedTypeNodeName` or the
                     // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
                     // printing the error.
                     visitedNodes.add(currentTypeNodeName);
-                    dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, visitedNodes);
+                    dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+                            visitedNodes);
                     // We need to remove the last occurrence since we use this list in a recursive call.
                     // Otherwise, unwanted types will get printed in the cyclic dependency error.
                     visitedNodes.remove(visitedNodes.lastIndexOf(currentTypeNodeName));
@@ -506,12 +516,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     // Add the `currentTypeNodeName` to complete the cycle.
                     dependencyList.add(currentTypeNodeName);
-                    dlog.error(unresolvedType.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, dependencyList);
+                    dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+                            dependencyList);
                 } else {
                     // Check whether the current type node is in the unresolved list. If it is in the list, we need to
                     // check it recursively.
-                    List<BLangTypeDefinition> typeDefinitions = unresolvedTypes.stream()
-                            .filter(typeDefinition -> typeDefinition.name.value.equals(currentTypeNodeName))
+                    List<TypeDefinition> typeDefinitions = unresolvedTypes.stream()
+                            .filter(typeDefinition -> typeDefinition.getName().getValue().equals(currentTypeNodeName))
                             .collect(Collectors.toList());
                     if (typeDefinitions.isEmpty()) {
                         // If a type is declared, it should either get defined successfully or added to the unresolved
@@ -523,12 +534,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                             encounteredUnknownTypes.add(locationData);
                         }
                     } else {
-                        for (BLangTypeDefinition typeDefinition : typeDefinitions) {
-                            String typeName = typeDefinition.name.value;
+                        for (TypeDefinition typeDefinition : typeDefinitions) {
+                            String typeName = typeDefinition.getName().getValue();
                             // Add the node name to the list.
                             visitedNodes.add(typeName);
                             // Recursively check for errors.
-                            checkErrors(unresolvedType, typeDefinition.typeNode, visitedNodes, encounteredUnknownTypes);
+                            checkErrors(unresolvedType, (BLangType) typeDefinition.getTypeNode(), visitedNodes,
+                                    encounteredUnknownTypes);
                             // We need to remove the added type node here since we have finished checking errors.
                             visitedNodes.remove(visitedNodes.lastIndexOf(typeName));
                         }
@@ -882,6 +894,20 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        BType staticType;
+        if (constant.typeNode != null) {
+            staticType = symResolver.resolveTypeNode(constant.typeNode, env);
+            if (staticType == symTable.noType) {
+                // This is to prevent concurrent modification exception.
+                if (!this.unresolvedTypes.contains(constant)) {
+                    this.unresolvedTypes.add(constant);
+                }
+                return;
+            }
+        } else {
+            staticType = symTable.semanticError;
+        }
+
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
@@ -892,7 +918,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         NodeKind nodeKind = constant.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             if (constant.typeNode != null) {
-                BType staticType = symResolver.resolveTypeNode(constant.typeNode, env);
                 if (types.isValidLiteral((BLangLiteral) constant.expr, staticType)) {
                     // A literal type constant is defined with correct type.
                     // Update the type of the finiteType node to the static type.
@@ -920,8 +945,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constantSymbol.literalType = constant.expr.type;
             }
         } else if (constant.typeNode != null) {
-            constantSymbol.type = symResolver.resolveTypeNode(constant.typeNode, env);
-            constantSymbol.literalType = constantSymbol.type;
+            constantSymbol.type = constantSymbol.literalType = staticType;
         } 
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);

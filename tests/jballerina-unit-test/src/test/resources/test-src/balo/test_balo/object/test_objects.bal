@@ -51,7 +51,7 @@ public function testObjectCallAttachedFunctions () returns [string, string, stri
     return [p.getNameWrapperInside1(), p.getNameWrapperInside2(), p.getNameWrapperOutside1(), p.getNameWrapperOutside2()];
 }
 
-public function testObjectInsideObject () returns (string, string) {
+public function testObjectInsideObject () returns [string, string] {
     foo:Boy p = new foo:Boy();
     return [p.getNameWrapperInside1(), p.getNameFromDiffObject()];
 }
