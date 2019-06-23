@@ -142,6 +142,7 @@ public class BCompileUtil {
      * @param sourceFilePath Path to source module/file
      * @return Semantic errors
      */
+    @Deprecated
     public static CompileResult compileOnBVM(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }

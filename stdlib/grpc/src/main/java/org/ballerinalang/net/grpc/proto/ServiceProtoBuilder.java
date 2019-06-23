@@ -137,7 +137,7 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
                     }
                 }
                 if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
-                    addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().getValue())
+                    addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().expr)
                             .getValue());
                 } else {
                     File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);

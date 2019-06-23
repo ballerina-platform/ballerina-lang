@@ -709,7 +709,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (pattern.type.tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
-                            return precedingPatternSym.literalValue.equals(patternSym.literalValue);
+                            return precedingPatternSym.value.equals(patternSym.value);
                         }
                         // pattern is '_'.
                         return false;
@@ -718,7 +718,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
                             (BLangLiteral) ((BLangGroupExpr) pattern).expression :
                             (BLangLiteral) pattern;
-                    return (precedingPatternSym.literalValue.equals(literal.value));
+                    return (precedingPatternSym.value.equals(literal.value));
                 }
 
                 if (types.isValueType(pattern.type)) {
@@ -731,7 +731,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (pattern.type.tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
-                            return patternSym.literalValue.equals(precedingLiteral.value);
+                            return patternSym.value.equals(precedingLiteral.value);
                         }
                         // pattern is '_'.
                         return false;

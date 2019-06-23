@@ -97,6 +97,9 @@
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
+            <package name="org.ballerinalang.test.types.constant.*" />
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <package name="org.ballerinalang.test.balo.*"/>
             <package name="org.ballerinalang.test.annotations"/>
         </packages>
 
@@ -117,20 +120,9 @@
             </class>
             <class name="org.ballerinalang.test.expressions.elvis.ElvisExpressionTest"/>
             <class name="org.ballerinalang.test.expressions.typeof.TypeofOverLiteralExpressionTest" />
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-
             <class name="org.ballerinalang.test.expressions.ternary.TernaryExpressionTest"/>
-            <class name="org.ballerinalang.test.types.string.StringTemplateLiteralTest"/>
 
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/>
-            <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
-            <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
-            <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
-<!--            <class name="org.ballerinalang.test.types.constant.MapConstantTest" />-->
-
+            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
@@ -180,22 +172,9 @@
                     <include name="simpleLock"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.bytetype.BByteOperationsTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteArrayValueNegativeTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteValueNegativeTest" />
-            <class name="org.ballerinalang.test.types.bytetype.BByteValueTest">
-                <methods>
-                    <exclude name="simpleWorkerMessagePassingTest"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarFunctionWithPkgTest"/>
-            <class name="org.ballerinalang.test.types.globalvar.GlobalVarNegativeTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
-            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
-            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
         </classes>
     </test>
 </suite>

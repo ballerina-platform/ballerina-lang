@@ -107,6 +107,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.statements.ContinueNode;
 import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
@@ -389,7 +390,7 @@ public class TreeBuilder {
         return new BLangNumericLiteral();
     }
 
-    public static LiteralNode createConstantNode() {
+    public static ConstantNode createConstantNode() {
         return new BLangConstant();
     }
 
