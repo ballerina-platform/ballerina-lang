@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -409,6 +411,12 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(birOperand.variableDcl.scope.getValue());
             // TODO use the integer index of the variable.
             addCpAndWriteString(birOperand.variableDcl.name.value);
+
+            if (birOperand.variableDcl.kind == VarKind.CONSTANT) {
+                writeType(birOperand.variableDcl.type);
+                int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
+                buf.writeInt(pkgIndex);
+            }
         }
     }
 

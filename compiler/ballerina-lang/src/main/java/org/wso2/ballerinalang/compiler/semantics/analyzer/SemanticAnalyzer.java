@@ -167,6 +167,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private StreamsQuerySemanticAnalyzer streamsQuerySemanticAnalyzer;
     private BLangDiagnosticLog dlog;
     private TypeNarrower typeNarrower;
+    private ConstantValueResolver constantValueResolver;
 
     private SymbolEnv env;
     private BType expType;
@@ -198,6 +199,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.streamsQuerySemanticAnalyzer = StreamsQuerySemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantValueResolver = ConstantValueResolver.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -217,6 +219,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
+        this.constantValueResolver.resolve(pkgNode.constants);
 
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
@@ -1994,55 +1997,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        BLangExpression expression = (BLangExpression) constant.value;
+        BLangExpression expression = constant.expr;
         if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
 
-        if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
-            BLangLiteral value = (BLangLiteral) constant.value;
-            BType resultType;
-            if (constant.typeNode != null) {
-                // Check the type of the value.
-                resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
-                // We need to update the type tag because the type might get changed. i.e.- int -> decimal.
-                constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-            } else {
-                // We don't have any expected type in this case since the type node is not available. So we get the type
-                // from the value.
-                resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
-                constant.symbol.literalValueTypeTag = value.type.tag;
-            }
-
-            // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
-            // nodes in desugar because we wont be able to identify byte and decimal types.
-            constant.symbol.literalValue = value.value;
-
-            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified
-            // in codegen when retrieving the default value.
-            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-            for (BLangExpression literal : typeNode.valueSpace) {
-                if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
-                // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
-                // be able to differentiate between decimal, float and int, byte as the type of the literals in the
-                // above cases would be float and int respectively.
-                    typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
-                }
-            }
-        } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            // Type node is mandatory if the RHS is a record literal.
-            if (constant.typeNode == null) {
-                constant.type = symTable.semanticError;
-                dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
-                return;
-            }
-            constant.symbol.type = constant.symbol.literalValueType =
-                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
-            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-        } else {
-            throw new RuntimeException("unsupported node kind");
+        if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR && constant.typeNode == null) {
+            constant.type = symTable.semanticError;
+            dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
+            return;
         }
+
+        typeChecker.checkExpr(expression, env, constant.symbol.type);
 
         // Check nested expressions.
         checkConstantExpression(expression);
