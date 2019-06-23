@@ -23,16 +23,10 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.UserStoreException;
@@ -59,31 +53,14 @@ import javax.naming.ldap.Rdn;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "getLdapScopes",
-        args = {@Argument(name = "username", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        isPublic = true)
+        functionName = "getLdapScopes")
 public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(GetLdapScopesOfUser.class);
 
     @Override
     public void execute(Context context) {
-        try {
-            BMap<String, BValue> authStore = ((BMap<String, BValue>) context.getRefArgument(0));
-            LdapUtils.setServiceName((String) authStore.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
-            DirContext ldapConnectionContext = (DirContext) authStore.getNativeData(
-                    LdapConstants.LDAP_CONNECTION_CONTEXT);
-            CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) authStore.getNativeData(
-                    LdapConstants.LDAP_CONFIGURATION);
-            String userName = context.getStringArgument(0);
-            String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
-            context.setReturnValues(new BValueArray(externalRoles));
-        } catch (UserStoreException | NamingException e) {
-            context.setReturnValues(new BValueArray(BTypes.typeString));
-        } finally {
-            LdapUtils.removeServiceName();
-        }
+
     }
 
     public static ArrayValue getScopes(Strand strand, ObjectValue authStore, String userName) {
@@ -96,7 +73,7 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
         } catch (UserStoreException | NamingException e) {
-            return new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
+            return new ArrayValue(BTypes.typeString);
         } finally {
             LdapUtils.removeServiceName();
         }

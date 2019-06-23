@@ -1134,9 +1134,9 @@ if (hasInitFunction(pkg)) {
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
             }
         }
-
-        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
     }
+
+    scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
     
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
@@ -1510,6 +1510,11 @@ function cleanupTypeName(string name) returns string {
 
 function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
+}
+
+function cleanupPathSeperators(string name) returns string {
+   //TODO: should use file_path:getPathSeparator();
+   return name.replace(WINDOWS_PATH_SEPERATOR, "-").replace(UNIX_PATH_SEPERATOR, "-");
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {

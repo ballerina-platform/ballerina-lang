@@ -76,7 +76,7 @@ public type NotOperatorProcessor object {
                 map<anydata> data = {};
                 // inject an event with current processors' alias as the stream name.
                 // So that, it will be identifiable in the process method.
-                StreamEvent notEvt = new StreamEvent((p.getAlias(), data), evntType, currentTime);
+                StreamEvent notEvt = new StreamEvent([p.getAlias(), data], evntType, currentTime);
                 // to get rid of event duplication.
                 notEvt.eventId = p.getAlias();
                 stateMachine.inject(notEvt);
@@ -93,7 +93,7 @@ public type NotOperatorProcessor object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     #
     # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
-    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
+    public function process(StreamEvent event, string? processorAlias) returns [boolean, boolean] {
         lock {
             self.lockField += 1;
             boolean promote = false;
@@ -123,7 +123,7 @@ public type NotOperatorProcessor object {
                 if (processor is AbstractPatternProcessor) {
                     // processorAlias is not required when get promoted by
                     // its only imidiate descendent. Therefore passing ().
-                    (promote, toNext) = processor.process(event, ());
+                    [promote, toNext] = processor.process(event, ());
                 }
                 // descendents will promote this processor on state fulfillment
                 if (promote) {
@@ -145,7 +145,7 @@ public type NotOperatorProcessor object {
                         } else {
                             // create an event without state data to represent NOT state, and promote it.
                             map<anydata> data = {};
-                            StreamEvent clone = new StreamEvent((event.streamName, data), event.eventType, event.
+                            StreamEvent clone = new StreamEvent([event.streamName, data], event.eventType, event.
                                 timestamp);
                             clone.eventId = event.eventId;
                             clone.streamName = event.streamName;
@@ -157,7 +157,7 @@ public type NotOperatorProcessor object {
                     }
                 }
             }
-            return (promoted, toNext);
+            return [promoted, toNext];
         }
     }
 
