@@ -372,12 +372,13 @@ public class BIRTypeWriter implements TypeVisitor {
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = value instanceof String ? Double.parseDouble((String) value) : (Double) value;
+                double doubleVal =
+                        value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
                 buff.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry((String) value));
+                buff.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
                 buff.writeByte((Boolean) value ? 1 : 0);
