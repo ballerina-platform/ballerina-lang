@@ -63,7 +63,7 @@ public class BallerinaValues {
             fields[j++] = false;
         }
         //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
-        return valueCreator.createObjectValue(objectTypeName,  null,null, null, fields);
+        return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
     }
 
     /**
