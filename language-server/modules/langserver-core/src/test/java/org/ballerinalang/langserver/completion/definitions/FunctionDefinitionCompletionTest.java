@@ -63,7 +63,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
                 {"iterableOperation5.json", "function"},
-//                {"iterableOperation6.json", "function"},
+                {"iterableOperation6.json", "function"},
                 {"completionWithinWorkersInResource.json", "function"},
                 {"suggestionsInWorkersWithinFunction.json", "function"},
                 {"completionBeforeIfElse.json", "function"},
