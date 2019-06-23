@@ -172,11 +172,6 @@ public class AnnotationDesugar {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
 
-            if (!(function.attachedFunction || function.attachedOuterFunction)) {
-                // Temporarily avoid sending module level function annotations to the runtime
-                continue;
-            }
-
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
                 // Add the lambda/invocation in a temporary block.
@@ -190,6 +185,13 @@ public class AnnotationDesugar {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
                 } else {
+                    if (!function.attachedFunction) {
+                        // Temporarily avoid adding annot assignment in __init for module level functions, to avoid
+                        // the method too large error.
+                        // The function (lambda) is generated to allow desugaring, for use at BIR gen.
+                        continue;
+                    }
+
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
                     index = initFunction.body.stmts.size();
                 }
