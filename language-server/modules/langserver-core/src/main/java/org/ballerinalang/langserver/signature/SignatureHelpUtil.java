@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.SignatureInformation;
@@ -353,6 +354,30 @@ public class SignatureHelpUtil {
         signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
 
         return signatureInformation;
+    }
+
+    private static String getFullyQualifiedName(BLangInvocation bLangInvocation, LSServiceOperationContext context) {
+        String result = bLangInvocation.getName().getValue();
+        // If there's a object ref
+        if (bLangInvocation.getExpression() instanceof BLangSimpleVarRef) {
+            result = ((BLangSimpleVarRef) bLangInvocation.getExpression()).variableName + "." + result;
+        }
+
+        // Add module import prefix, if necessary
+        return addPackagePrefix(bLangInvocation.getPackageAlias(), context, result);
+    }
+
+    private static String addPackagePrefix(IdentifierNode identifierNode, LSServiceOperationContext context,
+                                           String nodeName) {
+        String pkgAlias = identifierNode.getValue();
+        if (!pkgAlias.isEmpty()) {
+            BLangPackage pkg = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(pkg, context).stream()
+                    .filter(p -> pkgAlias.equals(p.alias.value))
+                    .findFirst();
+            nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;
+        }
+        return nodeName;
     }
 
     /**
