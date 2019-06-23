@@ -142,6 +142,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     generateLockForVariable(globalVar, cw);
                 }
             }
+
             boolean serviceEPAvailable = false;
             if (isEntry) {
                 bir:Function? mainFunc = getMainFunc(module.functions);
@@ -361,7 +362,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 string? balFileName = func.pos.sourceFileName;
                 if (balFileName is string) {
                     moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                                          untaint cleanupBalExt(balFileName));
+                                                          untaint cleanupPathSeperators(cleanupBalExt(balFileName)));
                     var javaClass = jvmClassMap[moduleClass];
                     if (javaClass is JavaClass) {
                         javaClass.functions[javaClass.functions.length()] = func;

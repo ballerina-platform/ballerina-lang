@@ -9,7 +9,8 @@ import {
 import * as child_process from "child_process";
 import * as path from "path";
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
-import { ExtendedLangClient } from 'src/core/extended-language-client';
+import { ExtendedLangClient } from '../core/extended-language-client';
+import { BALLERINA_HOME } from '../core/preferences';
 import { isUnix } from "./osUtils";
 
 const debugConfigProvider: DebugConfigurationProvider = {
@@ -20,7 +21,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
             ballerinaExtInstance.showMessageInstallBallerina();
             return;
         } else {
-            config['ballerina.home'] = ballerinaHome;
+            config[BALLERINA_HOME] = ballerinaHome;
         }
 
         if (!config.type) {

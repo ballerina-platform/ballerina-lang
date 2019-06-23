@@ -17,12 +17,12 @@ listener websub:Listener websubEP = new websub:Listener(8181);
 }
 service websubSubscriber on websubEP {
 
-    // Define the resource that accepts the intent verification requests.
+    // Define sthe resource, which accepts the intent verification requests.
     // If the resource is not specified, intent verification happens automatically. It verifies if the topic specified in the intent
     // verification request matches the topic specified as the annotation.
     resource function onIntentVerification(websub:Caller caller,
                                    websub:IntentVerificationRequest request) {
-        // Build the response to the intent verification request that was received for subscription.
+        // Builds the response to the intent verification request that was received for subscription.
         http:Response response =
             request.buildSubscriptionVerificationResponse("http://websubpubtopic.com");
         if (response.statusCode == 202) {
@@ -38,7 +38,7 @@ service websubSubscriber on websubEP {
         }
     }
 
-    // Define the resource that accepts the content delivery requests.
+    // Defines the resource that accepts the content delivery requests.
     resource function onNotification(websub:Notification notification) {
         var payload = notification.getTextPayload();
         if (payload is string) {

@@ -1,8 +1,8 @@
 import ballerina/io;
 import ballerina/log;
 
-// Converts a `json` value to an array of strings.
-// Returns the result as a tuple which contains the headers and fields
+// Converts a `json` value to an array of Strings.
+// Returns the result as a tuple, which contains the headers and fields.
 function getFields(json rec) returns (string[], string[]) {
     int count = 0;
     string [] headers = [];
@@ -34,7 +34,7 @@ function writeCsv(json content, string path) returns error? {
 }
 
 public function main() {
-    // Sample `json` which will be written.
+    // The sample `json`, which will be written.
     json sample = {
             "employees": {
                 "employee": [
@@ -58,10 +58,10 @@ public function main() {
                     }
                 ]
             }};
-    // Writes json into a csv
+    // Writes JSON into a CSV.
     string path = "./files/sample.csv";
-    // Specify the json array which should be transformed into csv
-    // Also provide the location the csv should be written
+    // Specifies the JSON array, which should be transformed into CSV.
+    // Also, provides the location the CSV should be written.
     var result = writeCsv(sample.employees.employee, path);
     if (result is error) {
         log:printError("Error occurred while writing csv record :",

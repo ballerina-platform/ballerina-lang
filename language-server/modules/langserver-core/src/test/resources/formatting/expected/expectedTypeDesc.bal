@@ -1,28 +1,28 @@
-function testBasicTypes() returns (typedesc, typedesc, typedesc, typedesc, typedesc) {
+function testBasicTypes() returns [typedesc, typedesc, typedesc, typedesc, typedesc] {
     typedesc a = int;
     typedesc b = string;
     typedesc c = float;
     typedesc d = boolean;
     typedesc e = byte;
-    return (a, b, c, d, e);
+    return [a, b, c, d, e];
 }
 
-function testRefTypes() returns (typedesc, typedesc, typedesc, typedesc) {
+function testRefTypes() returns [typedesc, typedesc, typedesc, typedesc] {
     typedesc a = xml;
     typedesc b =
     json;
     typedesc c = map<any>;
     typedesc d =
     table<Employee>;
-    return (a, b, c, d);
+    return [a, b, c, d];
 }
 
-function testObjectTypes() returns (typedesc, typedesc) {
+function testObjectTypes() returns [typedesc, typedesc] {
     typedesc a = Person;
     typedesc b = object {
         public string name = "";
     };
-    return (a, b);
+    return [a, b];
 }
 
 type Person object {
@@ -43,32 +43,32 @@ type Employee record {
 };
 
 
-function testArrayTypes() returns (typedesc, typedesc) {
+function testArrayTypes() returns [typedesc, typedesc] {
     typedesc a = int[];
     typedesc b = int[][];
-    return (a, b);
+    return [a, b];
 }
 
-function testRecordTypes() returns (typedesc, typedesc) {
+function testRecordTypes() returns [typedesc, typedesc] {
     typedesc a = RecordA;
     typedesc b = record {string c; int d;};
-    return (a, b);
+    return [a, b];
 }
 
-function testRecordTypes2() returns (typedesc, typedesc) {
+function testRecordTypes2() returns [typedesc, typedesc] {
     typedesc a = RecordA;
     typedesc b =
     record {string c; int d;};
-    return (a, b);
+    return [a, b];
 }
 
-function testRecordTypes3() returns (typedesc, typedesc) {
+function testRecordTypes3() returns [typedesc, typedesc] {
     typedesc a = RecordA;
     typedesc b = record {
         string c;
         int d;
     };
-    return (a, b);
+    return [a, b];
 }
 
 type RecordA record {
@@ -76,15 +76,15 @@ type RecordA record {
     int b;
 };
 
-function testTupleUnionTypes() returns (typedesc, typedesc) {
-    typedesc a = (string, Person);
+function testTupleUnionTypes() returns [typedesc, typedesc] {
+    typedesc a = [string, Person];
     typedesc b = int | string;
-    return (a, b);
+    return [a, b];
 }
 
 function testTuplesWithExpressions() returns typedesc {
     int[] fib = [1, 1, 2, 3, 5, 8];
-    typedesc desc = ("foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]);
+    typedesc desc = ["foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]];
     return desc;
 }
 

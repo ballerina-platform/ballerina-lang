@@ -34,8 +34,16 @@ configurations {
     ballerinaZip {
         transitive false
     }
-    debugAdapterLauncher
+    debugAdapterLauncher {
+        transitive false
+    }
     debugAdapterDistribution {
+        transitive false
+    }
+    composerDistribution {
+        transitive false
+    }
+    composerFonts {
         transitive false
     }
     docerina
@@ -89,7 +97,9 @@ dependencies {
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-
+    composerDistribution project(path: ':composer-library', configuration: 'composer')
+    composerFonts project(path: ':composer-library', configuration: 'fonts')
+    
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
@@ -205,6 +215,20 @@ def copyLangServerLibsSpec = {
     }
 }
 
+def copyComposerDistributionSpec = {
+    path -> copySpec {
+        from(configurations.composerDistribution)
+        into(path + 'lib/tools/composer-library')
+    }
+}
+
+def copyComposerFontsSpec = {
+    path -> copySpec {
+        from configurations.composerFonts
+        into(path + 'lib/tools/composer-library')
+    }
+}
+
 def examplesSpec = {
     path -> copySpec {
         from fileTree(project.rootDir.path + '/examples');
@@ -269,6 +293,8 @@ task createZip(type: Zip) {
     with copyLangServerLibsSpec(basePath)
     with copyLangSeverIndexSpec(basePath)
     with copyLangServerBinSpec(basePath)
+    with copyComposerDistributionSpec(basePath)
+    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with examplesSpec(basePath)
@@ -277,7 +303,6 @@ task createZip(type: Zip) {
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
 }
-
 
 task updateBalHome(type: Copy) {
     def installDir = ""
@@ -288,6 +313,8 @@ task updateBalHome(type: Copy) {
     with copyLangServerLibsSpec(installDir)
     with copyLangSeverIndexSpec(installDir)
     with copyLangServerBinSpec(installDir)
+    with copyComposerDistributionSpec(installDir)
+    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
     with apiDocsSpec(installDir)
@@ -309,6 +336,8 @@ task createDistribution(type: Copy) {
     with copyLangServerLibsSpec("")
     with copyLangSeverIndexSpec("")
     with copyLangServerBinSpec("")
+    with copyComposerDistributionSpec("")
+    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")

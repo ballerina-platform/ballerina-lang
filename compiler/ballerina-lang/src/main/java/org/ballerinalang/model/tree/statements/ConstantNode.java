@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.expressions;
+package org.ballerinalang.model.tree.statements;
 
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -23,7 +23,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 /**
  * @since 0.985.0
  */
-public interface ConstantNode extends LiteralNode {
+public interface ConstantNode {
+
     BLangType getTypeNode();
 
     BLangTypeDefinition getAssociatedTypeDefinition();

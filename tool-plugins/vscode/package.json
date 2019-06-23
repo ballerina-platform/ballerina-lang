@@ -52,6 +52,11 @@
             "type": "object",
             "title": "Ballerina",
             "properties": {
+                "ballerina.plugin.dev.mod": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable plugin development mode"
+                },
                 "ballerina.home": {
                     "type": "string",
                     "default": "",
@@ -143,7 +148,7 @@
                             "debugServerTimeout": {
                                 "type": "integer",
                                 "default": 5000,
-                                "description": "How long to wait for the debug server to start up in miliseconds"
+                                "description": "How long to wait for the debug server to start up in milliseconds"
                             },
                             "debugTests": {
                                 "type": "boolean",

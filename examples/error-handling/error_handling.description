@@ -1,2 +1,2 @@
 // In Ballerina, errors can be returned or can cause abrupt completion via panic.
-// This example demonstrates how errors can be returned, and how returned errors can be handled.
+// This example demonstrates how errors can be returned and how returned errors can be handled.
