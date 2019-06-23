@@ -40,6 +40,7 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
+    ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
@@ -76,6 +77,7 @@ public enum DiagnosticCode {
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
     OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
+    CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -257,8 +259,11 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
     INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
+    INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
+    INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -393,6 +398,7 @@ public enum DiagnosticCode {
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+    INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

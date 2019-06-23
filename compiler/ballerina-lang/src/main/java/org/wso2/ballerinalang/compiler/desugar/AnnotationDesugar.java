@@ -90,6 +90,7 @@ public class AnnotationDesugar {
         BLangFunction initFunction = pkgNode.initFunction;
 
         BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockStmt.pos = initFunction.pos;
 
         for (BLangVariable variable : pkgNode.globalVars) {
             generateAnnotations(variable, variable.symbol.name.value, initFunction, initFunction.body, annotationMap);
