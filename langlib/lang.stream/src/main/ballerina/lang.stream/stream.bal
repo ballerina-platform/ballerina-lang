@@ -14,14 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# A type parameter that is a subtype of `anydata|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type PureType anydata|error;
+
 # Publishes data to the stream.
 #
-# + s - The source stream
-# + data - Data to be published to the stream
-public function publish(stream<any> s, any data) = external;
+# + strm - the stream to publish to
+# + data - data to be published to the stream
+#
+# Each subscriber receives a separate clone of the data.
+public function publish(stream<PureType> strm, PureType data) = external;
 
 # Subscribes to data from the stream.
 #
-# + s - The source stream
-# + func - The function pointer for the subscription, which will be invoked with data published to the stream
-public function subscribe(stream<any> s, function (any) func) = external;
+# + strm - the stream to subscribe to
+# + func - the function pointer for the subscription, which will be invoked with data published to the stream
+public function subscribe(stream<PureType> strm, function (PureType) func) = external;

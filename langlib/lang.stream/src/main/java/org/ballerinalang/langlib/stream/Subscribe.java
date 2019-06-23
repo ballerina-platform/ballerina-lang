@@ -17,14 +17,10 @@
 */
 package org.ballerinalang.langlib.stream;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -36,18 +32,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(orgName = "ballerina", packageName = "lang.stream",
         functionName = "subscribe",
         args = {
-                @Argument(name = "s", type = TypeKind.STREAM),
-                @Argument(name = "func", type = TypeKind.ANY)
+                @Argument(name = "strm", type = TypeKind.STREAM),
+                @Argument(name = "func", type = TypeKind.FUNCTION)
         },
         isPublic = true)
-public class Subscribe extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BStream stream = (BStream) context.getRefArgument(0);
-        BFunctionPointer functionPointer = (BFunctionPointer) context.getRefArgument(1);
-        stream.subscribe(functionPointer);
-    }
+public class Subscribe {
 
     public static void subscribe(Strand strand, StreamValue streamValue, FPValue<Object[], Object> fpValue) {
         streamValue.subscribe(fpValue);

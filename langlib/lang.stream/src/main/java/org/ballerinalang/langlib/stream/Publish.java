@@ -17,13 +17,9 @@
 */
 package org.ballerinalang.langlib.stream;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -36,18 +32,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "lang.stream",
         functionName = "publish",
         args = {
-                @Argument(name = "s", type = TypeKind.STREAM),
+                @Argument(name = "strm", type = TypeKind.STREAM),
                 @Argument(name = "data", type = TypeKind.ANY)
         },
         isPublic = true)
-public class Publish extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BStream stream = (BStream) context.getRefArgument(0);
-        BValue data = context.getRefArgument(1);
-        stream.publish(data);
-    }
+public class Publish {
 
     public static void publish(Strand strand, StreamValue streamValue, Object data) {
         streamValue.publish(strand, data);
