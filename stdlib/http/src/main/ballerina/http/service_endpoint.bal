@@ -53,7 +53,26 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c);
+    public function init(ServiceEndpointConfiguration c) {
+        self.config = c;
+        var auth = self.config["auth"];
+        if (auth is ListenerAuth) {
+            var authnHandlers = auth.authnHandlers;
+            if (authnHandlers is AuthnHandler?[]) {
+                if (authnHandlers.length() > 0) {
+                    initListener(self.config);
+                }
+            } else {
+                if (authnHandlers[0].length() > 0) {
+                    initListener(self.config);
+                }
+            }
+        }
+        var err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
+    }
 
     public function initEndpoint() returns error? = external;
 
@@ -70,27 +89,6 @@ public type Listener object {
     # Stops the registered service.
     function stop() = external;
 };
-
-public function Listener.init(ServiceEndpointConfiguration c) {
-    self.config = c;
-    var auth = self.config["auth"];
-    if (auth is ListenerAuth) {
-        var authnHandlers = auth.authnHandlers;
-        if (authnHandlers is AuthnHandler?[]) {
-            if (authnHandlers.length() > 0) {
-                initListener(self.config);
-            }
-        } else {
-            if (authnHandlers[0].length() > 0) {
-                initListener(self.config);
-            }
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}
 
 function initListener(ServiceEndpointConfiguration config) {
     var secureSocket = config.secureSocket;

@@ -42,21 +42,27 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(string path, RequestMessage message) returns Response|error;
+    public remote function post(string path, RequestMessage message) returns Response|error {
+        return self.httpCaller->post(path, message);
+    }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(string path, RequestMessage message = ()) returns Response|error;
+    public remote function head(string path, RequestMessage message = ()) returns Response|error {
+        return self.httpCaller->head(path, message = message);
+    }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(string path, RequestMessage message) returns Response|error;
+    public remote function put(string path, RequestMessage message) returns Response|error {
+        return self.httpCaller->put(path, message);
+    }
 
     # Invokes an HTTP call with the specified HTTP verb.
     #
@@ -64,21 +70,27 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error;
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+        return self.httpCaller->execute(httpVerb, path, message);
+    }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(string path, RequestMessage message) returns Response|error;
+    public remote function patch(string path, RequestMessage message) returns Response|error {
+        return self.httpCaller->patch(path, message);
+    }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(string path, RequestMessage message) returns Response|error;
+    public remote function delete(string path, RequestMessage message) returns Response|error {
+        return self.httpCaller->delete(path, message);
+    }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
     #
@@ -86,7 +98,9 @@ public type HttpClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(string path, RequestMessage message = ()) returns Response|error;
+    public remote function get(string path, RequestMessage message = ()) returns Response|error {
+        return self.httpCaller->get(path, message = message);
+    }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
     #
@@ -94,14 +108,18 @@ public type HttpClient client object {
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(string path, RequestMessage message = ()) returns Response|error;
+    public remote function options(string path, RequestMessage message = ()) returns Response|error {
+        return self.httpCaller->options(path, message = message);
+    }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
     #
     # + path - Resource path
     # + request - A Request struct
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(string path, Request request) returns Response|error;
+    public remote function forward(string path, Request request) returns Response|error {
+        return self.httpCaller->forward(path, request);
+    }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
     #
@@ -110,95 +128,47 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+        return self.httpCaller->submit(httpVerb, path, message);
+    }
 
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|error;
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+        return self.httpCaller->getResponse(httpFuture);
+    }
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
+        return self.httpCaller->hasPromise(httpFuture);
+    }
 
     # Retrieves the promised server push `Response` message.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+        return self.httpCaller->getNextPromise(httpFuture);
+    }
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|error;
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
+        return self.httpCaller->getPromisedResponse(promise);
+    }
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The `PushPromise` to be rejected
-    public remote function rejectPromise(PushPromise promise);
+    public remote function rejectPromise(PushPromise promise) {
+        return self.httpCaller->rejectPromise(promise);
+    }
 };
-
-public remote function HttpClient.post(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->post(path, message);
-}
-
-public remote function HttpClient.head(string path, RequestMessage message = ()) returns Response|error {
-    return self.httpCaller->head(path, message = message);
-}
-
-public remote function HttpClient.put(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->put(path, message);
-}
-
-public remote function HttpClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->execute(httpVerb, path, message);
-}
-
-public remote function HttpClient.patch(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->patch(path, message);
-}
-
-public remote function HttpClient.delete(string path, RequestMessage message) returns Response|error {
-    return self.httpCaller->delete(path, message);
-}
-
-public remote function HttpClient.get(string path, RequestMessage message = ()) returns Response|error {
-    return self.httpCaller->get(path, message = message);
-}
-
-public remote function HttpClient.options(string path, RequestMessage message = ()) returns Response|error {
-    return self.httpCaller->options(path, message = message);
-}
-
-public remote function HttpClient.forward(string path, Request request) returns Response|error {
-    return self.httpCaller->forward(path, request);
-}
-
-public remote function HttpClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    return self.httpCaller->submit(httpVerb, path, message);
-}
-
-public remote function HttpClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    return self.httpCaller->getResponse(httpFuture);
-}
-
-public remote function HttpClient.hasPromise(HttpFuture httpFuture) returns boolean {
-    return self.httpCaller->hasPromise(httpFuture);
-}
-
-public remote function HttpClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    return self.httpCaller->getNextPromise(httpFuture);
-}
-
-public remote function HttpClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    return self.httpCaller->getPromisedResponse(promise);
-}
-
-public remote function HttpClient.rejectPromise(PushPromise promise) {
-    return self.httpCaller->rejectPromise(promise);
-}

@@ -2355,16 +2355,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
-            // object outer attached function must have a body
-            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            }
-
-            if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT, funcNode.name,
-                        funcNode.receiver.type);
-            }
-
+            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
             return;
         }
 
