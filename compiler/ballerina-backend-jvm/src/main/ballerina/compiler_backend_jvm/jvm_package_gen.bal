@@ -142,6 +142,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     generateLockForVariable(globalVar, cw);
                 }
             }
+
             boolean serviceEPAvailable = false;
             if (isEntry) {
                 bir:Function? mainFunc = getMainFunc(module.functions);
