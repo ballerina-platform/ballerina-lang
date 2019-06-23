@@ -111,7 +111,7 @@ public class SymbolTable {
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
 
-    public final BTypeSymbol errSymbol;
+    public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
 
     public BErrorType errorType;
@@ -185,12 +185,12 @@ public class SymbolTable {
 
         // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID,
-                semanticError, rootPkgSymbol);
-        defineType(semanticError, errSymbol);
+        this.semanticErrSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID,
+                rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
+        defineType(semanticError, semanticErrSymbol);
 
         // Initialize Ballerina built-in error type.
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, PackageID.DEFAULT,
                                                        null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);

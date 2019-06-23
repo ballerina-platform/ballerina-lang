@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -751,12 +750,6 @@ public class BIRPackageSymbolEnter {
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
-                case TypeTags.TYPE_PARAM:
-                    BTypeSymbol typeParamSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.TYPE_PARAM,
-                            names.fromString(getStringCPEntryValue(inputStream)), env.pkgSymbol.pkgID, null, env.pkgSymbol);
-                    BTypeParamType bTypeParamType = new BTypeParamType(readTypeFromCp(), typeParamSymbol);
-                    typeParamSymbol.type = bTypeParamType;
-                    return bTypeParamType;
                 case TypeTags.INVOKABLE:
                     BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null,

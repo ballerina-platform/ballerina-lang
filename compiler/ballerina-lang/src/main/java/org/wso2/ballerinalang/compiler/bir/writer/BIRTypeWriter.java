@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -185,12 +184,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BFutureType bFutureType) {
         writeTypeCpIndex(bFutureType.constraint);
-    }
-
-    @Override
-    public void visit(BTypeParamType typeParamType) {
-        buff.writeInt(addStringCPEntry(typeParamType.tsymbol.name.value));
-        writeTypeCpIndex(typeParamType.constraint);
     }
 
     @Override
