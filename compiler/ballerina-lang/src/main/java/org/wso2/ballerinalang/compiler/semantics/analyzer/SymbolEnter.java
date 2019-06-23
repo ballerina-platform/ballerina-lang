@@ -325,10 +325,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
         // Built-in Annotation module is not allowed to import.
-        if (pkgId.orgName.equals(Names.BALLERINA_ORG) && pkgId.name.equals(Names.LANG_ANNOTATIONS)) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
-                    importPkgNode.getQualifiedPackageName());
-            return;
+        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL)) {
+            // Only peer lang.* modules able to see these two modules.
+            // Spec allows to annotation model to be imported, but implementation not support this.
+            if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
+                    && enclPackageID.name.value.startsWith(Names.LANG.value))) {
+                dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
+                        importPkgNode.getQualifiedPackageName());
+                return;
+            }
         }
 
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because

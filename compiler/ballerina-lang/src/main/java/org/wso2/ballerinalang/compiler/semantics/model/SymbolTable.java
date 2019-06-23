@@ -118,6 +118,7 @@ public class SymbolTable {
     public BUnionType pureType;
     public BMapType pureTypeConstrainedMap;
 
+    public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;

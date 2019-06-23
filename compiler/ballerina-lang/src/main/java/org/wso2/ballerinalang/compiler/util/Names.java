@@ -34,7 +34,8 @@ public class Names {
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BALLERINA_ORG = new Name("ballerina");
     public static final Name LANG = new Name("lang");
-    public static final Name LANG_ANNOTATIONS = new Name("lang.annotations");
+    public static final Name INTERNAL = new Name("__internal");
+    public static final Name ANNOTATIONS = new Name("annotations");
     public static final Name ARRAY = new Name("array");
     public static final Name DECIMAL = new Name("lang.decimal");
     public static final Name ERROR = new Name("error");
@@ -59,7 +60,6 @@ public class Names {
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("<type>");
-    public static final Name TYPEOF_OP = new Name("typeof");
     public static final Name CONVERSION_OP = new Name("convert");
     public static final Name SERVICE = new Name("service");
     public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
@@ -79,14 +79,6 @@ public class Names {
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
     public static final Name BIR_GLOBAL_VAR_PREFIX = new Name("#");
-
-    // Names related to Endpoint SPI.
-    public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");
-    public static final Name EP_SPI_INIT = new Name("init");
-    public static final Name EP_SPI_REGISTER = new Name("register");
-    public static final Name EP_SPI_GET_CALLER_ACTIONS = new Name("getCallerActions");
-    public static final Name EP_SPI_START = new Name("start");
-    public static final Name EP_SPI_STOP = new Name("stop");
 
     public CompilerContext context;
 

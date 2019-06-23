@@ -49,6 +49,7 @@ import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
@@ -125,6 +126,7 @@ public class CompilerDriver {
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
+            symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
@@ -151,6 +153,15 @@ public class CompilerDriver {
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+
+        if (langLib.equals(INTERNAL)) {
+            symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);
+            return; // Nothing else to load.
+        }
+
+        // Other lang modules requires internal module. Hence loading it.
+
+        symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
 
         // Now load each module.
         if (langLib.equals(ARRAY)) {
