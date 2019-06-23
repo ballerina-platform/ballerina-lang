@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -382,7 +381,8 @@ public class AnnotationDesugar {
                 // type X record {
                 //     int i;
                 // };
-                // $local_annot_map$["v1"] = true;
+                // // Adds
+                // { ..., v1: true, ... }
                 addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else if (attachedTypeSymbol.type.tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
@@ -392,9 +392,9 @@ public class AnnotationDesugar {
                 // type X record {
                 //     int i;
                 // };
-                // FooRecord r = { value: 1 };
-                // $local_annot_map$["v1"] = r;
-                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, function.body, pkgNode);
+                // // Adds
+                // { ..., v1: { value: 1 }, ... }
+                addSingleAnnot(attachments.get(annotationSymbol).get(0), mapLiteral);
             } else {
                 // annotation FooRecord[] v1 on type; OR annotation map<anydata>[] v1 on type;
                 // @v1 {
@@ -406,11 +406,10 @@ public class AnnotationDesugar {
                 // type X record {
                 //     int i;
                 // };
-                // FooRecord r1 = { value: 1 };
-                // FooRecord r2 = { value: 2 };
-                // $local_annot_map$["v1"] = [r1, r2];
+                // // Adds
+                // { ..., v1: [{ value: 1 }, { value: 2 }], ... }
                 addAnnotArray(function.pos, annotationSymbol.bvmAlias(), attachedTypeSymbol.type,
-                              attachments.get(annotationSymbol), mapLiteral, function.body, pkgNode);
+                              attachments.get(annotationSymbol), mapLiteral);
             }
         }
     }
@@ -452,62 +451,26 @@ public class AnnotationDesugar {
         addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), expression, attachment.pos);
     }
 
-    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral,
-                                BLangBlockStmt target, BLangPackage pkgNode) {
+    private void addSingleAnnot(BLangAnnotationAttachment attachment, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `map<any|error>` or `record{any|error...;}`.
-        BLangExpression expression = getAnnotExpr(attachment.annotationSymbol.attachedType.type,
-                                                  Symbols.isFlagOn(attachment.annotationSymbol.flags,
-                                                                             Flags.CONSTANT),
-                                                  attachment.pos, attachment.annotationName.value, attachment.expr,
-                                                  target, pkgNode);
         // create: add { ..., v1: { value: 1 } ... } or { ..., v1: C1 ... } where C1 is a constant reference
-        addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), expression, attachment.pos);
+        addAnnotValueToLiteral(recordLiteral, attachment.annotationSymbol.bvmAlias(), attachment.expr, attachment.pos);
     }
 
+
     private void addAnnotArray(DiagnosticPos pos, String name, BType annotType,
-                               List<BLangAnnotationAttachment> attachments, BLangRecordLiteral recordLiteral,
-                               BLangBlockStmt target, BLangPackage pkgNode) {
+                               List<BLangAnnotationAttachment> attachments, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `map<any|error>[]` or `record{any|error...;}[]`.
+        // Create an empty array literal of the expected type.
         BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
                 ASTBuilderUtil.createEmptyArrayLiteral(pos, (BArrayType) annotType);
 
-        // add [{ foo: 1, bar: "b" }, C1, ...  ], where C1 is a constant
-        addAnnotValuesToArrayLiteral(arrayLiteral, name, ((BArrayType) annotType).eType, attachments, target, pkgNode);
+        // Add value to the array literal, [{ foo: 1, bar: "b" }, { foo: C1, bar: "b2" }, ...  ]
+        attachments.forEach(attachment -> arrayLiteral.exprs.add(attachment.expr));
 
-        // create: add { ..., v1: [{ foo: 1, bar: "b" }, C1, ...  ], ... }
+        // Add the array literal to the record literal of all annots. Where `v1` is the annot-tag,
+        // { ..., v1: [{ foo: 1, bar: "b" }, { foo: C1, bar: "b2" }, ...  ], ... }
         addAnnotValueToLiteral(recordLiteral, name, arrayLiteral, pos);
-    }
-
-    private void addAnnotValuesToArrayLiteral(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral, String name,
-                                              BType annotType, List<BLangAnnotationAttachment> attachments,
-                                              BLangBlockStmt target, BLangPackage pkgNode) {
-        long annotCount = 0;
-        boolean isConst = Symbols.isFlagOn(attachments.get(0).annotationSymbol.flags, Flags.CONSTANT);
-        for (BLangAnnotationAttachment attachment : attachments) {
-            arrayLiteral.exprs.add(getAnnotExpr(annotType, isConst, attachment.pos, name + "$" + annotCount++,
-                                                attachment.expr, target, pkgNode));
-        }
-    }
-
-    private BLangExpression getAnnotExpr(BType annotType, boolean isConst, DiagnosticPos pos, String name,
-                                         BLangExpression expr, BLangBlockStmt target, BLangPackage pkgNode) {
-        return isConst ? defineConstAndGetRef(annotType, pos, name, expr, target, pkgNode) : expr;
-    }
-
-    private BLangExpression defineConstAndGetRef(BType annotType, DiagnosticPos pos, String name,
-                                                 BLangExpression expr, BLangBlockStmt target,
-                                                 BLangPackage pkgNode) {
-        // create: const AttachedType annotConst = { annotation-expression }
-        BLangConstant annotConst = ASTBuilderUtil.createConstant(pos, name, annotType, expr);
-        ASTBuilderUtil.defineConstant(annotConst, name, pkgNode.symbol, names, symTable);
-        annotConst.symbol.type = annotConst.type;
-        annotConst.symbol.literalValue = annotConst.value;
-        annotConst.symbol.literalValueType = annotConst.type;
-        annotConst.symbol.literalValueTypeTag = annotConst.symbol.literalValueType.tag;
-
-        pkgNode.topLevelNodes.add(annotConst);
-        pkgNode.constants.add(annotConst);
-        return ASTBuilderUtil.createVariableRef(target.pos, annotConst.symbol);
     }
 
     private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,

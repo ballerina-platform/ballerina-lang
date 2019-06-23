@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -48,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -93,7 +91,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
-import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -149,14 +146,6 @@ public class ASTBuilderUtil {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
                 targetSymbol);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
-    }
-
-    static void defineConstant(BLangConstant constant, String name, BSymbol targetSymbol, Names names,
-                               SymbolTable symTable) {
-        constant.symbol = new BConstantSymbol(Flags.asMask(constant.flagSet), names.fromString(name),
-                                              targetSymbol.pkgID, symTable.semanticError, symTable.semanticError,
-                                              targetSymbol);
-        targetSymbol.scope.define(constant.symbol.name, constant.symbol);
     }
 
     private static boolean isValueType(BType type) {
@@ -542,26 +531,6 @@ public class ASTBuilderUtil {
         variableDef.pos = pos;
         variableDef.var = variable;
         return variableDef;
-    }
-
-    public static BLangConstant createConstant(DiagnosticPos pos, String name, BType type, BLangExpression expr) {
-        return createConstant(pos, name, type, expr, null);
-    }
-
-    static BLangConstant createConstant(DiagnosticPos pos,
-                                        String name,
-                                        BType type,
-                                        BLangExpression expr,
-                                        BConstantSymbol constantSymbol) {
-        final BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
-        constantNode.pos = pos;
-        constantNode.name = createIdentifier(pos, name);
-        constantNode.type = type;
-        constantNode.setValue(expr);
-        constantNode.symbol = constantSymbol;
-
-        constantNode.flagSet.add(Flag.CONSTANT);
-        return constantNode;
     }
 
     static BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, BLangTupleVariable variable) {

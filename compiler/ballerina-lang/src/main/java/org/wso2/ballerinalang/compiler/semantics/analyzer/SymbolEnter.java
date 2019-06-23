@@ -290,9 +290,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
-                if (!isAllowedConstantType(annotationSymbol,
-                                           annotTypeNode.getKind() == NodeKind.ARRAY_TYPE ?
-                                                   ((BLangArrayType) annotTypeNode).elemtype : annotTypeNode)) {
+                if (!types.isAllowedConstantType(type.tag == TypeTags.ARRAY ? ((BArrayType) type).eType : type)) {
                     dlog.error(annotTypeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
                 }
             }
