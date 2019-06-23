@@ -19,7 +19,7 @@
 
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { Uri, ExtensionContext } from 'vscode';
-import { getLibraryWebViewContent } from '../utils/index';
+import { getLibraryWebViewContent, WebViewOptions, getComposerJSFiles, getComposerCSSFiles } from '../utils/index';
 
 export function apiEditorRender(context: ExtensionContext, langClient: ExtendedLangClient,
     docUri: Uri, selectedService: string, retries: number = 1) : string {
@@ -34,7 +34,7 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
     `;
     const bodyCss = "api-designer";
     const styles = ``;
-    const script = `
+    const scripts = `
         function loadedScript() {
             let docUri = ${JSON.stringify(docUri.toString())};
             let updatedJSON = '';
@@ -85,5 +85,11 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles, bodyCss, true);
+    const webViewOptions: WebViewOptions = {
+        jsFiles: getComposerJSFiles(true),
+        cssFiles: getComposerCSSFiles(),
+        body, scripts, styles, bodyCss
+    };
+    
+    return getLibraryWebViewContent(webViewOptions);
 }

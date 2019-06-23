@@ -32,7 +32,7 @@ suite("Ballerina Extension Network logs tests", function () {
         window.createWebviewPanel = (viewType: string, title: string, showOptions: ViewColumn | { viewColumn: ViewColumn }): WebviewPanel => {
             assert(viewType, "ballerina");
             return {} as WebviewPanel;
-        }
+        };
 
         TraceLogs.activate(ballerinaExtInstance);
         commands.executeCommand("ballerina.showTraces").then(() => { });

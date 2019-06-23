@@ -32,7 +32,7 @@ public class BErrorType extends BType {
     public BType reasonType;
     public BType detailType;
 
-    BErrorType(String typeName, BType reasonType, BType detailType, String pkgPath) {
+    public BErrorType(String typeName, BType reasonType, BType detailType, String pkgPath) {
         super(typeName, pkgPath, BError.class);
         this.reasonType = reasonType;
         this.detailType = detailType;

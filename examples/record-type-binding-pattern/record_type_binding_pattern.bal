@@ -21,17 +21,17 @@ type Capital record {|
 |};
 
 public function main() {
-    // This record type binding pattern will destructure a `record` of type `Person` and create three variables as follows:
+    // This record type binding pattern will destructure a `record` of the type `Person` and create three variables as follows:
     // The value of the field `name` in the `Person` record will be set to a new `string` variable `firstName`.
     // The value of the field `age` in the `Person` record will be set to a new `int` variable `personAge`.
     // `...otherDetails` is a rest parameter. Since `Person` is an open record, a new `map<anydata|error>` variable
-    // `otherDetails` will be created with the remaining fields that have not been matched in the record binding pattern.
+    // `otherDetails` will be created (with the remaining fields that have not been matched) in the record binding pattern.
     Person { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
     io:println("Other Details: " + io:sprintf("%s", otherDetails));
 
-    // If no variable name is given for a field, a variable will be created with the same name as the field.
+    // If a variable name is not given for a field, a variable will be created with the same name as the field
     // i.e. `Person {name, age}` is same as Person `{name: name, age: age}`.
     // Since a rest parameter is not given, all remaining fields are ignored.
     Person { name, age } = getPerson();
@@ -42,20 +42,20 @@ public function main() {
     // Since the types of the new variables are based on the type of the type binding pattern, using `var` will
     // infer the types from the right hand side.
     var { name: vFirstName, age: vPersonAge, ...vOtherDetails } = getPerson();
-    // Type of `vFirstName` is inferred as `string`.
+    // The type of `vFirstName` is inferred as `string`.
     io:println("Name: " + vFirstName);
-    // Type of `vPersonAge` is inferred as `int`.
+    // The type of `vPersonAge` is inferred as `int`.
     io:println("Age: " + vPersonAge);
-    // Type of `vOtherDetails` will be `map<anydata|error>`.
+    // The type of `vOtherDetails` will be `map<anydata|error>`.
     io:println("Other Details: " + io:sprintf("%s", vOtherDetails));
 
-    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
+    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`. Hence,
     // `Employee` should be a closed record.
     Employee {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
-    // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
+    // Binding patterns are recursive in nature. `capital`, which is a field of the type `Capital` in `Country` can also be
     // destructured as follows:
     var { name: countryName, capital: {| name: capitalName |} } = getCountry();
     io:println("Country Name: " + countryName);

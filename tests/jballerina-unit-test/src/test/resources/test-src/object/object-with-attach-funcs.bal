@@ -1,8 +1,8 @@
 
-public function testObjectWithAttachedFunc1 () returns (int, string, int, string) {
+public function testObjectWithAttachedFunc1 () returns [int, string, int, string] {
     Person p = new Person(99, 7);
-    var (a, b) = p.attachFunc1(344, "added values ");
-    return (a, b, p.year, p.month);
+    var [a, b] = p.attachFunc1(344, "added values ");
+    return [a, b, p.year, p.month];
 }
 
 type Person object {
@@ -18,9 +18,9 @@ type Person object {
         self.age = self.age + count;
     }
 
-    function attachFunc1(int add, string value1) returns (int, string) {
+    function attachFunc1(int add, string value1) returns [int, string] {
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 };

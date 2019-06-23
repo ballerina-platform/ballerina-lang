@@ -30,7 +30,7 @@ public type AbstractPatternProcessor abstract object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     #
     # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
-    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean);
+    public function process(StreamEvent event, string? processorAlias) returns [boolean, boolean];
 
     # Sets a link to the previous `AbstractOperatorProcessor`.
     #
