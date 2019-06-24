@@ -22,12 +22,14 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -243,7 +245,8 @@ public class HttpResource {
 
     protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
         ArrayValue annotation = resource.type.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
-        return (MapValue) ((MapValue) annotation.get(0)).get(ANN_FIELD_PATH_PARAM_ORDER);
+        return annotation == null ? new MapValueImpl() : (MapValue) ((MapValue) annotation.get(0)).get(
+                ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
@@ -291,15 +294,8 @@ public class HttpResource {
     }
 
     public List<BType> getParamTypes() {
-        // TODO remove paramDetail class
-        List<BType> paramDetails = new ArrayList<>();
-        for (BType paramType : this.balResource.getParameterType()) {
-            //TODO:Get this clarified
-            if (paramType.getName().equals("self")) {
-                continue;
-            }
-            paramDetails.add(paramType);
-        }
-        return paramDetails;
+        List<BType> paramTypes = new ArrayList<>();
+        paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
+        return paramTypes;
     }
 }

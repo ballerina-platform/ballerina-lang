@@ -61,6 +61,7 @@ public class ResourceSignatureValidator {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) resourceNode.getAnnotationAttachments();
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
+        List<String> paramSegments = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG) &&
@@ -76,8 +77,7 @@ public class ResourceSignatureValidator {
             return;
         }
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                    .getValue().equals("webSocketUpgrade")) {
+            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals("webSocketUpgrade")) {
                 if (annVals.size() > 1) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                        "Invalid configurations for WebSocket upgrade resource");
@@ -97,19 +97,10 @@ public class ResourceSignatureValidator {
 
             // Resource config path validation
             if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(ANN_RESOURCE_ATTR_PATH)) {
-                List<String> paramSegments = new ArrayList<>();
                 DiagnosticPos position = keyValue.getValue().getPosition();
-                String[] segments = keyValue.getValue().toString().split("/"); //check for null
+                String[] segments = keyValue.getValue().toString().split("/");
                 for (String segment : segments) {
                     validatePathSegment(segment, position, dlog, paramSegments);
-                }
-
-                // Validate path param names and signature
-                List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
-                if (parameters.size() > 2 && paramSegments.stream().allMatch(pathParam -> parameters.stream()
-                        .anyMatch(parameter -> pathParam.equalsIgnoreCase(parameter.getName().getValue())))) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                       "Mismatching path param(s) in the resource signature");
                 }
             }
 
@@ -117,21 +108,31 @@ public class ResourceSignatureValidator {
             if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(ANN_RESOURCE_ATTR_BODY)) {
                 List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
                 String bodyFieldValue = keyValue.getValue().toString();
+                // Data binding param should be placed as the last signature param
                 String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
                 if (bodyFieldValue.isEmpty()) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
-                                       "Invalid data binding param value");
+                                       "Empty data binding param value");
 
-                } else if (!signatureBodyParam.equalsIgnoreCase(bodyFieldValue)) {
+                } else if (!signatureBodyParam.equals(bodyFieldValue)) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
                                        "Invalid data binding param in the signature : expected '" +
                                                bodyFieldValue + "' as param name, but found '" +
-                                               signatureBodyParam + " in the resource signature");
+                                               signatureBodyParam + "' in the resource signature");
                 }
+                paramSegments.add(bodyFieldValue);
             }
 
         }
 
+        // Validate path param names and signature
+        List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
+                COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
+        if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
+                .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "Mismatching path param(s) in the resource signature");
+        }
     }
 
     private static void validatePathSegment(String segment, DiagnosticPos pos, DiagnosticLog dlog,

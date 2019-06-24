@@ -11,7 +11,7 @@ service helloWorldResourceConfig on helloEP {
         methods: ["GET"],
         path: "/{name}/}ag"
     }
-    resource function sayHello0(http:Caller caller, http:Request req, string name1) {
+    resource function sayHello0(http:Caller caller, http:Request req) {
     }
 
     @http:ResourceConfig {

@@ -103,6 +103,7 @@ public class HttpFiltersDesugar {
     private static final String HTTP_FILTERCONTEXT_VAR = "filterContext";
     private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
     private static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
+    private static final String ANN_RESOURCE_ATTR_PATH = "path";
     private static final String ANN_RESOURCE_PARAM_ORDER_CONFIG = "ParamOrderConfig";
     private static final String ANN_RECORD_PARAM_ORDER_CONFIG = "HttpParamOrderConfig";
     private static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
@@ -144,183 +145,21 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment
      */
     void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
-        BLangSimpleVariable endpoint;
+        if (isHttpResource(resourceNode)) {
+            addFilterStatements(resourceNode, env);
+        }
+    }
+
+    private boolean isHttpResource(BLangFunction resourceNode) {
         if (resourceNode.requiredParams.size() >= 2) {
-            endpoint = resourceNode.requiredParams.get(0);
+            BLangSimpleVariable endpoint = resourceNode.requiredParams.get(0);
             if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
                     endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
                     endpoint.type.tsymbol.name.value)) {
-                addFilterStatements(resourceNode, env);
+                return true;
             }
         }
-    }
-
-    /**
-     * Check if the resource is an http resource and apply filter.
-     *
-     * @param resourceNode The resource to apply filter on if it is http
-     * @param env          the symbol environment
-     */
-    void addCustomAnnotationToResource(BLangFunction resourceNode, SymbolEnv env) {
-        BLangSimpleVariable endpoint;
-        if (resourceNode.requiredParams.size() >= 2) {
-            endpoint = resourceNode.requiredParams.get(0);
-            if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
-                    endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
-                    endpoint.type.tsymbol.name.value)) {
-                addOrderParamConfig(resourceNode, env);
-            }
-        }
-    }
-
-    private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
-        for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
-            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue())) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
-                        ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
-                for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
-                    if (checkMatchingConfigKey(keyValue, "path")) {
-                        if (checkForPathParam(resourceNode.getParameters(), keyValue.getValue())) {
-                            addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    private boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
-        return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
-    }
-
-    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
-        DiagnosticPos pos = resourceNode.pos;
-        BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
-        resourceNode.addAnnotationAttachment(annoAttachment);
-        BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
-                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
-
-        if (annSymbol instanceof BAnnotationSymbol) {
-            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
-        }
-        IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-        if (identifierNode instanceof BLangIdentifier) {
-            annoAttachment.annotationName = (BLangIdentifier) identifierNode;
-        }
-
-        annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
-        annoAttachment.pos = pos;
-        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        annoAttachment.expr = literalNode;
-        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        pkgAlias.setValue(PACKAGE_NAME);
-        annoAttachment.pkgAlias = pkgAlias;
-        annoAttachment.attachPoints.add(AttachPoint.RESOURCE);
-        literalNode.pos = pos;
-        BStructureTypeSymbol bStructSymbol;
-        BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
-                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
-        if (annTypeSymbol instanceof BStructureTypeSymbol) {
-            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.type = bStructSymbol.type;
-        }
-
-        // Create pathParamOrder record literal
-        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
-                TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(pathParamOrderKeyValue);
-
-        BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        keyLiteral.value = ANN_FIELD_PATH_PARAM_ORDER;
-        keyLiteral.type = symTable.stringType;
-
-        BLangRecordLiteral paramOrderLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        paramOrderLiteralNode.type = new BMapType(TypeTags.MAP, symTable.intType, symTable.mapType.tsymbol);
-
-        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
-
-        getParamMapper(resourceNode.getParameters(), value.toString()).forEach((paramName, paramIndex) -> {
-            // Create a new literal for the key.
-            BLangLiteral paramKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            paramKeyLiteral.value = paramName;
-            paramKeyLiteral.type = symTable.stringType;
-
-            // Create a new literal for the value.
-            BLangLiteral paramValueLiteral = new BLangLiteral();
-            paramValueLiteral.value = Long.valueOf(paramIndex);
-            paramValueLiteral.type = symTable.intType;
-
-            // Create a new key-value.
-            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
-            pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
-            pathParamOrderEntry.valueExpr = paramValueLiteral;
-            paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
-        });
-    }
-
-    private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
-        HashMap<String, Integer> mapper = new HashMap<>();
-        int startIndex = 0;
-        for (int pointerIndex = 0; pointerIndex < path.length(); pointerIndex++) {
-            char ch = path.charAt(pointerIndex);
-            switch (ch) {
-                case '{':
-                    startIndex = pointerIndex + 1;
-                    break;
-                case '}':
-                    String token = path.substring(startIndex, pointerIndex);
-                    for (int i = 2; i < parameters.size(); i++) {
-                        if (parameters.get(i).getName().getValue().equalsIgnoreCase(token)) {
-                            mapper.put(token, i);
-                            break;
-                        }
-                    }
-                    break;
-            }
-        }
-        return mapper;
-    }
-
-    /**
-     * Return the symbol associated with the given name in the give package regardless of its package visibility.
-     *
-     * @param symResolver symbol resolver
-     * @param pos         symbol position
-     * @param env         current symbol environment
-     * @param pkgAlias    package alias
-     * @param name        symbol name
-     * @param expSymTag   expected symbol type/tag
-     * @return resolved symbol
-     */
-    private BSymbol lookupSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
-                                          Name pkgAlias, Name name, int expSymTag) {
-        // 1) Look up the current package if the package alias is empty.
-        if (pkgAlias == Names.EMPTY) {
-            return symResolver.lookupSymbol(env, name, expSymTag);
-        }
-
-        // 2) Retrieve the package symbol first
-        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-
-        // 3) Look up the package scope without considering the access modifier.
-        Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
-                return entry.symbol;
-            }
-            entry = entry.next;
-        }
-        return symTable.notFoundSymbol;
-    }
-
-    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
-        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
+        return false;
     }
 
     private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
@@ -552,5 +391,167 @@ public class HttpFiltersDesugar {
         return ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.stream().filter(func -> {
             return FILTER_REQUEST_FUNCTION.equals(func.funcName.value);
         }).findFirst().get().symbol;
+    }
+
+    /**
+     * Check if the resource is an http resource and inject ParamOrderConfig annotation.
+     *
+     * @param resourceNode The resource to inject annotation
+     * @param env          the symbol environment
+     */
+    void addCustomAnnotationToResource(BLangFunction resourceNode, SymbolEnv env) {
+        if (isHttpResource(resourceNode)) {
+            addOrderParamConfig(resourceNode, env);
+        }
+    }
+
+    private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
+        for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
+            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue())) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
+                        ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+                    if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
+                        if (checkForPathParam(resourceNode.getParameters(), keyValue.getValue())) {
+                            addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
+        return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
+    }
+
+    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
+        DiagnosticPos pos = resourceNode.pos;
+        BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        resourceNode.addAnnotationAttachment(annoAttachment);
+        BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
+
+        if (annSymbol instanceof BAnnotationSymbol) {
+            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        }
+        IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
+        if (identifierNode instanceof BLangIdentifier) {
+            annoAttachment.annotationName = (BLangIdentifier) identifierNode;
+        }
+
+        annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
+        annoAttachment.pos = pos;
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annoAttachment.expr = literalNode;
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(PACKAGE_NAME);
+        annoAttachment.pkgAlias = pkgAlias;
+        annoAttachment.attachPoints.add(AttachPoint.RESOURCE);
+        literalNode.pos = pos;
+        BStructureTypeSymbol bStructSymbol;
+        BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
+        if (annTypeSymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
+            literalNode.type = bStructSymbol.type;
+        }
+
+        // Create pathParamOrder record literal
+        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+                TreeBuilder.createRecordKeyValue();
+        literalNode.keyValuePairs.add(pathParamOrderKeyValue);
+
+        BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        keyLiteral.value = ANN_FIELD_PATH_PARAM_ORDER;
+        keyLiteral.type = symTable.stringType;
+
+        BLangRecordLiteral paramOrderLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        paramOrderLiteralNode.type = new BMapType(TypeTags.MAP, symTable.intType, symTable.mapType.tsymbol);
+
+        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
+
+        getParamMapper(resourceNode.getParameters(), value.toString()).forEach((paramName, paramIndex) -> {
+            // Create a new literal for the key.
+            BLangLiteral paramKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            paramKeyLiteral.value = paramName;
+            paramKeyLiteral.type = symTable.stringType;
+
+            // Create a new literal for the value.
+            BLangLiteral paramValueLiteral = new BLangLiteral();
+            paramValueLiteral.value = Long.valueOf(paramIndex);
+            paramValueLiteral.type = symTable.intType;
+
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
+            pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
+            pathParamOrderEntry.valueExpr = paramValueLiteral;
+            paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
+        });
+    }
+
+    private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
+        HashMap<String, Integer> mapper = new HashMap<>();
+        int startIndex = 0;
+        for (int pointerIndex = 0; pointerIndex < path.length(); pointerIndex++) {
+            char ch = path.charAt(pointerIndex);
+            switch (ch) {
+                case '{':
+                    startIndex = pointerIndex + 1;
+                    break;
+                case '}':
+                    String token = path.substring(startIndex, pointerIndex);
+                    for (int i = 2; i < parameters.size(); i++) {
+                        if (parameters.get(i).getName().getValue().equals(token)) {
+                            mapper.put(token, i);
+                            break;
+                        }
+                    }
+                    break;
+            }
+        }
+        return mapper;
+    }
+
+    /**
+     * Return the symbol associated with the given name in the give package regardless of its package visibility.
+     *
+     * @param symResolver symbol resolver
+     * @param pos         symbol position
+     * @param env         current symbol environment
+     * @param pkgAlias    package alias
+     * @param name        symbol name
+     * @param expSymTag   expected symbol type/tag
+     * @return resolved symbol
+     */
+    private BSymbol lookupSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
+                                          Name pkgAlias, Name name, int expSymTag) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return symResolver.lookupSymbol(env, name, expSymTag);
+        }
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope without considering the access modifier.
+        Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
     }
 }

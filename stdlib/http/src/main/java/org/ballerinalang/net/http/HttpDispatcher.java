@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -50,6 +51,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
+import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -167,7 +169,7 @@ public class HttpDispatcher {
         paramValues[paramIndex++] = true;
         paramValues[paramIndex++] = inRequest;
         paramValues[paramIndex] = true;
-        if (signatureParams.getParamCount() == 2) {
+        if (signatureParams.getParamCount() == COMPULSORY_PARAM_COUNT) {
             return paramValues;
         }
 
@@ -177,17 +179,34 @@ public class HttpDispatcher {
 
         for (Object paramName : pathParamOrder.getKeys()) {
             String argumentValue = resourceArgumentValues.getMap().get(paramName.toString());
-            if (argumentValue != null) {
-                try {
-                    argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // we can simply ignore and send the value to application and let the
-                    // application deal with the value.
-                }
+            try {
+                argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // we can simply ignore and send the value to application and let the
+                // application deal with the value.
             }
-            paramIndex = ((Long) pathParamOrder.get(paramName)).intValue() * 2;
-            paramValues[paramIndex++] = argumentValue;
-            paramValues[paramIndex] = true;
+            int actualSignatureParamIndex = ((Long) pathParamOrder.get(paramName)).intValue();
+            paramIndex = actualSignatureParamIndex * 2;
+            BType signatureParamType = signatureParams.getPathParamTypes().get(
+                    actualSignatureParamIndex - COMPULSORY_PARAM_COUNT);
+            try {
+                switch (signatureParamType.getTag()) {
+                    case TypeTags.INT_TAG:
+                        paramValues[paramIndex++] = Long.parseLong(argumentValue);
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        paramValues[paramIndex++] = Double.parseDouble(argumentValue);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        paramValues[paramIndex++] = Boolean.parseBoolean(argumentValue);
+                        break;
+                    default:
+                        paramValues[paramIndex++] = argumentValue;
+                }
+                paramValues[paramIndex] = true;
+            } catch (Exception ex) {
+                throw new BallerinaConnectorException("Error in casting path param : " + ex.getMessage());
+            }
         }
 
         if (signatureParams.getEntityBody() == null) {

@@ -149,9 +149,9 @@ public type ServiceResourceAuth record {|
 # The annotation which is used to configure an HTTP resource.
 public annotation <resource> ResourceConfig HttpResourceConfig;
 
-# Path param order config keep the param index against the variable names for runtime path param processing.
+# Path param order config keep the signature path param index against the variable names for runtime path param processing.
 #
-# + pathParamOrder - Specifies index of param against the param variable name
+# + pathParamOrder - Specifies index of signature path param against the param variable name
 type HttpParamOrderConfig record {|
     map<int> pathParamOrder = {};
 |};

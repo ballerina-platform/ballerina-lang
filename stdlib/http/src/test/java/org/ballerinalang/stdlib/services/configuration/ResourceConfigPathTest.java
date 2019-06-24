@@ -36,18 +36,19 @@ public class ResourceConfigPathTest {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-config-path-field.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
-        Assert.assertEquals(diag.length, 11);
+        Assert.assertEquals(diag.length, 12);
         assertResponse(diag[0], "Illegal closing brace detected in resource path config", 12);
         assertResponse(diag[1], "Illegal closing brace detected in resource path config", 19);
         assertResponse(diag[2], "Incomplete path param expression", 26);
         assertResponse(diag[3], "Incomplete path param expression", 34);
         assertResponse(diag[4], "Invalid param expression in resource path config", 42);
         assertResponse(diag[5], "Invalid param expression in resource path config", 50);
-        assertResponse(diag[6], "Illegal expression in resource path config", 58);
-        assertResponse(diag[7], "Illegal closing brace detected in resource path config", 66);
-        assertResponse(diag[8], "Illegal closing brace detected in resource path config", 74);
-        assertResponse(diag[9], "Illegal open brace character in resource path config", 82);
-        assertResponse(diag[10], "Illegal expression in resource path config", 90);
+        assertResponse(diag[6], "Illegal empty expression in resource path config", 50);
+        assertResponse(diag[7], "Illegal expression in resource path config", 58);
+        assertResponse(diag[8], "Illegal closing brace detected in resource path config", 66);
+        assertResponse(diag[9], "Illegal closing brace detected in resource path config", 74);
+        assertResponse(diag[10], "Illegal open brace character in resource path config", 82);
+        assertResponse(diag[11], "Illegal expression in resource path config", 90);
     }
 
     @Test
@@ -55,13 +56,21 @@ public class ResourceConfigPathTest {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
-        Assert.assertEquals(diag.length, 1);
-        assertResponse(diag[0], "Illegal closing brace detected in resource path config", 12);
-
+        Assert.assertEquals(diag.length, 8);
+        assertResponse(diag[0], "Mismatching path param(s) in the resource signature", 10);
+        assertResponse(diag[1], "Mismatching path param(s) in the resource signature", 18);
+        assertResponse(diag[2], "Mismatching path param(s) in the resource signature", 43);
+        assertResponse(diag[3], "Empty data binding param value", 46);
+        assertResponse(diag[4], "Invalid data binding param in the signature : expected 'naMe' as param name, " +
+                "but found 'name' in the resource signature", 55);
+        assertResponse(diag[5], "Mismatching path param(s) in the resource signature", 61);
+        assertResponse(diag[6], "Invalid data binding param in the signature : expected 'naMe' as param name, " +
+                "but found 'name' in the resource signature", 63);
+        assertResponse(diag[7], "Mismatching path param(s) in the resource signature", 69);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {
         Assert.assertEquals(diag.getMessage(), msg);
-        Assert.assertEquals(diag.getPosition().getEndLine(), line);
+        Assert.assertEquals(diag.getPosition().getStartLine(), line);
     }
 }
