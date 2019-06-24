@@ -124,6 +124,8 @@ public abstract class LSCompletionProvider {
             BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
+            } else if (bSymbol instanceof BConstantSymbol) {
+                completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
                 completionItems.add(
@@ -133,8 +135,6 @@ public abstract class LSCompletionProvider {
                 // Here skip all the package symbols since the package is added separately
                 completionItems.add(
                         BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
-            } else if (bSymbol instanceof BConstantSymbol) {
-                completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
             }
         });
         return completionItems;
@@ -509,7 +509,7 @@ public abstract class LSCompletionProvider {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(bSymbol.getName().getValue());
         completionItem.setInsertText(bSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).type, context));
+        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalType, context));
         completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
         completionItem.setKind(CompletionItemKind.Variable);
 
