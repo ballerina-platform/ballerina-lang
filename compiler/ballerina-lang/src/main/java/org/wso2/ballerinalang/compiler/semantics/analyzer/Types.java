@@ -80,6 +80,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -2478,6 +2479,11 @@ public class Types {
 
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sourceType, targetType);
         }
     }
 

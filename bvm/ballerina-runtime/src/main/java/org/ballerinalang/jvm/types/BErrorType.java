@@ -78,4 +78,8 @@ public class BErrorType extends BType {
 
         return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
     }
+
+    public BType getDetailType() {
+        return detailType;
+    }
 }

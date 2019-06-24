@@ -84,7 +84,7 @@ type Person4 object {
 
     function __init() returns FooErr|BarErr {
         self.name = "";
-        FooErr e = error("Foo Error", {f:"foo"});
+        FooErr e = error("Foo Error", f = "foo");
         return e;
     }
 };

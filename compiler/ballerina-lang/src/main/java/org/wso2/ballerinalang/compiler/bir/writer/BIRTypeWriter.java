@@ -255,7 +255,8 @@ public class BIRTypeWriter implements TypeVisitor {
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
         Set<Map.Entry<Name, Scope.ScopeEntry>> recordSymbols = tsymbol.scope.entries.entrySet();
 
-        buff.writeInt(recordSymbols.size() - 1); // recordSymbols = 1 initializer + n fields
+        int numFields = recordSymbols.size() - 1;
+        buff.writeInt(numFields > 0 ? numFields : 0); // recordSymbols = 1 initializer + n fields
         for (Map.Entry<Name, Scope.ScopeEntry> entry : recordSymbols) {
             BSymbol symbol = entry.getValue().symbol;
             String fieldName = entry.getKey().value;
