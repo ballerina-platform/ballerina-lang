@@ -114,16 +114,16 @@ function createStreamingConstruct() {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns anydata {
-            return getGroupByField(<int>e.data["inputStream.age"]);
+            return getGroupByField(<int>e.get("inputStream.age"));
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
             streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
             // got rid of type casting
             return {
-                "name": e.data["inputStream.name"],
-                "age": e.data["inputStream.age"],
-                "sumAge": getAge(<int>sumAggregator1.process(e.data["inputStream.age"], e.eventType)),
+                "name": e.get("inputStream.name"),
+                "age": e.get("inputStream.age"),
+                "sumAge": getAge(<int>sumAggregator1.process(e.get("inputStream.age"), e.eventType)),
                 "count": countAggregator1.process((), e.eventType)
             };
         }

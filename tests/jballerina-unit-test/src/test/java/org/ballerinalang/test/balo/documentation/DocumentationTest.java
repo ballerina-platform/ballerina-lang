@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 /**
  * Test cases for Documentation in BALO.
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class DocumentationTest {
 
     private CompileResult result;

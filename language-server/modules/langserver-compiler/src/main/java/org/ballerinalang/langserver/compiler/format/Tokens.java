@@ -42,6 +42,10 @@ public class Tokens {
     public static final String DOT = ".";
     public static final String ELVIS = "?:";
     public static final String STAR = "*";
+    public static final String NOT = "!";
+    public static final String BIT_COMPLEMENT = "~";
+    public static final String SUB = "-";
+    public static final String ADD = "+";
 
     // Keywords.
     public static final String VAR = "var";
@@ -104,5 +108,7 @@ public class Tokens {
     public static final String ONABORT = "onabort";
     public static final String ONCOMMIT = "oncommit";
     public static final String TRAP = "trap";
+    public static final String TYPEOF = "typeof";
+    public static final String UNTAINT = "untaint";
     public static final String NEW = "new";
 }

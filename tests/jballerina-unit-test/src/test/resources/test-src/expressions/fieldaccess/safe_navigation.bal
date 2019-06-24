@@ -53,20 +53,20 @@ function testErrorInFirstVar () returns any|error {
     return x;
 }
 
-function testNilInMiddle () returns (any|error, any|error) {
+function testNilInMiddle () returns [any|error, any|error] {
     Info inf = {address2 : ()};
     Person prsn = {info2 : inf};
     Person|() p = prsn;
     string|error|() x = p.info1!address1!city;
     string|error|() y = p.info2.address2.city;
-    return (x, y);
+    return [x, y];
 }
 
-function testNilInFirstVar () returns (any|error, any|error) {
+function testNilInFirstVar () returns [any|error, any|error] {
     Person|() p = ();
     string|error|() x = p.info1!address1!city;
     string|error|() y = p.info2.address2.city;
-    return (x, y);
+    return [x, y];
 }
 
 function testSafeNavigatingNilJSON_1 () returns any {
@@ -173,7 +173,7 @@ function testSafeNavigateOnJSONArrayOfArray() returns json {
     return j.values[0][1];
 }
 
-function testJSONNilLiftingOnLHS_1() returns (json, json, json, json) {
+function testJSONNilLiftingOnLHS_1() returns [json, json, json, json] {
     json j1 = {};
     j1.info["address1"].city = "Colombo";
 
@@ -186,7 +186,7 @@ function testJSONNilLiftingOnLHS_1() returns (json, json, json, json) {
     json j4 = {};
     j4.info["address4"].city = "Jaffna";
 
-    return (j1, j2, j3, j4);
+    return [j1, j2, j3, j4];
 }
 
 function testJSONNilLiftingOnLHS_2() returns json {
@@ -253,11 +253,11 @@ function testMapInRecordNilLiftingOnLHS_2() returns A? {
     return a;
 }
 
-function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json, string, string[]) {
+function testFunctionInvocOnJsonNonExistingField (json inputJson) returns [json, string, string[]] {
     json j = {name:"John"};
     string s = j.foo.bar.toString();
     string[] keys = j.foo.bar.getKeys();
-    return (j, s, keys);
+    return [j, s, keys];
 }
 
 type Student object {
