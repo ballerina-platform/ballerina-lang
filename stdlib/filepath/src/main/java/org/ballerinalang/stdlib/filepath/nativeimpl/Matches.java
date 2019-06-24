@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.filepath.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
@@ -48,8 +48,9 @@ public class Matches extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
-        String pattern = context.getStringArgument(1);
+    }
+
+    public static Object matches(Strand strand, String inputPath, String pattern) {
         FileSystem fs = FileSystems.getDefault();
         PathMatcher matcher;
         try {
@@ -59,13 +60,11 @@ public class Matches extends BlockingNativeCallableUnit {
                 matcher = fs.getPathMatcher(pattern);
             }
         } catch (PatternSyntaxException ex) {
-            context.setReturnValues(Utils.getPathError("INVALID_PATTERN", ex));
-            return;
+            return Utils.getPathError("INVALID_PATTERN", ex);
         }
         if (inputPath == null) {
-            context.setReturnValues(new BBoolean(Boolean.FALSE));
-            return;
+            return false;
         }
-        context.setReturnValues(new BBoolean(matcher.matches(Paths.get(inputPath))));
+        return matcher.matches(Paths.get(inputPath));
     }
 }
