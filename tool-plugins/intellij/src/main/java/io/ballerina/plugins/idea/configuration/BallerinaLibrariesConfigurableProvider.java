@@ -33,7 +33,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService;
 import io.ballerina.plugins.idea.project.BallerinaProjectLibrariesService;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,7 +116,7 @@ public class BallerinaLibrariesConfigurableProvider extends ConfigurableProvider
             protected List<UnnamedConfigurable> createConfigurables() {
                 List<UnnamedConfigurable> result = ContainerUtil.newArrayList();
                 String[] urlsFromEnv =
-                        ContainerUtil.map2Array(BallerinaSdkUtil.getBallerinaPathsRootsFromEnvironment(), String.class,
+                        ContainerUtil.map2Array(BallerinaSdkUtils.getBallerinaPathsRootsFromEnvironment(), String.class,
                                 VirtualFile::getUrl);
                 result.add(new BallerinaLibrariesConfigurable("Global libraries",
                         BallerinaApplicationLibrariesService.getInstance(), urlsFromEnv));

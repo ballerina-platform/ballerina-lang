@@ -25,12 +25,12 @@ public function main() {
     string firstName;
     int personAge;
     map<anydata|error> otherDetails = {};
-    // This record destructure binding pattern will destructure a `record` of type `Person` and assign the values
+    // This record destructure binding pattern will destructure a `record` of the type `Person` and assign the values
     // to three variable references as follows:
     // The value of the field `name` in the `Person` record will be assigned to the variable `firstName`.
     // The value of the field `age` in the `Person` record will be assigned to the variable `personAge`.
     // `...otherDetails` is a rest parameter. Since `Person` is an open record, the remaining field values that have
-    // not been matched in the record binding pattern, will be assigned as a `map<anydata|error>` to the variable
+    // not been matched in the record binding pattern will be assigned as a `map<anydata|error>` to the variable
     // `otherDetails`.
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
@@ -39,8 +39,8 @@ public function main() {
 
     string name;
     int age;
-    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the same name as the field.
-    // i.e. {name, age} is same as {name: name, age: age}.
+    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the same name as the field
+    // i.e., {name, age} is same as {name: name, age: age}.
     // Since a rest parameter is not given, all remaining fields are ignored.
     { name, age } = getPerson();
     io:println("Name: " + name);
@@ -48,7 +48,7 @@ public function main() {
 
     string empName;
     int empAge;
-    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
+    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`. Hence,
     // `Employee` should be a closed record.
     {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);

@@ -6,7 +6,7 @@ channel<xml> xmlChn = new;
 public function main() {
     worker w1 {
         int i = 100;
-        float k = 2.34;(i, k)->w2  ;
+        float k = 2.34;[i, k]->w2  ;
 
         json j = {
         };
@@ -22,9 +22,9 @@ public function main() {
     worker w2 {
         int iw;
         float kw;
-          (int, float) vW1 = (0, 1.0);
+          [int, float] vW1 = [0, 1.0];
             vW1 = <- w1;
-          (iw, kw) = vW1;
+          [iw, kw] = vW1;
 
         json jw = { "name": "Ballerina" };jw -> w1;
 

@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,6 +98,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
 
         public BLangTupleLiteral() {
             super();
+            this.exprs = new ArrayList<>();
         }
 
         public BLangTupleLiteral(DiagnosticPos pos, List<BLangExpression> exprs, BType tupleType) {

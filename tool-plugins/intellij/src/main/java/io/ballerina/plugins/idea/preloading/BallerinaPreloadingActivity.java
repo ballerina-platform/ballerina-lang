@@ -27,7 +27,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -36,6 +36,8 @@ import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandSe
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOperatingSystem;
 
 /**
@@ -44,8 +46,6 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaPreloadingActivity.class);
-    private static final String BALLERINA_SOURCE_PATH = "lib/repo";
-    private static final String LAUNCHER_SCRIPT_PATH = "lib/tools/lang-server/launcher";
 
     /**
      * Preloading of the ballerina plugin.
@@ -90,7 +90,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static boolean registerServerDefinition(Project project) {
 
-        BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
+        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
         if (balSdk.hasLangServerSupport()) {
             return doRegister(balSdk.getSdkPath());
         }
@@ -119,11 +119,11 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     }
 
     private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
-        BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
+        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
         if (balSdk.getSdkPath() == null) {
             return;
         }
-        Path balxPath = Paths.get(balSdk.getSdkPath(), BALLERINA_SOURCE_PATH);
+        Path balxPath = Paths.get(balSdk.getSdkPath(), BALLERINAX_SOURCE_PATH);
         if (balxPath.toFile().isDirectory()) {
             if (status == ProjectStatus.OPENED) {
                 BallerinaPathModificationTracker.addPath(balxPath.toString());
