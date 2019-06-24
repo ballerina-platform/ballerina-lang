@@ -738,7 +738,7 @@ public class ObjectTest {
         try {
             BCompileUtil.compile(filePath);
         } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
+            Assert.assertTrue(e.getMessage().contains("jvm code gen phase failed"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");

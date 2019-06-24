@@ -603,7 +603,8 @@ public class BCompileUtil {
                 throw new RuntimeException("Compiled binary jar is not found");
             }
 
-            JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(testJarPath, importsTarget.toFile());
+            JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(testJarPath,
+                                                                                          importsTarget.toFile());
             String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                    bLangPackage.packageID.name.value,
                                                                    MODULE_INIT_CLASS_NAME);
@@ -621,7 +622,6 @@ public class BCompileUtil {
     private static void generateJarBinary(String entryBir, String jarOutputPath,
                                           String birCache1Path, String birCache2Path) {
 
-        //String bootstrapHome = "/media/manu/cd66d0ab-52b1-4647-8d52-1b88a47e9db2/checkout/ballerina-lang/distribution/bootstrapper/build/dist/pack3/ballerina-0.992.0-m1";
         String bootstrapHome = System.getProperty("ballerina.bootstrap.home");
         // TODO: use .bat for windows.
         String[] commands = {
@@ -643,9 +643,9 @@ public class BCompileUtil {
         balProcess.directory(new File("./build"));
         try {
             Process process = balProcess.start();
-            boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
+            boolean processEnded = process.waitFor(60, TimeUnit.SECONDS);
             if (!processEnded) {
-                throw new BLangRuntimeException("failed to generate jar file within 30s.");
+                throw new BLangRuntimeException("failed to generate jar file within 60s.");
             }
             if (process.exitValue() != 0) {
                 throw new BLangRuntimeException("jvm code gen phase failed.");
@@ -662,11 +662,11 @@ public class BCompileUtil {
             throws IOException {
 
         for (BPackageSymbol pkg : imports) {
-            if (pkg.compiledPackage != null) {
+            PackageID id = pkg.pkgID;
+            if (!"ballerina".equals(id.orgName.value)) {
                 writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir);
 
                 byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
-                PackageID id = pkg.pkgID;
                 Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
                                                 .resolve(id.name.value)
                                                 .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);

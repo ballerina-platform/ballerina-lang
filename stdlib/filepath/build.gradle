@@ -30,6 +30,7 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
 
+    baloCreat project(':lib-creator')
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')

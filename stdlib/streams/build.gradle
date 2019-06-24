@@ -40,6 +40,7 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
     implementation project(':ballerina-task')
     implementation project(':ballerina-io')
@@ -59,6 +60,7 @@ dependencies {
     testImplementation 'org.testng:testng:'
     testImplementation 'commons-io:commons-io'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 test {
