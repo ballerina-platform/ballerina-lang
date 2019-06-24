@@ -610,14 +610,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             // Set error reason type.
-            // For var error binding pattern, set reason to string
-            // For error match pattern with error reason const to match, set the reason type to provided reason's type.
+            // For var error binding pattern, set reason type to string.
+            // For error match pattern with const reason, set the reason type to provided const type.
             if (varNode.reasonMatchConst != null) {
                 BTypeSymbol reasonConstTypeSymbol = new BTypeSymbol(SymTag.FINITE_TYPE,
                         Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID, null, this.env.scope.owner);
-                LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
                 varNode.reasonMatchConst.type = symTable.stringType;
                 typeChecker.checkExpr(varNode.reasonMatchConst, env);
+
+                LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
                 members.add(varNode.reasonMatchConst);
                 errorType.reasonType = new BFiniteType(reasonConstTypeSymbol, members);
             } else {

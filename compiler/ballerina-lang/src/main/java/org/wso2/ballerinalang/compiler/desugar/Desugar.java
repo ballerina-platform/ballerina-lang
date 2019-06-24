@@ -2393,7 +2393,7 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-            
+
             if (!enclLocks.isEmpty()) {
                 enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
             }
@@ -2410,7 +2410,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        // If the the variable is not used in lhs, then add a conversion if required. 
+        // If the the variable is not used in lhs, then add a conversion if required.
         // This is done to make the types compatible for narrowed types.
         genVarRefExpr.lhsVar = varRefExpr.lhsVar;
         BType targetType = genVarRefExpr.type;
@@ -4419,11 +4419,6 @@ public class Desugar extends BLangNodeVisitor {
             } else if (NodeKind.ERROR_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createErrorVariableDef(pattern.pos,
                         (BLangErrorVariable) structuredPattern.bindingPatternVariable);
-//                BLangErrorVariable errorVariable = (BLangErrorVariable) structuredPattern.bindingPatternVariable;
-//                if (errorVariable.expectedMatchedReason != null) {
-//                    ifCondition = createErrorReasonMatchCondition(ifCondition, errorVariable);
-//                }
-
             } else {
                 varDefStmt = ASTBuilderUtil
                         .createVariableDef(pattern.pos, (BLangSimpleVariable) structuredPattern.bindingPatternVariable);
@@ -4451,34 +4446,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
         return ifNode;
     }
-
-//    private BLangExpression createErrorReasonMatchCondition(BLangExpression ifCondition,
-//                                                            BLangErrorVariable errorVariable) {
-//        BLangSimpleVarRef expectedReasonRef =
-//                ASTBuilderUtil.createVariableRef(errorVariable.pos, errorVariable.expectedMatchedReason);
-//        BLangExpression reasonToMatch = addConversionExprIfRequired(expectedReasonRef, errorVariable.reason.type);
-//
-//        BLangSimpleVarRef errorReasonRef =
-//                ASTBuilderUtil.createVariableRef(errorVariable.pos, errorVariable.reason.symbol);
-//
-//        BLangBinaryExpr reasonEqualityCheck = ASTBuilderUtil.createBinaryExpr(errorVariable.pos,
-//                errorReasonRef,
-//                reasonToMatch,
-//                symTable.booleanType,
-//                OperatorKind.EQUAL,
-//                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-//                        symTable.stringType,
-//                        symTable.stringType));
-//
-//        return ASTBuilderUtil.createBinaryExpr(errorVariable.pos,
-//                ifCondition,
-//                reasonEqualityCheck,
-//                symTable.booleanType,
-//                OperatorKind.AND,
-//                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
-//                        symTable.booleanType,
-//                        symTable.booleanType));
-//    }
 
     private BLangBlockStmt getMatchPatternBody(BLangMatchBindingPatternClause pattern,
                                                BLangSimpleVariable matchExprVar) {
@@ -4545,7 +4512,7 @@ public class Desugar extends BLangNodeVisitor {
 
     BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         if (lhsType.tag == TypeTags.NONE) {
-            return expr; 
+            return expr;
         }
 
         BType rhsType = expr.type;
