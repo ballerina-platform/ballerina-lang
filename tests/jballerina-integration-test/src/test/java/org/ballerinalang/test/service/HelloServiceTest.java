@@ -51,7 +51,7 @@ public class HelloServiceTest extends BaseTest {
     }
 
     @Test(description = "Test hello world service")
-    public void testSendBeforeReceive() throws IOException {
+    public void testHello() throws IOException {
 
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(SERVICE_PORT,
                 "hello/chamil"));
