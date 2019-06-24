@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -41,16 +40,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class LogError extends AbstractLogFunction {
 
-    public void execute(Context ctx) {
-        logMessage(ctx, BLogLevel.ERROR, (pkg, message) -> {
-            BError err = (BError) ctx.getNullableRefArgument(1);
-            String errorMsg = (err == null) ? "" : " : " + err.stringValue();
-            getLogger(pkg).error(message + errorMsg);
-        });
+    @Override
+    public void execute(Context context) {
     }
 
     public static void printError(Strand strand, Object msg, Object err) {
-        logMessage(msg, BLogLevel.ERROR, (pkg, message) -> {
+        String packagePath = getPackagePath();
+        logMessage(strand, msg, BLogLevel.ERROR, packagePath, (pkg, message) -> {
             String errorMsg = (err == null) ? "" : " : " + err.toString();
             getLogger(pkg).error(message + errorMsg);
         });
