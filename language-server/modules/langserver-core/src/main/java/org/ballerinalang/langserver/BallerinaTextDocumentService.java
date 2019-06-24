@@ -185,9 +185,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
-//            Path hoverFilePath = new LSDocument(fileUri).getPath();
-//            Path compilationPath = getUntitledFilePath(hoverFilePath.toString()).orElse(hoverFilePath);
-//            Optional<Lock> lock = documentManager.lockFile(compilationPath);
             Hover hover;
             try {
                 List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager, lsCompiler,
