@@ -16,7 +16,6 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/birProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -42,6 +41,7 @@ dependencies {
 
     bir project(path: ':ballerina-utils', configuration: 'bir')
     bir project(path: ':ballerina-builtin', configuration: 'bir')
+    birJar project(path: ':ballerina-utils', configuration: 'birJar')
 }
 
 createBalo {

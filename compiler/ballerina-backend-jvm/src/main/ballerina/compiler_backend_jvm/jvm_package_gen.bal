@@ -125,6 +125,10 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
+    if (!isEntry) {
+        return;
+    }
+
     // generate object value classes
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
@@ -247,23 +251,40 @@ function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
         if (pkgFromCache is bir:Package) {
             return (pkgFromCache, true);
         }
-        var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(modId, ".bir")));
-        var mappingPath = calculateBirCachePath(modId, ".map.json");
-        var externalMap = readMap(mappingPath);
-        foreach var (key,val) in externalMap {
-            externalMapCache[key] = val;
+
+        var cacheDir = findCacheDirFor(modId);
+        var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
+        var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
+        internal:Path mappingPath = new(mappingFile);
+        if (mappingPath.exists()) {
+            var externalMap = readMap(mappingFile);
+            foreach var (key,val) in externalMap {
+                externalMapCache[key] = val;
+            }
         }
         compiledPkgCache[orgName + moduleName] = parsedPkg;
         return (parsedPkg, false);
 
 }
 
-function calculateBirCachePath(bir:ModuleID modId, string ext) returns string {
+function findCacheDirFor(bir:ModuleID modId) returns string {
+    foreach var birCacheDir in birCacheDirs {
+        internal:Path birPath = new(calculateBirCachePath(birCacheDir, modId, ".bir"));
+        if (birPath.exists()) {
+            return birCacheDir;
+        }
+    }
+    error e = error(io:sprintf("%s not found in %s", calculateBirCachePath("", modId, ".bir"), birCacheDirs));
+    panic e;
+}
+
+function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ext) returns string {
     string nonEmptyVersion = modId.modVersion;
     if (nonEmptyVersion == "") {
         nonEmptyVersion = "0.0.0";
     }
-    return "../bir-cache/" + modId.org + "/" + modId.name + "/" + nonEmptyVersion + "/" + modId.name + ext;
+
+    return birCacheDir + "/" + modId.org + "/" + modId.name + "/" + nonEmptyVersion + "/" + modId.name + ext;
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
@@ -454,6 +475,11 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     };
 }
 
+// TODO: remove name/org form Package and replace with ModuleID
+function packageToModuleId(bir:Package module) returns bir:ModuleID {
+    return {org : module.org.value, name : module.name.value, modVersion : module.versionValue.value};
+}
+
 // TODO: remove ImportModule type replace with ModuleID
 function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
      return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
@@ -493,18 +519,7 @@ function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) retu
 }
 
 // TODO: this only works for 1000000 byte or less files, get a proper method in stdlib
-function readFileFully(string path) returns byte[] {
-    io:ReadableByteChannel srcCh = io:openReadableFile(path);
-    int readCount;
-    byte[] readContent;
-    (byte[], int)|error result = srcCh.read(1000000);
-    if (result is error) {
-        panic result;
-    } else {
-        (readContent, readCount) = result;
-        return readContent;
-    }
-}
+function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
     return externalMapCache[pkgName + "/" + functionName];
