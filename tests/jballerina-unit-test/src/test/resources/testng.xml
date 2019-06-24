@@ -88,9 +88,6 @@
             <package name="org.ballerinalang.test.expressions.fieldaccess.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
-            <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
-            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
-            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
             <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
