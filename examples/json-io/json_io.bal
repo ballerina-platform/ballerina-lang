@@ -56,13 +56,13 @@ public function main() {
         }
     };
     io:println("Preparing to write json file");
-    // Writes the content.
+    // Writes the `json` content.
     var wResult = write(j1, filePath);
     if (wResult is error) {
         log:printError("Error occurred while writing json: ", err = wResult);
     } else {
         io:println("Preparing to read the content written");
-        // Reads the content.
+        // Reads the `json` content.
         var rResult = read(filePath);
         if (rResult is error) {
             log:printError("Error occurred while reading json: ",
