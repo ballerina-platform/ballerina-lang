@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.database.sql.statement;
 
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;

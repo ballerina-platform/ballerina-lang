@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.stdlib.database.sql;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -29,6 +26,9 @@ import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -387,7 +387,8 @@ public class SQLActionsTest {
                 .contains("execute query failed: unsupported array type for parameter index 0"));
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Test iterating data of a table loaded to memory multiple times")
+    @Test(groups = { CONNECTOR_TEST, "broken" },
+          description = "Test iterating data of a table loaded to memory multiple times")
     public void testSelectLoadToMemory() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
         Assert.assertNotNull(returns);
@@ -397,7 +398,8 @@ public class SQLActionsTest {
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}])");
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Test iterating data of a table loaded to memory after closing")
+    @Test(groups = { CONNECTOR_TEST, "broken" },
+          description = "Test iterating data of a table loaded to memory after closing")
     public void testLoadToMemorySelectAfterTableClose() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
         Assert.assertNotNull(returns);

@@ -22,7 +22,6 @@ import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.SQLStatement;
 import org.ballerinalang.database.sql.statement.SelectStatement;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;

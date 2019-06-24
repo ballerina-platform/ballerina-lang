@@ -67,7 +67,8 @@ public class Call extends AbstractSQLAction {
     public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
             ArrayValue parameters) {
         SQLDatasource datasource = retrieveDatasource(client);
-        SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType, parameters);
+        SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
+                parameters);
         return callStatement.execute();
     }
 }

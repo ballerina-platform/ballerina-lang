@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.stdlib.database.h2;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -75,7 +75,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = { H2_TEST_GROUP, "broken" } )
+    @Test(groups = { H2_TEST_GROUP, "broken" })
     public void testCall() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testCall", args);
@@ -144,7 +144,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
-    @Test(groups = { H2_TEST_GROUP, "broken" } )
+    @Test(groups = { H2_TEST_GROUP, "broken" })
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
