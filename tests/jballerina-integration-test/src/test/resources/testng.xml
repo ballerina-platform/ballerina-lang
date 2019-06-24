@@ -71,7 +71,7 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-    <test name="ballerina-channel-tests" parallel="false">
+    <test name="ballerina-service-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
@@ -79,7 +79,7 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
+            <class name="org.ballerinalang.test.service.HelloServiceTest"/>
         </classes>
     </test>
 
