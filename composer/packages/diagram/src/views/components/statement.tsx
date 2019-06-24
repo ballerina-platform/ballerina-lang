@@ -47,7 +47,7 @@ export const Statement: React.StatelessComponent<{
             expander = <FunctionExpander {...expanderProps}/>;
         }
 
-        if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && !viewState.expandContext.collapsed) {
             if (!viewState.isAction && !viewState.hiddenBlock) {
                 const expandedBBox = {
                     h: viewState.bBox.h,
@@ -63,8 +63,8 @@ export const Statement: React.StatelessComponent<{
                 };
 
                 const onClose = () => {
-                    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
-                        viewState.expandContext.expandedSubTree = undefined;
+                    if (viewState.expandContext) {
+                        viewState.expandContext.collapsed = true;
                     }
                 };
 
@@ -82,7 +82,7 @@ export const Statement: React.StatelessComponent<{
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {!viewState.hiddenBlock && /*!viewState.hidden &&*/
+                {!viewState.hiddenBlock && !viewState.hidden &&
                     <g className="statement"
                     >
                         {viewState.isAction && !viewState.isReturn

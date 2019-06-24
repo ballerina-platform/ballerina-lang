@@ -34,7 +34,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +76,8 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
-    private JsonObject getJsonReply(LSContext astContext, List<BLangPackage> modules) throws JSONGenerationException {
+    private JsonObject getJsonReply(LSContext astContext, List<BLangPackage> modules)
+            throws JSONGenerationException, URISyntaxException {
         JsonObject jsonModules = new JsonObject();
 
         for (BLangPackage module : modules) {
@@ -94,6 +98,11 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             for (BLangCompilationUnit cUnit: module.getCompilationUnits()) {
                 JsonObject jsonCUnit = new JsonObject();
                 jsonCUnit.addProperty("name", cUnit.name);
+                Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));
+                String uri = sourceRoot.resolve(
+                        Paths.get(module.getPosition().getSource().cUnitName,
+                        cUnit.getPosition().getSource().cUnitName)).toUri().toString();
+                jsonCUnit.addProperty("uri", uri);
                 JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
                 jsonCUnit.add("ast", jsonAST);
                 jsonCUnits.add(cUnit.name, jsonCUnit);

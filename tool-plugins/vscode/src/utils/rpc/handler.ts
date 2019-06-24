@@ -7,7 +7,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getAST',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {
-                console.log(args[0], '<-----');
                 return langClient.getAST(args[0]);
             });
         }
@@ -16,7 +15,6 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getProjectAST',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {
-                console.log(args[0], '<-----');
                 return langClient.getProjectAST(args[0]);
             });
         }

@@ -196,7 +196,6 @@ export class ExtendedLangClient extends LanguageClient {
     getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
         return this.sendRequest("textDocument/definition", params)
         .then((res) => {
-            console.log(res);
             const definitions = res as any;
             if(!(definitions.length > 0)) {
                 return Promise.reject();

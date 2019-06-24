@@ -38,14 +38,12 @@ class WebViewRPCHandler {
     }
 
     invokeRemoteMethod(methodName, args, onReply = () => {}) {
-        console.log(methodName, JSON.stringify(args));
         const msg = {
             id: this._sequence,
             methodName: methodName,
             arguments: args,
         }
         this._callbacks[this._sequence] = onReply;
-        console.log(msg)
         vscode.postMessage(msg);
         this._sequence++;
     }
@@ -65,7 +63,6 @@ function getLangClient() {
         isInitialized: true,
         getProjectAST: (params) => {
             return new Promise((resolve, reject) => {
-                console.log(params, "<----")
                 webViewRPCHandler.invokeRemoteMethod('getProjectAST', [params.sourceRoot], (resp) => {
                     resolve(resp);
                 });

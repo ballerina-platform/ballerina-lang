@@ -46,7 +46,6 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         styles,
         bodyCss 
     } = options;
-
     const resourceRoot = getVSCodeResourceURI(getWebViewResourceRoot());
     const nodeModulesRoot = getVSCodeResourceURI(getNodeModulesRoot());
     const externalScripts = jsFiles 

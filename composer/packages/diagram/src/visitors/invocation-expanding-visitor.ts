@@ -40,6 +40,11 @@ function handleEndpointParams(expandContext: ExpandContext) {
 }
 
 function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
+    if (viewState.expandContext) {
+        // The statement is collapsed by the user. No need to process it
+        return;
+    }
+
     let invocation;
     if (ASTKindChecker.isInvocation(expression)) {
             invocation = expression;
@@ -51,10 +56,12 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
         return;
     }
 
-    const expandedFunctionOriginalNode = getExpandedSubTree(invocation);
-    if (!expandedFunctionOriginalNode) {
+    const expandedInfo = getExpandedSubTree(invocation);
+    if (!expandedInfo) {
         return;
     }
+
+    const expandedFunctionOriginalNode = expandedInfo.node;
 
     if (!expandedFunctionOriginalNode.viewState) {
         expandedFunctionOriginalNode.viewState = new FunctionViewState();
@@ -73,11 +80,11 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
     ASTUtil.traversNode(expandedFunction, visitor);
     (expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded = false;
 
-    viewState.expandContext = new ExpandContext(invocation, expandedFunction);
+    viewState.expandContext = new ExpandContext(invocation, expandedFunction, expandedInfo.uri);
     handleEndpointParams(viewState.expandContext);
 }
 
-function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
+function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: string} | undefined {
 
     const definition = (invocation as any).definition;
     if (!definition) {
@@ -97,6 +104,7 @@ function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
     }
 
     let funcNode: BalFunction | undefined;
+    let uri = "";
 
     Object.keys(module.compilationUnits).forEach((cUnitName) => {
         const cUnit = module.compilationUnits[cUnitName];
@@ -105,6 +113,7 @@ function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
 
             if (ASTKindChecker.isFunction(node)) {
                 if (node.name.value === defLink[2][0]) {
+                    uri = cUnit.uri;
                     funcNode = node;
                 }
                 return;
@@ -116,6 +125,7 @@ function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
                 }
 
                 if ((ASTKindChecker.isObjectType(node.typeNode) && defLink[3][1] === "FUNCTION")) {
+                    uri = cUnit.uri;
                     funcNode = node.typeNode.functions.find((fnode) => (
                         `${defLink[2][0]}.${fnode.name.value}` === defLink[3][0]));
                 }
@@ -123,7 +133,14 @@ function getExpandedSubTree(invocation: Invocation): BalFunction | undefined {
         });
     });
 
-    return funcNode;
+    if (!funcNode) {
+        return;
+    }
+
+    return {
+        node: funcNode,
+        uri,
+    };
 }
 
 export function setProjectAST(ast: ProjectAST) {

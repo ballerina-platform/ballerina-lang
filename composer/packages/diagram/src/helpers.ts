@@ -28,7 +28,7 @@ export const renderStaticDiagram = (args: StaticDiagramArgs) => {
 
 export const renderOverview = (args: EditableDiagramArgs) => {
     const overviewProps = {
-        initialCollapsedModules: {},
+        fitToWidthOrHeight: true,
         langClient: args.editorProps.langClient,
         mode: DiagramMode.DEFAULT,
         sourceRoot: args.editorProps.docUri,

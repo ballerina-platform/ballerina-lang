@@ -1,6 +1,6 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Return, VariableDef, Visitor, Service } from "@ballerina/ast-model";
-import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
+    Invocation, Return, Service, VariableDef, Visitor } from "@ballerina/ast-model";
+import { FunctionViewState, StmntViewState } from "../../view-model/index";
 
 const currentState: {
     topLevelNode?: ASTNode | undefined,
