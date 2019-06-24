@@ -20,17 +20,16 @@
 # generic HTTP actions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
-# + config - The configurations associated with the HttpCaller
-public type HttpCaller client object {
+# + config - The configurations associated with the HttpClient
+public type HttpClient client object {
 
     public ClientEndpointConfig config = {};
     public string url;
-    private Client caller;
 
     public function __init(string url, ClientEndpointConfig config) {
         self.config = config;
         self.url = url;
-        self.caller = createSimpleHttpClient(url, self.config, globalHttpClientConnPool);
+        createSimpleHttpClient(self, globalHttpClientConnPool);
     }
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
@@ -40,7 +39,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
-        return nativePost(self.url, self.config, path, <Request>message);
+        return nativePost(self, path, <Request>message);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -50,7 +49,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
-        return nativeHead(self.url, self.config, path, <Request>message);
+        return nativeHead(self, path, <Request>message);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -60,7 +59,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
-        return nativePut(self.url, self.config, path, <Request>message);
+        return nativePut(self, path, <Request>message);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -71,7 +70,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
-        return nativeExecute(self.url, self.config, httpVerb, path, <Request>message);
+        return nativeExecute(self, httpVerb, path, <Request>message);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -81,7 +80,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
-        return nativePatch(self.url, self.config, path, <Request>message);
+        return nativePatch(self, path, <Request>message);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -91,7 +90,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
-        return nativeDelete(self.url, self.config, path, <Request>message);
+        return nativeDelete(self, path, <Request>message);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -101,7 +100,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
-        return nativeGet(self.url, self.config, path, <Request>message);
+        return nativeGet(self, path, <Request>message);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -111,7 +110,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
-        return nativeOptions(self.url, self.config, path, <Request>message);
+        return nativeOptions(self, path, <Request>message);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -120,7 +119,7 @@ public type HttpCaller client object {
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public remote function forward(@sensitive string path, Request request) returns Response|error {
-        return nativeForward(self.url, self.config, path, request);
+        return nativeForward(self, path, request);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -133,7 +132,7 @@ public type HttpCaller client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-        return nativeSubmit(self.url, self.config, httpVerb, path, <Request>message);
+        return nativeSubmit(self, httpVerb, path, <Request>message);
     }
 
     # Retrieves the `Response` for a previously submitted request.
@@ -168,27 +167,27 @@ public type HttpCaller client object {
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-function nativePost(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativePost(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeHead(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativeHead(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativePut(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativePut(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeExecute(string url, ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
+function nativeExecute(HttpClient caller , @sensitive string httpVerb, @sensitive string path,
                                                         Request req) returns Response|error = external;
 
-function nativePatch(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativePatch(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeDelete(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativeDelete(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeGet(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativeGet(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeOptions(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativeOptions(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
-function nativeSubmit(string url, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
+function nativeSubmit(HttpClient caller , @sensitive string httpVerb, string path, Request req)
                                                             returns HttpFuture|error = external;
 
-function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
+function nativeForward(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
 
 # Defines a timeout error occurred during service invocation.
 #
@@ -201,3 +200,7 @@ public type HttpTimeoutError record {|
     int statusCode = 0;
 |};
 
+function createClient(string url, ClientEndpointConfig config) returns HttpClient|error {
+    HttpClient simpleClient = new(url, config);
+    return simpleClient;
+}
