@@ -5273,8 +5273,58 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatUnaryExprNode(JsonObject node) {
-        // TODO: fix formatting for unary expression.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            // Preserve available new lines.
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
+
+            // Iterate and update whitespaces.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals(Tokens.TYPEOF) || text.equals(Tokens.BIT_COMPLEMENT) || text.equals(Tokens.ADD)
+                            || text.equals(Tokens.SUB) || text.equals(Tokens.UNTAINT) || text.equals(Tokens.NOT)) {
+                        if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        }
+                    }
+                }
+            }
+
+            // Handle expression formatting.
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                String operatorKind = node.get("operatorKind").getAsString();
+
+                JsonObject expressionFormatConfig = null;
+                // If operator kind is +, -, !, ~ then no space added to the expression.
+                // Else if operator kind is untaint, typeof then single space added to the expression.
+                if (operatorKind.equals(Tokens.ADD) || operatorKind.equals(Tokens.SUB)
+                        || operatorKind.equals(Tokens.NOT) || operatorKind.equals(Tokens.BIT_COMPLEMENT)) {
+                    expressionFormatConfig = this.getFormattingConfig(0, 0, 0,
+                            false, this.getWhiteSpaceCount(indentationOfParent), true);
+                } else if (operatorKind.equals(Tokens.UNTAINT) || operatorKind.equals(Tokens.TYPEOF)) {
+                    expressionFormatConfig = this.getFormattingConfig(0, 1, 0,
+                            false, this.getWhiteSpaceCount(indentationOfParent), true);
+                }
+
+                if (expressionFormatConfig != null) {
+                    expression.add(FormattingConstants.FORMATTING_CONFIG, expressionFormatConfig);
+                }
+            }
+        }
     }
 
     /**
