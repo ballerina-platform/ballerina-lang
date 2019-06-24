@@ -81,17 +81,19 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const moduleNames: string[] = [];
         const constructNames: string[] = [];
         let selectedAST;
+        let selectedUri = "";
 
         moduleList.forEach((module) => {
             moduleNames.push(module.name);
 
             if (selectedModule === module.name) {
-                module.nodes.forEach((node) => {
-                    const nodeName = (node as any).name.value;
+                module.nodeInfo.forEach((nodeI) => {
+                    const nodeName = (nodeI.node as any).name.value;
                     constructNames.push(nodeName);
 
                     if (selectedConstruct && (nodeName === selectedConstruct)) {
-                        selectedAST = node;
+                        selectedAST = nodeI.node;
+                        selectedUri = nodeI.uri;
                     }
                 });
             }
@@ -117,7 +119,9 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 />
                 <div style={{margin: "80px 15px 5px"}}>
                 <Diagram ast={selectedAST}
+                    langClient={this.props.langClient}
                     projectAst={modules}
+                    docUri={selectedUri}
                     zoom={this.state.zoom} height={0} width={1000}
                     fitToWidthOrHeight={this.state.fitToWidthOrHeight}
                     mode={this.state.mode}>
@@ -128,7 +132,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     private renderModulesList() {
-        const modules = this.getModuleList();
+        const modules = this.getModuleList().map((module) => {
+            return {
+                name: module.name,
+                nodes: module.nodeInfo.map((nodeInfo) => (nodeInfo.node))
+            };
+        });
 
         return <div style={{margin: "15px"}}>
             <List relaxed divided>
@@ -168,20 +177,21 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         );
     }
 
-    private getModuleList(): Array<{name: string, nodes: ASTNode[]}> {
+    private getModuleList(): Array<{name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}> {
         const { modules } = this.state;
-        const moduleList: Array<{name: string, nodes: ASTNode[]}>  = [];
+        const moduleList: Array<{name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}>  = [];
 
         Object.keys(modules).map((moduleName) => {
             const module = modules[moduleName];
-            const newModule: {name: string, nodes: ASTNode[]} = { name: module.name, nodes: [] };
+            const newModule: {name: string, nodeInfo: Array<{node: ASTNode, uri: string}>}
+                = { name: module.name, nodeInfo: [] };
 
             Object.keys(module.compilationUnits).forEach((cUnitName) => {
                 const cUnit = module.compilationUnits[cUnitName];
 
                 cUnit.ast.topLevelNodes.forEach((node) => {
                     if ((node as any).ws && DiagramUtils.isDrawable(node)) {
-                        newModule.nodes.push(node as ASTNode);
+                        newModule.nodeInfo.push({uri: cUnit.uri, node: (node as ASTNode)});
                     }
                 });
             });
@@ -244,7 +254,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
         this.setState({
             selectedConstruct: {
-                constructName: (selectedModule.nodes[0] as any).name.value,
+                constructName: (selectedModule.nodeInfo[0].node as any).name.value,
                 moduleName: props.data.name,
             }
         });

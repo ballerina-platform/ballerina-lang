@@ -28,6 +28,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
 		return ballerinaExtInstance.onReady()
 		.then(() => {
+			debugger;
 			if (!window.activeTextEditor) {
 				return;
 			}
@@ -52,7 +53,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     retainContextWhenHidden: true,
                 }
             );
-        
+
             const editor = window.activeTextEditor;
             if(!editor) {
                 return;

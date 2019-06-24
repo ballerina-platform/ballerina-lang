@@ -16,11 +16,13 @@ export const visitor: Visitor = {
         if (node.viewState) {
             // show all elements
             node.viewState.hidden = false;
+            node.viewState.hiddenBlock = false;
         }
     },
 
     beginVisitVariableDef(node: VariableDef) {
         node.viewState.hidden = false;
+        node.viewState.hiddenBlock = false;
         currentState.statement = node;
     },
 
@@ -31,6 +33,7 @@ export const visitor: Visitor = {
     beginVisitExpressionStatement(node: ExpressionStatement) {
         node.viewState.hidden = false;
         currentState.statement = node;
+        node.viewState.hiddenBlock = false;
     },
 
     endVisitExpressionStatement(node: ExpressionStatement) {
@@ -40,6 +43,7 @@ export const visitor: Visitor = {
     beginVisitAssignment(node: Assignment) {
         node.viewState.hidden = false;
         currentState.statement = node;
+        node.viewState.hiddenBlock = false;
     },
 
     endVisitAssignment(node: Assignment) {

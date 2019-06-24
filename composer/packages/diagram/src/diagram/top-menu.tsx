@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, DropdownItemProps, Menu, Button, Icon } from "semantic-ui-react";
+import { Button, Dropdown, DropdownItemProps, Icon, Menu } from "semantic-ui-react";
 import { DiagramMode } from "./diagram-context";
 
 export interface TopMenuProps {

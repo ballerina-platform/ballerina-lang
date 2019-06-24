@@ -1,6 +1,6 @@
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
-import { getLibraryWebViewContent } from '../utils';
+import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
 
 export function render (context: ExtensionContext, langClient: ExtendedLangClient, sourceRoot: string, retries: number = 1)
         : string {       
@@ -53,7 +53,7 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
         }
     `;
 
-    const script = `
+    const scripts = `
         function loadedScript() {
             window.langclient = getLangClient();
             let sourceRoot = ${JSON.stringify(sourceRoot)};
@@ -72,11 +72,9 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                             langClient: getLangClient()
                         }
                     };
-                    console.log(ballerinaComposer)
                     const diagram = ballerinaComposer.renderOverview(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
                         diagram.updateAST();
-                        console.log("upp")
                         return Promise.resolve({});
                     });
                 } catch(e) {
@@ -100,8 +98,9 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
             enableUndoRedo();
         }
     `;
+    debugger;
 
-    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
+    return getLibraryWebViewContent({...getComposerWebViewOptions(), body, scripts, styles, bodyCss});
 }
 
 export function renderError() {

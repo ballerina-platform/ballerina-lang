@@ -17,7 +17,7 @@ function initStatement(node: ASTNode) {
     }
     // undo previous expandings
     // the same statement may be expanded inside some functions but not in others
-    (node.viewState as StmntViewState).expandContext = undefined;
+    // (node.viewState as StmntViewState).expandContext = undefined;
 }
 
 export const visitor: Visitor = {

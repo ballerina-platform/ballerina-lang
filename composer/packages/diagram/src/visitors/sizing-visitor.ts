@@ -468,7 +468,7 @@ class SizingVisitor implements Visitor {
         if (viewState.expandContext) {
             // add space for the expander
             viewState.bBox.w += 10;
-            if (viewState.expandContext.expandedSubTree) {
+            if (!viewState.expandContext.collapsed && !viewState.hidden && !viewState.hiddenBlock) {
                 viewState.expandContext.labelText = source;
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);

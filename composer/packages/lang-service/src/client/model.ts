@@ -19,6 +19,7 @@ export interface ProjectAST {
             [compilationUnitName: string]: {
                 name: string,
                 ast: BallerinaAST,
+                uri: string,
             }
         }
     };

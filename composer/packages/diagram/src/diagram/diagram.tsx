@@ -1,5 +1,5 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
-import { ProjectAST } from "@ballerina/lang-service";
+import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
@@ -13,18 +13,18 @@ import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
 
-const zoomFactor = 0.1;
-
 export interface CommonDiagramProps {
     height?: number;
     width?: number;
     zoom: number;
     fitToWidthOrHeight: boolean;
     mode: DiagramMode;
+    langClient: IBallerinaLangClient;
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
+    docUri: string;
 }
 
 export interface DiagramState {
@@ -54,8 +54,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const children: React.ReactNode[] = [];
 
         // use default width/height if not provided
-        let diagramWidth = width !== undefined ? width : DefaultConfig.canvas.width;
-        let diagramHeight = height !== undefined ? height : DefaultConfig.canvas.height;
+        const diagramWidth = width !== undefined ? width : DefaultConfig.canvas.width;
+        const diagramHeight = height !== undefined ? height : DefaultConfig.canvas.height;
 
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
         cuViewState.container.w = diagramWidth;
@@ -95,41 +95,18 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     }
 
     private createContext(diagramSize: { w: number, h: number }): IDiagramContext {
-        const { ast } = this.props;
         const { currentMode, currentZoom } = this.state;
         // create context contributions
         const contextContributions: Partial<IDiagramContext> = {
-            ast,
-            changeMode: (newMode: DiagramMode) => {
-                this.setState({
-                    currentMode: newMode,
-                });
-            },
+            ast: this.props.ast,
             containerRef: this.containerRef,
-            diagramHeight: diagramSize.h,
-            diagramWidth: diagramSize.w,
+            docUri: this.props.docUri,
+            langClient: this.props.langClient,
             mode: currentMode,
             update: () => {
                 this.forceUpdate();
             },
-            zoomFit: () => {
-                this.setState({
-                    currentZoom: 1
-                });
-            },
-            zoomIn: () => {
-                this.setState({
-                    currentZoom: this.state.currentZoom + zoomFactor
-                });
-            },
             zoomLevel: currentZoom,
-            zoomOut: () => {
-                if ((this.state.currentZoom - zoomFactor) >= 1) {
-                    this.setState({
-                        currentZoom: this.state.currentZoom - zoomFactor
-                    });
-                }
-            }
         };
 
         // merge with parent (if any) or with default context
