@@ -1,3 +1,3 @@
-// Let's use Ballerina to print "Hello, World!" in parallel using workers.
+// This example uses Ballerina to print "Hello, World!" in parallel using workers.
 // A worker is a sequence of statements that is executed concurrently with all
 // other workers in the function.

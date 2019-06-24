@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/task;
 
-// Define a custom record type to use in timer.
+// Defines a custom record type to use in the timer.
 public type Person record {|
     string name;
     int age;
@@ -10,18 +10,18 @@ public type Person record {|
 |};
 
 public function main() {
-    // Interval in which the timer should trigger.
+    // The interval in which the timer should trigger.
     int interval = 1000;
 
     // Initializes the timer scheduler using the interval value.
-    // The delay will be equal to the interval as we do not provide an initial delay here.
+    // The delay will be equal to the interval as an initial delay is not provided.
     task:Scheduler timer = new({ interval: interval });
 
     // Define a person object
     Person person = { name: "Sam", age: 0, maxAge: 10 };
 
     // Attaching the service to the timer. This will not start the timer.
-    // But it will attach the service to the timer, and also passes the
+    // Hpowever, it will attach the service to the timer and also passes the
     // person object into the timer service.
     // Defaultable `serviceParameter` will pass the object into the resources
     // if it is set.
@@ -37,22 +37,22 @@ public function main() {
         return;
     }
 
-    // Start the timer.
+    // Starts the timer.
     var startResult = timer.start();
     if (startResult is error) {
         io:println("Starting the task is failed.");
         return;
     }
 
-    // While loop will stop function from exiting until the service ends.
+    // While loop will stop the function from exiting until the service ends.
     while (person.age < person.maxAge) {
-        // Wait until person age reaches max age.
+        // Waits until the age of the person reaches the max age.
     }
 
-    // Additional sleep to finish onTrigger function.
+    // Additional sleep to finish the onTrigger function.
     runtime:sleep(1000);
 
-    // Cancel the timer. This will stop the timer and all the services
+    // Cancels the timer. This will stop the timer and all the services
     // attached to it.
     var stopResult = timer.stop();
     if (stopResult is error) {
@@ -63,10 +63,10 @@ public function main() {
     io:println("End.");
 }
 
-// Service which will be attached to the timer.
+// The service, which will be attached to the timer.
 service service1 = service {
-    // onTrigger resource which will trigger when the timer runs off.
-    // Note the usage of Person object passing inside the function, which we
+    // The onTrigger resource, which will trigger when the timer runs off.
+    // The usage of the Person object being passed inside the function, which we
     // attached with the timer.
     resource function onTrigger(Person person) {
         if (person.age < person.maxAge) {

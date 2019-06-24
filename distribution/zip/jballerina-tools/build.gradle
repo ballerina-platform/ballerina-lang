@@ -34,7 +34,12 @@ configurations {
     ballerinaZip {
         transitive false
     }
-    bootstrapper
+    composerDistribution {
+        transitive false
+    }
+    composerFonts {
+        transitive false
+    }
     docerina
     bin
     balSource
@@ -59,7 +64,6 @@ dependencies {
     dist project(':ballerina-jvm')
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
-    dist project(':ballerina-backend-jvm')
     dist project(':ballerina-utils')
     dist project(':ballerina-runtime')
 
@@ -74,7 +78,6 @@ dependencies {
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     docerina project(':docerina-gradle-plugin')
-    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'pack3')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
@@ -87,7 +90,9 @@ dependencies {
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-
+    composerDistribution project(path: ':composer-library', configuration: 'composer')
+    composerFonts project(path: ':composer-library', configuration: 'fonts')
+    
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
@@ -195,6 +200,20 @@ def copyLangServerLibsSpec = {
     }
 }
 
+def copyComposerDistributionSpec = {
+    path -> copySpec {
+        from(configurations.composerDistribution)
+        into(path + 'lib/tools/composer-library')
+    }
+}
+
+def copyComposerFontsSpec = {
+    path -> copySpec {
+        from configurations.composerFonts
+        into(path + 'lib/tools/composer-library')
+    }
+}
+
 def examplesSpec = {
     path -> copySpec {
         from fileTree(project.rootDir.path + '/examples');
@@ -260,6 +279,8 @@ task createZip(type: Zip) {
     with copyLangServerLibsSpec(basePath)
     with copyLangSeverIndexSpec(basePath)
     with copyLangServerBinSpec(basePath)
+    with copyComposerDistributionSpec(basePath)
+    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
@@ -267,7 +288,6 @@ task createZip(type: Zip) {
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
 }
-
 
 task updateBalHome(type: Copy) {
     def installDir = ""
@@ -279,6 +299,8 @@ task updateBalHome(type: Copy) {
     with copyLangServerLibsSpec(installDir)
     with copyLangSeverIndexSpec(installDir)
     with copyLangServerBinSpec(installDir)
+    with copyComposerDistributionSpec(installDir)
+    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
@@ -300,6 +322,8 @@ task createDistribution(type: Copy) {
     with copyLangServerLibsSpec("")
     with copyLangSeverIndexSpec("")
     with copyLangServerBinSpec("")
+    with copyComposerDistributionSpec("")
+    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with apiDocsSpec("")
     with examplesSpec("")

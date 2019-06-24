@@ -708,9 +708,13 @@ public class CommonUtil {
      * @return {@link String}   BType Name as String
      */
     public static String getBTypeName(BType bType, LSContext ctx) {
+        if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
+            return bType.toString();
+        }
         PackageID pkgId = bType.tsymbol.pkgID;
         PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-        String[] nameComponents = bType.toString().split(":");
+        // split to remove the $ symbol appended type name. (For the service types)
+        String[] nameComponents = bType.toString().split("\\$")[0].split(":");
         if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
             return nameComponents[nameComponents.length - 1];
         } else {
@@ -889,10 +893,6 @@ public class CommonUtil {
     }
 
     public static boolean isInvalidSymbol(BSymbol symbol) {
-        // TODO: this is a temp hack to avoid NPE. fix this properly.
-        if (symbol == null) {
-            return true;
-        }
 
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())

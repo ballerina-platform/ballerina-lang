@@ -13,16 +13,16 @@ function testElvisValueTypeNested() returns (int) {
     return b;
 }
 
-function testElvisTupleTypePositive() returns (string, int) {
-    (string, int) | () xT = ("Jack", 23);
-    (string, int) dT = ("default", 0);
+function testElvisTupleTypePositive() returns [string, int] {
+    [string, int] | () xT = ["Jack", 23];
+    [string, int] dT = ["default", 0];
     var rT = xT ?: dT;
     return rT;
 }
 
-function testElvisTupleTypeNegative() returns (string, int) {
-    (string, int) | () xT = ();
-    (string, int) dT = ("default", 0);
+function testElvisTupleTypeNegative() returns [string, int] {
+    [string, int] | () xT = ();
+    [string, int] dT = ["default", 0];
     var rT =
     xT
     ?:

@@ -54,7 +54,9 @@ public class ParseHeaderSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
-        Assert.assertNull(returnVals[1]);
+        Assert.assertTrue(returnVals[1] instanceof BMap);
+        BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
+        Assert.assertTrue(params.isEmpty());
     }
 
     @Test(description = "Test function with single header value and params")
@@ -83,7 +85,9 @@ public class ParseHeaderSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
-        Assert.assertNull(returnVals[1]);
+        Assert.assertTrue(returnVals[1] instanceof BMap);
+        BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
+        Assert.assertTrue(params.isEmpty());
     }
 
     @Test(description = "Test function with extra space in between values and params")
@@ -111,7 +115,9 @@ public class ParseHeaderSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_XML);
-        Assert.assertNull(returnVals[1]);
+        Assert.assertTrue(returnVals[1] instanceof BMap);
+        BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
+        Assert.assertTrue(params.isEmpty());
     }
 
     @Test(description = "Test function with empty header value")
@@ -123,7 +129,9 @@ public class ParseHeaderSuccessTest {
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "");
-        Assert.assertNull(returnVals[1]);
+        Assert.assertTrue(returnVals[1] instanceof BMap);
+        BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
+        Assert.assertTrue(params.isEmpty());
     }
 
     @Test(description = "Test function when param value is optional. i.e 'text/plain;a, application/xml' ")

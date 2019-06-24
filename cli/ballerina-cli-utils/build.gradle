@@ -22,81 +22,89 @@ configurations {
     generatedBalx
 }
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 // Task to generate balx for the pull command.
-task genBalxForPull(type: JavaExec) {
-    dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
+// task genBalxForPull(type: JavaExec) {
+//     dependsOn createBalHome
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
 
-    main 'org.ballerinalang.cli.utils.GenerateBalx'
-    classpath = sourceSets.main.runtimeClasspath
+//     main 'org.ballerinalang.cli.utils.GenerateBalx'
+//     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "$buildDir/generated-balx/packaging_pull"
-    outputs.dir(targetDir)
-    // Do not cache the output
-    outputs.cacheIf { true }
+//     def targetDir = "$buildDir/generated-balx/packaging_pull"
+//     outputs.dir(targetDir)
+//     // Do not cache the output
+//     outputs.cacheIf { true }
 
-    def src = "src/main/ballerina/packaging_pull"
-    def fileName = "packaging_pull.bal"
-    def target = "$targetDir/packaging_pull.balx"
-    args(src, fileName, target)
-}
+//     def src = "src/main/ballerina/packaging_pull"
+//     def fileName = "packaging_pull.bal"
+//     def target = "$targetDir/packaging_pull.balx"
+//     def jvmTarget = true;
+//     args(src, fileName, target, jvmTarget)
+// }
 
-// Task to generate balx for the push command.
-task genBalxForPush(type: JavaExec) {
-    dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
+// // Task to generate balx for the push command.
+// task genBalxForPush(type: JavaExec) {
+//     dependsOn createBalHome
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
-    main 'org.ballerinalang.cli.utils.GenerateBalx'
-    classpath = sourceSets.main.runtimeClasspath
+//     main 'org.ballerinalang.cli.utils.GenerateBalx'
+//     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "$buildDir/generated-balx/packaging_push"
-    outputs.dir(targetDir)
-    // Do not cache the output
-    outputs.cacheIf { true }
+//     def targetDir = "$buildDir/generated-balx/packaging_push"
+//     outputs.dir(targetDir)
+//     // Do not cache the output
+//     outputs.cacheIf { true }
 
-    def src = "src/main/ballerina/packaging_push"
-    def fileName = "packaging_push.bal"
-    def target = "$targetDir/packaging_push.balx"
-    args(src, fileName, target)
-}
+//     def src = "src/main/ballerina/packaging_push"
+//     def fileName = "packaging_push.bal"
+//     def target = "$targetDir/packaging_push.balx"
+//     args(src, fileName, target)
+// }
 
-// Task to generate balx for the search command.
-task genBalxForSearch(type: JavaExec) {
-    dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
+// // Task to generate balx for the search command.
+// task genBalxForSearch(type: JavaExec) {
+//     dependsOn createBalHome
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
-    main 'org.ballerinalang.cli.utils.GenerateBalx'
-    classpath = sourceSets.main.runtimeClasspath
+//     main 'org.ballerinalang.cli.utils.GenerateBalx'
+//     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "$buildDir/generated-balx/packaging_search"
-    outputs.dir(targetDir)
-    // Do not cache the output
-    outputs.cacheIf { true }
+//     def targetDir = "$buildDir/generated-balx/packaging_search"
+//     outputs.dir(targetDir)
+//     // Do not cache the output
+//     outputs.cacheIf { true }
 
-    def src = "src/main/ballerina/packaging_search"
-    def fileName = "packaging_search.bal"
-    def target = "$targetDir/packaging_search.balx"
-    args(src, fileName, target)
-}
+//     def src = "src/main/ballerina/packaging_search"
+//     def fileName = "packaging_search.bal"
+//     def target = "$targetDir/packaging_search.balx"
+//     args(src, fileName, target)
+// }
 
-// Task to generate balx for the token updater.
-task genBalxForTokenUpdater(type: JavaExec) {
-    dependsOn createBalHome
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
+// // Task to generate balx for the token updater.
+// task genBalxForTokenUpdater(type: JavaExec) {
+    
+//     dependsOn createBalHome
+//     systemProperty "ballerina.home", "$buildDir/ballerina-home/main"
 
-    main 'org.ballerinalang.cli.utils.GenerateBalx'
-    classpath = sourceSets.main.runtimeClasspath
+//     main 'org.ballerinalang.cli.utils.GenerateBalx'
+//     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "$buildDir/generated-balx/packaging_token_updater"
-    outputs.dir(targetDir)
-    // Do not cache the output
-    outputs.cacheIf { true }
+//     def targetDir = "$buildDir/generated-balx/packaging_token_updater"
+//     outputs.dir(targetDir)
+//     // Do not cache the output
+//     outputs.cacheIf { true }
 
-    def src = "src/main/ballerina/packaging_token_updater"
-    def fileName = "packaging_token_updater.bal"
-    def target = "$targetDir/packaging_token_updater.balx"
-    args(src, fileName, target)
-}
+//     def src = "src/main/ballerina/packaging_token_updater"
+//     def fileName = "packaging_token_updater.bal"
+//     def target = "$targetDir/packaging_token_updater.balx"
+//     args(src, fileName, target)
+// }
 
 dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
@@ -118,7 +126,6 @@ dependencies {
     baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
-
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(":ballerina-crypto")
@@ -135,12 +142,12 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 }
 
-artifacts {
-    balx file: file("src/main/ballerina/packaging_pull"), builtBy: genBalxForPull
-    balx file: file("src/main/ballerina/packaging_push"), builtBy: genBalxForPush
-    balx file: file("src/main/ballerina/packaging_search"), builtBy: genBalxForSearch
-    balx file: file("src/main/ballerina/packaging_token_updater"), builtBy: genBalxForTokenUpdater
-}
+//artifacts {
+//    balx file: file("src/main/ballerina/packaging_pull"), builtBy: genBalxForPull
+//    balx file: file("src/main/ballerina/packaging_push"), builtBy: genBalxForPush
+//    balx file: file("src/main/ballerina/packaging_search"), builtBy: genBalxForSearch
+//    balx file: file("src/main/ballerina/packaging_token_updater"), builtBy: genBalxForTokenUpdater
+//}
 
 jar {
     from("$buildDir/generated-balx") {
@@ -148,7 +155,7 @@ jar {
     }
 
     // The jar should be created after balxs for push, pull, search and token updater are created.
-    dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
+    //dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
 }
 
 clean {
@@ -156,3 +163,7 @@ clean {
 }
 
 description = 'Ballerina - Cli Utils'
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
