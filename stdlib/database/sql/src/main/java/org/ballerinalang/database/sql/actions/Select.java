@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,7 +44,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "recordType", type = TypeKind.TYPEDESC),
-                @Argument(name = "loadToMemory", type = TypeKind.BOOLEAN),
+                //@Argument(name = "loadToMemory", type = TypeKind.BOOLEAN),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
                           structType = "Param")
         },
@@ -68,13 +69,15 @@ public class Select extends AbstractSQLAction {
         selectStatement.execute();*/
     }
 
-    public static Object nativeSelect(Strand strand, ObjectValue client, String query, BStructureType recordType,
-            boolean loadSQLTableToMemory, ArrayValue parameters) {
+    public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
+            ArrayValue parameters) {
+        //TODO: JBalMigration: once default params are supported fix this
+        Boolean loadSQLTableToMemory = false;
         SQLDatasource sqlDatasource = retrieveDatasource(client);
         //        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         //        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
-        SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters, recordType,
-                loadSQLTableToMemory);
+        SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
+                (TypedescValue) recordType, loadSQLTableToMemory);
         return selectStatement.execute();
     }
 }

@@ -18,10 +18,10 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.statement.CallStatement;
 import org.ballerinalang.database.sql.statement.SQLStatement;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -64,10 +64,10 @@ public class Call extends AbstractSQLAction {
         callStatement.execute();*/
     }
 
-    public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, ArrayValue recordType,
+    public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
             ArrayValue parameters) {
         SQLDatasource datasource = retrieveDatasource(client);
-        SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, recordType, parameters);
+        SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType, parameters);
         return callStatement.execute();
     }
 }

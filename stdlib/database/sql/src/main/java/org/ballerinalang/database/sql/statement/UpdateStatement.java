@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.database.sql.statement;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
@@ -26,6 +27,8 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -93,11 +96,7 @@ public class UpdateStatement extends AbstractSQLStatement {
             } else {
                 generatedKeys = new MapValueImpl<>();
             }
-            MapValue<String, Object> updateResultRecord = BallerinaValues
-                    .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
-            MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
-                    .createRecord(updateResultRecord, count, generatedKeys);
-            return populatedUpdateResultRecord;
+            return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (Throwable e) {
             return SQLDatasourceUtils.getSQLConnectorError(e, "execute update failed: ");
             //handleErrorOnTransaction(context);
@@ -149,5 +148,14 @@ public class UpdateStatement extends AbstractSQLStatement {
             generatedKeys.put(columnName, value);
         }
         return generatedKeys;
+    }
+
+    private MapValue<String, Object> createFrozenUpdateResultRecord(int count, MapValue<String, Object> generatedKeys) {
+        MapValue<String, Object> updateResultRecord = BallerinaValues
+                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
+        MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
+                .createRecord(updateResultRecord, count, generatedKeys);
+        populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));
+        return populatedUpdateResultRecord;
     }
 }

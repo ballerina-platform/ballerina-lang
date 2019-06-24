@@ -63,10 +63,11 @@ public class Update extends AbstractSQLAction {
         updateStatement.execute();*/
     }
 
-    public static Object nativeUpdate(Strand strand, ObjectValue client, String query, ArrayValue keyColumns,
+    public static Object nativeUpdate(Strand strand, ObjectValue client, String query, Object keyColumns,
             ArrayValue parameters) {
         SQLDatasource sqlDatasource = retrieveDatasource(client);
-        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, keyColumns, parameters);
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, (ArrayValue) keyColumns,
+                parameters);
         return updateStatement.execute();
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -50,12 +51,12 @@ public class SelectStatement extends AbstractSQLStatement {
     private final boolean loadSQLTableToMemory;
 
     public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                           BStructureType recordType, boolean loadSQLTableToMemory) {
+                           TypedescValue recordType, boolean loadSQLTableToMemory) {
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.structType = recordType;
+        this.structType = recordType != null ? (BStructureType) recordType.getDescribingType() : null;
         this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 

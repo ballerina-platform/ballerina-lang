@@ -66,8 +66,8 @@ public class CallStatement extends AbstractSQLStatement {
     private final ArrayValue parameters;
     private final ArrayValue structTypes;
 
-    public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                         ArrayValue structTypes) {
+    public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue structTypes,
+                         ArrayValue parameters) {
 
         this.client = client;
         this.datasource = datasource;

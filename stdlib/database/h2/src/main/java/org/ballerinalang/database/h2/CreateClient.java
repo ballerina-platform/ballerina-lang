@@ -63,9 +63,9 @@ public class CreateClient extends BlockingNativeCallableUnit {
         context.setReturnValues(sqlClient);*/
     }
 
-    public static ObjectValue createClient(Strand strand, MapValue<String, Object> config,
-                                           MapValue<String, Object> globalPoolOptions) {
-        MapValue<String, Object> dbOptions = (MapValue<String, Object>) config
+    public static ObjectValue createClient(Strand strand, Object config,
+        MapValue<String, Object> globalPoolOptions) {
+        MapValue<String, Object> dbOptions = (MapValue<String, Object>) (( MapValue<String, Object>) config)
                 .getMapValue(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (!dbOptions.isEmpty()) {
@@ -73,7 +73,7 @@ public class CreateClient extends BlockingNativeCallableUnit {
                     Constants.JDBCUrlSeparators.H2_SEPARATOR, dbOptions);
         }
         ObjectValue sqlClient = SQLDatasourceUtils
-                .createMultiModeDBClient(Constants.DBTypes.H2, config, urlOptions,
+                .createMultiModeDBClient(Constants.DBTypes.H2, (MapValue<String, Object>) config, urlOptions,
                         globalPoolOptions);
         sqlClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
         return sqlClient;

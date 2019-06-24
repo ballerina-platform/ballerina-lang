@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -255,7 +256,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         case TypeTags.DECIMAL_TAG:
             return Constants.SQLDataTypes.DECIMAL;
         case TypeTags.ARRAY_TAG:
-            if (((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG) {
+            if (((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
                 throw new BallerinaException("Array data type as direct value is supported only " +
@@ -274,9 +275,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     protected String getSQLType(MapValue<String, Object> parameter) {
         String sqlType = "";
         Object sqlTypeValue = parameter.get(PARAMETER_SQL_TYPE_FIELD);
-        BType type = TypeChecker.getType(sqlTypeValue);
         if (sqlTypeValue != null) {
-            sqlType = type.getName();
+            sqlType = (String) sqlTypeValue;
         }
         return sqlType;
     }
@@ -710,13 +710,24 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setDoubleValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         Double val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Double.parseDouble(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for double: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.FLOAT_TAG:
+                    val = (Double) value;
+                    break;
+                case TypeTags.INT_TAG:
+                case TypeTags.BYTE_TAG:
+                    val = ((Long) value).doubleValue();
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    val = ((DecimalValue) value).value().doubleValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    val = Double.parseDouble((String) value);
+                    break;
+                default:
+                    throw new BallerinaException("invalid value for double: " + value.toString());
+
             }
         }
         try {
@@ -746,13 +757,22 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setNumericValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         BigDecimal val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    val = new BigDecimal(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for numeric: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.DECIMAL_TAG:
+                    val = ((DecimalValue) value).value();
+                    break;
+                case TypeTags.INT_TAG:
+                    val = BigDecimal.valueOf((Long) value);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    val = (BigDecimal.valueOf((Double) value));
+                    break;
+                case TypeTags.STRING_TAG:
+                    val = new BigDecimal((String) value);
+                    break;
+                default:
+                    throw new BallerinaException("invalid value for numeric: " + value.toString());
             }
         }
         try {
@@ -782,9 +802,16 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setBooleanValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         Boolean val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                val = Boolean.valueOf(strValue);
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    val = (Boolean) value;
+                    break;
+                case TypeTags.STRING_TAG:
+                    val = Boolean.valueOf((String) value);
+                     break;
+                 default:
+                     throw new BallerinaException("invalid value for boolean: " + value.toString());
             }
         }
         try {
@@ -814,13 +841,18 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         Byte val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Byte.valueOf(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for byte: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.BYTE_TAG:
+                case TypeTags.INT_TAG:
+                    val = ((Long) value).byteValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    val = Byte.parseByte((String) value);
+                    break;
+                default:
+                    throw new BallerinaException("invalid value for byte: " + value.toString());
+
             }
         }
         try {
@@ -850,13 +882,17 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setBigIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         Long val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Long.parseLong(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for bigint: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                val = (Long) value;
+                break;
+            case TypeTags.STRING_TAG:
+                val = Long.parseLong((String) value);
+                break;
+            default:
+                throw new BallerinaException("invalid value for bigint: " + value.toString());
             }
         }
         try {
@@ -886,13 +922,20 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private void setRealValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
         Float val = null;
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Float.parseFloat(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for float: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.FLOAT_TAG:
+                    val = ((Double) value).floatValue();
+                    break;
+                case TypeTags.BYTE_TAG:
+                case TypeTags.INT_TAG:
+                    val =  ((Long) value).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    val = Float.parseFloat((String) value);
+                    break;
+                default:
+                    throw new BallerinaException("invalid value for float: " + value.toString());
             }
         }
         try {
@@ -1003,10 +1046,10 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             if (value instanceof MapValue && type.getName().equals(Constants.STRUCT_TIME) && type
                     .getPackage().toString().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 Object timeVal = ((MapValue<String, Object>) value).get(Constants.STRUCT_TIME_FIELD);
-                long time = (Integer) timeVal;
+                long time = (Long) timeVal;
                 val = new Timestamp(time);
-            } else if (value instanceof Integer) {
-                val = new Timestamp((Integer) value);
+            } else if (value instanceof Long) {
+                val = new Timestamp((Long) value);
             } else if (value instanceof String) {
                 val = convertToTimeStamp((String) value);
             } else {
@@ -1292,13 +1335,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 
     private static Integer obtainIntegerValue(Object value) {
         if (value != null) {
-            String strValue = (String) value;
-            if (!strValue.isEmpty()) {
-                try {
-                    return Integer.parseInt(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for integer: " + strValue);
-                }
+            BType type = TypeChecker.getType(value);
+            switch (type.getTag()) {
+                case TypeTags.BYTE_TAG:
+                case TypeTags.INT_TAG:
+                    return  ((Long) value).intValue();
+                case TypeTags.STRING_TAG:
+                    return Integer.parseInt((String) value);
+                default:
+                    throw new BallerinaException("invalid value for integer: " + value.toString());
             }
         }
         return null;

@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
@@ -632,7 +633,7 @@ public class SQLDataIterator extends TableIterator {
         boolean isOriginalValueNull = rs.wasNull();
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            BigDecimal refValue = isOriginalValueNull ? null : fValue;
+            DecimalValue refValue = isOriginalValueNull ? null : new DecimalValue(fValue);
             validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG,
                     retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
@@ -640,7 +641,7 @@ public class SQLDataIterator extends TableIterator {
                 handleNilToNonNillableFieldAssignment();
             } else {
                 validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, fieldTypeTag,
-                        fValue, MISMATCHING_FIELD_ASSIGNMENT);
+                        new DecimalValue(fValue), MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }
