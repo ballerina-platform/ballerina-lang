@@ -5311,8 +5311,8 @@ public class FormattingNodeTree {
                 JsonObject expressionFormatConfig = null;
                 // If operator kind is +, -, !, ~ then no space added to the expression.
                 // Else if operator kind is untaint, typeof then single space added to the expression.
-                if (operatorKind.equals(Tokens.ADD) || operatorKind.equals(Tokens.SUB) || operatorKind.equals(Tokens.NOT)
-                        || operatorKind.equals(Tokens.BIT_COMPLEMENT)) {
+                if (operatorKind.equals(Tokens.ADD) || operatorKind.equals(Tokens.SUB)
+                        || operatorKind.equals(Tokens.NOT) || operatorKind.equals(Tokens.BIT_COMPLEMENT)) {
                     expressionFormatConfig = this.getFormattingConfig(0, 0, 0,
                             false, this.getWhiteSpaceCount(indentationOfParent), true);
                 } else if (operatorKind.equals(Tokens.UNTAINT) || operatorKind.equals(Tokens.TYPEOF)) {
