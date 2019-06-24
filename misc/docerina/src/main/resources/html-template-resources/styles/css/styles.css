@@ -41,7 +41,7 @@ body .content-wrapper pre.ballerina-snippet code.language-ballerina {
 }
 body .content-wrapper .main-wrapper {
   width: 800px;
-  margin: 0 30px;
+  margin: 0 2.8em;
   overflow: hidden;
   margin-bottom: 54em;
 }
@@ -61,34 +61,35 @@ body .content-wrapper .main-wrapper h2 {
   margin-bottom: 1em;
 }
 body .content-wrapper .main-wrapper span.records {
-  color: #00c378;
+  color: #2A9988;
 }
 body .content-wrapper .main-wrapper span.objects {
-  color: #3498db;
+  color: #265C9E;
 }
 body .content-wrapper .main-wrapper span.clients {
-  color: #FF5722;
+  color: #FD5618;
 }
 body .content-wrapper .main-wrapper span.listeners {
-  color: #f44336;
+  color: #381268;
 }
 body .content-wrapper .main-wrapper span.functions {
   color: #EC407A;
 }
 body .content-wrapper .main-wrapper span.constant {
-  color: #8e44ad;
+  color: #81007F;
 }
 body .content-wrapper .main-wrapper span.annotations {
-  color: #276dc4;
+  color: #F4BB06;
 }
 body .content-wrapper .main-wrapper span.types {
-  color: #512DA8;
+  color: #974B00;
 }
 body .content-wrapper .main-wrapper span.errors {
-  color: #f44336;
+  color: #AD0102;
 }
 body .content-wrapper .main-wrapper p a {
   color: #0067ad;
+  text-decoration: underline;
 }
 body .content-wrapper .main-wrapper p a:hover {
   text-decoration: underline;
@@ -114,31 +115,31 @@ body .content-wrapper .param-table tbody {
   border-bottom: 1px solid #e8e9e9;
 }
 body .content-wrapper a.records {
-  color: #00c378;
+  color: #2A9988;
 }
 body .content-wrapper a.objects {
-  color: #3498db;
+  color: #265C9E;
 }
 body .content-wrapper a.clients {
-  color: #FF5722;
+  color: #FD5618;
 }
 body .content-wrapper a.listeners {
-  color: #f44336;
+  color: #381268;
 }
 body .content-wrapper a.functions {
   color: #EC407A;
 }
 body .content-wrapper a.constant {
-  color: #8e44ad;
+  color: #81007F;
 }
 body .content-wrapper a.annotations {
-  color: #276dc4;
+  color: #F4BB06;
 }
 body .content-wrapper a.types {
-  color: #512DA8;
+  color: #974B00;
 }
 body .content-wrapper a.errors {
-  color: #f44336;
+  color: #AD0102;
 }
 body .content-wrapper .data-wrapper {
   margin-bottom: 30px;
@@ -225,19 +226,19 @@ body .content-wrapper .ui.table tr td td {
 }
 body .content-wrapper .ui.table td.records,
 body .content-wrapper .ui.table tr td td.records {
-  color: #00c378;
+  color: #2A9988;
 }
 body .content-wrapper .ui.table td.objects,
 body .content-wrapper .ui.table tr td td.objects {
-  color: #3498db;
+  color: #265C9E;
 }
 body .content-wrapper .ui.table td.clients,
 body .content-wrapper .ui.table tr td td.clients {
-  color: #FF5722;
+  color: #FD5618;
 }
 body .content-wrapper .ui.table td.listeners,
 body .content-wrapper .ui.table tr td td.listeners {
-  color: #f44336;
+  color: #381268;
 }
 body .content-wrapper .ui.table td.functions,
 body .content-wrapper .ui.table tr td td.functions {
@@ -245,19 +246,19 @@ body .content-wrapper .ui.table tr td td.functions {
 }
 body .content-wrapper .ui.table td.constant,
 body .content-wrapper .ui.table tr td td.constant {
-  color: #8e44ad;
+  color: #81007F;
 }
 body .content-wrapper .ui.table td.annotations,
 body .content-wrapper .ui.table tr td td.annotations {
-  color: #276dc4;
+  color: #F4BB06;
 }
 body .content-wrapper .ui.table td.types,
 body .content-wrapper .ui.table tr td td.types {
-  color: #512DA8;
+  color: #974B00;
 }
 body .content-wrapper .ui.table td.errors,
 body .content-wrapper .ui.table tr td td.errors {
-  color: #f44336;
+  color: #AD0102;
 }
 body .content-wrapper .params-table {
   padding-top: 20px;
@@ -274,6 +275,9 @@ body .content-wrapper .breadcrumb-home {
 body .content-wrapper .breadcrumb-home-icon {
   width: 24px;
   opacity: 0.4;
+}
+body .content-wrapper .breadcrumb-home-icon:hover {
+  opacity: 0.7;
 }
 body .content-wrapper:hover {
   overflow-y: auto;
@@ -365,6 +369,7 @@ body .content-wrapper .constants .method-wrapper .method-span .method-table-head
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 20px;
+  font-size: 1.1em;
 }
 body .content-wrapper .constants .method-wrapper .method-type-wrapper {
   border-bottom: 1px solid #e8e9e9;
@@ -403,6 +408,7 @@ body .content-wrapper .method-content .main-method-title h2 {
   border: 0;
   padding: 0 4px;
   margin: 0;
+  margin-bottom: 10px;
 }
 body .content-wrapper .method-content .main-method-title p {
   margin: 0 3px 0 0;
@@ -461,58 +467,58 @@ body .content-wrapper .module-title {
   padding-bottom: 12px;
 }
 body .content-wrapper .module-title.records {
-  color: #00c378;
+  color: #2A9988;
 }
 body .content-wrapper .module-title.objects {
-  color: #3498db;
+  color: #265C9E;
 }
 body .content-wrapper .module-title.clients {
-  color: #FF5722;
+  color: #FD5618;
 }
 body .content-wrapper .module-title.listeners {
-  color: #f44336;
+  color: #381268;
 }
 body .content-wrapper .module-title.functions {
   color: #EC407A;
 }
 body .content-wrapper .module-title.constant {
-  color: #8e44ad;
+  color: #81007F;
 }
 body .content-wrapper .module-title.annotations {
-  color: #276dc4;
+  color: #F4BB06;
 }
 body .content-wrapper .module-title.types {
-  color: #512DA8;
+  color: #974B00;
 }
 body .content-wrapper .module-title.errors {
-  color: #f44336;
+  color: #AD0102;
 }
 body .content-wrapper .module-title a.records {
-  color: #00c378;
+  color: #2A9988;
 }
 body .content-wrapper .module-title a.objects {
-  color: #3498db;
+  color: #265C9E;
 }
 body .content-wrapper .module-title a.clients {
-  color: #FF5722;
+  color: #FD5618;
 }
 body .content-wrapper .module-title a.listeners {
-  color: #f44336;
+  color: #381268;
 }
 body .content-wrapper .module-title a.functions {
   color: #EC407A;
 }
 body .content-wrapper .module-title a.constant {
-  color: #8e44ad;
+  color: #81007F;
 }
 body .content-wrapper .module-title a.annotations {
-  color: #276dc4;
+  color: #F4BB06;
 }
 body .content-wrapper .module-title a.types {
-  color: #512DA8;
+  color: #974B00;
 }
 body .content-wrapper .module-title a.errors {
-  color: #f44336;
+  color: #AD0102;
 }
 body .content-wrapper .module-title a:hover {
   font-weight: bold;
@@ -590,7 +596,7 @@ body .content-wrapper .module-desc {
 .navi-wrapper-sidebar .primary-list.module-list ul li .active a,
 .navi-wrapper .primary-list.function-list ul li .active a,
 .navi-wrapper-sidebar .primary-list.function-list ul li .active a {
-  font-weight: bolder !important;
+  font-weight: 500 !important;
 }
 .navi-wrapper .primary-list.module-list ul li .active-item,
 .navi-wrapper-sidebar .primary-list.module-list ul li .active-item,

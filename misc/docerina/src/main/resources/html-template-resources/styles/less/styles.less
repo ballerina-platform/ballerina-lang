@@ -2,15 +2,25 @@
            API Method Colors 
 --------------------------------*/
 
-@construct: records #00c378,
-    objects #3498db,
-    clients #FF5722,
-    listeners #f44336,
+// @construct: records #00c378,
+//     objects #3498db,
+//     clients #FF5722,
+//     listeners #f44336,
+//     functions #EC407A,
+//     constant #8e44ad,
+//     annotations #276dc4,
+//     types #512DA8,
+//     errors #f44336;
+
+@construct: records #2A9988,
+    objects #265C9E,
+    clients #FD5618,
+    listeners #381268,
     functions #EC407A,
-    constant #8e44ad,
-    annotations #276dc4,
-    types #512DA8,
-    errors #f44336;
+    constant #81007F,
+    annotations #F4BB06,
+    types #974B00,
+    errors #AD0102;
 
 // Gen construct 
 .gen-construct-colors(@colors) {
@@ -85,7 +95,7 @@ body {
 
         .main-wrapper {
             width: 800px;
-            margin: 0 30px;
+            margin: 0 2.8em;
             overflow: hidden;
             margin-bottom: 54em;
             
@@ -118,6 +128,7 @@ body {
             p {
                 a {
                     color: #0067ad;
+                    text-decoration: underline;
 
                     &:hover {
                         text-decoration: underline
@@ -279,6 +290,9 @@ body {
         .breadcrumb-home-icon {
             width: 24px;
             opacity: 0.4;
+            &:hover {
+                opacity: 0.7;
+            }
         }
 
         &:hover {
@@ -393,6 +407,7 @@ body {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         padding-right: 20px;
+                        font-size: 1.1em;
                     }
                 }
 
@@ -440,6 +455,7 @@ body {
                     border: 0;
                     padding: 0 4px;
                     margin: 0;
+                    margin-bottom: 10px;
                 }
 
                 p {
@@ -590,7 +606,7 @@ body {
                     text-transform: none;
                     .active {
                         a {
-                            font-weight: bolder !important;
+                            font-weight: 500 !important;
                         }
                     }
                     .active-item {
