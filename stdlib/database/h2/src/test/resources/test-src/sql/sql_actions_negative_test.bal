@@ -131,7 +131,8 @@ function testBatchUpdate() returns string {
             returnVal = "success";
         }
     } else {
-        returnVal = <string> x.detail().message;
+        //returnVal = <string> x.detail().message;
+        returnVal = "";
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -161,7 +162,8 @@ function testInvalidArrayofQueryParameters() returns string {
             returnData = j.reason();
         }
     } else {
-        returnData = <string> x.detail().message;
+        //returnData = <string> x.detail().message;
+        returnData = "";
     }
     checkpanic testDB.stop();
     return returnData;
