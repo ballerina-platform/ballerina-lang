@@ -13,9 +13,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_BODY;
 import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_PATH;
+import static org.ballerinalang.net.http.HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -77,26 +79,41 @@ public class ResourceSignatureValidator {
             return;
         }
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals("webSocketUpgrade")) {
+            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE)) {
                 if (annVals.size() > 1) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                        "Invalid configurations for WebSocket upgrade resource");
-                } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.size() == 1) {
-                    if (!((BLangSimpleVarRef) (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs).get(
-                            0).key.expr).variableName.getValue().equals("upgradeService")) {
+                } else {
+                    List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields =
+                            ((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs;
+                    if (upgradeFields.size() == 1) {
+                        if (!((BLangSimpleVarRef) upgradeFields.get(
+                                0).key.expr).variableName.getValue().equals("upgradeService")) {
+                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                                               "An upgradeService need to be specified for the WebSocket upgrade " +
+                                                       "resource");
+                        }
+                    } else if (upgradeFields.isEmpty()) {
                         dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                            "An upgradeService need to be specified for the WebSocket upgrade " +
                                                    "resource");
+                    } else {
+                        // Websocket upgrade path validation
+                        for (BLangRecordLiteral.BLangRecordKeyValue upgradeField : upgradeFields) {
+                            if (checkMatchingConfigKey(upgradeField, ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
+                                DiagnosticPos position = upgradeField.getValue().getPosition();
+                                String[] segments = upgradeField.getValue().toString().split("/");
+                                for (String segment : segments) {
+                                    validatePathSegment(segment, position, dlog, paramSegments);
+                                }
+                            }
+                        }
                     }
-                } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.isEmpty()) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                       "An upgradeService need to be specified for the WebSocket upgrade " +
-                                               "resource");
                 }
             }
 
             // Resource config path validation
-            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(ANN_RESOURCE_ATTR_PATH)) {
+            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
                 DiagnosticPos position = keyValue.getValue().getPosition();
                 String[] segments = keyValue.getValue().toString().split("/");
                 for (String segment : segments) {
@@ -105,7 +122,7 @@ public class ResourceSignatureValidator {
             }
 
             // Resource config data binding param validation
-            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(ANN_RESOURCE_ATTR_BODY)) {
+            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_BODY)) {
                 List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
                 String bodyFieldValue = keyValue.getValue().toString();
                 // Data binding param should be placed as the last signature param
@@ -125,7 +142,7 @@ public class ResourceSignatureValidator {
 
         }
 
-        // Validate path param names and signature
+        // Validate path param names and signature - signature params should be a subset of path and body params
         List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
                 COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
         if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
@@ -196,6 +213,10 @@ public class ResourceSignatureValidator {
         if (!resourceReturnsErrorOrNil) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
         }
+    }
+
+    private static boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
     }
 }
 

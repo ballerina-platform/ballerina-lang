@@ -33,7 +33,7 @@ public type Client client object {
 
     public string url;
     public ClientEndpointConfig config = {};
-    public Client? httpClient = ();
+    public Client httpClient;
 
     # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
@@ -514,7 +514,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
         if (config.cache.enabled) {
             return createHttpCachingClient(url, config, config.cache);
         } else {
-            return createHttpSecureClient(url, config);
+            return createHttpSecureClient(url, config);ttpSecureClient;
         }
     }
 }

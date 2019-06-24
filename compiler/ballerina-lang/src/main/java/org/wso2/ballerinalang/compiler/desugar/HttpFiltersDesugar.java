@@ -104,6 +104,8 @@ public class HttpFiltersDesugar {
     private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
     private static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
     private static final String ANN_RESOURCE_ATTR_PATH = "path";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE = "webSocketUpgrade";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE_PATH = "upgradePath";
     private static final String ANN_RESOURCE_PARAM_ORDER_CONFIG = "ParamOrderConfig";
     private static final String ANN_RECORD_PARAM_ORDER_CONFIG = "HttpParamOrderConfig";
     private static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
@@ -406,19 +408,28 @@ public class HttpFiltersDesugar {
     }
 
     private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = null;
         for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
             if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue())) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
-                        ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
-                for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
-                    if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
-                        if (checkForPathParam(resourceNode.getParameters(), keyValue.getValue())) {
-                            addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
-                            break;
-                        }
+                annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                break;
+            }
+        }
+        if (annotationValues == null) {
+            return;
+        }
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
+                addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                break;
+            } else if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_WS_UPGRADE)) {
+                for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
+                        ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
+                    if (checkMatchingConfigKey(upgradeField, ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
+                        addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                        break;
                     }
                 }
-                break;
             }
         }
     }
@@ -428,6 +439,9 @@ public class HttpFiltersDesugar {
     }
 
     private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
+        if (!checkForPathParam(resourceNode.getParameters(), value)) {
+            return;
+        }
         DiagnosticPos pos = resourceNode.pos;
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         resourceNode.addAnnotationAttachment(annoAttachment);

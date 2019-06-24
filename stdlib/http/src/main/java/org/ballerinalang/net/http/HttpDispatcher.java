@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.types.BArrayType;

@@ -216,13 +216,13 @@ public class ServiceDesugar {
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
     }
 
-    public void engageCustomAnnotationServiceDesugar(BLangService service, SymbolEnv env) {
+    void engageCustomAnnotationServiceDesugar(BLangService service, SymbolEnv env) {
         final BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) service.serviceTypeDefinition.typeNode;
         objectTypeNode.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomAnnotationResourceDesugar(service, func, env));
+                .forEach(func -> engageCustomAnnotationResourceDesugar(func, env));
     }
 
-    private void engageCustomAnnotationResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
+    private void engageCustomAnnotationResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
         httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }
 
