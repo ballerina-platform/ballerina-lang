@@ -86,14 +86,14 @@ public type HttpSecureClient client object {
     //later stage for retrying and in other few places.
     public string url = "";
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
     public CachedToken tokenCache;
 
     public function __init(string url, ClientEndpointConfig config) {
         self.url = url;
         self.config = config;
         var simpleClient = createClient(url, self.config);
-        if (simpleClient is Client) {
+        if (simpleClient is HttpClient) {
             self.httpClient = simpleClient;
             self.tokenCache = {
                 accessToken: "",
@@ -118,7 +118,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->post(path, req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->post(path, req);
         }
         return res;
@@ -137,7 +137,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->head(path, message = req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->head(path, message = req);
         }
         return res;
@@ -156,7 +156,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->put(path, req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->put(path, req);
         }
         return res;
@@ -176,7 +176,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->execute(httpVerb, path, req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->execute(httpVerb, path, req);
         }
         return res;
@@ -195,7 +195,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->patch(path, req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->patch(path, req);
         }
         return res;
@@ -214,7 +214,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->delete(path, req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->delete(path, req);
         }
         return res;
@@ -233,7 +233,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->get(path, message = req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->get(path, message = req);
         }
         return res;
@@ -252,7 +252,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->options(path, message = req);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(req, self.config, self.tokenCache);
+            check updateRequest(req, untaint self.config, untaint self.tokenCache);
             return self.httpClient->options(path, message = req);
         }
         return res;
@@ -269,7 +269,7 @@ public type HttpSecureClient client object {
         Response res = check self.httpClient->forward(path, request);
         retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
-            check updateRequest(request, self.config, self.tokenCache);
+            check updateRequest(request, untaint self.config, untaint self.tokenCache);
             return self.httpClient->forward(path, request);
         }
         return res;
@@ -334,7 +334,7 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|error {
     HttpSecureClient httpSecureClient;
     if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
@@ -643,7 +643,7 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
 # + return - Access token received or `error` if an error occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
                                                 CachedToken tokenCache) returns string|error {
-    Client authorizationClient;
+    HttpClient authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
     // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
@@ -655,7 +655,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         }
         tokenUrl = config.tokenUrl;
         var clientCreation = createClient(tokenUrl, {});
-        if (clientCreation is Client) {
+        if (clientCreation is HttpClient) {
             authorizationClient = clientCreation;
         }  else {
             return prepareError("Failed to create the authorization client with the URL: " + tokenUrl,
@@ -672,7 +672,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     } else {
         tokenUrl = config.tokenUrl;
         var clientCreation = createClient(tokenUrl, {});
-        if (clientCreation is Client) {
+        if (clientCreation is HttpClient) {
             authorizationClient = clientCreation;
         } else {
             return prepareError("Failed to create the authorization client with the URL: " + tokenUrl,
@@ -720,7 +720,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 # + return - Access token received or `error` if an error occurred during HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
                                           CachedToken tokenCache) returns string|error {
-    Client refreshClient;
+    HttpClient refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
     // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
@@ -734,7 +734,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             }
             refreshUrl = untaint refreshConfig.refreshUrl;
             var clientCreation = createClient(refreshUrl, {});
-            if (clientCreation is Client) {
+            if (clientCreation is HttpClient) {
                 refreshClient = clientCreation;
             }  else {
                 return prepareError("Failed to create the refresh client with the URL: " + refreshUrl,
@@ -760,7 +760,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             }
             refreshUrl = refreshConfig.refreshUrl;
             var clientCreation = createClient(refreshUrl, {});
-            if (clientCreation is Client) {
+            if (clientCreation is HttpClient) {
                 refreshClient = clientCreation;
             }  else {
                 return prepareError("Failed to create the refresh client with the URL: " + refreshUrl,

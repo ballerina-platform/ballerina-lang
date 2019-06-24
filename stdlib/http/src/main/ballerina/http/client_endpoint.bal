@@ -33,7 +33,7 @@ public type Client client object {
 
     public string url;
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
 
     # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
@@ -256,8 +256,7 @@ public type Http1Settings record {|
     Chunking chunking = CHUNKING_AUTO;
 |};
 
-function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
-                    returns Client = external;
+function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = external;
 
 # Provides settings related to HTTP/2 protocol.
 #
@@ -460,7 +459,7 @@ public type JwtAuthConfig record {|
     //jwt:InferredJwtIssuerConfig inferredJwtIssuerConfig;
 |};
 
-function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
+function initialize(string serviceUrl, ClientEndpointConfig config) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
     if (url.hasSuffix("/")) {
@@ -488,12 +487,12 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Clie
     }
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
             var retryClient = createRetryClient(url, configuration);
-            if (retryClient is Client) {
+            if (retryClient is HttpClient) {
                 return new RedirectClient(url, configuration, redirectConfig, retryClient);
             } else {
                 return retryClient;
@@ -506,7 +505,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns Client|error {
+function checkForRetry(string url, ClientEndpointConfig config) returns HttpClient|error {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -519,8 +518,8 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
-    Client cbHttpClient;
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns HttpClient|error {
+    HttpClient cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
@@ -528,14 +527,14 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
             var redirectClient = createRedirectClient(uri, configuration);
-            if (redirectClient is Client) {
+            if (redirectClient is HttpClient) {
                 cbHttpClient = redirectClient;
             } else {
                 return redirectClient;
             }
         } else {
             var retryClient = checkForRetry(uri, configuration);
-            if (retryClient is Client) {
+            if (retryClient is HttpClient) {
                 cbHttpClient = retryClient;
             } else {
                 return retryClient;
@@ -576,7 +575,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns Client|error {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -589,14 +588,14 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         };
         if (configuration.cache.enabled) {
             var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-            if (httpCachingClient is Client) {
+            if (httpCachingClient is HttpClient) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
             } else {
                 return httpCachingClient;
             }
         } else {
             var httpSecureClient = createHttpSecureClient(url, configuration);
-            if (httpSecureClient is Client) {
+            if (httpSecureClient is HttpClient) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
             } else {
                 return httpSecureClient;
@@ -610,9 +609,4 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             return createHttpSecureClient(url, configuration);
         }
     }
-}
-
-function createClient(string url, ClientEndpointConfig config) returns Client|error {
-    HttpClient simpleClient = new(url, config);
-    return simpleClient;
 }
