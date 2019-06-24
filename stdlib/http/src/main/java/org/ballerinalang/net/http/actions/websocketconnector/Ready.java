@@ -25,14 +25,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BHttpUtil;
-import org.ballerinalang.net.http.BWebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.BWebSocketUtil;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
@@ -42,42 +36,28 @@ import org.ballerinalang.net.http.WebSocketUtil;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
         functionName = "ready",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina/http")
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        )
 )
 public class Ready implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
-            BWebSocketOpenConnectionInfo connectionInfo = (BWebSocketOpenConnectionInfo) webSocketConnector
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-                    .booleanValue();
-            if (!isReady) {
-                BWebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
-                context.setReturnValues();
-            } else {
-                context.setReturnValues(BHttpUtil.getError(context, "Already started reading frames"));
-            }
-            callback.notifySuccess();
-        } catch (Exception e) {
-            context.setReturnValues(BHttpUtil.getError(context, e));
-            callback.notifySuccess();
-        }
     }
 
-    public static void ready(Strand strand, ObjectValue wsConnection) {
+    public static Object ready(Strand strand, ObjectValue wsConnection) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = ((BBoolean) wsConnection.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-                    .booleanValue();
+            boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
                 //TODO remove this call back
@@ -92,6 +72,7 @@ public class Ready implements NativeCallableUnit {
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
         }
+        return null;
     }
 
     @Override

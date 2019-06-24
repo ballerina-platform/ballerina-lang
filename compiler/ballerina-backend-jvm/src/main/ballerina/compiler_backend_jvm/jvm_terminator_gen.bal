@@ -628,7 +628,7 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitInsn(DUP);
 
-        // 0th index 
+        // 0th index
         self.mv.visitIntInsn(BIPUSH, 0);
 
         self.mv.visitVarInsn(ALOAD, localVarOffset);

@@ -269,7 +269,9 @@ public abstract class LSCompletionProvider {
                 }).collect(Collectors.toList());
         List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
         packages.addAll(LSPackageLoader.getHomeRepoPackages());
-
+        String sourceRoot = ctx.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+        String fileUri = ctx.get(DocumentServiceKeys.FILE_URI_KEY);
+        packages.addAll(LSPackageLoader.getCurrentProjectImportPackages(pkg, sourceRoot, fileUri));
         packages.forEach(ballerinaPackage -> {
             String name = ballerinaPackage.getPackageName();
             String orgName = ballerinaPackage.getOrgName();
@@ -507,7 +509,7 @@ public abstract class LSCompletionProvider {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(bSymbol.getName().getValue());
         completionItem.setInsertText(bSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalValueType, context));
+        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).type, context));
         completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
         completionItem.setKind(CompletionItemKind.Variable);
 

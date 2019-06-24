@@ -28,7 +28,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +79,7 @@ public class BallerinaDiagramUtils {
         Editor editor = getEditorFor(file, project);
 
         // Retrieves attached ballerina SDk of the project.
-        BallerinaSdk balSdk = BallerinaSdkUtil.getBallerinaSdkFor(project);
+        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
         if (balSdk.getSdkPath() == null) {
             LOG.warn(String.format("No Ballerina SDK is found for the project: %s", project.getName()));
             return "";

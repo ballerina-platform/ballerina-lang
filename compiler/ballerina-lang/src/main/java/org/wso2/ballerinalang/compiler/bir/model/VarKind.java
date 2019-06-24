@@ -51,7 +51,12 @@ public enum VarKind {
     /**
      * self referencing variable.
      */
-    SELF((byte) 6);
+    SELF((byte) 6),
+
+    /**
+     * Variable that holds constants.
+     */
+    CONSTANT((byte) 7);
 
     byte value;
 
