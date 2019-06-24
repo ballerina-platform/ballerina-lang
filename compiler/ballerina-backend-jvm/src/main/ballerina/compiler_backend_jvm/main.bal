@@ -33,25 +33,31 @@ public type JavaClass record {|
 
 internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
+string[] birCacheDirs = [];
 
 public function main(string... args) {
-    birHome = new(untaint args[0]);
-    string progName = args[1];
-    string pathToEntryMod = args[2];
-    string targetPath = args[3];
-    string pathToCompilerBackend = args[4];
-    string libDir = args[5];
-    boolean dumpBir = boolean.convert(args[6]);
-    string mapPath = untaint args[7];
+    string pathToEntryBir = untaint args[0];
+    string mapPath = untaint args[1];
+    string targetPath = args[2];
+    boolean dumpBir = boolean.convert(args[3]);
 
-    writeJarFile(generateJarBinary(progName, pathToEntryMod, mapPath, dumpBir), progName, targetPath);
+    var numCacheDirs = args.length() - 4;
+    int i = 0;
+    while (i < numCacheDirs) {
+        birCacheDirs[i] = args[4 + i];
+        i = i + 1;
+    }
+
+    writeJarFile(generateJarBinary(pathToEntryBir, mapPath, dumpBir), targetPath);
 }
 
-function generateJarBinary(string progName, string pathToEntryMod, string mapPath, boolean dumpBir) returns JarFile {
-    externalMapCache = readMap(mapPath);
+function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
+    if (mapPath != "") {
+        externalMapCache = readMap(mapPath);
+    }
 
-    byte[] moduleBytes = bir:decompressSingleFileToBlob(pathToEntryMod, progName);
-    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes);
+    byte[] moduleBytes = readFileFully(pathToEntryBir);
+    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes, false);
 
     compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
@@ -87,10 +93,10 @@ public function createModuleId(string orgName, string moduleName, string moduleV
     return { org: orgName, name: moduleName, modVersion: moduleVersion, isUnnamed: false, sourceFilename: moduleName };
 }
 
-function writeJarFile(JarFile jarFile, string fileName, string targetPath) {
-    writeExecutableJarToFile(jarFile, fileName, targetPath);
+function writeJarFile(JarFile jarFile, string targetPath) {
+    writeExecutableJarToFile(jarFile, targetPath);
 }
 
-function writeExecutableJarToFile(JarFile jarFile, string fileName, string targetPath) = external;
+function writeExecutableJarToFile(JarFile jarFile, string targetPath) = external;
 
 function createBIRContext(string sourceDir, string pathToCompilerBackend, string libDir) returns bir:BIRContext = external;

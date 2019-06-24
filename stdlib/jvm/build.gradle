@@ -18,7 +18,6 @@
 apply from: "$rootDir/gradle/baloProject.gradle"
 
 configurations {
-    baloOldImpl
     genBalo
     balSource
 }

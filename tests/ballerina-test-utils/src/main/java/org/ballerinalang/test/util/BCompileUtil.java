@@ -27,17 +27,17 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -45,8 +45,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -58,7 +60,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -572,37 +574,119 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.write(bLangPackage, packageName);
-        // TODO: We may have to write the birs of imports as well?
-//        for (BLangImportPackage importedModule : bLangPackage.imports) {
-//            if (!"ballerina".equals(importedModule.orgName.value)) {
-//                CompileResult result =
-//                        compile(context, importedModule.getQualifiedPackageName(), CompilerPhase.BIR_GEN, false);
-//                if (compileResult.getErrorCount() > 0) {
-//                    return compileResult;
-//                }
-//                BLangPackage importPkg = (BLangPackage) result.getAST();
-//                compiler.write(importPkg, importedModule.getQualifiedPackageName());
-//            }
-//        }
-        CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
-        Path ballerinaHome = Paths.get(System.getProperty("distribution.path"));
-        Optional result = jvmCodeGen.generate(false, bLangPackage, packageName, Paths.get(sourceRoot),
-                ballerinaHome, Paths.get(System.getProperty("ballerina.home")));
-        if (!result.isPresent()) {
-            throw new RuntimeException("Compiled binary jar is not found");
-        }
+        Path testJarPath;
+        try {
+            byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
 
-        byte[] compiledJar = (byte[]) result.get();
-        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
-        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz = classLoader.loadClass(initClassName);
-        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).initFunction.name);
-        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
-        compileResult.setClassLoader(classLoader);
-        return compileResult;
+            Path buildDir = Paths.get("build").toAbsolutePath();
+            Path testTemp = buildDir.resolve("test-bir-temp");
+            Path birCache = buildDir.resolve("bir-cache");
+            String fileName = calcFileNameForJar(bLangPackage);
+            Files.createDirectories(testTemp);
+            Path testDir = Files.createTempDirectory(testTemp, fileName + "-");
+            Path entryBir = testDir.resolve(fileName + ".bir");
+            testJarPath = testDir.resolve(fileName + ".jar");
+            Files.write(entryBir, bytes);
+
+
+            Path importsBirCache = testDir.resolve("imports").resolve("bir-cache");
+            Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
+            Files.createDirectories(importsTarget);
+
+            writeNonEntryPkgs(bLangPackage.symbol.imports, birCache, importsBirCache, importsTarget);
+            generateJarBinary(entryBir.toString(), testJarPath.toString(), birCache.toString(),
+                              importsBirCache.toString());
+
+
+            if (testJarPath == null || !Files.exists(testJarPath)) {
+                throw new RuntimeException("Compiled binary jar is not found");
+            }
+
+            JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(testJarPath, importsTarget.toFile());
+            String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                                   bLangPackage.packageID.name.value,
+                                                                   MODULE_INIT_CLASS_NAME);
+            Class<?> initClazz = classLoader.loadClass(initClassName);
+            runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).initFunction.name);
+            runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
+            compileResult.setClassLoader(classLoader);
+            return compileResult;
+
+        } catch (IOException e) {
+            throw new BLangRuntimeException("Error during jvm code gen of the test", e);
+        }
+    }
+
+    private static void generateJarBinary(String entryBir, String jarOutputPath,
+                                          String birCache1Path, String birCache2Path) {
+
+        //String bootstrapHome = "/media/manu/cd66d0ab-52b1-4647-8d52-1b88a47e9db2/checkout/ballerina-lang/distribution/bootstrapper/build/dist/pack3/ballerina-0.992.0-m1";
+        String bootstrapHome = System.getProperty("ballerina.bootstrap.home");
+        // TODO: use .bat for windows.
+        String[] commands = {
+                "sh",
+
+                bootstrapHome + "/bin/ballerina", "run", bootstrapHome + "/bin/compiler_backend_jvm.balx",
+
+                entryBir,
+                "", // no native map for test file
+                jarOutputPath,
+                "false",
+                birCache1Path,
+                birCache2Path
+        };
+        ProcessBuilder balProcess = new ProcessBuilder(commands);
+        balProcess.inheritIO();
+
+        // following assumes it's running in gradle. pass as System.prop to be more flexible
+        balProcess.directory(new File("./build"));
+        try {
+            Process process = balProcess.start();
+            boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
+            if (!processEnded) {
+                throw new BLangRuntimeException("failed to generate jar file within 30s.");
+            }
+            if (process.exitValue() != 0) {
+                throw new BLangRuntimeException("jvm code gen phase failed.");
+            }
+        } catch (IOException e) {
+            throw new BLangRuntimeException("could not start compiler_backend_jvm.balx", e);
+        } catch (InterruptedException e) {
+            throw new BLangRuntimeException("jvm code gen interrupted", e);
+        }
+    }
+
+    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
+                                          Path jarTargetDir)
+            throws IOException {
+
+        for (BPackageSymbol pkg : imports) {
+            if (pkg.compiledPackage != null) {
+                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir);
+
+                byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
+                PackageID id = pkg.pkgID;
+                Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
+                                                .resolve(id.name.value)
+                                                .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
+                Files.createDirectories(pkgBirDir);
+                Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
+                Files.write(pkgBir, bytes);
+
+                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
+                generateJarBinary(pkgBir.toString(), jarOutputPath, birCache.toString(),
+                                  importsBirCache.toString());
+            }
+        }
+    }
+
+    private static String calcFileNameForJar(BLangPackage bLangPackage) {
+        PackageID pkgID = bLangPackage.pos.src.pkgID;
+        Name sourceFileName = pkgID.sourceFileName;
+        if (sourceFileName != null) {
+            return sourceFileName.value.replaceAll("\\.bal$", "");
+        }
+        return pkgID.name.value;
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {

@@ -16,7 +16,6 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/birProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')

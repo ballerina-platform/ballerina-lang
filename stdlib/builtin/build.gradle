@@ -16,7 +16,6 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/birProject.gradle"
 
 dependencies {
     implementation project(':ballerina-core')
@@ -26,7 +25,6 @@ dependencies {
     implementation project(':ballerina-streaming:siddhi-core')
     implementation 'org.slf4j:slf4j-api'
 
-    bir project(path: ':ballerina-utils', configuration: 'bir')
 }
 
 createBalo {

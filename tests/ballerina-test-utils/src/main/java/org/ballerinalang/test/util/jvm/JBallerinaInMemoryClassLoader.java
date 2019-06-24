@@ -17,19 +17,15 @@
  */
 package org.ballerinalang.test.util.jvm;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
+import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
+import java.util.Collections;
 
 /**
  * An in-memory jar class loader.
@@ -41,35 +37,31 @@ public class JBallerinaInMemoryClassLoader {
 
     private URLClassLoader cl;
     
-    public JBallerinaInMemoryClassLoader(byte[] compiledJar) {
-        byte[] jarBinaryContent = new byte[compiledJar.length];
-        System.arraycopy(compiledJar, 0, jarBinaryContent, 0, compiledJar.length);
-        final Map<String, byte[]> map = new HashMap<>();
-        try (JarInputStream is = new JarInputStream(new ByteArrayInputStream(jarBinaryContent))) {
-            JarEntry nextEntry;
-            while ((nextEntry = is.getNextJarEntry()) != null) {
-                final int est = (int) nextEntry.getSize();
-                byte[] data = new byte[est > 0 ? est : 1024];
-                int real = 0;
-
-                for (int r = is.read(data); r > 0; r = is.read(data, real, data.length - real)) {
-                    if (data.length == (real += r)) {
-                        data = Arrays.copyOf(data, data.length * 2);
-                    }
+    public JBallerinaInMemoryClassLoader(Path testJarPath, File importsCache) {
+        try {
+            URLClassLoader importCl = null;
+            if (importsCache.isDirectory()) {
+                String[] jarFIles = importsCache.list();
+                // TODO: fix the class loader ordering. reverseOrder work for now. but may break if 'b' depends on 'a'
+                Arrays.sort(jarFIles, Collections.reverseOrder());
+                for (String file : jarFIles) {
+                    importCl = createClassLoader(new File(importsCache, file), importCl);
                 }
-
-                if (real != data.length) {
-                    data = Arrays.copyOf(data, real);
-                }
-
-                map.put("/" + nextEntry.getName(), data);
             }
-
-            URL jarFileUrl = new URL("x-buffer", null, -1, "/", new InMemoryURLStreamHandler(map));
-            cl = URLClassLoader.newInstance(new URL[] { jarFileUrl });
-        } catch (IOException e) {
-            throw new RuntimeException("Error occurred while creating the class loader.", e);
+            importCl = createClassLoader(testJarPath.toFile(), importCl);
+            cl = importCl;
+        } catch (MalformedURLException e) {
+            throw new BLangRuntimeException("error loading jar " + testJarPath, e);
         }
+    }
+
+    private URLClassLoader createClassLoader(File jarFile, URLClassLoader optParent) throws MalformedURLException {
+        if (optParent == null) {
+            optParent = new URLClassLoader(new URL[]{jarFile.toURI().toURL()});
+        } else {
+            optParent = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, optParent);
+        }
+        return optParent;
     }
 
     public Class<?> loadClass(String className) {
@@ -80,47 +72,4 @@ public class JBallerinaInMemoryClassLoader {
         }
     }
 
-    static class InMemoryURLStreamHandler extends URLStreamHandler {
-
-        private final Map<String, byte[]> jarFiles;
-
-        InMemoryURLStreamHandler(Map<String, byte[]> jarFiles) {
-            this.jarFiles = jarFiles;
-        }
-
-        @Override
-        protected URLConnection openConnection(URL url) throws IOException {
-            String className = getClassName(url);
-            final byte[] data = jarFiles.get(className);
-
-            if (data == null) {
-                throw new FileNotFoundException(className);
-            }
-
-            return new URLConnection(url) {
-                @Override
-                public void connect() {
-
-                }
-
-                @Override
-                public InputStream getInputStream() {
-                    return new ByteArrayInputStream(data);
-                }
-            };
-        }
-
-        private String getClassName(URL url) {
-            String fileName = url.getFile();
-            if (!fileName.endsWith(".class")) {
-                return fileName;
-            }
-
-            // get the fully qualified class name, by removing the '.class' suffix
-            fileName = fileName.substring(0, fileName.length() - 6);
-
-            fileName = fileName.replace('.', '_');
-            return fileName + ".class";
-        }
-    }
 }

@@ -70,52 +70,18 @@ public class JVMCodeGen implements CompilerBackendCodeGenerator {
     public Optional<Object> generate(Object... args) {
         boolean dumpBIR = (boolean) args[0];
         BLangPackage bLangPackage = (BLangPackage) args[1];
-        String packageName = (String) args[2]; // name of the package/file being codegenerated
-        Path sourceRootPath = (Path) args[3]; // path to the bir of the file being codegenerated
-        Path ballerinaHome = (Path) args[4]; // path to home dir of pack that runs compiler backend
-        Path libDir = (Path) args[5]; // path to home dir of pack that runs compiler backend
-        byte[] jarContent = generateJarBinary(dumpBIR, bLangPackage, packageName, sourceRootPath, ballerinaHome, libDir);
-        return Optional.of(jarContent);
+        String entryBir = (String) args[2];
+        String birCachePath = (String) args[3];
+        String jarOutputPath = (String) args[4];
+        String importsPath = (String) args[5];
+
+        String bootstrapHome = "/media/manu/cd66d0ab-52b1-4647-8d52-1b88a47e9db2/checkout/ballerina-lang/distribution/bootstrapper/build/dist/pack3/ballerina-0.992.0-m1";
+        generateJarBinary(bootstrapHome, entryBir, birCachePath, jarOutputPath, importsPath);
+        return Optional.empty();
     }
 
-    private static byte[] generateJarBinary(boolean dumpBIR, BLangPackage bLangPackage, String packageName,
-                                            Path sourceRootPath, Path ballerinaHome, Path libDir) {
-        // TODO: use .bat for windows.
-        String[] commands = {
-                "sh",
-                "ballerina",
-                "run",
-                "compiler_backend_jvm.balx",
-                System.getProperty("ballerina.home"), // birHome
-                cleanUpFilename(packageName), // programName
-                getPathToBIR(bLangPackage, sourceRootPath).toString(), // pathToEntryMod
-                Paths.get("").toAbsolutePath().toString(), // targetPath
-                ballerinaHome.resolve("bin").toString(), // pathToCompilerBackend
-                libDir.toString(), // libDir
-                String.valueOf(dumpBIR) // dumpBIR
-        };
-        ProcessBuilder balProcess = new ProcessBuilder(commands);
-        balProcess.inheritIO();
-
-        balProcess.environment().put(BALLERINA_HOME, ballerinaHome.toString());
-        // UPDATE_CLASSPATH env variable will tell the pack dash ballerina sh to pick the jars from the main pack
-        balProcess.environment().put(UPDATE_CLASSPATH, ballerinaHome.getParent().toString());
-//        balProcess.environment().put("BAL_JAVA_DEBUG", "5005");
-        balProcess.directory(ballerinaHome.resolve("bin").toFile());
-        try {
-            Process process = balProcess.start();
-            boolean processEnded = process.waitFor(30, TimeUnit.SECONDS);
-            if (!processEnded) {
-                throw new BLangRuntimeException("failed to generate jar file.");
-            }
-        } catch (IOException e) {
-            throw new BLangRuntimeException("could not start compiler_backend_jvm.balx", e);
-        } catch (InterruptedException e) {
-            // do nothing
-        }
-
-        return decompressBIR(cleanUpFilename(packageName),
-                Paths.get("").toAbsolutePath().resolve("target").toString());
+    private static void generateJarBinary(String bootstrapHome, String entryBir, String birCachePath,
+                                          String importsPath, String jarOutputPath) {
     }
 
     private static Path getPathToBIR(BLangPackage bLangPackage, Path sourceRootPath) {

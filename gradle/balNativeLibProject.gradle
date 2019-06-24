@@ -102,3 +102,5 @@ publishing {
         }
     }
 }
+
+apply from: "$rootDir/gradle/birProject.gradle"
