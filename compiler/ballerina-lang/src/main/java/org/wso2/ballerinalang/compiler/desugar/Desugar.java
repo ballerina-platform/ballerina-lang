@@ -5244,14 +5244,15 @@ public class Desugar extends BLangNodeVisitor {
                 literal.value = ERROR_REASON_NULL_REFERENCE_ERROR;
                 literal.type = symTable.stringType;
 
-                BLangErrorConstructorExpr errorConstExpr = (BLangErrorConstructorExpr)
-                        TreeBuilder.createErrorConstructorNode();
-                errorConstExpr.pos = expr.pos;
-                errorConstExpr.reasonExpr = literal;
-                errorConstExpr.type = symTable.errorType;
+                BLangInvocation errorCtorInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+                errorCtorInvocation.pos = expr.pos;
+                errorCtorInvocation.argExprs.add(literal);
+                errorCtorInvocation.requiredArgs.add(literal);
+                errorCtorInvocation.type = symTable.errorType;
+                errorCtorInvocation.symbol = symTable.errorConstructor;
 
                 BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
-                panicNode.expr = errorConstExpr;
+                panicNode.expr = errorCtorInvocation;
                 panicNode.pos = expr.pos;
                 thenStmt.addStatement(panicNode);
             }

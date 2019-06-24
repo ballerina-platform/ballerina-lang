@@ -82,8 +82,7 @@ type Person object {
 };
 
 function getError() returns string|error {
-    map<string> m = {f: "foo"};
-    error e = error("failed to create Person object", m);
+    error e = error("failed to create Person object", f = "foo");
     return e;
 }
 
