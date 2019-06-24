@@ -2,23 +2,23 @@ import ballerina/io;
 
 public function main() {
 
-    // Define the type of `a` as a pair that consists of an `int` and a `string`.
+    // Defines the type of `a` as a pair that consists of an `int` and a `string`.
     (int, string) a = (10, "John");
     io:println(a);
 
     int aint;
     string astr;
-    // Define a tuple of variable names on the left, with a variable reference of which the type is a tuple.
+    // Defines a tuple of variable names on the left with a variable reference of which the type is a tuple.
     // The assignment statement assigns values of the tuple on the right to the variables on the left.
     // In Ballerina, this is referred to as tuple destructuring.
     (aint, astr) = a;
     io:println(aint);
     io:println(astr);
 
-    // You can declare and assign values with `var` as shown here.
+    // You can declare and assign values with `var` like this.
     var (aint1, astr1) = a;
 
-    // Invoke a function that returns a tuple.
+    // Invokes a function that returns a tuple.
     var (q, r) = divideBy10(6);
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 

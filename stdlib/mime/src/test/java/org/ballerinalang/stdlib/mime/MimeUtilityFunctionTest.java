@@ -22,6 +22,8 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -76,6 +78,7 @@ import static org.ballerinalang.stdlib.mime.Util.verifyMimeError;
  *
  * @since 0.963.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
@@ -135,7 +138,7 @@ public class MimeUtilityFunctionTest {
                 .createAndGetStruct(compileResultOnBVM.getProgFile(), protocolPackageMime, mediaTypeStruct);
         mediaType.put(PRIMARY_TYPE_FIELD, new BString("application"));
         mediaType.put(SUBTYPE_FIELD, new BString("test+xml"));
-        BMap map = new BMap();
+        BMap map = new BMap(new BMapType(BTypes.typeString));
         map.put("charset", new BString("utf-8"));
         mediaType.put(PARAMETER_MAP_FIELD, map);
         BValue[] args = {mediaType};

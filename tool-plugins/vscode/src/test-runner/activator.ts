@@ -5,7 +5,7 @@ import { TestRunner } from "./runner";
 export function activateTestRunner(ballerinaExtInstance: BallerinaExtension) {
     const channel = window.createOutputChannel('Ballerina Tests');
 
-    // register run all tests hander
+    // register run all tests handler
     commands.registerCommand('ballerina.runAllTests', () => {
         const activeEditor = window.activeTextEditor;
         // if currently opened file is a bal file

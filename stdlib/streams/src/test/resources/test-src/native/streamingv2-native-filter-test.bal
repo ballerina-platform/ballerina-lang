@@ -90,8 +90,8 @@ function foo() {
                 function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
                                                 // got rid of type casting
                                                 return {
-                                                    "name": e.data["inputStream.name"],
-                                                    "age": e.data["inputStream.age"]
+                                                    "name": e.get("inputStream.name"),
+                                                    "age": e.get("inputStream.age")
                                                 };
                                             }
     );

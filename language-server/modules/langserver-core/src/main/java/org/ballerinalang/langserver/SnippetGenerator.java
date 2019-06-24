@@ -398,8 +398,8 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAnnotationKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.TYPE_TYPE, "annotation ", ItemResolverConstants.KEYWORD_TYPE,
-                                SnippetType.KEYWORD);
+        return new SnippetBlock(ItemResolverConstants.ANNOTATION_TYPE, "annotation ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
     }
 
     /**

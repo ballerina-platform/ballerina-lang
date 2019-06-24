@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.BLangConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -93,5 +94,10 @@ public class FPValue<T, R> implements RefValue {
     @Override
     public Object freeze() {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return BLangConstants.EMPTY;
     }
 }

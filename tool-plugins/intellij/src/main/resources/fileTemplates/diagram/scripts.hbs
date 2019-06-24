@@ -1,0 +1,41 @@
+function loadedScript() {
+    {{{getLangClient}}}
+    let docUri = "{{{docUri}}}";
+    function drawDiagram() {
+        try {
+            let width = window.innerWidth - 6;
+            let height = window.innerHeight;
+            let zoom = 1;
+            const options = {
+                target: document.getElementById("diagram"),
+                editorProps: {
+                    docUri,
+                    width,
+                    height,
+                    zoom,
+                    langClient: getLangClient()
+                }
+            };
+            const diagram = ballerinaComposer.renderDiagramEditor(options);
+            window.updateAST = () => {
+                diagram.updateAST(docUri);
+            };
+        } catch(e) {
+            console.log(e.stack);
+            drawError('Oops. Something went wrong. ' + e.message);
+        }
+    }
+    function drawError(message) {
+        document.getElementById("diagram").innerHTML = `
+                <div id="errors">
+                    <span>message</span>
+                </div>
+                `;
+    }
+    function showWarning(message) {
+        document.getElementById("warning").innerHTML = `
+            <p><span class="fw fw-warning"></span>message</p>
+        `;
+    }
+    drawDiagram();
+}

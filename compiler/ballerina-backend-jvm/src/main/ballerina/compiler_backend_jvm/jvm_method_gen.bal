@@ -559,7 +559,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
 
         bir:Terminator terminator = bb.terminator;
         if (!isArg) {
-            mv.visitIntInsn(BIPUSH, j);
+            // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
+            mv.visitIntInsn(SIPUSH, j);
             mv.visitVarInsn(ISTORE, stateVarIndex);
         }
 
@@ -1026,11 +1027,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
 
-    if (serviceEPAvailable) {
-        mv.visitInsn(ICONST_1);
-    } else {
-        mv.visitInsn(ICONST_0);
-    }
+    mv.visitInsn(ICONST_0);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
 if (hasInitFunction(pkg)) {
@@ -1054,6 +1051,7 @@ if (hasInitFunction(pkg)) {
     }
 
     if (userMainFunc is bir:Function) {
+        mv.visitInsn(DUP);
         string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
         bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
@@ -1118,6 +1116,9 @@ if (hasInitFunction(pkg)) {
 
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            mv.visitInsn(DUP_X1);
+            mv.visitInsn(POP);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
             bir:BType returnType = userMainFunc.typeValue.retType;
             addUnboxInsn(mv, returnType);
@@ -1135,9 +1136,46 @@ if (hasInitFunction(pkg)) {
         }
     }
 
+    scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+    
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable, 
+    ErrorHandlerGenerator errorGen) {
+    // schedule the start method
+    string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+    string startLambdaName = io:sprintf("$lambda$%s$", startFuncName);
+
+    mv.visitIntInsn(BIPUSH, 1);
+    mv.visitTypeInsn(ANEWARRAY, OBJECT);
+
+    // create FP value
+    createFunctionPointer(mv, initClass, startLambdaName, true, 0);
+
+    // no parent strand
+    mv.visitInsn(ACONST_NULL);
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
+        io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+    
+    // need to set immortal=true and start the scheduler again
+    if (serviceEPAvailable) {
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTFIELD, SCHEDULER, "immortal", "Z");
+    }
+    mv.visitInsn(DUP);
+    mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+    mv.visitIntInsn(BIPUSH, 100);
+    mv.visitTypeInsn(ANEWARRAY, OBJECT);
+    mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
+    errorGen.printStackTraceFromFutureValue(mv);
+    mv.visitInsn(POP);
+    
 }
 
 # Generate a lambda function to invoke ballerina main.
@@ -1217,8 +1255,18 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitTypeInsn(CHECKCAST, STRAND);
         mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
 
-        // call start function
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0,0);
+        mv.visitEnd();
+
+        // generate another lambda for start function as well
         string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+            io:sprintf("$lambda$%s$", startFuncName),
+            io:sprintf("([L%s;)V", OBJECT), (), ());
+        mv.visitCode();
+
+         //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
@@ -1464,6 +1512,11 @@ function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 
+function cleanupPathSeperators(string name) returns string {
+   //TODO: should use file_path:getPathSeparator();
+   return name.replace(WINDOWS_PATH_SEPERATOR, "-").replace(UNIX_PATH_SEPERATOR, "-");
+}
+
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
     string typeSig;
     if (bType is bir:BTypeInt) {
@@ -1517,7 +1570,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
 
     jvm:FieldVisitor fv;
     if (isPackage) {
-        fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig);
     } else {
         fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }

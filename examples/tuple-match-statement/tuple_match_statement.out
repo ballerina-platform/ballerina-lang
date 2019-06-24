@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run tuple_match_statement.bal
 Matched with single var : 66.6
 Matched with two vars : ("Hello", 12)

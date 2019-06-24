@@ -1,6 +1,6 @@
 # This sample requires starting up the Subscriber Service after the Publisher Service.
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
+# `.bal` file, and use the `ballerina run` command.
 $ ballerina run order_mgmt_service.bal
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:9191
 [ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub

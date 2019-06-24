@@ -25,8 +25,8 @@ public function main() {
     // The `wait` action will wait for both workers `w1` and `w2` to finish.
     record{ (int, string) w1; float w2; } results = wait {w1, w2};
 
-    // The resulting record contains returned values from each worker, with
-    // the field name as worker name if a field name is not provided.
+    // The resulting record contains returned values from each worker with
+    // the field name as the worker name (if a field name is not provided).
     var (iW1, sW1) = results.w1;
     var fW2 = results.w2;
     io:println("[main] iW1: ", iW1, " sW1: ", sW1, " fW2: ", fW2);

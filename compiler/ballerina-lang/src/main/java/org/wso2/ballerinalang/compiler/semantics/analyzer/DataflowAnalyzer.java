@@ -274,8 +274,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        this.currDependentSymbol.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         analyzeBranch(funcNode.body, funcEnv);
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -570,10 +573,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {
-        return symbol != null &&
-                symbol.owner != null &&
-                symbol.owner.tag == SymTag.PACKAGE &&
-                (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
+        if (symbol == null) {
+            return false;
+        } else if (symbol.owner == null) {
+            return false;
+        } else if (symbol.owner.tag != SymTag.PACKAGE) {
+            return false;
+        }
+
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
+                ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
     }
 
     /**
@@ -897,6 +906,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        boolean validVariable = constant.symbol != null;
+        if (validVariable) {
+            this.currDependentSymbol.push(constant.symbol);
+        }
+        try {
+            analyzeNode(constant.expr, env);
+        } finally {
+            if (validVariable) {
+                this.currDependentSymbol.pop();
+            }
+        }
     }
 
     @Override
@@ -1022,6 +1042,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        BLangService serviceNode = serviceConstructorExpr.serviceNode;
+        serviceNode.annAttachments.forEach(bLangAnnotationAttachment ->
+                                                   analyzeNode(bLangAnnotationAttachment.expr, env));
+        serviceNode.resourceFunctions.forEach(function -> analyzeNode(function, env));
     }
 
     @Override

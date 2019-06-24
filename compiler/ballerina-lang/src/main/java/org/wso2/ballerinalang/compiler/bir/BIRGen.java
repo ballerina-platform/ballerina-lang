@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -108,7 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
@@ -245,13 +245,13 @@ public class BIRGen extends BLangNodeVisitor {
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
         astPkg.imports.forEach(impPkg -> impPkg.accept(this));
+        astPkg.constants.forEach(astConst -> astConst.accept(this));
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
         astPkg.startFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
-        astPkg.constants.forEach(astConst -> astConst.accept(this));
 
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
@@ -261,6 +261,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
                                                           astTypeDefinition.symbol.flags,
+                                                          astTypeDefinition.symbol.isLabel,
                                                           astTypeDefinition.typeNode.type,
                                                           new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -273,11 +274,9 @@ public class BIRGen extends BLangNodeVisitor {
         BConstantSymbol constantSymbol = astConstant.symbol;
         Name constName = constantSymbol.name;
         BType type = constantSymbol.type;
-        BType valueType = constantSymbol.literalValueType;
 
         // Get the value of the constant.
-        BLangExpression value = (BLangExpression) astConstant.value;
-        ConstValue constantValue = getConstValue(value, valueType);
+        ConstValue constantValue = getBIRConstantVal(constantSymbol.value);
 
         // Create a new constant info object.
         BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type,
@@ -288,16 +287,15 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.constants.add(birConstant);
     }
 
-    private ConstValue getConstValue(BLangExpression value, BType valueType) {
-        ConstValue constantValue = new ConstValue();
-        if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
-            // Create a new constant value object.
-            constantValue.literalValue = ((BLangLiteral) value).value;
-            constantValue.valueType = valueType;
-        } else {
-            // TODO fix
+    private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
+        if (constValue.type.tag == TypeTags.MAP) {
+            Map<String, ConstValue> mapConstVal = new HashMap<>();
+            ((Map<String, BLangConstantValue>) constValue.value)
+                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
+            return new ConstValue(mapConstVal, constValue.type);
         }
-        return constantValue;
+
+        return new ConstValue(constValue.value, constValue.type);
     }
 
     @Override
@@ -417,7 +415,7 @@ public class BIRGen extends BLangNodeVisitor {
                 return;
             }
             BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
-            BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.type, valueLiteral.value);
+            BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type);
 
             // The keyexpr is also  a string literal
             BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
@@ -1266,20 +1264,29 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (variableStore) {
             if (astPackageVarRefExpr.symbol.name != Names.IGNORE) {
-                BIROperand varRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+                BIROperand varRef = new BIROperand(getVarRef(astPackageVarRefExpr));
                 emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
             }
-
         } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type, this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
+            BIROperand fromVarRef = new BIROperand(getVarRef(astPackageVarRefExpr));
             emit(new Move(astPackageVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
+    }
+
+    private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
+        BSymbol symbol = astPackageVarRefExpr.symbol;
+        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
+                    symbol.name, VarScope.GLOBAL, VarKind.CONSTANT);
+        }
+
+        return this.env.globalVarMap.get(symbol);
     }
 
     @Override
@@ -1614,24 +1621,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueStmt) {
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
-    }
-
-    @Override
-    public void visit(BLangConstRef constRef) {
-        boolean variableStore = this.varAssignment;
-        this.varAssignment = false;
-        if (variableStore) {
-            throw new IllegalStateException("Constants cannot be updated");
-        }
-
-        BIRVariableDcl tempVarDcl =
-                new BIRVariableDcl(constRef.type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand tempVarRef = new BIROperand(tempVarDcl);
-        BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(constRef.symbol));
-        emit(new Move(constRef.pos, fromVarRef, tempVarRef));
-        this.env.targetOperand = tempVarRef;
-        this.varAssignment = variableStore;
     }
 
     @Override

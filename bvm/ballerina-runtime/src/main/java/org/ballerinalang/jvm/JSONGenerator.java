@@ -286,7 +286,7 @@ public class JSONGenerator {
                 this.writeStartArray();
                 ArrayValue jsonArray = (ArrayValue) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.get(i));
+                    this.serialize(jsonArray.getValue(i));
                 }
                 this.writeEndArray();
                 break;
