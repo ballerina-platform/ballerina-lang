@@ -1,7 +1,7 @@
 import testorg/foo version v1;
 
-function getGlobalVars() returns (int, string, float, any) {
-    return (foo:getGlbVarInt(), foo:getGlbVarString(), foo:getGlbVarFloat(), foo:getGlbVarAny());
+function getGlobalVars() returns [int, string, float, any] {
+    return [foo:getGlbVarInt(), foo:getGlbVarString(), foo:getGlbVarFloat(), foo:getGlbVarAny()];
 }
 
 function accessGlobalVar() returns int {
@@ -25,10 +25,10 @@ function getGlobalVarFloat1() returns float {
     return foo:getGlbVarFloat1();
 }
 
-function initializeGlobalVarSeparately() returns (json, float) {
+function initializeGlobalVarSeparately() returns [json, float] {
     foo:setGlbVarJson({"name" : "James", "age": 30});
     foo:setGlbVarFloatLater(3432.3423);
-    return (foo:getGlbVarJson(), foo:getGlbVarFloatLater());
+    return [foo:getGlbVarJson(), foo:getGlbVarFloatLater()];
 }
 
 function getGlobalVarByte() returns byte {
@@ -48,10 +48,10 @@ function getGlobalVarByteArray3() returns byte[] {
 }
 
 
-function getGlobalArrays() returns (int, int, int, int, int, int, int) {
+function getGlobalArrays() returns [int, int, int, int, int, int, int] {
     int[2][3] x = foo:getGlbSealed2DArray();
     int[3][] x1 = foo:getGlbSealed2DArray2();
-    return (foo:getGlbArray().length(), foo:getGlbSealedArray().length(), foo:getGlbSealedArray2().length(), x.length(),
-                                                                        x[0].length(), x1.length(), x1[0].length());
+    return [foo:getGlbArray().length(), foo:getGlbSealedArray().length(), foo:getGlbSealedArray2().length(), x.length(),
+                                                                        x[0].length(), x1.length(), x1[0].length()];
 
 }

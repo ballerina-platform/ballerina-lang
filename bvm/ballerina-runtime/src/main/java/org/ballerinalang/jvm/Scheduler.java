@@ -54,7 +54,7 @@ public class Scheduler {
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
-    private boolean immortal;
+    public boolean immortal;
     /**
      * Strands that are ready for execution.
      */
