@@ -44,6 +44,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private EventBus eventBus;
     private Map<Long, Variable> variableMap;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
+    private String sourceRoot;
+
     AtomicInteger variableReference = new AtomicInteger();
 
     @Override
@@ -57,6 +59,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
+            sourceRoot = args.get("sourceRoot").toString();
             debuggee = new DebuggerAttachingVM(5005).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
@@ -78,6 +81,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         try {
+            sourceRoot = args.get("sourceRoot").toString();
             debuggee = new DebuggerAttachingVM(5005).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
@@ -134,15 +138,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             StackTraceResponse stackTraceResponse = new StackTraceResponse();
             List<com.sun.jdi.StackFrame> frames = threadsMap.get(args.getThreadId()).frames();
             StackFrame[] stackFrames = new StackFrame[frames.size()];
-
-//            AtomicInteger index = new AtomicInteger();
             frames.stream()
                     .map(this::toStackFrame)
-//                    .map(stackFrame -> {
-//                        long i = index.incrementAndGet();
-////                        stackFrame.setId(i);
-//                        return stackFrame;
-//                    })
                     .collect(Collectors.toList()).toArray(stackFrames);
             stackTraceResponse.setStackFrames(stackFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
@@ -155,9 +152,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
-
-//        Map<LocalVariable, Value> visibleVariables = (Map<LocalVariable, Value>) stackFrame
-//                .getValues(stackFrame.visibleVariables());
         return CompletableFuture.completedFuture(variablesResponse);
     }
 
@@ -182,12 +176,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
-//        ThreadReference thread = debuggee.allThreads()
-//                .stream()
-//                .filter(t -> t.uniqueID() == args.getThreadId())
-//                .findFirst()
-//                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
-//        thread.resume();
         debuggee.resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
@@ -269,7 +257,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Source source = new Source();
         try {
             newStackFrame = new StackFrame();
-            source.setPath("/Users/pahan/workspace/jballerina/samples/" + stackFrame.location().sourceName());
+            source.setPath(sourceRoot + stackFrame.location().sourcePath());
             source.setName(stackFrame.location().sourceName());
             newStackFrame.setSource(source);
             newStackFrame.setLine((long)stackFrame.location().lineNumber());

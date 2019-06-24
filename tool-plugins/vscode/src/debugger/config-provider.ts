@@ -48,7 +48,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
             config.script = window.activeTextEditor.document.uri.path;
         }
 
-        
+        config.sourceRoot = path.dirname(config.script);
 
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (langClient.initializeResult) {
