@@ -49,7 +49,7 @@ public type AndOperatorProcessor object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     #
     # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
-    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
+    public function process(StreamEvent event, string? processorAlias) returns [boolean, boolean] {
         lock {
             self.lockField += 1;
             boolean promoted = false;
@@ -69,12 +69,12 @@ public type AndOperatorProcessor object {
                         // at the leaf nodes (operand processor), it'll take current events'
                         // stream name into consideration. Therefore, we have to set that.
                         partialEvt.streamName = event.streamName;
-                        (tmpPromote, tmpToNext) = lProcessor.process(partialEvt, self.lhsAlias);
+                        [tmpPromote, tmpToNext] = lProcessor.process(partialEvt, self.lhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
                     }
                 } else {
-                    (tmpPromote, tmpToNext) = lProcessor.process(event, self.lhsAlias);
+                    [tmpPromote, tmpToNext] = lProcessor.process(event, self.lhsAlias);
                     promote = promote || tmpPromote;
                     toNext = toNext || tmpToNext;
                 }
@@ -93,12 +93,12 @@ public type AndOperatorProcessor object {
                             // at the leaf nodes (operand processor), it'll take current events'
                             // stream name into consideration. Therefore, we have to set that.
                             partialEvt.streamName = event.streamName;
-                            (tmpPromote, tmpToNext) = rProcessor.process(partialEvt, self.rhsAlias);
+                            [tmpPromote, tmpToNext] = rProcessor.process(partialEvt, self.rhsAlias);
                             promote = promote || tmpPromote;
                             toNext = toNext || tmpToNext;
                         }
                     } else {
-                        (tmpPromote, tmpToNext) = rProcessor.process(event, self.rhsAlias);
+                        [tmpPromote, tmpToNext] = rProcessor.process(event, self.rhsAlias);
                         promote = promote || tmpPromote;
                         toNext = toNext || tmpToNext;
                     }
@@ -117,7 +117,7 @@ public type AndOperatorProcessor object {
                     }
                 }
             }
-            return (promoted, toNext);
+            return [promoted, toNext];
         }
     }
 

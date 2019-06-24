@@ -50,7 +50,7 @@
     {
       "label": "myService1",
       "kind": "Variable",
-      "detail": "myService1$$service$0",
+      "detail": "myService1",
       "sortText": "110",
       "insertText": "myService1",
       "insertTextFormat": "Snippet"
@@ -66,7 +66,7 @@
     {
       "label": "ep1",
       "kind": "Variable",
-      "detail": "ballerina/http:Listener",
+      "detail": "http:Listener",
       "sortText": "110",
       "insertText": "ep1",
       "insertTextFormat": "Snippet"
