@@ -1512,6 +1512,11 @@ function cleanupBalExt(string name) returns string {
     return name.replace(BAL_EXTENSION, "");
 }
 
+function cleanupPathSeperators(string name) returns string {
+   //TODO: should use file_path:getPathSeparator();
+   return name.replace(WINDOWS_PATH_SEPERATOR, "-").replace(UNIX_PATH_SEPERATOR, "-");
+}
+
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, boolean isPackage) {
     string typeSig;
     if (bType is bir:BTypeInt) {
@@ -1565,7 +1570,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
 
     jvm:FieldVisitor fv;
     if (isPackage) {
-        fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig);
     } else {
         fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }
