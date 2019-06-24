@@ -50,7 +50,7 @@ public class GetKeys extends BlockingNativeCallableUnit {
         ctx.setReturnValues(keyArray);
     }
 
-    public static ArrayValue keys(Strand strand, MapValue<?, ?> map) {
-        return new ArrayValue((String[]) map.getKeys());
+    public static ArrayValue keys(Strand strand, MapValue<?, ?> m) {
+        return new ArrayValue((String[]) m.getKeys());
     }
 }

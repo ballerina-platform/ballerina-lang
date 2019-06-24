@@ -14,31 +14,57 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Removes the specified element from the map.
-#
-# + m - The source map
-# + key - The key to be removed
-# + return - A boolean to indicate whether the key is removed or not from map
-public function remove(map<any> m, string key) returns boolean = external;
+@typeParam
+type Type any|error;
 
-# Returns an array of keys contained in the specified map.
-#
-# + m - The source map
-# + return - A string array of keys contained in the specified map
-public function keys(map<any> m) returns string[] = external;
+@typeParam
+type Type1 any|error;
 
-# Check whether specific key exists from the given map.
-#
-# + m - The source map
-# + key - The key to be find existence
-public function hasKey(map<any> m, string key) returns boolean = external;
+@typeParam
+type PureType anydata|error;
 
-# Clear the items from given map.
-# + m - The source map
-public function clear(map<any> m) = external;
+# Returns number of members in `m`.
+public function length(map<any|error> m) returns int = external;
 
-# Returns an array of values contained in the specified map.
-#
-# + m - The source map
-# + return - An any array of values contained in the specified map
-public function values(map<any> m) returns any[] = external;
+# Returns an iterator over the members of `m`
+public function iterator(map<Type> m) returns abstract object {
+    public function next() returns record {|
+        Type value;
+    |}?;
+} = external;
+
+# Returns the member of map m with key k.
+# Panics if m does not have a member with key k.
+public function get(map<Type> m, string k) returns Type = external;
+
+public function entries(map<Type> m) returns map<[string, Type]> = external;
+
+// Functional iteration
+
+// use delimited identifer for function name to avoid conflict with reserved name
+public function ^"map"(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
+
+# Applies `func` to each member of `m`.
+public function forEach(map<Type> m, function(Type val) returns () func) returns () = external;
+
+public function filter(map<Type> m, function(Type val) returns boolean func) returns map<Type> = external;
+
+public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
+
+# Clear the map, removing all entries.
+# After calling this function the length will be 0.
+public function clear(map<any|error> m) returns () = external;
+
+# Removes the member of `m` with key `k` and returns it.
+# Panics if there is no such member
+public function remove(map<Type> m, string k) returns Type = external;
+
+# Removes all members of `m`.
+# Panics if any member cannot be removed.
+public function removeAll(map<any|error> m) returns () = external;
+
+# Tells whether m has a member with key `k`.
+public function hasKey(map<Type> m, string k) returns boolean = external;
+
+# Returns a list of all the keys of map `m`.
+public function keys(map<any|error> m) returns string[] = external;

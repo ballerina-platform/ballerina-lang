@@ -53,9 +53,9 @@ public class Clear extends BlockingNativeCallableUnit {
         }
     }
 
-    public static void clear(Strand strand, MapValue<?, ?> map) {
+    public static void clear(Strand strand, MapValue<?, ?> m) {
         try {
-            map.clear();
+            m.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             throw BallerinaErrors.createError(e.getMessage(), "Failed to clear map: " + e.getDetail());
         }

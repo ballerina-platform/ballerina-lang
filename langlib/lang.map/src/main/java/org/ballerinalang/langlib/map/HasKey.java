@@ -35,10 +35,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
-        functionName = "hasKey",
-        args = {@Argument(name = "m", type = TypeKind.MAP),
-                @Argument(name = "key", type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "lang.map", functionName = "hasKey",
+        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
@@ -50,8 +48,8 @@ public class HasKey extends BlockingNativeCallableUnit {
         ctx.setReturnValues(new BBoolean(map.hasKey(key)));
     }
 
-    public static boolean hasKey(Strand strand, MapValue<?, ?> map, String key) {
-        return map.containsKey(key);
+    public static boolean hasKey(Strand strand, MapValue<?, ?> m, String k) {
+        return m.containsKey(k);
     }
 }
 
