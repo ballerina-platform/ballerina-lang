@@ -22,9 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -39,23 +36,10 @@ public class DecryptAesGcm extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        BValue keyBValue = context.getRefArgument(1);
-        byte[] key = ((BValueArray) keyBValue).getBytes();
-        BValue ivBValue = context.getRefArgument(2);
-        byte[] iv = null;
-        if (ivBValue != null) {
-            iv = ((BValueArray) ivBValue).getBytes();
-        }
-        String padding = context.getRefArgument(3).stringValue();
-        BValue tagSize = context.getNullableRefArgument(4);
-        CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.GCM, padding, key, input, iv,
-                ((BInteger) tagSize).intValue());
     }
 
     public static Object decryptAesGcm(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue,  Object padding, Object tagSize) {
+                                       ArrayValue ivValue,  Object padding, long tagSize) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;
@@ -63,6 +47,6 @@ public class DecryptAesGcm extends BlockingNativeCallableUnit {
             iv = ivValue.getBytes();
         }
         return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.GCM, padding.toString(), key,
-                                             input, iv, ((Long) tagSize).intValue());
+                                             input, iv, tagSize);
     }
 }
