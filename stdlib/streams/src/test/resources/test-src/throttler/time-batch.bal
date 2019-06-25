@@ -107,9 +107,9 @@ public type TimeBatch object {
                         streams:StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (streams:StreamEvent?, streams:StreamEvent?)[] {
+                        returns [streams:StreamEvent?, streams:StreamEvent?][] {
         // do nothing;
-        return [((), ())];
+        return [[(), ()]];
     }
 };
 

@@ -380,7 +380,7 @@ public class XMLLiteralTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testServiceLevelXML() {
         BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");

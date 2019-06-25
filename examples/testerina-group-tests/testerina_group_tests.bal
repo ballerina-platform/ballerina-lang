@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/test;
 
-// Test function, which belongs to group `g1`
+// The test function, which belongs to the group `g1`.
 @test:Config {
     groups: ["g1"]
 }
@@ -10,7 +10,7 @@ function testFunction1() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// Test function, which belongs to groups `g1`, and `g2`
+// The test function, which belongs to the groups `g1` and `g2`
 @test:Config {
     groups: ["g1", "g2"]
 }
@@ -19,7 +19,7 @@ function testFunction2() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// This test doesn't belong to any group
+// This test doesn't belong to any group.
 @test:Config
 function testFunction3() {
     io:println("I'm the ungrouped test");

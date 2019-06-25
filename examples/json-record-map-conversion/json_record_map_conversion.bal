@@ -24,11 +24,11 @@ public function main() {
             lname: "Punke", age: 30
         }
     };
-    // Here's how you can convert a record to a JSON object.
+    // The below example shows how you can convert a record to a JSON object.
     // This conversion is unsafe because it may not be possible to convert some data types
     // that are defined in the record to JSON.
     // Similarly, you can use the `.stamp()` built-in method to manipulate the value
-    // itself, by attempting to change its type.
+    // itself by attempting to change its type.
     json|error j = json.convert(theRevenant);
     if (j is json) {
         io:println(j);
@@ -44,8 +44,8 @@ public function main() {
         }
     }
 
-    // Here's how you can convert a JSON object to a record.
-    // This conversion is unsafe because the field names and types are unknown until runtime.
+    // The below example shows how you can convert a JSON object to a record.
+    // This conversion is unsafe because the field names and types are unknown until they are executed during the runtime.
     json inceptionJ = {
         title: "Inception",
         year: "2010",

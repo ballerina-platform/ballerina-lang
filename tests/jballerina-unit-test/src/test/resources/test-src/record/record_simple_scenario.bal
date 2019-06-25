@@ -1,7 +1,7 @@
 
-public function testSimpleRecord () returns (int, string) {
+public function testSimpleRecord () returns [int, string] {
     Person p = {age: 89, name:"hello world"};
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
 type Person record {

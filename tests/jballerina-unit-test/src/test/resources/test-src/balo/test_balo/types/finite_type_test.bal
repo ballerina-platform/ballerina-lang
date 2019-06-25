@@ -142,8 +142,8 @@ function testFiniteTypesWithUnionCaseThree() returns int {
 
 function testFiniteTypesWithTuple() returns foo:State {
     foo:State onState = "on";
-    (foo:State, int) b = (onState, 20);
-    var (i, j) = b;
+    [foo:State, int] b = [onState, 20];
+    var [i, j] = b;
     return i;
 }
 
@@ -152,31 +152,31 @@ function testTypeAliasing() returns string {
     return p.name;
 }
 
-function testTypeAliasingCaseOne() returns (foo:MyType, foo:MyType) {
+function testTypeAliasingCaseOne() returns [foo:MyType, foo:MyType] {
     foo:MyType a = 100;
     foo:MyType b = "hundred";
-    return (a, b);
+    return [a, b];
 }
 
-function testTypeDefinitionWithVarArgs() returns (foo:ParamTest, foo:ParamTest) {
+function testTypeDefinitionWithVarArgs() returns [foo:ParamTest, foo:ParamTest] {
     string s1 = "Anne";
     foo:ParamTest p1 = testVarArgs("John");
     foo:ParamTest p2 = testVarArgs(s1);
-    return (p1, p2);
+    return [p1, p2];
 }
 
 function testVarArgs(foo:ParamTest... p1) returns foo:ParamTest {
     return p1[0];
 }
 
-function testTypeDefinitionWithArray() returns (int, int) {
+function testTypeDefinitionWithArray() returns [int, int] {
     foo:ArrayCustom val = [34, 23];
-    return (val.length() , val[1]);
+    return [val.length() , val[1]];
 }
 
-function testTypeDefinitionWithByteArray() returns (int, byte) {
+function testTypeDefinitionWithByteArray() returns [int, byte] {
     foo:ByteArrayType val = [34, 23];
-    return (val.length() , val[1]);
+    return [val.length() , val[1]];
 }
 
 function testFiniteAssignmentByteType() returns foo:ByteType {
@@ -188,12 +188,12 @@ function testFiniteAssignmentByteType() returns foo:ByteType {
     return si;
 }
 
-function testByteTypeDefinitionWithVarArgs() returns (foo:BFType, foo:BFType) {
+function testByteTypeDefinitionWithVarArgs() returns [foo:BFType, foo:BFType] {
     byte a = 34;
     float f = 4.5;
     foo:BFType p1 = testVarByteArgs(a);
     foo:BFType p2 = testVarByteArgs(f);
-    return (p1, p2);
+    return [p1, p2];
 }
 
 function testVarByteArgs(foo:BFType... p1) returns foo:BFType {

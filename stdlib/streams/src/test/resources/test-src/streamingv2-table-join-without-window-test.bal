@@ -37,8 +37,11 @@ type StockWithPrice record {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-stream<Twitter> twitterStream = new;
-stream<StockWithPrice> stockWithPriceStream = new;
+stream<Twitter> twitterStream1 = new;
+stream<StockWithPrice> stockWithPriceStream1 = new;
+
+stream<Twitter> twitterStream2 = new;
+stream<StockWithPrice> stockWithPriceStream2 = new;
 
 table<Stock> stocksTable = table {
     { symbol, price, volume },
@@ -50,12 +53,12 @@ table<Stock> stocksTable = table {
 
 function testJoinQuery() {
     forever {
-        from twitterStream as tw
+        from twitterStream1 as tw
         join queryStocksTable(tw.company, 1) as tb
         select tb.symbol, tw.tweet, tb.price
         => (StockWithPrice[] stocks) {
             foreach var s in stocks {
-                stockWithPriceStream.publish(s);
+                stockWithPriceStream1.publish(s);
             }
         }
     }
@@ -63,12 +66,12 @@ function testJoinQuery() {
 
 function testOuterJoinQuery() {
     forever {
-        from twitterStream as tw
+        from twitterStream2 as tw
         full outer join queryStocksTable(tw.company, 1) as tb
         select tb.symbol, tw.tweet, tb.price
         => (StockWithPrice[] stocks) {
             foreach var s in stocks {
-                stockWithPriceStream.publish(s);
+                stockWithPriceStream2.publish(s);
             }
         }
     }
@@ -82,11 +85,11 @@ function startTableJoinQuery() returns (StockWithPrice[]) {
     Twitter t1 = { user: "User1", tweet: "Hello WSO2, happy to be a user.", company: "WSO2" };
     Twitter t2 = { user: "User2", tweet: "Hello IBM, happy to be a user.", company: "IBM" };
 
-    stockWithPriceStream.subscribe(function (StockWithPrice e) {printCompanyStockPrice(e);});
+    stockWithPriceStream1.subscribe(function (StockWithPrice e) {printCompanyStockPrice(e);});
 
-    twitterStream.publish(t1);
+    twitterStream1.publish(t1);
     runtime:sleep(1000);
-    twitterStream.publish(t2);
+    twitterStream1.publish(t2);
     runtime:sleep(1000);
 
     int count = 0;
@@ -108,11 +111,11 @@ function startTableOuterJoinQuery() returns (StockWithPrice[]) {
     Twitter t1 = { user: "User1", tweet: "Hello WSO2, happy to be a user.", company: "WSO2" };
     Twitter t2 = { user: "User3", tweet: "Hello BMW, happy to be a user.", company: "BMW" };
 
-    stockWithPriceStream.subscribe(printCompanyStockPrice);
+    stockWithPriceStream2.subscribe(printCompanyStockPrice);
 
-    twitterStream.publish(t1);
+    twitterStream2.publish(t1);
     runtime:sleep(1000);
-    twitterStream.publish(t2);
+    twitterStream2.publish(t2);
     runtime:sleep(1000);
 
     int count = 0;
