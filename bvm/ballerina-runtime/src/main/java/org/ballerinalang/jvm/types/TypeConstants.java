@@ -46,5 +46,4 @@ public class TypeConstants {
     public static final String CHANNEL = "channel";
     public static final String ERROR = "error";
     public static final String SERVICE = "service";
-    public static final String RECORD_TNAME = "$anon$record$";
 }

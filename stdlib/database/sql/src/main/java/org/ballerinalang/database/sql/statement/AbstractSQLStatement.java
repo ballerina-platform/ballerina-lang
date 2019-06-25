@@ -27,8 +27,11 @@ import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -36,6 +39,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -146,9 +150,16 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 
     protected TableValue constructTable(TableResourceManager rm, ResultSet rs, BStructureType structType,
             List<ColumnDefinition> columnDefinitions, String databaseProductName) {
+        BStructureType tableConstraint = structType;
+        if (structType == null) {
+            tableConstraint = new BRecordType("$table$anon$constraint$",
+                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue(),
+                            Names.DEFAULT_VERSION.getValue()), 0, false);
+            ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
+        }
         return new BCursorTable(
                 new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType, databaseProductName),
-                structType);
+                tableConstraint);
     }
 
     protected int getParameterDirection(MapValue<String, Object> parameter) {
