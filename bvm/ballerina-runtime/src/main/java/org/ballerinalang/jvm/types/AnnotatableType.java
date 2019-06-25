@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
@@ -26,19 +27,21 @@ import org.ballerinalang.jvm.values.MapValue;
  */
 public abstract class AnnotatableType extends BType {
 
-    protected MapValue<String, MapValue> annotations = new MapValue<>();
+    protected MapValueImpl<String, ArrayValue> annotations = new MapValueImpl<>();
 
-    AnnotatableType(String typeName, String pkgPath, Class<?> valueClass) {
-        super(typeName, pkgPath, valueClass);
+    AnnotatableType(String typeName, BPackage pkg, Class<?> valueClass) {
+        super(typeName, pkg, valueClass);
     }
 
     public abstract String getAnnotationKey();
 
-    public void addAnnotation(String key, MapValue annotation) {
-        this.annotations.put(key, annotation);
+    public void addAnnotation(String key, MapValueImpl annotation) {
+        ArrayValue arrayValue = this.annotations.computeIfAbsent(key,
+                k -> new ArrayValue(new BArrayType(BTypes.typeAnydata)));
+        arrayValue.append(annotation);
     }
 
-    public MapValue getAnnotation(String pkgPath, String name) {
+    public ArrayValue getAnnotation(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
         return this.annotations.get(key);
     }

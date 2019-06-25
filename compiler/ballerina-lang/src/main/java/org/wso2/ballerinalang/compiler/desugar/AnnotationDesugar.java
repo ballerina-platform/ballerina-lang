@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -31,14 +33,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import java.util.List;
 
 /**
  * Desugar annotations into executable entries.
@@ -83,30 +89,63 @@ public class AnnotationDesugar {
     protected void rewritePackageAnnotations(BLangPackage pkgNode) {
         BLangFunction initFunction = pkgNode.initFunction;
 
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockStmt.pos = initFunction.pos;
+
+        for (BLangVariable variable : pkgNode.globalVars) {
+            generateAnnotations(variable, variable.symbol.name.value, initFunction, initFunction.body, annotationMap);
+        }
+
+        int index = calculateIndex(initFunction.body.stmts);
+
+        for (BLangStatement stmt : blockStmt.stmts) {
+            stmt.pos = pkgNode.pos;
+            initFunction.body.stmts.add(index++, stmt);
+        }
+
         // Handle service annotations
         for (BLangService service : pkgNode.services) {
-            generateAnnotations(service, service.name.value, initFunction, annotationMap);
+            generateAnnotations(pkgNode, service, service.name.value, initFunction, annotationMap);
         }
 
         // Handle Function Annotations.
         handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
 
-        for (BLangVariable variable : pkgNode.globalVars) {
-            generateAnnotations(variable, variable.symbol.name.value, initFunction, annotationMap);
-        }
-
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
         pkgNode.initFunction.body.stmts.add(returnStmt);
+    }
+
+    private int calculateIndex(List<BLangStatement> stmts) {
+        for (int i = 0; i < stmts.size(); i++) {
+            BLangStatement stmt = stmts.get(i);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR)) {
+                return i;
+            }
+        }
+        return stmts.size();
     }
 
     private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
                                            BLangSimpleVariable annotationMap) {
         for (BLangFunction function : pkgNode.functions) {
-            generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
+            if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                generateAnnotations(function, function.symbol.name.value, initFunction, blockStmt, annotationMap);
+                int index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
+
+                for (BLangStatement stmt : blockStmt.stmts) {
+                    stmt.pos = pkgNode.pos;
+                    initFunction.body.stmts.add(index++, stmt);
+                }
+            } else {
+                generateAnnotations(function, function.symbol.name.value, initFunction, initFunction.body,
+                                    annotationMap);
+            }
         }
 
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
-            generateAnnotations(typeDef, typeDef.name.value, initFunction, annotationMap);
+            generateAnnotations(typeDef, typeDef.name.value, initFunction, initFunction.body, annotationMap);
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
@@ -114,27 +153,51 @@ public class AnnotationDesugar {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
                 for (BLangSimpleVariable field : objectTypeNode.fields) {
                     String key = typeDef.name.value + DOT + field.name.value;
-                    generateAnnotations(field, key, initFunction, annotationMap);
+                    generateAnnotations(field, key, initFunction, initFunction.body, annotationMap);
                 }
             } else if (typeDef.symbol.type.tag == TypeTags.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 for (BLangSimpleVariable field : recordTypeNode.fields) {
                     String key = typeDef.name.value + DOT + field.name.value;
-                    generateAnnotations(field, key, initFunction, annotationMap);
+                    generateAnnotations(field, key, initFunction, initFunction.body, annotationMap);
                 }
             }
         }
     }
 
+    private void generateAnnotations(BLangPackage pkgNode, BLangService service, String key, BLangFunction initFunction,
+                                     BLangSimpleVariable  annMapVar) {
+        if (service.getAnnotationAttachments().size() == 0) {
+            return;
+        }
+
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+
+        BLangSimpleVariable entryVar = createAnnotationMapEntryVar(key, annMapVar, blockStmt, initFunction.symbol);
+        int annCount = 0;
+        for (AnnotationAttachmentNode attachment : service.getAnnotationAttachments()) {
+            initAnnotation((BLangAnnotationAttachment) attachment, entryVar, blockStmt, initFunction.symbol,
+                           annCount++);
+        }
+
+        int index = calculateIndex(initFunction.body.stmts, service);
+
+        for (BLangStatement stmt : blockStmt.stmts) {
+            stmt.pos = pkgNode.pos;
+            initFunction.body.stmts.add(index++, stmt);
+        }
+    }
+
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target,
+                                     BLangBlockStmt bLangBlockStmt,
                                      BLangSimpleVariable annMapVar) {
         if (node.getAnnotationAttachments().size() == 0) {
             return;
         }
-        BLangSimpleVariable entryVar = createAnnotationMapEntryVar(key, annMapVar, target.body, target.symbol);
+        BLangSimpleVariable entryVar = createAnnotationMapEntryVar(key, annMapVar, bLangBlockStmt, target.symbol);
         int annCount = 0;
         for (AnnotationAttachmentNode attachment : node.getAnnotationAttachments()) {
-            initAnnotation((BLangAnnotationAttachment) attachment, entryVar, target.body, target.symbol, annCount++);
+            initAnnotation((BLangAnnotationAttachment) attachment, entryVar, bLangBlockStmt, target.symbol, annCount++);
         }
     }
 
@@ -142,7 +205,8 @@ public class AnnotationDesugar {
         BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
                 symTable.mapType, ASTBuilderUtil.createEmptyRecordLiteral(pkgNode.pos, symTable.mapType), null);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
-        pkgNode.addGlobalVariable(annotationMap);
+        pkgNode.globalVars.add(0, annotationMap); // TODO fix this
+        pkgNode.topLevelNodes.add(0, annotationMap);
         return annotationMap;
     }
 
@@ -196,5 +260,29 @@ public class AnnotationDesugar {
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationMapEntryVar.symbol);
         indexAccessNode.type = annotationMapEntryVar.symbol.type;
         assignmentStmt.varRef = indexAccessNode;
+    }
+
+    private int calculateIndex(List<BLangStatement> statements, BLangService service) {
+        for (int i = 0; i < statements.size(); i++) {
+            BLangStatement stmt = statements.get(i);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
+                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).serviceNode == service) {
+                return i;
+            }
+        }
+        return statements.size();
+    }
+
+    private int calculateIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
+        for (int i = 0; i < statements.size(); i++) {
+            BLangStatement stmt = statements.get(i);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
+                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).type.tsymbol == symbol) {
+                return i;
+            }
+        }
+        return statements.size();
     }
 }

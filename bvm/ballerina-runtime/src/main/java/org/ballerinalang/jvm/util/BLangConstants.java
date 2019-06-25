@@ -31,13 +31,21 @@ public class BLangConstants {
     public static final short VERSION_NUMBER = 26;
 
     public static final String MAIN_FUNCTION_NAME = "main";
-    public static final String INIT_FUNCTION_SUFFIX = ".<init>";
+    public static final String INIT_FUNCTION_SUFFIX = "..<init>";
     public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "__init";
     public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
-    public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>";
+    public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
+
+    public static final String EMPTY = "";
+    public static final String ANON_ORG = "$anon";
+    public static final String DOT = ".";
+    public static final String ORG_NAME_SEPARATOR = "/";
+    public static final String VERSION_SEPARATOR = ":";
+    
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
@@ -67,7 +75,6 @@ public class BLangConstants {
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
-    public static final String ORG_NAME_SEPARATOR = "/";
     public static final String USER_HOME = "user.home";
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;

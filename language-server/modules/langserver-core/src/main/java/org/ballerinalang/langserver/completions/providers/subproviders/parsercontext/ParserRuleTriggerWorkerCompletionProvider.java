@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -27,9 +27,9 @@ import java.util.List;
 /**
  * Parser rule based Item provider for the Worker invoke statement.
  */
-public class ParserRuleTriggerWorkerCompletionProvider extends AbstractSubCompletionProvider {
+public class ParserRuleTriggerWorkerCompletionProvider extends LSCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext completionContext) {
+    public List<CompletionItem> getCompletions(LSContext completionContext) {
         return new ArrayList<>();
     }
 }

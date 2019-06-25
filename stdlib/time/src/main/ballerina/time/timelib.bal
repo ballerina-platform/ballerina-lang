@@ -108,7 +108,7 @@ public function getMilliSecond(Time time) returns int = external;
 # + return - The year representation.
 #            The month-of-year, from 1 (January) to 12 (December).
 #            The day-of-month, from 1 to 31.
-public function getDate(Time time) returns (int, int, int) = external;
+public function getDate(Time time) returns [int, int, int] = external;
 
 # Returns the time representation of the given time.
 #
@@ -117,7 +117,7 @@ public function getDate(Time time) returns (int, int, int) = external;
 #            The minute-of-hour to represent, from 0 to 59.
 #            The second-of-minute, from 0 to 59.
 #            The milli-of-second, from 0 to 999.
-public function getTime(Time time) returns (int, int, int, int) = external;
+public function getTime(Time time) returns [int, int, int, int] = external;
 
 # Add specified durations to the given time value.
 #

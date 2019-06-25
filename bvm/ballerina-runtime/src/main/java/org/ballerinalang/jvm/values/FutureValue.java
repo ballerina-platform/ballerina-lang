@@ -18,13 +18,21 @@
  package org.ballerinalang.jvm.values;
 
  import org.ballerinalang.jvm.Strand;
+ import org.ballerinalang.jvm.commons.TypeValuePair;
+ import org.ballerinalang.jvm.types.BType;
+ import org.ballerinalang.jvm.types.BTypes;
+ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+
+ import java.util.List;
+ import java.util.Map;
+ import java.util.StringJoiner;
 
  /**
   * Represent a Ballerina future in Java.
   *
   * @since 0.995.0
   */
- public class FutureValue {
+ public class FutureValue implements RefValue {
 
      public Strand strand;
 
@@ -32,7 +40,44 @@
 
      public boolean isDone;
 
-     public FutureValue(Strand strand) {
+     public Throwable panic;
+
+     public CallableUnitCallback callback;
+
+     public FutureValue(Strand strand, CallableUnitCallback callback) {
          this.strand = strand;
+         this.callback = callback;
+     }
+
+     @Override
+     public String stringValue() {
+         StringJoiner sj = new StringJoiner(",", "{", "}");
+         sj.add("isDone:" + isDone);
+         if (isDone) {
+             sj.add("result:" + result.toString());
+         }
+         if (panic != null) {
+             sj.add("panic:" + panic.getLocalizedMessage());
+         }
+         return "future:" + sj.toString();
+     }
+
+     @Override
+     public BType getType() {
+         return BTypes.typeFuture;
+     }
+
+     @Override
+     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+
+     }
+
+     @Override
+     public Object copy(Map<Object, Object> refs) {
+         return null;
+     }
+
+     public void cancel() {
+         this.strand.cancel = true;
      }
  }

@@ -34,7 +34,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "compression: {\n\t${1}\n}",
+      "insertText": "compression: {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -50,7 +50,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "cors: {\n\t${1}\n}",
+      "insertText": "cors: {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -58,15 +58,15 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "versioning: {\n\t${1}\n}",
+      "insertText": "versioning: {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "authConfig",
+      "label": "auth",
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "authConfig: ${1:{}} // Values allowed: ballerina/http:ListenerAuthConfig|()",
+      "insertText": "auth: {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -74,7 +74,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauthConfig: {} // Values allowed: ballerina/http:ListenerAuthConfig|()",
+      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauth: {}",
       "insertTextFormat": "Snippet"
     }
   ]

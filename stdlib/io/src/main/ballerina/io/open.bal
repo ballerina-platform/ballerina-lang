@@ -30,7 +30,7 @@ public const APPEND = "a";
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel = external;
+public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel | error = external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
@@ -43,21 +43,21 @@ public function openWritableFile(@sensitive string path, boolean append = false)
 # Creates an in-memory channel which will reference stream of bytes.
 #
 # + content - Content which should be exposed as channel
-# + return - ByteChannel represenation to read the memory content
+# + return - ByteChannel representation to read the memory content
 public function createReadableChannel(byte[] content) returns ReadableByteChannel = external;
 
 # Retrieves a readable CSV channel from a give file path.
 #
 # + path - File path which describes the location of the CSV
-# + fieldSeparator - CSV record seperator (i.e comma or tab)
+# + fieldSeparator - CSV record separator (i.e comma or tab)
 # + charset - Encoding characters in the file represents
 # + skipHeaders - Number of headers which should be skipped
 # + return - ReadableCSVChannel which could be used to iterate through the CSV records
 public function openReadableCsvFile(@sensitive string path,
                             @sensitive Separator fieldSeparator = ",",
                             @sensitive string charset = "UTF-8",
-                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel {
-    ReadableByteChannel byteChannel = openReadableFile(path);
+                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel | error {
+    ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
 }
@@ -65,7 +65,7 @@ public function openReadableCsvFile(@sensitive string path,
 # Retrieves a writable CSV channel from a give file path.
 #
 # + path - File path which describes the location of the CSV
-# + fieldSeparator - CSV record seperator (i.e comma or tab)
+# + fieldSeparator - CSV record separator (i.e comma or tab)
 # + charset - Encoding characters in the file represents
 # + skipHeaders - Number of headers which should be skipped
 # + return - WritableCSVChannel which could be used to write CSV records

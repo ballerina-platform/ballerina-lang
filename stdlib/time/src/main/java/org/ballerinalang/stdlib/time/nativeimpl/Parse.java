@@ -19,6 +19,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -79,5 +82,36 @@ public class Parse extends AbstractTimeFunction {
             zoneId = ZoneId.systemDefault().toString();
         }
         return TimeUtils.createTimeStruct(timeZoneStructInfo, timeStructInfo, epochTime, zoneId);
+    }
+
+    public static Object parse(Strand strand, String dateString, Object pattern) {
+        try {
+            TemporalAccessor parsedDateTime;
+            if ("RFC_1123".equals(pattern.toString())) {
+                parsedDateTime = DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateString);
+                return getTimeRecord(parsedDateTime, dateString, pattern.toString());
+            }
+            return parseTime(dateString, pattern.toString());
+        } catch (ErrorValue e) {
+            return e;
+        }
+    }
+
+    private static MapValue<String, Object> getTimeRecord(TemporalAccessor dateTime, String dateString,
+                                                          String pattern) {
+        MapValue<String, Object> timeZoneRecord = TimeUtils.getTimeZoneRecord();
+        MapValue<String, Object> timeRecord = TimeUtils.getTimeRecord();
+        long epochTime = -1;
+        String zoneId;
+        try {
+            epochTime = Instant.from(dateTime).toEpochMilli();
+            zoneId = String.valueOf(ZoneId.from(dateTime));
+        } catch (DateTimeException e) {
+            if (epochTime < 0) {
+                throw TimeUtils.getTimeError("failed to parse \"" + dateString + "\" to the " + pattern + " format");
+            }
+            zoneId = ZoneId.systemDefault().toString();
+        }
+        return TimeUtils.createTimeRecord(timeZoneRecord, timeRecord, epochTime, zoneId);
     }
 }

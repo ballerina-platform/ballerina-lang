@@ -19,9 +19,9 @@ function initRealtimeRequestCounter() returns () {
     // the `printRequestCount` function is invoked.
     requestCountStream.subscribe(printRequestCount);
 
-    // Gather all the events coming in to the `requestStream` for five seconds, group them by the host, count the number
-    // of requests per host, and check if the count is more than six. If yes, publish the output (host and the count) to
-    // the `requestCountStream` stream as an alert. This `forever` block is executed once, when initializing the service.
+    // Gathers all the events coming in to the `requestStream` for five seconds, groups them by the host, counts the number
+    // of requests per host, and checks if the count is more than 6. If yes, publish the output (host and the count) to
+    // the `requestCountStream` stream as an alert. This `forever` block is executed once when initializing the service.
     // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
         from requestStream window timeBatch(10000)
@@ -38,7 +38,7 @@ function initRealtimeRequestCounter() returns () {
     }
 }
 
-// Define the `printRequestCount` function.
+// Defines the `printRequestCount` function.
 function printRequestCount(RequestCount reqCount) {
     io:println("ALERT!! : Received more than 6 requests from the " +
                         "host within 10 seconds : " + reqCount.host);

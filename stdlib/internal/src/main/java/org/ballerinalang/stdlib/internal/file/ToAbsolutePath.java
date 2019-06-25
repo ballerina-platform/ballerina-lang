@@ -21,6 +21,10 @@ package org.ballerinalang.stdlib.internal.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -57,7 +61,7 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
      * @param path the path to the file location.
      * @return the absolute path reference.
      */
-    private Path getAbsolutePath(Path path) {
+    private static Path getAbsolutePath(Path path) {
         return path.toAbsolutePath();
     }
 
@@ -71,5 +75,13 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
         BMap<String, BValue> absolutePath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH,
                 Constants.PATH_STRUCT, new BString(getAbsolutePath(path).toString()));
         context.setReturnValues(absolutePath);
+    }
+
+    public static MapValue toAbsolutePath(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        MapValue<String, Object> absolutePath =
+                BallerinaValues.createRecord(BallerinaValues.createRecordValue(Constants.PACKAGE_PATH,
+                        Constants.PATH_STRUCT), getAbsolutePath(path).toString());
+        return absolutePath;
     }
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,5 +45,9 @@ public class Atan2 extends BlockingNativeCallableUnit {
         double a = ctx.getFloatArgument(0);
         double b = ctx.getFloatArgument(1);
         ctx.setReturnValues(new BFloat(Math.atan2(a, b)));
+    }
+
+    public static double atan2(Strand strand, double a, double b) {
+        return Math.atan2(a, b);
     }
 }

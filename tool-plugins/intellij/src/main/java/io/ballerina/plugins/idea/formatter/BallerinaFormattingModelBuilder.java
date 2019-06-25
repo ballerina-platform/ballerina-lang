@@ -98,7 +98,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION_LIST;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_BINDING_PATTERN;
@@ -188,7 +187,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
@@ -258,8 +256,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITHIN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_RECEIVE_EXPRESSION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_STATEMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_SYNC_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
 
@@ -338,7 +336,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(PRIVATE).spaceIf(true)
                 .around(REMOTE).spaceIf(true)
                 .around(CLIENT).spaceIf(true)
-                .around(EXTERN).spaceIf(true)
                 .around(RESOURCE).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
                 .around(WORKER).spaceIf(true)
@@ -518,7 +515,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RECORD_KEY_VALUE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .around(RECORD_LITERAL_BODY).spaceIf(true)
-                .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
                 .beforeInside(LEFT_BRACE, FOREACH_STATEMENT).spaceIf(true)
@@ -656,7 +652,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(IDENTIFIER, WORKER_BODY).spaceIf(true)
                 .between(EXPRESSION_LIST, RARROW).spaceIf(true)
                 .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
-                .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
+                .aroundInside(SYNCRARROW, WORKER_SEND_SYNC_EXPRESSION).spaceIf(false)
                 .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
                 .between(LEFT_BRACE, WAIT_KEY_VALUE).spaceIf(true)
                 .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)

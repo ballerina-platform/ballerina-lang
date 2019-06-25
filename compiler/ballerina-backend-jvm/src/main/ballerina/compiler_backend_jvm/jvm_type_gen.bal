@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -29,12 +28,12 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType) {
-            jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
+        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType ||
+                bType is bir:BServiceType) {
+            jvm:FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
-            error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
-            panic err;
+            // do not generate anything for other types (e.g.: finite type, unions, etc.)
         }
     }
 }
@@ -44,8 +43,13 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 #
 # + mv - method visitor
 # + typeDefs - array of type definitions
-public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs) {
+public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, BalToJVMIndexMap indexMap,
+                                            string pkgName) {
     string fieldName;
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = typePkgName;
+    }
 
     // Create the type
     foreach var optionalTypeDef in typeDefs {
@@ -53,14 +57,16 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
-            createRecordType(mv, bType, typeDef.name.value);
+            createRecordType(mv, bType, typeDef, typePkgName);
         } else if (bType is bir:BObjectType) {
-            createObjectType(mv, bType, typeDef.name.value);
+            createObjectType(mv, bType, typeDef, typePkgName);
+        } else if (bType is bir:BServiceType) {
+            createServiceType(mv, bType.oType, typeDef, typePkgName);
         } else if (bType is bir:BErrorType) {
-            createErrorType(mv, bType, typeDef.name.value);
+            createErrorType(mv, bType, typeDef.name.value, typePkgName);
         } else {
-            error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
-            panic err;
+            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            continue;
         }
 
         mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
@@ -69,10 +75,15 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
     // Populate the field types
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if !(bType is bir:BRecordType || bType is bir:BObjectType ||
+                bType is bir:BServiceType || bType is bir:BErrorType) {
+            continue;
+        }
+
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 
-        bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
             mv.visitInsn(DUP);
@@ -82,7 +93,19 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType);
+            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType, indexMap);
+        } else if (bType is bir:BServiceType) {
+            mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            mv.visitInsn(DUP);
+            addObjectFields(mv, bType.oType.fields);
+            addObjectAtatchedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap);
+        } else if (bType is bir:BErrorType) {
+            // populate detail field
+            mv.visitTypeInsn(CHECKCAST, ERROR_TYPE);
+            mv.visitInsn(DUP);
+            mv.visitInsn(DUP);
+            loadType(mv, bType.detailType);
+            mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD, io:sprintf("(L%s;)V", BTYPE), false);
         }
     }
 }
@@ -115,11 +138,11 @@ public function generateValueCreatorMethods(jvm:ClassWriter cw, bir:TypeDef?[] t
         }
     }
 
-    generateRecordValueCreateMethod(cw, recordTypeDefs);
+    generateRecordValueCreateMethod(cw, recordTypeDefs, pkgName);
     generateObjectValueCreateMethod(cw, objectTypeDefs, pkgName);
 }
 
-function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs) {
+function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] recordTypeDefs, string pkgName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
         io:sprintf("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
         io:sprintf("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), ());
@@ -145,10 +168,11 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         jvm:Label targetLabel = targetLabels[i];
         mv.visitLabel(targetLabel);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitTypeInsn(NEW, MAP_VALUE);
+        string className = pkgName + cleanupTypeName(typeDef.name.value);
+        mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
-        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s", MAP_VALUE), "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         mv.visitInsn(ARETURN);
         i += 1;
     }
@@ -208,20 +232,27 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 # + mv - method visitor
 # + recordType - record type
 # + name - name of the record
-function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, string name) {
+function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef, string pkgName) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
     mv.visitInsn(DUP);
 
     // Load type name
+    string name = typeDef.name.value;
     mv.visitLdcInsn(name);
 
     // Load package path
     // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(recordType.moduleId.org);
+    mv.visitLdcInsn(recordType.moduleId.name);
+    mv.visitLdcInsn(recordType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    mv.visitLdcInsn(0);
+    mv.visitLdcInsn(typeDef.flags);
     mv.visitInsn(L2I);
 
     // Load 'sealed' flag
@@ -229,7 +260,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
 
     // initialize the record type
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
-            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
+            io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, PACKAGE_TYPE),
             false);
 
     return;
@@ -284,8 +315,7 @@ function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    // TODO: get the flags
-    mv.visitLdcInsn(0);
+    mv.visitLdcInsn(field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -313,27 +343,66 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + mv - method visitor
 # + objectType - object type
 # + name - name of the object
-function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
 
     // Load type name
+    string name = typeDef.name.value;
     mv.visitLdcInsn(name);
 
     // Load package path
-    // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     // Load flags
-    mv.visitLdcInsn(0);
+    mv.visitLdcInsn(typeDef.flags);
     mv.visitInsn(L2I);
 
     // initialize the object
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, STRING_VALUE),
+            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
             false);
     return;
+}
+
+# Create a runtime type instance for the service.
+#
+# + mv - method visitor
+# + objectType - object type
+# + typeDef - type definition of the service
+# + pkgName - name of the module the service belongs to
+function createServiceType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef, string pkgName) {
+    mv.visitTypeInsn(NEW, SERVICE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    string name = typeDef.name.value;
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(objectType.moduleId.org);
+    mv.visitLdcInsn(objectType.moduleId.name);
+    mv.visitLdcInsn(objectType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+
+    // Load flags
+    mv.visitLdcInsn(typeDef.flags);
+    mv.visitInsn(L2I);
+
+    // Initialize the object
+    mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+        io:sprintf("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE),
+        false);
 }
 
 # Add the field type information to an object type. The object type is assumed
@@ -385,12 +454,7 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
     mv.visitLdcInsn(field.name.value);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (field.visibility == "PACKAGE_PRIVATE") {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(field.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
@@ -404,7 +468,7 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
 function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
-                                        bir:BObjectType objType) {
+                                        bir:BObjectType objType, BalToJVMIndexMap indexMap) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
@@ -412,14 +476,29 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
     int i = 0;
     foreach var attachedFunc in attachedFunctions {
         if (attachedFunc is bir:BAttachedFunction) {
+            // create and load attached function
+            createObjectAttachedFunction(mv, attachedFunc, objType);
+            bir:VariableDcl attachedFuncVar = { typeValue: "any",
+                                                name: { value: objType.name.value + attachedFunc.name.value},
+                                                kind: "LOCAL" };
+            int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
+            mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
+
+            // if this initializer function, set it to the object type
+            if (attachedFunc.name.value.contains("__init")) {
+                mv.visitInsn(DUP2);
+                mv.visitInsn(POP);
+                mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
+                mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+                                    io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
+            }
+
             mv.visitInsn(DUP);
             mv.visitLdcInsn(i);
             mv.visitInsn(L2I);
 
-            // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc, objType);
-
             // Add the member to the array
+            mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
             mv.visitInsn(AASTORE);
             i += 1;
         }
@@ -450,12 +529,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     loadType(mv, attachedFunc.funcType);
 
     // Load flags
-    // TODO: get the flags
-    int visibility = 1;
-    if (attachedFunc.visibility == "PACKAGE_PRIVATE") {
-        visibility = 0;
-    }
-    mv.visitLdcInsn(visibility);
+    mv.visitLdcInsn(attachedFunc.flags);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
@@ -471,7 +545,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 # + mv - method visitor
 # + errorType - error type
 # + name - name of the error
-function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name) {
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name, string pkgName) {
     // Create the error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);
     mv.visitInsn(DUP);
@@ -479,22 +553,44 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     // Load error type name
     mv.visitLdcInsn(name);
 
-    // Load package path
-    // TODO: get it from the type
-    mv.visitLdcInsn("pkg");
-    
+    // Load package
+    mv.visitTypeInsn(NEW, PACKAGE_TYPE);
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(errorType.moduleId.org);
+    mv.visitLdcInsn(errorType.moduleId.name);
+    mv.visitLdcInsn(errorType.moduleId.modVersion);
+    mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>", 
+                        io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+
     // Load reason and details type
     loadType(mv, errorType.reasonType);
-    loadType(mv, errorType.detailType);
 
     // initialize the error type
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
-            STRING_VALUE, BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", 
+                            io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE, BTYPE), false);
+}
+
+function typeRefToClassName(bir:TypeRef typeRef) returns string{
+    return typeRef.externalPkg.org + "/" +  typeRef.externalPkg.name;
 }
 
 // -------------------------------------------------------
 //              Type loading methods
 // -------------------------------------------------------
+function loadExternalOrLocalType(jvm:MethodVisitor mv,  bir:TypeDef|bir:TypeRef typeRef) {
+    if (typeRef is bir:TypeRef) {
+        string fieldName = getTypeFieldName(typeRef.name.value);
+        string externlTypeOwner =  typeRefToClassName(typeRef) + "/" + MODULE_INIT_CLASS_NAME;
+        mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, io:sprintf("L%s;", BTYPE));
+    } else {
+        bir:BType bType = typeRef.typeValue;
+        if (bType is bir:BServiceType) {
+            loadType(mv, bType.oType);
+        } else {
+            loadType(mv, bType);
+        }
+    }
+}
 
 # Generate code to load an instance of the given type
 # to the top of the stack.
@@ -508,6 +604,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeFloat";
     } else if (bType is bir:BTypeString) {
         typeFieldName = "typeString";
+    } else if (bType is bir:BTypeDecimal) {
+        typeFieldName = "typeDecimal";
     } else if (bType is bir:BTypeBoolean) {
         typeFieldName = "typeBoolean";
     } else if (bType is bir:BTypeByte) {
@@ -520,11 +618,27 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeAnydata";
     } else if (bType is bir:BJSONType) {
         typeFieldName = "typeJSON";
+    } else if (bType is bir:BXMLType) {
+        typeFieldName = "typeXML";
+    } else if (bType is bir:BTypeDesc) {
+        typeFieldName = "typeTypedesc";
+    }  else if (bType is bir:BServiceType) {
+        if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
+            loadUserDefinedType(mv, bType);
+            return;
+        }
+        typeFieldName = "typeAnyService";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
     } else if (bType is bir:BMapType) {
         loadMapType(mv, bType);
+        return;
+    } else if (bType is bir:BTableType) {
+        loadTableType(mv, bType);
+        return;
+    } else if (bType is bir:BStreamType) {
+        loadStreamType(mv, bType);
         return;
     } else if (bType is bir:BErrorType) {
         loadErrorType(mv, bType);
@@ -533,10 +647,10 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadUnionType(mv, bType);
         return;
     } else if (bType is bir:BRecordType) {
-        loadUserDefinedType(mv, bType.name);
+        loadUserDefinedType(mv, bType);
         return;
     } else if (bType is bir:BObjectType) {
-        loadUserDefinedType(mv, bType.name);
+        loadUserDefinedType(mv, bType);
         return;
     } else if (bType is bir:BInvokableType) {
         loadInvokableType(mv, bType);
@@ -548,16 +662,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         loadTupleType(mv, bType);
         return;
     } else if (bType is bir:Self) {
-        if (bType.bType is bir:BErrorType) {
-            // Todo: Handle for recursive user defined error types.
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-        } else {
-            loadType(mv, bType.bType);
-        }
+        loadType(mv, bType.bType);
+        return;
+    } else if (bType is bir:BFiniteType) {
+        loadFiniteType(mv, bType);
         return;
     } else {
-        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
-        panic err;
+        loadFutureType(mv, bType);
+        return;
     }
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
@@ -575,8 +687,12 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
     // Load the element type
     loadType(mv, bType.eType);
 
+    int arraySize = bType.size;
+    mv.visitLdcInsn(arraySize);
+    mv.visitInsn(L2I);
+
     // invoke the constructor
-    mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;I)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given map type
@@ -595,21 +711,51 @@ function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
     mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
+# Generate code to load an instance of the given table type
+# to the top of the stack.
+#
+# + bType - table type to load
+function loadTableType(jvm:MethodVisitor mv, bir:BTableType bType) {
+    // Create an new table type
+    mv.visitTypeInsn(NEW, TABLE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.tConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given stream type
+# to the top of the stack.
+#
+# + bType - stream type to load
+function loadStreamType(jvm:MethodVisitor mv, bir:BStreamType bType) {
+    // Create an new stream type
+    mv.visitTypeInsn(NEW, STREAM_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.sConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
 # Generate code to load an instance of the given error type
 # to the top of the stack.
 #
 # + errorType - error type to load
 function loadErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType) {
-    // Create an new error type
-    mv.visitTypeInsn(NEW, ERROR_TYPE);
-    mv.visitInsn(DUP);
-
-    // Load reason and details type
-    loadType(mv, errorType.reasonType);
-    loadType(mv, errorType.detailType);
-    
-    // invoke the constructor
-    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE, BTYPE), false);
+    // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
+    if (errorType.moduleId.org == BALLERINA && errorType.moduleId.name ==  BUILT_IN_PACKAGE_NAME) {
+        mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+        return;
+    }
+    string typeOwner = getPackageName(errorType.moduleId.org, errorType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+    string fieldName = getTypeFieldName(errorType.name.value);
+    mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Generate code to load an instance of the given union type
@@ -622,18 +768,19 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
     mv.visitInsn(DUP);
 
     // Create the members array
-    bir:BType[] memberTypes = bType.members;
+    bir:BType?[] memberTypes = bType.members;
     mv.visitLdcInsn(memberTypes.length());
     mv.visitInsn(L2I);
     mv.visitTypeInsn(ANEWARRAY, BTYPE);
     int i = 0;
     foreach var memberType in memberTypes {
+        bir:BType mType = getType(memberType);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(i);
         mv.visitInsn(L2I);
 
         // Load the member type
-        loadType(mv, memberType);
+        loadType(mv, mType);
 
         // Add the member to the array
         mv.visitInsn(AASTORE);
@@ -657,10 +804,11 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
    
-    bir:BType[] tupleTypes = bType.tupleTypes;
+    bir:BType?[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
+        bir:BType tType = getType(tupleType);
         mv.visitInsn(DUP);
-        loadType(mv, tupleType);
+        loadType(mv, tType);
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
@@ -672,9 +820,22 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 #
 # + mv - method visitor
 # + typeName - type to be loaded
-function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
-    string fieldName = getTypeFieldName(typeName.value);
-    mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
+    string fieldName = "";
+    string typeOwner = "";
+
+    if (bType is bir:BObjectType) {
+        typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.name.value);
+    } else if (bType is bir:BServiceType) {
+        typeOwner = getPackageName(bType.oType.moduleId.org, bType.oType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.oType.name.value);
+    } else {
+        typeOwner = getPackageName(bType.moduleId.org, bType.moduleId.name) + MODULE_INIT_CLASS_NAME;
+        fieldName = getTypeFieldName(bType.name.value);
+    }
+
+    mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Return the name of the field that holds the instance of a given type.
@@ -683,6 +844,14 @@ function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
 # + return - name of the field that holds the type instance
 function getTypeFieldName(string typeName) returns string {
     return io:sprintf("$type$%s", typeName);
+}
+
+function loadFutureType(jvm:MethodVisitor mv, bir:BFutureType bType) {
+    mv.visitTypeInsn(NEW, FUTURE_TYPE);
+    mv.visitInsn(DUP);
+
+    loadType(mv, bType.returnType);
+    mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Create and load an invokable type.
@@ -719,8 +888,10 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
 }
 
 function getTypeDesc(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+    if (bType is bir:BTypeInt) {
         return "J";
+    } else if (bType is bir:BTypeByte) {
+        return "I";
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
@@ -733,18 +904,83 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BMapType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
-    } else if (bType is bir:BObjectType) {
+    } else if (bType is bir:BTypeDesc) {
+        return io:sprintf("L%s;", TYPEDESC_TYPE);
+    } else if (bType is bir:BTableType) {
+        return io:sprintf("L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        return io:sprintf("L%s;", STREAM_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        return io:sprintf("L%s;", DECIMAL_VALUE);
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
+    }  else if (bType is bir:BXMLType) {
+        return io:sprintf("L%s;", XML_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BRecordType ||
-               bType is bir:BJSONType) {
+               bType is bir:BJSONType ||
+               bType is bir:BFiniteType) {
         return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BInvokableType) {
+        return io:sprintf("L%s;", FUNCTION_POINTER);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
+    mv.visitTypeInsn(NEW, FINITE_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    string name = finiteType.name.value;
+    mv.visitLdcInsn(name);
+
+    mv.visitTypeInsn(NEW, LINKED_HASH_SET);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+
+    foreach var value in finiteType.values {
+        mv.visitInsn(DUP);
+
+        if (value is ()) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            mv.visitLdcInsn(value);
+        }
+
+        if (value is int) {
+            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+        } else if (value is boolean) {
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
+        } else if (value is float) {
+            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
+        } else if (value is byte) {
+            mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
+        } else {
+            // if value is string or (), then do nothing
+        }
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitInsn(POP);
+    }
+
+    // initialize the finite type using the value space
+    mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", STRING_VALUE, SET), false);
+}
+
+function isServiceDefAvailable(bir:TypeDef?[] typeDefs) returns boolean {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+        if (bType is bir:BServiceType) {
+            return true;
+        }
+    }
+    return false;
 }

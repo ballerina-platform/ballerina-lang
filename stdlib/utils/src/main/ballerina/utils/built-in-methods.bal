@@ -45,13 +45,13 @@ function simpleValueConvert(typedesc convertType, any value) returns anydata|err
 #
 # + value - Value to be frozen
 # + return - Frozen value
-function freeze(anydata value) returns anydata|error = external;
+function freeze(any|error value) returns anydata|error = external;
 
 # Check freeze status of given value.
 #
 # + value - Value to check freeze status
 # + return - True for a frozen value
-function isFrozen(anydata value) returns boolean = external;
+function isFrozen(any|error value) returns boolean = external;
 
 # Get the reason phrase of an error value.
 #
@@ -76,3 +76,9 @@ function iterate(any data) returns any = external;
 # + value - Value to get the length
 # + return - Length of the given value
 function length(anydata value) returns int = external;
+
+# Get the next value of an iterator.
+#
+# + iterator - Iterator
+# + return - Next value
+function next(any iterator) returns anydata|error = external;

@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.Arrays;
 
@@ -49,9 +50,9 @@ public class AnnotationUtils {
             return;
         }
 
-        MapValue<String, Object> annotationMap = (MapValue<String, Object>) map;
+        MapValueImpl<String, Object> annotationMap = (MapValueImpl<String, Object>) map;
         for (String key : annotationMap.getKeys()) {
-            final MapValue<String, Object> annotationData = (MapValue<String, Object>) annotationMap.get(key);
+            final MapValueImpl<String, Object> annotationData = (MapValueImpl<String, Object>) annotationMap.get(key);
             final String annotationQName = key.split("\\$")[0];
             final String[] qNameParts = annotationQName.split(":");
             annotatableType.addAnnotation(qNameParts[0] + ":" + qNameParts[1], annotationData);

@@ -20,8 +20,14 @@ import ballerina/jvm;
 import ballerina/reflect;
 
 public type JarFile record {|
-    map<string> manifestEntries;
-    map<byte[]> jarEntries;
+    map<string> manifestEntries = {};
+    map<byte[]> pkgEntries = {};
+|};
+
+public type JavaClass record {|
+    string sourceFileName;
+    string moduleClass;
+    bir:Function?[] functions = [];
 |};
 
 bir:BIRContext currentBIRContext = new;
@@ -30,25 +36,18 @@ public function main(string... args) {
     //do nothing
 }
 
-function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
+function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
+            returns JarFile {
     currentBIRContext = birContext;
-    bir:Package entryMod = birContext.lookupBIRModule(entryModId);
+    var [entryMod, _] = lookupModule(entryModId);
 
     if (dumpBir) {
        bir:BirEmitter emitter = new(entryMod);
        emitter.emitPackage();
     }
 
-    map<byte[]> jarEntries = {};
-    map<string> manifestEntries = {};
+    JarFile jarFile = {};
+    generatePackage(entryModId, jarFile, true);
 
-    foreach var importModule in entryMod.importModules {
-        bir:Package module = lookupModule(importModule, birContext);
-        generateImportedPackage(module, jarEntries);
-    }
-
-    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
-
-    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
     return jarFile;
 }

@@ -1,10 +1,33 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 description = 'Ballerina - Cache'
 
 dependencies {
-
-    implementation project(':lib-creator')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -16,6 +39,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-launcher')
@@ -24,26 +48,18 @@ dependencies {
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
     testCompile project(':ballerina-utils')
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+createBalo {
+    jvmTarget = 'true'
 }
 
-configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+configurations.all {
+    resolutionStrategy.preferProjectModules()
 }

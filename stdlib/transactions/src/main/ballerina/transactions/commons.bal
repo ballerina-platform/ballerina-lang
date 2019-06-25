@@ -46,7 +46,7 @@ service scheduleTimer on timer {
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach var (key, twopcTxn) in participatedTransactions {
+        foreach var [key, twopcTxn] in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -82,7 +82,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach var (key, twopcTxn) in initiatedTransactions {
+        foreach var [key, twopcTxn] in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -134,17 +134,19 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach var p in participantProtocols {
-        UProtocol participantProtocol = p;
-        foreach var validProtocol in validProtocols {
-            if (protoName(participantProtocol) == validProtocol) {
-                participantProtocolIsValid = true;
-                break;
-            } else {
-                participantProtocolIsValid = false;
+        if (p is UProtocol) {
+            UProtocol participantProtocol = p;
+            foreach var validProtocol in validProtocols {
+                if (protoName(participantProtocol) == validProtocol) {
+                    participantProtocolIsValid = true;
+                    break;
+                } else {
+                    participantProtocolIsValid = false;
+                }
             }
-        }
-        if (!participantProtocolIsValid) {
-            break;
+            if (!participantProtocolIsValid) {
+                break;
+            }
         }
     }
     return participantProtocolIsValid;

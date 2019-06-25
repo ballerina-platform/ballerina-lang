@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,18 +119,6 @@ public class Compiler {
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
-
-    /**
-     * Writes the given binary content as a java archive to specified location with the name.
-     *
-     * @param jarContent the binary content of jar
-     * @param outputPath path to be used for writing the jar file
-     * @param targetFileName file name of the jar to be used
-     */
-    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
-        this.binaryFileWriter.write(jarContent, outputPath, targetFileName);
-    }
-
     public void list() {
         compilePackages(true).forEach(this.dependencyTree::listDependencyPackages);
     }
@@ -177,7 +164,7 @@ public class Compiler {
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
-                .filter(p -> !SymbolTable.BUILTIN.equals(p))
+                .filter(p -> (!SymbolTable.BUILTIN.equals(p) || !SymbolTable.UTILS.equals(p)))
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
                 .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());

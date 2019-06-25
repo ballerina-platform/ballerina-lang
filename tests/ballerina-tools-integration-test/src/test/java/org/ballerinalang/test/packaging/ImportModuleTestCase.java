@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class ImportModuleTestCase extends BaseTest {
     public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-import-module-project-");
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
 
     /**
@@ -89,7 +89,7 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("abc"));
+        TestUtils.deleteFiles(projPath.resolve("abc"));
 
         String[] clientArgs = {"foo"};
         LogLeecher logLeecher = new LogLeecher("Hello Natasha !!!! Have a good day!!!");
@@ -146,8 +146,8 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("mod2"));
-        PackagingTestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
+        TestUtils.deleteFiles(projPath.resolve("mod2"));
+        TestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
@@ -187,8 +187,8 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("mod2"));
-        PackagingTestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
+        TestUtils.deleteFiles(projPath.resolve("mod2"));
+        TestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
@@ -226,7 +226,7 @@ public class ImportModuleTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

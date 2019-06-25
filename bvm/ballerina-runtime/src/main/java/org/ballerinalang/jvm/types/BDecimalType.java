@@ -18,6 +18,8 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.DecimalValue;
+
 import java.math.BigDecimal;
 
 /**
@@ -33,20 +35,20 @@ class BDecimalType extends BType {
      *
      * @param typeName string name of the type
      */
-    BDecimalType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BigDecimal.class);
+    BDecimalType(String typeName, BPackage pkg) {
+        super(typeName, pkg, DecimalValue.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getZeroValue() {
-        return (V) BigDecimal.ZERO;
+        return (V) new DecimalValue(BigDecimal.ZERO);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getEmptyValue() {
-        return (V) BigDecimal.ZERO;
+        return (V) new DecimalValue(BigDecimal.ZERO);
     }
 
     @Override

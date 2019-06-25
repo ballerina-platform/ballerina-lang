@@ -17,9 +17,14 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
+
+import java.util.Map;
 
 /**
  * The factory utility class that creates runtime values from given package and type names.
@@ -50,5 +55,22 @@ public class BallerinaValues {
     public static ObjectValue createObjectValue(String pkgName, String objectTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
         return valueCreator.createObjectValue(objectTypeName);
+    }
+
+    /**
+     * Method to populate a runtime record value with given field values.
+     *
+     * @param record which needs to get populated
+     * @param values field values of the record.
+     * @return value of the record.
+     */
+    public static MapValue<String, Object> createRecord(MapValue<String, Object> record, Object... values) {
+        BRecordType recordType = (BRecordType) record.getType();
+        MapValue mapValue = new MapValueImpl(recordType);
+        int i = 0;
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            mapValue.put(fieldEntry.getKey(), values[i++]);
+        }
+        return mapValue;
     }
 }

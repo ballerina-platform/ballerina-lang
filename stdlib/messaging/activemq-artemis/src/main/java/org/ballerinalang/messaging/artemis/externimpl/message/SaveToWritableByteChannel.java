@@ -34,7 +34,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.channels.Channels;
 
@@ -45,12 +44,20 @@ import java.nio.channels.Channels;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "saveToWritableByteChannel",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.MESSAGE_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.MESSAGE_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         args = {
-                @Argument(name = "ch", type = TypeKind.OBJECT, structType = "WritableByteChannel")
+                @Argument(
+                        name = "ch",
+                        type = TypeKind.OBJECT,
+                        structType = "WritableByteChannel"
+                )
         }
 )
 public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
@@ -67,8 +74,7 @@ public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
             try {
                 message.saveToOutputStream(Channels.newOutputStream(channel.getByteChannel()));
             } catch (ActiveMQException e) {
-                context.setReturnValues(ArtemisUtils.getError(context, new BallerinaException(
-                        "Error while writing to WritableByteChannel")));
+                context.setReturnValues(ArtemisUtils.getError(context, "Error while writing to WritableByteChannel"));
             }
 
         } else {

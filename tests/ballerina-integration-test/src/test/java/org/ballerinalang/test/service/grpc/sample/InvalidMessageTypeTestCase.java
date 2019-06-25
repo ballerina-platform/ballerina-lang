@@ -46,8 +46,8 @@ public class InvalidMessageTypeTestCase extends GrpcBaseTest {
                 "errorservices", "invalid_request_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +
-                "doesn't have type symbol");
+        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+                            "Field type 'string?' currently not supported");
     }
 
 
@@ -58,7 +58,7 @@ public class InvalidMessageTypeTestCase extends GrpcBaseTest {
                 "errorservices", "invalid_response_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +
-                "doesn't have type symbol");
+        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+                            "Field type 'string?' currently not supported");
     }
 }

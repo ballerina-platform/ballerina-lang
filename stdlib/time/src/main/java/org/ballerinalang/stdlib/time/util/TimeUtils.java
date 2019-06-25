@@ -21,13 +21,16 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
@@ -49,13 +52,25 @@ public class TimeUtils {
     private static final String TIME_ERROR_RECORD = "TimeError";
     private static final String TIME_ERROR_CODE = "{ballerina/time}TimeError";
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         ZoneId zoneId = getTimeZone(zoneIdValue);
         //Get offset in seconds
         TimeZone tz = TimeZone.getTimeZone(zoneId);
         int offsetInMills = tz.getOffset(new Date().getTime());
-        int offset = offsetInMills / 1000;
+        long offset = offsetInMills / 1000;
         return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdValue, offset);
+
+    }
+
+    //TODO recheck the logic
+    public static MapValue<String, Object> createTimeZone(MapValue<String, Object> timeZoneRecord, String zoneIdValue) {
+        ZoneId zoneId = getTimeZone(zoneIdValue);
+        //Get offset in seconds
+        TimeZone tz = TimeZone.getTimeZone(zoneId);
+        int offsetInMills = tz.getOffset(new Date().getTime());
+        long offset = offsetInMills / 1000;
+        return BallerinaValues.createRecord(timeZoneRecord, zoneIdValue, offset);
 
     }
 
@@ -63,10 +78,11 @@ public class TimeUtils {
         try {
             return ZoneId.of(zoneIdValue);
         } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
+            throw TimeUtils.getTimeError("invalid timezone id: " + zoneIdValue);
         }
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
                                                         StructureTypeInfo timeStructInfo, long millis,
                                                         String zoneIdName) {
@@ -74,6 +90,15 @@ public class TimeUtils {
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 
+    //TODO recheck the logic
+    public static MapValue<String, Object> createTimeRecord(MapValue<String, Object> timeZoneRecord,
+                                                            MapValue<String, Object> timeRecord, long millis,
+                                                            String zoneIdName) {
+        MapValue<String, Object> timezone = createTimeZone(timeZoneRecord, zoneIdName);
+        return BallerinaValues.createRecord(timeRecord, millis, timezone);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE_PATH);
         if (timePackageInfo == null) {
@@ -82,6 +107,11 @@ public class TimeUtils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
+    public static MapValue<String, Object> getTimeZoneRecord() {
+        return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIMEZONE);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public static StructureTypeInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE_PATH);
         if (timePackageInfo == null) {
@@ -90,9 +120,18 @@ public class TimeUtils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
     }
 
+    public static MapValue<String, Object> getTimeRecord() {
+        return BallerinaValues.createRecordValue(TIME_PACKAGE_PATH, STRUCT_TYPE_TIME);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public static BError getTimeError(Context context, String message) {
-        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
+        BMap<String, BValue> timeErrorDetailRecord = BLangConnectorSPIUtil
                 .createBStruct(context, TIME_PACKAGE_PATH, TIME_ERROR_RECORD, message);
-        return BLangVMErrors.createError(context, true, BTypes.typeError, TIME_ERROR_CODE, sqlClientErrorDetailRecord);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, TIME_ERROR_CODE, timeErrorDetailRecord);
+    }
+
+    public static ErrorValue getTimeError(String message) {
+        return BallerinaErrors.createError(TIME_ERROR_CODE, message);
     }
 }

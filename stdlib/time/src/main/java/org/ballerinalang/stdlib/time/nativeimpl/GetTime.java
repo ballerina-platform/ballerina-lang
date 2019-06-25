@@ -18,6 +18,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
@@ -41,6 +44,11 @@ public class GetTime extends AbstractTimeFunction {
 
     private static final BTupleType getTimeTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+    private static final org.ballerinalang.jvm.types.BTupleType getTimeTupleJvmType = new org.ballerinalang.jvm.types
+            .BTupleType(Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeInt,
+                                      org.ballerinalang.jvm.types.BTypes.typeInt,
+                                      org.ballerinalang.jvm.types.BTypes.typeInt,
+                                      org.ballerinalang.jvm.types.BTypes.typeInt));
 
     @Override
     public void execute(Context context) {
@@ -51,5 +59,14 @@ public class GetTime extends AbstractTimeFunction {
         time.add(2, new BInteger(getSecond(timeStruct)));
         time.add(3, new BInteger(getMilliSecond(timeStruct)));
         context.setReturnValues(time);
+    }
+
+    public static ArrayValue getTime(Strand strand, MapValue<String, Object> timeRecord) {
+        ArrayValue time = new ArrayValue(getTimeTupleJvmType);
+        time.add(0, Long.valueOf(getHour(timeRecord)));
+        time.add(1, Long.valueOf(getMinute(timeRecord)));
+        time.add(2, Long.valueOf(getSecond(timeRecord)));
+        time.add(3, Long.valueOf(getMilliSecond(timeRecord)));
+        return time;
     }
 }

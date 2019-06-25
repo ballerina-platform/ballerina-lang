@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -97,5 +100,31 @@ public class WriteInt16 implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object writeInt16(Strand strand, ObjectValue dataChannelObj, long value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        WriteIntegerEvent writeFloatEvent = new WriteIntegerEvent(channel, value, Representation.BIT_16, eventContext);
+        Register register = EventRegister.getFactory().register(writeFloatEvent, WriteInt16::writeResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+    /**
+     * Triggers upon receiving the response.
+     *
+     * @param result the response received after writing int.
+     */
+    private static EventResult writeResponse(EventResult<Long, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
     }
 }

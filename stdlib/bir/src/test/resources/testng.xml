@@ -23,7 +23,7 @@
 <suite name="ballerina-test-suite">
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.stdlib.io.bir"/>
+            <!-- <package name="org.ballerinalang.stdlib.io.bir"/> -->
         </packages>
     </test>
 </suite>

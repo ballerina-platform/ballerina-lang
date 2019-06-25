@@ -91,12 +91,14 @@ public class Freeze extends BlockingNativeCallableUnit {
             // assuming we reach here because the value is nil (()), the frozen value would also be nil.
             return null;
         }
+        if (!(value instanceof RefValue)) {
+            return value;
+        }
         RefValue refValue = (RefValue) value;
-        if (refValue.getType().getTag() == TypeTags.ERROR) {
+        if (refValue.getType().getTag() == org.ballerinalang.jvm.types.TypeTags.ERROR_TAG) {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
-            return BallerinaErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
+            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
                                  "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
@@ -110,12 +112,12 @@ public class Freeze extends BlockingNativeCallableUnit {
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
             return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
-                                               e.getMessage());
+                                 e.getMessage());
         } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic
             freezeStatus.setUnfrozen();
-            return BallerinaErrors.createError(e.getMessage(), e.getDetail());
+            throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
         }
     }
 }

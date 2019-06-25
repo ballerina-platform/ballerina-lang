@@ -18,6 +18,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -35,7 +37,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class CreateTime extends AbstractTimeFunction {
 
-    @Override public void execute(Context context) {
+    @Override
+    public void execute(Context context) {
         int years = (int) context.getIntArgument(0);
         int months = (int) context.getIntArgument(1);
         int dates = (int) context.getIntArgument(2);
@@ -50,6 +53,16 @@ public class CreateTime extends AbstractTimeFunction {
             context.setReturnValues(timeVal);
         } catch (BallerinaException e) {
             context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
+        }
+    }
+
+    public static Object createTime(Strand strand, long years, long months, long dates, long hours, long minutes,
+                                    long seconds, long milliSeconds, String zoneId) {
+        try {
+            return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
+                                  (int) milliSeconds, zoneId);
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 }

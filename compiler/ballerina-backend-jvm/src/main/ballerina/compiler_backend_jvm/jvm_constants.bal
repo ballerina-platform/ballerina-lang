@@ -206,6 +206,9 @@ final int V1_8 = 0 << 16 | 52;
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
+const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
+const string TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
+const string STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
 const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
@@ -215,8 +218,13 @@ const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
+const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
 const string BYTE_VALUE = "java/lang/Byte";
+const string INT_VALUE = "java/lang/Integer";
+const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
+const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
+const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 
 const string OBJECT = "java/lang/Object";
 const string MAP = "java/util/Map";
@@ -227,29 +235,81 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
+
+const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string COMPARABLE = "java/lang/Comparable";
 const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
+const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
+const string SET = "java/util/Set";
+const string LINKED_HASH_SET = "java/util/LinkedHashSet";
+const string WD_CHANNELS = "org/ballerinalang/jvm/WDChannels";
+const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/WorkerDataChannel";
+const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
+const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
+const string LONG_STREAM = "java/util/stream/LongStream";
+const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
 const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
 const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
 const string MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
+const string TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
+const string STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
+const string SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
+const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedesc";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
+const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
+const string FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
+const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";
+
+// error related constants
+const string PANIC_FIELD =  "panic";
+const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
+const string SET_DETAIL_TYPE_METHOD = "setDetailType";
+
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
+const string THROWABLE = "java/lang/Throwable";
+
+// code generation related constants.
+const string MODULE_INIT_CLASS_NAME = "___init";
+const string BAL_EXTENSION = ".bal";
+const string BALLERINA = "ballerina";
+const string BUILT_IN_PACKAGE_NAME = "builtin";
+
+
+// scheduler related constants
+const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
+const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
+const string SCHEDULER_START_METHOD =  "start";
+
+// visibility flags
+const int BAL_PUBLIC = 1;
+const int BAL_NATIVE = 2;
+const int BAL_ATTACHED = 8;
+const int BAL_REQUIRED = 256;
+const int BAL_PRIVATE = 1024;
+const int BAL_OPTIONAL = 8192;
+const int BAL_SERVICE = 524288;

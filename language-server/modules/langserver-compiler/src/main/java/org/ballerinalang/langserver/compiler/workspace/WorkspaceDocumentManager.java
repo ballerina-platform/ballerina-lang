@@ -116,6 +116,25 @@ public interface WorkspaceDocumentManager {
     void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
 
     /**
+     * Set the pruned source content of a given file.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
+     * try {
+     *     documentManager.setPrunedContent(filePath, prunedSource);
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
+     * @param filePath Path of the file
+     * @param prunedSource Pruned source of the file
+     * @throws WorkspaceDocumentException when file cannot be updated.
+     */
+    void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException;
+
+    /**
      * Returns the code lenses of the file.
      *
      * @param filePath Path of the file

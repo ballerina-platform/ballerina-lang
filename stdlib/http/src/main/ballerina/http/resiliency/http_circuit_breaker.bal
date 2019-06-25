@@ -152,286 +152,283 @@ public type CircuitBreakerClient object {
     # HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function post(string path, RequestMessage message) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function post(string path, RequestMessage message) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->post(path, <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
 
     # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
     # HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function head(string path, RequestMessage message = ()) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function head(string path, RequestMessage message = ()) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->head(path, message = <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
 
     # The PUT remote function implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
     # HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function put(string path, RequestMessage message) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function put(string path, RequestMessage message) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # This wraps the `post()` function of the underlying HTTP remote functions provider. The `execute()` function can be used
-    # to invoke an HTTP call with the given HTTP verb.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->put(path, <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # This wraps the `post()` function of the underlying HTTP remote functions provider. The `execute()` function can
+    # be used to invoke an HTTP call with the given HTTP verb.
     #
     # + httpVerb - HTTP verb to be used for the request
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function execute(string httpVerb, string path, RequestMessage message) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
+    #             `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # The PATCH remote function implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
-    # HTTP remote functions provider.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->execute(httpVerb, path, <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # The PATCH remote function implementation of the Circuit Breaker. This wraps the `patch()` function of the
+    # underlying HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function patch(string path, RequestMessage message) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
+    #             `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function patch(string path, RequestMessage message) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # The DELETE remote function implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
-    # HTTP remote functions provider.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->patch(path, <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # The DELETE remote function implementation of the Circuit Breaker. This wraps the `delete()` function of the
+    # underlying HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function delete(string path, RequestMessage message) returns Response|error;
+    # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
+    #             `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function delete(string path, RequestMessage message) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->delete(path, <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
 
     # The GET remote function implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
     # HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function get(string path, RequestMessage message = ()) returns Response|error;
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #            `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function get(string path, RequestMessage message = ()) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
-    # HTTP remote functions provider.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->get(path, message = <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `options()` function of the
+    # underlying HTTP remote functions provider.
     #
     # + path - Resource path
-    # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function options(string path, RequestMessage message = ()) returns Response|error;
+    # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function options(string path, RequestMessage message = ()) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # This wraps the `forward()` function of the underlying HTTP remote functions provider. The Forward remote function can be used to
-    # forward an incoming request to an upstream service as it is.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->options(path, message = <Request>message);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # This wraps the `forward()` function of the underlying HTTP remote functions provider. The Forward remote function
+    # can be used to forward an incoming request to an upstream service as it is.
     #
     # + path - Resource path
     # + request - A Request struct
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function forward(string path, Request request) returns Response|error;
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    #            server
+    public function forward(string path, Request request) returns Response|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # Circuit breaking not supported. Defaults to the `submit()` function of the underlying HTTP remote functions provider.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceResponse = self.httpClient->forward(path, request);
+            return updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+        }
+    }
+
+    # Submits an HTTP request to a service with the specified HTTP verb.
+    # The `submit()` function does not give out a `Response` as the result,
+    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
+    #            fails
+    public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+        CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+        self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-    # Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
-    # remote functions provider.
+        if (self.currentCircuitState == CB_OPEN_STATE) {
+            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+            return handleOpenCircuit(self.circuitHealth, cbic);
+        } else {
+            var serviceFuture = self.httpClient->submit(httpVerb, path, <Request>message);
+            if (serviceFuture is HttpFuture) {
+                var serviceResponse = self.httpClient->getResponse(serviceFuture);
+                var result = updateCircuitHealthAndRespond(serviceResponse, self.circuitHealth, cbic);
+            } else {
+                updateCircuitHealthFailure(self.circuitHealth, cbic);
+            }
+            return serviceFuture;
+        }
+    }
+
+    # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public function getResponse(HttpFuture httpFuture) returns Response|error;
+    public function getResponse(HttpFuture httpFuture) returns Response|error {
+        // No need to check for response as we already check for the response in submit method
+        return self.httpClient->getResponse(httpFuture);
+    }
 
-    # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP remote functions provider.
-
+    # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP remote functions
+    # provider.
+    #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public function hasPromise(HttpFuture httpFuture) returns boolean {
+        return self.httpClient->hasPromise(httpFuture);
+    }
 
-    # Circuit breaking not supported. Defaults to the `getNextPromise()` function of the underlying HTTP
-    # remote functions provider.
+    # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+        return self.httpClient->getNextPromise(httpFuture);
+    }
 
-    # Circuit breaking not supported. Defaults to the `getPromisedResponse()` function of the underlying HTTP
-    # remote functions provider.
+    # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public function getPromisedResponse(PushPromise promise) returns Response|error;
+    public function getPromisedResponse(PushPromise promise) returns Response|error {
+        return self.httpClient->getPromisedResponse(promise);
+    }
 
     # Circuit breaking not supported. Defaults to the `rejectPromise()` function of the underlying HTTP
     # remote functions provider.
     #
     # + promise - The `PushPromise` to be rejected
-    public function rejectPromise(PushPromise promise);
+    public function rejectPromise(PushPromise promise) {
+        return self.httpClient->rejectPromise(promise);
+    }
 
     # Force the circuit into a closed state in which it will allow requests regardless of the error percentage
     # until the failure threshold exceeds.
-    public function forceClose();
+    public function forceClose() {
+        self.currentCircuitState = CB_CLOSED_STATE;
+    }
 
     # Force the circuit into a open state in which it will suspend all requests
     # until `resetTimeMillis` interval exceeds.
-    public function forceOpen();
+    public function forceOpen() {
+        self.currentCircuitState = CB_OPEN_STATE;
+        self.circuitHealth.lastForcedOpenTime = time:currentTime();
+    }
 
     # Provides `CircuitState` of the circuit breaker.
     #
     # + return - The current `CircuitState` of circuit breaker
-    public function getCurrentState() returns CircuitState;
+    public function getCurrentState() returns CircuitState {
+        return self.currentCircuitState;
+    }
 };
 
-public function CircuitBreakerClient.post(string path, RequestMessage message) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->post(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.head(string path, RequestMessage message = ()) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->head(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.put(string path, RequestMessage message) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->put(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.execute(string httpVerb, string path, RequestMessage message) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->execute(httpVerb, path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.patch(string path, RequestMessage message) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->patch(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.delete(string path, RequestMessage message) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->delete(path, <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.get(string path, RequestMessage message = ()) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->get(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.options(string path, RequestMessage message = ()) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->options(path, message = <Request>message);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
-    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-
-    if (self.currentCircuitState == CB_OPEN_STATE) {
-        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-    } else {
-        var serviceResponse = self.httpClient->forward(path, request);
-        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
-    }
-}
-
-public function CircuitBreakerClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    return self.httpClient->submit(httpVerb, path, <Request>message);
-}
-
-public function CircuitBreakerClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    return self.httpClient->getResponse(httpFuture);
-}
-
-public function CircuitBreakerClient.hasPromise(HttpFuture httpFuture) returns boolean {
-    return self.httpClient->hasPromise(httpFuture);
-}
-
-public function CircuitBreakerClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    return self.httpClient->getNextPromise(httpFuture);
-}
-
-public function CircuitBreakerClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    return self.httpClient->getPromisedResponse(promise);
-}
-
-public function CircuitBreakerClient.rejectPromise(PushPromise promise) {
-    return self.httpClient->rejectPromise(promise);
-}
-
-public function CircuitBreakerClient.forceClose() {
-    self.currentCircuitState = CB_CLOSED_STATE;
-}
-
-public function CircuitBreakerClient.forceOpen() {
-    self.currentCircuitState = CB_OPEN_STATE;
-    self.circuitHealth.lastForcedOpenTime = time:currentTime();
-}
-
-public function CircuitBreakerClient.getCurrentState() returns CircuitState {
-    return self.currentCircuitState;
-}
 
 # Update circuit state.
 #
@@ -440,7 +437,7 @@ public function CircuitBreakerClient.getCurrentState() returns CircuitState {
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
 # + return - State of the circuit
 function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentStateValue,
-                            CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
+                            CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns CircuitState {
     lock {
         CircuitState currentState = currentStateValue;
         prepareRollingWindow(circuitHealth, circuitBreakerInferredConfig);
@@ -484,18 +481,22 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
     }
 }
 
-function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
+function updateCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
     if (serviceResponse is Response) {
-        updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+        if (circuitBreakerInferredConfig.statusCodes[serviceResponse.statusCode]) {
+            updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
+        } else {
+            updateCircuitHealthSuccess(circuitHealth, circuitBreakerInferredConfig);
+        }
     } else {
-        updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+        updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
     }
     return serviceResponse;
 }
 
 function updateCircuitHealthFailure(CircuitHealth circuitHealth,
-                                    error httpConnectorErr, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         circuitHealth.lastRequestSuccess = false;
@@ -508,22 +509,14 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
     }
 }
 
-function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResponse,
+function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
                                     CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
-        if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
-            Bucket bucket = <Bucket>circuitHealth.totalBuckets[currentBucketId];
-            bucket.failureCount += 1;
-            circuitHealth.lastRequestSuccess = false;
-            circuitHealth.lastErrorTime = lastUpdated;
-            circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
-        } else {
-            circuitHealth.lastRequestSuccess = true;
-            circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
-        }
+        circuitHealth.lastRequestSuccess = true;
+        circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
     }
 }
 
@@ -536,8 +529,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    map<anydata|error> errorDetail = { message : errorMessage };
-    error httpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
+    error httpConnectorErr = error(HTTP_ERROR_CODE, message = errorMessage);
     return httpConnectorErr;
 }
 
@@ -547,8 +539,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        map<anydata|error> errorDetail = { message : errorMessage };
-        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, errorDetail);
+        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, message = errorMessage);
         panic circuitBreakerConfigError;
     }
 }
@@ -563,7 +554,8 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
 
     foreach var optBucket in circuitHealth.totalBuckets {
         var bucket = <Bucket>optBucket;
-        totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
+        totalCount =  totalCount + bucket.failureCount +
+                                        (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
         totalFailures = totalFailures + bucket.failureCount;
     }
     float ratio = 0.0;
@@ -605,7 +597,9 @@ function getCurrentBucketId(CircuitHealth circuitHealth, CircuitBreakerInferredC
 #
 # + circuitHealth - Circuit Breaker health status
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
-function updateRejectedRequestCount(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+function updateRejectedRequestCount(CircuitHealth circuitHealth,
+                                                CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+
     int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
     updateLastUsedBucketId(currentBucketId, circuitHealth);
     Bucket bucket = <Bucket>circuitHealth.totalBuckets[currentBucketId];
@@ -645,8 +639,8 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
         // reset the buckets to default.
         if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
             reInitializeBuckets(circuitHealth);
-        // If the current bucket (sub time window) is less than last updated bucket. Stats of the current bucket to zeroth
-        // bucket and Last bucket to last used bucket needs to be reset to default.
+        // If the current bucket (sub time window) is less than last updated bucket. Stats of the current bucket to
+        // zeroth bucket and Last bucket to last used bucket needs to be reset to default.
         } else if (currentBucketId < lastUsedBucketId) {
             int index = currentBucketId;
             while (index >= 0) {

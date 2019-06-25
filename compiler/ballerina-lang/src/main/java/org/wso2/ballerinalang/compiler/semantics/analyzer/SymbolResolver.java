@@ -57,8 +57,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -200,6 +200,11 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+            return true;
+        }
+
         //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
@@ -212,21 +217,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
-        // ignore if this is added through compensations
-        if ((symbol.flags & Flags.COMPENSATE) == Flags.COMPENSATE) {
-            return true;
-        }
-        // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
-        if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
-                || foundSym.getKind() != SymbolKind.XMLNS
-                // Check for redeclared variables in function, object-function, resource parameters.
-                || foundSym.owner.tag == SymTag.FUNCTION
-                || foundSym.owner.tag == SymTag.OBJECT) {
-            // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
-            // symbol.
+
+        if (Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
+
         return true;
     }
 
@@ -428,8 +425,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (targetTypeExpression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
             targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
-        } else if (targetTypeExpression.getKind() == NodeKind.BRACED_TUPLE_EXPR) {
-            List<BLangExpression> expressionList = ((BLangBracedOrTupleExpr) targetTypeExpression).
+        } else if (targetTypeExpression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            List<BLangExpression> expressionList = ((BLangListConstructorExpr) targetTypeExpression).
                     getExpressions();
             List<BType> tupleTypeList = new ArrayList<>();
             for (BLangExpression expression : expressionList) {
@@ -439,7 +436,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                     tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
                 }
             }
-
             targetType = new BTupleType(tupleTypeList);
         } else {
             BSymbol symbol = ((BLangSimpleVarRef) targetTypeExpression).symbol;
@@ -1211,11 +1207,6 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return eligibility to use as the source type for 'convert' function
      */
     private boolean isConvertSupportedForSourceType(BType sourceType) {
-        switch (sourceType.tag) {
-            case TypeTags.XML_ATTRIBUTES:
-                return true;
-            default:
-                return types.isLikeAnydataOrNotNil(sourceType);
-        }
+        return types.isLikeAnydataOrNotNil(sourceType);
     }
 }

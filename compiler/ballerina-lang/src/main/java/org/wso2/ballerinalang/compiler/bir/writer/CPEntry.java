@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
 import java.util.Objects;
 
 /**
@@ -165,6 +167,39 @@ public class CPEntry {
     }
 
     /**
+     * A byte constant-pool entry.
+     *
+     * @since 0.995.0
+     */
+    public static class ByteCPEntry extends CPEntry {
+        public int value;
+
+        public ByteCPEntry(int value) {
+            super(Type.CP_ENTRY_BYTE);
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            ByteCPEntry that = (ByteCPEntry) o;
+            return value == that.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+    }
+
+    /**
      * A package constant-pool entry.
      *
      * @since 0.980.0
@@ -208,12 +243,14 @@ public class CPEntry {
      *
      * @since 0.87
      */
-    enum Type {
+    public enum Type {
         CP_ENTRY_INTEGER((byte) 1),
         CP_ENTRY_FLOAT((byte) 2),
         CP_ENTRY_BOOLEAN((byte) 3),
         CP_ENTRY_STRING((byte) 4),
-        CP_ENTRY_PACKAGE((byte) 5);
+        CP_ENTRY_PACKAGE((byte) 5),
+        CP_ENTRY_BYTE((byte) 6),
+        CP_ENTRY_SHAPE((byte) 7);
 
         byte value;
 
@@ -223,6 +260,38 @@ public class CPEntry {
 
         public byte getValue() {
             return value;
+        }
+    }
+
+    /**
+     * A type shape constant-pool entry.
+     *
+     * @since 0.995.0
+     */
+    public static class ShapeCPEntry extends CPEntry {
+
+        public final BType shape;
+
+        public ShapeCPEntry(BType shape) {
+            super(Type.CP_ENTRY_SHAPE);
+            this.shape = shape;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ShapeCPEntry that = (ShapeCPEntry) o;
+            return Objects.equals(shape, that.shape);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(shape);
         }
     }
 }

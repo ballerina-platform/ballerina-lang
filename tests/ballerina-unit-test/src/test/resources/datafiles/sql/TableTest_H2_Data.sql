@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   blob_type      BLOB(1024),
   clob_type      CLOB(1024),
   binary_type  BINARY(27),
+  bit_type  BIT(64),
   PRIMARY KEY (row_id)
 );
 /
@@ -98,7 +99,7 @@ CREATE TABLE IF NOT EXISTS MixTypes (
 /
 INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type,
   int_array, long_array, float_array, double_array, boolean_array, string_array)
-VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 234.56, (1, 2, 3),
+VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 342452151425.4556, (1, 2, 3),
   (100000000, 200000000, 300000000), (245.23, 5559.49, 8796.123),
   (245.23, 5559.49, 8796.123), (TRUE, FALSE, TRUE), ('Hello', 'Ballerina'));
 /

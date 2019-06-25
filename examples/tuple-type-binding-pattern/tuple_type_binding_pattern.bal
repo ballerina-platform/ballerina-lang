@@ -2,17 +2,21 @@ import ballerina/io;
 
 public function main() {
 
-    // Following is a simple binding pattern which involves only a single variable.
+    // This is a simple binding pattern, which involves only a single variable.
     (boolean, float) t = (true, 0.4);
     io:println("Simple variable : ", t);
 
-    // The same variable definition can be written using a tuple binding pattern
+    // The same variable definition can be written using a tuple-binding pattern
     // with separate variables.
     (boolean, float) (a1, a2) = (true, 0.4);
     io:println("Tuple variable : ", a1, " ", a2);
 
-    // The binding patterns are recursive in nature. Following examples show
+    // The binding patterns are recursive in nature. These examples show
+<<<<<<< HEAD
+    // how to write complex recursive variable definitions.
+=======
     // how we can write complex recursive variable definitions.
+>>>>>>> lang-issues-14969-remote
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
 
@@ -20,7 +24,7 @@ public function main() {
                                               (("Ballerina", 34), (true, 6.7));
     io:println("Tuple variable : ", c1, " ", c2, " ", c3, " ", c4);
 
-    // Tuple variables can also be defined using tuple type expressions.
+    // Tuple variables can also be defined using tuple-type expressions.
     ((string, (int, (boolean, byte))), (float, int)) v1 =
                                    (("Ballerina", (3, (true, 34))), (5.6, 45));
     ((string, (int, (boolean, byte))),
@@ -28,7 +32,7 @@ public function main() {
     io:println("Tuple variable : ",
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
-    // Tuple type can also take `var` as the type label. In that case the type
+    // Tuple type can also take `var` as the type label. In that case, the type
     // will be inferred from the right hand side.
     var (e1, (e2, e3)) = ("Ballerina", (123, true));
     io:println("Tuple variable : ", e1, " ", e2, " ", e3);

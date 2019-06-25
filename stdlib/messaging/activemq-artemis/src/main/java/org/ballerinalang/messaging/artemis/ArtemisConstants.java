@@ -34,7 +34,7 @@ public class ArtemisConstants {
     public static final String PROTOCOL_PACKAGE_ARTEMIS = BALLERINA_PACKAGE_PREFIX + ARTEMIS;
 
     // Error related constants
-    static final String ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
+    static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}ArtemisError";
     static final String ARTEMIS_ERROR_RECORD = "ArtemisError";
     static final String ARTEMIS_ERROR_MESSAGE = "message";
 
@@ -45,6 +45,8 @@ public class ArtemisConstants {
     public static final String ARTEMIS_MESSAGE = "artemis-message";
     public static final String ARTEMIS_PRODUCER = "artemis-producer";
     public static final String ARTEMIS_CONSUMER = "artemis-consumer";
+    public static final String ARTEMIS_TRANSACTION_CONTEXT = "artemis-transaction-context";
+    public static final String ARTEMIS_AUTO_ACK = "autoAck";
 
     // The object types
     public static final String MESSAGE_OBJ = "Message";
@@ -52,6 +54,7 @@ public class ArtemisConstants {
     public static final String SESSION_OBJ = "Session";
     public static final String PRODUCER_OBJ = "Producer";
     public static final String LISTENER_OBJ = "Listener";
+    public static final String CONSUMER_OBJ = "Consumer";
     static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_ARTEMIS + ":" + MESSAGE_OBJ;
 
     // Warning suppression
@@ -76,7 +79,6 @@ public class ArtemisConstants {
     // Field names for Consumer
     public static final String FILTER = "filter";
     public static final String AUTO_ACK = "autoAck";
-    public static final String BROWSE_ONLY = "browseOnly";
     public static final String QUEUE_CONFIG = "queueConfig";
     public static final String QUEUE_NAME = "queueName";
     public static final String TEMPORARY = "temporary";
@@ -85,25 +87,35 @@ public class ArtemisConstants {
     public static final String EXCLUSIVE = "exclusive";
     public static final String LAST_VALUE = "lastValue";
     static final String SERVICE_CONFIG = "ServiceConfig";
+    public static final String ADDRESS_NAME = "addressName";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
     public static final String EXPIRATION = "expiration";
     public static final String TIME_STAMP = "timeStamp";
     public static final String PRIORITY = "priority";
+    public static final String MESSAGE_CONFIG = "configuration";
 
     // Field names for Producer
     public static final String RATE = "rate";
+    public static final String SESSION = "session";
 
     // Common field names
     public static final String DURABLE = "durable";
     public static final String ROUTING_TYPE = "routingType";
+    public static final String GROUP_ID = "groupId";
+    public static final String GROUP_SEQUENCE = "groupSequence";
+    public static final String CORRELATION_ID = "correlationId";
+    public static final String REPLY_TO = "replyTo";
     public static final String AUTO_CREATED = "autoCreated";
-    static final String MULTICAST = "MULTICAST";
+    public static final String MULTICAST = "MULTICAST";
+    public static final String ANYCAST = "ANYCAST";
 
     // Field name for Session
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String AUTO_COMMIT_SENDS = "autoCommitSends";
+    public static final String AUTO_COMMIT_ACKS = "autoCommitAcks";
 
     private ArtemisConstants() {
 

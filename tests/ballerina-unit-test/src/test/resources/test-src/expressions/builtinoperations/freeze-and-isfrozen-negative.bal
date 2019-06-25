@@ -101,12 +101,12 @@ type PersonObjTwo object {
     }
 };
 
-type Department record {
+type Department record {|
     PersonObj head;
     PersonObjTwo...;
-};
+|};
 
-type FreezeAllowedDepartment record {
+type FreezeAllowedDepartment record {|
     PersonObj|string head;
     (PersonObjTwo|string)...;
-};
+|};

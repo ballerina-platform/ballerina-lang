@@ -35,11 +35,11 @@ public class BObjectType extends BStructureType {
      * Create a {@code BObjectType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the struct
+     * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, Object.class);
+    public BObjectType(String typeName, BPackage pkg, int flags) {
+        super(typeName, pkg, flags, Object.class);
     }
 
     @Override
@@ -49,7 +49,11 @@ public class BObjectType extends BStructureType {
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        int serviceIndex = this.typeName.lastIndexOf("$$service$");
+        if (serviceIndex < 0) {
+            return this.typeName;
+        }
+        return this.typeName.substring(0, serviceIndex); //TODO Fix - rajith
     }
 
     @Override
@@ -70,8 +74,18 @@ public class BObjectType extends BStructureType {
         this.attachedFunctions = attachedFunctions;
     }
 
+    public void setInitializer(AttachedFunction initializer) {
+        this.initializer = initializer;
+    }
+
     public String toString() {
-        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
+        String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
+                typeName : pkg.getName() + ":" + typeName;
+        
+        if (!typeName.contains("$anon")) {
+            return name;
+        }
+
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
         for (Entry<String, BField> field : getFields().entrySet()) {

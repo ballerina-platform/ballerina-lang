@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.990.4-SNAPSHOT</version>
+    <version>0.992.0-m2-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -51,9 +51,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/ballerinalang/ballerina.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
+        <url>https://github.com/ballerina-platform/ballerina-lang.git</url>
+        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerina-platform/ballerina-lang.git</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -977,6 +977,69 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina jwt -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jwt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina ldap -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-ldap</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina oauth2 -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-oauth2</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-oauth2</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-oauth2</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
             <!-- End STD lib dependencies -->
 
             <dependency>
@@ -1059,6 +1122,12 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>composer-library</artifactId>
+                <type>zip</type>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1821,6 +1890,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -1835,6 +1905,8 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
+                <module>stdlib/oauth2</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1853,6 +1925,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
 
                 <module>cli/ballerina-cli-utils</module>
@@ -1870,6 +1943,8 @@
                 <module>composer</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
@@ -1915,6 +1990,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -1930,6 +2006,8 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
+                <module>stdlib/oauth2</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1947,6 +2025,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -2007,6 +2086,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
+                <module>stdlib/jwt</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
@@ -2021,6 +2101,8 @@
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
+                <module>stdlib/ldap</module>
+                <module>stdlib/oauth2</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2039,6 +2121,7 @@
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-unit-test</module>
+                <module>tests/jballerina-unit-test</module>
                 <module>tests/ballerina-spec-conformance-tests</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
 
@@ -2058,6 +2141,8 @@
 
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-utils</module>
@@ -2384,7 +2469,9 @@
     </build>
 
     <properties>
-        <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
+        <ballerina.milestone.version>0.992.0-m1</ballerina.milestone.version>
+        <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
 
@@ -2399,7 +2486,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.289</transport.http.version>
+        <transport.http.version>6.0.294</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2431,7 +2518,7 @@
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <io.swagger.version>1.5.22</io.swagger.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
-        <swagger.models.version>1.5.18</swagger.models.version>
+        <swagger.models.version>1.5.22</swagger.models.version>
         <swagger.v3.parser.version>2.0.11</swagger.v3.parser.version>
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
@@ -2524,6 +2611,9 @@
         <apache.directory.server.version>2.0.0-M24</apache.directory.server.version>
         <bouncycastle.version>1.61</bouncycastle.version>
         <asm.version>6.2.1</asm.version>
+        <!-- This property is unused inside the project, but used during the release process,
+        therefore, DO NOT remove this -->
+        <project.scm.id>ballerina-scm-server</project.scm.id>
     </properties>
 
 </project>

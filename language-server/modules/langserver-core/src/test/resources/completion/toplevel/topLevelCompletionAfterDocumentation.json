@@ -15,6 +15,14 @@
     },
     {
       "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "190",

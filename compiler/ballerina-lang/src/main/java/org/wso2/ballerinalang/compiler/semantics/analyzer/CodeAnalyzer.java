@@ -62,22 +62,21 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
@@ -684,14 +683,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             case TypeTags.TUPLE:
                 if (pattern.type.tag == TypeTags.TUPLE) {
-                    BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
-                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
-                    if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                    BLangListConstructorExpr precedingTupleLiteral = (BLangListConstructorExpr) precedingPattern;
+                    BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) pattern;
+                    if (precedingTupleLiteral.exprs.size() != tupleLiteral.exprs.size()) {
                         return false;
                     }
-                    return IntStream.range(0, precedingTupleLiteral.expressions.size())
-                            .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
-                                    tupleLiteral.expressions.get(i)));
+                    return IntStream.range(0, precedingTupleLiteral.exprs.size())
+                            .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.exprs.get(i),
+                                    tupleLiteral.exprs.get(i)));
                 }
                 return false;
             case TypeTags.INT:
@@ -714,16 +713,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         return false;
                     }
                     // pattern is a literal.
-                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                    BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) pattern).expression :
                             (BLangLiteral) pattern;
                     return (precedingPatternSym.literalValue.equals(literal.value));
                 }
 
                 if (types.isValueType(pattern.type)) {
                     // preceding pattern is a literal.
-                    BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                            (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
+                    BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) precedingPattern).expression :
                             (BLangLiteral) precedingPattern;
 
                     if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -736,8 +735,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         return false;
                     }
                     // pattern is a literal.
-                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                    BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) pattern).expression :
                             (BLangLiteral) pattern;
                     return (precedingLiteral.value.equals(literal.value));
                 }
@@ -835,11 +834,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+
         if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
             BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
             BLangErrorVariable errVar = (BLangErrorVariable) var;
+
+            // Rest pattern in previous binding-pattern can bind to all the error details,
+            // hence current error pattern is not reachable.
+            if (precedingErrVar.restDetail != null) {
+                return true;
+            }
+
+            // Current pattern can bind anything that is bound in preceding, to current's rest binding var.
+            if (errVar.restDetail != null) {
+                return false;
+            }
+
             if (precedingErrVar.detail != null && errVar.detail != null) {
-                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+                // If preceding detail binding list contains all the details in current list,
+                // even though preceding contains more bindings, since a binding can bind to (),
+                // current is shadowed from preceding.
+                // Error details are a map<anydata|error>
+                Map<String, BLangVariable> preDetails = precedingErrVar.detail.stream()
+                        .collect(Collectors.toMap(entry -> entry.key.value, entry -> entry.valueBindingPattern));
+
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errVar.detail) {
+                    BLangVariable correspondingCurDetail = preDetails.get(detailEntry.key.value);
+                    if (correspondingCurDetail == null) {
+                        // Current binding pattern have more details to bind to
+                        return false;
+                    }
+                    boolean similar =
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                    if (!similar) {
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -879,7 +909,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         .anyMatch(memberMatchType -> isValidStaticMatchPattern(memberMatchType, literal));
             case TypeTags.TUPLE:
                 if (literal.type.tag == TypeTags.TUPLE) {
-                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
+                    BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) literal;
                     BTupleType literalTupleType = (BTupleType) literal.type;
                     BTupleType matchTupleType = (BTupleType) matchType;
                     if (literalTupleType.tupleTypes.size() != matchTupleType.tupleTypes.size()) {
@@ -888,7 +918,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return IntStream.range(0, literalTupleType.tupleTypes.size())
                             .allMatch(i ->
                                     isValidStaticMatchPattern(matchTupleType.tupleTypes.get(i),
-                                            tupleLiteral.expressions.get(i)));
+                                            tupleLiteral.exprs.get(i)));
                 }
                 break;
             case TypeTags.MAP:
@@ -1395,9 +1425,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        analyzeArrayElementImplicitInitialValue(arrayLiteral.type, arrayLiteral.pos);
-        analyzeExprs(arrayLiteral.exprs);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        analyzeArrayElementImplicitInitialValue(listConstructorExpr.type, listConstructorExpr.pos);
+        analyzeExprs(listConstructorExpr.exprs);
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1540,7 +1570,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
-                    kind == NodeKind.BRACED_TUPLE_EXPR ||
+                    kind == NodeKind.GROUP_EXPR ||
                     kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
@@ -1679,8 +1709,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        analyzeExprs(bracedOrTupleExpr.expressions);
+    public void visit(BLangGroupExpr groupExpr) {
+        analyzeExpr(groupExpr.expression);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
@@ -1910,11 +1940,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkPanicExpr) {
         analyzeExpr(checkPanicExpr.expr);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
     }
 
     @Override

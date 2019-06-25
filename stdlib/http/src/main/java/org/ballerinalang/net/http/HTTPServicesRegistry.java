@@ -19,13 +19,11 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +48,7 @@ public class HTTPServicesRegistry {
     protected Map<String, HttpService> servicesByBasePath;
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
+    private Scheduler scheduler;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         this.webSocketServicesRegistry = webSocketServicesRegistry;
@@ -100,7 +99,7 @@ public class HTTPServicesRegistry {
      *
      * @param service requested serviceInfo to be registered.
      */
-    public void registerService(Service service) {
+    public void registerService(ObjectValue service) {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
@@ -117,11 +116,13 @@ public class HTTPServicesRegistry {
             String basePath = httpService.getBasePath();
             if (servicesByBasePath.containsKey(basePath)) {
                 String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
-                throw new BallerinaException("Service registration failed: two services have the same basePath : '" +
-                                                     basePath + errorMessage);
+                throw BallerinaErrors.createError(
+                        "Service registration failed: two services have the same basePath : '" +
+                                basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
-            String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
+            String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(),
+                                          basePath);
             logger.info(errLog);
 
             //basePath will get cached after registering service
@@ -133,21 +134,22 @@ public class HTTPServicesRegistry {
 
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
-            Annotation resourceConfigAnnotation =
+//            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
+            MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
                                                          HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation == null) {
                 throw new BallerinaException("Cannot register WebSocket service without resource config " +
                                                      "annotation in resource " + upgradeToWebSocketResource.getName());
             }
-            Struct webSocketConfig =
-                    resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-            BMap serviceField =
-                    (BMap) webSocketConfig.getServiceField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-            Service webSocketTypeService = BLangConnectorSPIUtil.getService(programFile, serviceField);
+            MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
+                    HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+            ObjectValue serviceField =
+                    (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
+            //TODO Test following line whether need to create a service here
+//            ObjectValue webSocketTypeService = BLangConnectorSPIUtil.getBalService(serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
-                                                                     upgradeToWebSocketResource, webSocketTypeService);
+                                                                     upgradeToWebSocketResource, serviceField);
             webSocketServicesRegistry.registerService(webSocketService);
         });
     }
@@ -180,6 +182,14 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     /**

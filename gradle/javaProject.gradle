@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
@@ -71,7 +88,7 @@ dependencies {
         implementation 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
         implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
         implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
-        implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.277'
+        implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.294'
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.1'
@@ -136,10 +153,40 @@ spotbugsTest {
 }
 
 test {
+    testLogging {
+        // Make sure output from standard out or error is shown in Gradle output.
+        showStackTraces = true
+        showStandardStreams = true
+    }
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     testLogging {
         events "failed"
         exceptionFormat "full"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+task createJavadoc(type: Javadoc) {
+    source = sourceSets.main.java
+    classpath = sourceSets.main.compileClasspath
+    failOnError true
+    options.addStringOption('Xwerror', '-quiet')
+}
+
+check {
+    dependsOn createJavadoc
+}
+
+publishing {
+    publications {
+        mavenJava {
+            from components.java
+        }
     }
 }

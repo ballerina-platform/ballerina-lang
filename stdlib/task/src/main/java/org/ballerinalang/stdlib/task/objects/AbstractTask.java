@@ -91,7 +91,12 @@ public abstract class AbstractTask implements Task {
      */
     @Override
     public void addService(ServiceWithParameters service) {
-        this.serviceMap.put(service.getName(), service);
+        //TODO Remove this condition after migration : Added just to distinguish both bvm and jvm exec
+        if (service.getService() != null) {
+            this.serviceMap.put(service.getService().getName(), service);
+        } else {
+            this.serviceMap.put(service.getServiceObj().getType().getName(), service);
+        }
     }
 
     /**

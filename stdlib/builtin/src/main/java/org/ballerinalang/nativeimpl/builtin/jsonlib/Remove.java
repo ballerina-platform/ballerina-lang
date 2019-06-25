@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BValue;
@@ -58,5 +60,17 @@ public class Remove extends BlockingNativeCallableUnit {
         }
 
         ctx.setReturnValues();
+    }
+
+    public static void remove(Strand strand, Object json, String fieldName) {
+        if (json == null) {
+            return;
+        }
+
+        try {
+            org.ballerinalang.jvm.JSONUtils.remove(json, fieldName);
+        } catch (Throwable e) {
+            throw BLangExceptionHelper.getJsonError(BallerinaErrorReasons.JSON_OPERATION_ERROR, OPERATION, e);
+        }
     }
 }

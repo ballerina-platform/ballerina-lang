@@ -21,6 +21,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
+import org.ballerinalang.jvm.types.AnnotatableType;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -40,11 +42,18 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 
+    //TODO Remove after migration : implemented using bvm values/types
     BValue getAnnotationValue(Context context, String pkgPath, String key) {
         final BMap bMap = ConnectorSPIModelHelper.getAnnotationVariable(pkgPath, context.getProgramFile());
         return createAnnotationStructArray(context, bMap.get(key));
     }
 
+    static ArrayValue getAnnotationValue(org.ballerinalang.jvm.types.BType bType, String key) {
+        //TODO recheck following logic : test and verify
+        return ((AnnotatableType) bType).getAnnotation(bType.getPackage().getName(), key);
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     private BValueArray createAnnotationStructArray(Context context, BValue map) {
         final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_REFELCT);
         final StructureTypeInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);

@@ -16,17 +16,20 @@
  */
 package org.ballerinalang.test.util;
 
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -35,11 +38,10 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -48,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,14 +58,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
+import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -83,7 +89,10 @@ public class BCompileUtil {
      */
     public static CompileResult compileAndSetup(String sourceFilePath) {
         CompileResult compileResult = compile(sourceFilePath, CompilerPhase.CODE_GEN);
-        BRunUtil.invokePackageInit(compileResult);
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
         return compileResult;
     }
 
@@ -97,7 +106,10 @@ public class BCompileUtil {
      */
     public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
         CompileResult compileResult = compile(obj, sourceRoot, packageName);
-        BRunUtil.invokePackageInit(compileResult, packageName);
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+        BLangProgramRunner.runProgram(compileResult.getProgFile(), new BValue[0]);
         return compileResult;
     }
 
@@ -124,6 +136,16 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+    /**
+     * Compile and return the semantic errors for tests.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOnBVM(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    }
+
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
     }
@@ -143,7 +165,8 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName) {
-        Path rootPath = Paths.get(sourceRoot);
+        String filePath = concatFileName(sourceRoot, resourceDir);
+        Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
         return getCompileResult(packageName, rootPath, packagePath);
     }
@@ -186,17 +209,16 @@ public class BCompileUtil {
             }
 
             return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
-        } else {
-            effectiveSource = packageName;
+        }
 
-            if (jBallerinaTestsEnabled()) {
-                return compileOnJBallerina(rootPath.toString(), effectiveSource,
-                        new FileSystemProjectDirectory(rootPath));
-            }
-
-            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+        effectiveSource = packageName;
+        if (jBallerinaTestsEnabled()) {
+            return compileOnJBallerina(rootPath.toString(), effectiveSource,
                     new FileSystemProjectDirectory(rootPath));
         }
+
+        return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                new FileSystemProjectDirectory(rootPath));
     }
 
     /**
@@ -267,7 +289,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -290,7 +312,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -343,7 +365,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         return context;
     }
 
@@ -354,7 +376,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
@@ -367,7 +389,9 @@ public class BCompileUtil {
         comResult.setAST(packageNode);
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
         if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+            ProgramFile progFile = LauncherUtils.getExecutableProgram(programFile);
+            progFile.setProgramFilePath(Paths.get(packageName));
+            comResult.setProgFile(progFile);
         }
 
         return comResult;
@@ -409,6 +433,7 @@ public class BCompileUtil {
 
         if (programFile != null) {
             ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            pFile.setProgramFilePath(Paths.get(packageName));
             comResult.setProgFile(pFile);
         }
         return comResult;
@@ -429,7 +454,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -437,28 +462,6 @@ public class BCompileUtil {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         return compiler.compile(packageName);
-    }
-
-    /**
-     * Compile and run a ballerina file.
-     *
-     * @param sourceFilePath Path to the ballerina file.
-     */
-    public static void run(String sourceFilePath) {
-        // TODO: improve. How to get the output
-        CompileResult result = compile(sourceFilePath);
-        ProgramFile programFile = result.getProgFile();
-
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
-        } else {
-            LauncherUtils.runServices(programFile);
-        }
     }
 
     public static String readFileAsString(String path) throws IOException {
@@ -521,7 +524,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -539,7 +542,7 @@ public class BCompileUtil {
     }
 
 
-    static boolean jBallerinaTestsEnabled() {
+    public static boolean jBallerinaTestsEnabled() {
         String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
         return value != null && Boolean.valueOf(value);
     }
@@ -561,6 +564,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
         if (compileResult.getErrorCount() > 0) {
@@ -568,30 +572,47 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
-        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
-        String entryClassName = FileUtils.cleanupFileExtension(packageName).replace('.', '_');
-        entryClassName = getQualifiedClassName(bLangPackage.packageID.orgName.value, packageName, entryClassName);
-        Class<?> clazz = classLoader.loadClass(entryClassName);
+        CompilerBackendCodeGenerator jvmCodeGen =  BackendCodeGeneratorProvider.getInstance().getBackendCodeGenerator();
+        Optional result = jvmCodeGen.generate(false, bLangPackage, context, packageName);
 
-        // invoke the init function
-        String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
-        try {
-            Method method = clazz.getDeclaredMethod(funcName, Strand.class);
-            method.invoke(null, new Strand(new Scheduler()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        if (!result.isPresent()) {
+            throw new RuntimeException("Compiled binary jar is not found");
         }
 
-        compileResult.setEntryClass(clazz);
+        byte[] compiledJar = (byte[]) result.get();
+        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
+        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                bLangPackage.packageID.name.value, MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = classLoader.loadClass(initClassName);
+        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).initFunction.name);
+        runOnSchedule(initClazz, ((BLangPackage) compileResult.getAST()).startFunction.name);
+        compileResult.setClassLoader(classLoader);
         return compileResult;
     }
 
-    private static String getQualifiedClassName(String orgName, String packageName, String className) {
-        if (!Names.ANON_ORG.value.equals(orgName) && !Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            return orgName + "." + packageName.replace('.', '_') + "." + className.replace('.', '_');
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            Scheduler scheduler = new Scheduler(4, false);
+            //TODO fix following method invoke to scheduler.schedule()
+            method.invoke(null, new Strand(scheduler));
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getTargetException();
+            if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            }
+            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            }
+            if (t instanceof ErrorValue) {
+                throw new org.ballerinalang.util.exceptions
+                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+            }
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
-        return className;
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath) {
@@ -600,8 +621,7 @@ public class BCompileUtil {
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName);
     }
-
-    private static String cleanupFunctionName(BLangFunction function) {
-        return function.name.value.replaceAll("[.:/<>]", "_");
+    private static String cleanupFunctionName(BLangIdentifier name) {
+        return name.value.replaceAll("[.:/<>]", "_");
     }
 }

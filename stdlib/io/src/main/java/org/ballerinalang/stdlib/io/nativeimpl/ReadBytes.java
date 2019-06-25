@@ -20,6 +20,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
@@ -65,6 +69,11 @@ public class ReadBytes implements NativeCallableUnit {
 
     private static final BTupleType readTupleType =
             new BTupleType(Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
+
+    private static final org.ballerinalang.jvm.types.BTupleType readTupleJvmType =
+            new org.ballerinalang.jvm.types.BTupleType(Arrays.asList(new org.ballerinalang.jvm.types.BArrayType(
+                    org.ballerinalang.jvm.types.BTypes.typeByte), org.ballerinalang.jvm.types.BTypes.typeInt));
+
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
@@ -126,5 +135,42 @@ public class ReadBytes implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object read(Strand strand, ObjectValue channel, long nBytes) {
+        int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
+        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        byte[] content = new byte[arraySize];
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
+        Register register = EventRegister.getFactory().register(event, ReadBytes::readChannelResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+    /**
+     * Function which will be notified on the response obtained after the async operation.
+     *
+     * @param result context of the callback.
+     * @return Once the callback is processed we further return back the result.
+     */
+    private static EventResult readChannelResponse(EventResult<Integer, EventContext> result) {
+        ArrayValue contentTuple = new ArrayValue(readTupleJvmType);
+        EventContext eventContext = result.getContext();
+        Throwable error = eventContext.getError();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            Integer numberOfBytes = result.getResponse();
+            contentTuple.add(0, new ArrayValue(content));
+            contentTuple.add(1, numberOfBytes);
+            callback.setReturnValues(contentTuple);
+        }
+        IOUtils.validateChannelState(eventContext);
+        callback.notifySuccess();
+        return result;
     }
 }

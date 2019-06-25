@@ -611,7 +611,7 @@ type PersonObj object {
     }
 };
 
-type FreezeAllowedDepartment record {
+type FreezeAllowedDepartment record {|
     PersonObj|string head;
     (PersonObj|int)...;
-};
+|};

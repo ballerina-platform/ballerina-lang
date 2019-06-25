@@ -18,6 +18,9 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -37,5 +40,11 @@ public class GetServiceAnnotations extends AbstractAnnotationReader {
         BType serviceType = context.getRefArgument(0).getType();
         String serviceVarName = serviceType.getName().split("\\$\\$")[0];
         context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), serviceVarName));
+    }
+
+    public static ArrayValue getServiceAnnotations(Strand strand, ObjectValue service) {
+        org.ballerinalang.jvm.types.BType serviceType = service.getType();
+        String serviceVarName = serviceType.getName().split("\\$\\$")[0];
+        return getAnnotationValue(serviceType, serviceVarName);
     }
 }

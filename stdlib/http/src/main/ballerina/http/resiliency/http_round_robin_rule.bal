@@ -26,20 +26,17 @@ public type LoadBalancerRounRobinRule object {
     # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
     # + return - Chosen `Client` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|error;
-};
-
-public function LoadBalancerRounRobinRule.getNextClient(Client?[] loadBalanceCallerActionsArray)
-                                       returns Client|error {
-    Client httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-    lock {
-        if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
-            httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-            self.index = 0;
-        } else {
-            httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-            self.index += 1;
+    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|error {
+        Client httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+        lock {
+            if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
+                httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+                self.index = 0;
+            } else {
+                httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+                self.index += 1;
+            }
         }
+        return httpClient;
     }
-    return httpClient;
-}
+};

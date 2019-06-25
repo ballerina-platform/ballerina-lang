@@ -30,7 +30,7 @@ public type WritableCharacterChannel object {
 
     # Initializes a character channel.
     #
-    # + byteChannel - WritableByteChannel which should be used to initalize the character channel
+    # + byteChannel - The WritableByteChannel which should be used to initialize the character channel
     # + cs - Character-set (i.e UTF-8) which should be used to encode
     function init(WritableByteChannel byteChannel, string cs) = external;
 
