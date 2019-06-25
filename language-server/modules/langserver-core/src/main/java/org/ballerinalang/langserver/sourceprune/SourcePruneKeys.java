@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.compiler.LSContext;
 
 import java.util.List;
@@ -49,5 +50,9 @@ public class SourcePruneKeys {
     public static final LSContext.Key<List<Integer>> BLOCK_REMOVE_KW_TERMINALS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> REMOVE_DEFINITION_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Token>> TOKEN_LIST_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> CURSOR_TOKEN_INDEX_KEY
             = new LSContext.Key<>();
 }

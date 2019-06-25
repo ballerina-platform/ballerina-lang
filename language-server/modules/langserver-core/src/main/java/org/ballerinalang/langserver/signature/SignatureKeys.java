@@ -29,14 +29,7 @@ public class SignatureKeys {
     private SignatureKeys() {
     }
 
-    static final LSContext.Key<String> CALLABLE_ITEM_NAME = new LSContext.Key<>();
-    static final LSContext.Key<Integer> ITEM_DELIMITER = new LSContext.Key<>();
     public static final LSContext.Key<SignatureHelpCapabilities> SIGNATURE_HELP_CAPABILITIES_KEY
             = new LSContext.Key<>();
-    /**
-     * If os:get... then identifier against is os
-     * If res.send(.. then identifier against is res
-     */
-    static final LSContext.Key<String> IDENTIFIER_AGAINST = new LSContext.Key<>();
-    static final LSContext.Key<Integer> PARAMETER_COUNT = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> PARAMETER_INDEX = new LSContext.Key<>();
 }

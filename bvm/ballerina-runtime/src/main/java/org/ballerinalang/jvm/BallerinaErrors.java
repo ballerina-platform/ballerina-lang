@@ -91,6 +91,10 @@ public class BallerinaErrors {
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
 
+    static String getErrorMessageFromDetail(MapValueImpl<String, Object> detailMap) {
+        return (String) detailMap.get(ERROR_MESSAGE_FIELD);
+    }
+
     public static ErrorValue createCancelledFutureError() {
         return createError(BallerinaErrorReasons.FUTURE_CANCELLED);
     }

@@ -731,7 +731,18 @@ public class CommonUtil {
      * @return      Extracted last Item
      */
     public static <T> T getLastItem(List<T> list) {
-        return list.get(list.size() - 1);
+        return (list.size() == 0) ? null : list.get(list.size() - 1);
+    }
+
+    /**
+     * Get the last item of the Array.
+     *
+     * @param list  Array to get the Last Item
+     * @param <T>   Array content Type
+     * @return      Extracted last Item
+     */
+    public static <T> T getLastItem(T[] list) {
+        return (list.length == 0) ? null : list[list.length - 1];
     }
 
     /**

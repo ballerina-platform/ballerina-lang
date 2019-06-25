@@ -56,7 +56,7 @@ public class LdapConstants {
     public static final String LDAP_CONFIGURATION = "ldapConfiguration";
     public static final String LDAP_CONNECTION_SOURCE = "connectionSource";
     public static final String LDAP_CONNECTION_CONTEXT = "connectionContext";
-    public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapAuthStoreProviderConfig";
+    public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapConnectionConfig";
     public static final String ENDPOINT_INSTANCE_ID = "instanceId";
     public static final String SECURE_AUTH_STORE_CONFIG = "secureClientSocket";
 
