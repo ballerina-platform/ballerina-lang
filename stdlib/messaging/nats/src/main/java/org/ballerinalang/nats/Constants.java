@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl;
+package org.ballerinalang.nats;
 
 /**
  * Represents the constants which will be used for NATS.

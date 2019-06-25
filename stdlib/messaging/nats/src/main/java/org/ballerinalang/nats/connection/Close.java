@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl.connection;
+package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import org.ballerinalang.bre.Context;
@@ -29,7 +29,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.nativeimpl.Constants;
+import org.ballerinalang.nats.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

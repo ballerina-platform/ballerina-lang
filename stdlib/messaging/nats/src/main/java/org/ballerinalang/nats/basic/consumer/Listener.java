@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl.consumer;
+package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nats.nativeimpl.Constants;
+import org.ballerinalang.nats.Constants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 
