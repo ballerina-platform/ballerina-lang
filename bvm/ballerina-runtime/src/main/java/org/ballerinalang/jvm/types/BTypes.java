@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.types;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -53,7 +52,8 @@ public class BTypes {
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null));
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
             null, null), typeString, typeMap);
-    public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
+    public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
+    public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
 
     static {
         typeError.detailType = new BMapType(typePureType);
