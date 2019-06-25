@@ -55,10 +55,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     List<? extends EndpointNode> getEndpointNodes();
 
-    void addDefaultableParameter(VariableDefinitionNode param);
-
-    List<BLangSimpleVariableDef> getDefaultableParameters();
-
     SimpleVariableNode getRestParameters();
 
     void setRestParameter(SimpleVariableNode restParam);

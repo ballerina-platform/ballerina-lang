@@ -6,41 +6,36 @@ function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5
 }
 
 function testInvokeFunctionInOrder1() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", 40, 50, 60);
+    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob");
 }
 
 function testInvokeFunctionInOrder2() returns [int, float, string, int, string, int[]] {
     int[] array = [40, 50, 60];
-    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...array);
+    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob");
 }
 
 function testInvokeFunctionInMixOrder1() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50, d=30, 60);
+    return functionWithAllTypesParams(e="Bob", b=20.0, c="Alex", a=10, d=30);
 }
 
 function testInvokeFunctionInMixOrder2() returns [int, float, string, int, string, int[]] {
-    int[] array = [40, 50, 60];
-    return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", ...array, d=30);
-}
-
-function testInvokeFunctionWithoutRestArgs() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", d=30);
+    return functionWithAllTypesParams(10, c="Alex", e="Bob", d=30, b=20.0);
 }
 
 function testInvokeFunctionWithoutSomeNamedArgs() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(c="Alex", 10, 20.0);
+    return functionWithAllTypesParams(10, 20.0, c="Alex");
 }
 
 function testInvokeFunctionWithRequiredArgsOnly() returns [int, float, string, int, string, int[]] {
     return functionWithAllTypesParams(10, 20.0);
 }
 
-function testInvokeFunctionWithRequiredAndRestArgs() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(10, 20.0, 40, 50, 60);
+function testInvokeFunctionWithAllParamsAndRestArgs() returns [int, float, string, int, string, int[]] {
+    return functionWithAllTypesParams(10, 20.0, "John1", 6, "Doe1", 40, 50, 60);
 }
 
 function funcInvocAsRestArgs() returns [int, float, string, int, string, int[]] {
-    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...getIntArray());
+    return functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", ...getIntArray());
 }
 
 function getIntArray() returns (int[]) {
@@ -54,8 +49,8 @@ function functionWithoutRestParams(int a, float b, string c = "John", int d = 5,
     return [a, b, c, d, e];
 }
 
-function testInvokeFuncWithoutRestParams() returns [int, float, string, int, string] {
-    return functionWithoutRestParams(10, e="Bob", 20.0, d=30);
+function testInvokeFuncWithoutRestParamsAndMissingDefaultableParam() returns [int, float, string, int, string] {
+    return functionWithoutRestParams(10, b=20.0, d=30, e="Bob");
 }
 
 //------------- Testing a function having only named parameters --------
@@ -67,7 +62,7 @@ function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", in
 }
 
 function testInvokeFuncWithOnlyNamedParams1() returns [int, float, string, int, string] {
-    return functionWithOnlyNamedParams(b = 20.0, e="Bob", d=30, a=10 , c="Alex");
+    return functionWithOnlyNamedParams(b = 20.0, e="Bob", d=30, a=10, c="Alex");
 }
 
 function testInvokeFuncWithOnlyNamedParams2() returns [int, float, string, int, string] {

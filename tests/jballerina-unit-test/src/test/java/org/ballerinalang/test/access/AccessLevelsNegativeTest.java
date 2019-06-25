@@ -40,8 +40,8 @@ public class AccessLevelsNegativeTest {
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg + "'ChildFoo'", 23, 5);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'Foo'", 24, 5);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'Baz'", 25, 5);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'Foo'", 44, 77);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'Foo'", 49, 78);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'Foo'", 44, 76);
+        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'Foo'", 49, 77);
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg + "'Baz'", 59, 48);
         BAssertUtil.validateError(compileResult, 8, expectedErrMsg + "'Baz'", 76, 45);
         BAssertUtil.validateError(compileResult, 9, expectedErrMsg + "'Foo'", 77, 45);

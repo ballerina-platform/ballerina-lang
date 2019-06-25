@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -590,7 +591,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
 
-        funcNode.defaultableParams = rewrite(funcNode.defaultableParams, fucEnv);
+        funcNode.requiredParams = rewrite(funcNode.requiredParams, fucEnv);
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -2185,7 +2186,6 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.lhsVar = varRefExpr.lhsVar;
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
-        genVarRefExpr.ignoreExpression = varRefExpr.ignoreExpression;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
@@ -2307,7 +2307,6 @@ public class Desugar extends BLangNodeVisitor {
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
 
         if (iExpr.functionPointerInvocation) {
@@ -2348,7 +2347,7 @@ public class Desugar extends BLangNodeVisitor {
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                        new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
+                        new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs,
                                 iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
                 attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                 attachedFunctionInvocation.name = iExpr.name;
@@ -3245,6 +3244,11 @@ public class Desugar extends BLangNodeVisitor {
         result = constant;
     }
 
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        result = ignoreExpr;
+    }
+
     // private functions
 
     // Foreach desugar helper method.
@@ -3664,7 +3668,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangInvocation invocationExprMethod = ASTBuilderUtil
                 .createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                            new ArrayList<>(), new ArrayList<>(), symResolver);
+                                            new ArrayList<>(), symResolver);
         return rewrite(invocationExprMethod, env);
     }
 
@@ -3674,7 +3678,7 @@ public class Desugar extends BLangNodeVisitor {
                         names.fromString(iExpr.builtInMethod.getName()), SymTag.FUNCTION);
         List<BLangExpression> requiredArgs = Lists.of(iExpr.expr);
         BLangExpression invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
-                requiredArgs, new ArrayList<>(), new ArrayList<>(), symResolver);
+                requiredArgs, new ArrayList<>(), symResolver);
         invocationExprMethod = addConversionExprIfRequired(invocationExprMethod, iExpr.type);
         return rewriteExpr(invocationExprMethod);
     }
@@ -3744,7 +3748,7 @@ public class Desugar extends BLangNodeVisitor {
                                   names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
             BLangInvocation builtInLengthMethod = ASTBuilderUtil
                     .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, new ArrayList<>(),
-                                                new ArrayList<>(), new ArrayList<>(), symResolver);
+                                                new ArrayList<>(), symResolver);
             builtInLengthMethod.expr = iExpr.expr;
             return rewrite(builtInLengthMethod, env);
         }
@@ -3956,13 +3960,13 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        BInvokableSymbol invocableSymbol = (BInvokableSymbol) symbol;
-        if (invocableSymbol.defaultableParams != null && !invocableSymbol.defaultableParams.isEmpty()) {
-            // Re-order the named args
-            reorderNamedArgs(iExpr, invocableSymbol);
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+        if (!invokableSymbol.params.isEmpty()) {
+            // Re-order the arguments
+            reorderNamedArgs(iExpr, invokableSymbol);
         }
 
-        if (invocableSymbol.restParam == null) {
+        if (invokableSymbol.restParam == null) {
             return;
         }
 
@@ -3974,34 +3978,38 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteral.exprs = iExpr.restArgs;
-        arrayLiteral.type = invocableSymbol.restParam.type;
+        arrayLiteral.type = invokableSymbol.restParam.type;
         iExpr.restArgs = new ArrayList<>();
         iExpr.restArgs.add(arrayLiteral);
     }
 
     private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol) {
-        Map<String, BLangExpression> namedArgs = new HashMap<>();
-        iExpr.namedArgs.forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
-
-        // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
-        for (BVarSymbol defaultableParam : invokableSymbol.defaultableParams) {
-            if (namedArgs.containsKey(defaultableParam.name.value)) {
-                args.add(namedArgs.get(defaultableParam.name.value));
+        Map<String, BLangExpression> namedArgs = new HashMap<>();
+        iExpr.requiredArgs.stream()
+                .filter(expr -> expr.getKind() == NodeKind.NAMED_ARGS_EXPR)
+                .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
+
+        List<BVarSymbol> params = invokableSymbol.params;
+
+        // Iterate over the required args.
+        int i = 0;
+        for (; i < params.size(); i++) {
+            BVarSymbol param = params.get(i);
+            if (iExpr.requiredArgs.size() > i && iExpr.requiredArgs.get(i).getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                // If a positional arg is given in the same position, it will be used.
+                args.add(iExpr.requiredArgs.get(i));
+            } else if (namedArgs.containsKey(param.name.value)) {
+                // Else check if named arg is given.
+                args.add(namedArgs.get(param.name.value));
             } else {
-                BLangExpression expr;
-                int paramTypeTag = defaultableParam.type.tag;
-                if (defaultableParam.defaultExpression != null) {
-                    expr = defaultableParam.defaultExpression;
-                    expr = addConversionExprIfRequired(expr, defaultableParam.type);
-                } else {
-                    expr = getDefaultValue(paramTypeTag);
-                }
-                expr.ignoreExpression = true; // flag to indicate BIRGen to ignore
+                // Else create a dummy expression with an ignore flag.
+                BLangExpression expr = new BLangIgnoreExpr();
+                expr.type = param.type;
                 args.add(expr);
             }
         }
-        iExpr.namedArgs = args;
+        iExpr.requiredArgs = args;
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(

@@ -1015,7 +1015,7 @@ public class CompiledPackageSymbolEnter {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(i), invokableSymbol);
-            invokableSymbol.defaultableParams.add(varSymbol);
+//            invokableSymbol.defaultableParams.add(varSymbol);
         }
 
         if (restParamCount == 1) {
@@ -1029,7 +1029,7 @@ public class CompiledPackageSymbolEnter {
         DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
         int paramDefaultsInfoCount = paramDefaultsDataInStream.readShort();
         for (int i = 0; i < paramDefaultsInfoCount; i++) {
-            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
+//            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
         }
     }
 

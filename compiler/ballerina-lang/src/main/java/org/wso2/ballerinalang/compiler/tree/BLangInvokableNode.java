@@ -58,7 +58,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
-    public List<BLangSimpleVariableDef> defaultableParams;
     public BLangSimpleVariable restParam;
 
     public BInvokableSymbol symbol;
@@ -72,7 +71,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
-        this.defaultableParams = new ArrayList<>();
         this.defaultWorkerName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         this.defaultWorkerName.value = DEFAULT_WORKER_NAME;
     }
@@ -165,16 +163,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public List<BLangWorker> getWorkers() {
         return workers;
-    }
-
-    @Override
-    public List<BLangSimpleVariableDef> getDefaultableParameters() {
-        return defaultableParams;
-    }
-
-    @Override
-    public void addDefaultableParameter(VariableDefinitionNode param) {
-        this.defaultableParams.add((BLangSimpleVariableDef) param);
     }
 
     @Override

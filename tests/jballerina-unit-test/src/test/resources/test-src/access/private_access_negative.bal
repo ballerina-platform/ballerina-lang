@@ -41,12 +41,12 @@ type ChildFoo object {
     }
 };
 
-public function fooFunc2 (string s, int i = 4, Bar r,  Foo... fArg) returns Foo {
+public function fooFunc2 (string s, Bar r, int i = 4, Foo... fArg) returns Foo {
     Foo f = new ();
     return f;
 }
 
-public function fooFunc3 (string s, int i = 4, Bar r,  Foo... fArg) returns [Foo, string] {
+public function fooFunc3 (string s, Bar r, int i = 4, Foo... fArg) returns [Foo, string] {
     Foo f = new ();
     return [f, "G"];
 }

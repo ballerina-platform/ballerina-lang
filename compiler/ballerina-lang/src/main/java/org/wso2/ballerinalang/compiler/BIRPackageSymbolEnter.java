@@ -544,7 +544,8 @@ public class BIRPackageSymbolEnter {
             BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
                     invokableType.paramTypes.get(i), invokableSymbol);
-            invokableSymbol.defaultableParams.add(varSymbol);
+            varSymbol.defaultableParam = true;
+            invokableSymbol.params.add(varSymbol);
         }
 
         if (dataInStream.readBoolean()) { //if rest param exist

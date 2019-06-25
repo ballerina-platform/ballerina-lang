@@ -346,7 +346,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisStateStack.push(analysisState);
 
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
-        funcNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
+//        funcNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
 
         analysisState.requiredParams = funcNode.requiredParams;
         analysisState.defaultableParams = defaultableParamsVarList;
@@ -1644,11 +1644,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (isEntryPointParamsInvalid(invNode.requiredParams)) {
             return;
         }
-        List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
-        invNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
-        if (isEntryPointParamsInvalid(defaultableParamsVarList)) {
-            return;
-        }
+
         if (invNode.restParam != null && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam))) {
             return;
         }
@@ -1715,8 +1711,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
 
             int requiredParamCount = invNode.requiredParams.size();
-            int defaultableParamCount = invNode.defaultableParams.size();
-            int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
+            int totalParamCount = requiredParamCount + (invNode.restParam == null ? 0 : 1);
             if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
                 // If taint error occurred when no parameter is tainted, there is no point of checking tainted status of
                 // returns when each parameter is tainted. An compiler error will get generated for the usage anyway,
@@ -1731,14 +1726,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
-                            defaultableParamCount);
+                            0);
                     // If parameter is sensitive, it's invalid to have a case where tainted status of parameter is true.
                     if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
                         continue;
                     }
                     // Set each parameter "tainted", then analyze the body to observe the outcome of the function.
                     analyzeReturnTaintedStatus(taintTable, invNode, symbolEnv, paramIndex, requiredParamCount,
-                            defaultableParamCount);
+                            0);
                     if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                         analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
                     }
@@ -1770,7 +1765,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
         getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
         resetTaintedStatusOfVariables(invokableNode.requiredParams);
-        resetTaintedStatusOfVariableDef(invokableNode.defaultableParams);
         if (invokableNode.restParam != null) {
             resetTaintedStatusOfVariables(Collections.singletonList(invokableNode.restParam));
         }
@@ -1779,7 +1773,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (paramIndex < requiredParamCount) {
                 invokableNode.requiredParams.get(paramIndex).symbol.tainted = true;
             } else if (paramIndex < requiredParamCount + defaultableParamCount) {
-                invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol.tainted = true;
+//                invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol.tainted = true;
             } else {
                 if (invokableNode.restParam != null) {
                     invokableNode.restParam.symbol.tainted = true;
@@ -1855,7 +1849,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     hasTaintedAnnotation ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
 
             int requiredParamCount = invokableNode.requiredParams.size();
-            int defaultableParamCount = invokableNode.defaultableParams.size();
+            int defaultableParamCount = 0;
+//            int defaultableParamCount = invokableNode.defaultableParams.size();
             int totalParamCount =
                     requiredParamCount + defaultableParamCount + (invokableNode.restParam == null ? 0 : 1);
 
@@ -1927,7 +1922,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
         } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
             int requiredParamCount = function.requiredParams.size();
-            int defaultableParamCount = function.defaultableParams.size();
+            int defaultableParamCount = 0;
+//            int defaultableParamCount = function.defaultableParams.size();
             int totalParamCount = requiredParamCount + defaultableParamCount + (function.restParam == null ? 0 : 1);
             Map<Integer, TaintRecord> taintTable = function.symbol.taintTable;
             for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
@@ -2072,10 +2068,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // complete taint outcome of the current function.
         if (invocationExpr.argExprs != null) {
             int requiredParamCount = invokableSymbol.params.size();
-            int defaultableParamCount = invokableSymbol.defaultableParams.size();
 
             int requiredArgsCount = invocationExpr.requiredArgs.size();
-            int namedArgsCount = invocationExpr.namedArgs.size();
             int restArgsCount = invocationExpr.restArgs.size();
 
             for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
@@ -2091,17 +2085,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     break;
                 }
             }
-            for (int argIndex = 0; argIndex < namedArgsCount; argIndex++) {
-                BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
+            for (BLangExpression argExpr : invocationExpr.requiredArgs) {
                 if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                     String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
                     // Pick the index of this defaultable parameter in the invokable definition.
                     int paramIndex = 0;
-                    for (int defaultableParamIndex = 0; defaultableParamIndex < defaultableParamCount;
-                         defaultableParamIndex++) {
-                        BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
+                    for (int defaultableParamIndex = 0; defaultableParamIndex < requiredParamCount; defaultableParamIndex++) {
+                        BVarSymbol defaultableParam = invokableSymbol.params.get(defaultableParamIndex);
                         if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
-                            paramIndex = requiredParamCount + defaultableParamIndex;
+                            paramIndex = defaultableParamIndex;
                             break;
                         }
                     }
@@ -2120,7 +2112,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             for (int argIndex = 0; argIndex < restArgsCount; argIndex++) {
                 BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
                 // Pick the index of the rest parameter in the invokable definition.
-                int paramIndex = requiredParamCount + defaultableParamCount;
+                int paramIndex = requiredParamCount + argIndex;
                 TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invocationExpr, argExpr,
                         argTaintedStatusList);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
@@ -2151,14 +2143,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void updateArgTaintedStatus(BLangInvocation invocationExpr, List<TaintedStatus> argTaintedStatusList) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-        int requiredParamCount = invokableSymbol.params.size();
-        int defaultableParamCount = invokableSymbol.defaultableParams.size();
+        int paramCount = invokableSymbol.params.size();
 
-        int requiredArgsCount = invocationExpr.requiredArgs.size();
-        int namedArgsCount = invocationExpr.namedArgs.size();
+        int nonRestArgsCount = invocationExpr.requiredArgs.size();
+//        int namedArgsCount = invocationExpr.namedArgs.size();
         int restArgsCount = invocationExpr.restArgs.size();
 
-        for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
+        for (int argIndex = 0; argIndex < nonRestArgsCount; argIndex++) {
             BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
             TaintedStatus argTaintedStatus = TaintedStatus.UNTAINTED;
             if (!argTaintedStatusList.isEmpty()) {
@@ -2166,18 +2157,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             updateArgTaintedStatus(argExpr, argTaintedStatus);
         }
-
-        for (int argIndex = 0; argIndex < namedArgsCount; argIndex++) {
-            BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
+        for (BLangExpression argExpr : invocationExpr.requiredArgs) {
             if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
                 // Pick the index of this defaultable parameter in the invokable definition.
                 int paramIndex = 0;
-                for (int defaultableParamIndex = 0; defaultableParamIndex < defaultableParamCount;
-                     defaultableParamIndex++) {
-                    BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
+                for (int defaultableParamIndex = 0; defaultableParamIndex < paramCount; defaultableParamIndex++) {
+                    BVarSymbol defaultableParam = invokableSymbol.params.get(defaultableParamIndex);
                     if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
-                        paramIndex = requiredParamCount + defaultableParamIndex;
+                        paramIndex = defaultableParamIndex;
                         break;
                     }
                 }
@@ -2189,8 +2177,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         for (int argIndex = 0; argIndex < restArgsCount; argIndex++) {
             BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
             // Pick the index of the rest parameter in the invokable definition.
-            int paramIndex = requiredParamCount + defaultableParamCount;
-            TaintedStatus argTaintedStatus = argTaintedStatusList.get(paramIndex);
+            TaintedStatus argTaintedStatus = argTaintedStatusList.get(paramCount);
             updateArgTaintedStatus(argExpr, argTaintedStatus);
         }
     }
@@ -2235,7 +2222,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             TaintRecord taintRecord = invokableSymbol.taintTable.get(paramIndex);
             int requiredParamCount = invokableSymbol.params.size();
-            int defaultableParamCount = invokableSymbol.defaultableParams.size();
+            int defaultableParamCount = 0;
             BVarSymbol paramSymbol = getParamSymbol(invokableSymbol, paramIndex, requiredParamCount,
                     defaultableParamCount);
 
@@ -2299,7 +2286,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (paramIndex < requiredParamCount) {
             param = invNode.requiredParams.get(paramIndex);
         } else if (paramIndex < requiredParamCount + defaultableParamCount) {
-            param = invNode.defaultableParams.get(paramIndex - requiredParamCount).var;
+//            param = invNode.defaultableParams.get(paramIndex - requiredParamCount).var;
+            param = invNode.requiredParams.get(paramIndex);
         } else {
             param = invNode.restParam;
         }
@@ -2312,7 +2300,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (paramIndex < requiredParamCount) {
             param = invSymbol.params.get(paramIndex);
         } else if (paramIndex < requiredParamCount + defaultableParamCount) {
-            param = invSymbol.defaultableParams.get(paramIndex - requiredParamCount);
+//            param = invSymbol.defaultableParams.get(paramIndex - requiredParamCount);
+            param = invSymbol.params.get(paramIndex);
         } else {
             param = invSymbol.restParam;
         }
