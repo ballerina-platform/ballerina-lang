@@ -266,6 +266,7 @@ function generateCheckCastToFiniteType(jvm:MethodVisitor mv, bir:BType sourceTyp
 // ------------------------------------------------------------------
 //   Generate Cast Methods - Performs cast without type checking
 // ------------------------------------------------------------------
+
 function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
     if (targetType is bir:BTypeInt) {
         generateCastToInt(mv, sourceType);

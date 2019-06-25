@@ -99,21 +99,21 @@ public class TypeChecker {
     }
 
     public static long anyToInt(Object sourceVal) {
-        return TypeConverter.anyToInt(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+        return TypeConverter.anyToIntCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloat(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+        return TypeConverter.anyToFloatCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                              BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBoolean(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                                BTypes.typeBoolean));
     }
 
     public static int anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByte(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
+        return TypeConverter.anyToByteCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal,
                                                                                             BTypes.typeByte));
     }
 
@@ -1132,10 +1132,6 @@ public class TypeChecker {
 
         if (null == lhsValue || null == rhsValue) {
             return false;
-        }
-
-        if (lhsValue.equals(rhsValue)) {
-            return true;
         }
 
         int lhsValTypeTag = getType(lhsValue).getTag();
