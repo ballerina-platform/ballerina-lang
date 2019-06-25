@@ -749,7 +749,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.expr != null) {
                 foundDefaultableParam = true;
             }
-            if (varNode.expr == null & foundDefaultableParam) {
+            if (varNode.expr == null && foundDefaultableParam) {
                 dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
             }
             BType type = varNode.type;
