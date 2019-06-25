@@ -23,12 +23,8 @@ public type Listener object {
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
     #
     # + c - An already established connection or configuration to create a new connection.
-    public function __init(ConnectionConfig|Connection c) {
-        if (c is Connection) {
-            self.connection = c;
-        } else {
-            self.connection = new Connection(c);
-        }
+    public function __init(Connection c) {
+        self.connection = c;
     }
 
     # Binds the NATS consumer to a service.
