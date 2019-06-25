@@ -1348,8 +1348,11 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
-                checkLangLibMethodInvocationExpr(iExpr, varRefType);
-                break;
+                boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
+                if (!langLibMethodExists) {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+                    resultType = symTable.semanticError;
+                }
         }
     }
 
@@ -2522,9 +2525,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol =
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
-            resultType = symTable.semanticError;
-            return;
+            if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, objectType);
+                resultType = symTable.semanticError;
+                return;
+            }
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -2563,15 +2568,15 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
+    private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
 
         Name funcName = names.fromString(iExpr.name.value);
-        BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, names.fromString(iExpr.name.value));
+        BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName);
+
         if (funcSymbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-            resultType = symTable.semanticError;
-            return;
+            return false;
         }
+
         iExpr.symbol = funcSymbol;
         iExpr.langLibInvocation = true;
         SymbolEnv enclEnv = this.env;
@@ -2579,6 +2584,8 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.argExprs.add(0, iExpr.expr);
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
+
+        return true;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
