@@ -47,7 +47,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -265,13 +264,5 @@ public class BuilderUtils {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
         return context;
-    }
-
-    private static String cleanUpFilename(String updatedFileName) {
-        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
-            updatedFileName = updatedFileName.substring(0,
-                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
-        }
-        return updatedFileName;
     }
 }

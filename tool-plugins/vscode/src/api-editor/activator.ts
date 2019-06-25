@@ -22,7 +22,7 @@ import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
 import { API_DESIGNER_NO_SERVICE } from '../core/messages';
-import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { readFileSync } from "fs";
 
@@ -164,10 +164,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
             'ballerinaOASEditor',
             'Ballerina API Designer - ' + selectedService,
             { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-            }
+            getCommonWebViewOptions()
         );
     }
 

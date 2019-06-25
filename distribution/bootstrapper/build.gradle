@@ -117,10 +117,6 @@ task copyNativeForPack2(type: Copy) {
 
     from configurations.pack2native
     into bootBalHome(2) + "/bre/lib"
-
-    eachFile { details ->
-        println details
-    }
 }
 
 task createPack2() {
@@ -162,7 +158,6 @@ task copyBalosForPack3(type: Copy) {
     into bootBalHome(3) + "/lib/repo/ballerina"
 
     eachFile { details ->
-        println details
         details.path = details.path.replace("/", "/0.0.0/")
     }
 }

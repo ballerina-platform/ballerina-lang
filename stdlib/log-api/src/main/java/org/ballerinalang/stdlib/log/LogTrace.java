@@ -39,13 +39,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class LogTrace extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        logMessage(ctx, BLogLevel.TRACE, (pkg, message) -> {
-            getLogger(pkg).trace(message);
-        });
     }
 
-    public static void printDebug(Strand strand, Object msg) {
-        logMessage(msg, BLogLevel.TRACE, (pkg, message) -> {
+    public static void printTrace(Strand strand, Object msg) {
+        String packagePath = getPackagePath();
+        logMessage(strand, msg, BLogLevel.TRACE, packagePath, (pkg, message) -> {
             getLogger(pkg).trace(message);
         });
     }

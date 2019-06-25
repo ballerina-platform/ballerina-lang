@@ -34,19 +34,19 @@ type ClosedBar record {|
     float z = 0.0;
 |};
 
-function testForeachWithClosedRecords() returns (string[], any[]) {
+function testForeachWithClosedRecords() returns [string[], any[]] {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" } };
     string[] fields = [];
     any[] values = [];
 
     int i = 0;
-    foreach var (f, v) in p {
+    foreach var [f, v] in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
     }
 
-    return (fields, values);
+    return [fields, values];
 }
 
 function testForeachWithOpenRecords2() returns any[] {
@@ -66,8 +66,8 @@ function testForeachOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
     map<any> rec = {};
 
-    p.foreach(function ((string, any) entry) {
-            var (field, value) = entry;
+    p.foreach(function ([string, any] entry) {
+            var [field, value] = entry;
             rec[field] = value;
         });
 
@@ -77,13 +77,13 @@ function testForeachOpWithClosedRecords() returns map<any> {
 function testMapOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
 
-    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
-           var (field, value) = entry;
+    map<any> newp =  p.map(function ([string, any] entry) returns [string, any] {
+           var [field, value] = entry;
            if value is string {
                value = value.toLower();
-               return (field, value);
+               return [field, value];
            }
-           return (field, value);
+           return [field, value];
         });
         
     return newp;
@@ -92,8 +92,8 @@ function testMapOpWithClosedRecords() returns map<any> {
 function testFilterOpWithClosedRecords() returns map<string> {
     ClosedFoo f = {a: "A", b: "B", c: "C", d: "D", e: "E"};
 
-    map<string> newf = f.filter(function ((string, string) entry) returns boolean {
-        var (field, value) = entry;
+    map<string> newf = f.filter(function ([string, string] entry) returns boolean {
+        var [field, value] = entry;
         if (value == "A" || value == "E") {
             return true;
         }
@@ -111,12 +111,12 @@ function testCountOpWithClosedRecords() returns int {
 function testChainedOpsWithClosedRecords() returns map<string> {
     ClosedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE"};
 
-    map<string> newf = f.map(function ((string, string) entry) returns (string, string) {
-                    var (field, value) = entry;
-                    return (field, value.toLower());
+    map<string> newf = f.map(function ([string, string] entry) returns [string, string] {
+                    var [field, value] = entry;
+                    return [field, value.toLower()];
                 })
-                .filter(function ((string, string) entry) returns boolean {
-                    var (field, value) = entry;
+                .filter(function ([string, string] entry) returns boolean {
+                    var [field, value] = entry;
                     if (value != "aa" && value != "ee") {
                         return true;
                     }
@@ -126,109 +126,109 @@ function testChainedOpsWithClosedRecords() returns map<string> {
     return newf;
 }
 
-function testMapWithAllStringClosedRecord() returns (map<string>, string[]) {
+function testMapWithAllStringClosedRecord() returns [map<string>, string[]] {
     ClosedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE"};
 
-    map<string> modFooMap = f.map(function ((string, string) entry) returns (string, string) {
-        var (k, v) = entry;
-        return (k, v.toLower());
+    map<string> modFooMap = f.map(function ([string, string] entry) returns [string, string] {
+        var [k, v] = entry;
+        return [k, v.toLower()];
     });
 
-    string[] modFooAr = f.map(function ((string, string) val) returns string { return val[1].toLower(); });
+    string[] modFooAr = f.map(function ([string, string] val) returns string { return val[1].toLower(); });
 
-    return (modFooMap, modFooAr);
+    return [modFooMap, modFooAr];
 }
 
-function testMapWithAllIntClosedRecord(int m, int p, int c) returns (map<int>, int[]) {
+function testMapWithAllIntClosedRecord(int m, int p, int c) returns [map<int>, int[]] {
     ClosedGrades grades = {maths: m, physics: p, chemistry: c};
 
-    map<int> adjGrades = grades.map(function ((string, int) entry) returns (string, int) {
-        var (subj, grade) = entry;
-        return (subj, grade + 10);
+    map<int> adjGrades = grades.map(function ([string, int] entry) returns [string, int] {
+        var [subj, grade] = entry;
+        return [subj, grade + 10];
     });
 
-    int[] adjGradesAr = grades.map(function ((string, int) value) returns int { return value[1] + 10; });
+    int[] adjGradesAr = grades.map(function ([string, int] value) returns int { return value[1] + 10; });
 
-    return (adjGrades, adjGradesAr);
+    return [adjGrades, adjGradesAr];
 }
 
-function testMapWithAllFloatClosedRecord(float a, float b, float c) returns (map<float>, float[]) {
+function testMapWithAllFloatClosedRecord(float a, float b, float c) returns [map<float>, float[]] {
     ClosedBar bar = {x: a, y: b, z: c};
 
-    map<float> modBar = bar.map(function ((string, float) entry) returns (string, float) {
-        var (k, val) = entry;
-        return (k, val + 10);
+    map<float> modBar = bar.map(function ([string, float] entry) returns [string, float] {
+        var [k, val] = entry;
+        return [k, val + 10];
     });
 
-    float[] modBarAr = bar.map(function ((string, float) val) returns float { return val[1] + 10; });
+    float[] modBarAr = bar.map(function ([string, float] val) returns float { return val[1] + 10; });
 
-    return (modBar, modBarAr);
+    return [modBar, modBarAr];
 }
 
-function testFilterWithAllStringClosedRecord() returns (map<string>, string[]) {
+function testFilterWithAllStringClosedRecord() returns [map<string>, string[]] {
     ClosedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE"};
 
-    map<string> modFooMap = f.filter(function ((string, string) entry) returns boolean {
-        var (k, v) = entry;
+    map<string> modFooMap = f.filter(function ([string, string] entry) returns boolean {
+        var [k, v] = entry;
         if (v == "AA" || v == "EE") {
             return true;
         }
         return false;
     });
 
-    string[] modFooAr = f.filter(function ((string, string) val) returns boolean {
+    string[] modFooAr = f.filter(function ([string, string] val) returns boolean {
          if (val[1] == "AA" || val[1] == "EE") {
              return true;
          }
          return false;
     }).map(v => v[1]);
 
-    return (modFooMap, modFooAr);
+    return [modFooMap, modFooAr];
 }
 
-function testFilterWithAllIntClosedRecord() returns (map<int>, int[]) {
+function testFilterWithAllIntClosedRecord() returns [map<int>, int[]] {
     ClosedGrades grades = {maths: 80, physics: 75, chemistry: 65};
 
-    map<int> adjGrades = grades.filter(function ((string, int) entry) returns boolean {
-        var (subj, grade) = entry;
+    map<int> adjGrades = grades.filter(function ([string, int] entry) returns boolean {
+        var [subj, grade] = entry;
         if (grade > 70) {
             return true;
         }
         return false;
     });
 
-    int[] adjGradesAr = grades.filter(function ((string, int) value) returns boolean {
+    int[] adjGradesAr = grades.filter(function ([string, int] value) returns boolean {
         if (value[1] > 70) {
             return true;
         }
         return false;
     }).map(v => v[1]);
 
-    return (adjGrades, adjGradesAr);
+    return [adjGrades, adjGradesAr];
 }
 
-function testFilterWithAllFloatClosedRecord(float a, float b, float c) returns (map<float>, float[]) {
+function testFilterWithAllFloatClosedRecord(float a, float b, float c) returns [map<float>, float[]] {
     ClosedBar bar = {x: a, y: b, z: c};
 
-    map<float> modBar = bar.filter(function ((string, float) entry) returns boolean {
-        var (k, val) = entry;
+    map<float> modBar = bar.filter(function ([string, float] entry) returns boolean {
+        var [k, val] = entry;
         if (val > 6) {
             return true;
         }
         return false;
     });
 
-    float[] modBarAr = bar.filter(function ((string, float) val) returns boolean {
+    float[] modBarAr = bar.filter(function ([string, float] val) returns boolean {
         if (val[1] > 6) {
             return true;
         }
         return false;
     }).map(v => v[1]);
 
-    return (modBar, modBarAr);
+    return [modBar, modBarAr];
 }
 
-function testTerminalOpsOnAllIntClosedRecord(int m, int p, int c) returns (int, int, int, int, float) {
+function testTerminalOpsOnAllIntClosedRecord(int m, int p, int c) returns [int, int, int, int, float] {
     ClosedGrades grades = {maths: m, physics: p, chemistry: c};
 
     int count = grades.count();
@@ -237,10 +237,10 @@ function testTerminalOpsOnAllIntClosedRecord(int m, int p, int c) returns (int, 
     int sum = grades.sum();
     float avg = grades.average();
 
-    return (count, max, min, sum, avg);
+    return [count, max, min, sum, avg];
 }
 
-function testTerminalOpsOnAllIntClosedRecord2(int m, int p) returns (int, int, int, int, float) {
+function testTerminalOpsOnAllIntClosedRecord2(int m, int p) returns [int, int, int, int, float] {
     ClosedGrades grades = {maths: m, physics: p};
 
     int count = grades.count();
@@ -249,42 +249,42 @@ function testTerminalOpsOnAllIntClosedRecord2(int m, int p) returns (int, int, i
     int sum = grades.sum();
     float avg = grades.average();
 
-    return (count, max, min, sum, avg);
+    return [count, max, min, sum, avg];
 }
 
 function testChainedOpsWithClosedRecords2() returns map<float> {
     ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
 
-    map<float> m = f.map(function ((string, int) entry) returns (string, int) {
-        var (subj, grade) = entry;
-        return (subj, grade + 10);
+    map<float> m = f.map(function ([string, int] entry) returns [string, int] {
+        var [subj, grade] = entry;
+        return [subj, grade + 10];
     })
-    .map(function ((string, int) entry) returns (string, string) {
-        var (s, g) = entry;
+    .map(function ([string, int] entry) returns [string, string] {
+        var [s, g] = entry;
         if (g > 75) {
-            return (s, "PASS");
+            return [s, "PASS"];
         }
-        return (s, "FAIL");
+        return [s, "FAIL"];
     })
-    .filter(function ((string, string) entry) returns boolean {
-        var (s, status) = entry;
+    .filter(function ([string, string] entry) returns boolean {
+        var [s, status] = entry;
         if (status == "PASS") {
             return true;
         }
         return false;
     })
-    .map(function ((string, string) entry) returns (string, float) {
-        var (s, status) = entry;
+    .map(function ([string, string] entry) returns [string, float] {
+        var [s, status] = entry;
         if (status == "PASS") {
-            return (s, 4.2);
+            return [s, 4.2];
         }
-        return (s, 0.0);
+        return [s, 0.0];
     });
 
     return m;
 }
 
-function testOpChainsWithTerminalOps(int m, int p, int c) returns (int, int, int, int, float) {
+function testOpChainsWithTerminalOps(int m, int p, int c) returns [int, int, int, int, float] {
     ClosedGrades f = {maths: m, physics: p, chemistry: c};
 
     int count = f.map(mapTo).filter(filter).count();
@@ -293,11 +293,11 @@ function testOpChainsWithTerminalOps(int m, int p, int c) returns (int, int, int
     int min = f.map(mapTo).filter(filter).min();
     float avg = f.map(mapTo).filter(filter).average();
 
-    return (count, sum, max, min, avg);
+    return [count, sum, max, min, avg];
 }
 
-function mapTo((string, int) entry) returns int {
-    var (subj, grade) = entry;
+function mapTo([string, int] entry) returns int {
+    var [subj, grade] = entry;
     return grade + 10;
 }
 
@@ -311,30 +311,30 @@ function filter(int grade) returns boolean {
 function testMutability() returns ClosedGrades {
     ClosedGrades grades = {maths: 80, physics: 75, chemistry: 65};
 
-    map<float> m = grades.map(function ((string, int) entry) returns (string, int) {
-        var (subj, grade) = entry;
-        return (subj, grade + 10);
+    map<float> m = grades.map(function ([string, int] entry) returns [string, int] {
+        var [subj, grade] = entry;
+        return [subj, grade + 10];
     })
-    .map(function ((string, int) entry) returns (string, string) {
-        var (s, g) = entry;
+    .map(function ([string, int] entry) returns [string, string] {
+        var [s, g] = entry;
         if (g > 75) {
-            return (s, "PASS");
+            return [s, "PASS"];
         }
-        return (s, "FAIL");
+        return [s, "FAIL"];
     })
-    .filter(function ((string, string) entry) returns boolean {
-        var (s, status) = entry;
+    .filter(function ([string, string] entry) returns boolean {
+        var [s, status] = entry;
         if (status == "PASS") {
             return true;
         }
         return false;
     })
-    .map(function ((string, string) entry) returns (string, float) {
-        var (s, status) = entry;
+    .map(function ([string, string] entry) returns [string, float] {
+        var [s, status] = entry;
         if (status == "PASS") {
-            return (s, 4.2);
+            return [s, 4.2];
         }
-        return (s, 0.0);
+        return [s, 0.0];
     });
 
     return grades;

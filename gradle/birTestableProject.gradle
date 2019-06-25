@@ -33,7 +33,6 @@ task createBirCache {
     dependsOn configurations.bir
 
     doLast {
-        println configurations.bir.collect { it }
         configurations.bir.each { artifact ->
             copy {
                 from artifact
@@ -41,6 +40,10 @@ task createBirCache {
             }
         }
     }
+
+    inputs.files configurations.bir
+    outputs.dir "$buildDir/bir-cache"
+    outputs.cacheIf { false }
 }
 
 test {
@@ -50,8 +53,7 @@ test {
 
     classpath += configurations.birJar
     doFirst {
-        configurations.birJar.each { println it }
-        systemProperty "ballerina.home", files(configurations.birJarCompile).singleFile
+        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
     }
 }
 

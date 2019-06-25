@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -26,6 +25,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -737,9 +737,8 @@ public class ObjectTest {
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains(
-                    "error: failed to compile file: native function not available .:Person.printName"));
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("jvm code gen phase failed"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");

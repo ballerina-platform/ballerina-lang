@@ -45,6 +45,9 @@ task createBirJar(type: Exec) {
     dependsOn copyExternalMappingNextToBir
     
     workingDir "$buildDir/generated-bir-jar"
+
+    onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
+
     doFirst {
         def mapPath = ""
         if (!sourceSets.main.allJava.isEmpty()) {
@@ -53,9 +56,9 @@ task createBirJar(type: Exec) {
 
         configurations.birJarCompile.each {
             commandLine 'sh',
-                    
+
                     new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
-                    
+
                     generatedBirDir + project.ext.moduleName + '.bir',
                     mapPath,
                     "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
@@ -80,7 +83,7 @@ task copySelfToBirCache(type: Copy) {
 test {
     dependsOn copySelfToBirCache
     dependsOn createBirJar
-    
+
 
     classpath += files("$buildDir/generated-bir-jar/" + moduleName + ".jar")
 }

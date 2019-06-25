@@ -3,7 +3,7 @@ import ballerina/io;
 public function main() {
     any a = "Hello, world!";
 
-    // Check whether the actual value inside the `any` type variable is a `string`.
+    // Checks whether the actual value of the `any` type variable is a `string`.
     boolean b = a is string;
     io:println("Is 'a' a string? ", b);
 

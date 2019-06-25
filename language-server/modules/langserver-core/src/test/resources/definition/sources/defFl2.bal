@@ -6,7 +6,7 @@ public function xmlnsAccess() {
     xmlns "http://ballerina.com/default";
     io:println(ns0:foo);
     functionInSameFile();
-    functionInDifferentFile();
+    
     int testInt = functionInSameFile2();
     RecordInSameFile testRec = functionInSameFile3();
 }
@@ -32,8 +32,14 @@ type RecordInSameFile record {
 function testXMLAttributeWithCompoundAssignment() returns (string){
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@[ns0:foo1] = "bar1";
-    x1@[ns0:foo1] += "bar2";
-    return x1@[ns0:foo1];
+    var result = x1@[ns0:foo1];
+
+    if (result is string) {
+        result += "bar2";
+        return result;
+    }
+
+    return "";
 }
 
 type Foo record {
