@@ -352,7 +352,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public String stringValue() {
         readLock.lock();
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        StringJoiner sj = new StringJoiner(" ");
         try {
             switch (type.getTag()) {
                 case TypeTags.OBJECT_TYPE_TAG:
@@ -361,7 +361,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                             continue;
                         }
                         String fieldName = field.getKey();
-                        V fieldVal = get((K) fieldName);
+                        V fieldVal = get(fieldName);
                         sj.add(fieldName + ":" + getStringValue(fieldVal));
                     }
                     break;
@@ -374,12 +374,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     }
                     // Fallthrough
                 default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
                     for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                        String key;
-                        key = keySeparator + kvEntry.getKey() + keySeparator;
+                        K key = kvEntry.getKey();
                         V value = kvEntry.getValue();
-                        sj.add(key + ":" + getStringValue(value));
+                        sj.add(key + "=" + getStringValue(value));
                     }
                     break;
             }
@@ -480,8 +478,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private String getStringValue(Object value) {
         if (value == null) {
             return null;
-        } else if (value instanceof String) {
-            return "\"" + value.toString() + "\"";
         } else {
             return value.toString();
         }

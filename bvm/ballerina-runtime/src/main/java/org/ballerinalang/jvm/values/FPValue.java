@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -67,7 +68,8 @@ public class FPValue<T, R> implements RefValue {
 
     @Override
     public String stringValue() {
-        return null;
+        return Optional.ofNullable(getType()).map(BType::toString).filter(str -> str.startsWith("function")).orElse(
+                "function " + type.toString());
     }
 
     @Override

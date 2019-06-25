@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 
@@ -60,7 +61,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        return reason + " " + details.toString();
+        return "error " + reason + " " + Optional.ofNullable(details).map(Object::toString).orElse("");
     }
 
     @Override

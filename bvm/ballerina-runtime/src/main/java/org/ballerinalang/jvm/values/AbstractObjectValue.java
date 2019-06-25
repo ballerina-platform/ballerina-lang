@@ -81,6 +81,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
+    public String stringValue() {
+        return "object " + type.toString();
+    }
+
+    @Override
     public boolean getBooleanValue(String fieldName) {
         return (boolean) get(fieldName);
     }
