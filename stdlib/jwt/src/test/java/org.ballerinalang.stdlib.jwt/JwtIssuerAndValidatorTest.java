@@ -37,9 +37,9 @@ import java.nio.file.Paths;
 import java.util.Base64;
 
 /**
- * Test JWT token creation and verification.
+ * Test JWT issuer and validator related functionality.
  */
-public class JwtTest {
+public class JwtIssuerAndValidatorTest {
 
     private String resourceRoot;
     private CompileResult compileResult;
@@ -57,7 +57,7 @@ public class JwtTest {
             "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-issuer-and-validator-test.bal").toString());
     }
 
     @Test(priority = 1, description = "Test case for issuing JWT token with valid data")

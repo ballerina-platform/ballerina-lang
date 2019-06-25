@@ -111,4 +111,5 @@ public class Tokens {
     public static final String TYPEOF = "typeof";
     public static final String UNTAINT = "untaint";
     public static final String NEW = "new";
+    public static final String FLUSH = "flush";
 }

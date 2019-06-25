@@ -19,14 +19,27 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/runtime;
 
-const string CONFIG_USER_SECTION = "b7a.users";
+# Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
+#
+# + basicAuthConfig - The Basic Auth provider configurations.
+public type InboundBasicAuthProvider object {
 
-# Represents Ballerina configuration file based auth store provider.
-public type ConfigAuthStoreProvider object {
+    *InboundAuthProvider;
 
-    *AuthProvider;
+    public BasicAuthConfig basicAuthConfig;
 
-    # Attempts to authenticate with credential.
+    # Provides authentication based on the provided configuration.
+    #
+    # + basicAuthConfig - The Basic Auth provider configurations.
+    public function __init(BasicAuthConfig? basicAuthConfig) {
+        if (basicAuthConfig is BasicAuthConfig) {
+            self.basicAuthConfig = basicAuthConfig;
+        } else {
+            self.basicAuthConfig = { tableName: CONFIG_USER_SECTION };
+        }
+    }
+
+    # Attempts to authenticate with credentials.
     #
     # + credential - Credential
     # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
@@ -60,23 +73,31 @@ public type ConfigAuthStoreProvider object {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
-            principal.scopes = getScopes(username);
+            principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
         }
         return authenticated;
     }
 };
 
-# Reads the scope(s) for the user with the given username.
+# The `BasicAuthConfig` record can be used to configure inbound Basic Authentication configurations.
 #
-# + username - Username
-# + return - Array of groups for the user denoted by the username
-function getScopes(string username) returns string[] {
-    // first read the user id from user->id mapping
-    // reads the groups for the user-id
-    return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
+# + tableName - The table name of the TOML file of the user-store.
+public type BasicAuthConfig record {|
+    string tableName;
+|};
+
+# Reads the scope(s) of the user of the given username.
+#
+# + username - The username of the user.
+# + tableName - The table name of the TOML file of the user-store.
+# + return - An array of groups of the user who is denoted by the username.
+function getScopes(string username, string tableName) returns string[] {
+    // First, reads the user ID from the user->id mapping.
+    // Reads the groups of the user-id.
+    return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
-# Extract password hash from the configuration file.
+# Extracts the password hash from the configuration file.
 #
 # + configValue - Config value to extract the password from
 # + return - Password hash extracted from the configuration field
