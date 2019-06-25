@@ -23,9 +23,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -44,21 +41,6 @@ public class EncryptRsaEcb extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(1);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        String padding = context.getRefArgument(2).stringValue();
-        Key key;
-        if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
-            key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
-        } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
-            key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
-        } else {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
-            return;
-        }
-        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding, key, input, null,
-                -1);
     }
 
     public static Object encryptRsaEcb(Strand strand, ArrayValue inputValue, Object keyUnion, Object padding) {

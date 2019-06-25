@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.auth;
+package org.ballerinalang.stdlib.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -45,19 +44,18 @@ import java.util.Map;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Bearer header authentication handler testcase.
+ * Test JWT auth provider.
  */
-@Test(groups = "broken")
-public class BearerAuthHeaderAuthnHandlerTest {
+public class JwtAuthProviderTest {
 
     /**
-     * #JWT Authenticator configurations.
-     * [authenticator_jwt]
+     * #JWT auth provider configurations.
+     * [auth_provider_jwt]
      * issuer=&lt;jwt token issuer>
      * audience=&lt;audience>
      * certificateAlias=&lt;public certificate of the issuer>
      * <p>
-     * #JWT Authenticator cache configuration
+     * #JWT auth provider cache configuration
      * [jwt_auth_cache]
      * enabled=&lt;true of false>
      * expiryTime=&lt;expiry time in milliseconds>
@@ -97,8 +95,8 @@ public class BearerAuthHeaderAuthnHandlerTest {
         keyStorePath = getClass().getClassLoader().getResource(
                 "datafiles/keystore/ballerinaKeystore.p12").getPath();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF);
+        Path sourceRoot = Paths.get(resourceRoot, "test-src");
+        Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
         Path ballerinaKeyStorePath = Paths.get(resourceRoot, "datafiles", "keystore", KEY_STORE);
         ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
         Path ballerinaTrustStorePath = Paths.get(resourceRoot, "datafiles", "keystore", TRUST_SORE);
@@ -107,12 +105,14 @@ public class BearerAuthHeaderAuthnHandlerTest {
         Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
         Files.copy(ballerinaTrustStorePath, ballerinaTrustStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
 
-        compileResult = BCompileUtil.compile(
-                sourceRoot.resolve("bearer-auth-header-authn-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-auth-provider-test.bal").toString());
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
+    }
 
+    @Test(description = "Test JWT issuer", priority = 1)
+    private void testGenerateJwt() {
         BMap<String, BValue> jwtHeader = new BMap<>();
         jwtHeader.put("alg", new BString("RS256"));
         jwtHeader.put("typ", new BString("JWT"));
@@ -135,30 +135,34 @@ public class BearerAuthHeaderAuthnHandlerTest {
         jwtToken = returns[0].stringValue();
     }
 
-    @Test(description = "Test case for Bearer auth header interceptor canHandle method, without the bearer header")
-    public void testCanHandleHttpJwtAuthWithoutHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuthWithoutHeader");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test JWT verification", priority = 2)
+    private void testVerifyJwt() {
+        BMap<String, BValue> trustStore = new BMap<>();
+        trustStore.put("path", new BString(trustStorePath));
+        trustStore.put("password", new BString("ballerina"));
+        BMap<String, BValue> jwtConfig = new BMap<>();
+        jwtConfig.put("issuer", new BString("wso2"));
+        jwtConfig.put("audience", new BString("ballerina"));
+        jwtConfig.put("trustStore", trustStore);
+        jwtConfig.put("clockSkew", new BInteger(0));
+        jwtConfig.put("certificateAlias", new BString("ballerina"));
+        BValue[] inputBValues = {new BString(jwtToken), jwtConfig};
+        BValue[] returns = BRunUtil.invoke(compileResult, "verifyJwt", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
-    @Test(description = "Test case for Bearer auth header interceptor canHandle method")
-    public void testCanHandleHttpJwtAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpJwtAuth");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(description = "Test case for creating JWT auth provider with a cache", priority = 2)
+    public void testCreateJwtAuthProvider() {
+        BValue[] inputBValues = {new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateJwtAuthProvider", inputBValues);
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
-    @Test(description = "Test case for Bearer auth header interceptor authentication failure")
-    public void testHandleHttpJwtAuthFailure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuthFailure");
-        Assert.assertTrue(returns[0] instanceof BError);
-    }
-
-    @Test(description = "Test case for Bearer auth header interceptor authentication success")
-    public void testHandleHttpJwtAuth() {
+    @Test(description = "Test case for JWT auth provider for authentication success", priority = 2)
+    public void testJwtAuthProviderAuthenticationSuccess() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuth", inputBValues);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthProviderAuthenticationSuccess", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

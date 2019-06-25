@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the auth provider. Any type of implementation, such as LDAP, JDBC, file based, etc.
-# should be object-wise similar
-public type AuthProvider abstract object {
+# Represents the inbound Auth provider. Any type of implementation such as LDAP, JDBC, file-based etc.
+# should be object-wise similar.
+public type InboundAuthProvider abstract object {
 
     # Authenticate with credential value passed.
     #

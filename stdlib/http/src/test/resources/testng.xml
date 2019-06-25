@@ -51,7 +51,7 @@ under the License.
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>
-            <!--<package name="org.ballerinalang.stdlib.auth.*"/>-->
+            <package name="org.ballerinalang.stdlib.auth.*"/>
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
