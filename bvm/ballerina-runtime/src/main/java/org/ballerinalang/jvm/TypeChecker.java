@@ -78,6 +78,23 @@ public class TypeChecker {
             return sourceVal;
         }
 
+        BType sourceType = getType(sourceVal);
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
+            return TypeConverter.castValues(targetType, sourceVal);
+        }
+
+        // if the source is a numeric value and the target type is a union, try to find a matching
+        // member.
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.UNION_TAG) {
+            for(BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+                try {
+                    return TypeConverter.castValues(memberType, sourceVal);
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+
         throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
     }
 
@@ -1117,25 +1134,66 @@ public class TypeChecker {
             return false;
         }
 
+        if (lhsValue.equals(rhsValue)) {
+            return true;
+        }
+
         int lhsValTypeTag = getType(lhsValue).getTag();
         int rhsValTypeTag = getType(rhsValue).getTag();
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
+            case TypeTags.FLOAT_TAG:
+                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
+                    return lhsValue.equals(((Number) rhsValue).doubleValue());
+                }
+
+                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
+                    return DecimalValue.valueOf((double) lhsValue).equals(rhsValue);
+                }
+
+                return false;
+            case TypeTags.DECIMAL_TAG:
+                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
+                    return DecimalValue.valueOf(((Number) rhsValue).doubleValue()).equals(lhsValue);
+                }
+
+                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
+                    return ((DecimalValue) rhsValue).equals(lhsValue);
+                }
+
+                return false;
             case TypeTags.INT_TAG:
-                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
-                    return false;
+                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
+                    return lhsValue.equals(((Number) rhsValue).longValue());
                 }
-                return lhsValue.equals(((Number) rhsValue).longValue());
+
+                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
+                    return DecimalValue.valueOf((long) lhsValue).equals(rhsValue);
+                }
+
+                return false;
             case TypeTags.BYTE_TAG:
-                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
-                    return false;
+                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
+                    return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
                 }
-                return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
+
+                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
+                    return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
+                }
+
+                return false;
+            case TypeTags.BOOLEAN_TAG:
+                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
+                    return ((boolean) lhsValue) == (((Number) rhsValue).longValue() == 1);
+                }
+
+                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
+                    return ((boolean) lhsValue) == ((DecimalValue) rhsValue).booleanValue();
+                }
+
+                return false;
             case TypeTags.XML_TAG:
                 return XMLFactory.isEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
             case TypeTags.TABLE_TAG:

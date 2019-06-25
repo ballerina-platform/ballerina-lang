@@ -416,7 +416,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {
-        value = reader.readStringCpRef();
+        Decimal d = {value : reader.readStringCpRef()};
+        value = d;
     } else if (bType is BTypeBoolean) {
         value = reader.readBoolean();
     } else if (bType is BTypeFloat) {

@@ -963,6 +963,10 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
         } else if (value is byte) {
             mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
+        } else if (value is bir:Decimal) {
+            mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
         } else {
             // if value is string or (), then do nothing
         }
