@@ -514,7 +514,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
         if (config.cache.enabled) {
             return createHttpCachingClient(url, config, config.cache);
         } else {
-            return createHttpSecureClient(url, config);ttpSecureClient;
+            return createHttpSecureClient(url, config);
         }
     }
 }

@@ -79,76 +79,80 @@ public class ResourceSignatureValidator {
             return;
         }
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-            if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE)) {
-                if (annVals.size() > 1) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                       "Invalid configurations for WebSocket upgrade resource");
-                } else {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields =
-                            ((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs;
-                    if (upgradeFields.size() == 1) {
-                        if (!((BLangSimpleVarRef) upgradeFields.get(
-                                0).key.expr).variableName.getValue().equals("upgradeService")) {
-                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                               "An upgradeService need to be specified for the WebSocket upgrade " +
-                                                       "resource");
-                        }
-                    } else if (upgradeFields.isEmpty()) {
-                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                           "An upgradeService need to be specified for the WebSocket upgrade " +
-                                                   "resource");
-                    } else {
-                        // Websocket upgrade path validation
-                        for (BLangRecordLiteral.BLangRecordKeyValue upgradeField : upgradeFields) {
-                            if (checkMatchingConfigKey(upgradeField, ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
-                                DiagnosticPos position = upgradeField.getValue().getPosition();
-                                String[] segments = upgradeField.getValue().toString().split("/");
-                                for (String segment : segments) {
-                                    validatePathSegment(segment, position, dlog, paramSegments);
-                                }
-                            }
-                        }
+            switch (getAnnotationFieldKey(keyValue)) {
+                case ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE:
+                    validateWebSocketUpgrade(resourceNode, dlog, annVals, paramSegments, keyValue);
+                    break;
+                case ANN_RESOURCE_ATTR_PATH:
+                    validateResourcePath(dlog, paramSegments, keyValue);
+                    break;
+                case ANN_RESOURCE_ATTR_BODY:
+                    List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
+                    String bodyFieldValue = keyValue.getValue().toString();
+                    // Data binding param should be placed as the last signature param
+                    String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
+                    if (bodyFieldValue.isEmpty()) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
+                                           "Empty data binding param value");
+
+                    } else if (!signatureBodyParam.equals(bodyFieldValue)) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
+                                           "Invalid data binding param in the signature : expected '" +
+                                                   bodyFieldValue + "', but found '" + signatureBodyParam + "'");
                     }
-                }
+                    paramSegments.add(bodyFieldValue);
+                    break;
+                default:
+                    break;
             }
-
-            // Resource config path validation
-            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
-                DiagnosticPos position = keyValue.getValue().getPosition();
-                String[] segments = keyValue.getValue().toString().split("/");
-                for (String segment : segments) {
-                    validatePathSegment(segment, position, dlog, paramSegments);
-                }
-            }
-
-            // Resource config data binding param validation
-            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_BODY)) {
-                List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
-                String bodyFieldValue = keyValue.getValue().toString();
-                // Data binding param should be placed as the last signature param
-                String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
-                if (bodyFieldValue.isEmpty()) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
-                                       "Empty data binding param value");
-
-                } else if (!signatureBodyParam.equals(bodyFieldValue)) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
-                                       "Invalid data binding param in the signature : expected '" +
-                                               bodyFieldValue + "' as param name, but found '" +
-                                               signatureBodyParam + "' in the resource signature");
-                }
-                paramSegments.add(bodyFieldValue);
-            }
-
         }
-
-        // Validate path param names and signature - signature params should be a subset of path and body params
+        // Validate path param names and signature. Signature params must be a subset of path and body params.
         List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
                 COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
         if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
                 .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "Mismatching path param(s) in the resource signature");
+                               "Invalid parameter(s) in the resource signature");
+        }
+    }
+
+    private static void validateWebSocketUpgrade(FunctionNode resourceNode, DiagnosticLog dlog,
+                                                 List<BLangRecordLiteral.BLangRecordKeyValue> annVals,
+                                                 List<String> paramSegments,
+                                                 BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        if (annVals.size() > 1) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "Invalid configurations for WebSocket upgrade resource");
+            return;
+        }
+        List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields =
+                ((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs;
+        if (upgradeFields.isEmpty()) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "An upgradeService need to be specified for the WebSocket upgrade " +
+                                       "resource");
+            return;
+        }
+        if (upgradeFields.size() == 1 && !(getAnnotationFieldKey(upgradeFields.get(0)).equals("upgradeService"))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "An upgradeService need to be specified for the WebSocket upgrade " +
+                                       "resource");
+            return;
+        }
+        // WebSocket upgrade path validation
+        for (BLangRecordLiteral.BLangRecordKeyValue upgradeField : upgradeFields) {
+            if (getAnnotationFieldKey(upgradeField).equals(ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
+                validateResourcePath(dlog, paramSegments, upgradeField);
+            }
+        }
+    }
+
+    private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
+                                             BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        DiagnosticPos position = keyValue.getValue().getPosition();
+        String[] segments = keyValue.getValue().toString().split("/");
+        for (String segment : segments) {
+            validatePathSegment(segment, position, dlog, paramSegments);
         }
     }
 
@@ -157,8 +161,8 @@ public class ResourceSignatureValidator {
         boolean expression = false;
         int startIndex = 0;
         int maxIndex = segment.length() - 1;
-
-        for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
+        int pointerIndex = 0;
+        while (pointerIndex < segment.length()) {
             char ch = segment.charAt(pointerIndex);
             switch (ch) {
                 case '{':
@@ -203,6 +207,7 @@ public class ResourceSignatureValidator {
                         }
                     }
             }
+            pointerIndex++;
         }
     }
 
@@ -215,8 +220,8 @@ public class ResourceSignatureValidator {
         }
     }
 
-    private static boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
-        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
+    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
     }
 }
 

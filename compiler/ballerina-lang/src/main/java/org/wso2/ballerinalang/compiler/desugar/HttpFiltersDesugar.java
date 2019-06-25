@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -410,7 +411,8 @@ public class HttpFiltersDesugar {
     private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
         List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = null;
         for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
-            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue())) {
+            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue()) &&
+                    annotationAttachment.getExpression() != null) {
                 annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
                 break;
             }
@@ -419,22 +421,28 @@ public class HttpFiltersDesugar {
             return;
         }
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
-            if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_PATH)) {
-                addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
-                break;
-            } else if (checkMatchingConfigKey(keyValue, ANN_RESOURCE_ATTR_WS_UPGRADE)) {
-                for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
-                        ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
-                    if (checkMatchingConfigKey(upgradeField, ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
-                        addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
-                        break;
+            switch (getAnnotationFieldKey(keyValue)) {
+                case ANN_RESOURCE_ATTR_WS_UPGRADE:
+                    for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
+                            ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
+                        if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                            break;
+                        }
                     }
-                }
+                    break;
+                case ANN_RESOURCE_ATTR_PATH:
+                    addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                    break;
             }
         }
     }
 
-    private boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
+    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
+    }
+
+    private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
         return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
     }
 
@@ -510,7 +518,8 @@ public class HttpFiltersDesugar {
     private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
         HashMap<String, Integer> mapper = new HashMap<>();
         int startIndex = 0;
-        for (int pointerIndex = 0; pointerIndex < path.length(); pointerIndex++) {
+        int pointerIndex = 0;
+        while (pointerIndex < path.length()) {
             char ch = path.charAt(pointerIndex);
             switch (ch) {
                 case '{':
@@ -518,14 +527,11 @@ public class HttpFiltersDesugar {
                     break;
                 case '}':
                     String token = path.substring(startIndex, pointerIndex);
-                    for (int i = 2; i < parameters.size(); i++) {
-                        if (parameters.get(i).getName().getValue().equals(token)) {
-                            mapper.put(token, i);
-                            break;
-                        }
-                    }
+                    IntStream.range(2, parameters.size()).filter(i -> parameters.get(i).getName().getValue()
+                            .equals(token)).findFirst().ifPresent(i -> mapper.put(token, i));
                     break;
             }
+            pointerIndex++;
         }
         return mapper;
     }
@@ -563,9 +569,5 @@ public class HttpFiltersDesugar {
             entry = entry.next;
         }
         return symTable.notFoundSymbol;
-    }
-
-    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
-        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
     }
 }
