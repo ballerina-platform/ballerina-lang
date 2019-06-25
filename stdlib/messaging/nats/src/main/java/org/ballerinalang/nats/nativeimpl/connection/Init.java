@@ -18,27 +18,25 @@
 
 package org.ballerinalang.nats.nativeimpl.connection;
 
-import io.nats.streaming.NatsStreaming;
-import io.nats.streaming.Options;
-import io.nats.streaming.StreamingConnection;
+import io.nats.client.Connection;
+import io.nats.client.Nats;
+import io.nats.client.Options;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.nativeimpl.Constants;
-import org.ballerinalang.nats.nativeimpl.Utils;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Establish a connection with NATS server.
@@ -50,61 +48,76 @@ import java.time.Duration;
         packageName = "nats",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfig",
-                structPackage = "ballerina/nats")},
         isPublic = true
 )
 public class Init implements NativeCallableUnit {
 
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String CLUSTER_ID = "clusterId";
-    private static final String CLIENT_ID = "clientId";
-    private static final String NATS_URL_PREFIX = "nats://";
-    private static final String PROTOCOL_PREFIX = ":";
+    private static final String RECONNECT_WAIT = "reconnectWait";
+    private static final String SERVER_URL_SEPARATOR = ",";
+    private static final String CONNECTION_NAME = "connectionName";
+    private static final String MAX_RECONNECT = "maxReconnect";
     private static final String CONNECTION_TIMEOUT = "connectionTimeout";
-    private static final String MAX_PUB_ACKS_IN_FLIGHT = "maxPubAcksInFlight";
-    private static final String ACK_TIMEOUT = "ackTimeout";
-
-    /**
-     * Initializes NATS streaming connection.
-     *
-     * @param serverConfig Holds values related to establishing a NATS connection.
-     * @return Streaming connection created.
-     * @throws IOException if a failure occurs while establishing a connection.
-     */
-    private StreamingConnection connect(BMap<String, BValue> serverConfig) throws IOException, InterruptedException {
-        String host = ((BString) serverConfig.get(HOST)).value();
-        int port = ((BInteger) serverConfig.get(PORT)).value().intValue();
-        String clusterId = ((BString) serverConfig.get(CLUSTER_ID)).value();
-        String clientId = ((BString) serverConfig.get(CLIENT_ID)).value();
-        long connectionTimeout = ((BInteger) serverConfig.get(CONNECTION_TIMEOUT)).intValue();
-        long mexPubAcksInFlight = ((BInteger) serverConfig.get(MAX_PUB_ACKS_IN_FLIGHT)).intValue();
-        long ackTimeout = ((BInteger) serverConfig.get(ACK_TIMEOUT)).intValue();
-        Options.Builder opts = new Options.Builder().natsUrl(NATS_URL_PREFIX + host + PROTOCOL_PREFIX + port);
-        opts.connectWait(Duration.ofSeconds(connectionTimeout));
-        opts.maxPubAcksInFlight((int) mexPubAcksInFlight);
-        opts.pubAckWait(Duration.ofSeconds(ackTimeout));
-        return NatsStreaming.connect(clusterId, clientId, opts.build());
-    }
+    private static final String PING_INTERVAL = "pingInterval";
+    private static final String MAX_PINGS_OUT = "maxPingsOut";
+    private static final String INBOX_PREFIX = "inboxPrefix";
+    private static final String NO_ECHO = "noEcho";
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+    }
+
+    public static void init(Strand strand, ObjectValue connectionObject, String urlString,
+                            MapValue connectionConfig) {
+        Options.Builder opts = new Options.Builder();
+
+        // Add server endpoint urls.
+        String[] serverUrls;
+        if (urlString != null && urlString.contains(SERVER_URL_SEPARATOR)) {
+            serverUrls = urlString.split(SERVER_URL_SEPARATOR);
+        } else {
+            serverUrls = new String[]{urlString};
+        }
+        opts.servers(serverUrls);
+
+        // Add connection name.
+        opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
+
+        // Add max reconnect.
+        opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
+
+        // Add reconnect wait.
+        opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
+
+
+        // Add connection timeout.
+        opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
+
+        // Add ping interval.
+        opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
+
+        // Add max ping out.
+        opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
+
+        // Add inbox prefix.
+        opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
+
+        // Add noEcho.
+        if (connectionConfig.getBooleanValue(NO_ECHO)) {
+            opts.noEcho();
+        }
+        // TODO secure socket and authentication support.
+
         try {
-            BMap<String, BValue> serverConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            Struct connectorEndpointStruct = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            StreamingConnection connection = connect(serverConfig);
-            connectorEndpointStruct.addNativeData(Constants.NATS_CONNECTION, connection);
-        } catch (IOException e) {
-            Utils.throwBallerinaException("Error occurred while establishing connection", context, e);
-        } catch (InterruptedException ignore) {
-            // ignore
-            Thread.currentThread().interrupt();
-        } catch (Throwable e) {
-            Utils.throwBallerinaException("Could not establish connection", context, e);
+            Connection natsConnection = Nats.connect(opts.build());
+            connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+            List clientslist = new ArrayList();
+            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, clientslist);
+
+        } catch (IOException | InterruptedException e) {
+            throw new BallerinaConnectorException(e);
         }
     }
 

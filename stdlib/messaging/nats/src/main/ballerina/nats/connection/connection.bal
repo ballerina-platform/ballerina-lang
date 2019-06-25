@@ -17,17 +17,25 @@
 # Represents a NATS connection.
 public type Connection object {
 
-    # Initializes a connection from the given server config.
+    private ConnectionConfig config = {};
+    private string url;
+
+    # Initializes a connection with NATS server.
     #
+    # + url - NATS Broker url. For clustered usecase, pass urls in comma separated manner.
     # + config - Information neccasary for NATS client to establish a connection with the server.
-    public function __init(ConnectionConfig config) {
-        self.init(config);
+    public function __init(string url, ConnectionConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        self.init(self.url, self.config);
     }
 
-    function init(ConnectionConfig config) = external;
+    function init(string url, ConnectionConfig config) = external;
 
     # Close a given connection.
     #
+    # + graceful - Graceful shutdown flag. If `true`, it wait till all producers to close.
+    # Default is set to true.
     # + return - () or error if unable to complete close operation.
-    public function close() returns error? = external;
+    public function close(boolean graceful = true) returns error? = external;
 };

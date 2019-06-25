@@ -23,13 +23,8 @@ public type Producer client object {
     # Creates a new producer. A connection will be created if a refernece to a connection is not provided.
     #
     # + c - An already established connection or configuration to create a new connection.
-    public function __init(ConnectionConfig|Connection c) {
-        if (c is Connection) {
-            self.connection = c;
-            self.adhocConnection = false;
-        } else {
-            self.connection = new Connection(c);
-        }
+    public function __init(Connection c) {
+        self.connection = c;
     }
 
     # Produces a message to a NATS streaming server for the given subject.

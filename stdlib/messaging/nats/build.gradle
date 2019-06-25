@@ -18,20 +18,46 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
+
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-utils')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-crypto')
+
     implementation 'io.nats:java-nats-streaming'
     implementation 'io.nats:jnats'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - NATS'

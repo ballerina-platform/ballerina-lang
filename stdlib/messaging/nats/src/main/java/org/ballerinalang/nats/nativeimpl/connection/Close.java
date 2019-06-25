@@ -18,20 +18,23 @@
 
 package org.ballerinalang.nats.nativeimpl.connection;
 
-import io.nats.streaming.StreamingConnection;
+import io.nats.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.nativeimpl.Constants;
-import org.ballerinalang.nats.nativeimpl.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * Close a given connection in the NATS server.
@@ -47,24 +50,40 @@ import java.util.concurrent.TimeoutException;
 )
 public class Close implements NativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Close.class);
+    private static PrintStream console = System.out;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            Struct connectorEndpointStruct = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            StreamingConnection connection = (StreamingConnection) connectorEndpointStruct
-                    .getNativeData(Constants.NATS_CONNECTION);
-            connection.close();
-        } catch (IOException | TimeoutException e) {
-            // Both the error messages returned would not give java specific information
-            // Hence the error message will not be overridden
-            context.setReturnValues(Utils.createError(context, Constants.NATS_ERROR_CODE, e.getMessage()));
-        } catch (InterruptedException ignore) {
-            // ignore
-            Thread.currentThread().interrupt();
+    }
+
+    public static Object close(Strand strand, ObjectValue connectionObject, Object graceful) {
+        ArrayList connectedList = (ArrayList) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
+        if (connectedList == null || connectedList.isEmpty() || !TypeChecker.anyToBoolean(graceful)) {
+            Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
+            try {
+                if (natsConnection != null) {
+                    natsConnection.close();
+                }
+                connectionObject.addNativeData(Constants.NATS_CONNECTION, null);
+                connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, null);
+                return null;
+            } catch (InterruptedException e) {
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while closing the connection " +
+                        "with nats server. " + e.getMessage());
+            }
         }
+        if (TypeChecker.anyToBoolean(graceful)) {
+            String message = "Connection is still used by " + connectedList.size() + "client(s). Close them before " +
+                    "closing the connection.";
+            LOG.warn(message);
+            console.println(message);
+            connectionObject.addNativeData(Constants.CLOSING, true);
+        }
+        return null;
     }
 
     @Override

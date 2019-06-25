@@ -28,6 +28,15 @@ public class Constants {
     public static final String NATS_CONNECTION = "nats_connection";
 
     /**
+     * Represents connected clients.
+     */
+    public static final String CONNECTED_CLIENTS = "connected_clients";
+
+    /**
+     * Represent whether connection close already triggered.
+     */
+    public static final String CLOSING = "closing";
+    /**
      * Represents nats package.
      */
     public static final String NATS_PACKAGE = "ballerina/nats";
