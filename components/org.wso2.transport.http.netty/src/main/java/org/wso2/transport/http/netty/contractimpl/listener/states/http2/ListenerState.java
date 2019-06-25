@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -87,4 +88,7 @@ public interface ListenerState {
      */
     void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener, Http2PushPromise pushPromise)
             throws Http2Exception;
+
+    void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                             Http2OutboundRespListener http2OutboundRespListener, int streamId);
 }

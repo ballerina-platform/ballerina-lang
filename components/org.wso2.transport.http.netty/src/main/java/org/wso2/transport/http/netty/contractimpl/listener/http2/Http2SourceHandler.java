@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.ReceivingHeaders;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -93,7 +94,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         long serverTimeout = serverChannelInitializer.getSocketIdleTimeout() <= 0 ? ENDPOINT_TIMEOUT :
                 serverChannelInitializer.getSocketIdleTimeout();
         http2ServerChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-                                                new Http2ServerTimeoutHandler(serverTimeout, http2ServerChannel));
+                                                new Http2ServerTimeoutHandler(serverTimeout, http2ServerChannel,
+                                                                              serverConnectorFuture));
     }
 
     private void setRemoteFlowController() {
@@ -137,6 +139,11 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             requestCarbonMessage.setLastHttpContentArrived();
             InboundMessageHolder inboundMsgHolder = new InboundMessageHolder(requestCarbonMessage);
+            if (requestCarbonMessage.getHttp2MessageStateContext() == null) {
+                Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
+                http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
+                requestCarbonMessage.setHttp2MessageStateContext(http2MessageStateContext);
+            }
             // Storing to add HttpContent later
             http2ServerChannel.getStreamIdRequestMap().put(STREAM_ID_ONE, inboundMsgHolder);
             http2ServerChannel.getDataEventListeners()

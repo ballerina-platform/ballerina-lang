@@ -38,6 +38,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -55,6 +56,7 @@ import java.util.Calendar;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG_FORMAT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 
@@ -131,6 +133,13 @@ public class SendingEntityBody implements ListenerState {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
         throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
                 "WriteOutboundPromise is not a dependant action of SendingEntityBody state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        //???
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 
     private void writeContent(Http2OutboundRespListener http2OutboundRespListener,

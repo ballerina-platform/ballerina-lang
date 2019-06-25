@@ -18,13 +18,16 @@
 
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
@@ -291,7 +294,8 @@ public class Http2StateUtil {
             }
         }
 
-        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream, ctx.newPromise());
+        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream,
+                             ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
 
@@ -385,5 +389,28 @@ public class Http2StateUtil {
      */
     public static void releaseContent(HttpContent httpContent) {
         httpContent.release();
+    }
+
+    public static void sendRequestTimeoutResponse(ChannelHandlerContext ctx,
+                                                  Http2OutboundRespListener http2OutboundRespListener,
+                                                  int streamId, HttpResponseStatus httpResponseStatus,
+                                                  ByteBuf content) {
+        try {
+            Http2Headers headers = new DefaultHttp2Headers();
+            headers.status(httpResponseStatus.codeAsText());
+
+            Http2ConnectionEncoder encoder = http2OutboundRespListener.getEncoder();
+
+            encoder.writeHeaders(
+                    ctx, streamId, headers, 0, false, ctx.newPromise());
+            encoder.writeData(
+                    ctx, streamId, content, 0, true,
+                    ctx.newPromise());
+            encoder.flowController().writePendingBytes();
+            ctx.flush();
+            //TODO:Handle errors from returned futures
+        } catch (Http2Exception e) {
+            LOG.error("Error in sending timeout response:" + e.getMessage());
+        }
     }
 }

@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -26,8 +27,10 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -35,6 +38,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
@@ -125,5 +129,14 @@ public class ReceivingEntityBody implements ListenerState {
                 http2OutboundRespListener.getInboundRequestMsg(),
                 http2OutboundRespListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture(),
                 http2OutboundRespListener.getOriginalStreamId());
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
+                                                  REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER);
+        //TODO:handle incomplete inbound message
+        //IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY
     }
 }

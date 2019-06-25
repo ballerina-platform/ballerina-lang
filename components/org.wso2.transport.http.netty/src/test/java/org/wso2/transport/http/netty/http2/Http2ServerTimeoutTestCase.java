@@ -36,11 +36,13 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * {@code Http2ServerTimeoutTestCase} contains test cases for HTTP/2 server request/response timeout.
@@ -52,6 +54,7 @@ public class Http2ServerTimeoutTestCase {
     private HttpClientConnector h2ClientWithoutPriorKnowledge;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory connectorFactory;
+    private static final String SERVER_TIMEOUT_ERROR_MESSAGE = "Server time out";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -93,15 +96,16 @@ public class Http2ServerTimeoutTestCase {
         String testValue = "Test Http2 Message";
         HttpCarbonMessage httpMsg1 = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
         HttpCarbonMessage httpMsg2 = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        verifyResult(httpMsg1, h2ClientWithoutPriorKnowledge, "HTTP/2 stream 1 reset by the remote peer");
-        verifyResult(httpMsg2, h2ClientWithPriorKnowledge, "HTTP/2 stream 3 reset by the remote peer");
+        verifyResult(httpMsg1, h2ClientWithoutPriorKnowledge);
+        verifyResult(httpMsg2, h2ClientWithPriorKnowledge);
     }
 
-    private void verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector,
-                              String expectedError) {
-        Throwable errorResponse = new MessageSender(http2ClientConnector).sendMessageAndExpectError(
+    private void verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector) {
+        HttpCarbonMessage response = new MessageSender(http2ClientConnector).sendMessage(
                 httpCarbonMessage);
-        assertEquals(errorResponse.getMessage(), expectedError, "Expected response not received");
+        assertNotNull(response);
+        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        assertEquals(result, SERVER_TIMEOUT_ERROR_MESSAGE, "Expected response not received");
     }
 
     @AfterClass

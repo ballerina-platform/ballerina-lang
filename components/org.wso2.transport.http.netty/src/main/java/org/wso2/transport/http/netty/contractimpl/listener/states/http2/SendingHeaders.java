@@ -30,6 +30,7 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -42,6 +43,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 
 /**
@@ -115,6 +117,13 @@ public class SendingHeaders implements ListenerState {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
         throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
                 "WriteOutboundPromise is not a dependant action of SendingHeaders state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        // ?????????OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
     }
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {

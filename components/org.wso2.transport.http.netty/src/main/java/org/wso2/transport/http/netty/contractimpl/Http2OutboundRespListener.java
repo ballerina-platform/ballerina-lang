@@ -236,8 +236,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
     }
 
-    public void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
+    public void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) throws Http2Exception {
         encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
+        encoder.flowController().writePendingBytes();
         http2ServerChannel.getDataEventListeners()
                 .forEach(dataEventListener -> dataEventListener.onStreamReset(streamId));
         ctx.flush();

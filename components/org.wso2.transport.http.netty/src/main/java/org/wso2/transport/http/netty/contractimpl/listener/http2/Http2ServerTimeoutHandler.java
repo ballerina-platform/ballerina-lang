@@ -20,13 +20,12 @@ package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2Error;
+import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.util.Map;
@@ -34,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
 
@@ -48,10 +46,13 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
     private long idleTimeNanos;
     private Http2ServerChannel http2ServerChannel;
     private Map<Integer, ScheduledFuture<?>> timerTasks;
+    private ServerConnectorFuture serverConnectorFuture;
 
-    Http2ServerTimeoutHandler(long idleTimeMills, Http2ServerChannel serverChannel) {
+    Http2ServerTimeoutHandler(long idleTimeMills, Http2ServerChannel serverChannel,
+                              ServerConnectorFuture serverConnectorFuture) {
         this.idleTimeNanos = Math.max(TimeUnit.MILLISECONDS.toNanos(idleTimeMills), MIN_TIMEOUT_NANOS);
         this.http2ServerChannel = serverChannel;
+        this.serverConnectorFuture = serverConnectorFuture;
         timerTasks = new ConcurrentHashMap<>();
     }
 
@@ -136,8 +137,8 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(InboundMessageHolder msgHolder) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
-                closeStream(msgHolder, streamId, ctx);
                 handleTimeout(msgHolder);
+                closeStream(msgHolder, streamId, ctx);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));
@@ -150,20 +151,19 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
         private void handleTimeout(InboundMessageHolder msgHolder) {
             if (msgHolder.getInboundMsg() != null) {
-                try {
-                    msgHolder.getInboundMsg().getHttpResponseFuture().notifyErrorListener(
-                            new EndpointTimeOutException(
-                                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
-                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-                } catch (ServerConnectorException e) {
-                    LOG.error(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE + ":" + e.getMessage());
-                }
+                msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState()
+                        .handleStreamTimeout(serverConnectorFuture, ctx, msgHolder.getHttp2OutboundRespListener(),
+                                             streamId);
             }
             http2ServerChannel.getStreamIdRequestMap().remove(streamId);
         }
 
         private void closeStream(InboundMessageHolder msgHolder, int streamId, ChannelHandlerContext ctx) {
-            msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+            try {
+                msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.NO_ERROR);
+            } catch (Http2Exception e) {
+                LOG.error("Error sending RST_STREAM: ", e.getCause());
+            }
         }
     }
 

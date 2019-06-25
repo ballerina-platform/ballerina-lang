@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -29,9 +30,11 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -39,6 +42,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
@@ -122,6 +126,15 @@ public class ReceivingHeaders implements ListenerState {
     public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
                                      Http2PushPromise pushPromise) {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
+                                                  REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER);
+        //TODO:handle incomplete inbound message
+        //IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS
     }
 
     private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)
