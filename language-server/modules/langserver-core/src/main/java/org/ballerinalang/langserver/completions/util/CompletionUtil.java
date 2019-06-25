@@ -16,39 +16,27 @@
 package org.ballerinalang.langserver.completions.util;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.langserver.sourceprune.SourcePruner.searchTokenAtCursor;
 
 /**
  * Common utility methods for the completion operation.
@@ -102,31 +90,6 @@ public class CompletionUtil {
             }
         }
         return items;
-    }
-    
-    public static void getPrunedSource(LSContext context) throws WorkspaceDocumentException, SourcePruneException {
-        WorkspaceDocumentManager documentManager = context.get(CompletionKeys.DOC_MANAGER_KEY);
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        Path path = Paths.get(URI.create(uri));
-        String documentContent = documentManager.getFileContent(path);
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
-        parser.removeErrorListeners();
-        parser.compilationUnit();
-        if (parser.getNumberOfSyntaxErrors() == 0) {
-            return;
-        }
-        TokenStream tokenStream = parser.getTokenStream();
-        List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, position.getLine(), position.getCharacter());
-        
-        if (!tokenAtCursor.isPresent()) {
-            throw new SourcePruneException("Could not find token at cursor");
-        }
-        
-        SourcePruner.pruneSource(tokenStream, tokenAtCursor.get().getTokenIndex(), context);
-        documentManager.setPrunedContent(path, tokenStream.getText());
     }
 
     /**
