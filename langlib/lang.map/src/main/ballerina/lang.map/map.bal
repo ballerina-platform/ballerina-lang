@@ -51,10 +51,6 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 
 public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
-# Clear the map, removing all entries.
-# After calling this function the length will be 0.
-public function clear(map<any|error> m) returns () = external;
-
 # Removes the member of `m` with key `k` and returns it.
 # Panics if there is no such member
 public function remove(map<Type> m, string k) returns Type = external;
