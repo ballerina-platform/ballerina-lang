@@ -596,7 +596,7 @@ body .content-wrapper .module-desc {
 .navi-wrapper-sidebar .primary-list.module-list ul li .active a,
 .navi-wrapper .primary-list.function-list ul li .active a,
 .navi-wrapper-sidebar .primary-list.function-list ul li .active a {
-  font-weight: 500 !important;
+  font-weight: bolder !important;
 }
 .navi-wrapper .primary-list.module-list ul li .active-item,
 .navi-wrapper-sidebar .primary-list.module-list ul li .active-item,
