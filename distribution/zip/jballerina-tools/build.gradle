@@ -197,6 +197,8 @@ def copyComposerDistributionSpec = {
     path -> copySpec {
         from(configurations.composerDistribution)
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 
@@ -204,6 +206,8 @@ def copyComposerFontsSpec = {
     path -> copySpec {
         from configurations.composerFonts
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 

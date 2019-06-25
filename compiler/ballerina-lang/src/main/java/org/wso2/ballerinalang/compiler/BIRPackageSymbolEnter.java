@@ -225,9 +225,6 @@ public class BIRPackageSymbolEnter {
 
         defineAttachedFunctions(dataInStream);
 
-        // Define constants.
-//        defineSymbols(dataInStream, rethrow(this::defineConstants));
-
         // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
 
@@ -333,6 +330,8 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.retType = funcType.retType;
+
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (this.currentStructure != null) {

@@ -99,6 +99,7 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 ////////////////////////////
 /// Resource Annotations ///
 ////////////////////////////
+
 # Configuration for an HTTP resource.
 #
 # + methods - The array of allowed HTTP methods
@@ -134,15 +135,15 @@ public type WebSocketUpgradeConfig record {|
 # Configures the authentication scheme for a service or a resource.
 #
 # + enabled - Specifies whether authentication is enabled
-# + authnHandlers - Array of authentication handlers or Array of arrays of authentication handlers. Array is used to
-# say at least one of the authenticaion handlers should successfully authenticated. Array of arrays is used to say
-# at least one authentication handler from the sub arrays should successfully authenticated.
-# + scopes - Array of scopes or Array of arrays of scopes. Array is used to say at least one of the scopes should
-# successfully authorized. Array of arrays is used to say at least one scope from the sub arrays should successfully
-# authorized.
+# + authHandlers - An array of inbound authentication handlers or an array consisting of arrays of inbound authentication handlers.
+# An array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays
+# is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
+# + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
+# be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays 
+# should be successfully authorized.
 public type ServiceResourceAuth record {|
     boolean enabled = true;
-    AuthnHandler[]|AuthnHandler[][] authnHandlers?;
+    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers?;
     string[]|string[][] scopes?;
 |};
 
