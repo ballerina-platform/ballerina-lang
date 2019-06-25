@@ -23,10 +23,10 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -49,10 +49,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class Close extends BlockingNativeCallableUnit {
 
-    @Override
     public void execute(Context context) {
+    }
+
+    public static void close(Strand strand, ObjectValue connection) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> connection = (BMap<String, BValue>) context.getRefArgument(0);
         ServerLocator connectionPool = (ServerLocator) connection.getNativeData(
                 ArtemisConstants.ARTEMIS_CONNECTION_POOL);
         ClientSessionFactory sessionFactory =
