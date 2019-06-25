@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.model.types.ValueType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
@@ -188,7 +187,7 @@ public class NumericConversionTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertEquals(((ValueType) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
+        Assert.assertEquals(((BValueType) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
                 "representation as byte");
     }
 

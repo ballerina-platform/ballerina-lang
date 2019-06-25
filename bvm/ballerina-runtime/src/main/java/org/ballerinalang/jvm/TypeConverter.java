@@ -124,7 +124,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    private static long anyToIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static long anyToIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
@@ -162,7 +162,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    private static double anyToFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static double anyToFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
@@ -269,7 +269,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    private static int anyToByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static int anyToByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
         if (sourceVal instanceof Long) {
             return intToByte((Long) sourceVal);
         } else if (sourceVal instanceof Double) {
