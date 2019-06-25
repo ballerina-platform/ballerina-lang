@@ -376,9 +376,9 @@ class BallerinaExtension {
                 message: "Trying to get ballerina version without setting ballerina home."
             });
         }
-        let command = `${path.join(ballerinaHome, 'bin', 'ballerina')} version`;
+        let command = `${path.join(ballerinaHome, 'bin', 'jballerina')} version`;
         if (process.platform === 'win32') {
-            command = `"${path.join(ballerinaHome, 'bin', 'ballerina.bat')}" version`;
+            command = `"${path.join(ballerinaHome, 'bin', 'jballerina.bat')}" version`;
         }
         return new Promise((resolve, reject) => {
             child_process_1.exec(command, (err, stdout, stderr) => {
@@ -439,7 +439,7 @@ class BallerinaExtension {
         vscode_1.window.showErrorMessage(messages_1.INVALID_FILE);
     }
     isValidBallerinaHome(homePath = this.ballerinaHome) {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
+        const ballerinaCmd = process.platform === 'win32' ? 'jballerina.bat' : 'jballerina';
         if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
@@ -476,13 +476,13 @@ class BallerinaExtension {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    ballerinaPath = child_process_1.execSync('where ballerina').toString().trim();
+                    ballerinaPath = child_process_1.execSync('where jballerina').toString().trim();
                 }
                 catch (error) {
                     return ballerinaPath;
                 }
                 if (ballerinaPath) {
-                    ballerinaPath = ballerinaPath.replace(/bin\\ballerina.bat$/, '');
+                    ballerinaPath = ballerinaPath.replace(/bin\\jballerina.bat$/, '');
                 }
                 break;
             case 'darwin': // Mac OS
@@ -491,7 +491,7 @@ class BallerinaExtension {
                     ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from ballerinaPath
                     if (ballerinaPath) {
-                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        ballerinaPath = ballerinaPath.replace(/bin\/jballerina$/, '');
                         // For homebrew installations ballerina executable is in libexcec
                         const homebrewBallerinaPath = path.join(ballerinaPath, 'libexec');
                         if (fs.existsSync(homebrewBallerinaPath)) {
@@ -506,11 +506,11 @@ class BallerinaExtension {
             case 'linux': // Linux
                 // lets see where the ballerina command is.
                 try {
-                    const output = child_process_1.execSync('which ballerina');
+                    const output = child_process_1.execSync('which jballerina');
                     ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from path
                     if (ballerinaPath) {
-                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        ballerinaPath = ballerinaPath.replace(/bin\/jballerina$/, '');
                     }
                 }
                 catch (_b) {
@@ -11541,7 +11541,7 @@ function getCommonWebViewOptions() {
         enableScripts: true,
         retainContextWhenHidden: true,
         localResourceRoots: [
-            vscode_1.Uri.file(getComposerPath()),
+            vscode_1.Uri.file(path_1.join(core_1.ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library')),
             vscode_1.Uri.file(getWebViewResourceRoot()),
             vscode_1.Uri.file(getNodeModulesRoot())
         ],
@@ -11599,21 +11599,21 @@ exports.getLibraryWebViewContent = getLibraryWebViewContent;
 function getComposerPath() {
     return process.env.COMPOSER_DEBUG === "true"
         ? process.env.COMPOSER_DEV_HOST
-        : path_1.join(core_1.ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
+        : getVSCodeResourceURI(path_1.join(core_1.ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library'));
 }
 exports.getComposerPath = getComposerPath;
 function getComposerJSFiles(isAPIEditor = false) {
     return [
-        getVSCodeResourceURI(path_1.join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js')),
-        getVSCodeResourceURI(path_1.join(getComposerPath(), 'codepoints.js')),
+        getVSCodeResourceURI(path_1.join(core_1.ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library', 'codepoints.js')),
+        path_1.join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 exports.getComposerJSFiles = getComposerJSFiles;
 function getComposerCSSFiles() {
     return [
-        getVSCodeResourceURI(path_1.join(getComposerPath(), 'themes', 'ballerina-default.min.css')),
-        getVSCodeResourceURI(path_1.join(getComposerPath(), 'font', 'font-ballerina.css'))
+        path_1.join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
+        path_1.join(getComposerPath(), 'font', 'font-ballerina.css')
     ];
 }
 exports.getComposerCSSFiles = getComposerCSSFiles;
@@ -66133,7 +66133,6 @@ function activate(ballerinaExtInstance) {
     const projectOverviewDisposable = vscode_1.commands.registerCommand('ballerina.showProjectOverview', () => {
         return ballerinaExtInstance.onReady()
             .then(() => {
-            debugger;
             if (!vscode_1.window.activeTextEditor) {
                 return;
             }
@@ -66145,10 +66144,7 @@ function activate(ballerinaExtInstance) {
             const didChangeDisposable = vscode_1.workspace.onDidChangeTextDocument(_.debounce((e) => {
                 updateWebView(e.document.uri);
             }, DEBOUNCE_WAIT));
-            overviewPanel = vscode_1.window.createWebviewPanel('projectOverview', 'Project Overview', { viewColumn: vscode_1.ViewColumn.One, preserveFocus: true }, {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-            });
+            overviewPanel = vscode_1.window.createWebviewPanel('projectOverview', 'Project Overview', { viewColumn: vscode_1.ViewColumn.One, preserveFocus: true }, utils_1.getCommonWebViewOptions());
             const editor = vscode_1.window.activeTextEditor;
             if (!editor) {
                 return;
@@ -66280,7 +66276,6 @@ function renderDiagram(context, sourceRoot) {
             enableUndoRedo();
         }
     `;
-    debugger;
     return utils_1.getLibraryWebViewContent(Object.assign({}, utils_1.getComposerWebViewOptions(), { body, scripts, styles, bodyCss }));
 }
 function renderError() {

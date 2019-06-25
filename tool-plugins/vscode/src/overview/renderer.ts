@@ -98,7 +98,6 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
             enableUndoRedo();
         }
     `;
-    debugger;
 
     return getLibraryWebViewContent({...getComposerWebViewOptions(), body, scripts, styles, bodyCss});
 }
