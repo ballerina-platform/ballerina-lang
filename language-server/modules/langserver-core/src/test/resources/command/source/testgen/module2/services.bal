@@ -32,15 +32,15 @@ service wssService on securedListener2 {
     }
 }
 
-auth:ConfigAuthStoreProvider basicAuthProvider1 = new;
-auth:ConfigAuthStoreProvider basicAuthProvider2 = new;
+auth:InboundBasicAuthProvider basicAuthProvider1 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider2 = new(());
 
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler1 = new(basicAuthProvider1);
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler2 = new(basicAuthProvider2);
+http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
+http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
 
 listener http:Listener securedListener = new(9090, config = {
         auth: {
-            authnHandlers: [basicAuthnHandler1]
+            authHandlers: [basicAuthHandler1]
         },
         secureSocket: {
             keyStore: {
@@ -52,7 +52,7 @@ listener http:Listener securedListener = new(9090, config = {
 
 listener http:WebSocketListener securedListener2 = new(9090, config = {
         auth: {
-            authnHandlers: [basicAuthnHandler2]
+            authHandlers: [basicAuthHandler2]
         },
         secureSocket: {
             keyStore: {

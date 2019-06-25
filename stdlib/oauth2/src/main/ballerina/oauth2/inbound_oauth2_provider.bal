@@ -15,18 +15,17 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/config;
 import ballerina/http;
 import ballerina/mime;
 import ballerina/runtime;
 
-# Represents Ballerina OAuth2 provider, which calls the introspection server and validate the received credentials.
+# Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
-public type OAuth2Provider object {
+public type InboundOAuth2Provider object {
 
-    *auth:AuthProvider;
+    *auth:InboundAuthProvider;
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
@@ -78,19 +77,19 @@ public type OAuth2Provider object {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = username;
             principal.username = username;
-            principal.scopes = self.getScopes(scopes);
+            principal.scopes = getScopes(scopes);
         }
         return authenticated;
     }
-
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + scopes - Set of scopes seperated with a space
-    # + return - Array of groups for the user denoted by the username
-    public function getScopes(string scopes) returns string[] {
-        return scopes.trim().split(" ");
-    }
 };
+
+# Reads the scope(s) for the user with the given username.
+#
+# + scopes - Set of scopes seperated with a space
+# + return - Array of groups for the user denoted by the username
+public function getScopes(string scopes) returns string[] {
+    return scopes.trim().split(" ");
+}
 
 # Represents introspection server onfigurations.
 #
@@ -100,5 +99,5 @@ public type OAuth2Provider object {
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    http:ClientEndpointConfig clientConfig;
+    http:ClientEndpointConfig clientConfig = {};
 |};
