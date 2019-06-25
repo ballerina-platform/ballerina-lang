@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.filepath.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
@@ -43,12 +43,15 @@ public class Absolute extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
+    }
+
+    public static Object absolute(Strand strand, String inputPath) {
         try {
             String absolutePath = FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
-            context.setReturnValues(new BString(absolutePath));
+            return  absolutePath;
         } catch (InvalidPathException ex) {
-            context.setReturnValues(Utils.getPathError("INVALID_PATH", ex));
+            return Utils.getPathError("INVALID_PATH", ex);
         }
     }
+
 }
