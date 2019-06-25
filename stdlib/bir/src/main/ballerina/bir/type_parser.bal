@@ -373,8 +373,6 @@ public type TypeParser object {
         } else if (valueType is BTypeString) {
             return self.readStringCpRef();
         } else if (valueType is BTypeDecimal) {
-
-            io:println("************");
             return {value: self.readStringCpRef()};
         } else if (valueType is BTypeBoolean) {
             return self.readInt8() == 1;
