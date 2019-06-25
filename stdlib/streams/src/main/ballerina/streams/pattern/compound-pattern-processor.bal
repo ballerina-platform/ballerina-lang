@@ -44,7 +44,7 @@ public type CompoundPatternProcessor object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     #
     # + return - a tuple indicating, whether the event is promoted and whether to continue to the next processor.
-    public function process(StreamEvent event, string? processorAlias) returns (boolean, boolean) {
+    public function process(StreamEvent event, string? processorAlias) returns [boolean, boolean] {
         lock {
             self.lockField += 1;
             boolean promote = false;
@@ -55,7 +55,7 @@ public type CompoundPatternProcessor object {
             if (processor is AbstractPatternProcessor) {
                 // processorAlias is not required when get promoted by
                 // its only imidiate descendent. Therefore passing ().
-                (promote, toNext) = processor.process(event, ());
+                [promote, toNext] = processor.process(event, ());
             }
             // upward traversal
             if (promote) {
@@ -89,7 +89,7 @@ public type CompoundPatternProcessor object {
                     }
                 }
             }
-            return (promoted, toNext);
+            return [promoted, toNext];
         }
     }
 

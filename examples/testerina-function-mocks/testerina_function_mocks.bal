@@ -1,10 +1,10 @@
 import ballerina/io;
 import ballerina/test;
 
-// This is the mock function which will replace the real function.
+// This is the mock function, which will replace the real function.
 @test:Mock {
-    // Since we don't have a module declaration, `.` is the current module
-    // We can include any module here e.g : `ballerina/io`
+    // Since there is no module declaration, `.` is the current module.
+    // You can include any module (e.g., : `ballerina/io`).
     moduleName: ".",
     functionName: "intAdd"
 }
@@ -23,7 +23,7 @@ function testAssertIntEquals() {
     test:assertEquals(answer, 2, msg = "function mocking failed");
 }
 
-// The real function which is mocked above.
+// The real function, which is mocked above.
 public function intAdd(int a, int b) returns int {
     return (a + b);
 }

@@ -73,7 +73,7 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new MapValueImpl<String, V>();
+        return (V) new MapValueImpl<String, V>(new BMapType(constraint));
     }
 
     @Override

@@ -8,10 +8,10 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
                   </p:person>`;
 
 function testExcessVars() {
-    foreach var (i, x, y) in xdata {
+    foreach var [i, x, y] in xdata {
     }
 }
 
 function testExcessVarsIterableOp() {
-    xdata.foreach(function ((int, xml, string) entry) {});
+    xdata.foreach(function ([int, xml, string] entry) {});
 }

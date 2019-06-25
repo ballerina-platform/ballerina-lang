@@ -189,11 +189,11 @@ function testStringWithoutType() returns string {
 
 // -----------------------------------------------------------
 
-function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatType) {
+function testFloatAsFiniteType() returns [foo:FiniteFloatType, foo:FiniteFloatType] {
     foo:FiniteFloatType f1 = 2.0;
     foo:FiniteFloatType f2 = 4.0;
 
-    return (f1, f2);
+    return [f1, f2];
 }
 
 // -----------------------------------------------------------
@@ -252,27 +252,27 @@ function testStringConstInUnion() returns any {
 // -----------------------------------------------------------
 
 function testBooleanConstInTuple() returns boolean {
-    (boolean, int) v = (foo:booleanWithType, 1);
+    [boolean, int] v = [foo:booleanWithType, 1];
     return v[0];
 }
 
 function testIntConstInTuple() returns int {
-    (int, boolean) v = (foo:intWithType, true);
+    [int, boolean] v = [foo:intWithType, true];
     return v[0];
 }
 
 function testByteConstInTuple() returns byte {
-    (byte, boolean) v = (foo:byteWithType, true);
+    [byte, boolean] v = [foo:byteWithType, true];
     return v[0];
 }
 
 function testFloatConstInTuple() returns float {
-    (float, boolean) v = (foo:floatWithType, true);
+    [float, boolean] v = [foo:floatWithType, true];
     return v[0];
 }
 
 function testStringConstInTuple() returns string {
-    (string, boolean) v = (foo:stringWithType, true);
+    [string, boolean] v = [foo:stringWithType, true];
     return v[0];
 }
 

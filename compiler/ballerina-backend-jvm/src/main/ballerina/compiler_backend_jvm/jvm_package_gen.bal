@@ -49,7 +49,7 @@ function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
     if (key is bir:TypeDef) {
         return key;
     } else {
-        string className = typeRefToClassName(key) + "/" + key.name.value;
+        string className = typeRefToClassName(key, key.name.value);
         var typeDef = typeDefMap[className];
         if (typeDef is bir:TypeDef) {
             return typeDef;
@@ -142,6 +142,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     generateLockForVariable(globalVar, cw);
                 }
             }
+
             boolean serviceEPAvailable = false;
             if (isEntry) {
                 bir:Function? mainFunc = getMainFunc(module.functions);
@@ -237,17 +238,16 @@ function computeLockNameFromString(string varName) returns string {
 }
 
 function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
-        string orgName = modId.org;
-        string moduleName = modId.name;
+    string orgName = modId.org;
+    string moduleName = modId.name;
 
-        var pkgFromCache = compiledPkgCache[orgName + moduleName];
-        if (pkgFromCache is bir:Package) {
-            return [pkgFromCache, true];
-        }
-        var parsedPkg = currentBIRContext.lookupBIRModule(modId);
-        compiledPkgCache[orgName + moduleName] = parsedPkg;
-        return [parsedPkg, false];
-
+    var pkgFromCache = compiledPkgCache[orgName + moduleName];
+    if (pkgFromCache is bir:Package) {
+        return [pkgFromCache, true];
+    }
+    var parsedPkg = currentBIRContext.lookupBIRModule(modId);
+    compiledPkgCache[orgName + moduleName] = parsedPkg;
+    return [parsedPkg, false];
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
@@ -362,7 +362,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 string? balFileName = func.pos.sourceFileName;
                 if (balFileName is string) {
                     moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                                          untaint cleanupBalExt(balFileName));
+                                                          untaint cleanupPathSeperators(cleanupBalExt(balFileName)));
                     var javaClass = jvmClassMap[moduleClass];
                     if (javaClass is JavaClass) {
                         javaClass.functions[javaClass.functions.length()] = func;
@@ -385,7 +385,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:BType bType = typeDef.typeValue;
 
         if (bType is bir:BObjectType || bType is bir:BRecordType) {
-            string key = orgName + "/" + moduleName + "/" + typeDef.name.value;
+            string key = getModuleLevelClassName(orgName, moduleName, typeDef.name.value);
             typeDefMap[key] = typeDef;
         }
 
@@ -411,8 +411,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
                                                                         versionValue, result);
                 } else {
-                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                                        lookupKey);
+                    error err = error("native function not available: " + pkgName + lookupKey);
                     panic err;
                 }
             }

@@ -92,6 +92,14 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BLangRecordKey key;
         public BLangExpression valueExpr;
 
+        public BLangRecordKeyValue() {
+        }
+
+        public BLangRecordKeyValue(BLangRecordKey key, BLangExpression valueExpr) {
+            this.key = key;
+            this.valueExpr = valueExpr;
+        }
+
         @Override
         public BLangExpression getKey() {
             return key.expr;

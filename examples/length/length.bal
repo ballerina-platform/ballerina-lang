@@ -5,7 +5,7 @@ public function main() {
     int[] intArray = [1, 2, 3];
     int length;
 
-    // This prints the length of the integer array created. The length is 
+    // This prints the length of the created integer array. The length is 
     // calculated using the `length()` function.
     length = intArray.length();
     io:println("Integer array size: ", length);
@@ -20,7 +20,7 @@ public function main() {
     length = jsonArray.length();
     io:println("JSON array size: ", length);
 
-    // This creates an `int` constrained `map`.
+    // This creates an `int`-constrained `map`.
     map<int> strMap = {};
     strMap["A"] = 1;
     strMap["B"] = 2;
@@ -51,11 +51,11 @@ public function main() {
     // This creates a tuple with two members.
     (int, string) tupleVar = (10, "John");
 
-    // This prints the size of the tuple i.e. the number of members in the tuple.
+    // This prints the size of the tuple i.e., the number of members in the tuple.
     length = tupleVar.length();
     io:println("Tuple size: ", length);
 
-    // This creates a `record` of `Student` type
+    // This creates a `record` of the `Student` type.
     Student stu = { id: 1, fname: "John", lname: "Doe", age: 17};
 
     // This prints the number of fields of the `Student` record type.

@@ -394,9 +394,9 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "b");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: failed to get element from json: " +
-                    "\\{\"message\":\"array index out of range: index: 5, size: 3\"\\}.*")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
+                  "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }

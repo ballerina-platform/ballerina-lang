@@ -124,11 +124,13 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     /***
      * @since 0.990.4
      */
+    @Deprecated
     public static class BLangConstRef extends BLangSimpleVarRef {
 
         public BLangConstRef(BSymbol varSymbol) {
             this.symbol = varSymbol;
             this.varSymbol = varSymbol;
+            this.type = varSymbol.type;
         }
 
         @Override

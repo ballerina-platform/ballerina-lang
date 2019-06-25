@@ -224,7 +224,10 @@ public type GlobalVarKind VAR_KIND_GLOBAL;
 public const VAR_KIND_SELF = "SELF";
 public type SelfVarKind VAR_KIND_SELF;
 
-public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind;
+public const VAR_KIND_CONSTANT = "CONSTANT";
+public type ConstantVarKind VAR_KIND_CONSTANT;
+
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind | ConstantVarKind;
 
 
 public const VAR_SCOPE_GLOBAL = "GLOBAL_SCOPE";
@@ -244,6 +247,8 @@ public type VariableDcl record {|
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
+
     anydata...; // This is to type match with Object type fields in subtypes
 |};
 
@@ -253,10 +258,11 @@ public type FunctionParam record {|
 |};
 
 public type GlobalVariableDcl record {|
-    VarKind kind = "GLOBAL";
+    VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
     int flags = PRIVATE;
 |};
 
