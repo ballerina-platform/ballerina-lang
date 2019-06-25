@@ -16,50 +16,55 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl.consumer;
+package org.ballerinalang.nats.basic.producer;
 
-import io.nats.streaming.Message;
+import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.nativeimpl.Constants;
-import org.ballerinalang.nats.nativeimpl.Utils;
+import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
- * Acknowledges to a given message.
+ * Sends message to a given subject.
  *
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
-        functionName = "ack",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/nats"),
+        orgName = "ballerina",
+        packageName = "nats",
+        functionName = "sendMsg",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Acknowledgment implements NativeCallableUnit {
-
+public class Send implements NativeCallableUnit {
     /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BMap<String, BValue> message = (BMap<String, BValue>) context.getRefArgument(0);
-            Message nativeData = (Message) message.getNativeData(Constants.NATS_MSG);
-            nativeData.ack();
-        } catch (IOException e) {
-            // Both the error messages returned would not give java specific information
-            // Hence the error message will not be overridden
+            BMap<String, BValue> publisher = Utils.getReceiverObject(context);
+            String subject = context.getStringArgument(0);
+            byte[] content = ((BValueArray) context.getRefArgument(1)).getBytes();
+            StreamingConnection connection = (StreamingConnection) ((BMap) publisher.get(Constants.CONNECTION_OBJ)).
+                    getNativeData(Constants.NATS_CONNECTION);
+            Acknowledgment acknowledgment = new Acknowledgment(context, callback);
+            connection.publish(subject, content, acknowledgment);
+        } catch (IOException | TimeoutException e) {
             context.setReturnValues(Utils.createError(context, Constants.NATS_ERROR_CODE, e.getMessage()));
-        } finally {
             callback.notifySuccess();
+        } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
         }
     }
 

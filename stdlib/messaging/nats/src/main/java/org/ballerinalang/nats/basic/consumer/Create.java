@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl.consumer;
+package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.SubscriptionOptions;
@@ -33,8 +33,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.nativeimpl.Constants;
-import org.ballerinalang.nats.nativeimpl.Utils;
+import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
 import java.util.List;

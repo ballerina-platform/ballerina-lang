@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.nativeimpl.producer;
+package org.ballerinalang.nats.basic.producer;
 
 import io.nats.streaming.AckHandler;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.nats.nativeimpl.Constants;
-import org.ballerinalang.nats.nativeimpl.Utils;
+import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 /**
  * Represents an acknowledgement which will be received for a produced message.

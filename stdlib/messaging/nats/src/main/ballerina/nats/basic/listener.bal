@@ -18,7 +18,7 @@
 public type Listener object {
 
     *AbstractListener;
-    private Connection? connection = ();
+    private Connection connection;
 
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
     #
