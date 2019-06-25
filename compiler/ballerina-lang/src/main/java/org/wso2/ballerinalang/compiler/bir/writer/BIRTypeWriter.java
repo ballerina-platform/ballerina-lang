@@ -252,20 +252,21 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        Set<Map.Entry<Name, Scope.ScopeEntry>> recordSymbols = tsymbol.scope.entries.entrySet();
-
-        buff.writeInt(recordSymbols.size() - 1); // recordSymbols = 1 initializer + n fields
-        for (Map.Entry<Name, Scope.ScopeEntry> entry : recordSymbols) {
-            BSymbol symbol = entry.getValue().symbol;
-            String fieldName = entry.getKey().value;
-            if (symbol != initializerFunc.symbol) {
-                buff.writeInt(addStringCPEntry(fieldName));
-                buff.writeInt(symbol.flags);
-                writeTypeCpIndex(symbol.type);
-            }
+        buff.writeInt( bRecordType.fields.size());
+        for (BField field : bRecordType.fields) {
+            BSymbol symbol = field.symbol;
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeInt(symbol.flags);
+            writeTypeCpIndex(field.type);
         }
 
+        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
+        if (initializerFunc == null) {
+            buff.writeByte(0);
+            return;
+        }
+
+        buff.writeByte(1);
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
         buff.writeInt(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
