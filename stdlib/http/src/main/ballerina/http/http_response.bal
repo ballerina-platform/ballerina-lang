@@ -91,7 +91,7 @@ public type Response object {
     public function getHeaders(string headerName) returns (string[]);
 
     # Sets the specified header to the response. If a mapping already exists for the specified header key, the
-    # existing header value is replaced with the specfied header value.
+    # existing header value is replaced with the specified header value.
     #
     # + headerName - The header name
     # + headerValue - The header value

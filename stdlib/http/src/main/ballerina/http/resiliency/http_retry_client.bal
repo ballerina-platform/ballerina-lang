@@ -109,7 +109,7 @@ public type RetryClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error;
 
-    # The `patch()` function wraps the undeline underlying HTTP remote function in a way to provide
+    # The `patch()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path

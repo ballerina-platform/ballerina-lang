@@ -65,7 +65,7 @@ public type Request object {
     # Gets the matrix parameters of the request.
     #
     # + path - Path to the location of matrix parameters
-    # + return - A map of matrix paramters which can be found for the given path
+    # + return - A map of matrix parameters which can be found for the given path
     public function getMatrixParams(string path) returns map<any> = external;
 
     # Gets the `Entity` associated with the request.
@@ -98,7 +98,7 @@ public type Request object {
     public function getHeaders(string headerName) returns (string[]);
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
-    # header value is replaced with the specfied header value.
+    # header value is replaced with the specified header value.
     #
     # + headerName - The header name
     # + headerValue - The header value

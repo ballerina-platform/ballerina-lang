@@ -35,7 +35,7 @@ public type AuthnHandlerChain object {
     # + return - true if authenticated successfully, else false
     public function handle(Request req) returns boolean;
 
-    # Tries to authenticate against a specifc sub set of the authentication handlers, using the given array of auth provider ids
+    # Tries to authenticate against a specific sub set of the authentication handlers, using the given array of auth provider ids
     #
     # + authProviderIds - array of auth provider ids
     # + req - `Request` instance
