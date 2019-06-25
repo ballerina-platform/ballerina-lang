@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Capabilities capabilities = new Capabilities();
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
+        this.eventBus = new EventBus();
         return CompletableFuture.completedFuture(capabilities);
     }
 
@@ -60,12 +62,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
             sourceRoot = args.get("sourceRoot").toString();
-            debuggee = new DebuggerAttachingVM(5005).initialize();
+            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
+            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             erm.createClassPrepareRequest().enable();
 
-            this.eventBus = new EventBus();
             this.eventBus.startListening(debuggee, client);
 
         } catch (IOException e) {
@@ -82,12 +84,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         try {
             sourceRoot = args.get("sourceRoot").toString();
-            debuggee = new DebuggerAttachingVM(5005).initialize();
+            if (!sourceRoot.endsWith(File.separator)) {
+                sourceRoot += File.separator;
+            }
+            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
+            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             erm.createClassPrepareRequest().enable();
 
-            this.eventBus = new EventBus();
             this.eventBus.startListening(debuggee, client);
 
         } catch (IOException e) {
@@ -278,6 +283,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
+        System.exit(0);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> terminate(TerminateArguments args) {
+        debuggee.exit(0);
         return CompletableFuture.completedFuture(null);
     }
 

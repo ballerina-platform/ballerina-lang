@@ -47,7 +47,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
 
             config.script = window.activeTextEditor.document.uri.path;
         }
-
+        config.debuggeePort = "5006";
         config.sourceRoot = path.dirname(config.script);
 
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;

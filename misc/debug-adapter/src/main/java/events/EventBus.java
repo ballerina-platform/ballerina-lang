@@ -22,7 +22,6 @@ import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
-import com.sun.jdi.request.StepRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
