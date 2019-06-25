@@ -67,6 +67,14 @@ public class TypedescValue implements RefValue {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return this;
+    }
+
     @Override
     public boolean isFrozen() {
         return true;

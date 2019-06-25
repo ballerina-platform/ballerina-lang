@@ -77,6 +77,11 @@
          return null;
      }
 
+     @Override
+     public Object frozenCopy(Map<Object, Object> refs) {
+         return null;
+     }
+
      public void cancel() {
          this.strand.cancel = true;
      }

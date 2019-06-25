@@ -80,6 +80,12 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        // Error values are immutable and frozen, copy give same value.
+        return this;
+    }
+
+    @Override
     public void attemptFreeze(Status freezeStatus) {
         // do nothing, since error types are always frozen
     }

@@ -318,6 +318,16 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        TableValue copy = (TableValue) copy(refs);
+        copy.freezeDirect();
+        return copy;
+    }
+
     @Override
     public IteratorValue getIterator() {
         return new TableValueIterator(this);
@@ -423,5 +433,10 @@ public class TableValue implements RefValue, CollectionValue {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+    }
+
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
     }
 }

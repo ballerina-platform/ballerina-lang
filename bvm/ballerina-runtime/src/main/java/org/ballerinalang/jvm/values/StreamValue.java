@@ -100,6 +100,13 @@ public class StreamValue implements RefValue {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return null;
+    }
+
     public BType getConstraintType() {
         return constraintType;
     }

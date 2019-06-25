@@ -349,6 +349,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        MapValueImpl<K, V> copy = (MapValueImpl<K, V>) copy(refs);
+        copy.freezeDirect();
+        return copy;
+    }
+
     @Override
     public String stringValue() {
         readLock.lock();
@@ -465,6 +473,20 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 }
             });
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+        this.values().forEach(val -> {
+            if (val instanceof RefValue) {
+                ((RefValue) val).freezeDirect();
+            }
+        });
     }
 
     /**
