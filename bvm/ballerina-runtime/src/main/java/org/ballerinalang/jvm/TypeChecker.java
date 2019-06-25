@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -49,6 +50,7 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +59,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -1294,5 +1297,128 @@ public class TypeChecker {
 
             return true;
         }
+    }
+
+    /**
+     * Checks whether a given {@link Byte} has an implicit initial value or not.
+     * @param type {@link Byte} to be analyzed.
+     * @return whether there's an implicit initial value or not.
+     */
+    public static boolean hasImplicitInitialValue(BType type) {
+        return hasImplicitInitialValue(type, new ArrayList<>());
+    }
+
+    private static boolean hasImplicitInitialValue(BType type, List<BType> unAnalyzedTypes) {
+        if (type == null) {
+            return true;
+        }
+        if (type.getTag() < TypeTags.RECORD_TYPE_TAG) {
+            return true;
+        }
+        switch (type.getTag()) {
+            case TypeTags.TYPEDESC_TAG:
+            case TypeTags.STREAM_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.ANY_TAG:
+                return true;
+            case TypeTags.ARRAY_TAG:
+                return hasImplicitInitialValue(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                return analyzeFiniteType((BFiniteType) type);
+            case TypeTags.OBJECT_TYPE_TAG:
+                return analyzeObjectType((BObjectType) type);
+            case TypeTags.RECORD_TYPE_TAG:
+                return analyzeRecordType((BRecordType) type, unAnalyzedTypes);
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasImplicitInitialValue);
+            case TypeTags.UNION_TAG:
+                return analyzeUnionType((BUnionType) type);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean analyzeUnionType(BUnionType type) {
+        // NIL is a member.
+        if (type.isNullable()) {
+            return true;
+        }
+        // All members are of same type.
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember;
+        for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
+            }
+        }
+        // Control reaching this point means there is only one type in the union.
+        return BTypes.isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private static boolean analyzeRecordType(BStructureType type, List<BType> unanalyzedTypes) {
+        if (unanalyzedTypes.contains(type)) {
+            return true;
+        }
+        unanalyzedTypes.add(type);
+        return type.getFields().values().stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
+    }
+
+    private static boolean analyzeObjectType(BObjectType type) {
+        if (type.getTag() == TypeTags.SERVICE_TAG) {
+            return false;
+        }
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            AttachedFunction initializerFunc = type.initializer;
+            if (initializerFunc == null) {
+                // No __init function found.
+                return true;
+            }
+            BFunctionType initFuncType = initializerFunc.type;
+            boolean noParams = initFuncType.paramTypes.length == 0;
+            boolean nilReturn = initFuncType.retType.getTag() == TypeTags.NULL_TAG;
+            return noParams && nilReturn;
+        }
+        return false;
+    }
+
+    private static boolean analyzeFiniteType(BFiniteType type) {
+        // Has NIL element as a member.
+        if (type.valueSpace.stream().anyMatch(Objects::isNull)) {
+            return true;
+        }
+        // All of the element are from same type. And elements contains implicit initial value.
+        if (type.valueSpace.isEmpty()) {
+            return false;
+        }
+        // For singleton types, that value is the implicit initial value
+        if (type.valueSpace.size() == 1) {
+            return true;
+        }
+        Object firstElement = type.valueSpace.iterator().next();
+        boolean sameType = type.valueSpace.stream().allMatch(value -> value.getClass() == firstElement.getClass());
+        if (!sameType) {
+            return false;
+        }
+        if (firstElement instanceof String) {
+            // check empty string for strings, and 0.0 for decimals
+            return containsElement(type.valueSpace, "\"\"");
+        } else if (firstElement instanceof Byte
+                || firstElement instanceof Integer
+                || firstElement instanceof Long) {
+            return containsElement(type.valueSpace, "0");
+        } else if (firstElement instanceof Float
+                || firstElement instanceof Double
+                || firstElement instanceof BigDecimal) {
+            return containsElement(type.valueSpace, "0.0");
+        } else if (firstElement instanceof Boolean) {
+            return containsElement(type.valueSpace, "false");
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean containsElement(Set<Object> valueSpace, String e) {
+        return valueSpace.stream().anyMatch(v -> v != null && v.toString().equals(e));
     }
 }

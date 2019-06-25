@@ -269,3 +269,28 @@ function testSingletonTypeArrayFill(int index) returns One[] {
     ar[index] = 1;
     return ar;
 }
+
+function testIllegalArrayInsertion(int index) returns (int|string|boolean)[] {
+    (int|string|boolean)[] arr = [];
+    arr[index] = index;  // throws a runtime exception
+    return arr;
+}
+
+type Student object {
+    public string name;
+    public int age;
+
+    public function __init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+};
+
+function testIncrementalObjectInsertion(int index) returns Student[] {
+    Student s = new("grainier", 28);
+    Student[] arr = [];
+    foreach var i in 0...index {
+        arr[i] = s;
+    }
+    return arr;
+}

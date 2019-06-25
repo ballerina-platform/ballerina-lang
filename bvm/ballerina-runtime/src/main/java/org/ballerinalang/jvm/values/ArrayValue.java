@@ -662,6 +662,13 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    private void fillerValueCheck(int index, int size) {
+        if (!TypeChecker.hasImplicitInitialValue(elementType) && (index > size)) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_ARRAY_INSERTION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, index);
+        }
+    }
+
     Object newArrayInstance(Class<?> componentType) {
         return (size > 0) ?
                 Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
@@ -710,6 +717,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
+        fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }

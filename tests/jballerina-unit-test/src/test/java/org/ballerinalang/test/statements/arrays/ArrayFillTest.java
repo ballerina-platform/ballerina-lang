@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -472,6 +473,21 @@ public class ArrayFillTest {
         }
 
         assertEquals(singletonArray.getBValue(index).stringValue(), "1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*cannot insert an element into index.*")
+    public void testIllegalArrayInsertion() {
+        BValue[] args = new BValue[]{new BInteger(index)};
+        BRunUtil.invokeFunction(compileResult, "testIllegalArrayInsertion", args);
+    }
+
+    @Test
+    public void testIncrementalObjectInsertion() {
+        BValue[] args = new BValue[]{new BInteger(index)};
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testIncrementalObjectInsertion", args);
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), index + 1);
     }
 
     private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {

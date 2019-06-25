@@ -1113,23 +1113,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void analyzeArrayElementImplicitInitialValue(BType type, DiagnosticPos pos) {
-        if (type == null || type.tag != TypeTags.ARRAY) {
-            return;
-        }
-
-        BArrayType arrayType = (BArrayType) type;
-
-        if (arrayType.state != BArrayState.UNSEALED) {
-            return;
-        }
-
-        if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, arrayType.eType,
-                            getNilableType(arrayType.eType));
-        }
-    }
-
     private BType getNilableType(BType type) {
         if (type.isNullable()) {
             return type;
@@ -1426,7 +1409,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        analyzeArrayElementImplicitInitialValue(listConstructorExpr.type, listConstructorExpr.pos);
         analyzeExprs(listConstructorExpr.exprs);
     }
 
