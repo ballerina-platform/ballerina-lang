@@ -21,7 +21,7 @@ package io.ballerina.plugins.idea.debugger.protocol;
  */
 public enum Command {
 
-    START("START"), STOP("STOP"), SET_POINTS("SET_POINTS"), STEP_OVER("STEP_OVER"), RESUME("RESUME"),
+    ATTACH("ATTACH"), STOP("STOP"), SET_POINTS("SET_POINTS"), STEP_OVER("STEP_OVER"), RESUME("RESUME"),
     STEP_IN("STEP_IN"), STEP_OUT("STEP_OUT");
 
     private String myCommand;

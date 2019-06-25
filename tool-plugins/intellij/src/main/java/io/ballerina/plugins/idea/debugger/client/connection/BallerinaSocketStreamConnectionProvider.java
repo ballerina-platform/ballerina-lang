@@ -18,8 +18,10 @@ package io.ballerina.plugins.idea.debugger.client.connection;
 
 import com.intellij.openapi.diagnostic.Logger;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
@@ -48,25 +50,53 @@ public class BallerinaSocketStreamConnectionProvider extends BallerinaProcessStr
     public void start() throws IOException {
         Thread socketThread = new Thread(() -> {
             try {
-                // Todo
                 socket = new Socket(address, port);
             } catch (Exception e) {
-                LOG.error(e);
+                LOG.warn(e);
             }
         });
-        super.start();
+
+        Thread adapterLauncherThread = new Thread(() -> {
+            try {
+                super.start();
+                InputStream stdIn = super.getInputStream();
+                if (stdIn == null) {
+                    throw new IOException("Debug adapter input stream is null.");
+                }
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stdIn), 1);
+                String line;
+                while ((line = bufferedReader.readLine()) != null && line.contains("Debug server started")) {
+                    // Just waits here for the debug adapter to print server init message to the std out.
+                }
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
+                LOG.info(e);
+            }
+        });
+
+        adapterLauncherThread.start();
+        try {
+            adapterLauncherThread.join(4000);
+        } catch (InterruptedException e) {
+            LOG.warn(e);
+        }
         socketThread.start();
         try {
-            socketThread.join(5000);
+            socketThread.join(4000);
         } catch (InterruptedException e) {
-            LOG.error(e);
+            LOG.warn(e);
         }
         if (socket == null) {
+            inputStream = null;
+            outputStream = null;
             throw new IOException("Unable to make socket connection: " + toString());
+        } else {
+            inputStream = socket.getInputStream();
+            outputStream = socket.getOutputStream();
         }
-        inputStream = socket.getInputStream();
-        outputStream = socket.getOutputStream();
 
+        // Kills process stream connection as the only socket connection will be used for the communication.
+        super.stop();
     }
 
     @Override

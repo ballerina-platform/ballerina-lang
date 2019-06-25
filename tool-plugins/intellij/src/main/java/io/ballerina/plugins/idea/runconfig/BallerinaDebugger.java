@@ -32,13 +32,15 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
+import io.ballerina.plugins.idea.debugger.BallerinaDAPClientConnector;
 import io.ballerina.plugins.idea.debugger.BallerinaDebugProcess;
-import io.ballerina.plugins.idea.debugger.BallerinaWebSocketConnector;
 import io.ballerina.plugins.idea.runconfig.application.BallerinaApplicationRunningState;
 import io.ballerina.plugins.idea.runconfig.remote.BallerinaRemoteConfiguration;
 import io.ballerina.plugins.idea.runconfig.remote.BallerinaRemoteRunningState;
 import io.ballerina.plugins.idea.runconfig.test.BallerinaTestRunningState;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,9 +84,10 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
                     // Get the host address.
-                    String address = NetUtils.getLocalHostString() + ":" + port;
+                    String host = NetUtils.getLocalHostString();
                     // Create a new connector. This will be used to communicate with the debugger.
-                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
+                            env.getProject(), host, port);
                     return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
                 }
             }).getRunContentDescriptor();
@@ -104,9 +107,10 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
                     // Get the host address.
-                    String address = NetUtils.getLocalHostString() + ":" + port;
+                    String host = NetUtils.getLocalHostString();
                     // Create a new connector. This will be used to communicate with the debugger.
-                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
+                            env.getProject(), host, port);
                     return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
                 }
             }).getRunContentDescriptor();
@@ -118,12 +122,13 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
                     // Get the remote host address.
-                    String address = getRemoteAddress(env);
-                    if (address == null || address.isEmpty()) {
+                    Pair<String, Integer> address = getRemoteAddress(env);
+                    if (address == null || address.getLeft().isEmpty()) {
                         throw new ExecutionException("Invalid remote address.");
                     }
                     // Create a new connector. This will be used to communicate with the debugger.
-                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
+                            env.getProject(), address.getLeft(), address.getRight());
                     return new BallerinaDebugProcess(session, ballerinaDebugSession, null);
                 }
             }).getRunContentDescriptor();
@@ -142,7 +147,7 @@ public class BallerinaDebugger extends GenericProgramRunner {
     }
 
     @Nullable
-    private String getRemoteAddress(@NotNull ExecutionEnvironment env) {
+    private Pair<String, Integer> getRemoteAddress(@NotNull ExecutionEnvironment env) {
         RunnerAndConfigurationSettings runnerAndConfigurationSettings = env.getRunnerAndConfigurationSettings();
         if (runnerAndConfigurationSettings == null) {
             return null;
@@ -155,11 +160,12 @@ public class BallerinaDebugger extends GenericProgramRunner {
             if (remoteDebugHost.isEmpty()) {
                 return null;
             }
-            String remoteDebugPort = applicationConfiguration.getRemoteDebugPort();
-            if (remoteDebugPort.isEmpty()) {
+            try {
+                int remoteDebugPort = Integer.parseInt(applicationConfiguration.getRemoteDebugPort());
+                return new ImmutablePair<>(remoteDebugHost, remoteDebugPort);
+            } catch (NumberFormatException e) {
                 return null;
             }
-            return remoteDebugHost + ":" + remoteDebugPort;
         }
         return null;
     }
