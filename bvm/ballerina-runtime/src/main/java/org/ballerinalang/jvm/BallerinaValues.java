@@ -60,7 +60,7 @@ public class BallerinaValues {
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
-            fields[j++] = false;
+            fields[j++] = true;
         }
         //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
         return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
