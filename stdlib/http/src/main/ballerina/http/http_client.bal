@@ -26,8 +26,8 @@ public type HttpClient client object {
     public ClientEndpointConfig config = {};
     public string url;
 
-    public function __init(string url, ClientEndpointConfig config) {
-        self.config = config;
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
         self.url = url;
         createSimpleHttpClient(self, globalHttpClientConnPool);
     }
@@ -201,6 +201,6 @@ public type HttpTimeoutError record {|
 |};
 
 function createClient(string url, ClientEndpointConfig config) returns HttpClient|error {
-    HttpClient simpleClient = new(url, config);
+    HttpClient simpleClient = new(url, config = config);
     return simpleClient;
 }
