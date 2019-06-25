@@ -65,7 +65,7 @@ public class IOTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
-    @Test(description = "Test 'readBytes' function in ballerina/io package", enabled = false)
+    @Test(description = "Test 'readBytes' function in ballerina/io package")
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
@@ -80,21 +80,21 @@ public class IOTest {
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BValueArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getBytes());
+        Assert.assertEquals(readBytes.getBytes(), expectedBytes);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "closeReadableChannel");
     }
@@ -168,7 +168,7 @@ public class IOTest {
         Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
     }
 
-    @Test(description = "Test 'readRecords' function in ballerina/io package", enabled = false)
+    @Test(description = "Test 'readRecords' function in ballerina/io package")
     public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BValueArray records;

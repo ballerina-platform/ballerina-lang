@@ -21,6 +21,18 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
 dependencies {
     baloCreat project(':lib-creator')
 
@@ -29,22 +41,26 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-runtime')
+
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.github.jknack:handlebars'
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation project(':ballerina-crypto')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-runtime')
 
-    testCompile project(':ballerina-launcher')
+    //testCompile project(':ballerina-launcher')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-utils')
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile project(':ballerina-jvm')
+    testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
@@ -56,6 +72,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - gRPC Implementation'

@@ -71,3 +71,12 @@ check
   ;
     return x * 10;
 }
+
+public function test1() returns string | error {
+    return "";
+}
+
+public function test2() returns error? {
+    string sd = check name();
+    io:println("Response from organization count query from DB: " +check test1());
+}

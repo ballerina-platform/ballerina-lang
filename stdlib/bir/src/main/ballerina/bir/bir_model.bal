@@ -58,6 +58,7 @@ public type Function record {|
     ChannelDetail[] workerChannels;
     BType? receiverType;
     boolean restParamExist;
+    AnnotationAttachment?[] annotAttachments = [];
 |};
 
 public type BasicBlock record {|
@@ -79,6 +80,22 @@ public type ChannelDetail record {|
 
 public type Name record {|
     string value = "";
+|};
+
+public type AnnotationAttachment record {|
+    ModuleID moduleId;
+    DiagnosticPos pos;
+    Name annotTagRef;
+    AnnotationValue?[] annotValues = [];
+|};
+
+public type AnnotationValue record {|
+    map<AnnotationValueEntry> valueEntryMap = {};
+|};
+
+public type AnnotationValueEntry record {|
+    BType literalType;
+    anydata value;
 |};
 
 public const BINARY_ADD = "ADD";
@@ -207,7 +224,10 @@ public type GlobalVarKind VAR_KIND_GLOBAL;
 public const VAR_KIND_SELF = "SELF";
 public type SelfVarKind VAR_KIND_SELF;
 
-public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind;
+public const VAR_KIND_CONSTANT = "CONSTANT";
+public type ConstantVarKind VAR_KIND_CONSTANT;
+
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind | ConstantVarKind;
 
 
 public const VAR_SCOPE_GLOBAL = "GLOBAL_SCOPE";
@@ -227,6 +247,8 @@ public type VariableDcl record {|
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
+
     anydata...; // This is to type match with Object type fields in subtypes
 |};
 
@@ -236,10 +258,11 @@ public type FunctionParam record {|
 |};
 
 public type GlobalVariableDcl record {|
-    VarKind kind = "GLOBAL";
+    VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
     int flags = PRIVATE;
 |};
 

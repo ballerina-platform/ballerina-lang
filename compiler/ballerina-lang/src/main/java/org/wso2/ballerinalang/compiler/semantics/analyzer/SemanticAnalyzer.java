@@ -70,14 +70,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -143,7 +144,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.model.tree.NodeKind.BRACED_TUPLE_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -167,6 +167,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private StreamsQuerySemanticAnalyzer streamsQuerySemanticAnalyzer;
     private BLangDiagnosticLog dlog;
     private TypeNarrower typeNarrower;
+    private ConstantValueResolver constantValueResolver;
 
     private SymbolEnv env;
     private BType expType;
@@ -198,6 +199,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.streamsQuerySemanticAnalyzer = StreamsQuerySemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantValueResolver = ConstantValueResolver.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -217,6 +219,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
+        this.constantValueResolver.resolve(pkgNode.constants);
 
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
@@ -535,6 +538,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleVariable varNode) {
 
         if (varNode.isDeclaredWithVar) {
+            List<BType> memberTypes = varNode.memberVariables
+                    .stream().map(v -> symTable.noType)
+                    .collect(Collectors.toList());
+            expType = new BTupleType(memberTypes);
             handleDeclaredWithVar(varNode);
             return;
         }
@@ -581,7 +588,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void handleDeclaredWithVar(BLangVariable variable) {
         BLangExpression varRefExpr = variable.expr;
-        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, symTable.noType);
+        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
 
         if (varRefExpr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation iterableInv = (BLangInvocation) varRefExpr;
@@ -1285,8 +1292,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
         setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
-        typeChecker.checkExpr(tupleDeStmt.expr, this.env);
-        checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef, tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
+        BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
+        if (type.tag != TypeTags.SEMANTIC_ERROR) {
+            checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
+                    tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
+        }
     }
 
     @Override
@@ -1669,27 +1679,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
                 return recordLiteral.type;
-            case BRACED_TUPLE_EXPR:
-                BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expression;
+            case LIST_CONSTRUCTOR_EXPR:
+                BLangListConstructorExpr listConstructor = (BLangListConstructorExpr) expression;
                 List<BType> results = new ArrayList<>();
-                for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                    BType literalType = checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i));
+                for (int i = 0; i < listConstructor.exprs.size(); i++) {
+                    BType literalType = checkStaticMatchPatternLiteralType(listConstructor.exprs.get(i));
                     if (literalType.tag == TypeTags.NONE) { // not supporting '_' for now
-                        dlog.error(bracedOrTupleExpr.expressions.get(i).pos,
-                                DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                        dlog.error(listConstructor.exprs.get(i).pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                         expression.type = symTable.errorType;
                         return expression.type;
                     }
                     results.add(literalType);
                 }
-
-                if (bracedOrTupleExpr.expressions.size() > 1) {
-                    bracedOrTupleExpr.type = new BTupleType(results);
-                } else {
-                    bracedOrTupleExpr.isBracedExpr = true;
-                    bracedOrTupleExpr.type = results.get(0);
+                // since match patterns do not support arrays, this will be treated as an tuple.
+                listConstructor.type = new BTupleType(results);
+                return listConstructor.type;
+            case GROUP_EXPR:
+                BLangGroupExpr groupExpr = (BLangGroupExpr) expression;
+                BType literalType = checkStaticMatchPatternLiteralType(groupExpr.expression);
+                if (literalType.tag == TypeTags.NONE) { // not supporting '_' for now
+                    dlog.error(groupExpr.expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                    expression.type = symTable.errorType;
+                    return expression.type;
                 }
-                return bracedOrTupleExpr.type;
+                groupExpr.type = literalType;
+                return groupExpr.type;
             case SIMPLE_VARIABLE_REF:
                 // only support "_" in static match
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
@@ -1983,55 +1997,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        BLangExpression expression = (BLangExpression) constant.value;
+        BLangExpression expression = constant.expr;
         if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
             return;
         }
 
-        if (expression.getKind() == NodeKind.LITERAL || expression.getKind() == NodeKind.NUMERIC_LITERAL) {
-            BLangLiteral value = (BLangLiteral) constant.value;
-            BType resultType;
-            if (constant.typeNode != null) {
-                // Check the type of the value.
-                resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
-                // We need to update the type tag because the type might get changed. i.e.- int -> decimal.
-                constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-            } else {
-                // We don't have any expected type in this case since the type node is not available. So we get the type
-                // from the value.
-                resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
-                constant.symbol.literalValueTypeTag = value.type.tag;
-            }
-
-            // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
-            // nodes in desugar because we wont be able to identify byte and decimal types.
-            constant.symbol.literalValue = value.value;
-
-            // We need to check types for the values in value spaces. Otherwise, float, decimal will not be identified
-            // in codegen when retrieving the default value.
-            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
-            for (BLangExpression literal : typeNode.valueSpace) {
-                if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
-                // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
-                // be able to differentiate between decimal, float and int, byte as the type of the literals in the
-                // above cases would be float and int respectively.
-                    typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
-                }
-            }
-        } else if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            // Type node is mandatory if the RHS is a record literal.
-            if (constant.typeNode == null) {
-                constant.type = symTable.semanticError;
-                dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
-                return;
-            }
-            constant.symbol.type = constant.symbol.literalValueType =
-                    typeChecker.checkExpr(expression, env, constant.typeNode.type);
-            constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
-        } else {
-            throw new RuntimeException("unsupported node kind");
+        if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR && constant.typeNode == null) {
+            constant.type = symTable.semanticError;
+            dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
+            return;
         }
+
+        typeChecker.checkExpr(expression, env, constant.symbol.type);
 
         // Check nested expressions.
         checkConstantExpression(expression);
@@ -2173,22 +2151,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean validateVariableDefinition(BLangExpression expr) {
         // following cases are invalid.
-        // var a = [ x, y, ... ];
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
+        if (kind == RECORD_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
                 && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
-        }
-        if (kind == BRACED_TUPLE_EXPR) {
-            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
-            if (bracedOrTupleExpr.expressions.size() > 1 && bracedOrTupleExpr.expressions.stream()
-                    .anyMatch(literal -> literal.getKind() == LITERAL || literal.getKind() == NUMERIC_LITERAL)) {
-                dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
-                return false;
-            }
         }
         return true;
     }

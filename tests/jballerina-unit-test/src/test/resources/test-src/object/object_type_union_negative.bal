@@ -57,10 +57,10 @@ function getB() returns Obj|Obj2|Obj3|Obj4 {
     return ab;
 }
 
-function getLocals() returns ((Obj|Obj2|Obj3|Obj4),(Obj|Obj2|Obj3|Obj4)) {
+function getLocals() returns [(Obj|Obj2|Obj3|Obj4),(Obj|Obj2|Obj3|Obj4)] {
     Obj|Obj2|Obj3|Obj4 localA = new(5, 6, 7);
     Obj|Obj2|Obj3|Obj4 localAB = new(5, j=0);
-    return (localA, localAB);
+    return [localA, localAB];
 }
 
 type Foo object {

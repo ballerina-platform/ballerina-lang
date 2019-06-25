@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -104,7 +105,12 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
-        BLangInvocation functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+        BLangInvocation functionNode = null;
+        try {
+            functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Error while compiling the source!");
+        }
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }

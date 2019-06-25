@@ -30,7 +30,7 @@ public type FuncBodyParser object {
         self.typeDefs = typeDefs;
     }
 
-    public function parseBB() returns BasicBlock {
+    public function parseBB(boolean addInterimBB) returns BasicBlock[] {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
         Instruction?[] instructions = [];
@@ -40,7 +40,24 @@ public type FuncBodyParser object {
             i += 1;
         }
 
-        return { id: { value: id }, instructions: instructions, terminator: self.parseTerminator() };
+        // Need to make sure terminators are at top of each switch case to avoid side effects due to reschedules.
+        if (addInterimBB) {
+            Terminator terminator = self.parseTerminator();
+            BasicBlock interimBB = {id: { value: id + "interim" }, instructions: [], terminator:terminator };
+            Terminator goto = self.createGOTO(terminator.pos, interimBB);
+            BasicBlock initialBB = { id: { value: id }, instructions: instructions, terminator: goto };
+            BasicBlock[2] bbs = [initialBB, interimBB];
+            return bbs;
+        }
+
+        BasicBlock[1] bb = [{ id: { value: id }, instructions: instructions, terminator: self.parseTerminator() }];
+        return bb;
+    }
+
+    private function createGOTO(DiagnosticPos pos, BasicBlock thenBB) returns Terminator {
+        TerminatorKind kind = TERMINATOR_GOTO;
+        GOTO goto = {pos:pos, kind:kind, targetBB:thenBB};
+        return goto;
     }
 
     public function parseEE() returns ErrorEntry {
@@ -538,8 +555,7 @@ public type FuncBodyParser object {
         VarKind kind = parseVarKind(self.reader);
         VarScope varScope = parseVarScope(self.reader);
         string varName = self.reader.readStringCpRef();
-
-        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName, kind);
+        var decl = self.getDecl(varScope, varName, kind);
         return {typeValue : decl.typeValue, variableDcl : decl};
     }
 
@@ -613,37 +629,48 @@ public type FuncBodyParser object {
         }
     }
 
-};
+    private function getDecl(VarScope varScope, string varName, VarKind kind) returns VariableDcl {
+        if (varScope == VAR_SCOPE_GLOBAL) {
+            if (kind == VAR_KIND_CONSTANT) {
+                var bType = self.reader.readTypeCpRef();
+                ModuleID pkgId = self.reader.readModuleIDCpRef();
+                VariableDcl varDecl = { kind : kind, 
+                                        varScope : varScope, 
+                                        name : {value : varName},
+                                        typeValue : bType,
+                                        moduleId : pkgId
+                                    };
+                return varDecl;
+            }
 
-function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName, 
-        VarKind kind) returns VariableDcl {
-    if (varScope == VAR_SCOPE_GLOBAL) {
-        var possibleDcl = globalVarMap[varName];
+            var possibleDcl = self.globalVarMap[varName];
+            if (possibleDcl is VariableDcl) {
+                return possibleDcl;
+            } else {
+                error err = error("global var missing " + varName);
+                panic err;
+            }
+        }
+
+        // for self referrence, create a dummy varDecl
+        if (kind == VAR_KIND_SELF) {
+            VariableDcl varDecl = { kind : kind, 
+                                    varScope : varScope, 
+                                    name : {value : varName}
+                                };
+            return varDecl;
+        }
+
+        var possibleDcl = self.localVarMap[varName];
         if (possibleDcl is VariableDcl) {
             return possibleDcl;
         } else {
-            error err = error("global var missing " + varName);
+            error err = error("local var missing " + varName);
             panic err;
         }
     }
+};
 
-    // for self referrence, create a dummy varDecl
-    if (kind == VAR_KIND_SELF) {
-        VariableDcl varDecl = { kind : kind, 
-                                varScope : varScope, 
-                                name : {value : varName}
-                              };
-        return varDecl;
-    }
-
-    var possibleDcl = localVarMap[varName];
-    if (possibleDcl is VariableDcl) {
-        return possibleDcl;
-    } else {
-        error err = error("local var missing " + varName);
-        panic err;
-    }
-}
 
 public function parseVariableDcl(BirChannelReader reader) returns VariableDcl {
     VarKind kind = parseVarKind(reader);

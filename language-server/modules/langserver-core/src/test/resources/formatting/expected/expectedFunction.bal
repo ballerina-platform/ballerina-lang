@@ -31,8 +31,8 @@ function name7() returns int {
     return 0;
 }
 
-function name8() returns (int, string) {
-    return (0, "");
+function name8() returns [int, string] {
+    return [0, ""];
 }
 
 function name9() returns (Person) {

@@ -230,12 +230,12 @@ public class ArrayTest {
                                   format(errMsgFormat, "error", "error?"), 144, 22);
 
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
-                                  format(errMsgFormat, "(int|string,float)[]", "(int|string,float)[]?"), 159, 33);
+                                  format(errMsgFormat, "[int|string,float][]", "[int|string,float][]?"), 159, 33);
 
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 8,
-                                  format(errMsgFormat, "(int|string,float)[]", "(int|string,float)[]?"), 161, 33);
+                                  format(errMsgFormat, "[int|string,float][]", "[int|string,float][]?"), 161, 33);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 9,
-                                  format(errMsgFormat, "(int|string,float)", "(int|string,float)?"), 161, 34);
+                                  format(errMsgFormat, "[int|string,float]", "[int|string,float]?"), 161, 34);
 
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 10,
                                   format(errMsgFormat, "int|float[]", "int|float[]?"), 163, 25);

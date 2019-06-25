@@ -535,8 +535,8 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: failed to get element from json: \\{\"message\":\"array index " 
-                    + "out of range: index: 5, size: 3.*")
+          expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
+                  "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }

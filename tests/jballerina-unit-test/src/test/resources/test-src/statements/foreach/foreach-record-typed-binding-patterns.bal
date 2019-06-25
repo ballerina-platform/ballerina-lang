@@ -14,7 +14,7 @@ type Data2 record {
 
 type Data3 record {
     int i;
-    (int, string) t;
+    [int, string] t;
 };
 
 type Data4 record {
@@ -33,7 +33,7 @@ function testSimpleRecordWithoutType() returns string {
     Data1 d = { i: 1, s: "A", f: 1.0 };
 
     int i = 0;
-    foreach var (k, v) in d {
+    foreach var [k, v] in d {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -46,7 +46,7 @@ function testSimpleRecordWithType() returns string {
     Data1 d = { i: 1, s: "A", f: 1.0 };
 
     int i = 0;
-    foreach (string, any) (k, v) in d {
+    foreach [string, any] [k, v] in d {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -62,7 +62,7 @@ function testRecordInRecordWithoutType() returns string {
     Data2 d2 = { i: 2, s: "B", d: d1 };
 
     int i = 0;
-    foreach var (k, v) in d2 {
+    foreach var [k, v] in d2 {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -76,7 +76,7 @@ function testRecordInRecordWithType() returns string {
     Data2 d2 = { i: 2, s: "B", d: d1 };
 
     int i = 0;
-    foreach (string, any) (k, v) in d2 {
+    foreach [string, any] [k, v] in d2 {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -88,10 +88,10 @@ function testRecordInRecordWithType() returns string {
 function testTupleInRecordWithoutType() returns string {
     output = "";
 
-    Data3 d3 = { i: 1, t: (2, "A") };
+    Data3 d3 = { i: 1, t: [2, "A"] };
 
     int i = 0;
-    foreach var (k, v) in d3 {
+    foreach var [k, v] in d3 {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -101,10 +101,10 @@ function testTupleInRecordWithoutType() returns string {
 function testTupleInRecordWithType() returns string {
     output = "";
 
-    Data3 d3 = { i: 1, t: (2, "A") };
+    Data3 d3 = { i: 1, t: [2, "A"] };
 
     int i = 0;
-    foreach (string, any) (k, v) in d3 {
+    foreach [string, any] [k, v] in d3 {
         concatIntStringAny(i, k, v);
         i += 1;
     }
@@ -119,7 +119,7 @@ function testEmptyRecordIteration() returns string {
     Data4 d = {};
 
     int i = 0;
-    foreach var (k, v) in d {
+    foreach var [k, v] in d {
         concatIntStringAny(i, k, <any> v);
         i += 1;
     }

@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -409,6 +411,12 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(birOperand.variableDcl.scope.getValue());
             // TODO use the integer index of the variable.
             addCpAndWriteString(birOperand.variableDcl.name.value);
+
+            if (birOperand.variableDcl.kind == VarKind.CONSTANT) {
+                writeType(birOperand.variableDcl.type);
+                int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birOperand.variableDcl).pkgId);
+                buf.writeInt(pkgIndex);
+            }
         }
     }
 
@@ -521,6 +529,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Positions
+    // TODO Refactor duplicate methods
     void writePosition(DiagnosticPos pos) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
@@ -543,17 +552,39 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(sourceFileName));
     }
 
-    // private methods
-
-    private void addCpAndWriteString(String string) {
-        buf.writeInt(addStringCPEntry(string));
+    void writePosition(ByteBuf buf, DiagnosticPos pos) {
+        int sLine = Integer.MIN_VALUE;
+        int eLine = Integer.MIN_VALUE;
+        int sCol = Integer.MIN_VALUE;
+        int eCol = Integer.MIN_VALUE;
+        String sourceFileName = "";
+        if (pos != null) {
+            sLine = pos.sLine;
+            eLine = pos.eLine;
+            sCol = pos.sCol;
+            eCol = pos.eCol;
+            if (pos.src != null) {
+                sourceFileName = pos.src.cUnitName;
+            }
+        }
+        buf.writeInt(sLine);
+        buf.writeInt(eLine);
+        buf.writeInt(sCol);
+        buf.writeInt(eCol);
+        buf.writeInt(addStringCPEntry(sourceFileName));
     }
 
-    private int addPkgCPEntry(PackageID packageID) {
+    int addPkgCPEntry(PackageID packageID) {
         int orgCPIndex = addStringCPEntry(packageID.orgName.value);
         int nameCPIndex = addStringCPEntry(packageID.name.value);
         int versionCPIndex = addStringCPEntry(packageID.version.value);
         return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+    }
+
+    // private methods
+
+    private void addCpAndWriteString(String string) {
+        buf.writeInt(addStringCPEntry(string));
     }
 
     private int addStringCPEntry(String value) {

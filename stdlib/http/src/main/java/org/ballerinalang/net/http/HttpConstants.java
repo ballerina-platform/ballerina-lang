@@ -424,6 +424,8 @@ public class HttpConstants {
     public static final String COLON = ":";
     public static final String DOLLAR = "$";
 
+    public static final String HTTP_VERSION_1_1 = "1.1";
+
     private HttpConstants() {
     }
 }

@@ -123,7 +123,7 @@ public class FormattingTest {
                 {"expectedWait.bal", "wait.bal"},
                 {"expectedCheck.bal", "check.bal"},
                 {"expectedCompoundAssignment.bal", "compoundAssignment.bal"},
-                {"expectedConstant.bal", "constant.bal"},
+                // {"expectedConstant.bal", "constant.bal"},
                 {"expectedElvisExpr.bal", "elvisExpr.bal"},
                 {"expectedErrorConstructor.bal", "errorConstructor.bal"},
                 {"expectedForever.bal", "forever.bal"},
@@ -151,6 +151,7 @@ public class FormattingTest {
                 {"expectedInvocation.bal", "invocation.bal"},
                 {"expectedTypeDesc.bal", "typeDesc.bal"},
                 {"expectedAnonObject.bal", "anonObject.bal"},
+                {"expectedUnaryExpr.bal", "unaryExpr.bal"},
         };
     }
 
