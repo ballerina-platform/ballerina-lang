@@ -14,9 +14,9 @@ When a failure occurs in the remote service, the client connections might wait f
 
 The Ballerina circuit breaker supports tripping on HTTP error status codes and I/O errors. Failure thresholds can be configured based on a sliding window (e.g., 5 failures within 10 seconds). `Client` endpoints also support a retry mechanism that allows a client to resend failed requests periodically for a given number of times.
 
-`Client` endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP) and OCSP Stapling for SSL/TLS connection. They also support HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
+`Client` endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), and OCSP Stapling for SSL/TLS connections. They also support HTTP2, keep-alive, chunking, HTTP caching, data compression/decompression, and authentication/authorization.
 
-See [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html)
+For more information, see [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html).
 
 ### Listener endpoints
 
@@ -24,28 +24,22 @@ A `Service` represents a collection of network-accessible entry points and can b
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
-
 See [Listener Endpoint Example](https://ballerina.io/learn/by-example/http-data-binding.html), [HTTP CORS Example](https://ballerina.io/learn/by-example/http-cors.html), [HTTP Failover Example](https://ballerina.io/learn/by-example/http-failover.html), [HTTP Load Balancer Example](https://ballerina.io/learn/by-example/http-load-balancer.html)
 
-`Listener` endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name Indication (SNI) and Application Layer Protocol Negotiation (ALPN). `Listener` endpoints also support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
+`Listener` endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, Server Name Indication (SNI), and Application Layer Protocol Negotiation (ALPN). `Listener` endpoints also support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking, HTTP caching, data compression/decompression, and authentication/authorization.
 
-See [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
+For more information, see [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
 
-See [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
+For more information, see [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
 
 ### WebSocket
 
-The module also provides support for WebSocket. There are two types of WebSocket endpoints: `WebSocketClient` and 
-`WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
+This module also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
 
-There are two types of services for WebSocket. The service of the server has the `WebSockerCaller` as the resource
- parameter, and the callback service of the client has `WebSocketClient` as the resource parameter. The WebSocket 
- services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these 
- resources.
+There are two types of services for WebSockets. The service of the server has the `WebSockerCaller` as the resource parameter and the callback service of the client has `WebSocketClient` as the resource parameter. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
 
-**WebSocket upgrade**: During a WebSocket upgrade, the initial message received is an HTTP request. To intercept this 
-request and perform the upgrade explicitly with custom headers, the user must create an HTTP resource with 
-WebSocket-specific configurations as follows:
+**WebSocket upgrade**: During a WebSocket upgrade, the initial message received is an HTTP request. To intercept this request and perform the upgrade explicitly with custom headers, the user must create an HTTP resource with WebSocket-specific configurations as follows:
+
 ```ballerina
 @http:ResourceConfig {
     webSocketUpgrade: {
@@ -58,8 +52,7 @@ resource function upgrader(http:Caller caller, http:Request req, string name) {
 ```
 The `upgradeService` is a server callback service.
 
-**onOpen resource**: As soon as the WebSocket handshake is completed and the connection is established, the `onOpen` 
-resource is dispatched. This resource is only available in the service of the server.
+**onOpen resource**: As soon as the WebSocket handshake is completed and the connection is established, the `onOpen` resource is dispatched. This resource is only available in the service of the server.
 
 **onText resource**: The received text messages are dispatched to this resource.
 
@@ -67,18 +60,13 @@ resource is dispatched. This resource is only available in the service of the se
 
 **onPing and onPong resources**: The received ping and pong messages are dispatched to these resources respectively.
 
-**onIdleTimeout**: This resource is dispatched when the idle timeout is reached. idleTimeout has to be configured by the 
-user in either the WebSocket service or client configuration.
+**onIdleTimeout**: This resource is dispatched when the idle timeout is reached. The `idleTimeout` has to be configured either in the WebSocket service or the client configuration.
 
 **onClose**: This resource is dispatched when a close frame with a statusCode and a reason is received.
 
-**onError**: This resource is dispatched when an error occurs in the WebSocket connection. This will always be preceded 
-by a connection closure with an appropriate close frame.
+**onError**: This resource is dispatched when an error occurs in the WebSocket connection. This will always be preceded by a connection closure with an appropriate close frame.
 
-See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
-[HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),
-[WebSocket Chat Application](https://ballerina.io/learn/by-example/websocket-chat-application.html), 
-[WebSocket Proxy Server](https://ballerina.io/learn/by-example/websocket-proxy-server.html) 
+For more information, see [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), [HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html), [WebSocket Chat Application](https://ballerina.io/learn/by-example/websocket-chat-application.html), [WebSocket Proxy Server](https://ballerina.io/learn/by-example/websocket-proxy-server.html).
 
 ### Logging
 

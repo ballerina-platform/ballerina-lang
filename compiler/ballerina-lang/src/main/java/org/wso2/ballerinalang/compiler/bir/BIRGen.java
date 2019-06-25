@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -157,6 +158,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -267,6 +269,36 @@ public class BIRGen extends BLangNodeVisitor {
         typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
+
+        // Write referenced functions, if this is an abstract-object
+        if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
+                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.ABSTRACT)) {
+            return;
+        }
+
+        for (BAttachedFunction func : ((BObjectTypeSymbol) astTypeDefinition.symbol).referencedFunctions) {
+            if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
+                return;
+            }
+
+            BInvokableSymbol funcSymbol = func.symbol;
+            BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
+                    funcSymbol.receiverSymbol.type, names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+
+            birFunc.argsCount = funcSymbol.params.size() + funcSymbol.defaultableParams.size() +
+                    (funcSymbol.restParam != null ? 1 : 0);
+            funcSymbol.params.forEach(requiredParam -> addParam(birFunc, requiredParam, true, astTypeDefinition.pos));
+            funcSymbol.defaultableParams
+                    .forEach(defaultableParam -> addParam(birFunc, defaultableParam, false, astTypeDefinition.pos));
+            if (funcSymbol.restParam != null) {
+                addRestParam(birFunc, funcSymbol.restParam, astTypeDefinition.pos);
+            }
+
+            birFunc.returnVariable = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.retType,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
+
+            typeDef.attachedFuncs.add(birFunc);
+        }
     }
 
     @Override
@@ -361,7 +393,7 @@ public class BIRGen extends BLangNodeVisitor {
         astFunc.requiredParams.forEach(requiredParam -> addParam(birFunc, requiredParam, true));
         astFunc.defaultableParams.forEach(defaultableParam -> addParam(birFunc, defaultableParam.var, false));
         if (astFunc.restParam != null) {
-            addRestParam(birFunc, astFunc.restParam);
+            addRestParam(birFunc, astFunc.restParam.symbol, astFunc.restParam.pos);
         }
 
         if (astFunc.interfaceFunction || Symbols.isNative(astFunc.symbol)) {
@@ -540,17 +572,26 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam, boolean required) {
-        BIRFunctionParameter birVarDcl = new BIRFunctionParameter(functionParam.pos, functionParam.symbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, functionParam.expr != null);
+        addParam(birFunc, functionParam.symbol, functionParam.expr, required, functionParam.pos);
+    }
+
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, boolean required, DiagnosticPos pos) {
+        addParam(birFunc, paramSymbol, null, required, pos);
+    }
+
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr, boolean required,
+                          DiagnosticPos pos) {
+        BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, defaultValExpr != null);
 
         List<BIRBasicBlock> bbsOfDefaultValueExpr = new ArrayList<>();
-        if (functionParam.expr != null) {
+        if (defaultValExpr != null) {
             // Parameter has a default value expression.
             BIRBasicBlock defaultExprBB = new BIRBasicBlock(this.env.nextBBId(names));
             bbsOfDefaultValueExpr.add(defaultExprBB);
             this.env.enclBB = defaultExprBB;
             this.env.enclBasicBlocks = bbsOfDefaultValueExpr;
-            functionParam.expr.accept(this);
+            defaultValExpr.accept(this);
 
             // Create a variable reference for the function param and emit move instruction.
             BIROperand varRef = new BIROperand(birVarDcl);
@@ -558,7 +599,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
         }
-        BIRParameter parameter = new BIRParameter(functionParam.pos, functionParam.symbol.name);
+        BIRParameter parameter = new BIRParameter(pos, paramSymbol.name);
         if (required) {
             birFunc.requiredParams.add(parameter);
         } else {
@@ -569,19 +610,19 @@ public class BIRGen extends BLangNodeVisitor {
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
-        this.env.symbolVarMap.put(functionParam.symbol, birVarDcl);
+        this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
-    private void addRestParam(BIRFunction birFunc, BLangVariable requiredParam) {
-        BIRFunctionParameter birVarDcl = new BIRFunctionParameter(requiredParam.pos, requiredParam.symbol.type,
+    private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
+        BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
 
-        birFunc.restParam = new BIRParameter(requiredParam.pos, requiredParam.symbol.name);
+        birFunc.restParam = new BIRParameter(pos, paramSymbol.name);
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
-        this.env.symbolVarMap.put(requiredParam.symbol, birVarDcl);
+        this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
