@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new websub:Listener(8383);
+
+auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "tom", password: "1234" });
+http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
@@ -29,11 +33,7 @@ listener websub:Listener websubEP = new websub:Listener(8383);
     secret: "Kslk30SNF2AChs2",
     subscriptionClientConfig: {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "1234"
-            }
+            authHandler: basicAuthHandler
         }
     }
 }
@@ -51,11 +51,7 @@ service websubSubscriber on websubEP {
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "1234"
-            }
+            authHandler: basicAuthHandler
         }
     }
 }

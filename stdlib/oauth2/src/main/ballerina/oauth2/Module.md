@@ -1,46 +1,57 @@
 ## Module Overview
 
-This module provides an OAuth2 authentication provider, which can be used to authenticate the provided credentials against an introspection endpoint.
+This module provides an inbound and outbound OAuth2 authentication provider, which can be used to authenticate the provided credentials against an introspection endpoint and authenticate with an external endpoint.
 
-The `oauth2:OAuth2Provider` is another implementation of the `auth:AuthProvider` interface. This calls an introspection endpoint, validate the token, and performs authentication and authorization.
+### Inbound OAuth2 Provider
 
-#### Sample for securing a service with OAuth2
+The `oauth2:InboundOAuth2Provider` is another implementation of the `auth:InboundAuthProvider` interface. This calls an introspection endpoint, validate the token, and performs authentication and authorization.
 
 ```ballerina
-import ballerina/http;
-import ballerina/oauth2;
-
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
-    url: "https://localhost:9196/oauth2/token/introspect",
-    clientConfig: {
-        auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-                password: "9205371918321623741"
-            }
-        }
-    }
+    url: "https://localhost:9196/oauth2/token/introspect"
 };
-
 oauth2:OAuth2Provider oauth2Provider = new(introspectionServerConfig);
-http:BearerAuthHeaderAuthnHandler oauth2AuthnHandler = new(oauth2Provider);
+```
 
-listener http:Listener listenerEP = new(9116, config = {
-    auth: {
-        authnHandlers: [oauth2AuthnHandler]
-    },
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
+### Outbound OAuth2 Provider
+
+The `oauth2:OutboundOAuth2Provider` is another implementation of the `auth:OutboundAuthProvider` interface. This is used to call an external endpoint with authentication.
+
+#### Client Credentials Grant Type
+
+```ballerina
+oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
+    tokenUrl: "https://localhost:9196/oauth2/token",
+    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+    clientSecret: "9205371918321623741",
+    scopes: ["token-scope1", "token-scope2"]
+});
+```
+
+#### Password Grant Type
+
+```ballerina
+oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
+    tokenUrl: "https://localhost:9196/oauth2/token/authorize/header",
+    username: "johndoe",
+    password: "A3ddj3w",
+    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+    clientSecret: "9205371918321623741",
+    scopes: ["token-scope1", "token-scope2"]
+});
+```
+
+#### Direct Token Mode
+
+```ballerina
+oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
+    accessToken: "2YotnFZFEjr1zCsicMWpAA",
+    refreshConfig: {
+        refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+        refreshToken: "XlfBs91yquexJqDaKEMzVg==",
+        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+        clientSecret: "9205371918321623741",
+        scopes: ["token-scope1", "token-scope2"]
     }
 });
-
-service echo on listenerEP {
-    resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
-    }
-}
 ```

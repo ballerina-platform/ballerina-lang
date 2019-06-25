@@ -18,7 +18,10 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -50,11 +53,36 @@ public class BallerinaValues {
      *
      * @param pkgName the name of the package that the record type resides.
      * @param objectTypeName name of the object type.
+     * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
-    public static ObjectValue createObjectValue(String pkgName, String objectTypeName) {
+    public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
-        return valueCreator.createObjectValue(objectTypeName);
+        ObjectValue objectValue = valueCreator.createObjectValue(objectTypeName);
+        int valCount = 0;
+        BObjectType objectType = objectValue.getType();
+        for (BField field : objectType.getFields().values()) {
+            Object value;
+            if (fieldValues.length >= valCount + 1) {
+                value = fieldValues[valCount];
+            } else {
+                BType fieldType = field.getFieldType();
+                if (fieldType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+                    // This is a hack to avoid self references. This should be fixed properly.
+                    if (objectTypeName.equals(fieldType.getName())) {
+                        continue;
+                    }
+                    value = createObjectValue(fieldType.getPackage().toString(), fieldType.getName());
+                } else if (fieldType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    value = createRecordValue(fieldType.getPackage().toString(), fieldType.getName());
+                } else {
+                    value = fieldType.getEmptyValue();
+                }
+            }
+            objectValue.set(field.name, value);
+            valCount++;
+        }
+        return objectValue;
     }
 
     /**
@@ -66,7 +94,7 @@ public class BallerinaValues {
      */
     public static MapValue<String, Object> createRecord(MapValue<String, Object> record, Object... values) {
         BRecordType recordType = (BRecordType) record.getType();
-        MapValue mapValue = new MapValueImpl(recordType);
+        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;
         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
             mapValue.put(fieldEntry.getKey(), values[i++]);

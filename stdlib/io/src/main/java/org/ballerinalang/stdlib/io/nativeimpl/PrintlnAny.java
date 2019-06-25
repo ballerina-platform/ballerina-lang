@@ -68,7 +68,6 @@ public class PrintlnAny extends BlockingNativeCallableUnit {
             out.println((Object) null);
             return;
         }
-
         StringBuilder content = new StringBuilder();
         Object value;
         for (int i = 0; i < values.size(); i++) {

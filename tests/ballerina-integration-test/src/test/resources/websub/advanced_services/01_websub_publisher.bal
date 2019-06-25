@@ -26,20 +26,19 @@ const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
-auth:ConfigAuthStoreProvider basicAuthProvider = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
+http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
 
+auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({ username: "peter", password: "pqr" });
+http:BasicAuthHandler outboundBasicAuthHandler = new(outboundBasicAuthProvider);
+
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {
-        scheme: http:BASIC_AUTH,
-        config: {
-            username: "peter",
-            password: "pqr"
-        }
+        authHandler: outboundBasicAuthHandler
     }
 });
 
@@ -195,7 +194,7 @@ function startWebSubHub() returns websub:WebSubHub {
     websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
     var result = websub:startHub(new http:Listener(9191, config =  {
         auth: {
-            authnHandlers: [basicAuthnHandler]
+            authHandlers: [inboundBasicAuthHandler]
         },
         secureSocket: {
             keyStore: {

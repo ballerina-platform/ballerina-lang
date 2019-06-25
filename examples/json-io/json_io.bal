@@ -53,7 +53,7 @@ function read(string path) returns json|error {
 
 public function main() {
     string filePath = "./files/sample.json";
-    // Creates `json` content from `string`.
+    // Creates the`json` content from the `string`.
     json j1 = { "Store": {
         "@id": "AST",
         "name": "Anne",
