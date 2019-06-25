@@ -3178,7 +3178,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                  Lists.of(rewriteExpr(
                                                                          ASTBuilderUtil.createEmptyRecordLiteral(
                                                                                  errConstExpr.pos,
-                                                                                 symTable.pureTypeConstrainedMap))));
+                                                                                 symTable.detailType))));
         } else {
             errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
                                                                  BLangBuiltInMethod.FREEZE,
@@ -4369,7 +4369,7 @@ public class Desugar extends BLangNodeVisitor {
             BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType,
                                                   errorVariable.detail == null ||
                                                           errorVariable.detail.type == symTable.noType ?
-                                                          symTable.pureTypeConstrainedMap :
+                                                          symTable.detailType :
                                                           getStructuredBindingPatternType(errorVariable.detail));
             errorTypeSymbol.type = errorType;
 

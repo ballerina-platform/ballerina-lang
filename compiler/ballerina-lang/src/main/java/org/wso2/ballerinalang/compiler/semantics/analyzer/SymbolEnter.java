@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -326,10 +325,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
         // Built-in Annotation module is not allowed to import.
-        if (pkgId.orgName.equals(Names.BALLERINA_ORG) && pkgId.name.equals(Names.LANG_ANNOTATIONS)) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
-                    importPkgNode.getQualifiedPackageName());
-            return;
+        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL)) {
+            // Only peer lang.* modules able to see these two modules.
+            // Spec allows to annotation model to be imported, but implementation not support this.
+            if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
+                    && enclPackageID.name.value.startsWith(Names.LANG.value))) {
+                dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
+                        importPkgNode.getQualifiedPackageName());
+                return;
+            }
         }
 
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
@@ -601,14 +605,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
-            // TODO : Clean this and label param. Not a nice way to handle this.
+            // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-                BTypeSymbol typeParamSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags,
-                        typeDefSymbol.name, typeDefSymbol.pkgID, null, typeDefSymbol.owner);
-                typeParamSymbol.flags |= Flags.TYPE_PARAM;
-                typeParamSymbol.type = new BTypeParamType(typeDefSymbol.type, typeParamSymbol);
-                typeDefSymbol = typeParamSymbol;
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
@@ -1241,9 +1241,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.pureTypeConstrainedMap);
+                                        .orElse(symTable.detailType);
 
-            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
+            if (reasonType == symTable.stringType && detailType == symTable.detailType) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }

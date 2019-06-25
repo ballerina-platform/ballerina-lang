@@ -28,9 +28,6 @@ dependencies {
 createBalo {
     isBuiltin = 'true'
     jvmTarget = 'true'
-    doLast {
-        configurations.baloImplementation.allArtifacts.each {println it}
-    }
 }
 
 description = 'ballerina/lang.annotations Implementation'

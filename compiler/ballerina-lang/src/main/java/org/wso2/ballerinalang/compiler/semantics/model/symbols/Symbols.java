@@ -54,8 +54,7 @@ public class Symbols {
     private static BPackageSymbol createPackageSymbolScope(SymbolTable symTable,
                                                            BPackageSymbol pkgSymbol) {
 
-        if (pkgSymbol.pkgID.orgName.equals(Names.BALLERINA_ORG) &&
-                pkgSymbol.pkgID.name.equals(Names.LANG_ANNOTATIONS)) {
+        if (pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
             pkgSymbol.scope = symTable.rootScope;
         } else {
             pkgSymbol.scope = new Scope(pkgSymbol);

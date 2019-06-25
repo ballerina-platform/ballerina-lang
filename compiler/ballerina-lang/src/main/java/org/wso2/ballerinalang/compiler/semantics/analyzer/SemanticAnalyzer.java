@@ -399,7 +399,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType detailType = errorType.detailType.type;
         if (!types.isValidErrorDetailType(detailType)) {
-            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType);
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType,
+                    symTable.detailType);
         }
     }
 

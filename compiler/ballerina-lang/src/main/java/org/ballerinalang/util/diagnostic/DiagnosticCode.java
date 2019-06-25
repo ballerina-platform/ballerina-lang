@@ -313,9 +313,6 @@ public enum DiagnosticCode {
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
-    // error type related errors
-    REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
-
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
     TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),
 

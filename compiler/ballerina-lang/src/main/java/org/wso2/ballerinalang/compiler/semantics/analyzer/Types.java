@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -521,13 +520,6 @@ public class Types {
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
 
-        // TypeParams are not validated here. Just their compatibility.
-        if (source.tag == TypeTags.TYPE_PARAM) {
-            source = ((BTypeParamType) source).constraint;
-        }
-        if (target.tag == TypeTags.TYPE_PARAM) {
-            target = ((BTypeParamType) target).constraint;
-        }
         if (isSameType(source, target)) {
             return true;
         }
@@ -1121,12 +1113,9 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-                return isAssignable(detailType, symTable.pureTypeConstrainedMap);
             case TypeTags.RECORD:
-                BRecordType detailRecordType = (BRecordType) detailType;
-                return detailRecordType.fields.stream()
-                        .allMatch(field -> isAssignable(field.type, symTable.pureType)) &&
-                        (detailRecordType.sealed || isAssignable(detailRecordType.restFieldType, symTable.pureType));
+                return isAssignable(detailType, symTable.detailType);
+
         }
         return false;
     }
@@ -1447,11 +1436,6 @@ public class Types {
             return symTable.notFoundSymbol;
         }
 
-        @Override
-        public BSymbol visit(BTypeParamType t, BType s) {
-
-            return symTable.notFoundSymbol;
-        }
     };
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -1619,11 +1603,6 @@ public class Types {
             return s == t;
         }
 
-        @Override
-        public Boolean visit(BTypeParamType t, BType s) {
-
-            return s == t;
-        }
     };
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {

@@ -22,10 +22,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     baloCreat project(':lib-creator')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-
     implementation 'org.slf4j:slf4j-api'
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 }
 
 createBalo {
@@ -33,4 +31,4 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'ballerina/lang.decimal Implementation'
+description = 'ballerina/lang.__internal Implementation'
