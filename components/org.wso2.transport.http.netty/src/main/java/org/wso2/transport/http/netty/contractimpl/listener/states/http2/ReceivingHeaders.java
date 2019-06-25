@@ -82,6 +82,7 @@ public class ReceivingHeaders implements ListenerState {
                 // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
                 initializeDataEventListeners(ctx, streamId, sourceReqCMsg);
+                sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
             }
             http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
         } else {
