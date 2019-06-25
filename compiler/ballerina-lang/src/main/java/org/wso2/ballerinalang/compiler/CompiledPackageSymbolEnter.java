@@ -1458,7 +1458,7 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
+            if (reasonType == symTable.stringType && detailsType == symTable.detailType) {
                 return symTable.errorType;
             }
             BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,

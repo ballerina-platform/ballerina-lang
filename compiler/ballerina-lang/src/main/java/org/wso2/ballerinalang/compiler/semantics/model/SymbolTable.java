@@ -18,23 +18,29 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -55,12 +61,15 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -115,8 +124,8 @@ public class SymbolTable {
     public final BType semanticError;
 
     public BErrorType errorType;
+    public BRecordType detailType;
     public BUnionType pureType;
-    public BMapType pureTypeConstrainedMap;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -154,6 +163,8 @@ public class SymbolTable {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.DEFAULT, null);
+        this.rootPkgNode.pos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
+                0, 0);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
@@ -190,16 +201,9 @@ public class SymbolTable {
                 rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
         defineType(semanticError, semanticErrSymbol);
 
-        // Initialize Ballerina built-in error type.
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, PackageID.DEFAULT,
-                                                       null, rootPkgSymbol);
-        this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
-        defineType(this.errorType, errorSymbol);
-        errorSymbol.type = this.errorType;
+        initializeErrorType();
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
-        this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);
-        this.errorType.detailType = this.pureTypeConstrainedMap;
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
@@ -247,6 +251,40 @@ public class SymbolTable {
     private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
+    }
+
+    private void initializeErrorType() {
+
+        BRecordTypeSymbol detailSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+                PackageID.DEFAULT, null, rootPkgSymbol);
+        detailSymbol.scope = new Scope(this.rootPkgSymbol);
+        this.detailType = new BRecordType(detailSymbol);
+
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, PackageID.DEFAULT,
+                null, rootPkgSymbol);
+        this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
+        errorSymbol.type = this.errorType;
+        defineType(this.errorType, errorType.tsymbol);
+
+        int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
+        BField messageField = new BField(Names.DETAIL_MESSAGE, this.rootPkgNode.pos,
+                new BVarSymbol(flags, Names.DETAIL_MESSAGE, PackageID.DEFAULT, this.stringType, detailSymbol));
+        this.detailType.fields.add(messageField);
+        detailSymbol.scope.define(Names.DETAIL_MESSAGE, messageField.symbol);
+
+        BField causeField = new BField(Names.DETAIL_CAUSE, this.rootPkgNode.pos,
+                new BVarSymbol(flags, Names.DETAIL_CAUSE, PackageID.DEFAULT, this.errorType, detailSymbol));
+        this.detailType.fields.add(causeField);
+        detailSymbol.scope.define(Names.DETAIL_CAUSE, causeField.symbol);
+
+        this.detailType.restFieldType = BUnionType.create(null, this.anydataType, this.errorType);
+
+        // TODO : Remove this. Had to add this due to BIR codegen requires this.
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);
+        BInvokableSymbol initSymbol = Symbols.createFunctionSymbol(0, Names.INIT_FUNCTION_SUFFIX, PackageID.DEFAULT,
+                invokableType, detailSymbol, false);
+        detailSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initSymbol, invokableType);
+        detailSymbol.scope.define(initSymbol.name, initSymbol);
     }
 
     private void defineOperators() {
