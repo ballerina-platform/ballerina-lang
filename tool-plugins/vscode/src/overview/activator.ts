@@ -8,7 +8,7 @@ import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChange
 	workspace, WebviewPanel } from 'vscode';
 
 import {render} from './renderer';
-import { WebViewRPCHandler } from '../utils';
+import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -28,7 +28,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
 		return ballerinaExtInstance.onReady()
 		.then(() => {
-			debugger;
 			if (!window.activeTextEditor) {
 				return;
 			}
@@ -48,10 +47,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 'projectOverview',
                 'Project Overview',
                 { viewColumn: ViewColumn.One, preserveFocus: true } ,
-                {
-                    enableScripts: true,
-                    retainContextWhenHidden: true,
-                }
+                getCommonWebViewOptions()
             );
 
             const editor = window.activeTextEditor;
