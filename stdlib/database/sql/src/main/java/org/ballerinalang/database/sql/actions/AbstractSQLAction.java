@@ -17,14 +17,10 @@
  */
 package org.ballerinalang.database.sql.actions;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL remote functions.
@@ -33,17 +29,7 @@ import org.ballerinalang.model.values.BValue;
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
-    protected BStructureType getStructType(Context context, int index) {
-        BStructureType structType = null;
-        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(index);
-        if (type != null) {
-            structType = (BStructureType) type.value();
-        }
-        return structType;
-    }
-
-    protected SQLDatasource retrieveDatasource(Context context) {
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        return (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
+    protected static SQLDatasource retrieveDatasource(ObjectValue client) {
+        return (SQLDatasource) client.getNativeData(Constants.SQL_CLIENT);
     }
 }
