@@ -208,6 +208,7 @@ $JAVACMD \
 	$JAVA_OPTS \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Dballerina.home=$BALLERINA_HOME \
+	-Dballerina.bootstrap.home="$BALLERINA_HOME/bre/bootstrap" \
 	-Dballerina.version=${project.version} \
 	-Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
 	-Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \

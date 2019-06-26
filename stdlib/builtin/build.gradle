@@ -24,6 +24,7 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-streaming:siddhi-core')
     implementation 'org.slf4j:slf4j-api'
+
 }
 
 createBalo {
