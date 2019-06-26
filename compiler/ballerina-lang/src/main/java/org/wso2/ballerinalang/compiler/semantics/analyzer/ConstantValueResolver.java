@@ -19,13 +19,25 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.990.4
@@ -34,12 +46,14 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
-
-    private BLangIdentifier keyIdentifier;
-    private BLangExpression result;
+    private BConstantSymbol currentConstSymbol;
+    private BLangConstantValue result;
+    private BLangDiagnosticLog dlog;
+    private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -50,36 +64,119 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangExpression getValue(BLangIdentifier keyIdentifier, BLangMapLiteral mapLiteral) {
-        this.result = null;
-        this.keyIdentifier = keyIdentifier;
-
-        mapLiteral.accept(this);
-
-        return this.result;
+    public void resolve(List<BLangConstant> constants) {
+        constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
+        constants.forEach(constant -> constant.accept(this));
     }
 
     @Override
-    public void visit(BLangMapLiteral mapLiteral) {
-        // Iterate through all key-value pairs in the record literal.
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
-            //  Get the key.
-            Object key = ((BLangLiteral) keyValuePair.key.expr).value;
-            // If the key is equal to the value of the key, that means the key which we are looking for is
-            // in the record literal.
-            if (!key.equals(keyIdentifier.value)) {
+    public void visit(BLangConstant constant) {
+        BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
+        this.currentConstSymbol = constant.symbol;
+        this.currentConstSymbol.value = visitExpr(constant.expr);
+        unresolvedConstants.remove(this.currentConstSymbol);
+        this.currentConstSymbol = tempCurrentConstSymbol;
+    }
+
+    @Override
+    public void visit(BLangLiteral literal) {
+        this.result = new BLangConstantValue(literal.value, literal.type);
+    }
+
+    @Override
+    public void visit(BLangNumericLiteral literal) {
+        this.result = new BLangConstantValue(literal.value, literal.type);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef varRef) {
+        if ((varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+            this.result = null;
+            return;
+        }
+
+        BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
+        BLangConstantValue constVal = constSymbol.value;
+        if (constVal != null) {
+            this.result = constVal;
+            return;
+        }
+
+        // if the referring constant is not yet resolved, then go and resolve it first.
+        this.unresolvedConstants.get(varRef.symbol).accept(this);
+        this.result = constSymbol.value;
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recorLiteral) {
+        Map<String, BLangConstantValue> mapConstVal = new HashMap<>();
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recorLiteral.keyValuePairs) {
+            NodeKind nodeKind = keyValuePair.key.expr.getKind();
+            if (nodeKind != NodeKind.LITERAL && nodeKind != NodeKind.NUMERIC_LITERAL) {
                 continue;
             }
-            // Since we are looking for a literal which can be used as at compile time, it should be a literal.
-            NodeKind nodeKind = keyValuePair.valueExpr.getKind();
-            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
-                    nodeKind == NodeKind.RECORD_LITERAL_EXPR || nodeKind == NodeKind.CONSTANT_REF) {
-                result = keyValuePair.valueExpr;
-                return;
-            }
-            throw new RuntimeException("unsupported node kind");
+
+            String key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
+            BLangConstantValue value = visitExpr(keyValuePair.valueExpr);
+            mapConstVal.put(key, value);
         }
-        // If this line is reached, that means there is an issue in ConstantValueChecker.
-        throw new RuntimeException("constant key not found");
+
+        this.result = new BLangConstantValue(mapConstVal, recorLiteral.type);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexAccess) {
+        BLangConstantValue key = visitExpr(indexAccess.indexExpr);
+        BLangConstantValue constVal = visitExpr(indexAccess.expr);
+
+        // constVal can be null in error scenarios
+        if (constVal == null) {
+            this.result = null;
+            return;
+        }
+
+        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
+        if (!value.containsKey(key.value)) {
+            dlog.error(indexAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccess.expr);
+        }
+        this.result = value.get(key.value);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccess) {
+        String key = fieldAccess.field.value;
+        BLangConstantValue constVal = visitExpr(fieldAccess.expr);
+
+        // constVal can be null in error scenarios
+        if (constVal == null) {
+            this.result = null;
+            return;
+        }
+
+        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
+        if (!value.containsKey(key)) {
+            dlog.error(fieldAccess.field.pos, DiagnosticCode.KEY_NOT_FOUND, key, fieldAccess.expr);
+        }
+
+        this.result = value.get(key);
+    }
+
+    private BLangConstantValue visitExpr(BLangExpression node) {
+        switch (node.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case INDEX_BASED_ACCESS_EXPR:
+            case FIELD_BASED_ACCESS_EXPR:
+            case RECORD_LITERAL_EXPR:
+            case SIMPLE_VARIABLE_REF:
+                BLangConstantValue prevResult = this.result;
+                this.result = null;
+                node.accept(this);
+                BLangConstantValue newResult = this.result;
+                this.result = prevResult;
+                return newResult;
+            default:
+                return null;
+        }
     }
 }

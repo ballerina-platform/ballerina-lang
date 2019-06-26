@@ -118,7 +118,7 @@ public class StreamValue implements RefValue {
      * @param data the data to publish to the stream
      */
     public void publish(Strand strand, Object data) {
-        if (!TypeChecker.checkIsType(data, constraintType)) {
+        if (!TypeChecker.checkIsLikeType(data, constraintType)) {
             throw BallerinaErrors.createError("incompatible types: value of type:" +
                     TypeChecker.getType(data).getName() + " cannot be added to a stream of type:" +
                     this.constraintType.getName());

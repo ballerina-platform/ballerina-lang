@@ -1,15 +1,15 @@
 import ballerina/io;
-// Import `ballerina/transactions` module in order to use participant annotation.
+// Imports the `ballerina/transactions` module to use the participant annotation.
 import ballerina/transactions;
 
 
 public function main() {
-    // `transaction` blocks initiates the transaction, it's called the initiator.
+    // The `transaction` block initiates the transaction. Thus, it is called the initiator.
     transaction {
-        // Invoke local participant.
+        // Invoks the local participant.
         var res = trap localTransactionParticipant();
         if (res is error) {
-            // local participant panicked.
+            // The local participant gets panicked.
             io:println("Local participant panicked.");
         }
     } onretry {
@@ -21,8 +21,8 @@ public function main() {
     }
 }
 
-// `@transactions:Participant` annotation from `transactions` package is used to indicate
-// function as a local participant.
+// The `@transactions:Participant` annotation from the 
+// `transactions` package is used to indicate the function as a local participant.
 @transactions:Participant {
     oncommit: participantOnCommit
 }

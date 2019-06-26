@@ -23,13 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -43,31 +37,11 @@ import java.security.PrivateKey;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "signRsaMd5",
-        args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
-                        structPackage = "ballerina/crypto")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
-                        structPackage = Constants.CRYPTO_PACKAGE)
-        },
-        isPublic = true)
+        functionName = "signRsaMd5", isPublic = true)
 public class SignRsaMd5 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        try {
-            context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "MD5withRSA",
-                    (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
-        }
     }
 
     public static Object signRsaMd5(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {

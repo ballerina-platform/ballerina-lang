@@ -22,9 +22,9 @@ type anydataType anydata;
 # A clone can therefore safely be used concurrently with the original.
 # It corresponds to the Clone(v) abstract operation,
 # defined in the Ballerina Language Specification.
-function clone(anydataType value) returns anydataType = external;
+public function clone(anydataType value) returns anydataType = external;
 
 # Returns a clone of `value` that is read-only, i.e. immutable.
 # It corresponds to the ImmutableClone(v) abstract operation,
 # defined in the Ballerina Language Specification.
-function cloneReadOnly(anydataType value) returns anydataType = external;
+public function cloneReadOnly(anydataType value) returns anydataType = external;

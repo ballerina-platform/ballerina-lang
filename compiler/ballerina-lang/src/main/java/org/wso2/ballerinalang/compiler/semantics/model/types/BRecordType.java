@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -36,12 +37,12 @@ public class BRecordType extends BStructureType implements RecordType {
     private static final String SPACE = " ";
     private static final String RECORD = "record";
     private static final String CLOSE_LEFT = "{|";
-    private static final String OPEN_LEFT = "{";
     private static final String SEMI = ";";
     private static final String CLOSE_RIGHT = "|}";
     private static final String DOLLAR = "$";
-    private static final String OPEN_RIGHT = "}";
     private static final String REST = "...";
+    public static final String OPTIONAL = "?";
+    public static final String EMPTY = "";
     public boolean sealed;
     public BType restFieldType;
 
@@ -75,15 +76,15 @@ public class BRecordType extends BStructureType implements RecordType {
         if (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR)) {
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE);
-            sb.append(sealed ? CLOSE_LEFT : OPEN_LEFT);
-            fields.forEach(fields -> sb.append(SPACE).append(fields.type).append(SPACE)
-                    .append(fields.name).append(SEMI));
+            sb.append(CLOSE_LEFT);
+            fields.forEach(field -> sb.append(SPACE).append(field.type).append(SPACE)
+                    .append(field.name).append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI));
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
                 return sb.toString();
             }
-            sb.append(restFieldType).append(REST);
-            sb.append(SPACE).append(OPEN_RIGHT);
+            sb.append(SPACE).append(restFieldType).append(REST).append(SEMI);
+            sb.append(SPACE).append(CLOSE_RIGHT);
             return sb.toString();
         }
         return this.tsymbol.toString();

@@ -23,6 +23,7 @@ dependencies {
     implementation project(':ballerina-lang')
     baloCreat project(':lib-creator')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 
     implementation 'org.slf4j:slf4j-api'
 }
@@ -32,4 +33,4 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'ballerina/lang.int Implementation'
+description = 'ballerina/lang.string Implementation'

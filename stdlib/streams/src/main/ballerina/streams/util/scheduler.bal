@@ -73,7 +73,7 @@ public type Scheduler object {
         while (first != () && <int>first - currentTime <= 0) {
             _ = self.toNotifyQueue.removeFirst();
             map<anydata> data = {};
-            StreamEvent timerEvent = new(("timer", data), "TIMER", <int>first);
+            StreamEvent timerEvent = new(["timer", data], "TIMER", <int>first);
             StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
             self.processFunc.call(timerEventWrapper);

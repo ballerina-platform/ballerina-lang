@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -521,13 +520,6 @@ public class Types {
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
 
-        // TypeParams are not validated here. Just their compatibility.
-        if (source.tag == TypeTags.TYPE_PARAM) {
-            source = ((BTypeParamType) source).constraint;
-        }
-        if (target.tag == TypeTags.TYPE_PARAM) {
-            target = ((BTypeParamType) target).constraint;
-        }
         if (isSameType(source, target)) {
             return true;
         }
@@ -837,7 +829,7 @@ public class Types {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
+    public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
         BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);
@@ -1121,12 +1113,9 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-                return isAssignable(detailType, symTable.pureTypeConstrainedMap);
             case TypeTags.RECORD:
-                BRecordType detailRecordType = (BRecordType) detailType;
-                return detailRecordType.fields.stream()
-                        .allMatch(field -> isAssignable(field.type, symTable.pureType)) &&
-                        (detailRecordType.sealed || isAssignable(detailRecordType.restFieldType, symTable.pureType));
+                return isAssignable(detailType, symTable.detailType);
+
         }
         return false;
     }
@@ -1447,11 +1436,6 @@ public class Types {
             return symTable.notFoundSymbol;
         }
 
-        @Override
-        public BSymbol visit(BTypeParamType t, BType s) {
-
-            return symTable.notFoundSymbol;
-        }
     };
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -1619,11 +1603,6 @@ public class Types {
             return s == t;
         }
 
-        @Override
-        public Boolean visit(BTypeParamType t, BType s) {
-
-            return s == t;
-        }
     };
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
@@ -1759,12 +1738,12 @@ public class Types {
             case TypeTags.BYTE:
                 if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
                         !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
-                    return (long) baseValue == (long) candidateValue;
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
                 }
                 break;
             case TypeTags.INT:
                 if (candidateTypeTag == TypeTags.INT) {
-                    return (long) baseValue == (long) candidateValue;
+                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
                 }
                 break;
             case TypeTags.FLOAT:
@@ -2448,6 +2427,44 @@ public class Types {
 
     private boolean containsElement(Set<BLangExpression> valueSpace, String element) {
         return valueSpace.stream().map(v -> (BLangLiteral) v).anyMatch(lit -> lit.originalValue.equals(element));
+    }
+
+    public boolean isAllowedConstantType(BType type) {
+        switch (type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+                return true;
+            case TypeTags.MAP:
+                return isAllowedConstantType(((BMapType) type).constraint);
+            case TypeTags.FINITE:
+                BLangExpression finiteValue = ((BFiniteType) type).valueSpace.toArray(new BLangExpression[0])[0];
+                return isAllowedConstantType(finiteValue.type);
+            default:
+                return false;
+        }
+    }
+
+    public boolean isValidLiteral(BLangLiteral literal, BType targetType) {
+        BType literalType = literal.type;
+        if (literalType.tag == targetType.tag) {
+            return true;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.BYTE:
+                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
+            case TypeTags.DECIMAL:
+                return literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.INT;
+            case TypeTags.FLOAT:
+                return literalType.tag == TypeTags.INT;
+            default:
+                return false;
+        }
     }
 
     /**

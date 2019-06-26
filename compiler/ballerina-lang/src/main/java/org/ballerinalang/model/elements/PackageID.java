@@ -36,7 +36,14 @@ public class PackageID {
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
 
     // Lang.* Modules IDs
-    public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG, Names.LANG_ANNOTATIONS, Names.EMPTY);
+
+    // lang.__internal module is visible only to the compiler and peer lang.* modules.
+    public static final PackageID INTERNAL = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.INTERNAL), Names.EMPTY);
+
+    // Visible Lang modules.
+    public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.ANNOTATIONS), Names.EMPTY);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ARRAY), Names.EMPTY);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,

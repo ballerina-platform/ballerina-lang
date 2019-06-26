@@ -125,7 +125,7 @@ public abstract class LSCompletionProvider {
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
+                String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
@@ -269,7 +269,9 @@ public abstract class LSCompletionProvider {
                 }).collect(Collectors.toList());
         List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
         packages.addAll(LSPackageLoader.getHomeRepoPackages());
-
+        String sourceRoot = ctx.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+        String fileUri = ctx.get(DocumentServiceKeys.FILE_URI_KEY);
+        packages.addAll(LSPackageLoader.getCurrentProjectImportPackages(pkg, sourceRoot, fileUri));
         packages.forEach(ballerinaPackage -> {
             String name = ballerinaPackage.getPackageName();
             String orgName = ballerinaPackage.getOrgName();
@@ -397,7 +399,7 @@ public abstract class LSCompletionProvider {
                 BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
                 CompletionItem newCItem;
                 if (initFunction == null) {
-                    newCItem = BFunctionCompletionItemBuilder.build(null, "386)", "new();");
+                    newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();");
                 } else {
                     newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol);
                 }
@@ -507,7 +509,7 @@ public abstract class LSCompletionProvider {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(bSymbol.getName().getValue());
         completionItem.setInsertText(bSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalValueType, context));
+        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).type, context));
         completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
         completionItem.setKind(CompletionItemKind.Variable);
 

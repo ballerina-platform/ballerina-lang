@@ -232,8 +232,8 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: failed to get element from json: array index " +
-                    "out of range: index: 2, size: 0.*")
+            expectedExceptionsMessageRegExp = "error: failed to get element from json: " +
+                    "\\{\"message\":\"array index out of range: index: 2, size: 0\"\\}.*")
     public void testJSONNilLiftingOnLHS_2() {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }

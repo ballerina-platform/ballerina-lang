@@ -22,8 +22,10 @@ import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
@@ -80,17 +82,24 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
-            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext, workspaceDocumentManager,
-                                                                          false, LSCustomErrorStrategy.class, true);
-            if (bLangPackage != null) {
-                bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
-                    String unitName = compUnit.getName();
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(path);
-                    String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
-                    String hash = generateHash(compUnit, basePath);
-                    compUnits.put(hash, new Object[]{
-                            new File(basePath + File.separator + unitName).toURI(), compUnit});
-                }));
+            try {
+                List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext, workspaceDocumentManager,
+                                                                              false, LSCustomErrorStrategy.class, true);
+                if (bLangPackage != null) {
+                    bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
+                        String unitName = compUnit.getName();
+                        String sourceRoot = LSCompilerUtil.getSourceRoot(path);
+                        String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                        String hash = generateHash(compUnit, basePath);
+                        compUnits.put(hash, new Object[]{
+                                new File(basePath + File.separator + unitName).toURI(), compUnit});
+                    }));
+                }
+            } catch (LSCompilerException e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while resolving symbols" + ((msg != null) ? ": " + msg : ""), e);
+                }
             }
         });
 

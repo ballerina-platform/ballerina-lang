@@ -16,12 +16,23 @@
 package org.ballerinalang.langserver.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.SourcePruneException;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +61,7 @@ public class SourcePruner {
                 BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
                 BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER,
-                BallerinaParser.RESOURCE, BallerinaParser.LISTENER
+                BallerinaParser.RESOURCE, BallerinaParser.LISTENER, BallerinaParser.MATCH
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,
@@ -84,15 +95,63 @@ public class SourcePruner {
         }
     }
 
-    public static void pruneSource(TokenStream tokenStream, int tokenIndex, LSContext lsContext) {
+    /**
+     * Prune source.
+     *
+     * @param lsContext LS Context
+     * @throws SourcePruneException  when source prune fails
+     * @throws WorkspaceDocumentException when reading file content fails
+     */
+    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
+        Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        WorkspaceDocumentManager documentManager = lsContext.get(CompletionKeys.DOC_MANAGER_KEY);
+        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
+
+        if (cursorPosition == null || documentManager == null || uri == null) {
+            throw new SourcePruneException("Cursor position, docManager and fileUri cannot be null!");
+        }
+
+        // Read file content
+        Path path = Paths.get(URI.create(uri));
+        String documentContent = documentManager.getFileContent(path);
+
+        // Execute Ballerina Parser
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
+        parser.removeErrorListeners();
+        parser.compilationUnit();
+
+        // Process tokens
+        TokenStream tokenStream = parser.getTokenStream();
+        List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
+                                                            cursorPosition.getCharacter());
+        if (!tokenAtCursor.isPresent()) {
+            throw new SourcePruneException("Could not find token at cursor");
+        }
+
+        lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(tokenAtCursor.get()));
+        lsContext.put(SourcePruneKeys.TOKEN_LIST_KEY, tokenList);
+
+        // Validate cursor position
+        int tokenIndex = tokenAtCursor.get().getTokenIndex();
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
+
+        // Skip source pruning, when there's no syntax errors
+        if (parser.getNumberOfSyntaxErrors() == 0) {
+            return;
+        }
+
+        // Execute source pruning
         SourcePruneContext sourcePruneCtx = getContext();
         List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx).traverseLHS(tokenStream, tokenIndex);
         List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx).traverseRHS(tokenStream, tokenIndex + 1);
         lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
+
+        // Update document manager
+        documentManager.setPrunedContent(path, tokenStream.getText());
     }
 
     private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
