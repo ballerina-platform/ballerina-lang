@@ -110,4 +110,5 @@ public class Tokens {
     public static final String TRAP = "trap";
     public static final String TYPEOF = "typeof";
     public static final String UNTAINT = "untaint";
+    public static final String FLUSH = "flush";
 }
