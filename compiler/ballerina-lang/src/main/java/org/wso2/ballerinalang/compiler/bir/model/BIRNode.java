@@ -357,7 +357,6 @@ public abstract class BIRNode {
          */
         public Name name;
 
-
         public List<BIRFunction> attachedFuncs;
 
         public int flags;

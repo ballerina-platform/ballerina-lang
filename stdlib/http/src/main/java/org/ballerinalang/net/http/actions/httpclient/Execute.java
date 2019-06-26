@@ -34,6 +34,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
+
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
@@ -74,9 +77,12 @@ public class Execute extends AbstractHTTPAction {
         return outboundRequestMsg;
     }
 
-    public static Object nativeExecute(Strand strand, String url, MapValue config, String verb, String path,
-                                     ObjectValue requestObj) {
-        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+    @SuppressWarnings("unchecked")
+    public static Object nativeExecute(Strand strand, ObjectValue httpClient, String verb, String path,
+                                       ObjectValue requestObj) {
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
+        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(config, url, verb, path, requestObj);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);

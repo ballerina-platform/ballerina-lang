@@ -425,10 +425,17 @@ public class LauncherUtils {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
 
-        validateSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
+        String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
+
+        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            options.put(PROJECT_DIR, fullPath.getParent().toString());
+        } else {
+            options.put(PROJECT_DIR, sourceRootPath.toString());
+        }
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        BLangPackage entryPkgNode = compiler.compile(source);
 
         CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
                 getBackendCodeGenerator();
@@ -505,11 +512,12 @@ public class LauncherUtils {
 
     }
 
-    private static void validateSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath, String srcPathStr) {
+    private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
+                                                String srcPathStr) {
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             // running a bal file, no other packages
-            return;
+            return fullPath.getFileName().toString();
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                 throw createLauncherException("you are trying to run a module that is not inside " +
@@ -534,7 +542,7 @@ public class LauncherUtils {
                 throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
                         "project. Try running 'ballerina run <module-name>'");
             }
-            return;
+            return sourcePath.toString();
         } else {
             throw createLauncherException("unexpected error while getting init class name from source in " +
                     sourcePath);

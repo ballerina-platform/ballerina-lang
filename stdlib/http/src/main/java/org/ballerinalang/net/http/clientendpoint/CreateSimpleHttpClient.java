@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -47,8 +46,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP2_PRIOR_KNOWLEDGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
@@ -120,18 +121,20 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
                 .createHttpClientConnector(properties, senderConfiguration, poolManager);
         BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
                                                                               HTTP_PACKAGE_PATH,
-                                                                              HTTP_CLIENT, urlString,
+                                                                              CLIENT, urlString,
                                                                               clientEndpointConfig);
-        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        httpClient.addNativeData(HttpConstants.CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        configBStruct.addNativeData(HttpConstants.CLIENT, httpClientConnector);
         context.setReturnValues((httpClient));
     }
 
     @SuppressWarnings("unchecked")
-    public static ObjectValue createSimpleHttpClient(Strand strand, String urlString,
-                                                     MapValue<String, Object> clientEndpointConfig,
-                                                     MapValue<String, Long> globalPoolConfig) {
+    public static void createSimpleHttpClient(Strand strand, ObjectValue httpClient,
+                                              MapValue<String, Long> globalPoolConfig) {
+        String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) httpClient.get(
+                CLIENT_ENDPOINT_CONFIG);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
         URL url;
@@ -172,12 +175,6 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
         HttpClientConnector httpClientConnector = HttpUtil.createHttpWsConnectionFactory()
                 .createHttpClientConnector(properties, senderConfiguration, poolManager);
-        ObjectValue httpClient = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, HTTP_CLIENT);
-        httpClient.set(HttpConstants.CLIENT_ENDPOINT_SERVICE_URI, urlString);
-        httpClient.set(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
-        httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        clientEndpointConfig.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
-        return httpClient;
+        httpClient.addNativeData(HttpConstants.CLIENT, httpClientConnector);
     }
 }
