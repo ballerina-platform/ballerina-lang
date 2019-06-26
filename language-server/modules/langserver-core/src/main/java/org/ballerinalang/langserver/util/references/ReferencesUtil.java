@@ -74,7 +74,7 @@ public class ReferencesUtil {
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
 
-            return lsCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject);
+            return lsCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
         } catch (Exception e) {
             if (CommonUtil.LS_DEBUG_ENABLED) {
                 String msg = e.getMessage();

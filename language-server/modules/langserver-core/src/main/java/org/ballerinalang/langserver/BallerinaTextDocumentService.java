@@ -565,8 +565,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 documentManager.openFile(compilationPath, content);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
-                diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, openedPath, compilationPath);
-            } catch (WorkspaceDocumentException e) {
+                LSServiceOperationContext context = new LSServiceOperationContext();
+                String fileURI = params.getTextDocument().getUri();
+                context.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
+                diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, context, documentManager);
+            } catch (WorkspaceDocumentException | LSCompilerException e) {
                 LOGGER.error("Error while opening file:" + openedPath.toString());
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -601,7 +604,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     // Need to lock since debouncer triggers later
                     Optional<Lock> nLock = documentManager.lockFile(compilationPath);
                     try {
-                        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, changedPath, compilationPath);
+                        LSServiceOperationContext context = new LSServiceOperationContext();
+                        String fileURI = params.getTextDocument().getUri();
+                        context.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
+                        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, context, documentManager);
+                    } catch (LSCompilerException e) {
+                        // Ignore
                     } finally {
                         nLock.ifPresent(Lock::unlock);
                     }

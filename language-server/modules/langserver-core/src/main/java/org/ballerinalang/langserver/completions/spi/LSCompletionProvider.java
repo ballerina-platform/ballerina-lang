@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -251,17 +252,19 @@ public abstract class LSCompletionProvider {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentPkg);
         List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx).stream()
-                .map(bLangImportPackage -> {
-                    String orgName = bLangImportPackage.orgName.toString();
-                    String pkgName = bLangImportPackage.pkgNameComps.stream()
+                .map(pkg -> {
+                    PackageID pkgID = pkg.symbol.pkgID;
+                    String alias = pkg.alias.value;
+                    String orgName = pkgID.orgName.value;
+                    String pkgName = pkgID.nameComps.stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
                     CompletionItem item = new CompletionItem();
-                    item.setLabel(orgName + "/" + pkgName);
-                    item.setInsertText(CommonUtil.getLastItem(bLangImportPackage.getPackageName()).value);
+                    item.setLabel(alias);
+                    item.setInsertText(alias);
                     item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
                     item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
@@ -271,7 +274,7 @@ public abstract class LSCompletionProvider {
         packages.addAll(LSPackageLoader.getHomeRepoPackages());
         String sourceRoot = ctx.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
         String fileUri = ctx.get(DocumentServiceKeys.FILE_URI_KEY);
-        packages.addAll(LSPackageLoader.getCurrentProjectImportPackages(pkg, sourceRoot, fileUri));
+        packages.addAll(LSPackageLoader.getCurrentProjectImportPackages(currentPkg, sourceRoot, fileUri));
         packages.forEach(ballerinaPackage -> {
             String name = ballerinaPackage.getPackageName();
             String orgName = ballerinaPackage.getOrgName();

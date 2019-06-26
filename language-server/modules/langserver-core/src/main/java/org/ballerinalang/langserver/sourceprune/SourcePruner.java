@@ -125,15 +125,13 @@ public class SourcePruner {
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
                                                             cursorPosition.getCharacter());
-        if (!tokenAtCursor.isPresent()) {
-            throw new SourcePruneException("Could not find token at cursor");
-        }
 
-        lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(tokenAtCursor.get()));
+        tokenAtCursor.ifPresent(token -> 
+                lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(token)));
         lsContext.put(SourcePruneKeys.TOKEN_LIST_KEY, tokenList);
 
         // Validate cursor position
-        int tokenIndex = tokenAtCursor.get().getTokenIndex();
+        int tokenIndex = tokenAtCursor.map(Token::getTokenIndex).orElse(-1);
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
