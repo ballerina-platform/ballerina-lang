@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.wso2.transport.http.netty.contract.Constants.SERVER_TIMEOUT_ERROR_MESSAGE;
 
 /**
  * {@code Http2ServerTimeoutTestCase} contains test cases for HTTP/2 server request/response timeout.
@@ -54,7 +55,6 @@ public class Http2ServerTimeoutTestCase {
     private HttpClientConnector h2ClientWithoutPriorKnowledge;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory connectorFactory;
-    private static final String SERVER_TIMEOUT_ERROR_MESSAGE = "Server time out";
 
     @BeforeClass
     public void setup() throws InterruptedException {

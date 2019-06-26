@@ -19,8 +19,6 @@
 package org.wso2.transport.http.netty.contractimpl.listener.http2;
 
 import io.netty.util.internal.PlatformDependent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 
 import java.util.ArrayList;
@@ -32,7 +30,6 @@ import java.util.Map;
  * Represents the streams related to a single server channel.
  */
 public class Http2ServerChannel {
-    private static final Logger LOG = LoggerFactory.getLogger(Http2ServerChannel.class);
     // streamIdRequestMap contains the mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, InboundMessageHolder> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private Map<String, Http2DataEventListener> dataEventListeners;

@@ -132,10 +132,8 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
-        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
-                                                  REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER);
-        //TODO:handle incomplete inbound message
-        //IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
+                                                  Unpooled.EMPTY_BUFFER, true, true);
     }
 
     private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)

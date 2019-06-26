@@ -138,7 +138,6 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
-        //???
         LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 

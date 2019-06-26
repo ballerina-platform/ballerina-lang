@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -59,6 +60,8 @@ import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
@@ -67,6 +70,7 @@ import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFE
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * HTTP/2 utility functions for states.
@@ -394,23 +398,41 @@ public class Http2StateUtil {
     public static void sendRequestTimeoutResponse(ChannelHandlerContext ctx,
                                                   Http2OutboundRespListener http2OutboundRespListener,
                                                   int streamId, HttpResponseStatus httpResponseStatus,
-                                                  ByteBuf content) {
+                                                  ByteBuf content, boolean handleIncompleteRequest,
+                                                  boolean whileReceivingHeader) {
         try {
             Http2Headers headers = new DefaultHttp2Headers();
             headers.status(httpResponseStatus.codeAsText());
 
             Http2ConnectionEncoder encoder = http2OutboundRespListener.getEncoder();
 
-            encoder.writeHeaders(
-                    ctx, streamId, headers, 0, false, ctx.newPromise());
-            encoder.writeData(
-                    ctx, streamId, content, 0, true,
-                    ctx.newPromise());
+            encoder.writeHeaders(ctx, streamId, headers, 0, false, ctx.newPromise());
+            ChannelFuture dataFuture = encoder.writeData(ctx, streamId, content, 0, true, ctx.newPromise());
+            handleFuture(dataFuture, handleIncompleteRequest, whileReceivingHeader,
+                         http2OutboundRespListener.getInboundRequestMsg());
             encoder.flowController().writePendingBytes();
             ctx.flush();
-            //TODO:Handle errors from returned futures
         } catch (Http2Exception e) {
             LOG.error("Error in sending timeout response:" + e.getMessage());
         }
+    }
+
+    private static void handleFuture(ChannelFuture outboundRespFuture, boolean handleIncompleteRequest,
+                                     boolean whileReceivingHeader, HttpCarbonMessage inboundRequestMsg) {
+        outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
+            Throwable cause = channelFuture.cause();
+            if (cause != null) {
+                LOG.warn("Failed to send: {}", cause.getMessage());
+            }
+            if (handleIncompleteRequest) {
+                if (whileReceivingHeader) {
+                    handleIncompleteInboundMessage(inboundRequestMsg,
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
+                } else {
+                    handleIncompleteInboundMessage(inboundRequestMsg,
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
+                }
+            }
+        });
     }
 }

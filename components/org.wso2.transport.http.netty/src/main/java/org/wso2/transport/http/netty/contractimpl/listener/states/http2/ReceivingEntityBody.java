@@ -134,9 +134,7 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
-        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
-                                                  REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER);
-        //TODO:handle incomplete inbound message
-        //IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
+                                                  Unpooled.EMPTY_BUFFER, true, false);
     }
 }
