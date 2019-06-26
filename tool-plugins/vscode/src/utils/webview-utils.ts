@@ -91,15 +91,23 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
         `;
 }
 
+export function getDistributionComposerURI(): string {
+    return getVSCodeResourceURI(getDistributionPath());
+}
+
+function getDistributionPath(): string {
+    return join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
+}
+
 export function getComposerPath(): string {
     return process.env.COMPOSER_DEBUG === "true" 
         ? process.env.COMPOSER_DEV_HOST as string
-        : getVSCodeResourceURI(join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library'));
+        : getDistributionComposerURI();
 }
 
 export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        getVSCodeResourceURI(join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library', 'codepoints.js')),
+        join(getDistributionComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -108,7 +116,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 export function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getComposerPath(), 'font', 'font-ballerina.css')
+        join(getDistributionComposerURI(), 'font', 'font-ballerina.css')
     ];
 }
 
