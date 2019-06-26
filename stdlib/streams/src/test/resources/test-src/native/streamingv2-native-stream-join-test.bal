@@ -98,9 +98,9 @@ function joinFunc() {
         [], (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "symbol": e.data["stockStream.symbol"],
-                "tweet": e.data["twitterStream.tweet"],
-                "price": e.data["stockStream.price"]
+                "symbol": e.get("stockStream.symbol"),
+                "tweet": e.get("twitterStream.tweet"),
+                "price": e.get("stockStream.price")
             };
         }
     );

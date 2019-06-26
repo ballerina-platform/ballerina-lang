@@ -71,15 +71,15 @@ public type ChannelReader object {
     public function readByteArray(int len) returns byte[] {
         var (arr, arrLen) = check self.byteChannel.read(len);
         if(arrLen != len){
-            error err = error("Unable to read "+len+" bytes");
+            error err = error("Unable to read " + len + " bytes");
             panic err;
         }
         return arr;
     }
 
     public function readByte() returns byte {
-        var (bytes, _mustBe1) = check self.byteChannel.read(1);
-        return bytes[0];
+        var (bytes, _mustBe4) = check self.byteChannel.read(4);
+        return bytesToByte(bytes);
     }
 };
 
@@ -95,3 +95,10 @@ function bytesToInt(byte[] b) returns int {
     return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
 }
 
+function bytesToByte(byte[] b) returns byte {
+    byte ff = 255;
+    byte octave1 = 8;
+    byte octave2 = 16;
+    byte octave3 = 24;
+    return (b[0] << octave3) | ((b[1] & ff) << octave2) | ((b[2] & ff) << octave1) | (b[3] & ff);
+}

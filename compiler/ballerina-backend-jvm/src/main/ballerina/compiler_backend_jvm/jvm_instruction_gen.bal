@@ -558,16 +558,16 @@ type InstructionGenerator object {
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
         bir:BType typeOfMapNewIns = mapNewIns.bType;
-
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
             var typeRef = mapNewIns.typeRef;
-            className = self.currentPackageName;
             if (typeRef is bir:TypeRef) {
-                className = typeRefToClassName(typeRef) + "/";
+                className = typeRefToClassName(typeRef, cleanupTypeName(typeOfMapNewIns.name.value));
+            } else {
+                className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
             }
-            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
             if (typeRef is bir:TypeRef) {
@@ -796,11 +796,14 @@ type InstructionGenerator object {
     function generateObjectNewIns(bir:NewInstance objectNewIns) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
-        string className = self.currentPackageName;
+        string className;
         if (typeDefRef is bir:TypeRef) {
-            className = typeRefToClassName(typeDefRef) + "/";
+            className = typeRefToClassName(typeDefRef, typeDefRef.name.value);
+        } else {
+            className = self.currentPackageName + cleanupTypeName(typeDefRef.name.value);
         }
-        className = className + cleanupTypeName(typeDef.name.value);
+
+
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadExternalOrLocalType(self.mv, typeDefRef);
@@ -1064,6 +1067,14 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (varDcl.kind == bir:VAR_KIND_SELF) {
         mv.visitVarInsn(ALOAD, 0);
         return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+        return;
     }
 
     if (bType is bir:BTypeInt) {
@@ -1105,9 +1116,17 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
     bir:BType bType = varDcl.typeValue;
 
-    if (varDcl.kind == "GLOBAL") {
+    if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
         string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
+        return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;

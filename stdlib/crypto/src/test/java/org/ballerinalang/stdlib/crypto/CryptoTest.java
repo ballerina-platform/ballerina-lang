@@ -18,7 +18,6 @@ package org.ballerinalang.stdlib.crypto;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -29,6 +28,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -105,8 +105,6 @@ public class CryptoTest {
         BValue[] args = {new BValueArray("Ballerina HMAC test".getBytes(StandardCharsets.UTF_8)),
                 new BValueArray("".getBytes(StandardCharsets.UTF_8))};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
     }
 
     @Test(description = "Test hashing functions")
@@ -770,14 +768,13 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
-                null};
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -789,14 +786,14 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithMD5andMGF1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithMD5andMGF1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
                 new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
-                new BString("OAEPwithMD5andMGF1"), null};
+                new BString("OAEPwithMD5andMGF1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -808,14 +805,14 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA1AndMGF1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA1AndMGF1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
                 new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
-                new BString("OAEPWithSHA1AndMGF1"), null};
+                new BString("OAEPWithSHA1AndMGF1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -827,14 +824,14 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA256AndMGF1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPWithSHA256AndMGF1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
                 new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
-                new BString("OAEPWithSHA256AndMGF1"), null};
+                new BString("OAEPWithSHA256AndMGF1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -846,14 +843,14 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA384andMGF1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA384andMGF1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
                 new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
-                new BString("OAEPwithSHA384andMGF1"), null};
+                new BString("OAEPwithSHA384andMGF1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -865,14 +862,14 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA512andMGF1"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("OAEPwithSHA512andMGF1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
                 new BString("ballerina"), new BString("ballerina"), new BString("ballerina"),
-                new BString("OAEPwithSHA512andMGF1"), null};
+                new BString("OAEPwithSHA512andMGF1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcb", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -884,15 +881,13 @@ public class CryptoTest {
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
-                null};
+                new BString("ballerina"), new BString("ballerina"), new BString("ballerina"), new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithPrivateKey", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
 
         BValue[] args1 = {returnValues[0], new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1"),
-                null};
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS1")};
         returnValues = BRunUtil.invoke(compileResult, "testDecryptRsaEcbWithPublicKey", args1);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BValueArray) returnValues[0]).getBytes(), message);
@@ -903,23 +898,21 @@ public class CryptoTest {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
         BValueArray messageValue = new BValueArray(message);
 
-        BValue[] args = {messageValue, new BString("PKCS1"), null};
+        BValue[] args = {messageValue, new BString("PKCS1")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithInvalidKey", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
                 "invalid uninitialized key");
     }
 
-    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding")
+    @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding",
+            expectedExceptions = BLangRuntimeException.class)
     public void testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidPadding() {
         byte[] message = "Ballerina crypto test           ".getBytes(StandardCharsets.UTF_8);
         BValueArray messageValue = new BValueArray(message);
 
         BValue[] args = {messageValue, new BString(confRoot.resolve("testKeystore.p12").toString()),
-                new BString("ballerina"), new BString("ballerina"), new BString("PKCS99"), null};
+                new BString("ballerina"), new BString("ballerina"), new BString("PKCS99")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcb", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "unsupported padding: PKCS99");
     }
 }

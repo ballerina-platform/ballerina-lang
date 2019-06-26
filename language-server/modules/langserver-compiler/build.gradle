@@ -17,6 +17,12 @@
  
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
