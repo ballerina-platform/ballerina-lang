@@ -78,6 +78,7 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeByte) {
         mv.visitInsn(I2L);
     } else if (sourceType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, MATH, "rint", "(D)D", false);
         mv.visitInsn(D2L);
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
