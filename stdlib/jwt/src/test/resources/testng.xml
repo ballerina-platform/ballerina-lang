@@ -20,6 +20,9 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.jwt.util.JBallerinaTestInitializer"/>
+    </listeners>
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
