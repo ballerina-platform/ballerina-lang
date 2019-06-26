@@ -437,7 +437,7 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication releated configurations
+# + auth - HTTP authentication related configurations
 # + circuitBreaker - Circuit Breaker behaviour configurations
 # + retryConfig - Retry related options
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered

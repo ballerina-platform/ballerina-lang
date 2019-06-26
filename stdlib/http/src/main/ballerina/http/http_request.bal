@@ -409,11 +409,11 @@ public type MutualSslHandshake record {|
 
 # Defines the possible values for the mutual ssl status.
 #
-# `passed`: Mutual SSL handshake is succesful.
+# `passed`: Mutual SSL handshake is successful.
 # `failed`: Mutual SSL handshake has failed.
 public type MutualSslStatus PASSED | FAILED | ();
 
-# Mutual SSL handshake is succesful.
+# Mutual SSL handshake is successful.
 public const PASSED = "passed";
 
 # Mutual SSL handshake has failed.

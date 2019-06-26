@@ -23,7 +23,7 @@ import ballerina/runtime;
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
-# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + backOffFactor - Multiplier of the retry interval to exponentially increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryInferredConfig record {|
