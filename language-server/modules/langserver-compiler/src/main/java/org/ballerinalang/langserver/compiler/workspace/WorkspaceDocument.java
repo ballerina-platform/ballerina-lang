@@ -145,6 +145,7 @@ public class WorkspaceDocument {
 
     @Override
     public String toString() {
-        return "{" + "path:" + this.path + ", content:" + this.content + "}";
+        String cont = (this.usePrunedSource) ? prunedContent : this.content;
+        return "{" + "path:" + this.path + ", content:" + cont + "}";
     }
 }

@@ -7,7 +7,7 @@
     "result": {
       "signatures": [
         {
-          "label": "contains(string substring)",
+          "label": "string.contains(string substring)",
           "documentation": {
             "right": {
               "kind": "markdown",
