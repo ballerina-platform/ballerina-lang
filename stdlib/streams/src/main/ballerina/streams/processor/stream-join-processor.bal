@@ -80,21 +80,21 @@ public type StreamJoinProcessor object {
                 }
 
                 if (triggerJoin) {
-                    (StreamEvent?, StreamEvent?)[] candidateEvents = [];
+                    [StreamEvent?, StreamEvent?][] candidateEvents = [];
                     // join events according to the triggered side
                     if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
                         // triggered from LHS
                         var evtArr = self.rhsWindow.getCandidateEvents(event, self.onConditionFunc);
-                        if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                        if (evtArr is [StreamEvent?, StreamEvent?][]) {
                             candidateEvents = evtArr;
                             // with left/full joins, we need to emit an event even there's no candidate events in rhs.
                             if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
                                     || self.joinType == "FULLOUTERJOIN")) {
-                                candidateEvents[0] = (event, ());
+                                candidateEvents[0] = [event, ()];
                             }
                         } else {
                             if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = (event, ());
+                                candidateEvents[0] = [event, ()];
                             }
                         }
 
@@ -104,16 +104,16 @@ public type StreamJoinProcessor object {
                         }
                     } else {
                         var evtArr = self.lhsWindow.getCandidateEvents(event, self.onConditionFunc, isLHSTrigger = false);
-                        if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                        if (evtArr is [StreamEvent?, StreamEvent?][]) {
                             candidateEvents = evtArr;
                             // with right/full joins, we need to emit an event even there's no candidate events in rhs.
                             if (candidateEvents.length() == 0 && (self.joinType == "RIGHTOUTERJOIN"
                                     || self.joinType == "FULLOUTERJOIN")) {
-                                candidateEvents[0] = ((), event);
+                                candidateEvents[0] = [(), event];
                             }
                         } else {
                             if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = ((), event);
+                                candidateEvents[0] = [(), event];
                             }
                         }
                         foreach var evtTuple in candidateEvents {

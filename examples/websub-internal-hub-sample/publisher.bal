@@ -6,14 +6,14 @@ import ballerina/websub;
 
 public function main() {
 
-    // Specify the port that the internal Ballerina hub needs to start on and start the hub.
+    // Specifies the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");
 
     var result = websub:startHub(new http:Listener(9191));
     websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
                                                 result.startedUpHub : result;
 
-    // Register a topic at the hub.
+    // Registers a topic at the hub.
     var registrationResponse = webSubHub.registerTopic(
                                             "http://websubpubtopic.com");
     if (registrationResponse is error) {
@@ -23,10 +23,10 @@ public function main() {
         io:println("Topic registration successful!");
     }
 
-    // Make the publisher wait until the subscriber subscribes at the hub.
+    // Makes the publisher wait until the subscriber subscribes at the hub.
     runtime:sleep(5000);
 
-    // Publish directly to the internal Ballerina hub.
+    // Publishes directly to the internal Ballerina hub.
     io:println("Publishing update to internal Hub");
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
         { "action": "publish", "mode": "internal-hub" });
@@ -38,6 +38,6 @@ public function main() {
         io:println("Update notification successful!");
     }
 
-    // Make sure the service is running until the subscriber receives the update notification.
+    // Keeps the service is running until the subscriber receives the update notification.
     runtime:sleep(2000);
 }

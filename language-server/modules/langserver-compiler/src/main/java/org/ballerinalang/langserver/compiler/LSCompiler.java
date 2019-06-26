@@ -199,10 +199,11 @@ public class LSCompiler {
      * @param errStrategy        custom error strategy class
      * @param compileFullProject updateAndCompileFile full project from the source root
      * @return {@link List}      A list of packages when compile full project
+     * @throws LSCompilerException Whenever compilation fails
      */
     public List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
                                                boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy,
-                                               boolean compileFullProject) {
+                                               boolean compileFullProject) throws LSCompilerException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {
@@ -237,22 +238,26 @@ public class LSCompiler {
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining(".")));
-        if (compileFullProject && !sourceRoot.isEmpty() && sourceDoc.hasProjectRepo()) {
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            List<BLangPackage> projectPackages = compiler.compilePackages(false);
-            packages.addAll(projectPackages);
-            Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
-                String name = bLangPackage.packageID.nameComps.stream()
-                        .map(Name::getValue).collect(Collectors.joining("."));
-                return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
-            }).findAny();
-            // No need to check the option is existing since the current package always exist
-            LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
-        } else {
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            BLangPackage bLangPackage = compiler.compile(pkgName);
-            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-            packages.add(bLangPackage);
+        try {
+            if (compileFullProject && !sourceRoot.isEmpty() && sourceDoc.hasProjectRepo()) {
+                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+                List<BLangPackage> projectPackages = compiler.compilePackages(false);
+                packages.addAll(projectPackages);
+                Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
+                    String name = bLangPackage.packageID.nameComps.stream()
+                            .map(Name::getValue).collect(Collectors.joining("."));
+                    return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
+                }).findAny();
+                // No need to check the option is existing since the current package always exist
+                LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
+            } else {
+                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+                BLangPackage bLangPackage = compiler.compile(pkgName);
+                LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
+                packages.add(bLangPackage);
+            }
+        } catch (Exception e) {
+            throw new LSCompilerException("Compilation failed", e);
         }
         return packages;
     }

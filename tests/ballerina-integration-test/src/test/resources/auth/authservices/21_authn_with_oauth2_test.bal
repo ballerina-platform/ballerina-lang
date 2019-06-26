@@ -17,25 +17,26 @@
 import ballerina/oauth2;
 import ballerina/http;
 
+auth:OutboundBasicAuthProvider basicAuthProvider = new({
+    username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+    password: "9205371918321623741"
+});
+http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
+
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:9196/oauth2/token/introspect",
     clientConfig: {
         auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-                password: "9205371918321623741"
-            }
+            authHandler: basicAuthHandler
         }
     }
 };
+oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
+http:BearerAuthHandler oauth2Handler21 = new(oauth2Provider21);
 
-oauth2:OAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
-http:BearerAuthHeaderAuthnHandler oauth2AuthnHandler21 = new(oauth2Provider21);
-
-listener http:Listener listener21 = new(9116, config = {
+listener http:Listener listener21 = new(9117, config = {
     auth: {
-        authnHandlers: [oauth2AuthnHandler21]
+        authHandlers: [oauth2Handler21]
     },
     secureSocket: {
         keyStore: {

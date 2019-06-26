@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.filepath.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
@@ -46,16 +46,19 @@ public class Resolve extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
+    }
+
+    public static Object resolve(Strand strand, String inputPath) {
         try {
             Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
-            context.setReturnValues(new BString(realPath.toString()));
+            return realPath.toString();
         } catch (NotLinkException ex) {
-            context.setReturnValues(Utils.getPathError("NOT_LINK_ERROR", ex));
+            return Utils.getPathError("NOT_LINK_ERROR", ex);
         } catch (IOException ex) {
-            context.setReturnValues(Utils.getPathError("IO_ERROR", ex));
+            return Utils.getPathError("IO_ERROR", ex);
         } catch (SecurityException ex) {
-            context.setReturnValues(Utils.getPathError("SECURITY_ERROR", ex));
+            return Utils.getPathError("SECURITY_ERROR", ex);
         }
     }
+
 }

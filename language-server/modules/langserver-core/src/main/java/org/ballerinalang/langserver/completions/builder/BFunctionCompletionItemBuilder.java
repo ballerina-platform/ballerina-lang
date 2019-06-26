@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.TypeConstants;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -93,6 +93,7 @@ public final class BFunctionCompletionItemBuilder {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
+        item.setCommand(new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints"));
         if (bSymbol != null && bSymbol.markdownDocumentation != null) {
             item.setDocumentation(getDocumentation(bSymbol));
         }
@@ -170,25 +171,22 @@ public final class BFunctionCompletionItemBuilder {
                 for (int itr = 0; itr < funcArgumentsCount; itr++) {
                     String argument = funcArguments.get(itr);
                     signature.append(argument);
-                    insertText.append("${").append(itr + 1).append(":");
-                    insertText.append(argument.split(" ")[1]).append("}");
 
                     if (!(itr == funcArgumentsCount - 1)) {
                         signature.append(", ");
-                        insertText.append(", ");
                     }
                 }
+                insertText.append("${1}");
             }
         } else {
             for (int itr = 0; itr < parameterDefs.size(); itr++) {
                 signature.append(getParameterSignature(parameterDefs.get(itr), false));
-                insertText.append(getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
 
                 if (itr != parameterDefs.size() - 1) {
                     signature.append(", ");
-                    insertText.append(", ");
                 }
             }
+            insertText.append("${1}");
         }
         signature.append(")");
         insertText.append(")");
@@ -219,24 +217,6 @@ public final class BFunctionCompletionItemBuilder {
                 defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
             }
             return getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
-        }
-    }
-
-    private static String getParameterInsertText(BVarSymbol bVarSymbol, boolean isDefault, int iteration) {
-        if (!isDefault) {
-            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
-        } else {
-            String defaultStringVal;
-            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
-                defaultStringVal = "()";
-            } else {
-                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
-                if (bVarSymbol.getType() != null
-                        && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
-                    defaultStringVal = "\"" + defaultStringVal + "\"";
-                }
-            }
-            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
         }
     }
 

@@ -58,7 +58,7 @@ public class Matches extends AbstractRegexFunction {
         }
     }
 
-    public static Object matches(Strand strand, String value, String regex, String replaceWith) {
+    public static Object matches(Strand strand, String value, String regex) {
         StringUtils.checkForNull(value, regex);
         try {
             Pattern pattern = AbstractRegexFunction.validatePattern(regex);

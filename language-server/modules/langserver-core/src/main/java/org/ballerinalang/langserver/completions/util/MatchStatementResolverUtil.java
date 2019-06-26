@@ -61,9 +61,9 @@ public class MatchStatementResolverUtil {
                     .map(MatchStatementResolverUtil::getStructuredFixedValueMatch)
                     .collect(Collectors.toList());
             fixedValPattern
-                    .append(CommonKeys.OPEN_PARENTHESES_KEY)
+                    .append(CommonKeys.OPEN_BRACKET_KEY)
                     .append(String.join(", ", defaultValues))
-                    .append(CommonKeys.CLOSE_PARENTHESES_KEY);
+                    .append(CommonKeys.CLOSE_BRACKET_KEY);
         } else if (bType instanceof BRecordType) {
             List<BField> fields = ((BRecordType) bType).fields;
             List<String> defaultValues = fields.stream()

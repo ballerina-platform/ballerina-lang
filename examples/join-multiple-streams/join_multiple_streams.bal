@@ -16,7 +16,7 @@ type MaterialUsage record {
 stream<ProductMaterial> rawMaterialStream = new;
 stream<ProductMaterial> productionInputStream = new;
 
-// This is the output stream that contains the events/alerts that are generated based on streaming logic.
+// This is the output stream, which contains the events/alerts that are generated based on the streaming logic.
 stream<MaterialUsage> materialUsageStream = new;
 
 function initRealtimeProductionAlert() returns () {
@@ -25,11 +25,12 @@ function initRealtimeProductionAlert() returns () {
     materialUsageStream.subscribe(printMaterialUsageAlert);
 
 
-    // Gather events related to raw materials through the `rawMaterialStream` stream and production related events
+    // Gathers events related to raw materials through the `rawMaterialStream` stream and production-related events
     // through the `productionInputStream`. The raw materials usage and production outcome for the last
     // 10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
-    // production outcome. This `forever` block is executed once, when initializing the service. The processing happens
+    // production outcome. This `forever` block is executed once when initializing the service. The processing happens
     // asynchronously each time the `requestStream` or `productionInputStream` receives an event.
+
     forever {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
@@ -67,7 +68,7 @@ listener http:Listener productMaterialListener = new (9090);
 }
 service productMaterialService on productMaterialListener {
 
-    // Initialize the function that contains streaming queries.
+    // Initializes the function, which contains streaming queries.
     future<()> ftr = start initRealtimeProductionAlert();
 
     @http:ResourceConfig {

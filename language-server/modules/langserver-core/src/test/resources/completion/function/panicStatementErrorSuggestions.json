@@ -6,10 +6,18 @@
   "source": "function/source/panicStatementErrorSuggestions.bal",
   "items": [
     {
-      "label":"err",
-      "kind":"Unit",
-      "detail":"error",
-      "insertText":"err"
+      "label": "err",
+      "kind": "Variable",
+      "detail": "error",
+      "insertText": "err",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
