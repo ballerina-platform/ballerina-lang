@@ -7,8 +7,9 @@
 // auth provider, scopes are mapped to users.
 // In the authorization phase, the scopes of the resource are compared against
 // the scopes mapped to the user for at least one match between the two sets.
-// The following code block shows the contents of the file `sample-users.toml`, which has the
-// required format of usernames, passwords and scopes, including their mapping.
+// The following code block shows the contents of the file `sample-users.toml`,
+// which has the required format of usernames, passwords and scopes, including
+// their mapping.
 //
 //      ["b7a.users"]
 //

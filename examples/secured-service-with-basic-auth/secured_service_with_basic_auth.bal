@@ -2,16 +2,18 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-// Create a Basic authentication handler with the relevant configurations.
-auth:ConfigAuthStoreProvider basicAuthProvider = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
+// Creates a Basic Auth header handler with the relevant configurations.
+auth:InboundBasicAuthProvider basicAuthProvider = new(());
+http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 // The endpoint used here is the `http:Listener`, which by default tries to
-// authenticate and authorize each request. It is optional to override the
-// authentication and authorization at the service level and/or resource level.
+// authenticate and authorize each request. The Basic Authentication handler is
+// set to this endpoint using the `authHandlers` attribute. It is optional to
+// override the authentication and authorization at the service level and/or
+// resource level.
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler]
+        authHandlers: [basicAuthHandler]
     },
     // The secure hello world sample uses HTTPS.
     secureSocket: {
@@ -28,7 +30,8 @@ listener http:Listener ep = new(9090, config = {
         scopes: ["scope1"]
     }
 }
-// The Auth configuration comprises of two parts - authentication & authorization.
+// The Auth configuration comprises of two parts -
+// authentication & authorization.
 // Authentication can be disabled by setting the `enabled: false` annotation
 // attribute.
 // Authorization is based on scopes. A scope maps to one or more groups.

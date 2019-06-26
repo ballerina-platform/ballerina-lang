@@ -92,7 +92,12 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         }
         if (type == BallerinaParser.LEFT_PARENTHESIS) {
             Optional<Token> tokenToLeft = CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex());
-            if (this.rightParenthesisCount > 0) {
+            if (removedTokens.isEmpty()) {
+                //TODO: Add a test case for this
+                int leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
+                sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, ++leftParenthesisCount);
+                return false;
+            } else if (this.rightParenthesisCount > 0) {
                 this.rightParenthesisCount--;
                 this.alterTokenText(token);
                 return false;

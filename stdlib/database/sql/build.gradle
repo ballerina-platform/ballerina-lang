@@ -29,9 +29,14 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-time')
     implementation project(':ballerina-builtin')
+    implementation project(':ballerina-runtime')
 
     implementation 'com.zaxxer:HikariCP'
 }
 
 
 description = 'Ballerina - sql'
+
+createBalo {
+    jvmTarget = 'true'
+}
