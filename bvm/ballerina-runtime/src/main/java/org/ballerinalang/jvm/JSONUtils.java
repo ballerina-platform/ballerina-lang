@@ -206,10 +206,10 @@ public class JSONUtils {
         try {
             return Lists.get((ArrayValue) jsonArray, index);
         } catch (ErrorValue e) {
-            if (e.getDetails() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetails());
-            }
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR,
+                                                           BallerinaErrors.getErrorMessageFromDetail(
+                                                                   (MapValueImpl<String, Object>) e.getDetails()));
+
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
