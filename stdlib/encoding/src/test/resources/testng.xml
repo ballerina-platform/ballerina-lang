@@ -21,7 +21,7 @@ under the License.
 
 <suite name="ballerina-test-suite">
     <listeners>
-        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.stdlib.encoding.util.JBallerinaTestInitializer"/>
     </listeners>
     <test name="ballerina-encoding-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

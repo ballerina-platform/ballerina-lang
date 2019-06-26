@@ -17,12 +17,6 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}
-
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
@@ -43,12 +37,24 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
 createBalo {
     jvmTarget = 'true'
 }
 
 description = 'Ballerina - Encoding'
-
-configurations.all {
-    resolutionStrategy.preferProjectModules()
-}
