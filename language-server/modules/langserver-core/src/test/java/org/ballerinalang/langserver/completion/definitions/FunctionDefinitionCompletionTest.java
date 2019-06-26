@@ -113,6 +113,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"newObjectCompletion1.json", "function"},
                 {"newObjectCompletion2.json", "function"},
                 {"newObjectCompletion3.json", "function"},
+                {"delimiterBasedCompletionForCompleteSource1.json", "function"},
+                {"delimiterBasedCompletionForCompleteSource2.json", "function"},
         };
     }
 }

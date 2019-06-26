@@ -136,15 +136,15 @@ public class SourcePruner {
             return;
         }
 
-        // Skip source pruning, when there's no syntax errors
-        if (parser.getNumberOfSyntaxErrors() == 0) {
-            return;
-        }
+        // If the number of errors are zero, then traverse the tokens without pruning the erroneous tokens with spaces
+        boolean pruneTokens = parser.getNumberOfSyntaxErrors() > 0;
 
         // Execute source pruning
         SourcePruneContext sourcePruneCtx = getContext();
-        List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx).traverseLHS(tokenStream, tokenIndex);
-        List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx).traverseRHS(tokenStream, tokenIndex + 1);
+        List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx, pruneTokens)
+                .traverseLHS(tokenStream, tokenIndex);
+        List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx, pruneTokens)
+                .traverseRHS(tokenStream, tokenIndex + 1);
         lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
 
