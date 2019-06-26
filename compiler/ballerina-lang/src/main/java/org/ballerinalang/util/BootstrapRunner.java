@@ -53,9 +53,9 @@ public class BootstrapRunner {
 //        balProcess.directory(new File("./build"));
         try {
             Process process = balProcess.start();
-            boolean processEnded = process.waitFor(60, TimeUnit.SECONDS);
+            boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
             if (!processEnded) {
-                throw new BLangCompilerException("failed to generate jar file within 60s.");
+                throw new BLangCompilerException("failed to generate jar file within 120s.");
             }
             if (process.exitValue() != 0) {
                 throw new BLangCompilerException("jvm code gen phase failed.");
