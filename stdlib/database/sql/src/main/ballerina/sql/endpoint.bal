@@ -30,6 +30,7 @@ public type Client client object {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
+     //TODO: #16033
     # The select remote function implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute

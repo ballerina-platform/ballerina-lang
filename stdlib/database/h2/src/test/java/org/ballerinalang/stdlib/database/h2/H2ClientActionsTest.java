@@ -105,6 +105,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.getInt(1), 1);
     }
 
+    //TODO: #16033
     @Test(groups = { H2_TEST_GROUP, "broken" })
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
@@ -127,6 +128,7 @@ public class H2ClientActionsTest {
         assertInitTestReturnValues(returns);
     }
 
+    // TODO: #16033
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error in sql connector configuration:Failed to initialize pool: "
@@ -144,6 +146,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
+    //TODO: #16033
     @Test(groups = { H2_TEST_GROUP, "broken" })
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");

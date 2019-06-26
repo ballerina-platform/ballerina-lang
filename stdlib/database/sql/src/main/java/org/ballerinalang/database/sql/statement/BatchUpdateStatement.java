@@ -53,6 +53,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     @Override
     public Object execute() {
         //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: #16033
         // checkAndObserveSQLAction(context, datasource, query);
         Connection conn = null;
         PreparedStatement stmt = null;

@@ -54,6 +54,7 @@ public class BatchUpdate extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
+        //TODO: #16033
        /* String query = context.getStringArgument(0);
         BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
         SQLDatasource datasource = retrieveDatasource(context);

@@ -441,6 +441,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     public Connection getDatabaseConnection(ObjectValue client, SQLDatasource datasource, boolean isSelectQuery)
             throws SQLException {
         //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: #16033
         /*Connection conn;
         boolean isInTransaction = context.isInTransaction();
         // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
@@ -494,6 +495,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return conn;
     }
 
+    //TODO: #16033
    /* private String retrieveConnectorId(Context context) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);

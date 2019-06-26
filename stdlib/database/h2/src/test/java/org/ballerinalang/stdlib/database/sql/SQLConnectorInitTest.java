@@ -32,6 +32,7 @@ import java.io.File;
 /**
  * Test SQL Connector Initialization.
  */
+//TODO: #16033
 @Test(groups = "broken")
 public class SQLConnectorInitTest {
 

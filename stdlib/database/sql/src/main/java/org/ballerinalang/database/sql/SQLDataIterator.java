@@ -280,10 +280,6 @@ public class SQLDataIterator extends TableIterator {
         return retrieveNonNilType(members).getTag();
     }
 
-    /*private BMap<String, BValue> createTimeStruct(long millis) {
-        return TimeUtils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
-    }*/
-
     private MapValue<String, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
                 millis, Constants.TIMEZONE_UTC);

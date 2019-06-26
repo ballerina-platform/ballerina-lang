@@ -36,6 +36,7 @@ public type AbstractSQLClient abstract client object {
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
     //   Param... parameters) returns @tainted table<record {}>|error;
+    // TODO: #16033
     public remote function select(@sensitive string sqlQuery, typedesc? recordType,
            Param... parameters) returns @tainted table<record {}>|error;
 

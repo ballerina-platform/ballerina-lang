@@ -56,6 +56,7 @@ public class Select extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
+        //TODO: #16033
         /*String query = context.getStringArgument(0);
         BStructureType structType = getStructType(context, 1);
         boolean loadSQLTableToMemory = context.getBooleanArgument(0);
@@ -71,6 +72,7 @@ public class Select extends AbstractSQLAction {
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {
         //TODO: JBalMigration: once default params are supported fix this
+        ////TODO: #16033
         Boolean loadSQLTableToMemory = false;
         SQLDatasource sqlDatasource = retrieveDatasource(client);
         //        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);

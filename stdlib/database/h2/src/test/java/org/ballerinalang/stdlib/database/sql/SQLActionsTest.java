@@ -367,7 +367,7 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Test failed batch update")
+    @Test(groups = { CONNECTOR_TEST }, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
@@ -380,7 +380,7 @@ public class SQLActionsTest {
         BRunUtil.invoke(resultNegative, "testUpdateReslt");
     }
 
-    @Test(groups = { CONNECTOR_TEST,  "broken" }, description = "Test failed parameter array update")
+    @Test(groups = { CONNECTOR_TEST }, description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()

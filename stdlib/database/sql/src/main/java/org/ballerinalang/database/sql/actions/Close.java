@@ -46,6 +46,7 @@ public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
+        //TODO: #16033
        /* SQLDatasource datasource = retrieveDatasource(context);
         // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that

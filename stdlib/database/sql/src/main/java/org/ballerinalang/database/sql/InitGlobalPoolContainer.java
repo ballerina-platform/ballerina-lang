@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
+        //TODO: #16033
         /*BMap<String, BRefType> globalPoolConfig = (BMap<String, BRefType>) context.getRefArgument(1);
         SQLDatasourceUtils.addDatasourceContainer(globalPoolConfig, new ConcurrentHashMap<>());*/
     }
