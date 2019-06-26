@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.util.jvm;
+package org.ballerinalang.util;
 
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -51,7 +51,7 @@ public class JBallerinaInMemoryClassLoader {
             importCl = createClassLoader(testJarPath.toFile(), importCl);
             cl = importCl;
         } catch (MalformedURLException e) {
-            throw new BLangRuntimeException("error loading jar " + testJarPath, e);
+            throw new BLangCompilerException("error loading jar " + testJarPath, e);
         }
     }
 
