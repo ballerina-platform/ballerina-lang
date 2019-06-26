@@ -73,14 +73,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -96,6 +94,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBui
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
@@ -742,6 +743,49 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTupleLiteral tupleLiteral) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(tupleLiteral);
+        Operand typeCPIndex = getTypeCPIndex(tupleLiteral.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(tupleLiteral, tupleLiteral.exprs.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < tupleLiteral.exprs.size(); i++) {
+            BLangExpression argExpr = tupleLiteral.exprs.get(i);
+            genNode(argExpr, this.env);
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = argExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(groupExpr);
+        Operand typeCPIndex = getTypeCPIndex(groupExpr.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(groupExpr, groupExpr.expression != null ? 1 : 0);
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array value;
+        BLangExpression argExpr = groupExpr.expression;
+        genNode(argExpr, this.env);
+        BLangLiteral indexLiteral = new BLangLiteral();
+        indexLiteral.pos = argExpr.pos;
+        indexLiteral.value = (long) 0;
+        indexLiteral.type = symTable.intType;
+        genNode(indexLiteral, this.env);
+        emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+    }
+
+    @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
         Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
@@ -879,7 +923,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(dataRowExpr, this.env);
             dataRows.add(dataRowExpr);
         }
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteral.exprs = dataRows;
         arrayLiteral.type = new BArrayType(symTable.anyType);
         genNode(arrayLiteral, this.env);
@@ -1186,29 +1230,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
         emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
                 errExpr.detailsExpr.regIndex, regIndex);
-    }
-
-    @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        // Emit create array instruction
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
-        Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        BLangLiteral sizeLiteral = generateIntegerLiteralNode(bracedOrTupleExpr, bracedOrTupleExpr.expressions.size());
-
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
-
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
-            genNode(argExpr, this.env);
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = argExpr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            genNode(indexLiteral, this.env);
-            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
-        }
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
@@ -2098,16 +2119,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
         // Add the finite type to the CP and get index.
-        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        BType symbolType = constant.typeNode != null ? constant.typeNode.type : constantSymbol.type;
+        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbolType.getDesc());
         // Add the value type to the CP and get index.
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalType.getDesc());
 
         // Get the value of the constant.
-        BLangExpression value = (BLangExpression) constant.value;
+        BLangExpression value = constant.expr;
 
         if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
             // Create a new constant value object.
-            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) constant.value);
+            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) value);
             constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
             constantValue.literalValueTypeTag = value.type.tag;
@@ -2117,7 +2139,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             // Get key-value info.
             ConstantValue constantValue = new ConstantValue();
-            constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+            // constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.value);
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
@@ -2217,7 +2239,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
                 BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
                 // Get the literal value.
-                Object literalValue = symbol.literalValue;
+                Object literalValue = symbol.value;
 
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);

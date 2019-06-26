@@ -9,14 +9,14 @@ function testArray() returns T1 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T2 (B, C);
+type T2 [B, C];
 
 type B int;
 
 type C string;
 
 function testSimpleTuple() returns T2 {
-    (B, C) value = (10, "Ten");
+    [B, C] value = [10, "Ten"];
     return value;
 }
 
@@ -66,7 +66,7 @@ function testObject() returns T6 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T7 int[]|A[]|(B, C)|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
+type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { public G g = ""; }|error;
 
 function testUnion() returns T7 {
     object { public G g = ""; } o = new;
@@ -76,12 +76,12 @@ function testUnion() returns T7 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T8 (int[], A[], (B, C), map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error);
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g = ""; }, error];
 
 function testComplexTuple() returns T8 {
     int[] iarr = [1, 2];
     A[] aarr = [3, 4];
-    (B, C) bc = (2, "Two");
+    [B, C] bc = [2, "Two"];
     map<string> ms = { "k": "v" };
     map<D> md = { "k": 1 };
     E e = "Ballerina";
@@ -89,7 +89,7 @@ function testComplexTuple() returns T8 {
     record { F f; } r = { f: "Ballerina" };
     object { public G g = ""; } o = new;
     error err = error("reason");
-    T8 t8 = (iarr, aarr, bc, ms, md, e, i, r, o, err);
+    T8 t8 = [iarr, aarr, bc, ms, md, e, i, r, o, err];
     return t8;
 }
 
@@ -101,7 +101,7 @@ type T10 J|K|T9|L;
 
 type H A[];
 
-type I (A, B);
+type I [A, B];
 
 type J map<A>;
 
@@ -117,12 +117,12 @@ function testComplexUnion() returns T10 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T11 (T7, T10);
+type T11 [T7, T10];
 
 function testUnionInTuple() returns T11 {
     A[] a = [4, 5, 6];
-    (int, int) t = (10, 20);
-    T11 t11 = (a, t);
+    [int, int] t = [10, 20];
+    T11 t11 = [a, t];
     return t11;
 }
 

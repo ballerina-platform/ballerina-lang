@@ -35,9 +35,9 @@ function stampMapToArray() returns string[] {
     return arrayValue;
 }
 
-function stampMapToTuple() returns (string,string) {
+function stampMapToTuple() returns [string,string] {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    (string,string) tupleValue = (string,string).stamp(m);
+    [string,string] tupleValue = [string,string].stamp(m);
 
     return tupleValue;
 }

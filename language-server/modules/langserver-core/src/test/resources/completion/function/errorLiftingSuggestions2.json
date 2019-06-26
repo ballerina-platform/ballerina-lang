@@ -6,18 +6,68 @@
   "source": "function/source/errorLiftingSuggestions2.bal",
   "items": [
     {
-      "label":"a",
-      "kind":"Unit",
-      "detail":"string",
-      "sortText":"221",
-      "insertText":"a"
+      "label": "a",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "221",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"b",
-      "kind":"Unit",
-      "detail":"string",
-      "sortText":"221",
-      "insertText":"b"
+      "label": "b",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "221",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

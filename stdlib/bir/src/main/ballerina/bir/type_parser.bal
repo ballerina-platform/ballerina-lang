@@ -268,6 +268,7 @@ public type TypeParser object {
             constructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
+
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();
@@ -277,8 +278,8 @@ public type TypeParser object {
             BServiceType bServiceType = {oType: obj};
             return bServiceType;
         }
-        return obj;
 
+        return obj;
     }
 
     function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
@@ -314,7 +315,6 @@ public type TypeParser object {
             fields[c] = self.parseObjectField();
             c = c + 1;
         }
-
         return fields;
     }
 

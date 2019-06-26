@@ -37,60 +37,60 @@ function testInvalidArgForForeachWithClosedRecords() {
     any[] vals = [];
     int i = 0;
 
-    foreach var (k, val, e) in p {
+    foreach var [k, val, e] in p {
         vals[i] = val;
         i += 1;
     }
 }
 
 function testInvalidForeachOpWithClosedRecords() {
-    p.foreach(function ((string,any) entry) {
+    p.foreach(function ([string,any] entry) {
     });
 
-    p.foreach(function ((string, string, any) entry) {
+    p.foreach(function ([string, string, any] entry) {
     });
 }
 
 function testInvalidMapOpWithClosedRecords() {
-    map<any> newp = p.map(function ((string, any) entry) returns (string, any) {
-        return ("", "");
+    map<any> newp = p.map(function ([string, any] entry) returns [string, any] {
+        return ["", ""];
     });
 
-    newp = p.map(function ((string, string, any) entry) returns (string, any) {
-        return ("", "");
+    newp = p.map(function ([string, string, any] entry) returns [string, any] {
+        return ["", ""];
     });
 
-    newp = p.map(function ((string, any) entry) returns any {
+    newp = p.map(function ([string, any] entry) returns any {
         return "";
     });
 
-    newp = p.map(function ((string, any) entry) returns (string, any, string) {
-        return ("", "", "");
+    newp = p.map(function ([string, any] entry) returns [string, any, string] {
+        return ["", "", ""];
     });
 
-    ClosedPerson invMap = p.map(function ((string, any) entry) returns (string, any) {
-        return ("", "");
+    ClosedPerson invMap = p.map(function ([string, any] entry) returns [string, any] {
+        return ["", ""];
     });
 }
 
 function testInvalidFilterOpWithClosedRecords() {
-    map<any> newp = p.filter(function ((string,any) entry) returns boolean {
+    map<any> newp = p.filter(function ([string, any] entry) returns boolean {
         return true;
     });
 
-    newp = p.filter(function ((string, string, any) entry) returns boolean {
+    newp = p.filter(function ([string, string, any] entry) returns boolean {
         return true;
     });
 
-    newp = p.filter(function ((string, any) entry) returns string {
+    newp = p.filter(function ([string, any] entry) returns string {
         return "";
     });
 
-    newp = p.filter(function ((string, any) entry) returns (string, any, string) {
-        return ("", "", "");
+    newp = p.filter(function ([string, any] entry) returns [string, any, string] {
+        return ["", "", ""];
     });
 
-    ClosedPerson invFil = p.filter(function ((string, any) entry) returns boolean {
+    ClosedPerson invFil = p.filter(function ([string, any] entry) returns boolean {
         return false;
     });
 }
@@ -98,37 +98,37 @@ function testInvalidFilterOpWithClosedRecords() {
 function testInvalidChainedItrOpReturns() {
     ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
 
-    map<int> m = f.map(function ((string, int) entry) returns (string, int) {
-        var (subj, grade) = entry;
-        return (subj, grade + 10);
+    map<int> m = f.map(function ([string, int] entry) returns [string, int] {
+        var [subj, grade] = entry;
+        return [subj, grade + 10];
     })
-    .map(function ((string, int) entry) returns (string, string) {
-        var (s, g) = entry;
+    .map(function ([string, int] entry) returns [string, string] {
+        var [s, g] = entry;
         if (g > 75) {
-            return (s, "PASS");
+            return [s, "PASS"];
         }
-        return (s, "FAIL");
+        return [s, "FAIL"];
     })
-    .filter(function ((string, string) entry) returns boolean {
-        var (s, status) = entry;
+    .filter(function ([string, string] entry) returns boolean {
+        var [s, status] = entry;
         if (status == "PASS") {
             return true;
         }
         return false;
     })
-    .map(function ((string, string) entry) returns (string, float) {
-        var (s, status) = entry;
+    .map(function ([string, string] entry) returns [string, float] {
+        var [s, status] = entry;
         if (status == "PASS") {
-            return (s, 4.2);
+            return [s, 4.2];
         }
-        return (s, 0.0);
+        return [s, 0.0];
     });
 }
 
 function testInvalidChainedItrOpReturns2() {
     ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
 
-    int[] ar = f.map(function ((string, int) value) returns int {
+    int[] ar = f.map(function ([string, int] value) returns int {
         return value[1] + 10;
     })
     .map(function (int grade) returns string {

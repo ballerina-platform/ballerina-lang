@@ -1,5 +1,5 @@
 
-function testAnonStructAsFuncParam() returns (int) {
+function testAnonStructAsFuncParam() returns int {
     return testAnonStructFunc(10, {k:14, s:"sameera"});
 }
 
@@ -8,7 +8,7 @@ function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) return
 }
 
 
-function testAnonStructAsLocalVar() returns (int) {
+function testAnonStructAsLocalVar() returns int {
     record {| int k = 11; string s; |} anonSt = {};
 
     return anonSt.k;
@@ -17,7 +17,7 @@ function testAnonStructAsLocalVar() returns (int) {
 
 record {| string fname; string lname; int age; |} person;
 
-function testAnonStructAsPkgVar() returns (string) {
+function testAnonStructAsPkgVar() returns string {
 
     person = {fname:"sameera", lname:"jaya"};
     person.lname = person.lname + "soma";
@@ -44,7 +44,7 @@ type employee record {
     |} dateOfBirth;
 };
 
-function testAnonStructAsStructField() returns (string) {
+function testAnonStructAsStructField() returns string {
 
     employee e = {fname:"sam", lname:"json", age:100,
                      address:{line01:"12 Gemba St APT 134", city:"Los Altos", state:"CA", zipcode:"95123"},

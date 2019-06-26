@@ -22,13 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -38,29 +32,12 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hmacSha1",
-        args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "key", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
-                        structPackage = Constants.CRYPTO_PACKAGE)
-        },
-        isPublic = true
+        functionName = "hmacSha1", isPublic = true
 )
 public class HmacSha1 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        BValue keyBValue = context.getRefArgument(1);
-
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        byte[] key = ((BValueArray) keyBValue).getBytes();
-        byte[] output = CryptoUtils.hmac(context, "HmacSHA1", key, input);
-        context.setReturnValues(new BValueArray(output));
     }
 
     public static ArrayValue hmacSha1(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {

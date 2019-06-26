@@ -35,8 +35,8 @@ function testUnionTypeInUnion() returns string {
     }
 }
 
-function testNestedTypeCheck() returns (any, any, any) {
-    return (bar(true), bar(1234), bar("hello"));
+function testNestedTypeCheck() returns [any, any, any] {
+    return [bar(true), bar(1234), bar("hello")];
 }
 
 function bar (string | int | boolean i)  returns string {
@@ -119,10 +119,10 @@ function testSimpleRecordTypes_1() returns string {
     return "n/a";
 }
 
-function testSimpleRecordTypes_2() returns (boolean, boolean) {
+function testSimpleRecordTypes_2() returns [boolean, boolean] {
     B1 b = {};
     any a = b;
-    return (a is A1, a is B1);
+    return [a is A1, a is B1];
 }
 
 type A2 record {
@@ -133,10 +133,10 @@ type B2 record {
     int x = 0;
 };
 
-function testSimpleRecordTypes_3() returns (boolean, boolean) {
+function testSimpleRecordTypes_3() returns [boolean, boolean] {
     B2 b = {};
     any a = b;
-    return (a is A2, a is B2);
+    return [a is A2, a is B2];
 }
 
 type Human record {
@@ -150,7 +150,7 @@ type Man record {
     int age = 0;
 };
 
-function testRecordsWithFunctionType_1() returns (string, string) {
+function testRecordsWithFunctionType_1() returns [string, string] {
     Human m = {name:"Piyal"};
     any a = m;
     string s1;
@@ -168,10 +168,10 @@ function testRecordsWithFunctionType_1() returns (string, string) {
         s2 = "a is not a human";
     }
 
-    return (s1, s2);
+    return [s1, s2];
 }
 
-function testRecordsWithFunctionType_2() returns (string, string) {
+function testRecordsWithFunctionType_2() returns [string, string] {
     Man m = {name:"Piyal"};
     any a = m;
     string s1;
@@ -189,7 +189,7 @@ function testRecordsWithFunctionType_2() returns (string, string) {
         s2 = "a is not a human";
     }
 
-    return (s1, s2);
+    return [s1, s2];
 }
 
 type X record {
@@ -204,10 +204,10 @@ type Y record {
     B1 r = {};   // Assignable to A1. Hence Y is assignable to X.
 };
 
-function testNestedRecordTypes() returns (boolean, boolean) {
+function testNestedRecordTypes() returns [boolean, boolean] {
     Y y = {};
     any x = y;
-    return (x is X, x is Y);
+    return [x is X, x is Y];
 }
 
 type A3 record {
@@ -218,10 +218,10 @@ type B3 record {|
     int x = 0;
 |};
 
-function testSealedRecordTypes() returns (boolean, boolean) {
+function testSealedRecordTypes() returns [boolean, boolean] {
     A3 a3 = {};
     any a = a3;
-    return (a is A3, a is B3);
+    return [a is A3, a is B3];
 }
 
 // ========================== Objects ==========================
@@ -272,7 +272,7 @@ public type SameAsPerson object {
     }
 };
 
-function testObjectWithSameMembersButDifferentAlias() returns (string, string, string, string) {
+function testObjectWithSameMembersButDifferentAlias() returns [string, string, string, string] {
     Person p1 = new("John", 35);
     any a = p1;
 
@@ -300,7 +300,7 @@ function testObjectWithSameMembersButDifferentAlias() returns (string, string, s
         s4 = "I am a person: " + b.getName();
     }
 
-    return (s1, s2, s3, s4);
+    return [s1, s2, s3, s4];
 }
 
 public type PersonInOrder object {
@@ -352,7 +352,7 @@ public type PersonNotInOrder object {
     public string address = "";
 };
 
-function testObjectWithUnorderedFields() returns (string, string, string, string) {
+function testObjectWithUnorderedFields() returns [string, string, string, string] {
     PersonInOrder p1 = new("John", 35);
     any a = p1;
 
@@ -380,7 +380,7 @@ function testObjectWithUnorderedFields() returns (string, string, string, string
         s4 = "I am a person not in order: " + b.getName();
     }
 
-    return (s1, s2, s3, s4);
+    return [s1, s2, s3, s4];
 }
 
 public type A4 abstract object {
@@ -405,7 +405,7 @@ public type C4 object {
     }
 };
 
-function testPublicObjectEquivalency() returns (string, string, string) {
+function testPublicObjectEquivalency() returns [string, string, string] {
     any x = new C4(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
@@ -423,7 +423,7 @@ function testPublicObjectEquivalency() returns (string, string, string) {
         s3 = "values: " + x.name + ", " + x.age;
     }
 
-    return (s1, s2, s3);
+    return [s1, s2, s3];
 }
 
 type A5 abstract object {
@@ -448,7 +448,7 @@ type C5 object {
     }
 };
 
-function testPrivateObjectEquivalency() returns (string, string, string) {
+function testPrivateObjectEquivalency() returns [string, string, string] {
     any x = new C5(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
@@ -466,10 +466,10 @@ function testPrivateObjectEquivalency() returns (string, string, string) {
         s3 = "values: " + x.name + ", " + x.age;
     }
 
-    return (s1, s2, s3);
+    return [s1, s2, s3];
 }
 
-function testAnonymousObjectEquivalency() returns (string, string, string) {
+function testAnonymousObjectEquivalency() returns [string, string, string] {
     any x = new C4(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
@@ -487,70 +487,70 @@ function testAnonymousObjectEquivalency() returns (string, string, string) {
         s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
     }
 
-    return (s1, s2, s3);
+    return [s1, s2, s3];
 }
 
 
 // ========================== Arrays ==========================
 
-function testSimpleArrays() returns (boolean, boolean, boolean, boolean, boolean) {
+function testSimpleArrays() returns [boolean, boolean, boolean, boolean, boolean] {
     int[] a = [1, 2, 3];
     int[][] b = [[1, 2, 3], [4, 5, 6]];
     any c = a;
     any d = b;
-    return ((c is int[] && d is int[][]), c is float[], d is json, d is json[], d is json[][]);
+    return [(c is int[] && d is int[][]), c is float[], d is json, d is json[], d is json[][]];
 }
 
-function testRecordArrays() returns (boolean, boolean, boolean, boolean) {
+function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
     X[] a = [{}, {}];
     X[][] b = [[{}, {}], [{}, {}]];
     any c = a;
     any d = b;
-    return (c is X[], d is X[][], c is Y[], d is Y[][]);
+    return [c is X[], d is X[][], c is Y[], d is Y[][]];
 }
 
 // ========================== Tuples ==========================
 
-function testSimpleTuples() returns (boolean, boolean, boolean, boolean, boolean) {
-    (int, string) x = (4, "hello");
+function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean] {
+    [int, string] x = [4, "hello"];
     any y = x;
 
-    boolean b0 = y is (int, string);
-    boolean b1 = y is (int, boolean);
-    boolean b2 = y is (float, boolean);
-    boolean b3 = y is (any, any);
-    boolean b4 = y is (json, json);
+    boolean b0 = y is [int, string];
+    boolean b1 = y is [int, boolean];
+    boolean b2 = y is [float, boolean];
+    boolean b3 = y is [any, any];
+    boolean b4 = y is [json, json];
 
-    return (b0, b1, b2, b3, b4);
+    return [b0, b1, b2, b3, b4];
 }
 
-function testTupleWithAssignableTypes_1() returns (boolean, boolean, boolean, boolean) {
-    (X, Y) p = ({}, {});
+function testTupleWithAssignableTypes_1() returns [boolean, boolean, boolean, boolean] {
+    [X, Y] p = [{}, {}];
     any q = p;
-    boolean b0 = q is (X, X);
-    boolean b1 = q is (X, Y);
-    boolean b2 = q is (Y, X);
-    boolean b3 = q is (Y, Y);
-    return (b0, b1, b2, b3);
+    boolean b0 = q is [X, X];
+    boolean b1 = q is [X, Y];
+    boolean b2 = q is [Y, X];
+    boolean b3 = q is [Y, Y];
+    return [b0, b1, b2, b3];
 }
 
 function testTupleWithAssignableTypes_2() returns boolean {
-    (Y, Y) p = ({}, {});
-    (X, Y) q = p;
-    boolean b1 = q is (Y, Y);
-    return q is (Y, Y);
+    [Y, Y] p = [{}, {}];
+    [X, Y] q = p;
+    boolean b1 = q is [Y, Y];
+    return q is [Y, Y];
 }
 
 // ========================== Map ==========================
 
-function testSimpleUnconstrainedMap_1() returns (boolean, boolean) {
+function testSimpleUnconstrainedMap_1() returns [boolean, boolean] {
     map<any> m = {"key1": "value1"};
     boolean b0 = m is map<string>;
     boolean b1 = m is map<json>;
-    return (b0, b1);
+    return [b0, b1];
 }
 
-function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, boolean, boolean) {
+function testSimpleUnconstrainedMap_2() returns [boolean, boolean, boolean, boolean, boolean] {
     map<any> m = {"key1": "value1"};
     any a = m;
     boolean b0 = a is map<any>;
@@ -558,22 +558,22 @@ function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, bool
     boolean b2 = a is map<string>;
     boolean b3 = a is json;
     boolean b4 = a is map<json>;
-    return (b0, b1, b2, b3, b4);
+    return [b0, b1, b2, b3, b4];
 }
 
-function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean) {
+function testSimpleConstrainedMap() returns [boolean, boolean, boolean, boolean] {
     map<string> m1 = {"key1": "value1"};
     any m2 = m1;
     boolean b0 = m2 is map<any>;
     boolean b1 = m2 is map<any>;
     boolean b2 = m2 is map<string>;
     boolean b3 = m2 is map<json>;
-    return (b0, b1, b2, b3);
+    return [b0, b1, b2, b3];
 }
 
 // ========================== JSON ==========================
 
-function testJSONTypeCheck() returns (string, string, string, string, string, string, string) {
+function testJSONTypeCheck() returns [string, string, string, string, string, string, string] {
     json j1 = 3;
     json j2 = 4.5;
     json j3 = "hello";
@@ -581,7 +581,7 @@ function testJSONTypeCheck() returns (string, string, string, string, string, st
     json j5 = [78, true, {"name": "john"}];
     json j6 = {"name": "john"};
     json j7 = null;
-    return (checkJSON(j1), checkJSON(j2), checkJSON(j3), checkJSON(j4), checkJSON(j5), checkJSON(j6), checkJSON(j7));
+    return [checkJSON(j1), checkJSON(j2), checkJSON(j3), checkJSON(j4), checkJSON(j5), checkJSON(j6), checkJSON(j7)];
 }
 
 function checkJSON(json j) returns string {
@@ -602,7 +602,7 @@ function checkJSON(json j) returns string {
     }
 }
 
-function testJsonArrays() returns (boolean, boolean, boolean) {
+function testJsonArrays() returns [boolean, boolean, boolean] {
     json[] p = [1, 2, 3];
     json[][] q = [[1, 2, 3], [4, 5, 6]];
     int[][] r = [[1, 2, 3], [4, 5, 6]];
@@ -613,45 +613,45 @@ function testJsonArrays() returns (boolean, boolean, boolean) {
     boolean b1 = y is int[][];
     boolean b3 = z is int[][];
 
-    return (b0, b1, b3);
+    return [b0, b1, b3];
 }
 
 // ========================== Finite type ==========================
 
 type State "on"|"off";
 
-function testFiniteType() returns (boolean, boolean, boolean) {
+function testFiniteType() returns [boolean, boolean, boolean] {
     State a = "on";
     any b = a;
     any c = "off";
     any d = "hello";
 
-    return (b is State, c is State, d is State);
+    return [b is State, c is State, d is State];
 }
 
-function testFiniteTypeInTuple() returns (boolean, boolean, boolean, boolean) {
-    (State, string) x = ("on", "off");
+function testFiniteTypeInTuple() returns [boolean, boolean, boolean, boolean] {
+    [State, string] x = ["on", "off"];
     any y = x;
     
-    boolean b0 = y is (State, State);
-    boolean b1 = y is (State, string);
-    boolean b2 = y is (string, State);
-    boolean b3 = y is (string, string);
+    boolean b0 = y is [State, State];
+    boolean b1 = y is [State, string];
+    boolean b2 = y is [string, State];
+    boolean b3 = y is [string, string];
 
-    return (b0, b1, b2, b3);
+    return [b0, b1, b2, b3];
 }
 
-function testFiniteTypeInTuplePoisoning() returns (State, State) {
-    (State, string) x = ("on", "off");
+function testFiniteTypeInTuplePoisoning() returns [State, State] {
+    [State, string] x = ["on", "off"];
     any y = x;
-    (State, State) z = ("on", "on");
+    [State, State] z = ["on", "on"];
     
-    if (y is (State, State)) {
+    if (y is [State, State]) {
         z = y;
     }
 
     x[1] = "surprise!";
-    return (z[0], z[1]);
+    return [z[0], z[1]];
 }
 
 public const APPLE = "apple";
@@ -685,11 +685,11 @@ function testFiniteTypeAsBroaderType_1() returns boolean {
 
 type FRUIT_OR_COUNT "apple"|2|"grape"|10;
 
-function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
+function testFiniteTypeAsBroaderType_2() returns [boolean, boolean] {
     FRUIT_OR_COUNT fc1 = GRAPE;
     FRUIT_OR_COUNT fc2 = 10;
 
-    return (fc1 is string, fc2 is int);
+    return [fc1 is string, fc2 is int];
 }
 
 type FooBarOneBoolean "foo"|"bar"|1|boolean;
@@ -697,18 +697,18 @@ type FooBarBaz "foo"|"bar"|"baz";
 type FalseFooThree false|"foo"|3;
 type IntTwo int|2.0;
 
-function testUnionWithFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+function testUnionWithFiniteTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     FooBarOneBoolean f1 = "foo";
     FooBarOneBoolean f2 = 1;
 
-    return (f1 is FooBarBaz, f2 is IntTwo);
+    return [f1 is FooBarBaz, f2 is IntTwo];
 }
 
-function testUnionWithFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+function testUnionWithFiniteTypeAsFiniteTypeFalse() returns [boolean, boolean] {
     FooBarOneBoolean f1 = "foo";
     FooBarOneBoolean f2 = 1;
 
-    return (f1 is IntTwo, f2 is FooBarBaz);
+    return [f1 is IntTwo, f2 is FooBarBaz];
 }
 
 function testFiniteTypeAsFiniteTypeTrue() returns boolean {
@@ -721,26 +721,26 @@ function testFiniteTypeAsFiniteTypeFalse() returns boolean {
     return f1 is FalseFooThree;
 }
 
-function testIntersectingUnionTrue() returns (boolean, boolean) {
+function testIntersectingUnionTrue() returns [boolean, boolean] {
     string|int|typedesc x = 1;
-    return (x is int|boolean, x is json);
+    return [x is int|boolean, x is json];
 }
 
-function testIntersectingUnionFalse() returns (boolean, boolean) {
+function testIntersectingUnionFalse() returns [boolean, boolean] {
     string|int|typedesc x = int;
-    return (x is int|boolean, x is anydata);
+    return [x is int|boolean, x is anydata];
 }
 
-function testValueTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";
     float f = 2.0;
-    return (s is Fruit, f is IntTwo);
+    return [s is Fruit, f is IntTwo];
 }
 
-function testValueTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+function testValueTypeAsFiniteTypeFalse() returns [boolean, boolean] {
     string s = "mango";
     float f = 12.0;
-    return (s is Fruit, f is IntTwo);
+    return [s is Fruit, f is IntTwo];
 }
 
 const ERR_REASON = "error reason";
@@ -753,7 +753,7 @@ type Details record {
 type MyError error<ERR_REASON, Details>;
 type MyErrorTwo error<ERR_REASON_TWO, Details>;
 
-function testError_1() returns (boolean, boolean, boolean, boolean) {
+function testError_1() returns [boolean, boolean, boolean, boolean] {
     error e = error("error reason one");
     any|error f = e;
     boolean b1 = f is error;
@@ -763,13 +763,13 @@ function testError_1() returns (boolean, boolean, boolean, boolean) {
     f = e;
     boolean b3 = f is error;
     boolean b4 = f is MyError;
-    return (b1, b2, b3, b4);
+    return [b1, b2, b3, b4];
 }
 
-function testError_2() returns (boolean, boolean, boolean) {
+function testError_2() returns [boolean, boolean, boolean] {
     MyError e = error(ERR_REASON, { message: "detail message" });
     any|error f = e;
-    return (f is MyError, f is error, f is MyErrorTwo);
+    return [f is MyError, f is error, f is MyErrorTwo];
 }
 
 function testClosedArrayAsOpenArray() returns boolean {

@@ -76,20 +76,21 @@ public class SignatureHelpTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/signatureHelp");
         return new Object[][] {
-//                {"functionInSameFile.json", "functionInSameFile.bal"},
-//                {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
-//                {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
-//                {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
-//                {"endpointActions.json", "endpointActions.bal"},
-//                {"signatureWithinResources.json", "signatureWithinResources.bal"},
-//                {"signatureWithinIfElse1.json", "signatureWithinIfElse1.bal"},
-//                {"signatureWithinIfElse2.json", "signatureWithinIfElse2.bal"},
-//                {"signatureWithinIfElse3.json", "signatureWithinIfElse3.bal"},
-//                {"signatureWithinIfElse1.json", "signatureWithinIfElse4.bal"},
-//                {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
-//                {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
-//                {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
-//                {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
+                {"functionInSameFile.json", "functionInSameFile.bal"},
+                {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
+                {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
+                {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
+                {"endpointActions.json", "endpointActions.bal"},
+                {"signatureWithinResources.json", "signatureWithinResources.bal"},
+                {"signatureWithinIfElse1.json", "signatureWithinIfElse1.bal"},
+                {"signatureWithinIfElse2.json", "signatureWithinIfElse2.bal"},
+                {"signatureWithinIfElse3.json", "signatureWithinIfElse3.bal"},
+                {"signatureWithinIfElse1.json", "signatureWithinIfElse4.bal"},
+                {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
+                {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
+                {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
+                {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
+                {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
         };
     }
 

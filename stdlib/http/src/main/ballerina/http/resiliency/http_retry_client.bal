@@ -47,7 +47,7 @@ public type RetryClient client object {
     public string url;
     public ClientEndpointConfig config;
     public RetryInferredConfig retryInferredConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
 
     # Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP
     # client to provide retrying over HTTP requests.
@@ -57,7 +57,7 @@ public type RetryClient client object {
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
     public function __init(string url, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
-                                        Client httpClient) {
+                                        HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.retryInferredConfig = retryInferredConfig;
@@ -314,7 +314,7 @@ function performRetryClientExecuteAction(@sensitive string path, Request request
 // Handles all the actions exposed through the retry client.
 function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
                             RetryClient retryClient, string verb = "") returns HttpResponse|error {
-    Client httpClient = retryClient.httpClient;
+    HttpClient httpClient = retryClient.httpClient;
     int currentRetryCount = 0;
     int retryCount = retryClient.retryInferredConfig.count;
     int interval = retryClient.retryInferredConfig.interval;
@@ -335,7 +335,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                               && currentRetryCount < (retryCount)) {
-                (interval, currentRetryCount) =
+                [interval, currentRetryCount] =
                                 calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             } else {
                 return backendResponse;
@@ -346,19 +346,19 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
                 int responseStatusCode = response.statusCode;
                 if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                                   && currentRetryCount < (retryCount)) {
-                    (interval, currentRetryCount) =
+                    [interval, currentRetryCount] =
                                     calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
                 } else {
                     // We return the HttpFuture object as this is called by submit method.
                     return backendResponse;
                 }
             } else {
-                (interval, currentRetryCount) =
+                [interval, currentRetryCount] =
                                 calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
                 httpConnectorErr = response;
             }
         } else {
-            (interval, currentRetryCount) =
+            [interval, currentRetryCount] =
                             calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             httpConnectorErr = backendResponse;
         }
@@ -383,12 +383,12 @@ function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns
 }
 
 function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int currentRetryCount, int currentDelay)
-                                                 returns (int, int) {
+                                                 returns [int, int] {
     int interval = currentDelay;
     if (currentRetryCount != 0) {
         interval = getWaitTime(retryClient.retryInferredConfig.backOffFactor,
                     retryClient.retryInferredConfig.maxWaitInterval, interval);
     }
     int retryCount = currentRetryCount + 1;
-    return (interval, retryCount);
+    return [interval, retryCount];
 }

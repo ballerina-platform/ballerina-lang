@@ -27,13 +27,24 @@ import ballerina/time;
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
-public type JWTValidatorConfig record {|
+# + jwtCache - Cache used to store parsed JWT information as CachedJwt
+public type JwtValidatorConfig record {|
     string issuer?;
     string[] audience?;
     int clockSkew = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
+    cache:Cache jwtCache = new(capacity = 1000);
+|};
+
+# Represents parsed and cached JWT.
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
+public type CachedJwt record {|
+    JwtPayload jwtPayload;
+    int expiryTime;
 |};
 
 # Validity given JWT string.
@@ -42,7 +53,7 @@ public type JWTValidatorConfig record {|
 # + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
-public function validateJwt(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
+public function validateJwt(string jwtToken, JwtValidatorConfig config) returns JwtPayload|error {
     string[] encodedJWTComponents = [];
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
@@ -55,8 +66,8 @@ public function validateJwt(string jwtToken, JWTValidatorConfig config) returns 
     JwtHeader header = {};
     JwtPayload payload = {};
     var decodedJwt = parseJWT(encodedJWTComponents);
-    if (decodedJwt is (JwtHeader, JwtPayload)) {
-        (header, payload) = decodedJwt;
+    if (decodedJwt is [JwtHeader, JwtPayload]) {
+        [header, payload] = decodedJwt;
     } else {
         return decodedJwt;
     }
@@ -81,22 +92,22 @@ function getJWTComponents(string jwtToken) returns (string[])|error {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
+function parseJWT(string[] encodedJWTComponents) returns ([JwtHeader, JwtPayload]|error) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
-    if (decodedJWTComponents is (json, json)) {
-        (headerJson, payloadJson) = decodedJWTComponents;
+    if (decodedJWTComponents is [json, json]) {
+        [headerJson, payloadJson] = decodedJWTComponents;
     } else {
         return decodedJWTComponents;
     }
 
     JwtHeader jwtHeader = parseHeader(headerJson);
     JwtPayload jwtPayload = parsePayload(payloadJson);
-    return (jwtHeader, jwtPayload);
+    return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns ([json, json]|error) {
     string jwtHeader = encoding:byteArrayToString(check
         encoding:decodeBase64Url(encodedJWTComponents[0]));
     string jwtPayload = encoding:byteArrayToString(check
@@ -119,7 +130,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
     } else {
         return jsonPayload;
     }
-    return (jwtHeaderJson, jwtPayloadJson);
+    return [jwtHeaderJson, jwtPayloadJson];
 }
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
@@ -192,7 +203,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
 }
 
 function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload,
-                            JWTValidatorConfig config) returns (boolean|error) {
+                            JwtValidatorConfig config) returns (boolean|error) {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
     }
@@ -246,7 +257,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
     return true;
 }
 
-function validateCertificate(JWTValidatorConfig config) returns boolean|error {
+function validateCertificate(JwtValidatorConfig config) returns boolean|error {
     crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
                                                               keyAlias = config.certificateAlias);
     time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
@@ -263,7 +274,7 @@ function validateCertificate(JWTValidatorConfig config) returns boolean|error {
     return false;
 }
 
-function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
+function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtValidatorConfig config)
 returns boolean|error {
     if (jwtHeader.alg == NONE) {
         return prepareError("Not a valid JWS. Signature algorithm is NONE.");
@@ -288,7 +299,7 @@ returns boolean|error {
     }
 }
 
-function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns error? {
+function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) returns error? {
     var iss = jwtPayload["iss"];
     if (iss is string) {
         if (jwtPayload.iss != config.issuer) {
@@ -299,7 +310,7 @@ function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) return
     }
 }
 
-function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) returns error? {
+function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) returns error? {
     var aud = jwtPayload["aud"];
     if (aud is string[]) {
         boolean validationStatus = false;
@@ -322,7 +333,7 @@ function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) retu
     }
 }
 
-function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns boolean {
+function validateExpirationTime(JwtPayload jwtPayload, JwtValidatorConfig config) returns boolean {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;
     if (config.clockSkew > 0){

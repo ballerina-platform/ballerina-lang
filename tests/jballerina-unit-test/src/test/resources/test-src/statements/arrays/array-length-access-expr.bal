@@ -60,7 +60,7 @@ function arrayLengthAccessTestReturnStatementCase(int x, int y) returns (int) {
     return arr.length();
 }
 
-function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns (int,int,int) {
+function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns [int,int,int] {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -70,7 +70,7 @@ function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns (in
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return (arr.length(), brr.length(), crr.length());
+    return [arr.length(), brr.length(), crr.length()];
 }
 
 function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) returns (int) {

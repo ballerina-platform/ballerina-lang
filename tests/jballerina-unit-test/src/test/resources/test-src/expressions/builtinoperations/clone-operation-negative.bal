@@ -24,10 +24,10 @@ public function cloneInvalidType() {
     typedesc x = a.clone();
 }
 
-public function cloneNil() returns ((), ()) {
+public function cloneNil() returns [(), ()] {
     () a = ();
     () x = a.clone();
-    return (a, x);
+    return [a, x];
 }
 
 public function cloneError() returns error {

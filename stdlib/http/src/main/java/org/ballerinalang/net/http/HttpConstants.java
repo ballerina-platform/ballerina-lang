@@ -154,8 +154,8 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String HTTP_CLIENT = "Client";
-    public static final String HTTP_CALLER = "HttpCaller";
+    public static final String CLIENT = "Client";
+    public static final String HTTP_CLIENT = "HttpClient";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
@@ -421,6 +421,8 @@ public class HttpConstants {
 
     public static final String COLON = ":";
     public static final String DOLLAR = "$";
+
+    public static final String HTTP_VERSION_1_1 = "1.1";
 
     private HttpConstants() {
     }

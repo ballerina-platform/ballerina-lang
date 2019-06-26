@@ -267,6 +267,7 @@ const string STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
+const string SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
@@ -295,6 +296,8 @@ const string THROWABLE = "java/lang/Throwable";
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
 const string BAL_EXTENSION = ".bal";
+const string WINDOWS_PATH_SEPERATOR = "\\";
+const string UNIX_PATH_SEPERATOR = "/";
 const string BALLERINA = "ballerina";
 const string BUILT_IN_PACKAGE_NAME = "builtin";
 

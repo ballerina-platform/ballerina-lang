@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +78,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     private byte[] byteValues;
     private double[] floatValues;
     private String[] stringValues;
+    private BigDecimal[] decimalValues;
 
     public BType elementType;
 
@@ -116,6 +118,12 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.stringValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeString);
+    }
+
+    public ArrayValue(BigDecimal[] values) {
+        this.decimalValues = values;
+        this.size = values.length;
+        setArrayElementType(BTypes.typeDecimal);
     }
 
     public ArrayValue(BType type) {
@@ -259,6 +267,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         return stringValues[(int) index];
     }
 
+    public BigDecimal getDecimal(long index) {
+        rangeCheckForGet(index, size);
+        return decimalValues[(int) index];
+    }
+
     public Object get(long index) {
         rangeCheckForGet(index, size);
         switch (this.elementType.getTag()) {
@@ -371,8 +384,8 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof String)
-                               ? ("\"" + refValues[i] + "\"") : ((RefValue) refValues[i]).stringValue());
+                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
+                        (refValues[i] instanceof String) ? ("\"" + refValues[i] + "\"") :  refValues[i].toString());
             } else {
                 sj.add("()");
             }
@@ -874,7 +887,7 @@ public class ArrayValue implements RefValue, CollectionValue {
             if (cursor == length) {
                 return null;
             }
-            return array.get(cursor);
+            return array.getValue(cursor);
         }
 
         @Override

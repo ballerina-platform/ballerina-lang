@@ -105,7 +105,7 @@ public function parent(string path) returns string|error {
     }
     int offset;
     string root;
-    (root, offset) = check getRoot(validatedPath);
+    [root, offset] = check getRoot(validatedPath);
     if (len < offset) {
         return root;
     }
@@ -129,7 +129,7 @@ public function normalize(string path) returns string|error {
 
     string root;
     int offset;
-    (root, offset) = check getRoot(validatedPath);
+    [root, offset] = check getRoot(validatedPath);
     string c0 = check charAt(path, 0);
 
     int i = 0;
@@ -290,10 +290,10 @@ public function relative(string base, string target) returns string|error {
     }
     string baseRoot;
     int baseOffset;
-    (baseRoot, baseOffset) = check getRoot(cleanBase);
+    [baseRoot, baseOffset] = check getRoot(cleanBase);
     string targetRoot;
     int targetOffset;
-    (targetRoot, targetOffset) = check getRoot(cleanTarget);
+    [targetRoot, targetOffset] = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
         error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", { message: "Can't make: " + target
         + " relative to " + base});
@@ -375,7 +375,7 @@ function parse(string input) returns string|error {
     if (isWindows) {
         int offset = 0;
         string root = "";
-        (root, offset) = check getRoot(input);
+        [root, offset] = check getRoot(input);
         return root + check parseWindowsPath(input, offset);
     } else {
         int n = input.length();
@@ -396,7 +396,7 @@ function parse(string input) returns string|error {
     }
 }
 
-function getRoot(string input) returns (string,int)|error {
+function getRoot(string input) returns [string,int]|error {
     if (isWindows) {
         return getWindowsRoot(input);
     } else {

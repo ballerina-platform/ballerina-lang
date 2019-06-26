@@ -348,7 +348,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 57, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'string'", 63, 10);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 70, 10);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int,int)'", 76, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '[int,int]'", 76, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for 'int' and 'string'", 88, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for 'int' and 'string'", 94, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for 'int' and 'string'", 100, 5);

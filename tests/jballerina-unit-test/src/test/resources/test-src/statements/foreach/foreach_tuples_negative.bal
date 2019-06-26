@@ -15,7 +15,7 @@
 // under the License.
 
 function testTupleForeachNegative1() {
-    (int, int, string, int, string) ldata = (10, 5, "string", 3, "string");
+    [int, int, string, int, string] ldata = [10, 5, "string", 3, "string"];
     int i = 0;
     foreach string v in ldata {
 
@@ -26,7 +26,7 @@ function testTupleForeachNegative1() {
 }
 
 function testTupleForeachNegative2() {
-    (int, int, string, int, boolean) ldata = (10, 5, "string", 3, false);
+    [int, int, string, int, boolean] ldata = [10, 5, "string", 3, false];
     int i = 0;
     foreach string|int v in ldata {
 

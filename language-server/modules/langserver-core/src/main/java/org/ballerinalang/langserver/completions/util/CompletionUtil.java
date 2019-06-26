@@ -15,38 +15,28 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import static org.ballerinalang.langserver.sourceprune.SourcePruner.searchTokenAtCursor;
+import java.util.stream.Collectors;
 
 /**
  * Common utility methods for the completion operation.
@@ -78,7 +68,8 @@ public class CompletionUtil {
         if (ctx == null) {
             return null;
         }
-
+        // Set the invocation or field access token type
+        setInvocationOrInteractionOrFieldAccessToken(ctx);
         BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderFactory.getInstance().getProviders();
         LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
@@ -100,29 +91,34 @@ public class CompletionUtil {
         }
         return items;
     }
-    
-    public static void getPrunedSource(LSContext context) throws WorkspaceDocumentException, SourcePruneException {
-        WorkspaceDocumentManager documentManager = context.get(CompletionKeys.DOC_MANAGER_KEY);
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        Path path = Paths.get(URI.create(uri));
-        String documentContent = documentManager.getFileContent(path);
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
-        parser.removeErrorListeners();
-        parser.compilationUnit();
-        if (parser.getNumberOfSyntaxErrors() == 0) {
+
+    /**
+     * Check whether the token stream corresponds to a action invocation or a function invocation.
+     *
+     * @param context Completion operation context
+     */
+    private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
+        if (lhsTokens == null) {
             return;
         }
-        TokenStream tokenStream = parser.getTokenStream();
-        List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, position.getLine(), position.getCharacter());
-        
-        if (!tokenAtCursor.isPresent()) {
-            throw new SourcePruneException("Could not find token at cursor");
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
+                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
+        boolean result = !lhsDefaultTokens.isEmpty()
+                && (lastToken == BallerinaParser.COLON || lastToken == BallerinaParser.DOT
+                || lastToken == BallerinaParser.RARROW || lastToken == BallerinaParser.LARROW
+                || lastToken == BallerinaParser.NOT
+                || (lhsDefaultTokens.size() >= 2 && (tokenBeforeLast == BallerinaParser.COLON
+                || tokenBeforeLast == BallerinaParser.DOT || tokenBeforeLast == BallerinaParser.RARROW
+                || tokenBeforeLast == BallerinaParser.LARROW || tokenBeforeLast == BallerinaParser.NOT)));
+
+        if (result) {
+            context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, lastToken);
         }
-        
-        SourcePruner.pruneSource(tokenStream, tokenAtCursor.get().getTokenIndex(), context);
-        documentManager.setPrunedContent(path, tokenStream.getText());
     }
 }

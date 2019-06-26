@@ -1,7 +1,7 @@
 
-public function testObjectFieldDefaultable () returns (int, string, int, string) {
+public function testObjectFieldDefaultable () returns [int, string, int, string] {
     Person p = new Person();
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 type Person object {

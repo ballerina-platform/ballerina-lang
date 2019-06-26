@@ -15,28 +15,28 @@ function testIntToVarAssignment() returns (int) {
     return age;
 }
 
-function testMultipleIntToVarAssignment() returns (int,int,int,int) {
-    var (age, age1, age2, age3) = retFourInt();
-    return (age, age1, age2, age3);
+function testMultipleIntToVarAssignment() returns [int,int,int,int] {
+    var [age, age1, age2, age3] = retFourInt();
+    return [age, age1, age2, age3];
 }
 
-function testMultipleIntToVarAssignmentWithUnderscore() returns (int,int) {
-    var (age, age1, a, b) = retFourInt();
-    return (age, age1);
+function testMultipleIntToVarAssignmentWithUnderscore() returns [int,int] {
+    var [age, age1, a, b] = retFourInt();
+    return [age, age1];
 }
 
-function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() returns (int,int) {
-    var (age, b, age1, c) = retFourInt();
-    return (age, age1);
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() returns [int,int] {
+    var [age, b, age1, c] = retFourInt();
+    return [age, age1];
 }
 
-function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() returns (int,int) {
-    var (age, a, b, age1) = retFourInt();
-    return (age, age1);
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() returns [int,int] {
+    var [age, a, b, age1] = retFourInt();
+    return [age, age1];
 }
 
-function retFourInt() returns (int,int,int,int){
-    return (100, 200, 300, 400);
+function retFourInt() returns [int,int,int,int]{
+    return [100, 200, 300, 400];
 }
 
 function testStringToVarAssignment() returns (string) {
@@ -44,13 +44,13 @@ function testStringToVarAssignment() returns (string) {
     return name;
 }
 
-function testMultipleStringToVarAssignment() returns (string,string,string,string) {
-    var (name, name1, name2, name3) = retFourString();
-    return (name, name1, name2, name3);
+function testMultipleStringToVarAssignment() returns [string,string,string,string] {
+    var [name, name1, name2, name3] = retFourString();
+    return [name, name1, name2, name3];
 }
 
-function retFourString() returns (string,string,string,string){
-    return ("name_1", "name_2", "name_3", "name_4");
+function retFourString() returns [string,string,string,string]{
+    return ["name_1", "name_2", "name_3", "name_4"];
 }
 
 function testBooleanToVarAssignment() returns (boolean) {

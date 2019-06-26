@@ -73,7 +73,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
             String callerType = param.getVarType().toString();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+            } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
                 BWebSocketService webSocketService = new BWebSocketService(service);
                 webSocketServicesRegistry.registerService(webSocketService);
             }
@@ -94,8 +94,8 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
             String callerType = param.getName();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                WebSocketService webSocketService = new WebSocketService(service);
+            } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
                 webSocketServicesRegistry.registerService(webSocketService);
             }
         } else {

@@ -94,7 +94,7 @@ public function runPatternQuery1() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
                 "cId": 0
             };
@@ -176,9 +176,9 @@ public function runPatternQuery2() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
-                "cId": e.data["c.id"]
+                "cId": e.get("c.id")
             };
         }
     );
@@ -279,9 +279,9 @@ public function runPatternQuery3() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
-                "cId": e.data["c.id"]
+                "cId": e.get("c.id")
             };
         }
     );
@@ -382,7 +382,7 @@ public function runPatternQuery4() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
                 "cId": 0
             };
@@ -482,7 +482,7 @@ public function runPatternQuery5() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
                 "cId": 0
             };
@@ -582,7 +582,7 @@ public function runPatternQuery6() returns (ABCInfo[]) {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "aId": e.data["a.id"],
+                "aId": e.get("a.id"),
                 "bId": 0,
                 "cId": 0
             };
@@ -691,7 +691,7 @@ public function runPatternQuery7() returns (ABCInfo[]) {
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
                 "aId": 0,
-                "bId": e.data["b.id"],
+                "bId": e.get("b.id"),
                 "cId": 0
             };
         }
@@ -778,8 +778,8 @@ public function runPatternQuery8() returns (ABCInfo[]) {
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
                 "aId": 0,
-                "bId": e.data["b.id"],
-                "cId": e.data["c.id"]
+                "bId": e.get("b.id"),
+                "cId": e.get("c.id")
             };
         }
     );
@@ -877,8 +877,8 @@ public function runPatternQuery9() returns (ABCInfo[]) {
         [], (), function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
                 "aId": 0,
-                "bId": e.data["b.id"],
-                "cId": e.data["c.id"]
+                "bId": e.get("b.id"),
+                "cId": e.get("c.id")
             };
         }
     );
@@ -982,7 +982,7 @@ public function runPatternQuery10() returns (ABCInfo[]) {
             return {
                 "aId": 0,
                 "bId": 0,
-                "cId": e.data["c.id"]
+                "cId": e.get("c.id")
             };
         }
     );

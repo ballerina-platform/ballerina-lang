@@ -50,8 +50,8 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
         BLangNode scopeNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<Integer> lhsTokenTypes = lhsTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
-
-        if (isInvocationOrInteractionOrFieldAccess(ctx)) {
+        int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        if (invocationOrDelimiterTokenType > -1) {
             completionItems.addAll(getDelimiterBasedCompletionItems(ctx));
             ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(ctx, completionItems);
             return completionItems;

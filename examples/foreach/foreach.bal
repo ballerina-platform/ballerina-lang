@@ -4,8 +4,8 @@ public function main() {
     io:println("Iterating a string array :");
     string[] fruits = ["apple", "banana", "cherry"];
 
-    // The `foreach` statement can be used to iterate an array. Each iteration returns an element in the array. Note
-    // that the index of the corresponding element is not returned.
+    // The `foreach` statement can be used to iterate an array. Each iteration returns an element in the array. 
+    // The index of the corresponding element is not returned.
     foreach var v in fruits {
         io:println("fruit: " + v);
     }
@@ -14,7 +14,7 @@ public function main() {
     map<string> words = { a: "apple", b: "banana", c: "cherry" };
 
     // Iterating a `map` will return the key (`string`) and the value as a `tuple` variable.
-    // We can use tuple destructuring to split the tuple variable in to two variables.
+    // Tuple destructuring can be used to split the tuple variable in to two variables.
     foreach var (k, v) in words {
         io:println("letter: " + k + ", word: " + v);
     }
@@ -32,14 +32,14 @@ public function main() {
         } else if (j is json[]) {
             io:println("json array value: ", j);
         } else {
-            // JSON is a union type for `()` or `null` | `int` | `float` | `decimal` | `string` | `json[]` | `map<json>`,
-            // The else block will be reached if `j` is neither `string`, `int` or `json[]`.
+            // JSON is a union type for `()` or `null` | `int` | `float` | `decimal` | `string` | `json[]` | `map<json>`.
+            // The else block will be reached if `j` is neither `string`, `int`, or `json[]`.
             io:println("non-string value: ", j);
         }
     }
 
     io:println("\nIterating a JSON array :");
-    // To iterate a JSON array, you need to first cast it into an array of json (`json[]`).
+    // To iterate a JSON array, you need to first cast it into a JSON array (`json[]`).
     json[] colors = <json[]>apple.colors;
     int counter = 0;
     foreach var j in colors {
@@ -71,7 +71,7 @@ public function main() {
 
     io:println("\nIterating a half open integer range :");
     sum = 0;
-    // A half open integer range in the `foreach` statement represents an incremental integer value range from the start
+    // A half-open integer range in the `foreach` statement represents an incremental integer value range from the start
     // expression (`1`) inclusively, to the end expression (`endValue`) exclusively.
     foreach var i in 1..<endValue {
         sum = sum + i;
