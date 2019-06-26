@@ -304,6 +304,12 @@ class SizingVisitor implements Visitor {
             return;
         }
 
+        if (node.viewState.hiddenBlock) {
+            viewState.bBox.w = 60;
+            viewState.bBox.h = config.statement.height;
+            return;
+        }
+
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.condition.bottomMargin
