@@ -22,23 +22,8 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <!-- <packages>
+        <packages>
             <package name="org.ballerinalang.stdlib.jwt.*"/>
-        </packages> -->
-        <classes>
-            <class name="org.ballerinalang.stdlib.jwt.JwtIssuerAndValidatorTest">
-                <methods>
-                    <exclude name="testCompleteValidator"/>
-                    <exclude name="testPartialValidatorWithNoIssOrSub"/>
-                    <exclude name="testPartialValidatorWithIssAndSub"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.stdlib.jwt.JwtAuthProviderTest">
-                <methods>
-                    <exclude name="testVerifyJwt"/>
-                    <exclude name="testJwtAuthProviderAuthenticationSuccess"/>
-                </methods>
-            </class>
-        </classes>
+        </packages>
     </test>
 </suite>
