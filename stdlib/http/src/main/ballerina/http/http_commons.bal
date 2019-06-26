@@ -250,7 +250,7 @@ function buildResponse(ResponseMessage message) returns Response {
 # + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
-                                                Client httpClient, string verb = "") returns HttpResponse|error {
+                                                HttpClient httpClient, string verb = "") returns HttpResponse|error {
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
         return result;
