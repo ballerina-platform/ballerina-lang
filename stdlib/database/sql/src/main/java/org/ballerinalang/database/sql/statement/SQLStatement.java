@@ -24,5 +24,5 @@ package org.ballerinalang.database.sql.statement;
  */
 public interface SQLStatement {
 
-    void execute();
+    Object execute();
 }
