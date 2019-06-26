@@ -89,7 +89,7 @@ public class ConstantPool {
                     stream.writeLong(((CPEntry.IntegerCPEntry) cpEntry).value);
                     break;
                 case CP_ENTRY_BYTE:
-                    stream.writeByte(((CPEntry.ByteCPEntry) cpEntry).value);
+                    stream.writeInt(((CPEntry.ByteCPEntry) cpEntry).value);
                     break;
                 case CP_ENTRY_FLOAT:
                     stream.writeDouble(((CPEntry.FloatCPEntry) cpEntry).value);

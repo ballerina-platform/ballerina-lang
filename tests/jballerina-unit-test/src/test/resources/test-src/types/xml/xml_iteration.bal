@@ -32,15 +32,15 @@ xml bookstore = xml `<bookstore>
                         </book>
                     </bookstore>`;
 
-function foreachTest() returns (int, string)[] {
-    (int, string)[] titles = [];
+function foreachTest() returns [int, string][] {
+    [int, string][] titles = [];
 
     count = 0;
 
     int i = 0;
     foreach var x in bookstore["book"] {
         if x is xml {
-            titles[count] = (i, x["title"].getTextValue());
+            titles[count] = [i, x["title"].getTextValue()];
             count +=1;
             i +=1;
         }
@@ -51,14 +51,14 @@ function foreachTest() returns (int, string)[] {
 
 int count = 0;
 
-function foreachOpTest() returns (int, string)[] {
-    (int, string)[] titles = [];
+function foreachOpTest() returns [int, string][] {
+    [int, string][] titles = [];
 
     count = 0;
 
     bookstore["book"].foreach(function (xml|string entry) {
         if entry is xml {
-            titles[count] = (count, entry["title"].getTextValue());
+            titles[count] = [count, entry["title"].getTextValue()];
             count += 1;
         }
     });

@@ -1,2 +1,2 @@
 // Ballerina natively supports Java Message Service (JMS). In this example, a simple JMS queue
-// receiver is created with client acknowledgment.
+// receiver is created with a client acknowledgment.

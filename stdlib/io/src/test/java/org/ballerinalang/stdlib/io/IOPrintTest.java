@@ -41,7 +41,6 @@ import java.io.PrintStream;
 /**
  * Test Native functions in ballerina/io.
  */
-@Test(enabled = false)
 public class IOPrintTest {
 
     private CompileResult compileResult;
@@ -124,7 +123,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
@@ -137,7 +136,7 @@ public class IOPrintTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFunctionPointerPrintAndPrintln() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
@@ -222,64 +221,64 @@ public class IOPrintTest {
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatBooleanTrue() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BBoolean(true));
         BValue[] args = {new BString("%b"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatBooleanFalse() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BBoolean(false));
         BValue[] args = {new BString("%b"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "false");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatDecimal() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BInteger(65));
         BValue[] args = {new BString("%d"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "65");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatFloat() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BFloat(3.25));
         BValue[] args = {new BString("%f"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "3.250000");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatString() {
         String name = "John";
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BString(name));
         BValue[] args = {new BString("%s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), name);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatHex() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BInteger(57005));
         BValue[] args = {new BString("%x"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "dead");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatIntArray() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         BValueArray arr = new BValueArray(BTypes.typeInt);
         arr.add(0, 111L);
         arr.add(1, 222L);
@@ -291,36 +290,36 @@ public class IOPrintTest {
         Assert.assertEquals(returns[0].stringValue(), "[111, 222, 333]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatLiteralPercentChar() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BString("test"));
         BValue[] args = {new BString("%% %s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "% test");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatStringWithPadding() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BString("Hello Ballerina"));
         BValue[] args = {new BString("%9.2s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "       He");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatFloatWithPadding() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BFloat(123456789.9876543));
         BValue[] args = {new BString("%5.4f"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "123456789.9877");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFormatDecimalWithPadding() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BInteger(12345));
         BValue[] args = {new BString("%15d"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -328,24 +327,24 @@ public class IOPrintTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
     public void testSprintfInvalidFormatSpecifier() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BString("cow"));
         BValue[] args = {new BString("%z"), fArgs};
         BRunUtil.invoke(compileResult, "testSprintf", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
     public void testSprintfIllegalFormatConversion() {
-        BValueArray fArgs = new BValueArray();
+        BValueArray fArgs = new BValueArray(BTypes.typeAny);
         fArgs.add(0, new BString("cow"));
         BValue[] args = {new BString("%x"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSprintfMix() {
         BValue[] args = {new BString("the %s jumped over the %s, %d times"),
                 new BString("cow"), new BString("moon"), new BInteger(2)};
@@ -360,7 +359,7 @@ public class IOPrintTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*illegal format conversion 'f != \\(\\)'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*illegal format conversion 'f != \\(\\)'.*")
     public void testSprintfForNilInputFloat() {
         BRunUtil.invoke(compileResult, "testSprintfNilFloat");
     }

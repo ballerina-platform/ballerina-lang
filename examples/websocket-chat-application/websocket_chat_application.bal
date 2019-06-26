@@ -78,7 +78,7 @@ service chatApp = @http:WebSocketServiceConfig {} service {
 // Function to perform the broadcasting of text messages.
 function broadcast(string text) {
     http:WebSocketCaller ep;
-    foreach var (id, con) in connectionsMap {
+    foreach var [id, con] in connectionsMap {
         ep = con;
         var err = ep->pushText(text);
         if (err is error) {

@@ -21,7 +21,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -280,10 +279,10 @@ public class SymbolEnv {
      */
     public static class TypeParamEntry {
 
-        public BTypeParamType typeParam;
+        public BType typeParam;
         public BType boundType;
 
-        public TypeParamEntry(BTypeParamType typeParam, BType boundType) {
+        public TypeParamEntry(BType typeParam, BType boundType) {
 
             this.typeParam = typeParam;
             this.boundType = boundType;

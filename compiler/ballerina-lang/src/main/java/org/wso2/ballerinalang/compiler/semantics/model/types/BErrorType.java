@@ -67,4 +67,13 @@ public class BErrorType extends BType implements ErrorType {
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+
+        if (tsymbol != null) {
+            return String.valueOf(tsymbol);
+        }
+        return "error<" + reasonType + "," + detailType + '>';
+    }
 }

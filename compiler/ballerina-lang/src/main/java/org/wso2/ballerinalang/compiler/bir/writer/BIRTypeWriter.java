@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeParamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -185,12 +184,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BFutureType bFutureType) {
         writeTypeCpIndex(bFutureType.constraint);
-    }
-
-    @Override
-    public void visit(BTypeParamType typeParamType) {
-        buff.writeInt(addStringCPEntry(typeParamType.tsymbol.name.value));
-        writeTypeCpIndex(typeParamType.constraint);
     }
 
     @Override
@@ -379,12 +372,13 @@ public class BIRTypeWriter implements TypeVisitor {
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = value instanceof String ? Double.parseDouble((String) value) : (Double) value;
+                double doubleVal =
+                        value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
                 buff.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.DECIMAL:
-                buff.writeInt(addStringCPEntry((String) value));
+                buff.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
                 buff.writeByte((Boolean) value ? 1 : 0);

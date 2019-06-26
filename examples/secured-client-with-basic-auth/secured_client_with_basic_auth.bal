@@ -3,16 +3,22 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
-// Define the basic auth client endpoint to call the backend services.
-// Basic authentication is enabled by setting the `scheme: http:BASIC_AUTH`
-// The `username` and `password` should be specified as needed.
+// Defines the Basic Auth client endpoint to call the backend services.
+// Basic Authentication is enabled by creating an
+// `auth:OutboundBasicAuthProvider` with the `username` and `password`
+// passed as a record.
+auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({
+    username: "tom",
+    password: "1234"
+});
+
+// Creates a Basic Auth handler with the created Basic Auth provider.
+http:BasicAuthHandler outboundBasicAuthHandler =
+                                            new(outboundBasicAuthProvider);
+
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
-        scheme: http:BASIC_AUTH,
-        config: {
-            username: "tom",
-            password: "1234"
-        }
+        authHandler: outboundBasicAuthHandler
     }
 });
 
@@ -31,13 +37,13 @@ public function main() {
     }
 }
 
-// Create a Basic authentication handler with the relevant configurations.
-auth:ConfigAuthStoreProvider basicAuthProvider = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler = new(basicAuthProvider);
-
+// Defines the sample backend service, which is secured with Basic Auth
+// authentication.
+auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
+http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 listener http:Listener ep  = new(9090, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler]
+        authHandlers: [inboundBasicAuthHandler]
     },
     secureSocket: {
         keyStore: {
@@ -47,19 +53,8 @@ listener http:Listener ep  = new(9090, config = {
     }
 });
 
-@http:ServiceConfig {
-    basePath: "/hello",
-    auth: {
-        enabled: true
-    }
-}
-service echo on ep {
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/sayHello"
-    }
-    resource function hello(http:Caller caller, http:Request req) {
+service hello on ep {
+    resource function sayHello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
             log:printError("Error in responding to caller", err = result);

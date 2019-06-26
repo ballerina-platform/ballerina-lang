@@ -380,7 +380,8 @@ public class BServerInstance implements BServer {
             tmpErrorLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
-            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 2, false, agentHost);
+            //TODO: Need to reduce the timeout after build time improvements
+            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 10, false, agentHost);
             log.info("Server Started Successfully.");
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);
