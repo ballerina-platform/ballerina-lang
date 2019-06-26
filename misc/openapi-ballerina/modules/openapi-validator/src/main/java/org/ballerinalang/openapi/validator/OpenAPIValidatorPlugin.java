@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -103,18 +104,16 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                             }
                         } else if (key.equals(Constants.OPERATIONS)) {
                             if (keyValue.getValue() instanceof BLangListConstructorExpr) {
-                                if (keyValue.getValue() instanceof BLangListConstructorExpr) {
-                                    BLangListConstructorExpr bLangListConstructorExpr =
-                                            (BLangListConstructorExpr) keyValue.getValue();
-                                    for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
-                                        if (bLangExpression instanceof BLangLiteral) {
-                                            BLangLiteral expression = (BLangLiteral) bLangExpression;
-                                            if (expression.getValue() instanceof String) {
-                                                operations.add((String) expression.getValue());
-                                            } else {
-                                                dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                        "operations should be applied as string values");
-                                            }
+                                BLangListConstructorExpr bLangListConstructorExpr =
+                                        (BLangListConstructorExpr) keyValue.getValue();
+                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
+                                    if (bLangExpression instanceof BLangLiteral) {
+                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
+                                        if (expression.getValue() instanceof String) {
+                                            operations.add((String) expression.getValue());
+                                        } else {
+                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                                    "operations should be applied as string values");
                                         }
                                     }
                                 }
@@ -186,7 +185,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     for (BLangExpression methodExpr : methodSet.exprs) {
                                         if (methodExpr instanceof BLangLiteral) {
                                             BLangLiteral method = (BLangLiteral) methodExpr;
-                                            resourceSummary.addMethod(((String) method.value).toLowerCase());
+                                            resourceSummary.addMethod(((String) method.value)
+                                                    .toLowerCase(Locale.ENGLISH));
                                             resourceSummary.setMethodsPosition(methodSet.getPosition());
                                         }
                                     }
