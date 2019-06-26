@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -57,6 +58,10 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         AnnotationAttachmentNode annotation = null;
+        List<String> tags = new ArrayList<>();
+        List<String> operations = new ArrayList<>();
+        String contractURI = null;
+
         for (AnnotationAttachmentNode ann : annotations) {
             if (Constants.PACKAGE.equals(ann.getPackageAlias().getValue())
                     && Constants.ANNOTATION_NAME.equals(ann.getAnnotationName().getValue())) {
@@ -70,29 +75,64 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 for (BLangRecordLiteral.BLangRecordKeyValue keyValue : recordLiteral.getKeyValuePairs()) {
                     if (keyValue.getKey() instanceof BLangSimpleVarRef) {
                         BLangSimpleVarRef contract = (BLangSimpleVarRef) keyValue.getKey();
-                        String contractAttr = contract.getVariableName().getValue();
-                        if (contractAttr.equals(Constants.CONTRACT)) {
+                        String key = contract.getVariableName().getValue();
+                        if (key.equals(Constants.CONTRACT)) {
                             if (keyValue.getValue() instanceof BLangLiteral) {
                                 BLangLiteral value = (BLangLiteral) keyValue.getValue();
                                 if (value.getValue() instanceof String) {
-                                    String contractURI = (String) value.getValue();
-                                    try {
-                                        OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
-                                        summarizeResources(serviceNode);
-                                        summarizeOpenAPI(openAPI);
-                                        validateOpenApiAgainstResources(serviceNode);
-                                        validateResourcesAgainstOpenApi(serviceNode);
-                                    } catch (OpenApiValidatorException e) {
-                                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
-                                                e.getMessage());
-                                    }
+                                    contractURI = (String) value.getValue();
                                 } else {
                                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
                                             "contract path should be applied as a string value");
                                 }
                             }
+                        } else if (key.equals(Constants.TAGS)) {
+                            if (keyValue.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr bLangListConstructorExpr =
+                                        (BLangListConstructorExpr) keyValue.getValue();
+                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
+                                    if (bLangExpression instanceof BLangLiteral) {
+                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
+                                        if (expression.getValue() instanceof String) {
+                                            tags.add((String) expression.getValue());
+                                        } else {
+                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                                    "tags should be applied as string values");
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (key.equals(Constants.OPERATIONS)) {
+                            if (keyValue.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr bLangListConstructorExpr =
+                                        (BLangListConstructorExpr) keyValue.getValue();
+                                for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
+                                    if (bLangExpression instanceof BLangLiteral) {
+                                        BLangLiteral expression = (BLangLiteral) bLangExpression;
+                                        if (expression.getValue() instanceof String) {
+                                            operations.add((String) expression.getValue());
+                                        } else {
+                                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                                                    "operations should be applied as string values");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                }
+            }
+
+            if (contractURI != null) {
+                try {
+                    OpenAPI openAPI = ValidatorUtil.parseOpenAPIFile(contractURI);
+                    summarizeResources(serviceNode);
+                    summarizeOpenAPI(openAPI);
+                    validateOpenApiAgainstResources(serviceNode, tags, operations);
+                    validateResourcesAgainstOpenApi(serviceNode, tags, operations);
+                } catch (OpenApiValidatorException e) {
+                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, annotation.getPosition(),
+                            e.getMessage());
                 }
             }
         }
@@ -104,18 +144,24 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
 
     }
 
+    /**
+     * Extract the details to be validated from the resource.
+     *
+     * @param serviceNode service node
+     */
     private void summarizeResources(ServiceNode serviceNode) {
+        // Iterate resources available in a service and extract details to be validated.
         for (FunctionNode resource : serviceNode.getResources()) {
             AnnotationAttachmentNode annotation = null;
             ResourceSummary resourceSummary = new ResourceSummary();
             resourceSummary.setResourcePosition(resource.getPosition());
+            // Find the "ResourceConfig" annotation.
             for (AnnotationAttachmentNode ann : resource.getAnnotationAttachments()) {
                 if (Constants.HTTP.equals(ann.getPackageAlias().getValue())
                         && Constants.RESOURCE_CONFIG.equals(ann.getAnnotationName().getValue())) {
                     annotation = ann;
                 }
             }
-
 
             if (annotation != null) {
                 if (annotation.getExpression() instanceof BLangRecordLiteral) {
@@ -124,6 +170,7 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         if (keyValue.getKey() instanceof BLangSimpleVarRef) {
                             BLangSimpleVarRef path = (BLangSimpleVarRef) keyValue.getKey();
                             String contractAttr = path.getVariableName().getValue();
+                            // Extract the path and methods of the resource.
                             if (contractAttr.equals(Constants.PATH)) {
                                 if (keyValue.getValue() instanceof BLangLiteral) {
                                     BLangLiteral value = (BLangLiteral) keyValue.getValue();
@@ -138,7 +185,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                     for (BLangExpression methodExpr : methodSet.exprs) {
                                         if (methodExpr instanceof BLangLiteral) {
                                             BLangLiteral method = (BLangLiteral) methodExpr;
-                                            resourceSummary.addMethod(((String) method.value).toLowerCase());
+                                            resourceSummary.addMethod(((String) method.value)
+                                                    .toLowerCase(Locale.ENGLISH));
                                             resourceSummary.setMethodsPosition(methodSet.getPosition());
                                         }
                                     }
@@ -149,38 +197,44 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 }
             }
 
+            // Add the resource summary to the resource summary list.
             this.resourceSummaryList.add(resourceSummary);
         }
     }
 
-    private void validateResourcesAgainstOpenApi(ServiceNode serviceNode) {
-        for (ResourceSummary resourceSummary : resourceSummaryList) {
+    private void validateResourcesAgainstOpenApi(ServiceNode serviceNode, List<String> tags,
+                                                 List<String> operations) {
+        boolean tagFilteringEnabled = tags.size() > 0;
+        boolean operationFilteringEnabled = operations.size() > 0;
 
+        for (ResourceSummary resourceSummary : resourceSummaryList) {
             OpenAPIPathSummary openAPIPathSummary = getOpenApiSummaryByPath(resourceSummary.getPath());
             if (openAPIPathSummary == null) {
                 dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getPathPosition(),
                         "mismatch with OpenAPI contract. Path: " + resourceSummary.getPath());
             } else {
                 List<String> unmatchedMethods = new ArrayList<>();
-                for (String resourceMethod : resourceSummary.getMethods()) {
-                    boolean noMatch = true;
-                    for (String method : openAPIPathSummary.getAvailableOperations()) {
-                        if (method.equals(resourceMethod)) {
-                            noMatch = false;
-                            break;
+                if (!operationFilteringEnabled && !tagFilteringEnabled) {
+                    for (String resourceMethod : resourceSummary.getMethods()) {
+                        boolean noMatch = true;
+                        for (String method : openAPIPathSummary.getAvailableOperations()) {
+                            if (method.equals(resourceMethod)) {
+                                noMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (noMatch) {
+                            unmatchedMethods.add(resourceMethod);
                         }
                     }
 
-                    if (noMatch) {
-                        unmatchedMethods.add(resourceMethod);
+                    String methods = getUnmatchedMethodList(unmatchedMethods);
+                    if (!openAPIPathSummary.getAvailableOperations().containsAll(resourceSummary.getMethods())) {
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getMethodsPosition(),
+                                "mismatch with OpenAPI contract. Couldn't find documentation for http method(s) "
+                                        + methods + " for the Path: " + resourceSummary.getPath());
                     }
-                }
-
-                String methods = getUnmatchedMethodList(unmatchedMethods);
-                if (!openAPIPathSummary.getAvailableOperations().containsAll(resourceSummary.getMethods())) {
-                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getMethodsPosition(),
-                            "mismatch with OpenAPI contract. Couldn't find documentation for http methods "
-                                    + methods + " for the Path: " + resourceSummary.getPath());
                 }
             }
         }
@@ -210,7 +264,11 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         return openAPISummary;
     }
 
-    private void validateOpenApiAgainstResources(ServiceNode serviceNode) {
+    private void validateOpenApiAgainstResources(ServiceNode serviceNode, List<String> tags,
+                                                 List<String> operations) {
+        boolean tagFilteringEnabled = tags.size() > 0;
+        boolean operationFilteringEnabled = operations.size() > 0;
+
         for (OpenAPIPathSummary openApiSummary : openAPISummaryList) {
             List<ResourceSummary> resourceSummaries = getResourceSummaryByPath(openApiSummary.getPath());
             if (resourceSummaries == null) {
@@ -220,26 +278,111 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
             } else {
                 List<String> allAvailableResourceMethods = getAllMethodsInResourceSummaries(resourceSummaries);
                 List<String> unmatchedMethods = new ArrayList<>();
-                for (String method : openApiSummary.getAvailableOperations()) {
-                    boolean noMatch = true;
-                    for (String resourceMethod : allAvailableResourceMethods) {
-                        if (resourceMethod.equals(method)) {
-                            noMatch = false;
-                            break;
+
+                // If operation filtering available proceed.
+                // Else proceed to check tag filtering.
+                if (operationFilteringEnabled) {
+                    // If tag filtering available validate only the filtered operations grouped by given tags.
+                    // Else proceed only to validate filtered operations.
+                    if (tagFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (operations.contains(method) && openApiSummary.hasTags(tags, method)) {
+                                boolean noMatch = true;
+                                for (String resourceMethod : allAvailableResourceMethods) {
+                                    if (resourceMethod.equals(method)) {
+                                        noMatch = false;
+                                        break;
+                                    }
+                                }
+
+                                if (noMatch) {
+                                    unmatchedMethods.add(method);
+                                }
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            String methods = getUnmatchedMethodList(unmatchedMethods);
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                    "mismatch with OpenAPI contract. " +
+                                            "Implementation is missing for http method(s) " +
+                                            methods + " for the path: " + openApiSummary.getPath());
+                        }
+                    } else {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (operations.contains(method)) {
+                                boolean noMatch = true;
+                                for (String resourceMethod : allAvailableResourceMethods) {
+                                    if (resourceMethod.equals(method)) {
+                                        noMatch = false;
+                                        break;
+                                    }
+                                }
+
+                                if (noMatch) {
+                                    unmatchedMethods.add(method);
+                                }
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            String methods = getUnmatchedMethodList(unmatchedMethods);
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                    "mismatch with OpenAPI contract. " +
+                                            "Implementation is missing for http method(s) " +
+                                            methods + " for the path: " + openApiSummary.getPath());
                         }
                     }
+                } else {
+                    // If tag filtering available proceed to validate all the operations grouped by given tags.
+                    // Else proceed only to validate filtered operations.
+                    if (tagFilteringEnabled) {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            if (openApiSummary.hasTags(tags, method)) {
+                                boolean noMatch = true;
+                                for (String resourceMethod : allAvailableResourceMethods) {
+                                    if (resourceMethod.equals(method)) {
+                                        noMatch = false;
+                                        break;
+                                    }
+                                }
 
-                    if (noMatch) {
-                        unmatchedMethods.add(method);
+                                if (noMatch) {
+                                    unmatchedMethods.add(method);
+                                }
+                            }
+                        }
+
+                        if (unmatchedMethods.size() > 0) {
+                            String methods = getUnmatchedMethodList(unmatchedMethods);
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                    "mismatch with OpenAPI contract. " +
+                                            "Implementation is missing for http method(s) " +
+                                            methods + " for the path: " + openApiSummary.getPath());
+                        }
+                    } else {
+                        for (String method : openApiSummary.getAvailableOperations()) {
+                            boolean noMatch = true;
+                            for (String resourceMethod : allAvailableResourceMethods) {
+                                if (resourceMethod.equals(method)) {
+                                    noMatch = false;
+                                    break;
+                                }
+                            }
+
+                            if (noMatch) {
+                                unmatchedMethods.add(method);
+                            }
+                        }
+
+                        String methods = getUnmatchedMethodList(unmatchedMethods);
+                        if (!allAvailableResourceMethods.containsAll(openApiSummary.getAvailableOperations())) {
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                    "mismatch with OpenAPI contract. " +
+                                            "Implementation is missing for http method(s) " +
+                                            methods + " for the path: " + openApiSummary.getPath());
+                        }
                     }
-                }
-
-                String methods = getUnmatchedMethodList(unmatchedMethods);
-                if (!allAvailableResourceMethods.containsAll(openApiSummary.getAvailableOperations())) {
-                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                            "mismatch with OpenAPI contract. " +
-                                    "Implementation is missing for http method(s) " +
-                                    methods + " for the path: " + openApiSummary.getPath());
                 }
             }
         }
@@ -281,42 +424,42 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 PathItem operations = (PathItem) pathItem.getValue();
                 if (operations.getGet() != null) {
                     openAPISummary.addAvailableOperation(Constants.GET);
-                    openAPISummary.addOperation(operations.getGet());
+                    openAPISummary.addOperation(Constants.GET, operations.getGet());
                 }
 
                 if (operations.getPost() != null) {
                     openAPISummary.addAvailableOperation(Constants.POST);
-                    openAPISummary.addOperation(operations.getPost());
+                    openAPISummary.addOperation(Constants.POST, operations.getPost());
                 }
 
                 if (operations.getPut() != null) {
                     openAPISummary.addAvailableOperation(Constants.PUT);
-                    openAPISummary.addOperation(operations.getPut());
+                    openAPISummary.addOperation(Constants.PUT, operations.getPut());
                 }
 
                 if (operations.getDelete() != null) {
                     openAPISummary.addAvailableOperation(Constants.DELETE);
-                    openAPISummary.addOperation(operations.getDelete());
+                    openAPISummary.addOperation(Constants.DELETE, operations.getDelete());
                 }
 
                 if (operations.getHead() != null) {
                     openAPISummary.addAvailableOperation(Constants.HEAD);
-                    openAPISummary.addOperation(operations.getHead());
+                    openAPISummary.addOperation(Constants.HEAD, operations.getHead());
                 }
 
                 if (operations.getPatch() != null) {
                     openAPISummary.addAvailableOperation(Constants.PATCH);
-                    openAPISummary.addOperation(operations.getPatch());
+                    openAPISummary.addOperation(Constants.PATCH, operations.getPatch());
                 }
 
                 if (operations.getOptions() != null) {
                     openAPISummary.addAvailableOperation(Constants.OPTIONS);
-                    openAPISummary.addOperation(operations.getOptions());
+                    openAPISummary.addOperation(Constants.OPTIONS, operations.getOptions());
                 }
 
                 if (operations.getTrace() != null) {
                     openAPISummary.addAvailableOperation(Constants.TRACE);
-                    openAPISummary.addOperation(operations.getTrace());
+                    openAPISummary.addOperation(Constants.TRACE, operations.getTrace());
                 }
             }
 

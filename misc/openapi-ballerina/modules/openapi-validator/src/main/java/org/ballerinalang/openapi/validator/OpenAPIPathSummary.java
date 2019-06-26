@@ -20,7 +20,9 @@ package org.ballerinalang.openapi.validator;
 import io.swagger.v3.oas.models.Operation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Summary of the OpenAPI documentation for a API path.
@@ -28,11 +30,11 @@ import java.util.List;
 class OpenAPIPathSummary {
     private String path;
     private List<String> availableOperations;
-    private List<Operation> operations;
+    private Map<String, Operation> operations;
 
     OpenAPIPathSummary() {
         this.availableOperations = new ArrayList<>();
-        this.operations = new ArrayList<>();
+        this.operations = new HashMap<>();
         this.path = null;
     }
 
@@ -52,19 +54,31 @@ class OpenAPIPathSummary {
         this.availableOperations = availableOperations;
     }
 
-    List<Operation> getOperations() {
+    Map<String, Operation> getOperations() {
         return operations;
     }
 
-    void setOperations(List<Operation> operations) {
+    void setOperations(Map<String, Operation> operations) {
         this.operations = operations;
     }
 
-    void addOperation(Operation operation) {
-        this.operations.add(operation);
+    void addOperation(String method, Operation operation) {
+        this.operations.put(method, operation);
     }
 
     void addAvailableOperation(String operation) {
         this.availableOperations.add(operation);
+    }
+
+    boolean hasTags(List<String> tags, String method) {
+        Operation operation = operations.get(method);
+        if (operation == null) {
+            return false;
+        }
+        return operation.getTags().containsAll(tags);
+    }
+
+    boolean hasMethod(String method) {
+        return this.availableOperations.contains(method);
     }
 }

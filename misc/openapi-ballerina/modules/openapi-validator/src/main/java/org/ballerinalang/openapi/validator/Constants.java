@@ -36,4 +36,6 @@ public class Constants {
     static final String PATCH = "patch";
     static final String OPTIONS = "options";
     static final String TRACE = "trace";
+    static final String TAGS = "tags";
+    static final String OPERATIONS = "operations";
 }

@@ -79,7 +79,7 @@ public type HttpCachingClient client object {
 
     public string url = "";
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
     public HttpCache cache;
     public CacheConfig cacheConfig = {};
 
@@ -92,7 +92,7 @@ public type HttpCachingClient client object {
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(url, config);
-        if (httpSecureClient is Client) {
+        if (httpSecureClient is HttpClient) {
             self.httpClient = httpSecureClient;
         } else {
             panic httpSecureClient;
@@ -228,7 +228,7 @@ public type HttpCachingClient client object {
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns Client|error {
+                                                                                      returns HttpClient|error {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
@@ -356,7 +356,7 @@ public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
     self.httpClient->rejectPromise(promise);
 }
 
-function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
+function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
                            boolean isShared, boolean forwardRequest) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
@@ -428,7 +428,7 @@ function getCachedResponse(HttpCache cache, Client httpClient, Request req, stri
     return response;
 }
 
-function getValidationResponse(Client httpClient, Request req, Response cachedResponse, HttpCache cache,
+function getValidationResponse(HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                                                                 returns Response|error {
     // If the no-cache directive is set, always validate the response before serving
@@ -617,7 +617,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(Client httpClient, string path, Response cachedResponse) returns Response|error {
+function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
@@ -633,7 +633,7 @@ function sendValidationRequest(Client httpClient, string path, Response cachedRe
     return httpClient->get(path, message = validationRequest);
 }
 
-function sendNewRequest(Client httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
+function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
                                                                                 returns Response|error {
     if (forwardRequest) {
         return httpClient->forward(path, request);
