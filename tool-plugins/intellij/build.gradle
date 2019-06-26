@@ -92,10 +92,9 @@ checkstyle {
 }
 
 createJavadoc {
-    source = fileTree("src/main/java")
+    source = sourceSets.main.allJava
     failOnError false
     options.addStringOption('-quiet')
-    exclude 'src/main/gen/**'
 }
 
 spotbugsMain {
