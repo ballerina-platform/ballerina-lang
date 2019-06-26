@@ -316,13 +316,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HttpCaller",
+      "label": "HttpClient",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
         "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
       },
-      "insertText": "HttpCaller",
+      "insertText": "HttpClient",
       "insertTextFormat": "Snippet"
     },
     {
@@ -527,16 +527,6 @@
         "left": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
       },
       "insertText": "HttpSecureClient",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "HttpClient",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP remote functions implementation.\n"
-      },
-      "insertText": "HttpClient",
       "insertTextFormat": "Snippet"
     },
     {
