@@ -1332,18 +1332,27 @@ function isModuleInitFunction(bir:Package module, bir:Function func) returns boo
     string moduleInit = getModuleInitFuncName(module);
     return func.name.value == moduleInit;
 }
-
+// TODO: remove and use calculateModuleInitFuncName
 function getModuleInitFuncName(bir:Package module) returns string {
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
+     return calculateModuleInitFuncName(packageToModuleId(module));
+}
+
+function calculateModuleInitFuncName(bir:ModuleID id) returns string {
+    return calculateModuleSpecialFuncName(id, "<init>");
+}
+
+function calculateModuleSpecialFuncName(bir:ModuleID id, string funcSuffix) returns string {
+    string orgName = id.org;
+    string moduleName = id.name;
+    string versionValue = id.modVersion;
 
     string funcName;
     if (moduleName.equalsIgnoreCase(".")) {
-        funcName = "..<init>";
-    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
-        funcName = moduleName + ".<init>";
+       funcName = ".." + funcSuffix;
+    } else if ("".equalsIgnoreCase(versionValue)) {
+       funcName = moduleName + "." + funcSuffix;
     } else {
-        funcName = moduleName + ":" + module.versionValue.value + ".<init>";
+        funcName = moduleName + ":" + versionValue + "." + funcSuffix;
     }
 
     if (!orgName.equalsIgnoreCase("$anon")) {
@@ -1352,54 +1361,37 @@ function getModuleInitFuncName(bir:Package module) returns string {
 
     return funcName;
 }
-
+// TODO: remove and use calculateModuleStartFuncName
 function getModuleStartFuncName(bir:Package module) returns string {
-    string orgName = module.org.value;
-    string moduleName = module.name.value;
-
-    string funcName;
-    if (moduleName.equalsIgnoreCase(".")) {
-        funcName = "..<start>";
-    } else if ("".equalsIgnoreCase(module.versionValue.value)) {
-        funcName = moduleName + ".<start>";
-    } else {
-        funcName = moduleName + ":" + module.versionValue.value + ".<start>";
-    }
-
-    if (!orgName.equalsIgnoreCase("$anon")) {
-        funcName = orgName  + "/" + funcName;
-    }
-
-    return funcName;
+    return calculateModuleStartFuncName(packageToModuleId(module));
 }
+
+function calculateModuleStartFuncName(bir:ModuleID id) returns string {
+    return calculateModuleSpecialFuncName(id, "<start>");
+ }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {
-        var [importedPkg, isFromCache] = lookupModule(importModuleToModuleId(mod));
+        var id = importModuleToModuleId(mod);
+        string initFuncName = cleanupFunctionName(calculateModuleInitFuncName(id));
+        string startFuncName = cleanupFunctionName(calculateModuleStartFuncName(id));
 
-        if (hasInitFunction(importedPkg)) {
-            string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
-            string startFuncName = cleanupFunctionName(getModuleStartFuncName(importedPkg));
-
-            // skip the init function invocation is its already generated 
-            // by some other package
-            if (isInitInvoked(initFuncName)) {
-                continue;
-            }
-
-            string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                MODULE_INIT_CLASS_NAME);
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
-
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
-
-            generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
+        // skip the init function invocation is its already generated
+        // by some other package
+        if (isInitInvoked(initFuncName)) {
+            continue;
         }
-        generateInitFunctionInvocation(importedPkg, mv);
+
+        string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+        generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }
 }
 

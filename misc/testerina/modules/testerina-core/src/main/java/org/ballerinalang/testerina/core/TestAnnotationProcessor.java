@@ -161,9 +161,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
                         // check if groups attribute is present in the annotation
                         if (GROUP_ANNOTATION_NAME.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangListConstructorExpr.BLangArrayLiteral) {
-                                BLangListConstructorExpr.BLangArrayLiteral values =
-                                        (BLangListConstructorExpr.BLangArrayLiteral) attributeNode.getValue();
+                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
                                                            .collect(Collectors.toList()));
                                 // Check whether user has provided a group list
@@ -201,9 +200,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         }
 
                         if (DEPENDS_ON_FUNCTIONS.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangListConstructorExpr.BLangArrayLiteral) {
-                                BLangListConstructorExpr.BLangArrayLiteral values =
-                                        (BLangListConstructorExpr.BLangArrayLiteral) attributeNode.getValue();
+                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
                                 values.exprs.stream().map(node -> node.toString()).forEach
                                         (test::addDependsOnTestFunction);
                             }

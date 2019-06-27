@@ -29,6 +29,8 @@ configurations {
         transitive false
     }
     jar
+    bir
+    birJar
     balo
     bin
     balSource
@@ -248,6 +250,14 @@ dependencies {
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
+}
+
+task configured {
+    configurations.distBal.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+    }
 }
 
 def basePath = '/' + project.name + '-' + project.version

@@ -16,8 +16,9 @@
  * under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 configurations {
     balRuntime
@@ -62,12 +63,10 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ballerina-transactions configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -85,7 +84,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-privacy', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
