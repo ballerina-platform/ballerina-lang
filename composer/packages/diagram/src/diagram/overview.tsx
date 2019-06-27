@@ -6,6 +6,7 @@ import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
 import { TopMenu } from "./top-menu";
+// import { renderDiagramEditor } from "../helpers";
 
 const modes = [
     {
@@ -139,12 +140,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             };
         });
 
-        return <div style={{margin: "15px"}}>
-            <List relaxed divided>
+        return <div className="overview">
+            <List relaxed>
                 {modules.map((module) => (
-                    <List.Item key={module.name}>
+                    <List.Item className="item-wrapper" key={module.name}>
                         <List.Content>
-                            <List.Header as="a">{module.name}</List.Header>
+                            <List.Header>{module.name}</List.Header>
                             <div>
                                 { this.renderConstructsList(module) }
                             </div>
@@ -157,7 +158,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     private renderConstructsList(module: { name: string; nodes: ASTNode[]; }) {
         return (
-            <List bulleted>
+            <List>
                 {module.nodes.filter((node) => (DiagramUtils.isDrawable(node)))
                     .map((node) => {
                         const nodeName = (node as any).name.value;
