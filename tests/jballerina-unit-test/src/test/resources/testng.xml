@@ -27,7 +27,7 @@
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
-    <test name="jballerina-test" parallel="true">
+    <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
@@ -106,6 +106,9 @@
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
             <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.expressions.typecast.*"/>
+            <package name="org.ballerinalang.test.expressions.literals.*"/>
+            <package name="org.ballerinalang.test.expressions.varref.*"/>
         </packages>
 
         <classes>
