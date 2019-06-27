@@ -83,7 +83,7 @@ public class ItemResolverConstants {
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
-    public static final String NEW_OBJECT_INITIALIZER_TYPE = "new object initializer";
+    public static final String NEW_OBJECT_INITIALIZER_TYPE = "init";
     // End Symbol Types Constants
     
     // Keyword constants
