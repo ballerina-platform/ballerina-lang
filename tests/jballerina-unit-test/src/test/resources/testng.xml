@@ -110,6 +110,7 @@
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <package name="org.ballerinalang.test.types.handle.*"/>
             <package name="org.ballerinalang.test.balo.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>

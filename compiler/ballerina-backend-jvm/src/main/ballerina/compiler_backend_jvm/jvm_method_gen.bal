@@ -325,7 +325,6 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BTypeHandle ||
                     bType is bir:BFiniteType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
@@ -333,6 +332,10 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
         } else if (bType is bir:BXMLType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", XML_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeHandle) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", HANDLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type " +
@@ -417,7 +420,6 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BTypeHandle ||
                     bType is bir:BFiniteType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -426,6 +428,10 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", XML_VALUE));
+        } else if (bType is bir:BTypeHandle) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                     io:sprintf("L%s;", HANDLE_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -992,6 +998,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         return io:sprintf("L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeHandle) {
+        return io:sprintf("L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -1043,6 +1051,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BXMLType) {
         return io:sprintf(")L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeHandle) {
+        return io:sprintf(")L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -1695,11 +1705,12 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType ||
                 bType is bir:BJSONType ||
-                bType is bir:BTypeHandle ||
                 bType is bir:BFiniteType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
         typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeHandle) {
+        typeSig = io:sprintf("L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));

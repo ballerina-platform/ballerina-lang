@@ -135,6 +135,7 @@ type TerminatorGenerator object {
                 bType is bir:BFutureType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
