@@ -27,6 +27,8 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-builtin')
     testCompile 'org.testng:testng'
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
 }
 
 createBalo {

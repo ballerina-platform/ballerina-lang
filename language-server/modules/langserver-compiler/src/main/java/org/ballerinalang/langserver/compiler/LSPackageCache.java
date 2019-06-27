@@ -21,9 +21,12 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -71,6 +74,15 @@ public class LSPackageCache {
      */
     public void invalidate(PackageID packageID) {
         packageCache.remove(packageID);
+    }
+
+    /**
+     * Remove the modules with the names.
+     * 
+     * @param modules list of module names
+     */
+    public void invalidateProjectModules(List<String> modules) {
+        packageCache.remove(modules);
     }
     
     public void clearCache() {
@@ -127,13 +139,29 @@ public class LSPackageCache {
                         this.packageSymbolMap.remove(key);
                     }
                 });
-                this.packageSymbolMap.entrySet().forEach(entry -> {
-                    String alias = packageID.getName().toString();
-                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
-                        this.packageSymbolMap.remove(entry.getKey());
-                    }
-                });
             }
+        }
+        
+        public void remove(List<String> modules) {
+            if (modules.isEmpty()) {
+                return;
+            }
+            this.packageMap.forEach((key, value) -> {
+                String moduleName = value.packageID.getNameComps().stream()
+                        .map(Name::getValue)
+                        .collect(Collectors.joining("."));
+                if (modules.contains(moduleName)) {
+                    this.packageMap.remove(key);
+                }
+            });
+            this.packageSymbolMap.forEach((key, value) -> {
+                String moduleName = value.pkgID.getNameComps().stream()
+                        .map(Name::getValue)
+                        .collect(Collectors.joining("."));
+                if (modules.contains(moduleName)) {
+                    this.packageSymbolMap.remove(key);
+                }
+            });
         }
         
         public void clearCache() {

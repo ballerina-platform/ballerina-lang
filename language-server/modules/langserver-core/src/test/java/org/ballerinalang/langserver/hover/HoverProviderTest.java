@@ -96,7 +96,7 @@ public class HoverProviderTest {
     public Object[][] getBuiltinFunctionPositions() {
         log.info("Test textDocument/hover for builtin functions");
         return new Object[][]{
-                {new Position(43, 7), "builtin-function1.json"},
+                {new Position(43, 11), "builtin-function1.json"},
                 {new Position(44, 19), "builtin-function2.json"}
         };
     }
@@ -126,8 +126,8 @@ public class HoverProviderTest {
         log.info("Test textDocument/hover for current package records");
         return new Object[][]{
                 {new Position(46, 7), "currentPkg-record.json"},
-                {new Position(51, 19), "currentPkg-record.json"},
-                {new Position(52, 8), "currentPkg-record.json"}
+                {new Position(51, 22), "currentPkg-record.json"},
+                {new Position(52, 11), "currentPkg-record.json"}
         };
     }
 
