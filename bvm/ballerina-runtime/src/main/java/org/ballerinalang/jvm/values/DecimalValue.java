@@ -23,8 +23,6 @@ import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

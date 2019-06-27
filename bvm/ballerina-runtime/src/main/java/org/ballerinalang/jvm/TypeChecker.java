@@ -86,7 +86,7 @@ public class TypeChecker {
         // if the source is a numeric value and the target type is a union, try to find a matching
         // member.
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.UNION_TAG) {
-            for(BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+            for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
                 try {
                     return TypeConverter.castValues(memberType, sourceVal);
                 } catch (Exception e) {
@@ -99,7 +99,8 @@ public class TypeChecker {
     }
 
     public static long anyToInt(Object sourceVal) {
-        return TypeConverter.anyToIntCast(sourceVal, () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
+        return TypeConverter.anyToIntCast(sourceVal,
+                () -> BallerinaErrors.createTypeCastError(sourceVal, BTypes.typeInt));
     }
 
     public static double anyToFloat(Object sourceVal) {
