@@ -73,15 +73,22 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
+    implementation project(':ballerina-runtime')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'
+    testCompile project(':ballerina-jvm')
 }
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - h2'

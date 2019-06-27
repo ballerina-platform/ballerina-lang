@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -187,24 +185,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
         serviceContent.forEach(this::acceptNode);
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
-        if (isReferenced(resourceNode.name.getValue(), resourceNode.symbol.owner, resourceNode.symbol.pkgID,
-                         resourceNode.symbol.owner.pkgID)) {
-            CommonUtil.replacePosition(resourceNode.getPosition(), HoverUtil.getIdentifierPosition(resourceNode));
-            addLocation(resourceNode, resourceNode.symbol.pkgID.name.getValue(),
-                        resourceNode.symbol.pkgID.name.getValue());
-        }
-
-        if (resourceNode.requiredParams != null) {
-            resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (resourceNode.body != null) {
-            this.acceptNode(resourceNode.body);
-        }
     }
 
     @Override

@@ -21,21 +21,23 @@ public type BIRContext object {
 
     public function lookupBIRModule(ModuleID modId) returns Package {
         var modBinary = getBIRModuleBinary(self, modId);
-        return populateBIRModuleFromBinary(modBinary);
+        return populateBIRModuleFromBinary(modBinary, false);
     }
 };
 
 function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[] = external;
 
+public function decompressSingleFileToBlob(string baloPath, string pathInJar) returns byte[] = external;
 
 // TODO Refactor following methods
-function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
+public function populateBIRModuleFromBinary(byte[] modBinary, boolean symbolsOnly) returns Package {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(modBinary);
     ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     ConstPoolParser cpParser = new(reader);
-    BirChannelReader birReader = new(reader, cpParser.parse());
-    PackageParser pkgParser = new(birReader);
+    var cp = cpParser.parse();
+    BirChannelReader birReader = new(reader, cp);
+    PackageParser pkgParser = new(birReader, symbolsOnly);
     Package mod = pkgParser.parsePackage();
     return mod;
 }

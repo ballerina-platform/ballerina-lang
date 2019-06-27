@@ -20,14 +20,14 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite">
+<suite name="ballerina-test-suite" time-out="120000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
         <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
-    <test name="jballerina-test" parallel="false">
+    <test name="jballerina-test" parallel="true">
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
@@ -119,7 +119,11 @@
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
+                <methods>
+                    <exclude name="waitTest15"/>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.worker.WorkerTest"/>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
             <class name="org.ballerinalang.test.worker.WorkerInActionTest">
