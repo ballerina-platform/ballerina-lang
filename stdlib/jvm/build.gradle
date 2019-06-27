@@ -15,14 +15,23 @@
  *
  */
  
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baloProject.gradle"
+
+configurations {
+    genBalo
+    balSource
+}
 
 dependencies {
-    implementation 'org.ow2.asm:asm'
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-    implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack1')
 
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    implementation 'org.ow2.asm:asm'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+
+}
+
+
+artifacts {
+    balSource file("src/main/ballerina/")
 }

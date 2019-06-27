@@ -16,4 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Package name="org.ballerinalang.nativeimpl.bir"/>
+    </Match>
 </FindBugsFilter>

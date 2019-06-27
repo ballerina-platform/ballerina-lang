@@ -18,7 +18,7 @@ package org.ballerinalang.test.util;
 
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
