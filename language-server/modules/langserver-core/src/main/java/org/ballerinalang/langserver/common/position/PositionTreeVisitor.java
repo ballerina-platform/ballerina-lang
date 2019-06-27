@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -424,27 +423,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (forkJoin.workers != null) {
             forkJoin.workers.forEach(this::acceptNode);
         }
-
-        // todo need to remove this block
-//        if (forkJoin.joinedBody != null) {
-//            acceptNode(forkJoin.joinedBody);
-//        }
-//
-//        if (forkJoin.joinResultVar != null) {
-//            acceptNode(forkJoin.joinResultVar);
-//        }
-//
-//        if (forkJoin.timeoutBody != null) {
-//            acceptNode(forkJoin.timeoutBody);
-//        }
-//
-//        if (forkJoin.timeoutExpression != null) {
-//            acceptNode(forkJoin.timeoutExpression);
-//        }
-//
-//        if (forkJoin.timeoutVariable != null) {
-//            acceptNode(forkJoin.timeoutVariable);
-//        }
     }
 
     @Override
@@ -566,28 +544,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(arrayType);
         if (arrayType.elemtype != null) {
             acceptNode(arrayType.elemtype);
-        }
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-        setPreviousNode(endpointNode);
-
-        DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(endpointNode);
-        if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
-            addPosition(endpointNode, this.previousNode, endpointNode.symbol.name.getValue(), endpointNode.symbol.pkgID,
-                        ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, endpointNode.symbol.name.getValue(),
-                        endpointNode.symbol.owner);
-            setTerminateVisitor(true);
-            return;
-        }
-
-        if (endpointNode.endpointTypeNode != null) {
-            this.acceptNode(endpointNode.endpointTypeNode);
-        }
-
-        if (endpointNode.configurationExpr != null) {
-            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 
