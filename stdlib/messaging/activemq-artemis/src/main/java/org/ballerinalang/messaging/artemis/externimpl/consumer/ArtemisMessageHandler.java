@@ -25,38 +25,32 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.messaging.artemis.ArtemisConnectorException;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.util.XMLNodeType;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -68,45 +62,54 @@ import java.util.concurrent.CountDownLatch;
 class ArtemisMessageHandler implements MessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(ArtemisMessageHandler.class);
 
-    private Resource onMessageResource;
-    private BMap<String, BValue> sessionObj;
+    private AttachedFunction onMessageResource;
+    private ObjectValue sessionObj;
     private boolean autoAck;
+    private Scheduler scheduler;
+    private ObjectValue service;
 
-    ArtemisMessageHandler(Resource onMessageResource, BMap<String, BValue> sessionObj, boolean autoAck) {
-        this.onMessageResource = onMessageResource;
+    ArtemisMessageHandler(Scheduler scheduler, ObjectValue service, ObjectValue sessionObj, boolean autoAck) {
         this.sessionObj = sessionObj;
         this.autoAck = autoAck;
+        this.scheduler = scheduler;
+        this.service = service;
+        onMessageResource = service.getType().getAttachedFunctions()[0];
     }
 
     @Override
     public void onMessage(ClientMessage clientMessage) {
-        List<ParamDetail> paramDetails = onMessageResource.getParamDetails();
-        int paramSize = paramDetails.size();
-        if (paramSize > 1) {
-            dispatchResourceWithDataBinding(clientMessage, paramDetails);
+        BType[] parameterTypes = onMessageResource.getParameterType();
+        if (parameterTypes.length > 1) {
+            dispatchResourceWithDataBinding(clientMessage, parameterTypes);
         } else {
-            dispatchResource(clientMessage, createAndGetMessageObj(onMessageResource, clientMessage, sessionObj));
+            Object[] signatureParams = new Object[parameterTypes.length * 2];
+            signatureParams[0] = createAndGetMessageObj(clientMessage, sessionObj);
+            signatureParams[1] = true;
+            dispatchResource(clientMessage, signatureParams);
         }
 
     }
 
-    private void dispatchResourceWithDataBinding(ClientMessage clientMessage, List<ParamDetail> paramDetails) {
-        BValue[] bValues = new BValue[paramDetails.size()];
+    private void dispatchResourceWithDataBinding(ClientMessage clientMessage, BType[] paramDetails) {
+        Object[] signatureParams = new Object[paramDetails.length * 2];
         try {
-            bValues[1] = getContentForType(clientMessage, paramDetails.get(1).getVarType());
-            bValues[0] = createAndGetMessageObj(onMessageResource, clientMessage, sessionObj);
-            dispatchResource(clientMessage, bValues);
+            // Checking the content type first before creating the message to fail fast during data binding scenario
+            signatureParams[2] = getContentForType(clientMessage, paramDetails[1]);
+            signatureParams[3] = true;
+            signatureParams[0] = createAndGetMessageObj(clientMessage, sessionObj);
+            signatureParams[1] = true;
+            dispatchResource(clientMessage, signatureParams);
         } catch (BallerinaException ex) {
             logger.error("The message received do not match the resource signature", ex);
         }
     }
 
-    private void dispatchResource(ClientMessage clientMessage, BValue... bValues) {
+    private void dispatchResource(ClientMessage clientMessage, Object... bValues) {
         // A CountDownLatch is used to prevent multiple resources executing in parallel and hence preventing the use
         // of the same session in multiple threads concurrently (Error AMQ212051).
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        Executor.submit(onMessageResource, new ArtemisResourceCallback(clientMessage, autoAck, sessionObj,
-                                                                       countDownLatch), null, null, bValues);
+        Executor.submit(scheduler, service, onMessageResource.getName(),
+                        new ArtemisResourceCallback(clientMessage, autoAck, sessionObj, countDownLatch), null, bValues);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -114,38 +117,36 @@ class ArtemisMessageHandler implements MessageHandler {
         }
     }
 
-    private BValue createAndGetMessageObj(Resource onMessageResource, ClientMessage clientMessage,
-                                          BMap<String, BValue> sessionObj) {
-        ProgramFile programFile = onMessageResource.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
-                programFile, ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, ArtemisConstants.MESSAGE_OBJ);
-        ArtemisUtils.populateMessageObj(clientMessage,
-                                        sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT),
-                                        messageObj);
+    private Object createAndGetMessageObj(ClientMessage clientMessage,
+                                          ObjectValue sessionObj) {
+        ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
+                                                                   ArtemisConstants.MESSAGE_OBJ);
+        ArtemisUtils.populateMessageObj(clientMessage, sessionObj.getNativeData(
+                ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT), messageObj);
         return messageObj;
     }
 
-    private BValue getContentForType(ClientMessage message, BType dataType) {
+    private Object getContentForType(ClientMessage message, BType dataType) {
         int dataTypeTag = dataType.getTag();
         byte messageType = message.getType();
         switch (dataTypeTag) {
             case TypeTags.STRING_TAG:
-                return new BString(getBodyText(message, messageType));
+                return getBodyText(message, messageType);
             case TypeTags.JSON_TAG:
-                return JsonParser.parse(getBodyText(message, messageType));
+                return JSONParser.parse(getBodyText(message, messageType));
             case TypeTags.XML_TAG:
-                BXML bxml = XMLUtils.parse(getBodyText(message, messageType));
+                XMLValue bxml = XMLFactory.parse(getBodyText(message, messageType));
                 if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
                     throw new ArtemisConnectorException("Invalid XML data");
                 }
                 return bxml;
             case TypeTags.RECORD_TYPE_TAG:
-                return JSONUtils.convertJSONToStruct(JsonParser.parse(getBodyText(message, messageType)),
+                return JSONUtils.convertJSONToRecord(JSONParser.parse(getBodyText(message, messageType)),
                                                      (BStructureType) dataType);
             case TypeTags.ARRAY_TAG:
                 if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                     validateBytesContentType(messageType);
-                    return ArtemisUtils.getBArrayValue(message);
+                    return ArtemisUtils.getArrayValue(message);
                 } else {
                     throw new ArtemisConnectorException("Only byte[] is supported.");
                 }
@@ -159,17 +160,17 @@ class ArtemisMessageHandler implements MessageHandler {
         }
     }
 
-    private BValue createAndGetMapContent(ClientMessage message, int constrainedType) {
+    private Object createAndGetMapContent(ClientMessage message, int constrainedType) {
         Map<String, Object> map;
-        BMap<String, BValue> mapObj;
+        MapValue<String, Object> mapObj;
         switch (constrainedType) {
             case TypeTags.STRING_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.typeString));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.typeString));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
                     if (value instanceof String) {
-                        mapObj.put(entry.getKey(), new BString((String) value));
+                        mapObj.put(entry.getKey(), value);
                     } else {
                         throw new ArtemisConnectorException("The map has other than string data");
                     }
@@ -177,11 +178,11 @@ class ArtemisMessageHandler implements MessageHandler {
                 return mapObj;
             case TypeTags.INT_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.typeInt));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.typeInt));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
                     if (value instanceof Integer || value instanceof Long || value instanceof Short) {
-                        mapObj.put(entry.getKey(), new BInteger((long) value));
+                        mapObj.put(entry.getKey(), value);
                     } else {
                         throw new ArtemisConnectorException("The map has other than int data");
                     }
@@ -189,11 +190,11 @@ class ArtemisMessageHandler implements MessageHandler {
                 return mapObj;
             case TypeTags.FLOAT_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.typeFloat));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.typeFloat));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
                     if (value instanceof Float || value instanceof Double) {
-                        mapObj.put(entry.getKey(), new BFloat((double) value));
+                        mapObj.put(entry.getKey(), value);
                     } else {
                         throw new ArtemisConnectorException("The map has other than float data");
                     }
@@ -201,11 +202,11 @@ class ArtemisMessageHandler implements MessageHandler {
                 return mapObj;
             case TypeTags.BYTE_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.typeByte));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.typeByte));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
-                    if (value instanceof Byte) {
-                        mapObj.put(entry.getKey(), new BByte((byte) value));
+                    if (value instanceof Byte || value instanceof Integer) {
+                        mapObj.put(entry.getKey(), value);
                     } else {
                         throw new ArtemisConnectorException("The map has other than byte data");
                     }
@@ -213,11 +214,11 @@ class ArtemisMessageHandler implements MessageHandler {
                 return mapObj;
             case TypeTags.ARRAY_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.fromString("byte[]")));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.fromString("byte[]")));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
-                    if (value instanceof byte[]) {
-                        mapObj.put(entry.getKey(), new BValueArray((byte[]) value));
+                    if (value instanceof byte[] || value instanceof int[]) {
+                        mapObj.put(entry.getKey(), new ArrayValue((byte[]) value));
                     } else {
                         throw new ArtemisConnectorException("The map has other than byte[] data");
                     }
@@ -225,11 +226,11 @@ class ArtemisMessageHandler implements MessageHandler {
                 return mapObj;
             case TypeTags.BOOLEAN_TAG:
                 map = getStringObjectMap(message);
-                mapObj = new BMap<>(new BMapType(BTypes.typeBoolean));
+                mapObj = new MapValueImpl<>(new BMapType(BTypes.typeBoolean));
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
                     if (value instanceof Boolean) {
-                        mapObj.put(entry.getKey(), new BBoolean((boolean) value));
+                        mapObj.put(entry.getKey(), value);
                     } else {
                         throw new ArtemisConnectorException("The map has other than boolean data");
                     }
