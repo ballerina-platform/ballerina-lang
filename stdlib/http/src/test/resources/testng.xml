@@ -51,11 +51,7 @@ under the License.
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>
-            <!--
-            TODO: enable after maryam's jvm value fix
             <package name="org.ballerinalang.stdlib.auth.*"/>
-            -->
-
             <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
         <classes>
