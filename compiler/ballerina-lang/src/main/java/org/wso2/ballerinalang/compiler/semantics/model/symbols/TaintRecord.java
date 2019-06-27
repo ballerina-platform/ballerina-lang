@@ -104,4 +104,11 @@ public class TaintRecord {
             return result;
         }
     }
+
+    /**
+     * Represent the taintedness annotation in function return type.
+     */
+    public enum TaintAnnotation {
+        NON, TAINTED, UNTAINTED
+    }
 }
