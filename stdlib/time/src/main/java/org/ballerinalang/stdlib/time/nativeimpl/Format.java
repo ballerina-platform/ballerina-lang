@@ -21,9 +21,6 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
@@ -43,21 +40,6 @@ public class Format extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        BString pattern = (BString) context.getNullableRefArgument(1);
-
-        try {
-            if ("RFC_1123".equals(pattern.stringValue())) {
-                ZonedDateTime zonedDateTime = getZonedDateTime(timeStruct);
-                String formattedDateTime = zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
-                context.setReturnValues(new BString(formattedDateTime));
-            } else {
-                context.setReturnValues(new BString(getFormattedString(timeStruct, pattern.stringValue())));
-            }
-        } catch (IllegalArgumentException e) {
-            String msg = "Invalid Pattern: " + pattern.stringValue();
-            context.setReturnValues(TimeUtils.getTimeError(context, msg));
-        }
     }
 
     public static Object format(Strand strand, MapValue<String, Object> timeRecord, Object pattern) {
