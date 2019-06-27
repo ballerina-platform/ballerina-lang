@@ -79,7 +79,7 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         resources.forEach(res -> {
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
             ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);
-            ResourceSignatureValidator.validateAnnotation(res, dlog);
+            ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
         //        }
         // get value from endpoint.

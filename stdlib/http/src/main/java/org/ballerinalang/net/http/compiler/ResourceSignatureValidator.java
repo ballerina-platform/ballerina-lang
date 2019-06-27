@@ -59,7 +59,7 @@ public class ResourceSignatureValidator {
     }
 
     @SuppressWarnings("unchecked")
-    static void validateAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
+    static void validateResourceAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) resourceNode.getAnnotationAttachments();
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
@@ -106,14 +106,8 @@ public class ResourceSignatureValidator {
                     break;
             }
         }
-        // Validate path param names and signature. Signature params must be a subset of path and body params.
-        List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
-                COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
-        if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
-                .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "Invalid parameter(s) in the resource signature");
-        }
+        //Signature params must be a subset of path and data binding  param.
+        verifySignatureParamsWithAnnotatedParams(resourceNode, dlog, paramSegments);
     }
 
     private static void validateWebSocketUpgrade(FunctionNode resourceNode, DiagnosticLog dlog,
@@ -208,6 +202,17 @@ public class ResourceSignatureValidator {
                     }
             }
             pointerIndex++;
+        }
+    }
+
+    private static void verifySignatureParamsWithAnnotatedParams(FunctionNode resourceNode, DiagnosticLog dlog,
+                                                                 List<String> paramSegments) {
+        List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
+                COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
+        if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
+                .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "Invalid parameter(s) in the resource signature");
         }
     }
 

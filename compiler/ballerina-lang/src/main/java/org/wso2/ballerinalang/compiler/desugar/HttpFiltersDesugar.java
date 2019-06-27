@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -154,15 +155,12 @@ public class HttpFiltersDesugar {
     }
 
     private boolean isHttpResource(BLangFunction resourceNode) {
-        if (resourceNode.requiredParams.size() >= 2) {
-            BLangSimpleVariable endpoint = resourceNode.requiredParams.get(0);
-            if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
-                    endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
-                    endpoint.type.tsymbol.name.value)) {
-                return true;
-            }
+        if (resourceNode.requiredParams.size() < 2) {
+            return false;
         }
-        return false;
+        BTypeSymbol tsymbol = resourceNode.requiredParams.get(0).type.tsymbol;
+        return ORG_NAME.equals(tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(tsymbol.pkgID.name.value) &&
+                CALLER_TYPE_NAME.equals(tsymbol.name.value);
     }
 
     private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
@@ -456,14 +454,13 @@ public class HttpFiltersDesugar {
         BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
                 (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
 
+        if (annSymbol == symTable.notFoundSymbol) {
+            return;
+        }
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
-        IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-        if (identifierNode instanceof BLangIdentifier) {
-            annoAttachment.annotationName = (BLangIdentifier) identifierNode;
-        }
-
+        annoAttachment.annotationName = (BLangIdentifier)TreeBuilder.createIdentifierNode();
         annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
         annoAttachment.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
@@ -476,6 +473,9 @@ public class HttpFiltersDesugar {
         BStructureTypeSymbol bStructSymbol;
         BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
                 (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
+        if (annTypeSymbol == symTable.notFoundSymbol) {
+            return;
+        }
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
