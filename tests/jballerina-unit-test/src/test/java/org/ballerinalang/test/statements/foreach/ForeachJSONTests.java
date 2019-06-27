@@ -65,8 +65,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONString() {
-        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'string' value " 
-                + "cannot be converted as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"'string' value " 
+                + "cannot be converted to 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -74,8 +74,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONNumber() {
-        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'int' value cannot" 
-                + " be converted as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot" 
+                + " be converted to 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -83,8 +83,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONBoolean() {
-        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'boolean' value " 
-                + "cannot be converted as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
+                + "cannot be converted to 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONBoolean");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

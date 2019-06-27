@@ -394,7 +394,7 @@ public type BFutureType record {|
 public type BFiniteType record {|
     Name name = {};
     int flags;
-    (int | string | boolean | float | byte| ()) [] values;
+    (int | string | boolean | float | byte| () | Decimal) [] values;
 |};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
@@ -440,7 +440,7 @@ public type ConstantLoad record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string | boolean | float | byte | () value;
+    int | string | boolean | float | byte | () | Decimal value;
 |};
 
 public type NewMap record {|
@@ -738,4 +738,8 @@ public type WaitAll record {|
     VarRef?[] futures;
     string[] keys;
     BasicBlock thenBB;
+|};
+
+public type Decimal record {|
+    string value;
 |};
