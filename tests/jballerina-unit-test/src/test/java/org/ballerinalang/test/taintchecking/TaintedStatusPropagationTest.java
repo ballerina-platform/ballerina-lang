@@ -427,9 +427,10 @@ public class TaintedStatusPropagationTest {
     public void testTaintedAssignmentToUntaintedObjReference() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/object-tainted-assigment-to-untainted-objref.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0,
-                "tainted value 'o' passed to sensitive parameter originating from object method invocation", 50, 15);
+                "tainted value 'o' passed to sensitive parameter originating from object method invocation", 54, 15);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 58, 20);
     }
 
     @Test

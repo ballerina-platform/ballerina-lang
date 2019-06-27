@@ -351,6 +351,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // If this is a attached function and we are not in attachedFunctionAnalysis mode,
         // go into attachedFunctionAnalysis mode and rerun in attached func mode.
         if (!attachedFunctionAnalysis && funcNode.flagSet.contains(Flag.ATTACHED)) {
+            analysisStateStack.pop();
             visitAttachedInvokable(funcNode);
             return;
         }
@@ -2240,6 +2241,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int namedArgsCount = invocationExpr.namedArgs.size();
             int restArgsCount = invocationExpr.restArgs.size();
 
+            List<TaintedStatus> paramIndexVsSelfTaintedStatusList = null;
             // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
             // Hence add the receiver to required arg count.
             if ((invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED
@@ -2279,6 +2281,31 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     }
                 }
 
+                TaintRecord allUntaintedEntry = taintTable.get(-1); // when everything is untainted
+                if (allUntaintedEntry != null
+                        && allUntaintedEntry.parameterTaintedStatusList != null
+                        && allUntaintedEntry.parameterTaintedStatusList.get(0) == TaintedStatus.TAINTED) {
+                    // Method invocation taint self even when non of the inputs args are tainted.
+                    visitAssignment(invocationExpr.expr, TaintedStatus.TAINTED, invocationExpr.pos);
+                }
+
+                // What happens to self (oth param) when each param (excluding 0th) is tainted.
+                paramIndexVsSelfTaintedStatusList = new ArrayList<>();
+                for (int i = 0; i < requiredArgsCount + namedArgsCount + restArgsCount; i++) {
+                    TaintRecord taintRecord = taintTable.get(i);
+                    if (taintRecord == null) {
+                        // No record in the taint table, this is a sensitive param.
+                        paramIndexVsSelfTaintedStatusList.add(TaintedStatus.UNTAINTED);
+                        continue;
+                    }
+
+                    if (taintRecord.parameterTaintedStatusList != null) {
+                        paramIndexVsSelfTaintedStatusList.add(taintRecord.parameterTaintedStatusList.get(0));
+                    } else {
+                        paramIndexVsSelfTaintedStatusList.add(TaintedStatus.TAINTED);
+                    }
+                }
+
                 if (receiverTaintRecord.parameterTaintedStatusList != null) {
                     List<TaintedStatus> actualArgTaintStatus = receiverTaintRecord.parameterTaintedStatusList
                             .subList(1, receiverTaintRecord.parameterTaintedStatusList.size());
@@ -2291,7 +2318,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                invokableSymbol.taintTable = duplicateTaintTableExceptReceiverEntry(taintTable);
+                invokableSymbol.taintTable = duplicateTaintTableSkippingReceiverEntry(taintTable);
             }
 
             for (int reqArgIndex = 0; reqArgIndex < requiredArgsCount; reqArgIndex++) {
@@ -2302,6 +2329,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;
+                }
+
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, reqArgIndex);
                 }
                 if (stopAnalysis) {
                     break;
@@ -2328,6 +2359,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                         returnTaintedStatus = TaintedStatus.TAINTED;
                     }
+                    if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                        updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, paramIndex);
+                    }
                     if (stopAnalysis) {
                         break;
                     }
@@ -2343,6 +2377,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;
+                }
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, paramIndex);
                 }
                 if (stopAnalysis) {
                     break;
@@ -2365,6 +2402,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
     }
 
+    private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,
+                                                  List<TaintedStatus> paramVsSelfTaintedStatus, int reqArgIndex) {
+        if (paramVsSelfTaintedStatus != null
+                && paramVsSelfTaintedStatus.get(reqArgIndex) == TaintedStatus.TAINTED) {
+            visitAssignment(invocationExpr.expr, TaintedStatus.TAINTED, invocationExpr.pos);
+        }
+    }
+
     private BVarSymbol getMethodReceiverSymbol(BLangExpression expr) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
@@ -2378,7 +2423,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private Map<Integer, TaintRecord> duplicateTaintTableExceptReceiverEntry(Map<Integer, TaintRecord> taintTable) {
+    private Map<Integer, TaintRecord> duplicateTaintTableSkippingReceiverEntry(Map<Integer, TaintRecord> taintTable) {
         Map<Integer, TaintRecord> taintTableWithoutReceiver = new HashMap<>();
         if (taintTable.containsKey(-1)) {
             taintTableWithoutReceiver.put(-1, skipTaintRecSelfParam(taintTable.get(-1)));

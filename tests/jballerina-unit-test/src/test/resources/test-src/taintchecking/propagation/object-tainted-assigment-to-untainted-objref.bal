@@ -32,6 +32,10 @@ type TestObject object {
     function testFunction (string input) returns string {
         return input + <string>self.field;
     }
+
+    function setField(string f) {
+        self.field = f;
+    }
 };
 
 function secureFunction(@sensitive string secureIn, @sensitive string insecureIn) {
@@ -48,6 +52,11 @@ public function main (string... args) {
 
     TestObject o2 = new();
     var as2 = o.test2(o2);
+
+    TestObject o3 = new();
+    o3.setField(getTaintedString());
+    secureFunction(<string> o3.field, "");
+
 
     var assig = o.testFunction("a");
     o.field = getTaintedString();
