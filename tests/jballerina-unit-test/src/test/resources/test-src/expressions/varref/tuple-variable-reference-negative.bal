@@ -66,8 +66,8 @@ function testVarRefNegative3() {
 function testVarRefNegative4() {
     Foo foo = {name:"Test", age:23};
     Bar bar = {id:34, flag:true};
-    FooObj fooObj = new ["Fooo", 3.7, 23];
-    BarObj barObj = new [true, 56];
+    FooObj fooObj = new ("Fooo", 3.7, 23);
+    BarObj barObj = new (true, 56);
     [[Foo, [BarObj, FooObj]], Bar] [[f, [bo, fo]], b] = [[foo, [barObj, fooObj]], bar];
     [[f, [bo, fo]], b] = [[bar, [fooObj, barObj]], foo];
 }
@@ -75,8 +75,8 @@ function testVarRefNegative4() {
 function testVarRefNegative5() {
     Foo foo = {name:"Test", age:23};
     Bar bar = {id:34, flag:true};
-    FooObj fooObj = new ["Fooo", 3.7, 23];
-    BarObj barObj = new [true, 56];
+    FooObj fooObj = new ("Fooo", 3.7, 23);
+    BarObj barObj = new (true, 56);
     [[Foo, [BarObj, FooObj]], Bar] [[f, [bo, fo]], b] = [[foo, [barObj, fooObj]], bar];
     [f, [bo, fo], b] = [bar, fooObj, foo];
 }
@@ -84,8 +84,8 @@ function testVarRefNegative5() {
 function testVarRefNegative6() {
     Foo foo = {name:"Test", age:23};
     Bar bar = {id:34, flag:true};
-    FooObj fooObj = new ["Fooo", 3.7, 23];
-    BarObj barObj = new [true, 56];
+    FooObj fooObj = new ("Fooo", 3.7, 23);
+    BarObj barObj = new (true, 56);
     [int, Foo, [BarObj, string, FooObj], Bar, boolean] [i, fr, [bo, s, fo], br, b] = [12, foo, [barObj, "DDD", fooObj], bar, true];
     [i, fr, [bo, s, fo], br, b] = [bar, 12, [fooObj, "DD", barObj], foo, true];
 }
@@ -135,7 +135,7 @@ function testInvalidTupleVarDef2() returns [string, int, boolean, int, float, in
     return [s, i1, b, y, f, i2];
 }
 
-function fn1[any t] returns [string, int, boolean, int, float, int] {
+function fn1(any t) returns [string, int, boolean, int, float, int] {
     [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = t;
     return [s, i1, b, y, f, i2];
 }

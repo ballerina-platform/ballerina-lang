@@ -28,8 +28,8 @@ function testBasicErrorVariableWithMapDetails() {
     string detail12; // expected 'string', found 'string?'
     string? extra12;
 
-    error [reason11, detail11] = err1;
-    error [reason12, { message: message12, detail: detail12, extra: extra12 }] = err1;
+    error (reason11, detail11) = err1;
+    error (reason12, { message: message12, detail: detail12, extra: extra12 }) = err1;
 
     string reason21;
     map<string> detail21; // expected 'map<string>', found 'map<any>'
@@ -38,9 +38,9 @@ function testBasicErrorVariableWithMapDetails() {
     string detail22; // expected 'string', found 'any'
     any extra22;
 
-    error [reason21, detail21] = err2;
-    error [reason22, { message: message22, detail: detail22, extra: extra22 }] = err2;
-    error [reason22, { message: message22, detail: detail22, extra: extra22 }] = error(reason11, detail11); // error constructor expression is not supported for error binding pattern
+    error (reason21, detail21) = err2;
+    error (reason22, { message: message22, detail: detail22, extra: extra22 }) = err2;
+    error (reason22, { message: message22, detail: detail22, extra: extra22 }) = error(reason11, detail11); // error constructor expression is not supported for error binding pattern
 }
 
 type Foo record {
@@ -60,13 +60,13 @@ function testBasicErrorVariableWithRecordDetails() {
     boolean message; // 'boolean', found 'string'
     any fatal;
 
-    error [res1, rec] = err1;
-    error [res2, { message, fatal }] = err2;
+    error (res1, rec) = err1;
+    error (res2, { message, fatal }) = err2;
 }
 
 function testErrorInTuple() {
     Foo f = { message: "fooMsg", fatal: true };
-    [int, string, error, [error, Foo] t1 = [12, "Bal", error("Err", { message: "Something Wrong" }),
+    [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", { message: "Something Wrong" }),
                                                         [error("Err2", { message: "Something Wrong2" }), f]];
 
     any intVar;
