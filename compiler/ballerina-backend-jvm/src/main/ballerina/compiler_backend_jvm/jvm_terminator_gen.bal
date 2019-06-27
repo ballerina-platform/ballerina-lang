@@ -137,6 +137,7 @@ type TerminatorGenerator object {
                 bType is bir:BFutureType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
@@ -284,6 +285,7 @@ type TerminatorGenerator object {
                         bType is bir:BXMLType ||
                         bType is bir:BInvokableType ||
                         bType is bir:BFiniteType ||
+                        bType is bir:BTypeHandle ||
                         bType is bir:BTypeDesc) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
@@ -453,6 +455,7 @@ type TerminatorGenerator object {
                     bType is bir:BJSONType ||
                     bType is bir:BXMLType ||
                     bType is bir:BFiniteType ||
+                    bType is bir:BTypeHandle ||
                     bType is bir:BInvokableType) {
             self.mv.visitVarInsn(ALOAD, argIndex);
         } else {
