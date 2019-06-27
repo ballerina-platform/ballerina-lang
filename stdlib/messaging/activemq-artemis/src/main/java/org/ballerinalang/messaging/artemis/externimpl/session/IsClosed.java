@@ -21,13 +21,11 @@ package org.ballerinalang.messaging.artemis.externimpl.session;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -38,25 +36,26 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "isClosed",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.SESSION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.SESSION_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
-public class IsClosed implements NativeCallableUnit {
+public class IsClosed extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> sessionObj = (BMap<String, BValue>) context.getRefArgument(0);
+    public void execute(Context context) {
+    }
+
+    public static boolean isClosed(Strand strand, ObjectValue sessionObj) {
         ClientSession session =
                 (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
-        context.setReturnValues(new BBoolean(session.isClosed()));
+        return session.isClosed();
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
-    }
 }
