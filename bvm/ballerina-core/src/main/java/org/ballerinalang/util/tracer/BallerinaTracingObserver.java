@@ -45,4 +45,4 @@ public class BallerinaTracingObserver implements BallerinaObserver {
     public void stopClientObservation(ObserverContext observerContext) {
         TracingUtils.stopObservation(observerContext);
     }
-    }
+}
