@@ -45,7 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class GetPromisedResponse extends AbstractHTTPAction {
@@ -61,13 +61,13 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+                .getNativeData(HttpConstants.CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new BPushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
     public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand),
                                                   pushPromiseObj, null);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);

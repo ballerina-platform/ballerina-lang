@@ -62,6 +62,7 @@ class CreateBaloTask extends JavaExec {
 
 task createBalo(type: CreateBaloTask) {
     dependsOn createBalHome
+    dependsOn configurations.baloImplementation
 
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
@@ -70,11 +71,10 @@ task createBalo(type: CreateBaloTask) {
     outputs.cacheIf { true }
 }
 
-artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
-    builtBy('createBalo')
+artifacts {
+    baloImplementation file("$buildDir/generated-balo/"), { builtBy(createBalo) }
+    balSource file("src/main/ballerina/")
 }
-
-artifacts.add('balSource', file("src/main/ballerina/"))
 
 task copySelfToTestBalHome(type: Copy) {
     dependsOn createBalo
@@ -102,3 +102,5 @@ publishing {
         }
     }
 }
+
+apply from: "$rootDir/gradle/birProject.gradle"

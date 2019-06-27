@@ -15,16 +15,20 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -33,9 +37,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,14 +68,19 @@ public class DiagnosticsHelper {
      *
      * @param client            Language server client
      * @param lsCompiler        LS Compiler
-     * @param filePath          file path
-     * @param compilationPath   compilation path
      */
-    public synchronized void compileAndSendDiagnostics(
-            LanguageClient client, LSCompiler lsCompiler, Path filePath, Path compilationPath) {
+    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSCompiler lsCompiler, LSContext context,
+                                                       WorkspaceDocumentManager docManager) throws LSCompilerException {
         // Compile diagnostics
-        BallerinaFile balFile = lsCompiler.compileFile(compilationPath, CompilerPhase.COMPILER_PLUGIN);
-        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(balFile, filePath);
+        List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
+        Path projectPath = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY)).getSourceRootPath();
+        lsCompiler.getBLangPackages(context, docManager, true, null, true, true);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+        }
+
+        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, projectPath);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -81,7 +90,7 @@ public class DiagnosticsHelper {
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
         // Update home-repo packages
-        balFile.getBLangPackage().ifPresent(this::updateHomeRepoPackages);
+//        balFile.getBLangPackage().ifPresent(this::updateHomeRepoPackages);
         lastDiagnosticMap = diagnosticMap;
     }
 
@@ -114,19 +123,18 @@ public class DiagnosticsHelper {
     /**
      * Returns diagnostics for this file.
      *
-     * @param balFile  Ballerina file
-     * @param filePath file path
+     * @param diagnostics  List of ballerina diagnostics
+     * @param projectPath project path
      * @return diagnostics map
      */
-    public Map<String, List<Diagnostic>> getDiagnostics(BallerinaFile balFile, Path filePath) {
-        Path currentModulePath = LSCompilerUtil.getCurrentModulePath(filePath);
-        List<org.ballerinalang.util.diagnostic.Diagnostic>
-                balDiagnostics = balFile.getDiagnostics().orElseGet(ArrayList::new);
+    public Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
+                                                        Path projectPath) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        balDiagnostics.forEach(diag -> {
+        diagnostics.forEach(diag -> {
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
+            String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();
-            String fileURI = Paths.get(currentModulePath + "", fileName).toUri().toString() + "";
+            String fileURI = projectPath.resolve(moduleName).resolve(fileName).toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<>());
@@ -153,7 +161,7 @@ public class DiagnosticsHelper {
      *
      * @param bLangPackage {@link BLangPackage}
      */
-    private void updateHomeRepoPackages(BLangPackage bLangPackage) {
+    public void updateHomeRepoPackages(BLangPackage bLangPackage) {
         if (bLangPackage == null) {
             return;
         }

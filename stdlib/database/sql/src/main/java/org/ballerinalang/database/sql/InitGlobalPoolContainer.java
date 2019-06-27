@@ -20,9 +20,10 @@ package org.ballerinalang.database.sql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,7 +44,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BRefType> globalPoolConfig = (BMap<String, BRefType>) context.getRefArgument(1);
-        SQLDatasourceUtils.addDatasourceContainer(globalPoolConfig, new ConcurrentHashMap<>());
+        //TODO: #16033
+        /*BMap<String, BRefType> globalPoolConfig = (BMap<String, BRefType>) context.getRefArgument(1);
+        SQLDatasourceUtils.addDatasourceContainer(globalPoolConfig, new ConcurrentHashMap<>());*/
+    }
+
+    public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,
+                                               MapValue<String, Object> poolConfig) {
+        SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }
 }
