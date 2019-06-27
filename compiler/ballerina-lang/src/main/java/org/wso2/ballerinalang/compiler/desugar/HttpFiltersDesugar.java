@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -460,7 +459,7 @@ public class HttpFiltersDesugar {
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
-        annoAttachment.annotationName = (BLangIdentifier)TreeBuilder.createIdentifierNode();
+        annoAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
         annoAttachment.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
