@@ -29,13 +29,13 @@ public type HttpSecureClient client object {
     //later stage for retrying and in other few places.
     public string url = "";
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
 
     public function __init(string url, ClientEndpointConfig config) {
         self.url = url;
         self.config = config;
         var simpleClient = createClient(url, self.config);
-        if (simpleClient is Client) {
+        if (simpleClient is HttpClient) {
             self.httpClient = simpleClient;
         } else {
             panic simpleClient;
@@ -263,7 +263,7 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|error {
     HttpSecureClient httpSecureClient;
     if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
