@@ -15,10 +15,12 @@
 // under the License.
 
 public type Package record {|
+    //TODO: change to ModuleID[]
     ImportModule[] importModules = [];
     TypeDef?[] typeDefs = [];
     GlobalVariableDcl?[] globalVars;
     Function?[] functions = [];
+    //TODO: change to ModuleID
     Name name = {};
     Name org = {};
     BType?[] types = [];

@@ -35,18 +35,40 @@ public type InMemoryConfig record {|
 #
 # + host - The host name of the database to connect (in case of server based DB)
 # + port - The port of the database to connect (in case of server based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+#
 public type ServerModeConfig record {|
     string host;
     int port = 9092;
-    *InMemoryConfig;
+    //*InMemoryConfig;
+    string name;
+    string username;
+    string password;
+    sql:PoolOptions poolOptions?;
+    map<any> dbOptions = {};
 |};
 
 # The Client endpoint configuration for the embedded mode of h2 databases.
 #
 # + path - The path of the database connection (in case of file based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+#
 public type EmbeddedModeConfig record {|
     string path;
-    *InMemoryConfig;
+    //*InMemoryConfig;
+    string name;
+    string username;
+    string password;
+    sql:PoolOptions poolOptions?;
+    map<any> dbOptions = {};
 |};
 
 # Represents an H2 client endpoint.
@@ -81,15 +103,22 @@ public type Client client object {
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    # + loadToMemory - Indicates whether to load the retrieved data to memory or not
+    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
-    public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    //                              sql:Param... parameters) returns @tainted table<record {}>|error {
+    //    if (!self.clientActive) {
+    //        return self.handleStoppedClientInvocation();
+    //    }
+    //    return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+    //}
+    public remote function select(@sensitive string sqlQuery, typedesc? recordType,
                                   sql:Param... parameters) returns @tainted table<record {}>|error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        return self.sqlClient->select(sqlQuery, recordType, ...parameters);
     }
 
 
