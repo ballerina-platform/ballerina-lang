@@ -29,14 +29,14 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BallerinaBrokerByteBuf extends UnpooledHeapByteBuf {
 
-    private final BValue value;
+    private final Object value;
 
-    public BallerinaBrokerByteBuf(BValue value) {
+    public BallerinaBrokerByteBuf(Object value) {
         super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
         this.value = value;
     }
 
-    public BValue getValue() {
+    public Object getValue() {
         return value;
     }
 }

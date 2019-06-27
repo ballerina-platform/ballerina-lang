@@ -19,8 +19,8 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -57,23 +57,20 @@ public class SetTopic extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = subscriberServiceEndpoint.getStructField(WEBSUB_HTTP_ENDPOINT);
-        String webSubServiceName = context.getStringArgument(0);
+    }
 
+    public static void setTopic(Strand strand, ObjectValue subscriberServiceEndpoint, String webSubServiceName,
+                                String topic) {
+        ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
         Optional<HttpService> webSubHttpService =
                 ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
                         .getServicesByHost(DEFAULT_HOST).values().stream().filter(
-                                httpService -> webSubServiceName.equals(httpService.getBalService().getServiceInfo()
-                                                                              .getType().getName()))
+                        httpService -> webSubServiceName.equals(httpService.getBalService().getType().getName()))
                         .findFirst();
 
         HttpService httpService = webSubHttpService.get();
-        String topic = context.getStringArgument(1);
         if (httpService instanceof WebSubHttpService) {
             ((WebSubHttpService) httpService).setTopic(topic);
         }
-        context.setReturnValues();
     }
-
 }

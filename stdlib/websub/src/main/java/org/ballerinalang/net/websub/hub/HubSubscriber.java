@@ -21,17 +21,10 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.broker.BallerinaBrokerByteBuf;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Objects;
 import java.util.Properties;
-
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
  * WebSub Subscriber representation for the Broker.
@@ -43,9 +36,9 @@ public class HubSubscriber extends Consumer {
     private final String queue;
     private final String topic;
     private final String callback;
-    private final BMap<String, BValue> subscriptionDetails;
+    private final MapValue<String, Object> subscriptionDetails;
 
-    HubSubscriber(String queue, String topic, String callback, BMap<String, BValue> subscriptionDetails) {
+    HubSubscriber(String queue, String topic, String callback, MapValue<String, Object> subscriptionDetails) {
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
@@ -54,12 +47,13 @@ public class HubSubscriber extends Consumer {
 
     @Override
     protected void send(Message message) throws BrokerException {
-        ProgramFile programFile = Hub.getInstance().getHubProgramFile();
-        BValue content =
-                ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-        BValue[] args = {new BString(getCallback()), getSubscriptionDetails(), content};
-        BVMExecutor.executeFunction(programFile, programFile.getPackageInfo(WEBSUB_PACKAGE)
-                                     .getFunctionInfo("distributeContent"), args);
+        //TODO need API to call floating ballerina methods
+//        ProgramFile programFile = Hub.getInstance().getHubProgramFile();
+//        BValue content =
+//                ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+//        BValue[] args = {new BString(getCallback()), getSubscriptionDetails(), content};
+//        BVMExecutor.executeFunction(programFile, programFile.getPackageInfo(WEBSUB_PACKAGE)
+//                                     .getFunctionInfo("distributeContent"), args);
     }
 
     @Override
@@ -109,7 +103,7 @@ public class HubSubscriber extends Consumer {
         return callback;
     }
 
-    public BMap<String, BValue> getSubscriptionDetails() {
+    public MapValue<String, Object> getSubscriptionDetails() {
         return subscriptionDetails;
     }
 }

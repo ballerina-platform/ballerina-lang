@@ -18,16 +18,16 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -43,37 +43,40 @@ import static org.ballerinalang.net.http.HttpUtil.populateInboundRequest;
 /**
  * Util class for WebSub.
  */
-class WebSubUtils {
+public class WebSubUtils {
 
-    static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HttpCarbonMessage httpCarbonMessage) {
-        BMap<String, BValue> httpRequest = createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
-        BMap<String, BValue> inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
-        BMap<String, BValue> mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-        populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
-        populateEntityBody(null, httpRequest, inRequestEntity, true, true);
+    public static final String WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
+
+    static ObjectValue getHttpRequest(HttpCarbonMessage httpCarbonMessage) {
+        ObjectValue httpRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
+        ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
+        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+
+
+        populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage);
+        populateEntityBody(httpRequest, inRequestEntity, true, true);
         return httpRequest;
     }
 
     // TODO: 8/1/18 Handle duplicate code
     @SuppressWarnings("unchecked")
-    static BMap<String, ?> getJsonBody(BMap<String, BValue> httpRequest) {
-        BMap<String, BValue> entityStruct = extractEntity(httpRequest);
-        if (entityStruct != null) {
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            BRefType<?> result;
-            BString stringPayload;
+    static MapValue<String, ?> getJsonBody(ObjectValue httpRequest) {
+        ObjectValue entityObj = extractEntity(httpRequest);
+        if (entityObj != null) {
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            String stringPayload;
             if (dataSource != null) {
                 stringPayload = MimeUtil.getMessageAsString(dataSource);
             } else {
-                stringPayload = EntityBodyHandler.constructStringDataSource(entityStruct);
-                EntityBodyHandler.addMessageDataSource(entityStruct, stringPayload);
+                stringPayload = EntityBodyHandler.constructStringDataSource(entityObj);
+                EntityBodyHandler.addMessageDataSource(entityObj, stringPayload);
                 // Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
 
-            result = JsonParser.parse(stringPayload.stringValue());
-            if (result instanceof BMap) {
-                return (BMap<String, ?>) result;
+            Object result = JSONParser.parse(stringPayload);
+            if (result instanceof MapValue) {
+                return (MapValue<String, ?>) result;
             }
             throw new BallerinaConnectorException("Non-compatible payload received for payload key based dispatching");
         } else {
@@ -81,7 +84,25 @@ class WebSubUtils {
         }
     }
 
-    private static BMap<String, BValue> createBStruct(ProgramFile programFile, String packagePath, String structName) {
-        return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
+    public static AttachedFunction getAttachedFunction(ObjectValue service, String functionName) {
+        AttachedFunction attachedFunction = null;
+        String functionFullName = service.getType().getName() + "." + functionName;
+        for (AttachedFunction function : service.getType().getAttachedFunctions()) {
+            //TODO test the name of resource
+            if (functionFullName.contains(function.getName())) {
+                attachedFunction = function;
+            }
+        }
+        return attachedFunction;
+    }
+
+    /**
+     * Create WebSub specific error record with '{ballerina/websub}WebSubError' as error code.
+     *
+     * @param errMsg  Actual error message
+     * @return Ballerina error value
+     */
+    public static ErrorValue createError(String errMsg) {
+        return BallerinaErrors.createError(WEBSUB_ERROR_CODE, errMsg);
     }
 }

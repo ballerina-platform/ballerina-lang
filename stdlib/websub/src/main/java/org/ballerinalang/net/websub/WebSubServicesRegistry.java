@@ -18,9 +18,8 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -45,10 +44,9 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     private String topicIdentifier;
     private String topicHeader;
 
-    private BMap<String, BValue> headerResourceMap;
-    private BMap<String, BMap<String, BValue>> payloadKeyResourceMap;
-    private BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap;
-
+    private MapValue<String, Object> headerResourceMap;
+    private MapValue<String, MapValue<String, Object>> payloadKeyResourceMap;
+    private MapValue<String, MapValue<String, MapValue<String, Object>>> headerAndPayloadKeyResourceMap;
     private HashMap<String, String[]> resourceDetails;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
@@ -56,9 +54,11 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     }
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry,
-                                  String topicIdentifier, String topicHeader, BMap<String, BValue> headerResourceMap,
-                                  BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
-                                  BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap,
+                                  String topicIdentifier, String topicHeader,
+                                  MapValue<String, Object> headerResourceMap,
+                                  MapValue<String, MapValue<String, Object>> payloadKeyResourceMap,
+                                  MapValue<String, MapValue<String, MapValue<String, Object>>>
+                                          headerAndPayloadKeyResourceMap,
                                   HashMap<String, String[]> resourceDetails) {
         super(webSocketServicesRegistry);
         this.topicIdentifier = topicIdentifier;
@@ -88,11 +88,11 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         return topicHeader;
     }
 
-    BMap<String, BValue> getHeaderResourceMap() {
+    MapValue<String, Object> getHeaderResourceMap() {
         return headerResourceMap;
     }
 
-    BMap<String, BMap<String, BValue>> getPayloadKeyResourceMap() {
+    MapValue<String, MapValue<String, Object>> getPayloadKeyResourceMap() {
         return payloadKeyResourceMap;
     }
 
@@ -101,7 +101,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    BMap<String, BMap<String, BMap<String, BValue>>> getHeaderAndPayloadKeyResourceMap() {
+    MapValue<String, MapValue<String, MapValue<String, Object>>> getHeaderAndPayloadKeyResourceMap() {
         return headerAndPayloadKeyResourceMap;
     }
 
@@ -112,9 +112,9 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     /**
      * Register a WebSubSubscriber service in the map.
      *
-     * @param service the {@link Service} to be registered
+     * @param service to be registered
      */
-    public void registerWebSubSubscriberService(Service service) {
+    public void registerWebSubSubscriberService(ObjectValue service) {
         HttpService httpService = WebSubHttpService.buildWebSubSubscriberHttpService(service);
         String hostName = httpService.getHostName();
         if (servicesMapByHost.get(hostName) == null) {
@@ -126,7 +126,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
             sortedServiceURIs = getSortedServiceURIsByHost(hostName);
         }
         servicesByBasePath.put(httpService.getBasePath(), httpService);
-        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
+        logger.info("Service deployed : " + service.getType().getName() + " with context " + httpService.getBasePath());
 
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());

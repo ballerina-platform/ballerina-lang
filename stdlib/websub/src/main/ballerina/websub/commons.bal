@@ -359,7 +359,7 @@ public type Notification object {
 #
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
-public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
+public function extractTopicAndHubUrls(http:Response response) returns [string, string[]]|error {
     string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
@@ -403,7 +403,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     if (hubs.length() > 0 && topic != "") {
-        return (topic, hubs);
+        return [topic, hubs];
     }
 
     map<anydata> errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };

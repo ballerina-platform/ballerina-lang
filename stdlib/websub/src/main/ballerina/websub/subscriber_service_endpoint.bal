@@ -125,8 +125,8 @@ function Listener.sendSubscriptionRequests() {
                     return;
                 }
                 var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
-                if (discoveredDetails is (string, string)) {
-                    var (retHub, retTopic) = discoveredDetails;
+                if (discoveredDetails is [string, string]) {
+                    var [retHub, retTopic] = discoveredDetails;
                     var hubDecodeResponse = http:decode(retHub, "UTF-8");
                     if (hubDecodeResponse is string) {
                         retHub = hubDecodeResponse;
@@ -185,7 +185,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<(string, typedesc)>? headerResourceMap = ();
+    map<[string, typedesc]>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -194,7 +194,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<(string, typedesc)>>? payloadKeyResourceMap = ();
+    map<map<[string, typedesc]>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -206,7 +206,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<[string, typedesc]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
@@ -215,18 +215,18 @@ public type ExtensionConfig record {|
 # + subscriptionClientConfig - The configuration for subscription client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
-                                            returns @tainted (string, string)|error {
+                                            returns @tainted [string, string]|error {
     http:Client resourceEP = new http:Client(resourceUrl, config = subscriptionClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
         var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
-        if (topicAndHubs is (string, string[])) {
+        if (topicAndHubs is [string, string[]]) {
             string topic = "";
             string[] hubs = [];
-            (topic, hubs) = topicAndHubs;
-            return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
+            [topic, hubs] = topicAndHubs;
+            return [hubs[0], topic]; // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
         } else {
             return topicAndHubs;
         }
