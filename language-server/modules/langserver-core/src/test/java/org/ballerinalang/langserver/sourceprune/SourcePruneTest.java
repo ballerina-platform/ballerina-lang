@@ -216,6 +216,8 @@ public class SourcePruneTest {
                 {"src_prune_config74.json"},
                 {"src_prune_config75.json"},
                 {"src_prune_config76.json"},
+                // Iterable Operators
+                {"src_prune_config77.json"},
         };
     }
 }

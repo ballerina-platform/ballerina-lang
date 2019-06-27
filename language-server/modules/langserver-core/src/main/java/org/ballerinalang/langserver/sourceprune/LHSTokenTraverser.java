@@ -141,7 +141,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         }
         if (type == BallerinaParser.RETURNS) {
             this.processToken(token);
-            return !this.capturedAssignToken;
+            // If we return true, then always we need to check the right parenthesis count and the right braces count
+            return !this.capturedAssignToken && this.rightParenthesisCount == 0 && this.rightBraceCount == 0;
         }
         // Handle the ON token replacing since this is used in both service and JSON streaming input
         boolean onServiceRule = CommonUtil.getNDefaultTokensToLeft(tokenStream, 2, token.getTokenIndex()).stream()
