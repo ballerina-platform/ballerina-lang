@@ -156,7 +156,7 @@ public type TypeParser object {
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
         } else if (typeTag == self.TYPE_TAG_HANDLE){
-            return TYPE_HANDLE;
+            return <BTypeHandle> {};
         }
 
         error err = error("Unknown type tag :" + typeTag);
