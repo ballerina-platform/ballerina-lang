@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 3,
-    "character": 23
+    "line": 2,
+    "character": 47
   },
-  "source": "function/source/completionWithinInvocationArgs3.bal",
+  "source": "function/source/delimiterBasedCompletionForCompleteSource1.bal",
   "items": [
     {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",

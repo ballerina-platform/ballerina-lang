@@ -140,6 +140,8 @@ public class DefinitionTest {
                 {"defAssignment3.json", "assignment"},
                 {"defAssignment4.json", "assignment"},
                 {"defAssignment6.json", "assignment"},
+                {"defAssignment7.json", "assignment"},
+                {"defAssignment8.json", "assignment"},
                 {"defCompoundAssignment1.json", "compoundassignment"},
                 {"defForeach1.json", "foreach"},
                 {"defForeach2.json", "foreach"},
