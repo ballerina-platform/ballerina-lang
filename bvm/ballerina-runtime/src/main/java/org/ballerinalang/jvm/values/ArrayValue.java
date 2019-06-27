@@ -72,11 +72,11 @@ public class ArrayValue implements RefValue, CollectionValue {
     protected int size = 0;
 
     Object[] refValues;
-    private long[] intValues;
-    private boolean[] booleanValues;
-    private byte[] byteValues;
-    private double[] floatValues;
-    private String[] stringValues;
+    protected long[] intValues;
+    protected boolean[] booleanValues;
+    protected byte[] byteValues;
+    protected double[] floatValues;
+    protected String[] stringValues;
 
     public BType elementType;
 
@@ -324,6 +324,140 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public void append(Object value) {
         add(size, value);
+    }
+
+    public Object shift(long index) {
+        handleFrozenArrayValue();
+        Object val = get(index);
+        shiftArray((int) index, getArrayFromType(elementType.getTag()));
+        return val;
+    }
+
+    private void shiftArray(int index, Object arr) {
+        int nElemsToBeMoved = this.size - 1 - index;
+        if (nElemsToBeMoved >= 0) {
+            System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
+        }
+        this.size--;
+    }
+
+    public void unshift(long index, ArrayValue vals) {
+        handleFrozenArrayValue();
+
+        Object valArr = getArrayFromType(elementType.getTag());
+        unshiftArray(index, vals.size, valArr, getCurrentArrayLength());
+
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                addToIntArray(vals, (int) index);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                addToBooleanArray(vals, (int) index);
+                break;
+            case TypeTags.BYTE_ARRAY_TAG:
+                addToByteArray(vals, (int) index);
+                break;
+            case TypeTags.FLOAT_TAG:
+                addToFloatArray(vals, (int) index);
+                break;
+            case TypeTags.STRING_TAG:
+                addToStringArray(vals, (int) index);
+                break;
+            default:
+                addToRefArray(vals, (int) index);
+        }
+    }
+
+    private void addToIntArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getInt(j));
+        }
+    }
+
+    private void addToFloatArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getFloat(j));
+        }
+    }
+
+    private void addToStringArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getString(j));
+        }
+    }
+
+    private void addToByteArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        byte[] bytes = vals.getBytes();
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            this.byteValues[i] = bytes[j];
+        }
+    }
+
+    private void addToBooleanArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getBoolean(j));
+        }
+    }
+
+    private void addToRefArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getRefValue(j));
+        }
+    }
+
+    private void unshiftArray(long index, int unshiftByN, Object arr, int arrLength) {
+        int lastIndex = arrLength + unshiftByN - 1;
+        prepareForAdd(lastIndex, arrLength);
+
+        if (index > lastIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+
+        int i = (int) index;
+        System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
+
+        this.size += unshiftByN;
+    }
+
+    private Object getArrayFromType(int typeTag) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                return intValues;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues;
+            case TypeTags.BYTE_ARRAY_TAG:
+                return byteValues;
+            case TypeTags.FLOAT_TAG:
+                return floatValues;
+            case TypeTags.STRING_TAG:
+                return stringValues;
+            default:
+                return refValues;
+        }
+    }
+
+    private int getCurrentArrayLength() {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                return intValues.length;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues.length;
+            case TypeTags.BYTE_ARRAY_TAG:
+                return byteValues.length;
+            case TypeTags.FLOAT_TAG:
+                return floatValues.length;
+            case TypeTags.STRING_TAG:
+                return stringValues.length;
+            default:
+                return refValues.length;
+        }
     }
 
     @Override
