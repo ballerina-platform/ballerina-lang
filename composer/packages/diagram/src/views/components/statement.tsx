@@ -36,7 +36,7 @@ export const Statement: React.StatelessComponent<{
         let expander;
         let expandedFunction;
 
-        if (viewState.expandContext && !viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && viewState.expandContext.collapsed) {
             const expanderProps = {
                 expandContext: viewState.expandContext,
                 position: viewState.expandContext.expandableNode.position!,
