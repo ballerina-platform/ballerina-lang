@@ -202,17 +202,26 @@ BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
 
 if [[ $1 == "native-img" ]]; then
     if [[ ! -z "${GRAALVM_HOME}" ]]; then
-        $GRAALVM_HOME/bin/java -cp "$BALLERINA_CLASSPATH" com.hpe.kraal.MainKt \
-            --excludePackages="ballerina" \
-            --excludeClasses="___init" $2 &&
+        $GRAALVM_HOME/bin/java -cp "$BALLERINA_CLASSPATH" com.hpe.kraal.MainKt $2 &&
+        #    --excludePackages="ballerina" \
+        #    --excludeClasses="___init" $2 &&
         $GRAALVM_HOME/bin/native-image \
-            -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
+            -H:+PrintAOTCompilation \
+            -H:+PrintClassInitialization \
+            -H:+PrintFeatures \
+            -H:+PrintStaticTruffleBoundaries \
+            -H:+StackTrace \
+            -H:+TraceLoggingFeature \
+            -H:+ReportExceptionStackTraces \
             -J-Djava.util.concurrent.ForkJoinPool.common.parallelism=1 \
+            -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
             -H:+AddAllCharsets \
             -H:EnableURLProtocols=http,https \
             -H:-UseServiceLoaderFeature \
-            -H:-SpawnIsolates \
-            --delay-class-initialization-to-runtime \
+            --initialize-at-build-time=org.h2.Driver \
+            --enable-all-security-services \
+            --allow-incomplete-classpath \
+            --report-unsupported-elements-at-runtime \
             --no-server \
             -cp "$BALLERINA_CLASSPATH" \
             -jar $2
