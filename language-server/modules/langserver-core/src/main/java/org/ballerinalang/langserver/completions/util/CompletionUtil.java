@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -99,6 +100,8 @@ public class CompletionUtil {
      */
     private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<Integer> invocationTokens = Arrays.asList(BallerinaParser.COLON, BallerinaParser.DOT,
+                BallerinaParser.RARROW, BallerinaParser.LARROW, BallerinaParser.NOT);
         context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
         if (lhsTokens == null) {
             return;
@@ -106,19 +109,18 @@ public class CompletionUtil {
         List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
+        if (lhsDefaultTokens.isEmpty()) {
+            return;
+        }
         int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
         int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
                 lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
-        boolean result = !lhsDefaultTokens.isEmpty()
-                && (lastToken == BallerinaParser.COLON || lastToken == BallerinaParser.DOT
-                || lastToken == BallerinaParser.RARROW || lastToken == BallerinaParser.LARROW
-                || lastToken == BallerinaParser.NOT
-                || (lhsDefaultTokens.size() >= 2 && (tokenBeforeLast == BallerinaParser.COLON
-                || tokenBeforeLast == BallerinaParser.DOT || tokenBeforeLast == BallerinaParser.RARROW
-                || tokenBeforeLast == BallerinaParser.LARROW || tokenBeforeLast == BallerinaParser.NOT)));
-
-        if (result) {
-            context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, lastToken);
+        int resultToken = -1;
+        if (invocationTokens.contains(lastToken)) {
+            resultToken = lastToken;
+        } else if (lhsDefaultTokens.size() >= 2 && invocationTokens.contains(tokenBeforeLast)) {
+            resultToken = tokenBeforeLast;
         }
+        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, resultToken);
     }
 }

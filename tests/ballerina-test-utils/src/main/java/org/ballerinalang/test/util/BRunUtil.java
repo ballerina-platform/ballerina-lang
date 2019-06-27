@@ -286,6 +286,7 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, args);
     }
 
+
     private static BValue[] addDefaultableBoolean(BValue[] args) {
         BValue[] result = new BValue[args.length * 2];
         for (int j = 0, i = 0; i < args.length; i++) {
