@@ -77,11 +77,11 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
         context.setReturnValues(absolutePath);
     }
 
-    public static MapValue toAbsolutePath(Strand strand, ObjectValue self) {
+    public static ObjectValue toAbsolutePath(Strand strand, ObjectValue self) {
         Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
-        MapValue<String, Object> absolutePath =
-                BallerinaValues.createRecord(BallerinaValues.createRecordValue(Constants.PACKAGE_PATH,
-                        Constants.PATH_STRUCT), getAbsolutePath(path).toString());
+        ObjectValue absolutePath =
+                BallerinaValues.createObjectValue(Constants.PACKAGE_PATH,
+                        Constants.PATH_STRUCT, getAbsolutePath(path).toString());
         return absolutePath;
     }
 }
