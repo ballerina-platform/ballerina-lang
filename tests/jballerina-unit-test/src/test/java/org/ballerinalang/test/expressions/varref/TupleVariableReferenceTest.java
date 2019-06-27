@@ -53,7 +53,7 @@ public class TupleVariableReferenceTest {
         validateVarRefBasicTestResults(returns);
     }
 
-	@Test(description = "Test tuple var reference 2", groups = { "brokenOnJBallerina" })
+    @Test(description = "Test tuple var reference 2", groups = { "brokenOnJBallerina" })
     public void testTupleVarRefBasic2() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic2");
         validateVarRefBasicTestResults(returns);
@@ -301,7 +301,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(returns[1].stringValue(), "S1");
     }
 
-	@Test(groups = { "brokenOnJBallerina" })
+    @Test(groups = { "brokenOnJBallerina" })
     public void testNegativeTupleVariablesReferences() {
         Assert.assertEquals(resultNegative.getErrorCount(), 20);
         int i = -1;
