@@ -102,7 +102,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite")
+    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite", enabled = false)
     public void testClientEcho() {
         String msg = "Hello Ballerina echo";
         BValue[] args = { new BString(msg) };
@@ -112,7 +112,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), msg, "Server didn't get expected msg");
     }
 
-    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho")
+    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho", enabled = false)
     public void testInvalidReadParam() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidReadParam");
         BError error = (BError) result[0];
@@ -120,7 +120,7 @@ public class ClientSocketTest {
                 "Requested byte length need to be 1 or more");
     }
 
-    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
+    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam", enabled = false)
     public void testInvalidAddress() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
         BError error = (BError) result[0];

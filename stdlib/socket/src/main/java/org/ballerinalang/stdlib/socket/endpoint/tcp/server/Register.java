@@ -20,22 +20,16 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
-import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 
 import java.nio.channels.ServerSocketChannel;
-import java.util.Map;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
@@ -47,28 +41,23 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        final SocketService socketService = getSocketService(context, listenerEndpoint);
-        listenerEndpoint.addNativeData(SOCKET_SERVICE, socketService);
-        context.setReturnValues();
     }
 
-    private SocketService getSocketService(Context context, Struct listenerEndpoint) {
-        Map<String, Resource> resources = getResourceMap(context);
-        ServerSocketChannel serverSocket = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
-        long timeout = (long) listenerEndpoint.getNativeData(READ_TIMEOUT);
-        return new SocketService(serverSocket, resources, timeout);
+    public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
+        final SocketService socketService = getSocketService(listener, strand.scheduler, service);
+        listener.addNativeData(SOCKET_SERVICE, socketService);
+        return null;
     }
 
-    private Map<String, Resource> getResourceMap(Context context) {
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        return SocketUtils.getResourceRegistry(service);
+    private static SocketService getSocketService(ObjectValue listener, Scheduler scheduler, ObjectValue service) {
+        ServerSocketChannel serverSocket = (ServerSocketChannel) listener.getNativeData(SERVER_SOCKET_KEY);
+        long timeout = (long) listener.getNativeData(READ_TIMEOUT);
+        return new SocketService(serverSocket, scheduler, service, timeout);
     }
 }

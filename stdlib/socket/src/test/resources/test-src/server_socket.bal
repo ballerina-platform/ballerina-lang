@@ -31,8 +31,8 @@ service echoServer on server {
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
@@ -83,8 +83,8 @@ function getString(byte[] content) returns string|error {
 }
 
 function process(any|error result, socket:Caller caller) {
-    if (result is (byte[], int)) {
-        var (content, length) = result;
+    if (result is [byte[], int]) {
+        var [content, length] = result;
         if (length > 0) {
             totalLength = totalLength + untaint length;
         } else {
@@ -104,8 +104,8 @@ service BlockingReadServer on new socket:Listener(59154) {
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read(length = 18);
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
@@ -130,8 +130,8 @@ service errorServer on new socket:Listener(59155) {
 
     resource function onReadReady(socket:Caller caller) returns error? {
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
                 error e = error("Error while on read");
                 return e;

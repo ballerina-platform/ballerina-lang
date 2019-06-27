@@ -20,16 +20,12 @@ package org.ballerinalang.stdlib.socket.endpoint.udp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
@@ -48,9 +44,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
 
 /**
  * Initialize the client socket endpoint.
@@ -61,7 +55,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = UDP_CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitEndpoint implements NativeCallableUnit {
@@ -69,56 +62,55 @@ public class InitEndpoint implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        SelectorManager selectorManager;
-        SocketService socketService;
-        try {
-            Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            DatagramChannel socketChannel = DatagramChannel.open();
-            socketChannel.configureBlocking(false);
-            socketChannel.socket().setReuseAddress(true);
-            clientEndpoint.addNativeData(SOCKET_KEY, socketChannel);
-            clientEndpoint.addNativeData(IS_CLIENT, true);
-            BMap<String, BValue> localAddress = (BMap<String, BValue>) context.getNullableRefArgument(1);
-            if (localAddress != null) {
-                BString host = (BString) localAddress.get(SocketConstants.CONFIG_FIELD_HOST);
-                BInteger port = (BInteger) localAddress.get(SocketConstants.CONFIG_FIELD_PORT);
-                if (host == null) {
-                    socketChannel.bind(new InetSocketAddress((int) port.intValue()));
-                } else {
-                    socketChannel.bind(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
-                }
-            }
-            BMap<String, BValue> configs = (BMap<String, BValue>) context.getNullableRefArgument(2);
-            long timeout = ((BInteger) configs.get(READ_TIMEOUT)).intValue();
-            socketService = new SocketService(socketChannel, null, timeout);
-            clientEndpoint.addNativeData(SOCKET_SERVICE, socketService);
-            selectorManager = SelectorManager.getInstance();
-            selectorManager.start();
-        } catch (SelectorInitializeException e) {
-            log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
-            callback.notifySuccess();
-            return;
-        } catch (SocketException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the local socket port"));
-            callback.notifySuccess();
-            return;
-        } catch (IOException e) {
-            log.error("Unable to initiate the client socket", e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initiate the socket"));
-            callback.notifySuccess();
-            return;
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket client."));
-            callback.notifySuccess();
-            return;
-        }
-        selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, context, OP_READ));
     }
 
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object initEndpoint(Strand strand, ObjectValue client, MapValue<String, Object> address,
+            MapValue<String, Object> config) {
+        final NonBlockingCallback callback = new NonBlockingCallback(strand);
+        SelectorManager selectorManager;
+        SocketService socketService;
+        try {
+            DatagramChannel socketChannel = DatagramChannel.open();
+            socketChannel.configureBlocking(false);
+            socketChannel.socket().setReuseAddress(true);
+            client.addNativeData(SOCKET_KEY, socketChannel);
+            client.addNativeData(IS_CLIENT, true);
+            if (address != null) {
+                String host = address.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
+                int port = address.getIntValue(SocketConstants.CONFIG_FIELD_PORT).intValue();
+                if (host == null) {
+                    socketChannel.bind(new InetSocketAddress(port));
+                } else {
+                    socketChannel.bind(new InetSocketAddress(host, port));
+                }
+            }
+            long timeout = config.getIntValue(READ_TIMEOUT);
+            socketService = new SocketService(socketChannel, strand.scheduler, null, timeout);
+            client.addNativeData(SOCKET_SERVICE, socketService);
+            selectorManager = SelectorManager.getInstance();
+            selectorManager.start();
+        } catch (SelectorInitializeException e) {
+            log.error(e.getMessage(), e);
+            callback.notifyFailure(SocketUtils.createSocketError("Unable to initialize the selector"));
+            return null;
+        } catch (SocketException e) {
+            callback.notifyFailure(SocketUtils.createSocketError("Unable to bind the local socket port"));
+            return null;
+        } catch (IOException e) {
+            log.error("Unable to initiate the client socket", e);
+            callback.notifyFailure(SocketUtils.createSocketError("Unable to initiate the socket"));
+            return null;
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            callback.notifyFailure(SocketUtils.createSocketError("Unable to start the socket client."));
+            return null;
+        }
+        selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, OP_READ));
+        return null;
     }
 }

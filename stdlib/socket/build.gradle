@@ -21,6 +21,7 @@ description = 'Ballerina - Socket'
 
 dependencies {
     baloCreat project(':lib-creator')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
@@ -50,16 +51,5 @@ configurations {
 }
 
 createBalo {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-createBir {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-test {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
+    jvmTarget = 'true'
 }

@@ -20,16 +20,10 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
@@ -38,15 +32,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
-import java.util.Map;
 
-import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 
 /**
@@ -58,7 +49,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -66,35 +56,27 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object initEndpoint(Strand strand, ObjectValue client, MapValue<String, Object> config) {
+        Object returnValue = null;
         try {
-            Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            Struct clientEndpointConfig = clientEndpoint.getStructField(CLIENT_CONFIG);
-            BValue clientServiceType = clientEndpointConfig.getServiceField(CLIENT_SERVICE_CONFIG);
-            Service service = null;
-            if (clientServiceType != null) {
-                service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
-            }
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(true);
             socketChannel.socket().setReuseAddress(true);
-            clientEndpoint.addNativeData(SOCKET_KEY, socketChannel);
-            clientEndpoint.addNativeData(IS_CLIENT, true);
-            BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            Map<String, Resource> resourceMap = null;
-            // Client has a callback service, so filter out resources for future dispatching.
-            if (service != null) {
-                resourceMap = SocketUtils.getResourceRegistry(service);
-            }
-            clientEndpoint.addNativeData(CLIENT_CONFIG, endpointConfig);
-            final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
-            long timeout = ((BInteger) readTimeoutBValue).intValue();
-            clientEndpoint.addNativeData(SOCKET_SERVICE, new SocketService(socketChannel, resourceMap, timeout));
-            context.setReturnValues();
+            client.addNativeData(SOCKET_KEY, socketChannel);
+            client.addNativeData(IS_CLIENT, true);
+            ObjectValue callbackService = (ObjectValue) config.get(CLIENT_SERVICE_CONFIG);
+            client.addNativeData(CLIENT_CONFIG, config);
+            final long readTimeout = config.getIntValue(READ_TIMEOUT);
+            client.addNativeData(SOCKET_SERVICE,
+                    new SocketService(socketChannel, strand.scheduler, callbackService, readTimeout));
         } catch (SocketException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the local socket port"));
+            returnValue = SocketUtils.createSocketError("Unable to bind the local socket port");
         } catch (IOException e) {
             log.error("Unable to initiate the client socket", e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initiate the socket"));
+            returnValue = SocketUtils.createSocketError("Unable to initiate the socket");
         }
+        return returnValue;
     }
 }

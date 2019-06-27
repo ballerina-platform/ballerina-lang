@@ -20,11 +20,9 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
@@ -33,10 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
-import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
  * 'close' method implementation of the socket caller action.
@@ -47,7 +43,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -55,25 +50,24 @@ public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
-        final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SOCKET_KEY);
+    }
+
+    public static Object close(Strand strand, ObjectValue client) {
+        final SocketChannel socketChannel = (SocketChannel) client.getNativeData(SOCKET_KEY);
         try {
             // SocketChannel can be null if something happen during the onConnect. Hence the null check.
             if (socketChannel != null) {
                 socketChannel.close();
                 SelectorManager.getInstance().unRegisterChannel(socketChannel);
             }
-            final Object client = clientEndpoint.getNativeData(IS_CLIENT);
             // This need to handle to support multiple client close.
-            if (client != null && Boolean.parseBoolean(client.toString())) {
+            if (client.getBooleanValue(IS_CLIENT)) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {
             log.error("Unable to close the connection", e);
-            context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to close the client socket connection"));
-            return;
+            return SocketUtils.createSocketError("Unable to close the client socket connection");
         }
-        context.setReturnValues();
+        return null;
     }
 }
