@@ -12,11 +12,11 @@
       "range": {
         "start": {
           "line": 6,
-          "character": 33
+          "character": 22
         },
         "end": {
           "line": 6,
-          "character": 50
+          "character": 38
         }
       }
     }

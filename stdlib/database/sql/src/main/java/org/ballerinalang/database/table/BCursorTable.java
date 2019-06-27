@@ -17,14 +17,9 @@
  */
 package org.ballerinalang.database.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Map;
@@ -34,7 +29,7 @@ import java.util.Map;
  *
  * @since 0.970.2
  */
-public class BCursorTable extends BTable {
+public class BCursorTable extends TableValue {
 
     public BCursorTable(DataIterator dataIterator, BStructureType constraintType) {
         super(constraintType);
@@ -48,15 +43,6 @@ public class BCursorTable extends BTable {
 
     public String stringValue() {
         return "";
-    }
-
-    public void addData(BMap<String, BValue> data, Context context) {
-        throw new BallerinaException("data cannot be added to a table returned from a database");
-    }
-
-    public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
-        context.setReturnValues(TableUtils.createTableOperationError(context,
-                new BallerinaException("data cannot be deleted from a table returned from a database")));
     }
 
     public int length() {
@@ -73,7 +59,7 @@ public class BCursorTable extends BTable {
     }
 
     @Override
-    public BValue copy(Map<BValue, BValue> refs) {
+    public Object copy(Map<Object, Object> refs) {
         throw new BallerinaException("A table returned from a database can not be cloned");
     }
 }

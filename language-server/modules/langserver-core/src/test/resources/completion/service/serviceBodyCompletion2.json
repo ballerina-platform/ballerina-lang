@@ -156,7 +156,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/http",
+      "label": "http",
       "kind": "Module",
       "detail": "Package",
       "insertText": "http",

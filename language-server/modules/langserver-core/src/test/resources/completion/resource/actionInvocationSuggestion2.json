@@ -15,8 +15,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends a `100-continue` response to the caller.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "continue()",
-      "insertTextFormat": "Snippet"
+      "insertText": "continue(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "redirect(http:Response response, 300|301|302|303|304|305|307|308 code, string[] locations)(error?)",
@@ -28,8 +32,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends a redirect response to the user with the specified redirection status code.\n  \n  \n---    \n**Parameters**  \n- _response_  \n    Response to be sent to the caller  \n  \n- _code_  \n    The redirect status code to be sent  \n  \n- _locations_  \n    An array of URLs to which the caller can redirect to  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "redirect(${1:response}, ${2:code}, ${3:locations})",
-      "insertTextFormat": "Snippet"
+      "insertText": "redirect(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "ok(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(error?)",
@@ -41,8 +49,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 200 OK.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "ok(${1:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "ok(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "created(string uri)(error?)",
@@ -54,8 +66,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 201 Created.\n  \n  \n---    \n**Parameters**  \n- _uri_  \n    Represents the most specific URI for the newly created resource  \n  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "created(${1:uri})",
-      "insertTextFormat": "Snippet"
+      "insertText": "created(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "accepted()(error?)",
@@ -67,8 +83,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "accepted()",
-      "insertTextFormat": "Snippet"
+      "insertText": "accepted(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(error?)",
@@ -80,8 +100,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller.\n  \n  \n---    \n**Parameters**  \n- _message_  \n    The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "respond(${1:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "respond(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "promise(http:PushPromise promise)(error?)",
@@ -93,8 +117,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nPushes a promise to the caller.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    Push promise message  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "promise(${1:promise})",
-      "insertTextFormat": "Snippet"
+      "insertText": "promise(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "pushPromisedResponse(http:PushPromise promise, http:Response response)(error?)",
@@ -106,8 +134,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends a promised push response to the caller.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    Push promise message  \n  \n- _response_  \n    The outbound response  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "pushPromisedResponse(${1:promise}, ${2:response})",
-      "insertTextFormat": "Snippet"
+      "insertText": "pushPromisedResponse(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketCaller)",
@@ -119,8 +151,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n  \n---    \n**Parameters**  \n- _headers_  \n    A `map` of custom headers for handshake  \n  \n  \n**Return**  \nballerina/http:WebSocketCaller"
         }
       },
-      "insertText": "acceptWebSocketUpgrade(${1:headers})",
-      "insertTextFormat": "Snippet"
+      "insertText": "acceptWebSocketUpgrade(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "cancelWebSocketUpgrade(int status, string reason)(error?)",
@@ -132,8 +168,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nCancels the handshake.\n  \n  \n---    \n**Parameters**  \n- _status_  \n    Error Status code for cancelling the upgrade and closing the connection.\n           This error status code need to be 4xx or 5xx else the default status code would be 400.  \n  \n- _reason_  \n    Reason for cancelling the upgrade  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "cancelWebSocketUpgrade(${1:status}, ${2:reason})",
-      "insertTextFormat": "Snippet"
+      "insertText": "cancelWebSocketUpgrade(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
