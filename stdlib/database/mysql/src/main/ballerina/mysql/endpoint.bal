@@ -69,15 +69,18 @@ public type Client client object {
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    # + loadToMemory - Indicates whether to load the retrieved data to memory or not
+    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
-    public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  sql:Param... parameters) returns @tainted table<record {}>|error {
+    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    //                              sql:Param... parameters) returns @tainted table<record {}>|error {
+    public remote function select(@sensitive string sqlQuery, typedesc? recordType,
+                                      sql:Param... parameters) returns @tainted table<record {}>|error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        //return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        return self.sqlClient->select(sqlQuery, recordType, ...parameters);
     }
 
 

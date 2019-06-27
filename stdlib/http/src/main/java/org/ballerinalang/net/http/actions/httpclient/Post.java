@@ -28,6 +28,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 
 /**
  * {@code Post} is the POST action implementation of the HTTP Connector.
@@ -45,12 +47,15 @@ public class Post extends AbstractHTTPAction {
         executeNonBlockingAction(dataContext, false);
     }
 
-    public static Object nativePost(Strand strand, String url, MapValue config, String path, ObjectValue requestObj) {
-        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
+    @SuppressWarnings("unchecked")
+    public static Object nativePost(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
+        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, (ObjectValue) requestObj);
         outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_POST);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand),
+                                                  (ObjectValue) requestObj, outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
     }

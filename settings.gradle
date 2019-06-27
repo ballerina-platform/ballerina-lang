@@ -107,6 +107,7 @@ include(':ballerina-jwt')
 include(':ballerina-ldap')
 include(':ballerina-oauth2')
 include(':build-config:checkstyle')
+include(':ballerina-bootstrapper')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-utils').projectDir = file('stdlib/utils')
 project(':ballerina-builtin').projectDir = file('stdlib/builtin')
@@ -206,6 +207,7 @@ project(':ballerina-nats').projectDir = file('stdlib/nats')
 project(':ballerina-jwt').projectDir = file('stdlib/jwt')
 project(':ballerina-ldap').projectDir = file('stdlib/ldap')
 project(':ballerina-oauth2').projectDir = file('stdlib/oauth2')
+project(':ballerina-bootstrapper').projectDir = file('distribution/bootstrapper')
 
 buildCache {
     remote(HttpBuildCache) {
