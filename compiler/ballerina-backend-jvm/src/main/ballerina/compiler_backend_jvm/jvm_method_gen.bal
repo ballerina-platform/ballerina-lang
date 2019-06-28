@@ -167,7 +167,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
             bir:BasicBlock?[] bbArray = func.paramDefaultBBs[paramBBCounter];
             generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                                stateVarIndex, localVarOffset, true, module, currentPackageName, false);
+                                stateVarIndex, localVarOffset, true, module, currentPackageName);
             mv.visitLabel(paramNextLabel);
             paramBBCounter += 1;
         }
@@ -190,7 +190,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName, isModuleInitFunction(module, func));
+                            localVarOffset, false, module, currentPackageName);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -420,7 +420,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
-            bir:Package module, string currentPackageName, boolean loadAnnots) {
+            bir:Package module, string currentPackageName) {
     int j = 0;
     string funcName = cleanupFunctionName(untaint func.name.value);
 
