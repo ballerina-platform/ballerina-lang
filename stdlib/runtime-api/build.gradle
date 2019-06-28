@@ -32,7 +32,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
     bir project(path: ':ballerina-utils', configuration: 'bir')
-    bir project(path: ':ballerina-annotations', configuration: 'bir')
+    bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
 }
 
 createBalo {
