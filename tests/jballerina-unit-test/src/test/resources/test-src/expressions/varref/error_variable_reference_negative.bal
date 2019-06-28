@@ -66,8 +66,8 @@ function testBasicErrorVariableWithRecordDetails() {
 
 function testErrorInTuple() {
     Foo f = { message: "fooMsg", fatal: true };
-    (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
-                                                        (error("Err2", { message: "Something Wrong2" }), f));
+    [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", { message: "Something Wrong" }),
+                                                        [error("Err2", { message: "Something Wrong2" }), f]];
 
     any intVar;
     string stringVar;
@@ -75,7 +75,7 @@ function testErrorInTuple() {
     error errorVar2;
     any fooVar;
 
-    (intVar, stringVar, errorVar, (errorVar2, fooVar)) = t1; // expected '(any,string,map,(error,any))', found '(int,string,error,(error,Foo))'
+    [intVar, stringVar, errorVar, [errorVar2, fooVar]] = t1; // expected '(any,string,map,(error,any))', found '(int,string,error,(error,Foo))'
 }
 
 type Bar record {
