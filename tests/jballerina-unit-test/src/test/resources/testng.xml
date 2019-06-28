@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" time-out="120000">
+<suite name="ballerina-test-suite" >
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
@@ -111,6 +111,7 @@
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
+            <package name="org.ballerinalang.test.taintchecking.*"/>
         </packages>
 
         <classes>
