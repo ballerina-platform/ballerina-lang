@@ -7,10 +7,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
