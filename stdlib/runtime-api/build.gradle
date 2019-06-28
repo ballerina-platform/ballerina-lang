@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
@@ -29,6 +30,9 @@ dependencies {
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
+    bir project(path: ':ballerina-annotations', configuration: 'bir')
 }
 
 createBalo {

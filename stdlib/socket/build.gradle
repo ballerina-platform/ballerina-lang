@@ -20,9 +20,8 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 description = 'Ballerina - Socket'
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
@@ -48,4 +47,19 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    // TODO: enable after tuple migrate
+    onlyIf { false }
+}
+
+createBir {
+    // TODO: enable after tuple migrate
+    onlyIf { false }
+}
+
+test {
+    // TODO: enable after tuple migrate
+    onlyIf { false }
 }

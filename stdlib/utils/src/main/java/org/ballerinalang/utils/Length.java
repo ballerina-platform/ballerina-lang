@@ -58,6 +58,9 @@ public class Length extends BlockingNativeCallableUnit {
     }
 
     public static long length(Strand strand, Object value) {
+        if (value instanceof String) {
+            return ((String) value).length();
+        }
         RefValue refValue = (RefValue) value;
         if (refValue == null) {
             throw BallerinaErrors.createError(BallerinaErrors.NULL_REF_EXCEPTION);

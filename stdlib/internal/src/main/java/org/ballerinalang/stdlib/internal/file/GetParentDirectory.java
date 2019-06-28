@@ -96,7 +96,7 @@ public class GetParentDirectory extends BlockingNativeCallableUnit {
             Path parent = path.getParent();
             if (parent != null) {
                 ObjectValue pathObject = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH,
-                        Constants.PATH_STRUCT);
+                        Constants.PATH_STRUCT, "");
                 pathObject.call(strand, Constants.INIT_FUNCTION_NAME, parent.toString(), true);
                 return pathObject;
             } else {

@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -60,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -68,7 +66,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -252,20 +249,21 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        Set<Map.Entry<Name, Scope.ScopeEntry>> recordSymbols = tsymbol.scope.entries.entrySet();
-
-        buff.writeInt(recordSymbols.size() - 1); // recordSymbols = 1 initializer + n fields
-        for (Map.Entry<Name, Scope.ScopeEntry> entry : recordSymbols) {
-            BSymbol symbol = entry.getValue().symbol;
-            String fieldName = entry.getKey().value;
-            if (symbol != initializerFunc.symbol) {
-                buff.writeInt(addStringCPEntry(fieldName));
-                buff.writeInt(symbol.flags);
-                writeTypeCpIndex(symbol.type);
-            }
+        buff.writeInt(bRecordType.fields.size());
+        for (BField field : bRecordType.fields) {
+            BSymbol symbol = field.symbol;
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeInt(symbol.flags);
+            writeTypeCpIndex(field.type);
         }
 
+        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
+        if (initializerFunc == null) {
+            buff.writeByte(0);
+            return;
+        }
+
+        buff.writeByte(1);
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
         buff.writeInt(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);

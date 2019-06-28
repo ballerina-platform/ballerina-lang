@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
+import ballerina/internal;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
@@ -30,16 +31,35 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
+internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
+string[] birCacheDirs = [];
 
 public function main(string... args) {
-    //do nothing
+    string pathToEntryBir = untaint args[0];
+    string mapPath = untaint args[1];
+    string targetPath = args[2];
+    boolean dumpBir = boolean.convert(args[3]);
+
+    var numCacheDirs = args.length() - 4;
+    int i = 0;
+    while (i < numCacheDirs) {
+        birCacheDirs[i] = args[4 + i];
+        i = i + 1;
+    }
+
+    writeJarFile(generateJarBinary(pathToEntryBir, mapPath, dumpBir), targetPath);
 }
 
-function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:ModuleID entryModId, string progName)
-            returns JarFile {
-    currentBIRContext = birContext;
-    var [entryMod, _] = lookupModule(entryModId);
+function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
+    if (mapPath != "") {
+        externalMapCache = readMap(mapPath);
+    }
+
+    byte[] moduleBytes = readFileFully(pathToEntryBir);
+    bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes, false);
+
+    compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
     if (dumpBir) {
        bir:BirEmitter emitter = new(entryMod);
@@ -47,7 +67,36 @@ function generateJarBinary(boolean dumpBir, bir:BIRContext birContext, bir:Modul
     }
 
     JarFile jarFile = {};
-    generatePackage(entryModId, jarFile, true);
+    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value), jarFile, true);
 
     return jarFile;
 }
+
+function readMap(string path) returns map<string> {
+    io:ReadableByteChannel rbc = io:openReadableFile(path);
+    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+    var result = untaint rch.readJson();
+    var didClose = rch.close();
+    if (result is error) {
+        panic result;
+    } else {
+        var externalMap = map<string>.convert(result);
+        if (externalMap is error){
+            panic externalMap;
+        } else {
+            return externalMap;
+        }
+    }
+}
+
+public function createModuleId(string orgName, string moduleName, string moduleVersion) returns bir:ModuleID {
+    return { org: orgName, name: moduleName, modVersion: moduleVersion, isUnnamed: false, sourceFilename: moduleName };
+}
+
+function writeJarFile(JarFile jarFile, string targetPath) {
+    writeExecutableJarToFile(jarFile, targetPath);
+}
+
+function writeExecutableJarToFile(JarFile jarFile, string targetPath) = external;
+
+function createBIRContext(string sourceDir, string pathToCompilerBackend, string libDir) returns bir:BIRContext = external;

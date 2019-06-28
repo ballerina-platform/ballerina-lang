@@ -29,11 +29,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-h2')
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-system')
+    implementation project(':ballerina-lang')
 }
 
 description = 'Ballerina - Privacy'
