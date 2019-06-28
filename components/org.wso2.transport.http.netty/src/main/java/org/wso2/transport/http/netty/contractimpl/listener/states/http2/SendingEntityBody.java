@@ -38,6 +38,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
@@ -138,7 +139,14 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                                     Http2OutboundRespListener http2OutboundRespListener, int streamId) {
-        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        try {
+            serverConnectorFuture.notifyErrorListener(
+                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY));
+            // Error is notified to server connector. Debug log is to make transport layer aware
+            LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        } catch (ServerConnectorException e) {
+            LOG.error("Error while notifying error state to server-connector listener");
+        }
     }
 
     private void writeContent(Http2OutboundRespListener http2OutboundRespListener,

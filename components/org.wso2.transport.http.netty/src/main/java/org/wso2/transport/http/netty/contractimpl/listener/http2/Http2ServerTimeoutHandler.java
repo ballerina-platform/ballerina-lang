@@ -151,16 +151,18 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
         private void handleTimeout(InboundMessageHolder msgHolder) {
             if (msgHolder.getInboundMsg() != null) {
+                LOG.debug("Timeout Occurred during {} state",
+                          msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState().toString());
                 msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState()
                         .handleStreamTimeout(serverConnectorFuture, ctx, msgHolder.getHttp2OutboundRespListener(),
                                              streamId);
             }
-            http2ServerChannel.getStreamIdRequestMap().remove(streamId);
         }
 
         private void closeStream(InboundMessageHolder msgHolder, int streamId, ChannelHandlerContext ctx) {
             try {
-                msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.NO_ERROR);
+                msgHolder.getHttp2OutboundRespListener().resetStream(ctx, streamId, Http2Error.INTERNAL_ERROR);
+                http2ServerChannel.getStreamIdRequestMap().remove(streamId);
             } catch (Http2Exception e) {
                 LOG.error("Error sending RST_STREAM: ", e.getCause());
             }

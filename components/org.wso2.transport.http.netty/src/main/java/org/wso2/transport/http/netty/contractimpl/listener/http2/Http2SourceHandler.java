@@ -144,7 +144,6 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
                 requestCarbonMessage.setHttp2MessageStateContext(http2MessageStateContext);
             }
-            // Storing to add HttpContent later
             http2ServerChannel.getStreamIdRequestMap().put(STREAM_ID_ONE, inboundMsgHolder);
             http2ServerChannel.getDataEventListeners()
                     .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, STREAM_ID_ONE));
