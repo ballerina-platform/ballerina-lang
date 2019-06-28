@@ -17,6 +17,10 @@
 import ballerina/artemis;
 import ballerina/io;
 
+artemis:Connection con = new("tcp://localhost:61616");
+artemis:Session session = new(con);
+listener artemis:Listener artemisListener = new(session);
+
 @artemis:ServiceConfig {
     queueConfig: {
         queueName: "queue1"
