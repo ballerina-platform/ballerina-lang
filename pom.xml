@@ -1151,6 +1151,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-formatter</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>openapi-to-ballerina-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1939,6 +1944,7 @@
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
+                <module>misc/ballerina-formatter</module>
 
                 <module>composer</module>
                 <module>distribution/zip/ballerina</module>
@@ -2039,6 +2045,7 @@
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
+                <module>misc/ballerina-formatter</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -2136,6 +2143,7 @@
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
+                <module>misc/ballerina-formatter</module>
 
                 <module>composer</module>
 
