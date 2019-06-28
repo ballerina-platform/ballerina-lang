@@ -38,8 +38,6 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
 
-    testRuntimeOnly project(':ballerina-backend-jvm')
-
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-reflect')
@@ -48,6 +46,9 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+
+    bir project(path: ':ballerina-time', configuration: 'bir')
+
 }
 
 createBalo {

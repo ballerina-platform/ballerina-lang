@@ -36,7 +36,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
@@ -161,8 +161,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
                         // check if groups attribute is present in the annotation
                         if (GROUP_ANNOTATION_NAME.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
                                 test.setGroups(values.exprs.stream().map(node -> node.toString())
                                                            .collect(Collectors.toList()));
                                 // Check whether user has provided a group list
@@ -200,8 +200,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         }
 
                         if (DEPENDS_ON_FUNCTIONS.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                            if (attributeNode.getValue() instanceof BLangListConstructorExpr) {
+                                BLangListConstructorExpr values = (BLangListConstructorExpr) attributeNode.getValue();
                                 values.exprs.stream().map(node -> node.toString()).forEach
                                         (test::addDependsOnTestFunction);
                             }

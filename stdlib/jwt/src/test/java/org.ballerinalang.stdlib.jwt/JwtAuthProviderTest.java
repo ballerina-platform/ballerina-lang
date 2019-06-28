@@ -20,11 +20,9 @@ package org.ballerinalang.stdlib.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -113,20 +111,7 @@ public class JwtAuthProviderTest {
 
     @Test(description = "Test JWT issuer", priority = 1)
     private void testGenerateJwt() {
-        BMap<String, BValue> jwtHeader = new BMap<>();
-        jwtHeader.put("alg", new BString("RS256"));
-        jwtHeader.put("typ", new BString("JWT"));
-
-        long time = 32475251189000L;
-        BMap<String, BValue> jwtBody = new BMap<>();
-        jwtBody.put("sub", new BString("John"));
-        jwtBody.put("iss", new BString("wso2"));
-        jwtBody.put("aud", new BValueArray(new String[] {"ballerina"}));
-        jwtBody.put("scope", new BString("John test Doe"));
-        jwtBody.put("roles", new BValueArray(new String[] {"admin", "admin2"}));
-        jwtBody.put("exp", new BInteger(time));
-
-        BValue[] inputBValues = {jwtHeader, jwtBody, new BString(keyStorePath)};
+        BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "generateJwt", inputBValues);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(returns[0].stringValue().startsWith("eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiO" +
@@ -137,16 +122,7 @@ public class JwtAuthProviderTest {
 
     @Test(description = "Test JWT verification", priority = 2)
     private void testVerifyJwt() {
-        BMap<String, BValue> trustStore = new BMap<>();
-        trustStore.put("path", new BString(trustStorePath));
-        trustStore.put("password", new BString("ballerina"));
-        BMap<String, BValue> jwtConfig = new BMap<>();
-        jwtConfig.put("issuer", new BString("wso2"));
-        jwtConfig.put("audience", new BString("ballerina"));
-        jwtConfig.put("trustStore", trustStore);
-        jwtConfig.put("clockSkew", new BInteger(0));
-        jwtConfig.put("certificateAlias", new BString("ballerina"));
-        BValue[] inputBValues = {new BString(jwtToken), jwtConfig};
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "verifyJwt", inputBValues);
         Assert.assertTrue(returns[0] instanceof BMap);
     }
@@ -179,5 +155,4 @@ public class JwtAuthProviderTest {
                 Paths.get(resourceRoot, "datafiles", "config", "jwt", BALLERINA_CONF).toString());
         return runtimeConfigs;
     }
-
 }

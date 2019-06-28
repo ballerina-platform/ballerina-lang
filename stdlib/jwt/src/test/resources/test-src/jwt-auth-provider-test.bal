@@ -41,7 +41,17 @@ function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustS
     return jwtAuthProvider.authenticate(jwtToken);
 }
 
-function generateJwt(jwt:JwtHeader header, jwt:JwtPayload payload, string keyStorePath) returns string|error {
+function generateJwt(string keyStorePath) returns string|error {
+    jwt:JwtHeader header = {
+        alg: "RS256",
+        typ: "JWT"
+    };
+    jwt:JwtPayload payload = {
+        iss: "wso2",
+        sub: "John",
+        aud: ["ballerina"],
+        exp: 32475251189000
+    };
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
     jwt:JwtIssuerConfig issuerConfig = {
         keyStore: keyStore,
@@ -51,6 +61,14 @@ function generateJwt(jwt:JwtHeader header, jwt:JwtPayload payload, string keySto
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, jwt:JwtValidatorConfig config) returns jwt:JwtPayload|error {
-    return jwt:validateJwt(jwt, config);
+function verifyJwt(string jwt, string trustStorePath) returns jwt:JwtPayload|error {
+    crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
+    jwt:JwtValidatorConfig validatorConfig = {
+        issuer: "wso2",
+        certificateAlias: "ballerina",
+        audience: ["ballerina"],
+        clockSkew: 0,
+        trustStore: trustStore
+    };
+    return jwt:validateJwt(jwt, validatorConfig);
 }
