@@ -118,7 +118,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleConstructNameSelect={this.handleConstructNameSelect}
                     handleModuleNameSelect={this.handleModuleNameSelect}
                 />
-                <div style={{margin: "80px 15px 5px"}}>
+                <div>
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
                     projectAst={modules}
@@ -145,7 +145,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 {modules.map((module) => (
                     <List.Item className="item-wrapper" key={module.name}>
                         <List.Content>
-                            <List.Header>{module.name}</List.Header>
+                            <List.Header className="list-item-header" >{module.name}</List.Header>
                             <div>
                                 { this.renderConstructsList(module) }
                             </div>

@@ -35,17 +35,39 @@
             flex-wrap: wrap;
             margin-top: 30px;
 
+            .list-item-header {
+                background: #e9e9e9;
+                padding: 6px 5px;
+                font-size: 1.1em;
+                font-weight: 500 !important;
+
+                .item {
+                    
+                    background: pink !important;
+                }
+            }
+
             .ui.list {
                 font-weight: 300;
                 color: #333;
                 line-height: 30em;
+                // background: greenyellow;
+                padding: 0;
+
 
                 .item {
+                    padding: 0 !important;
                     .content {
                         a.header {
                             color: #333 !important; 
                             cursor: pointer;
+                            font-size: 1em;
                             font-weight: 300;
+                            background: #f0f0f0;
+                            min-width: 250px;
+                            margin-top: 0 !important;
+                            padding:6px;
+                            margin-top: 1px !important;
 
                             &:hover {
                                 text-decoration: underline;
