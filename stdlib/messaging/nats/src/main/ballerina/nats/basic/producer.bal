@@ -14,64 +14,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# NATS producer would act as a streaming client allowing to stream messages between NATS streaming server.
-# Producer would create a new NATS connection if a connection was not provided during the initialization.
-public type Producer client object {
-    private Connection? connection = ();
-    private boolean adhocConnection = true;
+import ballerina/log;
 
-    # Creates a new producer. A connection will be created if a refernece to a connection is not provided.
+# NATS producer would act as a basic client allowing to publish messages to NATS server.
+# Producer need NATS connection to initialize.
+public type Producer client object {
+
+    private Connection? connection = ();
+
+    # Creates a new producer.
     #
-    # + c - An already established connection or configuration to create a new connection.
+    # + c - An already established connection.
     public function __init(Connection c) {
         self.connection = c;
     }
 
-    # Produces a message to a NATS streaming server for the given subject.
+    # Produces a message to a NATS basic server for the given subject.
     #
     # + subject - Could also be referred as the 'topic/queue' name.
-    # + message - Message could be either a string or json representation.
-    # + charset - Encoding of the message (by defaults it would be UTF-8).
-    # + return -  GUID of acknowledgment or the specific error.
-    public remote function send(string subject, string|json message, string charset = "UTF-8") returns string|error {
-        if (message is string) {
-            return self.sendMsg(subject, message.toByteArray(charset));
-        } else {
-            return self.sendMsg(subject, message.toString().toByteArray(charset));
-        }
-    }
+    # + replyTo - Subject for the receiver to reply. Optional parameter. Set only if reply is needed.
+    # + message - Message could be byte[] representation.
+    # + return -  A specific error, if there is a problem when publishing the message. () otherwise.
+    public remote function publish(string subject, string? replyTo = (), byte[] message) returns error? = external;
 
     # Produces a message and would wait for a response.
     #
     # + subject - Would represent the topic/queue name.
-    # + message - Message could be either a string or json representation.
-    # + charset - Encoding of the message by default it would be UTF-8.
+    # + message - Message could be byte[] representation.
+    # + duration - the time to wait for a response. measure in milliseconds
     # + return -  Response message or an error.
-    public remote function requestReply(string subject, string|json message,
-                                        string charset = "UTF-8") returns Message|error {
-        if (message is string) {
-            return self.sendRequestReplyMsg(subject, message.toByteArray(charset));
-        } else {
-            return self.sendRequestReplyMsg(subject, message.toString().toByteArray(charset));
-        }
-    }
+    public remote function request(string subject, byte[] message, int? duration) returns Message|error = external;
 
     # Close a given connection.
     #
     # + return - () or error if unable to complete close operation.
     public function close() returns error? {
         if (self.connection is Connection) {
-            if (self.adhocConnection) {
-                return self.connection.close();
-            } else {
-                error conErr = error("{ballerina/nats}CONNECTION_ERROR",
-                        { message: "unable to close a shared connection." });
-                return conErr;
-            }
+            self.connection = ();
+            log:printInfo("Close the logical connection between producer and connection.");
         }
     }
-
-    function sendMsg(string subject, byte[] message) returns string|error = external;
-
-    function sendRequestReplyMsg(string subject, byte[] message) returns Message|error = external;
 };

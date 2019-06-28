@@ -18,35 +18,27 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.nats.streaming.Message;
-import io.nats.streaming.MessageHandler;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import io.nats.client.Message;
+import io.nats.client.MessageHandler;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 
 /**
  * Handles incoming message for a given subscription.
  */
-public class Listener implements MessageHandler {
+public class DefaultMessageHandler implements MessageHandler {
     /**
      * Resource which the message should be dispatched.
      */
-    private Resource resource;
+    private ObjectValue serviceObject;
 
-    public Listener(Resource resource) {
-        this.resource = resource;
+    DefaultMessageHandler(ObjectValue serviceObject) {
+        this.serviceObject = serviceObject;
     }
 
     /**
@@ -54,12 +46,10 @@ public class Listener implements MessageHandler {
      */
     @Override
     public void onMessage(Message message) {
-        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> msgObj = BLangConnectorSPIUtil.createBStruct(programFile, Constants.NATS_PACKAGE,
-                Constants.NATS_MESSAGE_OBJ_NAME);
+        ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                Constants.NATS_MESSAGE_OBJ_NAME, message.getData(), message.getSubject(), message.getReplyTo());
         msgObj.addNativeData(Constants.NATS_MSG, message);
-        msgObj.put(Constants.MSG_CONTENT_NAME, new BString(new String(message.getData(), StandardCharsets.UTF_8)));
-        Executor.submit(resource, new ResponseCallback(), new HashMap<>(), null, msgObj);
+        Executor.submit(serviceObject, "onMessage", new ResponseCallback(), null, msgObj);
     }
 
     /**
@@ -78,8 +68,8 @@ public class Listener implements MessageHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(BError error) {
-            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        public void notifyFailure(ErrorValue error) {
+            ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
         }
     }
 }

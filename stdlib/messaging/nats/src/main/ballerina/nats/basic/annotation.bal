@@ -20,7 +20,7 @@
 # + queueName - Name of the queue group.
 public type SubscriptionConfigData record {|
    string subject;
-   string queueName;
+   string queueName?;
 |};
 
 

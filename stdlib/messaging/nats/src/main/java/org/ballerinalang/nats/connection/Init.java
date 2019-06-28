@@ -22,12 +22,11 @@ import io.nats.client.Connection;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,7 +49,7 @@ import java.util.List;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Init implements NativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
 
     private static final String RECONNECT_WAIT = "reconnectWait";
     private static final String SERVER_URL_SEPARATOR = ",";
@@ -66,7 +65,7 @@ public class Init implements NativeCallableUnit {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
     }
 
     public static void init(Strand strand, ObjectValue connectionObject, String urlString,
@@ -119,13 +118,5 @@ public class Init implements NativeCallableUnit {
         } catch (IOException | InterruptedException e) {
             throw new BallerinaConnectorException(e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

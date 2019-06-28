@@ -33,10 +33,10 @@ public type Listener object {
     # + name - Name of the service.
     # + return - Nil or error upon failure to register listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.create(serviceType, name);
+        return self.register(serviceType, name);
     }
 
-    function create(service serviceType, string? name) returns error? = external;
+    function register(service serviceType, string? name) returns error? = external;
 
     # Starts the listener in the lifecyle.
     #
