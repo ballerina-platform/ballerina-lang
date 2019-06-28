@@ -30,54 +30,10 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.*;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BFiniteType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BTableType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypeDesc;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.model.types.*;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -906,6 +862,10 @@ public class BRunUtil {
                 StreamValue streamValue = (StreamValue) value;
                 bvmValue = new BStream(getBVMType(streamValue.getType(), new Stack<>()), streamValue.getStreamId());
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+                FPValue functionValue = (FPValue) value;
+                bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
+                break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -1017,6 +977,16 @@ public class BRunUtil {
                         jvmBFiniteType.getPackage() == null ? null : jvmType.getPackage().name);
                 jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
                 return bFiniteType;
+
+            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+                org.ballerinalang.jvm.types.BFunctionType jvmBFunctionType =
+                        (org.ballerinalang.jvm.types.BFunctionType) jvmType;
+                BType[] bParamTypes = new BType[jvmBFunctionType.paramTypes.length];
+                for (int i = 0; i < jvmBFunctionType.paramTypes.length; i++) {
+                    bParamTypes[i] = getBVMType(jvmBFunctionType.paramTypes[i], selfTypeStack);
+                }
+                BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
+                return new BFunctionType(bParamTypes, new BType[]{bRetType});
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

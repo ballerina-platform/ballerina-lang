@@ -357,6 +357,7 @@ public type ObjectGenerator object {
         }
 
         self.createRecordConstructor(cw, className);
+        self.createLambdas(cw);
         cw.visitEnd();
         return cw.toByteArray();
     }
