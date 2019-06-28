@@ -72,11 +72,11 @@ public class ArrayValue implements RefValue, CollectionValue {
     protected int size = 0;
 
     Object[] refValues;
-    protected long[] intValues;
-    protected boolean[] booleanValues;
-    protected byte[] byteValues;
-    protected double[] floatValues;
-    protected String[] stringValues;
+    private long[] intValues;
+    private boolean[] booleanValues;
+    private byte[] byteValues;
+    private double[] floatValues;
+    private String[] stringValues;
 
     public BType elementType;
 
