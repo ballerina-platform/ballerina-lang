@@ -242,9 +242,9 @@ export class BallerinaExtension {
                 message: "Trying to get ballerina version without setting ballerina home."
             });
         }
-        let command = `${path.join(ballerinaHome, 'bin', 'ballerina')} version`;
+        let command = `${path.join(ballerinaHome, 'bin', 'jballerina')} version`;
         if (process.platform === 'win32') {
-            command = `"${path.join(ballerinaHome, 'bin', 'ballerina.bat')}" version`;
+            command = `"${path.join(ballerinaHome, 'bin', 'jballerina.bat')}" version`;
         }
         return new Promise((resolve, reject) => {
             exec(command, (err, stdout, stderr) => {
@@ -314,7 +314,7 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
+        const ballerinaCmd = process.platform === 'win32' ? 'jballerina.bat' : 'jballerina';
         if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
@@ -355,12 +355,12 @@ export class BallerinaExtension {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    ballerinaPath = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where jballerina').toString().trim();
                 } catch (error) {
                     return ballerinaPath;
                 }
                 if (ballerinaPath) {
-                    ballerinaPath = ballerinaPath.replace(/bin\\ballerina.bat$/, '');
+                    ballerinaPath = ballerinaPath.replace(/bin\\jballerina.bat$/, '');
                 }
                 break;
             case 'darwin': // Mac OS
@@ -369,7 +369,7 @@ export class BallerinaExtension {
                     ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from ballerinaPath
                     if (ballerinaPath) {
-                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        ballerinaPath = ballerinaPath.replace(/bin\/jballerina$/, '');
                         // For homebrew installations ballerina executable is in libexcec
                         const homebrewBallerinaPath = path.join(ballerinaPath, 'libexec');
                         if (fs.existsSync(homebrewBallerinaPath)) {
@@ -383,11 +383,11 @@ export class BallerinaExtension {
             case 'linux': // Linux
                 // lets see where the ballerina command is.
                 try {
-                    const output = execSync('which ballerina');
+                    const output = execSync('which jballerina');
                     ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from path
                     if (ballerinaPath) {
-                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        ballerinaPath = ballerinaPath.replace(/bin\/jballerina$/, '');
                     }
                 } catch {
                     return ballerinaPath;

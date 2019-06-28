@@ -26,17 +26,17 @@ under the License.
             <package name="org.ballerinalang.stdlib.jwt.*"/>
         </packages> -->
         <classes>
-            <class name="org.ballerinalang.stdlib.jwt.JwtTest">
+            <class name="org.ballerinalang.stdlib.jwt.JwtIssuerAndValidatorTest">
                 <methods>
                     <exclude name="testCompleteValidator"/>
                     <exclude name="testPartialValidatorWithNoIssOrSub"/>
                     <exclude name="testPartialValidatorWithIssAndSub"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.stdlib.jwt.JWTAuthenticatorTest">
+            <class name="org.ballerinalang.stdlib.jwt.JwtAuthProviderTest">
                 <methods>
                     <exclude name="testVerifyJwt"/>
-                    <exclude name="testAuthenticationSuccess"/>
+                    <exclude name="testJwtAuthProviderAuthenticationSuccess"/>
                 </methods>
             </class>
         </classes>

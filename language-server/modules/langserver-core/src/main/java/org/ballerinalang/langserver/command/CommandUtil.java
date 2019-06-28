@@ -87,9 +87,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -454,9 +452,14 @@ public class CommandUtil {
      */
     public static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
                                         DiagnosticsHelper diagnosticsHelper, String documentUri) {
-        Path filePath = Paths.get(URI.create(documentUri));
-        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, filePath, compilationPath);
+        LSServiceOperationContext lsContext = new LSServiceOperationContext();
+        lsContext.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+        WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        try {
+            diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, lsContext, docManager);
+        } catch (LSCompilerException e) {
+            // Ignore
+        }
     }
 
     /**
@@ -538,7 +541,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, false,
-                                                                       LSCustomErrorStrategy.class, true);
+                                                                       LSCustomErrorStrategy.class, true, false);
 
         // Get the current package.
         BLangPackage currentPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);
@@ -649,7 +652,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, true,
-                                                                       LSCustomErrorStrategy.class, true);
+                                                                       LSCustomErrorStrategy.class, true, false);
 
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);

@@ -22,9 +22,20 @@ under the License.
 <suite name="ballerina-test-suite">
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <packages>
             <!-- <package name="org.ballerinalang.stdlib.database.h2"/>
             <package name="org.ballerinalang.stdlib.database.sql.*"/> -->
         </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.database.h2.H2ClientActionsTest"/>
+            <class name="org.ballerinalang.stdlib.database.sql.SQLActionsTest"/>
+            <class name="org.ballerinalang.stdlib.database.sql.SQLConnectionPoolTest"/>
+            <class name="org.ballerinalang.stdlib.database.sql.SQLConnectorInitTest"/>
+        </classes>
     </test>
 </suite>

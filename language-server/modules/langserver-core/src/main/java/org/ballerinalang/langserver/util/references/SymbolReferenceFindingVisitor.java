@@ -713,7 +713,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         // Check whether whitespaces are null for the type node.
         // If null return length as 0.
-        if (typeNode.getWS() == null) {
+        if (typeNode == null || typeNode.getWS() == null) {
             return length;
         }
 

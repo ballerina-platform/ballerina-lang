@@ -22,11 +22,11 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -57,16 +57,15 @@ public class GetProperty extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
-        ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
+    }
 
-        String key = context.getStringArgument(0);
+    public static Object getProperty(Strand strand, ObjectValue messageObj, String key) {
+        ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         Object property = message.getObjectProperty(key);
         if (property != null) {
-            context.setReturnValues(ArtemisUtils.getBValueFromObj(property, context));
-        } else {
-            context.setReturnValues();
+            return ArtemisUtils.getValidObj(property);
         }
+        return null;
     }
+
 }
