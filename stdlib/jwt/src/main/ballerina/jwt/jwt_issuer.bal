@@ -37,7 +37,7 @@ public type JwtIssuerConfig record {|
 # + payload - JwtPayload object
 # + config - JWT issuer config record
 # + return - JWT token string or an error if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns (string|error) {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|error {
     boolean audienceAsArray = false;
     if (config is JwtIssuerConfig) {
         audienceAsArray = config.audienceAsArray;
@@ -74,7 +74,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
     }
 }
 
-function buildHeaderString(JwtHeader header) returns (string|error) {
+function buildHeaderString(JwtHeader header) returns string|error {
     json headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
         return prepareError("Mandatory field signing algorithm (alg) is empty.");
@@ -96,7 +96,7 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns (string|error) {
+function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns string|error {
     json payloadJson = {};
     var sub = payload["sub"];
     if (sub is string) {
@@ -138,7 +138,7 @@ function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns
     return encoding:encodeBase64Url(payloadInString.toByteArray("UTF-8"));
 }
 
-function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
+function addMapToJson(json inJson, map<json> mapToConvert) returns json {
     if (mapToConvert.length() != 0) {
         foreach var key in mapToConvert.keys() {
             inJson[key] = mapToConvert[key];

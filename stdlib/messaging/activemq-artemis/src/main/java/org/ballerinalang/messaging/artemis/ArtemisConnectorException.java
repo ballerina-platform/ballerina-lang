@@ -18,8 +18,7 @@
 
 package org.ballerinalang.messaging.artemis;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 /**
  * BallerinaException that could occur in Artemis connector.
@@ -39,16 +38,6 @@ public class ArtemisConnectorException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link ArtemisConnectorException} with error message and ballerina context.
-     *
-     * @param message Error message
-     * @param context Ballerina context
-     */
-    public ArtemisConnectorException(String message, Context context) {
-        super(message, context);
-    }
-
-    /**
      * Constructs a new {@link ArtemisConnectorException} with the specified detail message and cause.
      *
      * @param message Error message
@@ -59,32 +48,11 @@ public class ArtemisConnectorException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link ArtemisConnectorException} with the specified detail message,
-     * cause and ballerina context.
-     *
-     * @param message Error message
-     * @param cause   Cause
-     * @param context Ballerina context
-     */
-    public ArtemisConnectorException(String message, Throwable cause, Context context) {
-        super(message, cause, context);
-    }
-
-    /**
      * Constructs a new {@link ArtemisConnectorException} with the cause.
      *
      * @param cause Throwable to be wrap by {@link ArtemisConnectorException}
      */
     public ArtemisConnectorException(Throwable cause) {
         super(cause);
-    }
-
-    /**
-     * Constructs a new {@link ArtemisConnectorException} with ballerina context.
-     *
-     * @param stack Ballerina context
-     */
-    public ArtemisConnectorException(Context stack) {
-        super(stack);
     }
 }

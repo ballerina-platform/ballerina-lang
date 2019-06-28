@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite">
+<suite name="ballerina-test-suite" time-out="120000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
@@ -39,6 +39,7 @@
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
+            <package name="org.ballerinalang.test.closures.*"/>
             <!-- <package name="org.ballerinalang.test.privacy.*"/> -->
             <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
@@ -93,6 +94,7 @@
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
@@ -105,6 +107,9 @@
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.expressions.typecast.*"/>
+            <package name="org.ballerinalang.test.expressions.literals.*"/>
+            <package name="org.ballerinalang.test.expressions.varref.*"/>
         </packages>
 
         <classes>
@@ -114,12 +119,15 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
-            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
             <class name="org.ballerinalang.test.worker.BasicForkTest"/>
             <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
             <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest"/>
+            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
+                <methods>
+                    <exclude name="waitTest15"/>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.worker.WorkerTest"/>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
             <class name="org.ballerinalang.test.worker.WorkerInActionTest">

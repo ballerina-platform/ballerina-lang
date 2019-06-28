@@ -15,8 +15,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
         }
       },
-      "insertText": "openReadableFile(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "openReadableFile(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "openWritableFile(string path)(ballerina/io:WritableByteChannel)",
@@ -28,8 +32,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \nDefault Value: false  \n  \n**Return**  \nballerina/io:WritableByteChannel"
         }
       },
-      "insertText": "openWritableFile(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "openWritableFile(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
@@ -41,8 +49,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
         }
       },
-      "insertText": "createReadableChannel(${1:content})",
-      "insertTextFormat": "Snippet"
+      "insertText": "createReadableChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "openReadableCsvFile(string path)(ballerina/io:ReadableCSVChannel|error)",
@@ -54,8 +66,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:ReadableCSVChannel|error"
         }
       },
-      "insertText": "openReadableCsvFile(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "openReadableCsvFile(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "openWritableCsvFile(string path)(ballerina/io:WritableCSVChannel)",
@@ -67,8 +83,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:WritableCSVChannel"
         }
       },
-      "insertText": "openWritableCsvFile(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "openWritableCsvFile(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "print()",
@@ -80,8 +100,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
         }
       },
-      "insertText": "print();",
-      "insertTextFormat": "Snippet"
+      "insertText": "print(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "println()",
@@ -93,8 +117,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
         }
       },
-      "insertText": "println();",
-      "insertTextFormat": "Snippet"
+      "insertText": "println(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "sprintf(string format)(string)",
@@ -106,8 +134,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "sprintf(${1:format})",
-      "insertTextFormat": "Snippet"
+      "insertText": "sprintf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readln(any a)(string)",
@@ -119,8 +151,12 @@
           "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "readln(${1:a})",
-      "insertTextFormat": "Snippet"
+      "insertText": "readln(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "IOError",
