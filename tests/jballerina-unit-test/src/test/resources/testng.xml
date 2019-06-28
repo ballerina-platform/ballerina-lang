@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" >
+<suite name="ballerina-test-suite" time-out="120000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
@@ -111,6 +111,7 @@
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
+            <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
         </packages>
 
@@ -121,50 +122,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
-                <methods>
-                    <exclude name="waitTest15"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
-                <methods>
-                    <exclude name="testConnectorAction1"/>
-                    <exclude name="testConnectorAction2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.StackOverflowTest">
-                <methods>
-                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
-                    <exclude name="recursiveFunction"/>
-                    <exclude name="testStackOverflowInFunction"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
-                <methods>
-                    <!--TODO:convert within while returns empty-->
-                    <exclude name="largeForkCreationTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
-            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
+            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
                 <methods>
                     <exclude name="testFunctionPointerNative"/>
