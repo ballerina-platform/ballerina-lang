@@ -48,6 +48,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "const",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "const ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Annotation",
       "kind": "Keyword",
       "detail": "Keyword",

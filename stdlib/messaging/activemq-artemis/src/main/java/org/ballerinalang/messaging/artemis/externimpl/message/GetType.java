@@ -23,11 +23,10 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -51,28 +50,23 @@ public class GetType extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static Object getType(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         byte messageType = message.getType();
-        BString type;
         switch (messageType) {
             case Message.TEXT_TYPE:
-                type = new BString("TEXT");
-                break;
+                return "TEXT";
             case Message.BYTES_TYPE:
-                type = new BString("BYTES");
-                break;
+                return "BYTES";
             case Message.MAP_TYPE:
-                type = new BString("MAP");
-                break;
+                return "MAP";
             case Message.STREAM_TYPE:
-                type = new BString("STREAM");
-                break;
+                return "STREAM";
             default:
-                type = new BString("UNSUPPORTED");
-
+                return "UNSUPPORTED";
         }
-        context.setReturnValues(type);
     }
+
 }

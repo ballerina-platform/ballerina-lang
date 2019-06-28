@@ -15,8 +15,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany"
         }
       },
-      "insertText": "getNext()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getNext(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "remove(function (any) returns (boolean) func)(int|error)",
@@ -28,8 +32,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \nint|error"
         }
       },
-      "insertText": "remove(${1:func})",
-      "insertTextFormat": "Snippet"
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "close()",
@@ -41,8 +49,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "close();",
-      "insertTextFormat": "Snippet"
+      "insertText": "close(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "add(any data)(error?)",
@@ -54,8 +66,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "add(${1:data})",
-      "insertTextFormat": "Snippet"
+      "insertText": "add(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasNext()(boolean)",
@@ -67,85 +83,133 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasNext()",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasNext(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "foreach(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "foreach(function() {\n\t${1}\n});",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "map(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "map(function () returns any {\n\t${1}\n})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "filter(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "filter(function() returns (boolean) {\n\t${1}\n})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "count()",
       "kind": "Function",
       "detail": "Function",
       "insertText": "count()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "select(functionReference)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "select(${1:functionReference})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "length()",
       "kind": "Function",
       "detail": "Function",
       "insertText": "length()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "freeze()",
       "kind": "Function",
       "detail": "Function",
       "insertText": "freeze()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "isFrozen()",
       "kind": "Function",
       "detail": "Function",
       "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "stamp(anydata a)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "clone()",
       "kind": "Function",
       "detail": "Function",
       "insertText": "clone()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "convert(anydata a)",
       "kind": "Function",
       "detail": "Function",
       "insertText": "convert(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

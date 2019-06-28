@@ -39,7 +39,7 @@ import org.ballerinalang.nats.Constants;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "nats",
-        functionName = "create",
+        functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "DefaultMessageHandler",
                 structPackage = "ballerina/nats"),
         isPublic = true
@@ -53,7 +53,8 @@ public class Register extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
-    public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service, Object name) {
+    public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
+                                  Object annotationData) {
         Connection natsConnection =
                 (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.NATS_CONNECTION);

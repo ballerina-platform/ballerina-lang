@@ -37,7 +37,7 @@ public class IdentifierLiteralPackageTest {
     public void testAccessingVarsInOtherPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral",
                                                     "pkg.main");
-        BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "getVarsInOtherPkg");
+        BValue[] returns = BRunUtil.invoke(result, "getVarsInOtherPkg");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -53,7 +53,7 @@ public class IdentifierLiteralPackageTest {
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral",
                                                     "pkg.main");
-        BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "accessStructWithIL");
+        BValue[] returns = BRunUtil.invoke(result, "accessStructWithIL");
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
