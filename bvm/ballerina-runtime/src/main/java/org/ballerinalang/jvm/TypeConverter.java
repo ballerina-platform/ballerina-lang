@@ -115,7 +115,7 @@ public class TypeConverter {
             return ((DecimalValue) sourceVal).intValue();
         } else if (sourceVal instanceof String) {
             try {
-                return Integer.parseInt((String) sourceVal);
+                return Long.parseLong((String) sourceVal);
             } catch (NumberFormatException e) {
                 throw errorFunc.get();
             }
