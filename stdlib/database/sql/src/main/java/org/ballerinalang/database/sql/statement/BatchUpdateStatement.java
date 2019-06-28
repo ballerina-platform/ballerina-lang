@@ -19,6 +19,8 @@ package org.ballerinalang.database.sql.statement;
 
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -92,7 +94,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // ignore a few failed commands in the batch and let the rest of the commands run if driver allows it.
             updatedCount = e.getUpdateCounts();
             return processAndSetBatchUpdateResult(updatedCount, paramArrayCount);
-        } catch (Throwable e) {
+        } catch (SQLException e) {
             String errorMessage = "execute batch update failed";
             if (conn != null) {
                 if (!isInTransaction) {
@@ -105,7 +107,31 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
-            return SQLDatasourceUtils.getSQLConnectorError(e, errorMessage + ": ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessage + ": ");
+        } catch (DatabaseException e) {
+            String errorMessage = "execute batch update failed";
+            if (!isInTransaction) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    errorMessage += ", failed to rollback any changes happened in-between";
+                }
+            }
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessage + ": ");
+        } catch (ApplicationException e) {
+            String errorMessage = "execute batch update failed";
+            if (!isInTransaction) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    errorMessage += ", failed to rollback any changes happened in-between";
+                }
+            }
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, e.getMessage());
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessage + ": ");
         } finally {
             cleanupResources(stmt, conn, !isInTransaction);
         }

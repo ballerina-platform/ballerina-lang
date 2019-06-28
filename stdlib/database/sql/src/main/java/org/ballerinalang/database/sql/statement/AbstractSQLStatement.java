@@ -20,6 +20,8 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.database.table.BCursorTable;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
@@ -87,7 +89,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     private static final String POSTGRES_DOUBLE = "float8";
     private static final int ORACLE_CURSOR_TYPE = -10;
 
-    protected ArrayValue constructParameters(ArrayValue parameters) {
+    protected ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
         ArrayValue parametersNew = new ArrayValue();
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
@@ -252,7 +254,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-    private String getSQLType(Object value) {
+    private String getSQLType(Object value) throws ApplicationException {
         BType type = TypeChecker.getType(value);
         int tag = type.getTag();
         switch (tag) {
@@ -270,11 +272,11 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             if (((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
-                throw new BallerinaException("Array data type as direct value is supported only " +
+                throw new ApplicationException("Array data type as direct value is supported only " +
                         "with byte type elements, use sql:Parameter " + type.getName());
             }
         default:
-            throw new BallerinaException(
+            throw new ApplicationException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + type.getName());
         }
     }
@@ -312,7 +314,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 */
 
     protected void createProcessedStatement(Connection conn, PreparedStatement stmt, ArrayValue params,
-            String databaseProductName) {
+            String databaseProductName) throws ApplicationException, DatabaseException {
         if (params == null) {
             return;
         }
@@ -353,12 +355,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                                 paramValue = array;
                                 break;
                             } else {
-                                throw new BallerinaException("unsupported array type for parameter index: " + index
+                                throw new ApplicationException("unsupported array type for parameter index: " + index
                                         + ". Array element type being an array is supported only when the inner array"
                                         + " element type is BYTE");
                             }
                         default:
-                            throw new BallerinaException("unsupported array type for parameter index " + index);
+                            throw new ApplicationException("unsupported array type for parameter index " + index);
                         }
                         if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType) || Constants.SQLDataTypes.BLOB
                                 .equals(sqlType)) {
@@ -514,12 +516,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }*/
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index) {
+            int index) throws DatabaseException, ApplicationException {
         setParameter(conn, stmt, sqlType, value, direction, index, null);
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index, String databaseProductName) {
+            int index, String databaseProductName) throws ApplicationException, DatabaseException {
         if (sqlType == null || sqlType.isEmpty()) {
             setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -613,12 +615,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 setRefCursorValue(stmt, index, direction, databaseProductName);
                 break;
             default:
-                throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
+                throw new ApplicationException("unsupported datatype as parameter: " + sqlType + " index:" + index);
             }
         }
     }
 
-    private void setIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws DatabaseException, ApplicationException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -637,14 +640,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set integer to statement: ", e);
         }
     }
 
-    private void setSmallIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setSmallIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -663,14 +667,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set integer to statement: ", e);
         }
     }
 
-    private void setStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -688,14 +693,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set string to statement: ", e);
         }
     }
 
-    private void setNStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setNStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -713,14 +719,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set string to statement: ", e);
         }
     }
 
-    private void setDoubleValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setDoubleValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Double val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -739,7 +746,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Double.parseDouble((String) value);
                     break;
                 default:
-                    throw new BallerinaException("invalid value for double: " + value.toString());
+                    throw new ApplicationException("invalid value for double: " + value.toString());
 
             }
         }
@@ -760,14 +767,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set double to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set double to statement: ", e);
         }
     }
 
-    private void setNumericValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setNumericValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         BigDecimal val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -785,7 +793,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = new BigDecimal((String) value);
                     break;
                 default:
-                    throw new BallerinaException("invalid value for numeric: " + value.toString());
+                    throw new ApplicationException("invalid value for numeric: " + value.toString());
             }
         }
         try {
@@ -805,14 +813,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set numeric value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set numeric value to statement: ", e);
         }
     }
 
-    private void setBooleanValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setBooleanValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Boolean val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -824,7 +833,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Boolean.valueOf((String) value);
                      break;
                  default:
-                     throw new BallerinaException("invalid value for boolean: " + value.toString());
+                     throw new ApplicationException("invalid value for boolean: " + value.toString());
             }
         }
         try {
@@ -844,14 +853,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set boolean value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set boolean value to statement: ", e);
         }
     }
 
-    private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Byte val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -864,7 +874,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Byte.parseByte((String) value);
                     break;
                 default:
-                    throw new BallerinaException("invalid value for byte: " + value.toString());
+                    throw new ApplicationException("invalid value for byte: " + value.toString());
 
             }
         }
@@ -885,14 +895,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set tinyint value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set tinyint value to statement: ", e);
         }
     }
 
-    private void setBigIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setBigIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Long val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -905,7 +916,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 val = Long.parseLong((String) value);
                 break;
             default:
-                throw new BallerinaException("invalid value for bigint: " + value.toString());
+                throw new ApplicationException("invalid value for bigint: " + value.toString());
             }
         }
         try {
@@ -925,14 +936,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set bigint value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set bigint value to statement: ", e);
         }
     }
 
-    private void setRealValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setRealValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Float val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -948,7 +960,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Float.parseFloat((String) value);
                     break;
                 default:
-                    throw new BallerinaException("invalid value for float: " + value.toString());
+                    throw new ApplicationException("invalid value for float: " + value.toString());
             }
         }
         try {
@@ -968,14 +980,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter, index: " + index);
+                throw new ApplicationException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set float value to statement." + e.getMessage(), e);
+            throw new DatabaseException("error in set float value to statement.", e);
         }
     }
 
-    private void setDateValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setDateValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         Date val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -988,7 +1001,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (type.getTag() == TypeTags.STRING_TAG) {
                 val = convertToDate((String) value);
             } else {
-                throw new BallerinaException("invalid input type for date parameter with index: " + index);
+                throw new ApplicationException("invalid input type for date parameter with index: " + index);
             }
         }
         try {
@@ -1008,14 +1021,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set date value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set date value to statement: ", e);
         }
     }
 
-    private Date convertToDate(String source) {
+    private Date convertToDate(String source) throws ApplicationException {
         // the lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
         if ((source == null) || source.trim().equals("")) {
             return null;
@@ -1030,7 +1043,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
         if (source.length() >= 10) {
             if ((source.charAt(4) != '-') || (source.charAt(7) != '-')) {
-                throw new BallerinaException("invalid date format: " + source);
+                throw new ApplicationException("invalid date format: " + source);
             }
             int year = Integer.parseInt(source.substring(0, 4));
             int month = Integer.parseInt(source.substring(5, 7));
@@ -1046,13 +1059,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             calendar.set(Calendar.DAY_OF_MONTH, day);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new BallerinaException("invalid date string to parse: " + source);
+            throw new ApplicationException("invalid date string to parse: " + source);
         }
         return new Date(calendar.getTime().getTime());
     }
 
     private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType,
-            Calendar utcCalendar) {
+            Calendar utcCalendar) throws ApplicationException, DatabaseException {
         Timestamp val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1066,7 +1079,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (value instanceof String) {
                 val = convertToTimeStamp((String) value);
             } else {
-                throw new BallerinaException("invalid input type for timestamp parameter with index: " + index);
+                throw new ApplicationException("invalid input type for timestamp parameter with index: " + index);
             }
         }
         try {
@@ -1086,14 +1099,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter, index: " + index);
+                throw new ApplicationException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set timestamp value to statement: ", e);
         }
     }
 
-    private Timestamp convertToTimeStamp(String source) {
+    private Timestamp convertToTimeStamp(String source) throws ApplicationException {
         //lexical representation of the date time is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
         if ((source == null) || source.trim().equals("")) {
             return null;
@@ -1109,7 +1122,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         if (source.length() >= 19) {
             if ((source.charAt(4) != '-') || (source.charAt(7) != '-') || (source.charAt(10) != 'T') || (
                     source.charAt(13) != ':') || (source.charAt(16) != ':')) {
-                throw new BallerinaException("invalid datetime format: " + source);
+                throw new ApplicationException("invalid datetime format: " + source);
             }
             int year = Integer.parseInt(source.substring(0, 4));
             int month = Integer.parseInt(source.substring(5, 7));
@@ -1138,12 +1151,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             calendar.set(Calendar.MILLISECOND, (int) miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new BallerinaException("datetime string can not be less than 19 characters: " + source);
+            throw new ApplicationException("datetime string can not be less than 19 characters: " + source);
         }
         return new Timestamp(calendar.getTimeInMillis());
     }
 
-    private int[] getTimeZoneWithMilliSeconds(String fractionStr) {
+    private int[] getTimeZoneWithMilliSeconds(String fractionStr) throws ApplicationException {
         int miliSecond = 0;
         int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
@@ -1172,7 +1185,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                         timeZoneOffSet = -1;
                     }
                     if (timeOffSetStr.charAt(2) != ':') {
-                        throw new BallerinaException("invalid time zone format: " + fractionStr);
+                        throw new ApplicationException("invalid time zone format: " + fractionStr);
                     }
                     int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
                     int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
@@ -1198,13 +1211,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return new int[] { miliSecond, timeZoneOffSet };
     }
 
-    private static int getTimeZoneOffset(String timezoneStr) {
+    private static int getTimeZoneOffset(String timezoneStr) throws ApplicationException {
         int timeZoneOffSet;
         if (timezoneStr.startsWith("Z")) { //GMT timezone
             timeZoneOffSet = 0;
         } else if (timezoneStr.startsWith("+") || timezoneStr.startsWith("-")) { //timezone with offset
             if (timezoneStr.charAt(3) != ':') {
-                throw new BallerinaException("invalid time zone format:" + timezoneStr);
+                throw new ApplicationException("invalid time zone format:" + timezoneStr);
             }
             int hours = Integer.parseInt(timezoneStr.substring(1, 3));
             int minits = Integer.parseInt(timezoneStr.substring(4, 6));
@@ -1213,13 +1226,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 timeZoneOffSet = timeZoneOffSet * -1;
             }
         } else {
-            throw new BallerinaException("invalid prefix for timezone: " + timezoneStr);
+            throw new ApplicationException("invalid prefix for timezone: " + timezoneStr);
         }
         return timeZoneOffSet;
     }
 
     private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType,
-            Calendar utcCalendar) {
+            Calendar utcCalendar) throws ApplicationException, DatabaseException {
         Time val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1251,14 +1264,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set timestamp value to statement: ", e);
         }
     }
 
-    private Time convertToTime(String source) {
+    private Time convertToTime(String source) throws ApplicationException {
         //lexical representation of the time is hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
         if ((source == null) || source.trim().equals("")) {
             return null;
@@ -1269,7 +1282,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         calendar.setLenient(false);
         if (source.length() >= 8) {
             if ((source.charAt(2) != ':') || (source.charAt(5) != ':')) {
-                throw new BallerinaException("invalid time format: " + source);
+                throw new ApplicationException("invalid time format: " + source);
             }
             int hour = Integer.parseInt(source.substring(0, 2));
             int minite = Integer.parseInt(source.substring(3, 5));
@@ -1289,12 +1302,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             calendar.set(Calendar.MILLISECOND, miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new BallerinaException("time string can not be less than 8 characters: " + source);
+            throw new ApplicationException("time string can not be less than 8 characters: " + source);
         }
         return new Time(calendar.getTimeInMillis());
     }
 
-    private void setBinaryValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setBinaryValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -1313,14 +1327,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set binary value to statement: ", e);
         }
     }
 
-    private void setBlobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setBlobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -1339,14 +1354,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set binary value to statement: ", e);
         }
     }
 
-    private static Integer obtainIntegerValue(Object value) {
+    private static Integer obtainIntegerValue(Object value) throws ApplicationException {
         if (value != null) {
             BType type = TypeChecker.getType(value);
             switch (type.getTag()) {
@@ -1356,7 +1371,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 case TypeTags.STRING_TAG:
                     return Integer.parseInt((String) value);
                 default:
-                    throw new BallerinaException("invalid value for integer: " + value.toString());
+                    throw new ApplicationException("invalid value for integer: " + value.toString());
             }
         }
         return null;
@@ -1381,7 +1396,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-    private void setClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1403,14 +1419,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set binary value to statement: ", e);
         }
     }
 
-    private void setNClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType) {
+    private void setNClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
+            throws ApplicationException, DatabaseException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1432,14 +1449,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set binary value to statement: ", e);
         }
     }
 
-    private void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
+    private void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName)
+            throws ApplicationException, DatabaseException {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (Constants.DatabaseNames.ORACLE.equals(databaseProductName)) {
@@ -1452,15 +1470,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     ((CallableStatement) stmt).registerOutParameter(index + 1, Types.REF_CURSOR);
                 }
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in setting ref cursor value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in setting ref cursor value to statement: ", e);
         }
     }
 
     private void setArrayValue(Connection conn, PreparedStatement stmt, Object value, int index, int direction,
-            int sqlType, String databaseProductName) {
+            int sqlType, String databaseProductName) throws ApplicationException, DatabaseException {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
         String structuredSQLType = (String) arrayData[1];
@@ -1473,10 +1491,10 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 registerArrayOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set array value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set array value to statement: ", e);
         }
     }
 
@@ -1504,15 +1522,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-    private void setNullObject(PreparedStatement stmt, int index) {
+    private void setNullObject(PreparedStatement stmt, int index) throws DatabaseException {
         try {
             stmt.setObject(index + 1, null);
         } catch (SQLException e) {
-            throw new BallerinaException("error in set null to parameter with index: " + index);
+            throw new DatabaseException("error in set null to parameter with index: " + index, e);
         }
     }
 
-    private static Object[] getArrayData(Object value) {
+    private static Object[] getArrayData(Object value) throws ApplicationException {
         BType type = TypeChecker.getType(value);
         if (value == null || type.getTag() != TypeTags.ARRAY_TAG) {
             return new Object[] { null, null };
@@ -1568,15 +1586,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 }
                 return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
             } else {
-                throw new BallerinaException("unsupported data type for array parameter");
+                throw new ApplicationException("unsupported data type for array parameter");
             }
         default:
-            throw new BallerinaException("unsupported data type for array parameter");
+            throw new ApplicationException("unsupported data type for array parameter");
         }
     }
 
     private void setUserDefinedValue(Connection conn, PreparedStatement stmt, Object value, int index,
-            int direction, int sqlType) {
+            int direction, int sqlType) throws ApplicationException, DatabaseException {
         try {
             Object[] structData = getStructData(value, conn);
             Object[] dataArray = (Object[]) structData[0];
@@ -1599,14 +1617,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
             } else {
-                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set struct value to statement: " + e.getMessage(), e);
+            throw new DatabaseException("error in set struct value to statement: ", e);
         }
     }
 
-    private Object[] getStructData(Object value, Connection conn) throws SQLException {
+    private Object[] getStructData(Object value, Connection conn) throws SQLException, ApplicationException {
         BType type = TypeChecker.getType(value);
         if (value == null || (type.getTag() != TypeTags.OBJECT_TYPE_TAG
                 && type.getTag() != TypeTags.RECORD_TYPE_TAG)) {
@@ -1637,7 +1655,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     structData[i] = ((ArrayValue) bValue).getBytes();
                     break;
                 } else {
-                    throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
+                    throw new ApplicationException("unsupported data type for struct parameter: " + structuredSQLType);
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 Object structValue = bValue;
@@ -1648,7 +1666,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 structData[i] = structValue;
                 break;
             default:
-                throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
+                throw new ApplicationException("unsupported data type for struct parameter: " + structuredSQLType);
             }
         }
         return new Object[] { structData, structuredSQLType };

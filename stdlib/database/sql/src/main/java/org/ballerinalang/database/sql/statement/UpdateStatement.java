@@ -20,6 +20,8 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -97,8 +99,16 @@ public class UpdateStatement extends AbstractSQLStatement {
                 generatedKeys = new MapValueImpl<>();
             }
             return createFrozenUpdateResultRecord(count, generatedKeys);
-        } catch (Throwable e) {
-            return SQLDatasourceUtils.getSQLConnectorError(e, "execute update failed: ");
+        } catch (SQLException e) {
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute update failed: ");
+            //handleErrorOnTransaction(context);
+           // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
+        }  catch (DatabaseException e) {
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute update failed: ");
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
+        }  catch (ApplicationException e) {
+            return SQLDatasourceUtils.getSQLApplicationError(e, "execute update failed: ");
             //handleErrorOnTransaction(context);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {

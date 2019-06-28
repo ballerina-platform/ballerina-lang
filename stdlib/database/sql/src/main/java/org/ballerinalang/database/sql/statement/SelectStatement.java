@@ -20,11 +20,12 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 
@@ -86,13 +87,24 @@ public class SelectStatement extends AbstractSQLStatement {
                 rm.addResultSet(rs);
             }
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
-        } catch (Throwable e) {
+        } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
-            ErrorValue error = SQLDatasourceUtils.getSQLConnectorError(e, "execute query failed: ");
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
-            return error;
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute query failed: ");
+        } catch (DatabaseException e) {
+            cleanupResources(null, stmt, conn, true);
+            //TODO: JBalMigration Commenting out transaction handling and observability
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute query failed: ");
+        } catch (ApplicationException e) {
+            cleanupResources(null, stmt, conn, true);
+            //TODO: JBalMigration Commenting out transaction handling and observability
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLApplicationError(e, "execute query failed: ");
         }
     }
 

@@ -20,6 +20,8 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
@@ -116,11 +118,21 @@ public class CallStatement extends AbstractSQLStatement {
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 cleanupResources(resultSets, stmt, conn, !isInTransaction);
             }
-        } catch (Throwable e) {
+        } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLConnectorError(e, "execute stored procedure failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute stored procedure failed: ");
+        } catch (DatabaseException e) {
+            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute stored procedure failed: ");
+        } catch (ApplicationException e) {
+            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLApplicationError(e, "execute stored procedure failed: ");
         }
         return null;
     }
@@ -190,7 +202,8 @@ public class CallStatement extends AbstractSQLStatement {
         return resultSets;
     }
 
-    private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm) {
+    private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm)
+            throws DatabaseException, ApplicationException {
         if (params == null) {
             return;
         }
@@ -215,7 +228,8 @@ public class CallStatement extends AbstractSQLStatement {
     }
 
     private void setOutParameterValue(CallableStatement stmt, String sqlType, int index,
-            MapValue<String, Object> paramValue, TableResourceManager resourceManager) {
+            MapValue<String, Object> paramValue, TableResourceManager resourceManager)
+            throws DatabaseException, ApplicationException {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {

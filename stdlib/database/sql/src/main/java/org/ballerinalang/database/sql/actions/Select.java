@@ -49,7 +49,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
+                @ReturnType(type = TypeKind.RECORD, structType = "JDBCClientError", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class Select extends AbstractSQLAction {

@@ -206,6 +206,20 @@ public type UpdateResult record {|
 # The parameter passed into the operations.
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
 
+public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
+public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
+
+public const APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
+public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
+
+public type JDBCClientError DatabaseError|ApplicationError;
+
 public type DatabaseErrorData record {|
+    string message;
+    int sqlErrorCode;
+    string sqlState;
+|};
+
+public type ApplicationErrorData record {|
     string message;
 |};

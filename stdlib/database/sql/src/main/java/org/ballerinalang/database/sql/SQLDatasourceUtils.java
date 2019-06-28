@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.database.sql;
 
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -63,8 +65,10 @@ public class SQLDatasourceUtils {
      *
      * @param data clob data
      * @return string value
+     * @throws ApplicationException SQL application related exception
+     * @throws DatabaseException SQL database related exception
      */
-    public static String getString(Clob data) {
+    public static String getString(Clob data) throws ApplicationException, DatabaseException {
         if (data == null) {
             return null;
         }
@@ -75,8 +79,10 @@ public class SQLDatasourceUtils {
                 sb.append((char) pos);
             }
             return sb.toString();
-        } catch (IOException | SQLException e) {
-            throw new BallerinaException("error occurred while reading clob value: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new ApplicationException("error occurred while reading clob value: ", e.getMessage());
+        } catch (SQLException e) {
+            throw new DatabaseException("error occurred while reading clob value: ", e);
         }
     }
 
@@ -119,7 +125,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static String getString(java.util.Date value) {
+    public static String getString(java.util.Date value) throws ApplicationException {
         if (value == null) {
             return null;
         }
@@ -276,19 +282,46 @@ public class SQLDatasourceUtils {
         return dbOptionsStringJoiner.toString();
     }
 
-
-    public static ErrorValue getSQLConnectorError(Throwable throwable, String messagePrefix) {
-        String detailedErrorMessage =
-                throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        return getSQLConnectorError(messagePrefix + detailedErrorMessage);
+    public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
+        String sqlErrorMessage =
+                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        int vendorCode = exception.getErrorCode();
+        String sqlState = exception.getSQLState();
+        return getSQLDatabaseError(messagePrefix + sqlErrorMessage, vendorCode, sqlState);
     }
 
-    public static ErrorValue getSQLConnectorError(String detailedErrorMessage) {
+    public static ErrorValue getSQLDatabaseError(DatabaseException exception, String messagePrefix) {
+        String message = exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        int vendorCode = exception.getSqlErrorCode();
+        String sqlState = exception.getSqlState();
+        String sqlErrorMessage = exception.getSqlErrorMessage();
+        return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
+    }
+
+    private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
                 .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME);
         MapValue<String, Object> populatedDetailRecord = BallerinaValues
-                .createRecord(sqlClientErrorDetailRecord, detailedErrorMessage);
+                .createRecord(sqlClientErrorDetailRecord, message, vendorCode, sqlState);
         return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, populatedDetailRecord);
+    }
+
+    public static ErrorValue getSQLApplicationError(ApplicationException exception, String messagePrefix) {
+        String message =
+                exception.getMessage() != null ? exception.getMessage() : Constants.APPLICATION_ERROR_MESSAGE;
+        String detailedErrorMessage = messagePrefix + message;
+        if (exception.getDetailedErrorMessage() != null) {
+            detailedErrorMessage += exception.getDetailedErrorMessage();
+        }
+        return getSQLApplicationError(detailedErrorMessage);
+    }
+
+    public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
+        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
+                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME);
+        MapValue<String, Object> populatedDetailRecord = BallerinaValues
+                .createRecord(sqlClientErrorDetailRecord, detailedErrorMessage);
+        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, populatedDetailRecord);
     }
 
     protected static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
@@ -402,7 +435,7 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    private static String getString(Calendar calendar, String type) {
+    private static String getString(Calendar calendar, String type) throws ApplicationException {
         if (!calendar.isSet(Calendar.ZONE_OFFSET)) {
             calendar.setTimeZone(TimeZone.getDefault());
         }
@@ -423,7 +456,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new BallerinaException("invalid type for datetime data: " + type);
+            throw new ApplicationException("invalid type for datetime data: " + type);
         }
         return datetimeString.toString();
     }

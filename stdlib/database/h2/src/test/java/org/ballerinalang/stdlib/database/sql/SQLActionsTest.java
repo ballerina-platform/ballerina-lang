@@ -359,18 +359,27 @@ public class SQLActionsTest {
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina\\/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
         Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -385,6 +394,7 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}ApplicationError"));
     }
 
     @Test(groups = { CONNECTOR_TEST, "broken" },

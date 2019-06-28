@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.database.sql;
 
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -482,7 +483,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDateValue(MapValue<String, Object> record, String fieldName, java.util.Date date,
-                                 BType fieldType) {
+                                 BType fieldType) throws ApplicationException {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             handleMappingDateValueToUnionType(fieldType, record, fieldName, date);
@@ -643,7 +644,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToUnionType(BType fieldType, MapValue<String, Object> record,
-                                                   String fieldName, java.util.Date date) {
+                                                   String fieldName, java.util.Date date) throws ApplicationException {
         int type = retrieveNonNilTypeTag(fieldType);
         switch (type) {
         case TypeTags.STRING_TAG:
@@ -663,7 +664,8 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToNonUnionType(java.util.Date date, int fieldTypeTag,
-                                                      MapValue<String, Object> record, String fieldName) {
+                                                      MapValue<String, Object> record, String fieldName)
+            throws ApplicationException {
         if (date != null) {
             switch (fieldTypeTag) {
             case TypeTags.STRING_TAG:

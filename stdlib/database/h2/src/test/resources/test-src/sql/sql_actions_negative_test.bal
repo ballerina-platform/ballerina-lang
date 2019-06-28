@@ -65,7 +65,7 @@ function testGeneratedKeyOnInsert() returns int|string {
     if (x is sql:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
-        ret = <string> x.detail().message;
+        ret = io:sprintf("%s", x);
     }
 
     checkpanic testDB.stop();
@@ -131,7 +131,7 @@ function testBatchUpdate() returns string {
             returnVal = "success";
         }
     } else {
-        returnVal = <string> x.detail().message;
+        returnVal = io:sprintf("%s", x);
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -161,7 +161,7 @@ function testInvalidArrayofQueryParameters() returns string {
             returnData = j.reason();
         }
     } else {
-        returnData = <string> x.detail().message;
+        returnData = io:sprintf("%s", x);
     }
     checkpanic testDB.stop();
     return returnData;
@@ -177,7 +177,7 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
             retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": io:sprintf("%s", tableOrError) };
     }
     return retVal;
 }
