@@ -110,6 +110,7 @@
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
+            <package name="org.ballerinalang.test.statements.matchstmt.*"/>
         </packages>
 
         <classes>
