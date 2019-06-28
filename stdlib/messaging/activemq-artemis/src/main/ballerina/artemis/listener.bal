@@ -115,7 +115,7 @@ public type Consumer client object {
         check self.createConsumer(sessObj, config, autoAck, filter);
     }
 
-    private function createConsumer(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
-    returns error? = external;
-    public remote function receive(int timeoutInMilliSeconds = 0) returns    @tainted Message | error = external;
+    private function createConsumer(Session sessionObj, QueueConfiguration queueConfig, boolean autoAck,
+     string? consumerFilter) returns error? = external;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns @tainted Message | error = external;
 };

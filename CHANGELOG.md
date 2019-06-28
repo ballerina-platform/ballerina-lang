@@ -32,7 +32,7 @@ All notable changes to this project will be documented in this file. When sendin
 
 ### Tooling
 
-- 
+- [Add Formatting CLI tool](https://github.com/ballerina-platform/ballerina-lang/pull/15664)
 - 
 - 
 - 

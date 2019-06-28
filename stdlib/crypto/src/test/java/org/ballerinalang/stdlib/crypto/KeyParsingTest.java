@@ -83,9 +83,8 @@ public class KeyParsingTest {
                 "SHA256withRSA");
     }
 
-    @Test(description = "Check attemting to read a private key from a non-existing p12 file.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+    @Test(description = "Check attempting to read a private key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingEncryptedPrivateKeyFromInvalidLocation() {
         BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()), new BString("ballerina"),
                 new BString("ballerina"), new BString("ballerina")};
@@ -93,8 +92,7 @@ public class KeyParsingTest {
     }
 
     @Test(description = "Check attemting to read a public key from a non-existing p12 file.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingPublicKeyFromInvalidLocation() {
         BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()),
                 new BString("ballerina"), new BString("ballerina")};

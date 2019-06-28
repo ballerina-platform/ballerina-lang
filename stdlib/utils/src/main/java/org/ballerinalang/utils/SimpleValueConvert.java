@@ -110,7 +110,7 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
 
     public static Object simpleValueConvert(Strand strand, TypedescValue typedescValue, Object inputValue) {
         org.ballerinalang.jvm.types.BType targetType = typedescValue.getDescribingType();
-        if (inputValue == null) {
+        if (inputValue == null && targetType.getTag() != TypeTags.STRING_TAG) {
             return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
@@ -128,6 +128,9 @@ public class SimpleValueConvert extends BlockingNativeCallableUnit {
         // function.
         try {
             if (targetType.getTag() == org.ballerinalang.jvm.types.TypeTags.STRING_TAG) {
+                if (inputValue == null) {
+                    return "()";
+                }
                 return ((RefValue) inputValue).stringValue();
             }
             return BallerinaErrors.createConversionError(inputValue, targetType);

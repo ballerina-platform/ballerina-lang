@@ -12,7 +12,7 @@ service serviceName1 on new http:Listener(9090) {
     }
 }
 
-listener http:Listener listenerEP = new(8080);
+listener http:Listener listenerEP = new (8080);
 
 service serviceName2 on listenerEP {
 
@@ -30,7 +30,7 @@ service serviceName4 on new http:Listener(9090) {
     }
 
     private resource function newResource2(http:Caller caller, http:Request request) {
-        http:Listener listener1 = new(8080);
+        http:Listener listener1 = new (8080);
 
         http:Response res = new;
         res.setPayload("sd");
@@ -47,7 +47,7 @@ service serviceName4 on new http:Listener(9090) {
 
     resource function send2(http:Caller caller,
     http:Request request) {
-        http:Client locationEP = new("http://www.mocky.io");
+        http:Client locationEP = new ("http://www.mocky.io");
         var jsonMsg = req.getJsonPayload();
 
         if (jsonMsg is json) {

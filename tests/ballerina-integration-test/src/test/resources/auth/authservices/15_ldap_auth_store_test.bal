@@ -17,7 +17,7 @@
 import ballerina/ldap;
 import ballerina/http;
 
-ldap:LdapAuthStoreProviderConfig ldapConfig02 = {
+ldap:LdapConnectionConfig ldapConfig02 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",
@@ -40,12 +40,12 @@ ldap:LdapAuthStoreProviderConfig ldapConfig02 = {
     retryAttempts: 3
 };
 
-ldap:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
-http:BasicAuthHeaderAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
+ldap:InboundLdapAuthProvider ldapAuthProvider02 = new(ldapConfig02, "ldap01");
+http:BasicAuthHandler ldapAuthHandler02 = new(ldapAuthProvider02);
 
 listener http:Listener ep = new(9111, config = {
     auth: {
-        authnHandlers: [ldapAuthnHandler02]
+        authHandlers: [ldapAuthHandler02]
     },
     secureSocket: {
         keyStore: {

@@ -62,7 +62,7 @@ public type BirChannelReader object {
         if (bType is BType){
             return bType;
         }
-        error err = error("reference to non existing bType " + index );
+        error err = error(io:sprintf("reference to non existing bType '%s' at %d", bType, index));
         panic err;
     }
 

@@ -21,16 +21,16 @@ function test2(){
 function test3(){
     map<string> z = {a:"1", b:"2"};
     string[] keys = z.map(
-                     function (string s) returns (string, string) { // Not enough arguments to lambda.
-                         return (s, "value");
+                     function (string s) returns [string, string] { // Not enough arguments to lambda.
+                         return [s, "value"];
     }).keys();
 }
 
 function test4() {
     map<any> z = {a:"1", b:"2"};
-    map<string> a = z.map(function (any x) returns (string, string) {
+    map<string> a = z.map(function (any x) returns [string, string] {
                            var s = <string>x;
-                           return (s, "value");
+                           return [s, "value"];
                        });
     map<any> m = z.filter(function (string s) returns boolean {
           return s == "";
@@ -45,8 +45,8 @@ function test5(){
     int x;
     x = s.foreach(function (string s) {word = word + s;});
 
-    var (z, y) = s.map(function ((int, string) tuple) returns (int, string) { var (i, v) = tuple;
-                           return (i * 2, v + v);
+    var [z, y] = s.map(function ([int, string] tuple) returns [int, string] { var [i, v] = tuple;
+                           return [i * 2, v + v];
                        });
 }
 
@@ -60,9 +60,9 @@ function test6(){
 
 function test7(){
     string[] s = ["foo", "bar"];
-    s.foreach(function ((string, string, string) z) {});
+    s.foreach(function ([string, string, string] z) {});
     s.foreach(function () {});
-    s.filter(function (string s) returns (boolean, int) {return (true, 1);});
+    s.filter(function (string s) returns [boolean, int] {return [true, 1];});
     s.filter(function (string s) {});
     s.filter(function (person p) {});
     _ = s.filter(function (string s) returns (person) {return ();});
@@ -119,8 +119,8 @@ function testVarInLHS2() {
             return float.convert(value);
         }).filter(function (float value) returns boolean {
             return value > 0;
-        }).map(function (float value) returns (string, float) {
-            return (string.convert(value), value);
+        }).map(function (float value) returns [string, float] {
+            return [string.convert(value), value];
         });
 }
 
@@ -138,7 +138,7 @@ function testAnydataInLHS() {
                return float.convert(value);
            }).filter(function (float value) returns boolean {
                return value > 0;
-           }).map(function (float value) returns (string, float) {
-               return (string.convert(value), value);
+           }).map(function (float value) returns [string, float] {
+               return [string.convert(value), value];
            });
 }

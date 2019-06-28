@@ -96,7 +96,6 @@ class VisibleEndpointVisitor extends LSNodeVisitor {
         List<SymbolMetaInfo> visibleEPSymbols = resolveVisibleEndpointSymbols(blockEnv, funcNode);
         this.visibleEPsByNode.put(funcNode, visibleEPSymbols);
         this.visit(funcNode.body, funcNode);
-        funcNode.body.stmts.forEach(bLangStatement -> bLangStatement.accept(this));
     }
 
     @Override
@@ -142,6 +141,8 @@ class VisibleEndpointVisitor extends LSNodeVisitor {
                         this.visibleEPsByNode.put(parent, Arrays.asList(visibleEndpoint));
                     }
                 }
+            } else {
+                stmt.accept(this);
             }
         });
     }
