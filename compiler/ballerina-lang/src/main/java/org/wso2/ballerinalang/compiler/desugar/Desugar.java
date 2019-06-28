@@ -238,7 +238,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
-import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD__SPLIT_SIZE;
+import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -5267,7 +5267,7 @@ public class Desugar extends BLangNodeVisitor {
      * @return initial init function but trimmed in size
      */
     private BLangFunction splitFunction(BLangPackage packageNode, SymbolEnv env) {
-        int methodSize = INIT_METHOD__SPLIT_SIZE;
+        int methodSize = INIT_METHOD_SPLIT_SIZE;
         if (packageNode.initFunction.body.stmts.size() < methodSize || !isJvmTarget) {
             return packageNode.initFunction;
         }
@@ -5324,8 +5324,10 @@ public class Desugar extends BLangNodeVisitor {
 
         for (int j = 0; j < genFuncs.size() - 1; j++) {
             BLangFunction thisFunction = genFuncs.get(j);
-            BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos, thisFunction.body);
-            expressionStmt.expr = createInvocationNode(genFuncs.get(j + 1).name.value, new ArrayList<>(), symTable.nilType);
+            BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos,
+                    thisFunction.body);
+            expressionStmt.expr = createInvocationNode(genFuncs.get(j + 1).name.value, new ArrayList<>(),
+                    symTable.nilType);
             expressionStmt.expr.pos = initFunction.pos;
 
             if (j > 0) { // skip init func
