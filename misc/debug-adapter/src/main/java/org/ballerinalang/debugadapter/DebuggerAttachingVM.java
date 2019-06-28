@@ -1,4 +1,4 @@
-package org.ballerinalang.debugadapter;/*
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,8 @@ package org.ballerinalang.debugadapter;/*
  * limitations under the License.
  */
 
+package org.ballerinalang.debugadapter;
+
 import com.sun.jdi.Bootstrap;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
@@ -23,6 +25,9 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Attach to a already running JVM.
+ */
 public class DebuggerAttachingVM {
     private int port;
     private VirtualMachine vm;

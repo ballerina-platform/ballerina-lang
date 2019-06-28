@@ -1,4 +1,4 @@
-package org.ballerinalang.debugadapter;/*
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +13,45 @@ package org.ballerinalang.debugadapter;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import events.EventBus;
+import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.Capabilities;
+import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
+import org.eclipse.lsp4j.debug.ContinueArguments;
+import org.eclipse.lsp4j.debug.ContinueResponse;
+import org.eclipse.lsp4j.debug.DisconnectArguments;
+import org.eclipse.lsp4j.debug.InitializeRequestArguments;
+import org.eclipse.lsp4j.debug.NextArguments;
+import org.eclipse.lsp4j.debug.Scope;
+import org.eclipse.lsp4j.debug.ScopesArguments;
+import org.eclipse.lsp4j.debug.ScopesResponse;
+import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
+import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
+import org.eclipse.lsp4j.debug.SetExceptionBreakpointsArguments;
+import org.eclipse.lsp4j.debug.Source;
+import org.eclipse.lsp4j.debug.SourceArguments;
+import org.eclipse.lsp4j.debug.SourceBreakpoint;
+import org.eclipse.lsp4j.debug.SourceResponse;
+import org.eclipse.lsp4j.debug.StackFrame;
+import org.eclipse.lsp4j.debug.StackTraceArguments;
+import org.eclipse.lsp4j.debug.StackTraceResponse;
+import org.eclipse.lsp4j.debug.StepInArguments;
+import org.eclipse.lsp4j.debug.StepOutArguments;
+import org.eclipse.lsp4j.debug.TerminateArguments;
 import org.eclipse.lsp4j.debug.Thread;
-import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
+import org.eclipse.lsp4j.debug.Variable;
+import org.eclipse.lsp4j.debug.VariablesArguments;
+import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 
@@ -36,6 +65,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+/**
+ * Ballerina debug server.
+ */
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private IDebugProtocolClient client;
@@ -66,8 +98,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
-            erm.createClassPrepareRequest().enable();
-
+            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
+            classPrepareRequest.addClassFilter("hello*");
+            classPrepareRequest.enable();
             this.eventBus.startListening(debuggee, client);
 
         } catch (IOException e) {
@@ -197,7 +230,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
                 StepRequest.STEP_LINE, StepRequest.STEP_OVER);
 
-        request.addCountFilter(1);// next step only
+        request.addCountFilter(1); // next step only
         request.enable();
         debuggee.resume();
         return CompletableFuture.completedFuture(null);
@@ -213,7 +246,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
                 StepRequest.STEP_LINE, StepRequest.STEP_INTO);
 
-        request.addCountFilter(1);// next step only
+        request.addCountFilter(1); // next step only
         request.enable();
         debuggee.resume();
         return null;
@@ -229,7 +262,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
                 StepRequest.STEP_LINE, StepRequest.STEP_OUT);
 
-        request.addCountFilter(1);// next step only
+        request.addCountFilter(1); // next step only
         request.enable();
         debuggee.resume();
         return null;
@@ -248,7 +281,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return breakpoint;
     }
 
-    private Thread toThread(ThreadReference threadReference){
+    private Thread toThread(ThreadReference threadReference) {
         Thread thread = new Thread();
         threadsMap.put(threadReference.uniqueID(), threadReference);
         thread.setId(threadReference.uniqueID());
@@ -265,7 +298,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             source.setPath(sourceRoot + stackFrame.location().sourcePath());
             source.setName(stackFrame.location().sourceName());
             newStackFrame.setSource(source);
-            newStackFrame.setLine((long)stackFrame.location().lineNumber());
+            newStackFrame.setLine((long) stackFrame.location().lineNumber());
         } catch (AbsentInformationException e) {
             e.printStackTrace();
         }
@@ -276,7 +309,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private Scope toScope(String scopeName) {
         Scope scope = new Scope();
         scope.setName(scopeName);
-        scope.setVariablesReference((long)variableReference.incrementAndGet());
+        scope.setVariablesReference((long) variableReference.incrementAndGet());
         scope.setExpensive(false);
         return scope;
     }

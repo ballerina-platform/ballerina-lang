@@ -1,4 +1,4 @@
-package org.ballerinalang.debugadapter.launcher;/*
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,8 @@ package org.ballerinalang.debugadapter.launcher;/*
  * limitations under the License.
  */
 
+package org.ballerinalang.debugadapter.launcher;
+
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
@@ -25,9 +27,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Launch debugger adapter protocol server instance.
+ */
 public class Launcher {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         ServerSocket server = null;
         DataOutputStream os = null;
         DataInputStream is = null;
@@ -42,7 +47,8 @@ public class Launcher {
             is = new DataInputStream(clientSocket.getInputStream());
 
             JBallerinaDebugServer jBallerinaDebugServer = new JBallerinaDebugServer();
-            org.eclipse.lsp4j.jsonrpc.Launcher<IDebugProtocolClient> serverLauncher = DSPLauncher.createServerLauncher(jBallerinaDebugServer, is, os);
+            org.eclipse.lsp4j.jsonrpc.Launcher<IDebugProtocolClient> serverLauncher = DSPLauncher.createServerLauncher(
+                    jBallerinaDebugServer, is, os);
             IDebugProtocolClient client = serverLauncher.getRemoteProxy();
             jBallerinaDebugServer.connect(client);
             serverLauncher.startListening();

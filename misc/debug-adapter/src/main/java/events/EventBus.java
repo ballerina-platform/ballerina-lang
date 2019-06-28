@@ -20,7 +20,12 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.event.*;
+import com.sun.jdi.event.BreakpointEvent;
+import com.sun.jdi.event.ClassPrepareEvent;
+import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventIterator;
+import com.sun.jdi.event.EventSet;
+import com.sun.jdi.event.StepEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -30,6 +35,9 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Listens and publishes events from JVM.
+ */
 public class EventBus {
     private Breakpoint[] breakpointsList = new Breakpoint[0];
 
@@ -46,7 +54,6 @@ public class EventBus {
 
                             while (eventIterator.hasNext()) {
                                 Event event = eventIterator.next();
-                                System.out.println(event.toString());
                                 /*
                                  * If this is ClassPrepareEvent, then set breakpoint
                                  */
@@ -58,11 +65,13 @@ public class EventBus {
                                         if (balName.equals(breakpoint.getSource().getName())) {
                                             Location location = null;
                                             try {
-                                                location = evt.referenceType().locationsOfLine(breakpoint.getLine().intValue()).get(0);
+                                                location = evt.referenceType().locationsOfLine(breakpoint.getLine()
+                                                        .intValue()).get(0);
                                             } catch (AbsentInformationException e) {
-                                                e.printStackTrace();
+                                                // ignore absent information
                                             }
-                                            BreakpointRequest bpReq = debuggee.eventRequestManager().createBreakpointRequest(location);
+                                            BreakpointRequest bpReq = debuggee.eventRequestManager()
+                                                    .createBreakpointRequest(location);
                                             bpReq.enable();
                                         }
                                     });
@@ -78,7 +87,7 @@ public class EventBus {
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
                                     stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                                     client.stopped(stoppedEventArguments);
-                                } else if (event instanceof StepEvent){
+                                } else if (event instanceof StepEvent) {
                                     StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
                                     stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
@@ -93,8 +102,7 @@ public class EventBus {
                         System.out.println("VM is now disconnected.");
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
-                    finally {
+                    } finally {
                         System.out.println("While loop exit");
                     }
                 }
