@@ -44,5 +44,4 @@ public class IOTest {
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'numberOfChars'", 16, 35);
         BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 18, 6);
     }
-
 }

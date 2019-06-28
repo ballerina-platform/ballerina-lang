@@ -2244,16 +2244,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             List<TaintedStatus> paramIndexVsSelfTaintedStatusList = null;
             // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
             // Hence add the receiver to required arg count.
-            if ((invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED
-                && ((BInvokableSymbol) invocationExpr.symbol).receiverSymbol != null
-                && invocationExpr.expr != null) {
+            if (isTaintAnalyzableAttachedFunction(invocationExpr, taintTable)) {
                 BVarSymbol receiverSymbol = getMethodReceiverSymbol(invocationExpr.expr);
-
-
-                //
-                // TaintRecord.TaintAnnotation returnTypeTaintednessAnnot = invokableSymbol.returnTypeTaintednessAnnot;
-                //
-
                 // if receiver is marked (@untainted/sensitive) this method should not taint it.
                 // ------- that means taintedness of this is untainted
 
@@ -2402,6 +2394,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
     }
 
+    private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr,
+                                                      Map<Integer, TaintRecord> taintTable) {
+        TaintRecord allUntaintedTaintRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
+
+        int totalParamCount = invocationExpr.requiredArgs.size() + invocationExpr.namedArgs.size()
+                + invocationExpr.restArgs.size();
+
+        return (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED
+                && invocationExpr.expr != null
+                // taint table generated in bootstraping compiler. Can not perform receiver taint analysis for this.
+                && (totalParamCount + 1) == allUntaintedTaintRecord.parameterTaintedStatusList.size();
+    }
+
     private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,
                                                   List<TaintedStatus> paramVsSelfTaintedStatus, int reqArgIndex) {
         if (paramVsSelfTaintedStatus != null
@@ -2418,6 +2423,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 return (BVarSymbol) ((BLangFieldBasedAccess) expr).symbol;
             case INDEX_BASED_ACCESS_EXPR:
                 return (BVarSymbol) ((BLangIndexBasedAccess) expr).symbol;
+            case INVOCATION:
+                return (BVarSymbol) ((BLangInvocation) expr).symbol;
             default:
                 throw new UnsupportedOperationException();
         }

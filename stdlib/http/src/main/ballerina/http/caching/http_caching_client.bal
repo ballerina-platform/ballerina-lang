@@ -621,11 +621,11 @@ function sendValidationRequest(Client httpClient, string path, Response cachedRe
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
-        validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
+        validationRequest.setHeader(IF_NONE_MATCH, <@untainted> cachedResponse.getHeader(ETAG));
     }
 
     if (cachedResponse.hasHeader(LAST_MODIFIED)) {
-        validationRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
+        validationRequest.setHeader(IF_MODIFIED_SINCE, <@untainted> cachedResponse.getHeader(LAST_MODIFIED));
     }
 
     // TODO: handle cases where neither of the above 2 headers are present
@@ -649,7 +649,7 @@ function sendNewRequest(Client httpClient, Request request, string path, string 
 }
 
 function setAgeHeader(Response cachedResponse) {
-    cachedResponse.setHeader(AGE, "" + calculateCurrentResponseAge(cachedResponse));
+    cachedResponse.setHeader(AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse));
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
@@ -721,7 +721,7 @@ function retain2xxWarnings(Response cachedResponse) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;
                 });
-                cachedResponse.addHeader(WARNING, warningHeader);
+                cachedResponse.addHeader(WARNING, <@untainted> warningHeader);
                 continue;
             }
         }

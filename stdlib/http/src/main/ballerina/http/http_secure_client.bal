@@ -942,7 +942,7 @@ function updateRequest(Request req, ClientEndpointConfig config, @tainted Cached
             string authToken;
             boolean retryRequired;
             [authToken, retryRequired] = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+            req.setHeader(<@untainted> AUTH_HEADER, <@untainted> (AUTH_SCHEME_BEARER + WHITE_SPACE + authToken));
         }
     }
     return ();
