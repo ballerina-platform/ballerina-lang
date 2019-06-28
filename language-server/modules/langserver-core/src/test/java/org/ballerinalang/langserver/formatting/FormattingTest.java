@@ -152,6 +152,7 @@ public class FormattingTest {
                 {"expectedTypeDesc.bal", "typeDesc.bal"},
                 {"expectedAnonObject.bal", "anonObject.bal"},
                 {"expectedUnaryExpr.bal", "unaryExpr.bal"},
+                {"expectedTypeInitExpr.bal", "typeInitExpr.bal"},
         };
     }
 

@@ -141,6 +141,7 @@
                     in ballerina OpenAPI CLI tools
                  -->
                 <include>org.ballerinalang:language-server-compiler:jar</include>
+                <include>org.ballerinalang:ballerina-formatter:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-client-generator:jar</include>
