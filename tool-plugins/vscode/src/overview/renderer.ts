@@ -55,7 +55,6 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
 
     const scripts = `
         function loadedScript() {
-            window.langclient = getLangClient();
             let sourceRoot = ${JSON.stringify(sourceRoot)};
             function drawDiagram() {
                 try {

@@ -82,7 +82,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		return;
 	}
 	activeEditor = editor;
-	rpcHandler = WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
+	rpcHandler = WebViewRPCHandler.create(diagramViewPanel, langClient);
 	const html = render(editor.document.uri);
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
