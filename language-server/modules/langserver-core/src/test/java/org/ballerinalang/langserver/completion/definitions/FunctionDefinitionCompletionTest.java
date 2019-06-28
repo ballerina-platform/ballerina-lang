@@ -98,7 +98,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"workerDeclarationContext4.json", "function"},
                 {"completionWithinInvocationArgs1.json", "function"},
                 {"completionWithinInvocationArgs2.json", "function"},
-                {"completionWithinInvocationArgs3.json", "function"},
+//                {"completionWithinInvocationArgs3.json", "function"},
                 {"completionWithinInvocationArgs4.json", "function"},
                 {"chainCompletion1.json", "function"},
                 {"chainCompletion2.json", "function"},
@@ -113,6 +113,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"newObjectCompletion1.json", "function"},
                 {"newObjectCompletion2.json", "function"},
                 {"newObjectCompletion3.json", "function"},
+//                {"delimiterBasedCompletionForCompleteSource1.json", "function"},
+                {"delimiterBasedCompletionForCompleteSource2.json", "function"},
         };
     }
 }

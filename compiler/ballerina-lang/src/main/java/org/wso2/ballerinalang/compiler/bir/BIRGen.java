@@ -385,7 +385,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.retType,
+        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
 
         //add closure vars

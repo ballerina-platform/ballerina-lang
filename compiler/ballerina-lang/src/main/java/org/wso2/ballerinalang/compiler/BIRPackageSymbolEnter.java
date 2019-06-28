@@ -752,20 +752,23 @@ public class BIRPackageSymbolEnter {
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
-                    // read record init function
-                    String recordInitFuncName = getStringCPEntryValue(inputStream);
-                    int recordInitFuncFlags = inputStream.readInt();
-                    BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
-                    Name initFuncName = names.fromString(recordInitFuncName);
-                    boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
-                    BInvokableSymbol recordInitFuncSymbol =
-                            Symbols.createFunctionSymbol(recordInitFuncFlags,
-                                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                                         env.pkgSymbol, isNative);
-                    recordInitFuncSymbol.retType = recordInitFuncType.retType;
-                    recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
-                                                                         recordInitFuncType);
-                    recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
+                    boolean isInitAvailable = inputStream.readByte() == 1;
+                    if (isInitAvailable) {
+                        // read record init function
+                        String recordInitFuncName = getStringCPEntryValue(inputStream);
+                        int recordInitFuncFlags = inputStream.readInt();
+                        BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
+                        Name initFuncName = names.fromString(recordInitFuncName);
+                        boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
+                        BInvokableSymbol recordInitFuncSymbol =
+                                Symbols.createFunctionSymbol(recordInitFuncFlags,
+                                        initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                        env.pkgSymbol, isNative);
+                        recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                        recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
+                                recordInitFuncType);
+                        recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
+                    }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 

@@ -22,14 +22,12 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.messaging.artemis.ArtemisConnectorException;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 
 import java.util.concurrent.CountDownLatch;
@@ -42,10 +40,10 @@ import java.util.concurrent.CountDownLatch;
 public class ArtemisResourceCallback implements CallableUnitCallback {
     private ClientMessage message;
     private boolean autoAck;
-    private BMap<String, BValue> sessionObj;
+    private ObjectValue sessionObj;
     private CountDownLatch countDownLatch;
 
-    ArtemisResourceCallback(ClientMessage message, boolean autoAck, BMap<String, BValue> sessionObj,
+    ArtemisResourceCallback(ClientMessage message, boolean autoAck, ObjectValue sessionObj,
                             CountDownLatch countDownLatch) {
         this.message = message;
         this.autoAck = autoAck;
@@ -72,8 +70,8 @@ public class ArtemisResourceCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         countDownLatch.countDown();
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
     }
 }

@@ -25,6 +25,8 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.definition.LSReferencesException;
+import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -32,6 +34,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -57,7 +60,8 @@ public class ReferencesUtil {
     }
 
     public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
-                                                        LSCompiler lsCompiler, Position position, LSContext context) {
+                                                        LSCompiler lsCompiler, Position position, LSContext context,
+                                                        boolean compileProject) {
         Path defFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath);
         Optional<Lock> lock = docManager.lockFile(compilationPath);
@@ -70,7 +74,7 @@ public class ReferencesUtil {
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
 
-            return lsCompiler.getBLangPackages(context, docManager, false, errStrategy, true);
+            return lsCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
         } catch (Exception e) {
             if (CommonUtil.LS_DEBUG_ENABLED) {
                 String msg = e.getMessage();
@@ -149,6 +153,28 @@ public class ReferencesUtil {
         references.add(referencesModel.getSymbolAtCursor().get());
 
         return getLocations(references, context);
+    }
+
+    /**
+     * Get the hover content.
+     * 
+     * @param modules Only the Current blang module is contained in the list
+     * @param context Hover operation context
+     * @param position Cursor position
+     * @return {@link Hover} Hover content
+     * @throws LSReferencesException Exception while extracting the hover content
+     */
+    public static Hover getHover(List<BLangPackage> modules, LSContext context, Position position)
+            throws LSReferencesException {
+        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        prepareReferences(modules, context, position);
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
+
+        // Ignore the optional check since it has been handled during prepareReference and throws exception
+        BSymbol bSymbol = symbolAtCursor.get().getSymbol();
+        return bSymbol != null
+                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol)
+                : HoverUtil.getDefaultHoverObject();
     }
 
     private static void fillAllReferences(List<BLangPackage> modules, LSContext context, Position position) {
