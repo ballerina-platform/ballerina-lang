@@ -35,9 +35,11 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
+import org.ballerinalang.openapi.typemodel.OpenApiType;
 import org.ballerinalang.openapi.utils.CodegenUtils;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
+import org.ballerinalang.openapi.utils.TypeMatchingUtil;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -153,6 +155,13 @@ public class CodeGenerator {
             api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
+        final OpenApiType openApi = TypeMatchingUtil.TraveseOpenApiTypes(api);
+        openApi.setServiceName(serviceName);
+        openApi.setModuleName(srcPackage);
+        openApi.setServers(api);
+        openApi.setTags(api.getTags());
+        openApi.setDefinitionPath(definitionPath);
+
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here
         BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
@@ -165,7 +174,7 @@ public class CodeGenerator {
                 sourceFiles = generateClient(definitionContext);
                 break;
             case GEN_SERVICE:
-                sourceFiles = generateMock(definitionContext);
+                sourceFiles = generateBallerinaService(openApi);
                 break;
             default:
                 return null;
@@ -267,10 +276,10 @@ public class CodeGenerator {
 
         //This will print the generated files to the console
         outStream.println("The service generation process is complete. Following files were created. \n" +
-                "src/ \n-" + srcPackage);
+                "src/ \n- " + srcPackage);
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
-            outStream.println("--" + iterator.next().getFileName());
+            outStream.println("-- " + iterator.next().getFileName());
         }
     }
 
@@ -310,7 +319,7 @@ public class CodeGenerator {
      * @return generated source files as a list of {@link GenSrcFile}
      * @throws IOException when code generation with specified templates fails
      */
-    private List<GenSrcFile> generateMock(BallerinaOpenApi context) throws IOException {
+    private List<GenSrcFile> generateService(BallerinaOpenApi context) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {
             srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
         }
@@ -318,7 +327,6 @@ public class CodeGenerator {
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String concatTitle = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
         String srcFile = concatTitle + ".bal";
-        String implFile = concatTitle + "_impl.bal";
 
         // Generate ballerina service and resources with endpoints.
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
@@ -331,12 +339,40 @@ public class CodeGenerator {
         sourceFiles.add(new GenSrcFile(GenFileType.MODEL_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
                 schemaContent));
 
-        // Generate resource implementation source.
-        String implContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
-                GeneratorConstants.IMPL_TEMPLATE_NAME);
-        sourceFiles.add(new GenSrcFile(GenFileType.IMPL_SRC, srcPackage, implFile, implContent));
+        return sourceFiles;
+    }
+
+    private List<GenSrcFile> generateBallerinaService(OpenApiType api) throws IOException {
+        if (srcPackage == null || srcPackage.isEmpty()) {
+            srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
+        }
+
+        List<GenSrcFile> sourceFiles = new ArrayList<>();
+        String concatTitle = api.getServiceName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
+        String srcFile = concatTitle + ".bal";
+
+        String mainContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
+                "serviceMock");
+        sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
         return sourceFiles;
+    }
+
+    /**
+     * Retrieve generated source content as a String value.
+     *
+     * @param object       context to be used by template engine
+     * @param templateDir  templates directory
+     * @param templateName name of the template to be used for this code generation
+     * @return String with populated template
+     * @throws IOException when template population fails
+     */
+    private String getContent(OpenApiType object, String templateDir, String templateName) throws IOException {
+        Template template = compileTemplate(templateDir, templateName);
+        Context context = Context.newBuilder(object)
+                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
+                .build();
+        return template.apply(context);
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.ballerinalang.openapi.cmd;
 
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
@@ -7,8 +8,12 @@ import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -29,7 +34,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
     @CommandLine.Option(names = {"-c", "--copy-contract"},
             description = "Do you want to copy the contract in to the project?", interactive = true, arity = "1")
-    boolean isCopy;
+    boolean isCopy = true;
 
     @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
             "files (current dir by default)")
@@ -41,6 +46,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @Override
     public void execute() {
         CodeGenerator generator = new CodeGenerator();
+        Path resourcePath = null;
 
         //Check if cli help argument is present
         if (helpFlag) {
@@ -52,7 +58,8 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         //Check if a module name is present
         if (moduleArgs.size() < 2) {
             throw LauncherUtils.createLauncherException("A module name is required to successfully " +
-                    "generate the service from the provided OpenApi contract");
+                    "generate the service from the provided OpenApi contract. " +
+                    "\nE.g ballerina openapi gen-service <modulename>:<servicename>");
         }
 
         //Check if relevant arguments are present
@@ -64,16 +71,47 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
 
         //TODO Accept user confirmation to copy the contract in to the ballerina porject.
         if (isCopy) {
-            throw LauncherUtils.createLauncherException("User selected : " + isCopy);
+            final String projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+            final File openApiFile = new File(argList.get(0));
+            final String openApiFilePath = openApiFile.getPath();
+            final Path resourcesDirectory = Paths.get(projectRoot + "/resources");
+            resourcePath = Paths.get(projectRoot + "/resources/" + openApiFile.getName());
+
+            //Check if OpenApi contract file exists
+            if (Files.notExists(Paths.get(openApiFilePath))) {
+                throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
+                        " contract in " + openApiFilePath );
+            }
+
+            //Check for resources folder in ballerina project root
+            if (Files.notExists(resourcesDirectory)) {
+                try {
+                    Files.createDirectory(resourcesDirectory);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                }
+            }
+
+            //If file
+            if (Files.notExists(resourcePath)) {
+                try {
+                    Files.copy(Paths.get(openApiFilePath), resourcePath);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                }
+            } else {
+                throw LauncherUtils.createLauncherException("There is already an OpenApi contract in the location "
+                        + resourcesDirectory);
+            }
+
         }
 
         //Set source package for the generated service
         generator.setSrcPackage(moduleArgs.get(0));
 
-
         try {
             generator.generate(GeneratorConstants.GenType.valueOf("GEN_SERVICE"),
-                        argList.get(0), argList.get(1), output);
+                    resourcePath.toString(), moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(
                     "Error occurred when generating service for openapi contract at " + argList.get(0)
