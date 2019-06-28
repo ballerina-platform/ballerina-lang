@@ -188,6 +188,11 @@ public class Hub {
 
     /**
      * Method to start up the default Ballerina WebSub Hub.
+     *
+     * @param topicRegistrationRequired whether a topic needs to be registered at the hub prior to
+     *                                  publishing/subscribing to the topic
+     * @param publicUrl                 the URL for the hub to be included in content delivery requests
+     * @param hubListener               the http:Listener to which the hub service is attached
      */
     @SuppressWarnings("unchecked")
     public void startUpHubService(boolean topicRegistrationRequired, String publicUrl, ObjectValue hubListener) {
