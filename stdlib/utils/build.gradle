@@ -24,6 +24,7 @@ dependencies {
     baloCreat project(':lib-creator')
 
     bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
+    bir project(path: ':ballerina-lang:string', configuration: 'bir')
 }
 
 createBalo {
