@@ -40,10 +40,10 @@ public class BTableType extends BType {
      *
      * @param typeName string name of the type.
      * @param constraint constraint type which particular table is bound to.
-     * @param pkgPath package for the type.
+     * @param pkg package for the type.
      */
-    public BTableType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, TableValue.class);
+    public BTableType(String typeName, BType constraint, BPackage pkg) {
+        super(typeName, pkg, TableValue.class);
         this.constraint = constraint;
     }
 
@@ -74,12 +74,12 @@ public class BTableType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new TableValue(this, null, null, null);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new TableValue((BStructureType) constraint);
+        return getZeroValue();
     }
 
     @Override

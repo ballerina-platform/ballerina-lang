@@ -39,7 +39,7 @@ type Participant abstract object {
 
     string participantId = "";
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant];
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
@@ -56,14 +56,14 @@ type RemoteParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return (self.prepareMe(remoteProto.url), self);
+                return [self.prepareMe(remoteProto.url), self];
             }
         }
-        return ((), self); // No matching protocol
+        return [(), self]; // No matching protocol
     }
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
@@ -159,14 +159,15 @@ type LocalParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return (self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId), self);
+                return [self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId),
+                self];
             }
         }
-        return ((), self);
+        return [(), self];
     }
 
     function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {

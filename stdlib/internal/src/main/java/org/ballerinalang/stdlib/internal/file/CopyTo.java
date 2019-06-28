@@ -22,6 +22,9 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -87,5 +90,27 @@ public class CopyTo extends BlockingNativeCallableUnit {
             log.error(msg, ex);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
+    }
+
+    public static Object copyTo(Strand strand, ObjectValue self, ObjectValue target) {
+        Path sourcePath = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+        Path targetPath = (Path) target.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+        File sourceFile = new File(sourcePath.toString());
+        File targetFile = new File(targetPath.toString());
+        try {
+            if (sourceFile.isDirectory()) {
+                FileUtils.copyDirectory(sourceFile, targetFile);
+            } else {
+                FileUtils.copyFile(sourceFile, targetFile);
+            }
+        } catch (IOException ex) {
+            String msg = "IO error occurred while copying file/directory from: \'" + sourcePath + "\' to: \'" +
+                    targetPath + "\'. " + ex.getMessage();
+            log.error(msg, ex);
+            return BallerinaErrors.createError(msg);
+        }
+        return null;
     }
 }

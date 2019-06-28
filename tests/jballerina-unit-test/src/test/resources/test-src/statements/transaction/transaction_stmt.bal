@@ -30,7 +30,7 @@ function testTransactionStmtHelper1(string status, int i) returns string {
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", { data: "test" });
+        TrxError err = error(" trxErr", data = "test");
         panic err;
     }
     return a;
@@ -90,7 +90,7 @@ function testOptionalFailedHelper1(int i, string status) returns string {
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", { data: "test" });
+        TrxError err = error(" trxErr", data = "test");
         panic err;
     }
     return a;
@@ -154,7 +154,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(int i, string 
         error err = error(" err" );
         panic err;
     } else if (i < -1) {
-        TrxError err = error(" trxErr", { data: "test" });
+        TrxError err = error(" trxErr", data = "test");
         panic err;
     } else {
         a = a + " success";

@@ -150,7 +150,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 transportError = Status.Code.INTERNAL.toStatus().withDescription("Received headers twice");
                 return false;
             }
-            Integer httpStatus = inboundMessage.getStatus();
+            int httpStatus = inboundMessage.getStatus();
             if (httpStatus >= 100 && httpStatus < 200) {
                 // Ignore the headers. See RFC 7540 §8.1
                 // 1xx (Informational): The request was received, continuing process

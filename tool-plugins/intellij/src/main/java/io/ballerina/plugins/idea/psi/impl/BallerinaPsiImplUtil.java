@@ -40,7 +40,7 @@ import io.ballerina.plugins.idea.psi.BallerinaPackageName;
 import io.ballerina.plugins.idea.psi.BallerinaReturnType;
 import io.ballerina.plugins.idea.psi.BallerinaTupleTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeName;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -163,7 +163,7 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static VirtualFile getSDKSrcRoot(@NotNull Project project, @Nullable Module module) {
-        LinkedHashSet<VirtualFile> sources = BallerinaSdkUtil.getSourcesPathsToLookup(project, module);
+        LinkedHashSet<VirtualFile> sources = BallerinaSdkUtils.getSourcesPathsToLookup(project, module);
         if (sources.isEmpty()) {
             return null;
         }

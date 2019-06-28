@@ -18,6 +18,9 @@
 
 package org.ballerinalang.jvm.util.exceptions;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -28,14 +31,14 @@ import java.util.ResourceBundle;
 public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
 
-    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+    public static ErrorValue getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        return new BLangRuntimeException(errorMsg);
+        return BallerinaErrors.createError(errorMsg);
     }
 
-    public static BallerinaException getRuntimeException(String reason, RuntimeErrors runtimeErrors, Object... params) {
+    public static ErrorValue getRuntimeException(String reason, RuntimeErrors runtimeErrors, Object... params) {
         String errorDetail = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        return new BLangRuntimeException(reason, errorDetail);
+        return BallerinaErrors.createError(reason, errorDetail);
     }
 
     public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
@@ -48,20 +51,21 @@ public class BLangExceptionHelper {
      * @param reason The reason to set as error reason
      * @param operation Operation that executed
      * @param e Throwable to handle
+     * @return Error value
      */
-    public static void handleJsonException(String reason, String operation, Throwable e) {
+    public static ErrorValue getJsonError(String reason, String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw new BallerinaException(reason,
+            return BallerinaErrors.createError(reason,
                     "Failed to " + operation + ": " + ((BallerinaException) e).getDetail());
         } else if (e instanceof BLangFreezeException) {
-            throw new BallerinaException(reason,
+            return BallerinaErrors.createError(reason,
                     "Failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
         } else if (e.getCause() != null) {
-            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
+            return BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getMessage());
+            return BallerinaErrors.createError(reason, "Failed to " + operation + ": " + e.getMessage());
         }
     }
 
@@ -76,7 +80,7 @@ public class BLangExceptionHelper {
      * @param e Exception to handle
      */
     public static void handleInvalidXPath(String operation, Exception e) {
-        throw new BallerinaException("Failed to " + operation + ". Invalid xpath: " + e.getMessage());
+        throw  BallerinaErrors.createError("Failed to " + operation + ". Invalid xpath: " + e.getMessage());
     }
 
     /**
@@ -89,16 +93,16 @@ public class BLangExceptionHelper {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                     "Failed to " + operation + ": " + ((BallerinaException) e).getDetail());
         } else if (e instanceof BLangFreezeException) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                     "Failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
         } else if (e.getCause() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                     "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                     "Failed to " + operation + ": " + e.getMessage());
         }
     }

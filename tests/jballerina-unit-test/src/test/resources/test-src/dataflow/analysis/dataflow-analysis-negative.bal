@@ -386,7 +386,7 @@ function testCompoundAssignment() {
 }
 
 
-function testUninitVsPartiallyInit() returns (string, string) {
+function testUninitVsPartiallyInit() returns [string, string] {
     string a;
     string b;
     if (true) {
@@ -401,7 +401,7 @@ function testUninitVsPartiallyInit() returns (string, string) {
         // do nothing
     }
 
-    return (a, b);
+    return [a, b];
 }
 
 type A object {
@@ -534,10 +534,10 @@ type Person record {|
     string name;
     boolean married;
     Age age;
-    (string, int) extra;
+    [string, int] extra;
 |};
 
-function testVariableAssignment() returns (string, boolean, int, string) {
+function testVariableAssignment() returns [string, boolean, int, string] {
     string fName;
     boolean married;
     int theAge;
@@ -545,7 +545,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
-    return (fName, married, theAge, format);
+    return [fName, married, theAge, format];
 }
 
 function getPerson() returns Person {
@@ -577,12 +577,10 @@ type F object {
     public int b;
     string c;
 
-    function __init();
+    function __init() {
+        self.a = 1;
+    }
 };
-
-function F.__init() {
-    self.a = 1;
-}
 
 public function testDataFlow_13(){
     object { public string s; } o = new;

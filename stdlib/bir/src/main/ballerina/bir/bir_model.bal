@@ -34,10 +34,15 @@ public type ImportModule record {
 public type TypeDef record {
     Name name = {};
     DiagnosticPos pos;
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
 };
+
+public type TypeRef record {|
+    Name name = {};
+    ModuleID externalPkg;
+|};
 
 public type Function record {|
     DiagnosticPos pos;
@@ -46,14 +51,14 @@ public type Function record {|
     FunctionParam?[] params = [];
     BasicBlock?[][] paramDefaultBBs = [];
     ErrorEntry?[] errorEntries = [];
-    boolean isDeclaration = false;
-    boolean isInterface = false;
     VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
     ChannelDetail[] workerChannels;
     BType? receiverType;
+    boolean restParamExist;
+    AnnotationAttachment?[] annotAttachments = [];
 |};
 
 public type BasicBlock record {|
@@ -77,6 +82,22 @@ public type Name record {|
     string value = "";
 |};
 
+public type AnnotationAttachment record {|
+    ModuleID moduleId;
+    DiagnosticPos pos;
+    Name annotTagRef;
+    AnnotationValue?[] annotValues = [];
+|};
+
+public type AnnotationValue record {|
+    map<AnnotationValueEntry> valueEntryMap = {};
+|};
+
+public type AnnotationValueEntry record {|
+    BType literalType;
+    anydata value;
+|};
+
 public const BINARY_ADD = "ADD";
 public const BINARY_SUB = "SUB";
 public const BINARY_MUL = "MUL";
@@ -88,8 +109,6 @@ public const BINARY_GREATER_THAN = "GREATER_THAN";
 public const BINARY_GREATER_EQUAL = "GREATER_EQUAL";
 public const BINARY_LESS_THAN = "LESS_THAN";
 public const BINARY_LESS_EQUAL = "LESS_EQUAL";
-public const BINARY_AND = "AND";
-public const BINARY_OR = "OR";
 public const BINARY_REF_EQUAL = "REF_EQUAL";
 public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
 public const BINARY_CLOSED_RANGE = "CLOSED_RANGE";
@@ -104,10 +123,9 @@ public const BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT = "BITWISE_UNSIGNED_RIGHT_SHIFT
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
                                         |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
                                         |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
-                                        |BINARY_AND|BINARY_OR|BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE
-                                        |BINARY_BITWISE_AND|BINARY_BITWISE_OR|BINARY_BITWISE_XOR
-                                        |BINARY_BITWISE_LEFT_SHIFT|BINARY_BITWISE_RIGHT_SHIFT
-                                        |BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
+                                        |BINARY_CLOSED_RANGE|BINARY_HALF_OPEN_RANGE|BINARY_BITWISE_AND
+                                        |BINARY_BITWISE_OR|BINARY_BITWISE_XOR|BINARY_BITWISE_LEFT_SHIFT
+                                        |BINARY_BITWISE_RIGHT_SHIFT|BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
@@ -174,6 +192,18 @@ public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TER
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
                                 |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK
                                 |TERMINATOR_WAIT_ALL;
+                                
+                                
+// Flags
+public const int PUBLIC = 1;
+public const int NATIVE = 2;
+public const int ATTACHED = 8;
+public const int INTERFACE = 128;
+public const int REQUIRED = 256;
+public const int PRIVATE = 1024;
+public const int OPTIONAL = 8192;
+public const SERVICE = 524288;
+
 
 //TODO try to make below details meta
 public const VAR_KIND_LOCAL = "LOCAL";
@@ -227,7 +257,7 @@ public type GlobalVariableDcl record {|
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
-    Visibility visibility = "PACKAGE_PRIVATE";
+    int flags = PRIVATE;
 |};
 
 public const TYPE_ANY = "any";
@@ -293,11 +323,14 @@ public type BStreamType record {|
 
 
 public type BErrorType record {|
+    ModuleID moduleId = {};
+    Name name = {};
     BType reasonType;
     BType detailType;
 |};
 
 public type BRecordType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
     BType restFieldType;
@@ -306,10 +339,12 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
+    BAttachedFunction? constructor;
 |};
 
 public type Self record {|
@@ -319,19 +354,19 @@ public type Self record {|
 public type BAttachedFunction record {|
     Name name = {};
     BInvokableType funcType;
-    Visibility visibility;
+    int flags;
 |};
 
 public type BRecordField record {
     Name name;
-    Visibility visibility;
+    int flags;
     BType typeValue;
     //TODO add position
 };
 
 public type BObjectField record {
     Name name;
-    Visibility visibility;
+    int flags;
     BType typeValue;
     //TODO add position
 };
@@ -350,6 +385,7 @@ public type BFutureType record {|
 
 public type BFiniteType record {|
     Name name = {};
+    int flags;
     (int | string | boolean | float | byte| ()) [] values;
 |};
 
@@ -370,14 +406,6 @@ public type BInvokableType record {
     BType?[] paramTypes = [];
     BType retType?;
 };
-
-public const VISIBILITY_PACKAGE_PRIVATE = "PACKAGE_PRIVATE";
-public const VISIBILITY_PRIVATE = "PRIVATE";
-public const VISIBILITY_PUBLIC = "PUBLIC";
-public const VISIBILITY_OPTIONAL = "OPTIONAL";
-
-public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC|VISIBILITY_OPTIONAL;
-
 
 // Instructions
 
@@ -411,7 +439,8 @@ public type NewMap record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    BType typeValue;
+    BType bType;
+    TypeRef? typeRef;
 |};
 
 public type NewTable record {|
@@ -436,7 +465,7 @@ public type NewStream record {|
 public type NewInstance record {|
     DiagnosticPos pos;
     InstructionKind kind;
-    TypeDef typeDef;
+    TypeDef|TypeRef typeDefRef;
     VarRef lhsOp;
 |};
 
@@ -451,6 +480,7 @@ public type NewArray record {|
 public type NewError record {|
     DiagnosticPos pos;
     InstructionKind kind;
+    BType typeValue;
     VarRef lhsOp;
     VarRef reasonOp;
     VarRef detailsOp;
@@ -472,6 +502,7 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
+    boolean except = true;
 |};
 
 public type TypeCast record {|

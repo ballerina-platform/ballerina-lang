@@ -33,6 +33,11 @@ public type ObjectGenerator object {
                 string className = self.getTypeValueClassName(typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
                 jarEntries[className + ".class"] = bytes;
+            } else if (bType is bir:BServiceType) {
+                self.currentObjectType = bType.oType;
+                string className = self.getTypeValueClassName(typeDef.name.value);
+                byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef);
+                jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BRecordType) {
                 self.currentRecordType = bType;
                 string className = self.getTypeValueClassName(typeDef.name.value);
@@ -67,8 +72,19 @@ public type ObjectGenerator object {
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
+        self.createLambdas(cw);
+        
         cw.visitEnd();
         return cw.toByteArray();
+    }
+
+    private function createLambdas(jvm:ClassWriter cw) {
+        // generate lambdas created during generating methods
+        foreach var [name, call] in lambdas {
+            generateLambdaMethod(call[0], cw, call[1], name);
+        }
+        // clear the lambdas
+        lambdas = {};
     }
 
     private function createObjectFields(jvm:ClassWriter cw, bir:BObjectField?[] fields) {
@@ -115,6 +131,16 @@ public type ObjectGenerator object {
         mv.visitCode();
 
         int funcNameRegIndex = 2;
+
+        // Uncomment to get some debug information at runtime
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitLdcInsn(objClassName + " - ");
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+
+        // mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        // mv.visitVarInsn(ALOAD, funcNameRegIndex);
+        // mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
@@ -125,7 +151,6 @@ public type ObjectGenerator object {
         jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
 
-        string className = objClassName;
 
         // case body
         int i = 0;
@@ -139,44 +164,64 @@ public type ObjectGenerator object {
             bir:BType? retType = func.typeValue["retType"];
 
             string methodSig = "";
-            int jvmMethodInvokeInsn = INVOKEVIRTUAL;
-
-            jvm:Label blockedOnExternLabel = new;
-            jvm:Label notBlockedOnExternLabel = new;
 
             if (isExternFunc(func)) {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                jvm:Label blockedOnExternLabel = new;
                 mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-                if (!(retType is () || retType is bir:BTypeNil)) {
-                    mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "future",
-                                            "Ljava/util/concurrent/Future;");
-                    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/concurrent/Future", "get", "()Ljava/lang/Object;",
-                                                true);
-                    addUnboxInsn(mv, retType);
-                }
 
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
 
-                mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+                if (!(retType is () || retType is bir:BTypeNil)) {
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                    mv.visitInsn(ARETURN);
+                } else {
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitInsn(ARETURN);
+                }
 
                 mv.visitLabel(blockedOnExternLabel);
 
                 string lookupKey = getPackageName(self.module.org.value, self.module.name.value) + objTypeName + "." +
                                                     methodName;
                 methodSig = lookupJavaMethodDescription(lookupKey);
-                className = lookupFullQualifiedClassName(lookupKey);
-                jvmMethodInvokeInsn = INVOKESTATIC;
+                string className = lookupFullQualifiedClassName(lookupKey);
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
 
                 // load self
                 mv.visitVarInsn(ALOAD, 0);
+
+                int j = 0;
+                foreach var paramType in paramTypes {
+                    bir:BType pType = getType(paramType);
+                    // load parameters
+                    mv.visitVarInsn(ALOAD, 3);
+
+                    // load j'th parameter
+                    mv.visitLdcInsn(j);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(AALOAD);
+                    addUnboxInsn(mv, pType);
+                    
+                    // assuming that boolean args are added with named/expr args support
+                    j += 2;
+                }
+
+                mv.visitMethodInsn(INVOKESTATIC, className, getName(func), methodSig, false);
+
+                if (retType is () || retType is bir:BTypeNil) {
+                    mv.visitInsn(ACONST_NULL);
+                } else {
+                    addBoxInsn(mv, retType);
+                }
+
+                mv.visitInsn(ARETURN);
             } else {
                 // use index access, since retType can be nil.
                 methodSig = getMethodDesc(paramTypes, retType);
@@ -186,33 +231,30 @@ public type ObjectGenerator object {
 
                 // load strand
                 mv.visitVarInsn(ALOAD, 1);
+                int j = 0;
+                foreach var paramType in paramTypes {
+                    bir:BType pType = getType(paramType);
+                    // load parameters
+                    mv.visitVarInsn(ALOAD, 3);
+
+                    // load j'th parameter
+                    mv.visitLdcInsn(j);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(AALOAD);
+                    addUnboxInsn(mv, pType);
+                    j += 1;
+                }
+
+                mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, getName(func), methodSig, false);
+
+                if (retType is () || retType is bir:BTypeNil) {
+                    mv.visitInsn(ACONST_NULL);
+                } else {
+                    addBoxInsn(mv, retType);
+                }
+
+                mv.visitInsn(ARETURN);
             }
-
-            int j = 0;
-            foreach var paramType in paramTypes {
-                bir:BType pType = getType(paramType);
-                // load parameters
-                mv.visitVarInsn(ALOAD, 3);
-
-                // load j'th parameter
-                mv.visitLdcInsn(j);
-                mv.visitInsn(L2I);
-                mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
-                j += 1;
-            }
-
-            mv.visitMethodInsn(jvmMethodInvokeInsn, className, getName(func), methodSig, false);
-
-            if (retType is () || retType is bir:BTypeNil) {
-                mv.visitInsn(ACONST_NULL);
-            } else {
-                addBoxInsn(mv, retType);
-            }
-
-            mv.visitLabel(notBlockedOnExternLabel);
-
-            mv.visitInsn(ARETURN);
             i += 1;
         }
 
@@ -303,7 +345,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
-        currentClass = className;
+        currentClass = untaint className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
@@ -342,7 +384,10 @@ public type ObjectGenerator object {
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_4);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Scheduler", "<init>", "(I)V", false);
+        //TODO remove this and load the strand from ALOAD
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
                             "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);

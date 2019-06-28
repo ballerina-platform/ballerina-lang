@@ -20,11 +20,10 @@ package org.ballerinalang.jvm.values.connector;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side. After doing the dispatching and
@@ -46,16 +45,31 @@ public class Executor {
      */
     public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
-        //TODO this is temp fix till we get the service.start() API
-        Executors.newSingleThreadExecutor().submit(() -> {
-            //TODO check the scheduler thread count
-            Object returnValues = service.call(new Strand(new Scheduler(4), properties), resourceName, args);
-            if (returnValues instanceof ErrorValue) {
-                callback.notifyFailure((ErrorValue) returnValues);
-            } else {
-                callback.notifySuccess();
-            }
-        });
+        submit(null, service, resourceName, callback, properties, args);
+    }
+
+
+    /**
+     * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
+     * execution and will return the connector thread immediately.
+     *
+     * @param scheduler    available scheduler.
+     * @param service      to be executed.
+     * @param resourceName to be executed.
+     * @param callback     to be executed when execution completes.
+     * @param properties   to be passed to context.
+     * @param args         required for the resource.
+     */
+    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName,
+                              CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+
+        //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
+        if (scheduler == null) {
+            scheduler = new Scheduler(4, false);
+            scheduler.start();
+        }
+        Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
+        scheduler.schedule(new Object[1], func, null, callback, properties);
     }
 
     /**
@@ -69,8 +83,8 @@ public class Executor {
      */
     public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
                                          Object... args) {
-        int requiredArgNo = resource.getParameterType().length;
-        int providedArgNo = args.length;
+        int requiredArgNo = resource.type.paramTypes.length;
+        int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                                                providedArgNo + ".");

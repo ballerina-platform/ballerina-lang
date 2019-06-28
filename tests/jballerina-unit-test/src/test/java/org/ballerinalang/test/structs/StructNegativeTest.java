@@ -43,7 +43,7 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 6, 6);
 
         // test struct with duplicate fields
-        BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 14, 5);
+        BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 14, 12);
 
         // test undeclared struct init
         BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 18, 5);

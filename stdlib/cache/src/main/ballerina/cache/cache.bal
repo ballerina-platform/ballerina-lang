@@ -79,12 +79,12 @@ public type Cache object {
 
         var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
         if (attachCacheCleanerResult is error) {
-            error e = error("Failed to create the cache cleanup task.", { message : attachCacheCleanerResult.detail().message });
+            error e = error("Failed to create the cache cleanup task.", message = attachCacheCleanerResult.detail().message);
             panic e;
         }
         var timerStartResult = cacheCleanupTimer.start();
         if (timerStartResult is error) {
-            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
+            error e = error("Failed to start the cache cleanup task.", message = timerStartResult.detail().message);
             panic e;
         }
     }
@@ -109,7 +109,7 @@ public type Cache object {
     # + value - value to be cached
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrecy might cause issues.
-        lock {
+         lock {
             int cacheCapacity = self.capacity;
             int cacheSize = self.entries.length();
 
@@ -127,7 +127,7 @@ public type Cache object {
             if (!cacheMap.hasKey(self.uuid)) {
                 cacheMap[self.uuid] = self;
             }
-        }
+         }
     }
 
     # Evicts the cache when cache is full.

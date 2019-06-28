@@ -201,4 +201,11 @@ public class XMLTest {
         Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
         Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
     }
+
+    @Test
+    public void testGetGlobalXML() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetGlobalXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<test><name>ballerina</name></test>");
+    }
 }

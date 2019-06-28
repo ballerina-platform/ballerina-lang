@@ -42,13 +42,13 @@ public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 #
 # + credential - Credential value
 # + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
-public function extractUsernameAndPassword(string credential) returns (string, string)|error {
+public function extractUsernameAndPassword(string credential) returns [string, string]|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");
     } else {
-        return (decodedCredentials[0], decodedCredentials[1]);
+        return [decodedCredentials[0], decodedCredentials[1]];
     }
 }
 
@@ -59,6 +59,6 @@ public function extractUsernameAndPassword(string credential) returns (string, s
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
-    error preparedError = error(AUTH_ERROR_CODE, { message: message, reason: err.reason() });
+    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = err.reason());
     return preparedError;
 }

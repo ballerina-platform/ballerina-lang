@@ -55,17 +55,20 @@ public type Listener object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        self.init(self.port, self.config);
+        error? err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
     }
 
-    function init(int port, ServiceEndpointConfiguration config) = external;
+    function initEndpoint() returns error? = external;
 
 
     function register(service serviceType, string? name) returns error? = external;
 
-    function start() returns error? = external;
+    function start() = external;
 
-    function stop() returns error? = external;
+    function stop() = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.

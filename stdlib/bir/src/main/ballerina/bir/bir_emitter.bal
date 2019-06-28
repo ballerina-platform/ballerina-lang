@@ -72,8 +72,8 @@ public type BirEmitter object {
     }
 
     function emitTypeDef(TypeDef bTypeDef) {
-        string visibility =  bTypeDef.visibility;
-        print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
+        string visibility =  getVisibility(bTypeDef.flags);
+        print(visibility, " type ", bTypeDef.name.value, " ");
         var typeValue = bTypeDef.typeValue;
         if (typeValue is BObjectType){
             emitObjectTypeWithFields(typeValue, self.typeEmitter, "");
@@ -94,7 +94,7 @@ public type BirEmitter object {
     function emitGlobalVars() {
         foreach var bGlobalVar in self.pkg.globalVars {
             if (bGlobalVar is GlobalVariableDcl) {
-                print(bGlobalVar.visibility, " ");
+                print(getVisibility(bGlobalVar.flags), " ");
                 self.typeEmitter.emitType(bGlobalVar.typeValue);
                 println(" ", bGlobalVar.name.value, ";");
             }
@@ -112,10 +112,11 @@ public type BirEmitter object {
 
     function emitFunction(Function bFunction, string tabs) {
         self.posEmitter.emitPosition(bFunction.pos);
-        string visibility =  bFunction.visibility;
-        print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
+        string visibility =  getVisibility(bFunction.flags);
+        print(tabs, visibility, " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
-        println(" {", bFunction.isDeclaration ? "\t// extern" : bFunction.isInterface ? "\t// interface" : "");
+        println(" {", (bFunction.flags & NATIVE) == NATIVE ? "\t// extern" :
+                (bFunction.flags & INTERFACE) == INTERFACE ? "\t// interface" :"");
         int i = 0;
         foreach var v in bFunction.localVars {
             if v is FunctionParam {
@@ -276,7 +277,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.bType);
             println(";");
         } else if (ins is NewStream) {
             print(tabs);
@@ -304,7 +305,17 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            print(ins.typeDef.name.value);
+            var typeDefRef = ins.typeDefRef;
+            if (typeDefRef is TypeDef) {
+                print(typeDefRef.name.value);
+            } else {
+                print(typeDefRef.externalPkg.org);
+                print("/");
+                print(typeDefRef.externalPkg.name);
+                print(" ");
+
+                print(typeDefRef.name.value);
+            }
             println(";");
         } else if (ins is NewError) {
             print(tabs);
@@ -555,7 +566,7 @@ type TypeEmitter object {
         } else if (typeVal is BFiniteType) {
             print(typeVal.name.value);
         } else if (typeVal is BErrorType) {
-            self.emitErrorType(typeVal, tabs);
+            //self.emitErrorType(typeVal, tabs);
         }
     }
 
@@ -683,8 +694,8 @@ function emitObjectTypeWithFields(BObjectType bObjectType, TypeEmitter typeEmitt
     println(tabs, bObjectType.isAbstract ? "abstract " : "", "object {");
     foreach var f in bObjectType.fields {
         if (f is BObjectField) {
-            string visibility = f.visibility;
-            print(tabs + "\t", visibility.toLower(), " ");
+            string visibility = getVisibility(f.flags);
+            print(tabs + "\t", visibility, " ");
             typeEmitter.emitType(f.typeValue);
             println(" ", f.name.value, ";");
         }
@@ -698,4 +709,15 @@ function println(any... vals) {
 
 function print(any... vals) {
     io:print(...vals);
+}
+
+public function getVisibility(int flags) returns string {
+    if ((flags & PRIVATE) == PRIVATE) {
+        return "private";
+    } else if ((flags & PUBLIC) == PUBLIC) {
+        return "pubilic";
+    } else if ((flags & OPTIONAL) == OPTIONAL) {
+        return "optional";
+    } 
+    return "package private";
 }

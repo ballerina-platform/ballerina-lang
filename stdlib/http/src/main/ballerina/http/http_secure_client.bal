@@ -16,7 +16,6 @@
 
 import ballerina/encoding;
 import ballerina/io;
-import ballerina/jwt;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
@@ -369,27 +368,28 @@ function generateSecureRequest(Request req, ClientEndpointConfig config, CachedT
             if (authConfig is OAuth2AuthConfig) {
                 string authToken;
                 boolean retryRequired;
-                (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, tokenCache, false);
+                [authToken, retryRequired] = check getAuthTokenForOAuth2(authConfig, tokenCache, false);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
                 return retryRequired;
             } else {
                 return prepareError("OAuth2 config not provided.");
             }
-        } else if (auth.scheme == JWT_AUTH) {
-            string authToken = EMPTY_STRING;
-            if (authConfig is JwtAuthConfig) {
-                authToken = check getAuthTokenForJWTAuth(authConfig);
-            } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
-                return prepareError("JWT auth config not provided.");
-            } else {
-                authToken = runtime:getInvocationContext().authenticationContext.authToken;
-            }
-            if (authToken == EMPTY_STRING) {
-                return prepareError("JWT was not used during inbound authentication.
-                                    Provide InferredJwtIssuerConfig to issue new token.");
-            }
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
-            return false;
+        // TODO: Resolve with https://github.com/ballerina-platform/ballerina-lang/issues/15487
+        //} else if (auth.scheme == JWT_AUTH) {
+        //    string authToken = EMPTY_STRING;
+        //    if (authConfig is JwtAuthConfig) {
+        //        authToken = check getAuthTokenForJWTAuth(authConfig);
+        //    } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
+        //        return prepareError("JWT auth config not provided.");
+        //    } else {
+        //        authToken = runtime:getInvocationContext().authenticationContext.authToken;
+        //    }
+        //    if (authToken == EMPTY_STRING) {
+        //        return prepareError("JWT was not used during inbound authentication.
+        //                            Provide InferredJwtIssuerConfig to issue new token.");
+        //    }
+        //    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+        //    return false;
         }
     }
     return false;
@@ -421,7 +421,7 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # + return - Auth token with the status whether retrying is required for a 401 response or returns
 # `error` if the validation fails
 function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCache,
-                               boolean updateRequest) returns (string, boolean)|error {
+                               boolean updateRequest) returns [string, boolean]|error {
     var grantType = authConfig.grantType;
     var grantTypeConfig = authConfig.config;
     if (grantType is PASSWORD_GRANT) {
@@ -456,20 +456,20 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCac
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            CachedToken tokenCache) returns (string, boolean)|error {
+                                            CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 password grant type; Access token received from authorization request. Cache is empty.";
         });
-        return (accessToken, false);
+        return [accessToken, false];
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 password grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -477,13 +477,13 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                     log:printDebug(function () returns string {
                         return "OAuth2 password grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 password grant type; Access token received from refresh request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
@@ -497,7 +497,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     CachedToken tokenCache) returns (string, boolean)|error {
+                                                     CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -505,13 +505,13 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
             return "OAuth2 client credentials grant type; Access token received from authorization request.
                 Cache is empty.";
         });
-        return (accessToken, false);
+        return [accessToken, false];
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 client credentials grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -519,13 +519,13 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from authorization request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
@@ -539,7 +539,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              CachedToken tokenCache) returns (string, boolean)|error {
+                                              CachedToken tokenCache) returns [string, boolean]|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         var directAccessToken = grantTypeConfig["accessToken"];
@@ -547,20 +547,20 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
             });
-            return (directAccessToken, grantTypeConfig.retryRequest);
+            return [directAccessToken, grantTypeConfig.retryRequest];
         } else {
             string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from refresh request. Cache is empty.";
             });
-            return (accessToken, false);
+            return [accessToken, false];
         }
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
                 return "OAuth2 client credentials grant type; Access token received from cache.";
             });
-            return (cachedAccessToken, grantTypeConfig.retryRequest);
+            return [cachedAccessToken, grantTypeConfig.retryRequest];
         } else {
             lock {
                 if (isCachedTokenValid(tokenCache)) {
@@ -568,47 +568,47 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                     log:printDebug(function () returns string {
                         return "OAuth2 client credentials grant type; Access token received from cache.";
                     });
-                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                    return [cachedAccessToken, grantTypeConfig.retryRequest];
                 } else {
                     string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig, tokenCache);
                     log:printDebug(function () returns string {
                         return "OAuth2 direct token mode; Access token received from refresh request.";
                     });
-                    return (accessToken, false);
+                    return [accessToken, false];
                 }
             }
         }
     }
 }
 
-# Process auth token for JWT auth.
-#
-# + authConfig - JWT auth configurations
-# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
-    var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
-    if (jwtIssuerConfig is ()) {
-        return runtime:getInvocationContext().authenticationContext.authToken;
-    } else {
-        jwt:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-        jwt:JwtPayload payload = {
-            sub: runtime:getInvocationContext().principal.username,
-            iss: jwtIssuerConfig.issuer,
-            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
-            iat: time:currentTime().time / 1000,
-            nbf: time:currentTime().time / 1000,
-            jti: system:uuid(),
-            aud: jwtIssuerConfig.audience
-        };
-        jwt:JWTIssuerConfig issuerConfig = {
-            keyStore: jwtIssuerConfig.keyStore,
-            keyAlias: jwtIssuerConfig.keyAlias,
-            keyPassword: jwtIssuerConfig.keyPassword
-        };
-        // TODO: cache the token per-user per-client and reuse it
-        return jwt:issueJwt(header, payload, issuerConfig);
-    }
-}
+//# Process auth token for JWT auth.
+//#
+//# + authConfig - JWT auth configurations
+//# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
+//function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
+//    var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
+//    if (jwtIssuerConfig is ()) {
+//        return runtime:getInvocationContext().authenticationContext.authToken;
+//    } else {
+//        jwt:JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
+//        jwt:JwtPayload payload = {
+//            sub: runtime:getInvocationContext().principal.username,
+//            iss: jwtIssuerConfig.issuer,
+//            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+//            iat: time:currentTime().time / 1000,
+//            nbf: time:currentTime().time / 1000,
+//            jti: system:uuid(),
+//            aud: jwtIssuerConfig.audience
+//        };
+//        jwt:JWTIssuerConfig issuerConfig = {
+//            keyStore: jwtIssuerConfig.keyStore,
+//            keyAlias: jwtIssuerConfig.keyAlias,
+//            keyPassword: jwtIssuerConfig.keyPassword
+//        };
+//        // TODO: cache the token per-user per-client and reuse it
+//        return jwt:issueJwt(header, payload, issuerConfig);
+//    }
+//}
 
 # Check the validity of the access toke,n which is in the cache. If the expiry time is 0, that means no expiry time is
 # returned with the authorization request. This implies that the token is valid forever.
@@ -868,7 +868,7 @@ function extractAccessTokenFromResponse(Response response, CachedToken tokenCach
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printDebug(function () returns string { return message; });
-    error preparedError = error(HTTP_ERROR_CODE, { message: message, reason: err.reason() });
+    error preparedError = error(HTTP_ERROR_CODE, message = message, reason = err.reason());
     return preparedError;
 }
 
@@ -941,7 +941,7 @@ function updateRequest(Request req, ClientEndpointConfig config, CachedToken tok
         if (authConfig is OAuth2AuthConfig) {
             string authToken;
             boolean retryRequired;
-            (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
+            [authToken, retryRequired] = check getAuthTokenForOAuth2(authConfig, tokenCache, true);
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         }
     }

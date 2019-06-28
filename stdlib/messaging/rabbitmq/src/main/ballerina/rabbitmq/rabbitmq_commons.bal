@@ -26,6 +26,15 @@ public const FANOUT_EXCHANGE = "fanout";
 # Constant for the RabbitMQ Topic Exchange type.
 public const TOPIC_EXCHANGE = "topic";
 
+# Types of acknowledgement modes supported by the Ballerina RabbitMQ Connector.
+public type AcknowledgementMode AUTO_ACK | CLIENT_ACK;
+
+# Constant for the RabbitMQ auto acknowledgement mode.
+public const AUTO_ACK = "auto";
+
+# Constant for the RabbitMQ client acknowledgement mode.
+public const CLIENT_ACK = "client";
+
 # RabbitMQ Error code.
 public const string RABBITMQ_ERROR_CODE = "{ballerina/RabbitMQ}RabbitMQError";
 

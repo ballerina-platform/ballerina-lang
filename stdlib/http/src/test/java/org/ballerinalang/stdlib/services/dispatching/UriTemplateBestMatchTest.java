@@ -17,15 +17,14 @@
 */
 package org.ballerinalang.stdlib.services.dispatching;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -255,7 +254,7 @@ public class UriTemplateBestMatchTest {
         HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
@@ -266,7 +265,7 @@ public class UriTemplateBestMatchTest {
         HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 

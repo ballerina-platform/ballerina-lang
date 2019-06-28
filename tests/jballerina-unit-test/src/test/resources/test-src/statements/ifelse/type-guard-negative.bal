@@ -138,11 +138,11 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
     return -1;
 }
 
-function typeGuardInMatch((string, int)|(int, boolean)|int|float x) returns string {
+function typeGuardInMatch([string, int]|[int, boolean]|int|float x) returns string {
     match x {
-        var (s, i) if s is string => {return "Matched with string";}
-        var (s, i) if s is float => {return "Matched with float";}
-        var (s, i) if i is boolean => {return "Matched with boolean";}
+        var [s, i] if s is string => {return "Matched with string";}
+        var [s, i] if s is float => {return "Matched with float";}
+        var [s, i] if i is boolean => {return "Matched with boolean";}
         var y => {return "Matched with default type - float";}
     }
 }

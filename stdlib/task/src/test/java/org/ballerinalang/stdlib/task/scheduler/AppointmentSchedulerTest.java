@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.task.scheduler;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,11 +39,11 @@ import static org.awaitility.Awaitility.await;
 public class AppointmentSchedulerTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testDynamicService() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/simple_appointment.bal");
+        CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/simple_appointment.bal");
         BValue[] inputs = {new BString("0/2 * * * * ?")};
         BRunUtil.invoke(compileResult, "runService", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
+            BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
             return (((BInteger) configs[0]).intValue() > 3);
         });
@@ -51,11 +51,11 @@ public class AppointmentSchedulerTest {
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testLimitedNoOfTimes() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/limited_number_of_times.bal");
+        CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/limited_number_of_times.bal");
         BValue[] inputs = {new BString("* * * * * ? *")};
-        BRunUtil.invokeStateful(compileResult, "triggerAppointment", inputs);
+        BRunUtil.invoke(compileResult, "triggerAppointment", inputs);
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");
+            BValue[] count = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(count.length, 1);
             return (((BInteger) count[0]).intValue() == 3);
         });
@@ -63,10 +63,10 @@ public class AppointmentSchedulerTest {
 
     @Test(description = "Tests an appointment scheduler with multiple services attached")
     public void testMultipleServices() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/appointment/multiple_services.bal");
-        BRunUtil.invokeStateful(compileResult, "triggerAppointment");
+        CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/multiple_services.bal");
+        BRunUtil.invoke(compileResult, "triggerAppointment");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invokeStateful(compileResult, "getResult");
+            BValue[] count = BRunUtil.invoke(compileResult, "getResult");
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BBoolean);
             return ((BBoolean) count[0]).booleanValue();

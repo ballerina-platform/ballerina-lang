@@ -53,7 +53,26 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c);
+    public function init(ServiceEndpointConfiguration c) {
+        self.config = c;
+        var auth = self.config["auth"];
+        if (auth is ListenerAuth) {
+            var authnHandlers = auth.authnHandlers;
+            if (authnHandlers is AuthnHandler?[]) {
+                if (authnHandlers.length() > 0) {
+                    initListener(self.config);
+                }
+            } else {
+                if (authnHandlers[0].length() > 0) {
+                    initListener(self.config);
+                }
+            }
+        }
+        var err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
+    }
 
     public function initEndpoint() returns error? = external;
 
@@ -70,27 +89,6 @@ public type Listener object {
     # Stops the registered service.
     function stop() = external;
 };
-
-public function Listener.init(ServiceEndpointConfiguration c) {
-    self.config = c;
-    var auth = self.config["auth"];
-    if (auth is ListenerAuth) {
-        var authnHandlers = auth.authnHandlers;
-        if (authnHandlers is AuthnHandler?[]) {
-            if (authnHandlers.length() > 0) {
-                initListener(self.config);
-            }
-        } else {
-            if (authnHandlers[0].length() > 0) {
-                initListener(self.config);
-            }
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}
 
 function initListener(ServiceEndpointConfiguration config) {
     var secureSocket = config.secureSocket;
@@ -151,7 +149,6 @@ public type RequestLimits record {|
 #                          connection. By default 10 requests can be pipelined on a single connection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authentication configurations
-# + server - The server name which should appear as a response header
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -163,7 +160,6 @@ public type ServiceEndpointConfiguration record {|
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     ListenerAuth auth?;
-    string? server = ();
 |};
 
 # Authentication configurations for the listener.

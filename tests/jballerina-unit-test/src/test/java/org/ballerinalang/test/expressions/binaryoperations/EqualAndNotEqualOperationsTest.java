@@ -856,13 +856,13 @@ public class EqualAndNotEqualOperationsTest {
                       42, 21);
         validateError(resultNegative, 7, "operator '!=' not defined for 'map<string|int>' and 'map<float>'",
                       42, 33);
-        validateError(resultNegative, 8, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
+        validateError(resultNegative, 8, "operator '==' not defined for '[string,int]' and '[boolean,float]'",
                       50, 21);
-        validateError(resultNegative, 9, "operator '!=' not defined for '(string,int)' and '(boolean,float)'",
+        validateError(resultNegative, 9, "operator '!=' not defined for '[string,int]' and '[boolean,float]'",
                       50, 33);
-        validateError(resultNegative, 10, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
+        validateError(resultNegative, 10, "operator '==' not defined for '[float|int,int]' and '[boolean,int]'",
                       54, 21);
-        validateError(resultNegative, 11, "operator '!=' not defined for '(float|int,int)' and '(boolean,int)'",
+        validateError(resultNegative, 11, "operator '!=' not defined for '[float|int,int]' and '[boolean,int]'",
                       54, 33);
         validateError(resultNegative, 12, "operator '==' not defined for 'Employee' and 'Person'", 62, 17);
         validateError(resultNegative, 13, "operator '!=' not defined for 'Employee' and 'Person'", 62, 29);
@@ -870,19 +870,19 @@ public class EqualAndNotEqualOperationsTest {
                 "'PersonWithOptionalId'", 66, 17);
         validateError(resultNegative, 15, "operator '!=' not defined for 'EmployeeWithOptionalId' and " +
                 "'PersonWithOptionalId'", 66, 31);
-        validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 72, 21);
-        validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 72, 31);
-        validateError(resultNegative, 18, "operator '==' not defined for '(string,int)[]' and 'json'", 76, 21);
-        validateError(resultNegative, 19, "operator '!=' not defined for '(string,int)[]' and 'json'", 76, 31);
+        validateError(resultNegative, 16, "operator '==' not defined for '[string,int]' and 'json'", 72, 21);
+        validateError(resultNegative, 17, "operator '!=' not defined for '[string,int]' and 'json'", 72, 31);
+        validateError(resultNegative, 18, "operator '==' not defined for '[string,int][]' and 'json'", 76, 21);
+        validateError(resultNegative, 19, "operator '!=' not defined for '[string,int][]' and 'json'", 76, 31);
         validateError(resultNegative, 20, "operator '==' not defined for 'map<boolean>' and 'ClosedDept'", 87, 22);
         validateError(resultNegative, 21, "operator '!=' not defined for 'ClosedDept' and 'map<boolean>'", 87, 34);
-        validateError(resultNegative, 22, "operator '==' not defined for 'int[]' and '(float,float)'", 94, 22);
-        validateError(resultNegative, 23, "operator '!=' not defined for 'int[]' and '(float,float)'", 94, 34);
-        validateError(resultNegative, 24, "operator '==' not defined for 'int[]' and '(int,float)'", 97, 22);
-        validateError(resultNegative, 25, "operator '!=' not defined for '(int,float)' and 'int[]'", 97, 34);
-        validateError(resultNegative, 26, "operator '==' not defined for '(int,stream<int>)' and '(int,float)'", 111,
+        validateError(resultNegative, 22, "operator '==' not defined for 'int[]' and '[float,float]'", 94, 22);
+        validateError(resultNegative, 23, "operator '!=' not defined for 'int[]' and '[float,float]'", 94, 34);
+        validateError(resultNegative, 24, "operator '==' not defined for 'int[]' and '[int,float]'", 97, 22);
+        validateError(resultNegative, 25, "operator '!=' not defined for '[int,float]' and 'int[]'", 97, 34);
+        validateError(resultNegative, 26, "operator '==' not defined for '[int,stream<int>]' and '[int,float]'", 111,
                       22);
-        validateError(resultNegative, 27, "operator '!=' not defined for '(int,float)' and '(int,stream<int>)'", 111,
+        validateError(resultNegative, 27, "operator '!=' not defined for '[int,float]' and '[int,stream<int>]'", 111,
                       34);
         validateError(resultNegative, 28, "operator '==' not defined for 'any' and 'int'", 115, 14);
         validateError(resultNegative, 29, "operator '!=' not defined for 'int' and 'any'", 115, 26);

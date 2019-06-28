@@ -207,15 +207,13 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "bar2");
         
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertNull(returns[2]);
     }
     
     @Test
     public void testGetAttributeWithoutLocalname() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
+        Assert.assertNull(returns[0]);
     }
     
     @Test
@@ -244,8 +242,7 @@ public class XMLAttributesTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "bar2");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertNull(returns[2]);
     }
 
     @Test
@@ -302,9 +299,9 @@ public class XMLAttributesTest {
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
                 "xmlns:ns401=\"http://sample.com/wso2/a1\" xmlns:ns402=\"http://sample.com/wso2/d2\" " +
                 "xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                "xmlns:ns3=\"http://sample.com/wso2/d1\" xmlns:ns403=\"http://sample.com/wso2/e3\" " +
+                "xmlns:ns3=\"http://sample.com/wso2/d1\" xmlns:nsn7xFk=\"http://sample.com/wso2/e3\" " +
                 "xmlns:nsn7xFP=\"http://sample.com/wso2/f3\" ns401:foo1=\"bar1\" ns1:foo2=\"bar2\" " +
-                "ns403:foo3=\"bar3\" nsn7xFP:foo4=\"bar4\"></root>");
+                "nsn7xFk:foo3=\"bar3\" nsn7xFP:foo4=\"bar4\"></root>");
     }
     
     @Test
@@ -315,7 +312,7 @@ public class XMLAttributesTest {
                 "xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\" " +
                 "xmlns:ns401=\"http://sample.com/wso2/a1\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
                 "xmlns:ns1=\"http://sample.com/wso2/b1\" xmlns:ns3=\"http://sample.com/wso2/d1\" " +
-                "ns401:foo1=\"bar1\" p1:foo2=\"bar2\"></root>");
+                "p2:foo1=\"bar1\" p1:foo2=\"bar2\"></root>");
     }
 
     @Test

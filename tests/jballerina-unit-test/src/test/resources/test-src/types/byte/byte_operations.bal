@@ -192,18 +192,18 @@ public function testByteBitwiseAnd() returns byte {
 }
 
 // Test bitwise AND between int and byte
-public function testIntByteBitwiseAnd() returns byte {
+public function testIntByteBitwiseAnd() returns int {
     int b1 = 959;
-    byte b2 = 88;
-    byte b3 = b1 & b2;
+    int b2 = 88;
+    int b3 = b1 & b2;
     return b3;
 }
 
 // Test bitwise AND between byte and int
-public function testByteIntBitwiseAnd() returns byte {
-    byte b1 = 88;
+public function testByteIntBitwiseAnd() returns int {
+    int b1 = 88;
     int b2 = -1;
-    byte b3 = b1 & b2;
+    int b3 = b1 & b2;
     return b3;
 }
 

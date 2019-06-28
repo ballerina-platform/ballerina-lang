@@ -45,167 +45,167 @@ function testNegativeNumberDividedByZero() returns decimal {
 
 
 // Test addition with LHS operand zero
-function testZeroAddition() returns (decimal, decimal, decimal) {
+function testZeroAddition() returns [decimal, decimal, decimal] {
     decimal d1 = ZERO + POSITIVE_INF;
     decimal d2 = ZERO + NEGATIVE_INF;
     decimal d3 = ZERO + NaN;
-    return (d1, d2, d3);
+    return [d1, d2, d3];
 }
 
 // Test subtraction with LHS operand zero
-function testZeroSubtraction() returns (decimal, decimal, decimal) {
+function testZeroSubtraction() returns [decimal, decimal, decimal] {
     decimal d1 = ZERO - POSITIVE_INF;
     decimal d2 = ZERO - NEGATIVE_INF;
     decimal d3 = ZERO - NaN;
-    return (d1, d2, d3);
+    return [d1, d2, d3];
 }
 
 // Test multiplication with LHS operand zero
-function testZeroMultiplication() returns (decimal, decimal, decimal) {
+function testZeroMultiplication() returns [decimal, decimal, decimal] {
     decimal d1 = ZERO * POSITIVE_INF;
     decimal d2 = ZERO * NEGATIVE_INF;
     decimal d3 = ZERO * NaN;
-    return (d1, d2, d3);
+    return [d1, d2, d3];
 }
 
 // Test division with LHS operand zero
-function testZeroDivision() returns (decimal, decimal, decimal, decimal) {
+function testZeroDivision() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = ZERO / POSITIVE_INF;
     decimal d2 = ZERO / NEGATIVE_INF;
     decimal d3 = ZERO / NaN;
     decimal d4 = ZERO / ZERO;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 // Test modulo with LHS operand zero
-function testZeroModulo() returns (decimal, decimal, decimal, decimal) {
+function testZeroModulo() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = ZERO % POSITIVE_INF;
     decimal d2 = ZERO % NEGATIVE_INF;
     decimal d3 = ZERO % NaN;
     decimal d4 = ZERO % ZERO;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 
 // Test addition with LHS operand positive infinity
-function testPositiveInfinityAddition() returns (decimal, decimal, decimal, decimal) {
+function testPositiveInfinityAddition() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = POSITIVE_INF + (-45.4d);
     decimal d2 = POSITIVE_INF + POSITIVE_INF;
     decimal d3 = POSITIVE_INF + NEGATIVE_INF;
     decimal d4 = POSITIVE_INF + NaN;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 // Test subtraction with LHS operand positive infinity
-function testPositiveInfinitySubtraction() returns (decimal, decimal, decimal, decimal) {
+function testPositiveInfinitySubtraction() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = POSITIVE_INF - 45.4d;
     decimal d2 = POSITIVE_INF - POSITIVE_INF;
     decimal d3 = POSITIVE_INF - NEGATIVE_INF;
     decimal d4 = POSITIVE_INF - NaN;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 // Test multiplication with LHS operand positive infinity
-function testPositiveInfinityMultiplication() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testPositiveInfinityMultiplication() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = POSITIVE_INF * 45.4d;
     decimal d2 = POSITIVE_INF * (-45.4d);
     decimal d3 = POSITIVE_INF * 0.0d;
     decimal d4 = POSITIVE_INF * POSITIVE_INF;
     decimal d5 = POSITIVE_INF * NEGATIVE_INF;
     decimal d6 = POSITIVE_INF * NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 // Test division with LHS operand positive infinity
-function testPositiveInfinityDivision() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testPositiveInfinityDivision() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = POSITIVE_INF / 45.4d;
     decimal d2 = POSITIVE_INF / (-45.4d);
     decimal d3 = POSITIVE_INF / 0.0d;
     decimal d4 = POSITIVE_INF / POSITIVE_INF;
     decimal d5 = POSITIVE_INF / NEGATIVE_INF;
     decimal d6 = POSITIVE_INF / NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 // Test modulo with LHS operand positive infinity
-function testPositiveInfinityModulo() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testPositiveInfinityModulo() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = POSITIVE_INF % 45.4d;
     decimal d2 = POSITIVE_INF % (-45.4d);
     decimal d3 = POSITIVE_INF % 0.0d;
     decimal d4 = POSITIVE_INF % POSITIVE_INF;
     decimal d5 = POSITIVE_INF % NEGATIVE_INF;
     decimal d6 = POSITIVE_INF % NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 
 // Test addition with LHS operand negative infinity
-function testNegativeInfinityAddition() returns (decimal, decimal, decimal, decimal) {
+function testNegativeInfinityAddition() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = NEGATIVE_INF + 45.4d;
     decimal d2 = NEGATIVE_INF + POSITIVE_INF;
     decimal d3 = NEGATIVE_INF + NEGATIVE_INF;
     decimal d4 = NEGATIVE_INF + NaN;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 // Test subtraction with LHS operand negative infinity
-function testNegativeInfinitySubtraction() returns (decimal, decimal, decimal, decimal) {
+function testNegativeInfinitySubtraction() returns [decimal, decimal, decimal, decimal] {
     decimal d1 = NEGATIVE_INF - 45.4d;
     decimal d2 = NEGATIVE_INF - POSITIVE_INF;
     decimal d3 = NEGATIVE_INF - NEGATIVE_INF;
     decimal d4 = NEGATIVE_INF - NaN;
-    return (d1, d2, d3, d4);
+    return [d1, d2, d3, d4];
 }
 
 // Test multiplication with LHS operand negative infinity
-function testNegativeInfinityMultiplication() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testNegativeInfinityMultiplication() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = NEGATIVE_INF * 45.4d;
     decimal d2 = NEGATIVE_INF * (-45.4d);
     decimal d3 = NEGATIVE_INF * 0.0d;
     decimal d4 = NEGATIVE_INF * POSITIVE_INF;
     decimal d5 = NEGATIVE_INF * NEGATIVE_INF;
     decimal d6 = NEGATIVE_INF * NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 // Test division with LHS operand negative infinity
-function testNegativeInfinityDivision() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testNegativeInfinityDivision() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = NEGATIVE_INF / 45.4d;
     decimal d2 = NEGATIVE_INF / (-45.4d);
     decimal d3 = NEGATIVE_INF / 0.0d;
     decimal d4 = NEGATIVE_INF / POSITIVE_INF;
     decimal d5 = NEGATIVE_INF / NEGATIVE_INF;
     decimal d6 = NEGATIVE_INF / NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 // Test modulo with LHS operand negative infinity
-function testNegativeInfinityModulo() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
+function testNegativeInfinityModulo() returns [decimal, decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = NEGATIVE_INF % 45.4d;
     decimal d2 = NEGATIVE_INF % (-45.4d);
     decimal d3 = NEGATIVE_INF % 0.0d;
     decimal d4 = NEGATIVE_INF % POSITIVE_INF;
     decimal d5 = NEGATIVE_INF % NEGATIVE_INF;
     decimal d6 = NEGATIVE_INF % NaN;
-    return (d1, d2, d3, d4, d5, d6);
+    return [d1, d2, d3, d4, d5, d6];
 }
 
 
 // Test mathematical operations with a NaN operand
-function testNaNOperations() returns (decimal, decimal, decimal, decimal, decimal) {
+function testNaNOperations() returns [decimal, decimal, decimal, decimal, decimal] {
     decimal d1 = NaN + NEGATIVE_INF;
     decimal d2 = NaN - POSITIVE_INF;
     decimal d3 = NaN * ZERO;
     decimal d4 = NaN / NaN;
     decimal d5 = NaN % 23.2d;
-    return (d1, d2, d3, d4, d5);
+    return [d1, d2, d3, d4, d5];
 }
 
 
 // ======================== Test builtin functions ================================
 
 // Test isNaN function
-function testIsNaN() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
+function testIsNaN() returns [boolean, boolean, boolean, boolean, boolean, boolean] {
     decimal d1 = -23.4;
     decimal d2 = POSITIVE_INF + NEGATIVE_INF;
     boolean b1 = NaN.isNaN();
@@ -214,11 +214,11 @@ function testIsNaN() returns (boolean, boolean, boolean, boolean, boolean, boole
     boolean b4 = NEGATIVE_INF.isNaN();
     boolean b5 = ZERO.isNaN();
     boolean b6 = d1.isNaN();
-    return(b1, b2, b3, b4, b5, b6);
+    return[b1, b2, b3, b4, b5, b6];
 }
 
 // Test isInfinite function
-function testIsInfinite() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
+function testIsInfinite() returns [boolean, boolean, boolean, boolean, boolean, boolean] {
     decimal d1 = -23.4;
     decimal d2 = POSITIVE_INF * NEGATIVE_INF;
     boolean b1 = NaN.isInfinite();
@@ -227,11 +227,11 @@ function testIsInfinite() returns (boolean, boolean, boolean, boolean, boolean, 
     boolean b4 = POSITIVE_INF.isInfinite();
     boolean b5 = NEGATIVE_INF.isInfinite();
     boolean b6 = d2.isInfinite();
-    return(b1, b2, b3, b4, b5, b6);
+    return[b1, b2, b3, b4, b5, b6];
 }
 
 // Test isFinite function
-function testIsFinite() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
+function testIsFinite() returns [boolean, boolean, boolean, boolean, boolean, boolean] {
     decimal d1 = -23.4;
     decimal d2 = d1 / 0.00001d;
     boolean b1 = NaN.isFinite();
@@ -240,5 +240,5 @@ function testIsFinite() returns (boolean, boolean, boolean, boolean, boolean, bo
     boolean b4 = ZERO.isFinite();
     boolean b5 = d1.isFinite();
     boolean b6 = d2.isFinite();
-    return(b1, b2, b3, b4, b5, b6);
+    return[b1, b2, b3, b4, b5, b6];
 }

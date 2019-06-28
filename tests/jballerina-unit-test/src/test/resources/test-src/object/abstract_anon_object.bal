@@ -16,11 +16,11 @@ public type Employee object {
     }
 };
 
-function testAbstractAnonObjectInTypeTest() returns (string, string) {
+function testAbstractAnonObjectInTypeTest() returns [string, string] {
     any p = new Person();
     any e =  new Employee();
     
-    (string, string) names = ("", "");
+    [string, string] names = ["", ""];
     if p is abstract object{ public function getName() returns string;} {
         names[0] = p.getName();
     }
@@ -32,18 +32,18 @@ function testAbstractAnonObjectInTypeTest() returns (string, string) {
     return names;
 }
 
-function testAbstractAnonObjectInFunction() returns (string, string) {
+function testAbstractAnonObjectInFunction() returns [string, string] {
     Person p = new();
     Employee e =  new();
-    return (getName(p), getName(e));
+    return [getName(p), getName(e)];
 }
 
 function getName(abstract object { public function getName() returns string;} obj)  returns string {
     return obj.getName();
 }
 
-function testAbstractAnonObjectInVarDef() returns (string, string) {
+function testAbstractAnonObjectInVarDef() returns [string, string] {
     abstract object { public function getName() returns string;} p = new Person();
     abstract object { public function getName() returns string;} e =  new Employee();
-    return (getName(p), getName(e));
+    return [getName(p), getName(e)];
 }

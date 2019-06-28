@@ -103,7 +103,7 @@ public class FSListener implements LocalFileSystemListener {
         MapValue<String, Object> eventStruct = BallerinaValues.createRecordValue(FILE_PACKAGE, FILE_SYSTEM_EVENT);
         eventStruct.put(FILE_EVENT_NAME, fileEvent.getFileName());
         eventStruct.put(FILE_EVENT_OPERATION, fileEvent.getEvent());
-        return new Object[] { eventStruct };
+        return new Object[] { eventStruct, true };
     }
 
     private AttachedFunction getAttachedFunction(String event) {

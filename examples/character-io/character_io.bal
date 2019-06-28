@@ -6,10 +6,10 @@ import ballerina/log;
 function process(io:ReadableCharacterChannel sc,
                  io:WritableCharacterChannel dc) returns error? {
     string intermediateCharacterString = " my name is ";
-    // Reads characters from the source channel.
+    // Reads the characters from the source channel.
     string greetingText = check sc.read(5);
     string name = check sc.read(15);
-    // Writes characters to the destination channel.
+    // Writes the characters to the destination channel.
     var writeCharResult = check dc.write(greetingText, 0);
     var writeCharResult1 = check dc.write(intermediateCharacterString, 0);
     var writeCharResult2 = check dc.write(name, 1);
@@ -39,7 +39,7 @@ public function main() {
     io:WritableCharacterChannel destinationChannel =
             new(io:openWritableFile("./files/sampleResponse.txt"), "UTF-8");
     io:println("Started to process the file.");
-    // Process the given `string`.
+    // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);
     if (result is error) {
         log:printError("error occurred while processing chars ", err = result);

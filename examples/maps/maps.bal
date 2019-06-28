@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public function main() {
-    // Declare a `map` constrained by the type `any`.
+    // Declares a `map` constrained by the type `any`.
     map<any> m;
 
     // You can also declare and initialize a `map` with a map literal.
@@ -9,15 +9,15 @@ public function main() {
         city: "Colombo 03", country: "Sri Lanka" };
     io:println(addrMap);
 
-    // Retrieve a value using index-based access.
+    // Retrieves a value using index-based access.
     string country = <string>addrMap["country"];
     io:println(country);
 
-    // Retrieve a value using field-based access.
+    // Retrieves a value using field-based access.
     string city = <string>addrMap.city;
     io:println(city);
 
-    // Add or update the value of a key.
+    // Adds or updates the value of a key.
     addrMap["postalCode"] = "00300";
     addrMap.postalCode = "00301";
     io:println(addrMap);
@@ -25,7 +25,7 @@ public function main() {
     // The `keys()` method returns the keys of the map as an array.
     io:println(addrMap.keys());
 
-    // Print the number of mappings in the `map`.
+    // Prints the number of mappings in the `map`.
     io:println(addrMap.length());
 
     // Mappings can be removed using the `remove()` method.
@@ -40,9 +40,9 @@ public function main() {
     string index = stringMap.index;
     io:println(index);
 
-    // Note that the return type of index-based access will be `T?` (where T is the constraint type of the map`).
+    // The return type of index-based access will be `T?` and `T` is the constraint type of the map.).
     // If the key does not exist, `nil` is returned.
-    // Elvis operator `?:` is a conditional operator that handles `nil`.
+    // The Elvis operator `?:` is a conditional operator that handles `nil`.
     // If the given expression evaluates to nil, the second expression is evaluated and its value is returned.
     string index2 = stringMap["index"] ?: "";
     io:println(index2);

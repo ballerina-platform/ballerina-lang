@@ -30,18 +30,18 @@ class BIntegerType extends BType {
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Integer.class);
+    BIntegerType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Long.class);
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new Integer(0);
+        return (V) new Long(0);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new Integer(0);
+        return (V) new Long(0);
     }
 
     @Override

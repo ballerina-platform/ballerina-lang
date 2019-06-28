@@ -8,11 +8,11 @@ function getQuote(string name) returns (float|InvalidNameError) {
         return 11.5;
     }
 
-    InvalidNameError err = error("invalid name", {companyName: name });
+    InvalidNameError err = error("invalid name", companyName = name);
     return err;
 }
 
-function testReturnError() returns (string, string, string, string)|error {
+function testReturnError() returns [string, string, string, string]|error {
 
     string a;
     string b;
@@ -54,7 +54,7 @@ function testReturnError() returns (string, string, string, string)|error {
         d = "BAR:ERROR";
     }
 
-    return (a,b,c,d);
+    return [a,b,c,d];
 }
 
 function testReturnAndThrowError() returns (string){

@@ -31,18 +31,18 @@ class BFloatType extends BType {
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Float.class);
+    BFloatType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Double.class);
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new Float(0);
+        return (V) new Double(0);
     }
     
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new Float(0);
+        return (V) new Double(0);
     }
 
     @Override

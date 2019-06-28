@@ -97,21 +97,21 @@ function test5() returns (int){
 
 // TUPLES
 
-function test6() returns (int, string) {
+function test6() returns [int, string] {
     string str1 = "one-";
     int x = 10;
-    (int, string) res = (x, str1);
-    var addFunc1 = function () returns (int, string) {
+    [int, string] res = [x, str1];
+    var addFunc1 = function () returns [int, string] {
         string str2 = "three-";
         str1 = str1 + "two-" + str2;
         int y = 20;
-        var addFunc2 = function () returns (int, string) {
+        var addFunc2 = function () returns [int, string] {
             int z = 30 + y;
             str1 = str1 + "four-";
-            var addFunc3 = function () returns (int, string) {
+            var addFunc3 = function () returns [int, string] {
                 str1 = str1 + "five-";
                 str2 = str2 + "six";
-                res = (x + y + z, str1 + str2);
+                res = [x + y + z, str1 + str2];
                 return res;
             };
             return addFunc3.call();
@@ -306,17 +306,11 @@ type AccountNotFoundError error<string, AccountNotFoundErrorData>;
 
 function test13() returns AccountNotFoundError {
    string errorReason = "Account Not Found";
-   AccountNotFoundErrorData errorDetail = {
-        accountID: 111
-   };
-   AccountNotFoundError accountNotFoundError = error(errorReason, errorDetail);
+   AccountNotFoundError accountNotFoundError = error(errorReason, accountID = 111);
 
    var addFunc1 = function () returns AccountNotFoundError{
         var addFunc2 = function () returns AccountNotFoundError {
-             AccountNotFoundErrorData newErrDetail = {
-                    accountID: 222
-               };
-              accountNotFoundError = error(accountNotFoundError.reason(), newErrDetail);
+              accountNotFoundError = error(accountNotFoundError.reason(), accountID = 222);
               return accountNotFoundError;
         };
         return addFunc2.call();

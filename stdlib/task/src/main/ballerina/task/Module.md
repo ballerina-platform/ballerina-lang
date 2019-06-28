@@ -2,6 +2,13 @@
 
 Task Listeners and Task Schedulers can be used to perform tasks periodically. This module provides the functionality to configure and manage Task Listeners and Task Schedulers.
 
+- [Task Listeners](#task-listeners)
+    - [The Timer configuration for a Listener](#The-Timer-configuration-for-a-Listener)
+    - [The Appointment configuration for a Listener](#The-Appointment-configuration-for-a-Listener)
+- [Task Schedulers](#Task-Schedulers)
+    - [The Timer configuration for a Scheduler](#The-Timer-configuration-for-a-Scheduler)
+    - [The Appointment configuration for a Scheduler](#The-Appointment-configuration-for-a-Scheduler)
+
 ### Task Listeners
 
 A Task `Listener` can be used to create a service listener, which will be triggered at specified times.
@@ -25,7 +32,7 @@ The following example creates a listener, which registers a task with an initial
 import ballerina/log;
 import ballerina/task;
 
-// Task Timer configuration record to configure task listener.
+// Task Timer configuration record to configure a Task Listener.
 task:TimerConfiguration timerConfiguration = {
     interval: 1000,
     initialDelay: 3000,
@@ -90,7 +97,7 @@ service appointmentService on appointment {
 }
 ```
 
-### Task Scheduler
+### Task Schedulers
 
 A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler is triggered. 
 
@@ -108,7 +115,7 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
->**Info:** The configurations are as same as of the [`Task Listener`](#task-listeners).
+>**Info:** The configurations are similar to the [`Task Listener`](#task-listeners).
 
 #### The Timer configuration for a Scheduler
 
@@ -148,7 +155,7 @@ service timerService = service {
 
 A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
 
-The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached  to the Scheduler using the `attach()` function. Calling the `appointment.start()` function starts the `appointment` Scheduler.
+The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached to the Scheduler using the `attach()` function. Calling the `appointment.start()` function starts the `appointment` Scheduler.
 
 ```ballerina
 public function createAppointment(string cronExpression, int recurrences) {

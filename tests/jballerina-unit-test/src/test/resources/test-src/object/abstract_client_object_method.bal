@@ -33,12 +33,12 @@ public type PersonOne client object {
         self.salary += amount;
         return self.salary;
     }
-};
 
-remote function PersonOne.decrementAndGetSalary(int amount) returns int {
-    self.salary -= amount;
-    return self.salary;
-}
+    remote function decrementAndGetSalary(int amount) returns int {
+        self.salary -= amount;
+        return self.salary;
+    }
+};
 
 public type AbPersonTwo client abstract object {
     int salary;
@@ -59,14 +59,14 @@ public type PersonTwo client object {
         self.salary += amount;
         return self.salary;
     }
+
+    remote function decrementAndGetSalary(int amount) returns int {
+        self.salary -= amount;
+        return self.salary;
+    }
 };
 
-remote function PersonTwo.decrementAndGetSalary(int amount) returns int {
-    self.salary -= amount;
-    return self.salary;
-}
-
-function testAbstractClientObject() returns (int, int, int, int) {
+function testAbstractClientObject() returns [int, int, int, int] {
     PersonOne personOne = new(10000);
     PersonTwo personTwo = new(10000);
 
@@ -74,5 +74,5 @@ function testAbstractClientObject() returns (int, int, int, int) {
     var result2 = personOne->decrementAndGetSalary(2500);
     var result3 = personTwo->incrementAndGetSalary(5000);
     var result4 = personTwo->decrementAndGetSalary(2500);
-    return (result1, result2, result3, result4);
+    return [result1, result2, result3, result4];
 }

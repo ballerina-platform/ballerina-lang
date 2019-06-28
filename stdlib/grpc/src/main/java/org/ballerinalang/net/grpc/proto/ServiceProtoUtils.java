@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -384,7 +385,7 @@ public class ServiceProtoUtils {
                     String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
                             null;
                     if (ANN_ATTR_RESOURCE_SERVER_STREAM.equals(attributeName)) {
-                        serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                        serverStreaming = Boolean.parseBoolean(attributeValue);
                     }
                 }
             }
@@ -595,7 +596,7 @@ public class ServiceProtoUtils {
                 expression = variable.getInitialExpression();
             }
             
-            if (expression != null && expression instanceof BLangInvocation) {
+            if (expression instanceof BLangInvocation) {
                 BLangInvocation invocation = (BLangInvocation) expression;
                 if ("send".equals(invocation.getName().getValue())) {
                     return invocation;
@@ -635,8 +636,7 @@ public class ServiceProtoUtils {
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
                     .PROTO_FILE_EXTENSION);
-            Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(ServiceProtoConstants
-                    .UTF_8_CHARSET));
+            Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

@@ -43,9 +43,9 @@ public class ObjectEquivalencyNegativeTest {
         BAssertUtil.validateError(compileResult, 3,
                                   "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
         BAssertUtil.validateError(compileResult, 4,
-                                  "incompatible types: 'employee08' cannot be cast to 'person08'", 306, 18);
+                                  "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
         BAssertUtil.validateError(compileResult, 5,
-                                  "incompatible types: 'employee09' cannot be cast to 'person09'", 375, 18);
+                                  "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
     }
 
     // TODO: 5/23/19 enabled this after ballerina-lang/issues/15384 is fixed

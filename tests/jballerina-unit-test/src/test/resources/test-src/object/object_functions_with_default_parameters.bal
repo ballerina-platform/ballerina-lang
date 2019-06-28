@@ -53,8 +53,8 @@ type FooObject object {
         self.b = b;
     }
 
-    function getValues() returns (string, int) {
-        return (self.a, self.b);
+    function getValues() returns [string, int] {
+        return [self.a, self.b];
     }
 };
 
@@ -82,11 +82,11 @@ function getIntOrPanic() returns int {
 }
 
 // Test 1
-function testObjectInitWithDefaultValues() returns ((string, boolean, int, float, FooRecord, FooObject), (string, boolean, int, float, FooRecord, FooObject)) {
+function testObjectInitWithDefaultValues() returns [[string, boolean, int, float, FooRecord, FooObject], [string, boolean, int, float, FooRecord, FooObject]] {
     ObjectOne o1 = new();
     ObjectOne o2 = new(a = "given", b = false, c = 99, e = { a: "given2", b: 49, c: true, d: 10.9 }, f = new("def2", 199));
 
-    return (o1.getValues(), o2.getValues());
+    return [o1.getValues(), o2.getValues()];
 }
 
 type ObjectOne object {
@@ -106,17 +106,17 @@ type ObjectOne object {
         self.f = f;
     }
 
-    function getValues() returns (string, boolean, int, float, FooRecord, FooObject) {
-        return (self.a, self.b, self.c, self.d, self.e, self.f);
+    function getValues() returns [string, boolean, int, float, FooRecord, FooObject] {
+        return [self.a, self.b, self.c, self.d, self.e, self.f];
     }
 };
 
 // Test 2
-function testObjectInitWithDefaultValues2() returns ((int, string, float, FooRecord), (int, string, float, FooRecord)){
+function testObjectInitWithDefaultValues2() returns [[int, string, float, FooRecord], [int, string, float, FooRecord]]{
     ObjectTwo o1 = new();
     ObjectTwo o2 = new(a = 10, d = { a: "given", b: 49, c: false, d: 10.9 });
 
-    return (o1.getValues(), o2.getValues());
+    return [o1.getValues(), o2.getValues()];
 }
 
 type ObjectTwo object {
@@ -132,101 +132,97 @@ type ObjectTwo object {
         self.d = d;
     }
 
-    function getValues() returns (int, string, float, FooRecord) {
-        return (self.a, self.b, self.c, self.d);
+    function getValues() returns [int, string, float, FooRecord] {
+        return [self.a, self.b, self.c, self.d];
     }
 };
 
 // Test 3
-function testObjectAttachedFunction1() returns ((string, int, FooRecord), (string, int, FooRecord)) {
+function testObjectAttachedFunction1() returns [[string, int, FooRecord], [string, int, FooRecord]] {
     ObjectThree o1 = new();
-    (string, int, FooRecord) a = o1.attachedFunction1();
-    (string, int, FooRecord) b = o1.attachedFunction1(a = "given", c = { a: "given2", b: 140, c: true, d: 22.2 });
-    return (a, b);
+    [string, int, FooRecord] a = o1.attachedFunction1();
+    [string, int, FooRecord] b = o1.attachedFunction1(a = "given", c = { a: "given2", b: 140, c: true, d: 22.2 });
+    return [a, b];
 }
 
 // Test 4
-function testObjectAttachedFunction2() returns ((int, string, float, FooRecord), (int, string, float, FooRecord)) {
+function testObjectAttachedFunction2() returns [[int, string, float, FooRecord], [int, string, float, FooRecord]] {
     ObjectThree o1 = new();
-    (int, string, float, FooRecord) a = o1.attachedFunction2();
-    (int, string, float, FooRecord) b = o1.attachedFunction2(b = "given", d = { a: "given2", b: 140, c: true, d: 22.2 });
-    return (a, b);
+    [int, string, float, FooRecord] a = o1.attachedFunction2();
+    [int, string, float, FooRecord] b = o1.attachedFunction2(b = "given", d = { a: "given2", b: 140, c: true, d: 22.2});
+    return [a, b];
 }
 
 type ObjectThree object {
 
-    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns (string, int, FooRecord) {
-        return (a, b * 2, c);
+    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
+        return [a, b * 2, c];
     }
 
-    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns (int, string, float, FooRecord) {
-        return (a, b, c, d);
+    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
+        return [a, b, c, d];
     }
 };
 
 // Test 5
-function testObjectAttachedFunction3() returns ((string, int, FooRecord), (string, int, FooRecord)) {
+function testObjectAttachedFunction3() returns [[string, int, FooRecord], [string, int, FooRecord]] {
     ObjectFour o1 = new();
-    (string, int, FooRecord) a = o1.attachedFunction1();
-    (string, int, FooRecord) b = o1.attachedFunction1(a = "given", c = { a: "given2", b: 140, c: true, d: 22.2 });
-    return (a, b);
+    [string, int, FooRecord] a = o1.attachedFunction1();
+    [string, int, FooRecord] b = o1.attachedFunction1(a = "given", c = { a: "given2", b: 140, c: true, d: 22.2 });
+    return [a, b];
 }
 
 // Test 6
-function testObjectAttachedFunction4() returns ((int, string, float, FooRecord), (int, string, float, FooRecord)) {
+function testObjectAttachedFunction4() returns [[int, string, float, FooRecord], [int, string, float, FooRecord]] {
     ObjectFour o1 = new();
-    (int, string, float, FooRecord) a = o1.attachedFunction2();
-    (int, string, float, FooRecord) b = o1.attachedFunction2(b = "given", d = { a: "given2", b: 140, c: true, d: 22.2 });
-    return (a, b);
+    [int, string, float, FooRecord] a = o1.attachedFunction2();
+    [int, string, float, FooRecord] b = o1.attachedFunction2(b = "given", d = { a: "given2", b: 140, c: true, d: 22.2 });
+    return [a, b];
 }
 
 type ObjectFour object {
 
-    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns (string, int, FooRecord);
+    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
+        return [a, b * 2, c];
+    }
 
-    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns (int, string, float, FooRecord);
+    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
+        return [a, b, c, d];
+    }
 };
 
-function ObjectFour.attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns (string, int, FooRecord) {
-    return (a, b * 2, c);
-}
-
-function ObjectFour.attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns (int, string, float, FooRecord) {
-    return (a, b, c, d);
-}
-
 type ObjectFive object {
-    function foo(int x = getInt(), float y = getFloat()) returns (int, float) {
-        return (x * 2, y * 2);
+    function foo(int x = getInt(), float y = getFloat()) returns [int, float] {
+        return [x * 2, y * 2];
     }
 };
 
 type ObjectSix object {
-    function foo(int x = getInt() * 2, float y = getFloat() * 2) returns (int, float) {
-        return (x * 2, y * 2);
+    function foo(int x = getInt() * 2, float y = getFloat() * 2) returns [int, float] {
+        return [x * 2, y * 2];
     }
 };
 
-function testObjectCasting1() returns ((int, float), (int, float), (int, float), (int, float)) {
+function testObjectCasting1() returns [[int, float], [int, float], [int, float], [int, float]] {
     ObjectFive o1 = new();
     ObjectSix o2 = o1;
 
-    (int, float) a = o2.foo();
-    (int, float) b = o2.foo(x = 20);
-    (int, float) c = o2.foo(x = 20, y = 11.1);
-    (int, float) d = o2.foo(y = 11.1);
+    [int, float] a = o2.foo();
+    [int, float] b = o2.foo(x = 20);
+    [int, float] c = o2.foo(x = 20, y = 11.1);
+    [int, float] d = o2.foo(y = 11.1);
 
-    return (a, b, c, d);
+    return [a, b, c, d];
 }
 
-function testObjectCasting2() returns ((int, float), (int, float), (int, float), (int, float)) {
+function testObjectCasting2() returns [[int, float], [int, float], [int, float], [int, float]] {
     ObjectSix o1 = new();
     ObjectFive o2 = o1;
 
-    (int, float) a = o2.foo();
-    (int, float) b = o2.foo(x = 40);
-    (int, float) c = o2.foo(x = 40, y = 22.2);
-    (int, float) d = o2.foo(y = 22.2);
+    [int, float] a = o2.foo();
+    [int, float] b = o2.foo(x = 40);
+    [int, float] c = o2.foo(x = 40, y = 22.2);
+    [int, float] d = o2.foo(y = 22.2);
 
-    return (a, b, c, d);
+    return [a, b, c, d];
 }

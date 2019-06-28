@@ -18,14 +18,14 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -153,7 +153,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.length, 1);
         Map<String, BValue> results = ((BMap) returns[0]).getMap();
         Assert.assertEquals(results.get("res1").stringValue(), "Error One");
-        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("rec").stringValue(), "{\"message\":\"Something Wrong\", \"fatal\":true}");
         Assert.assertEquals(results.get("res2").stringValue(), "Error One");
         Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
         Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
@@ -165,7 +165,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.length, 1);
         Map<String, BValue> results = ((BMap) returns[0]).getMap();
         Assert.assertEquals(results.get("res1").stringValue(), "Error One");
-        Assert.assertEquals(results.get("rec").stringValue(), "{message:\"Something Wrong\", fatal:true}");
+        Assert.assertEquals(results.get("rec").stringValue(), "{\"message\":\"Something Wrong\", \"fatal\":true}");
         Assert.assertEquals(results.get("res2").stringValue(), "Error One");
         Assert.assertEquals(results.get("message").stringValue(), "Something Wrong");
         Assert.assertTrue(((BBoolean) results.get("fatal")).booleanValue());
@@ -213,32 +213,28 @@ public class ErrorVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 31, 34);
+                incompatibleTypes + "expected 'boolean', found 'string'", 31, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map<int>', found 'map<string>'", 31, 34);
+                incompatibleTypes + "expected 'map<int>', found 'map<string>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'string?'", 32, 52);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'map<string>', found 'map<anydata>'", 41, 34);
+                                  incompatibleTypes + "expected 'map<string>', found 'map<anydata>'", 41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found 'anydata'", 42, 52);
         BAssertUtil.validateError(resultNegative, ++i,
-                "error constructor expression is not supported for error binding pattern", 43, 82);
+                "error constructor expression is not supported for error binding pattern", 43, 81);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map', found 'Foo'", 63, 25);
-        BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 64, 20);
+                incompatibleTypes + "expected 'boolean', found 'string'", 64, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
-                "expected '(any,string,map,(error,any))', found '(int,string,error,(error,Foo))'", 78, 58);
-        BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 91, 40);
+                "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 78, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', found 'map<anydata|error>'",
-                                  91, 40);
+                                  92, 32);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'string?', found 'anydata|error'", 100, 30);
+                incompatibleTypes + "expected 'boolean', found 'string'", 93, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  incompatibleTypes + "expected 'string?', found 'anydata|error'", 102, 38);
     }
 }

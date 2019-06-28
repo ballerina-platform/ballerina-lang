@@ -20,12 +20,14 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -38,11 +40,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 
 /**
  * Completion Item Resolver for the Definition Context.
@@ -92,13 +95,23 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                  */
                 return this.getObjectAttachedFunctions(context, lhsDefaultTokens);
             }
+            if (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.ASSIGN
+                    || (lhsDefaultTokens.size() > 3
+                    && lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.ASSIGN)) {
+                /*
+                Consider the following case
+                Eg: function x =
+                    function x = ex
+                    Suggest the external keyword
+                 */
+                return Collections.singletonList(Snippet.KW_EXTERNAL.get().build(context));
+            }
             /*
             Consider the following cases
             Eg: function 
                 function x
-            and exclude the 
              */
-            return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+            return context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                     .map(symbolInfo -> {
                         BSymbol symbol = symbolInfo.getScopeEntry().symbol;
@@ -114,7 +127,7 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
     private List<CompletionItem> getObjectAttachedFunctions(LSContext context, List<CommonToken> lhsDefaultTokens) {
         String objectName = lhsDefaultTokens.get(1).getText();
         List<CompletionItem> completionItems = new ArrayList<>();
-        Optional<BObjectTypeSymbol> filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+        Optional<BObjectTypeSymbol> filtered = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
