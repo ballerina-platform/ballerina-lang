@@ -19,12 +19,22 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:getCodePoint(string, int).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "getCodePoint",
+        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "i", type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
+        isPublic = true
+)
 public class GetCodePoint {
 
     public static int getCodePoint(Strand strand, String str, int i) {
