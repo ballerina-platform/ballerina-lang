@@ -47,7 +47,8 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         },
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
-                @ReturnType(type = TypeKind.RECORD, structType = "JDBCClientError", structPackage = BALLERINA_BUILTIN_PKG)
+                @ReturnType(type = TypeKind.RECORD, structType = "JDBCClientError",
+                        structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class BatchUpdate extends AbstractSQLAction {
