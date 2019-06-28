@@ -226,6 +226,7 @@ const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 
 const string OBJECT = "java/lang/Object";
+const string MATH = "java/lang/Math";
 const string MAP = "java/util/Map";
 const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
 const string ARRAY_LIST = "java/util/ArrayList";
