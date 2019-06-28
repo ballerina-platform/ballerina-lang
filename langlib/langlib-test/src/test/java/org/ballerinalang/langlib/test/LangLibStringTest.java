@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.test;
 
 
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -27,6 +28,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for the lang.string library.
+ *
+ * @since 1.0
+ */
 public class LangLibStringTest {
 
     private CompileResult compileResult;
@@ -37,8 +43,20 @@ public class LangLibStringTest {
     }
 
     @Test
-    public void testLength() {
+    public void testToLower() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToLower");
         Assert.assertEquals(returns[0].stringValue(), "hello ballerina!");
+    }
+
+    @Test
+    public void testLength() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
+    }
+
+    @Test
+    public void testSubString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSubString");
+        Assert.assertEquals(returns[0].stringValue(), "Bal");
     }
 }

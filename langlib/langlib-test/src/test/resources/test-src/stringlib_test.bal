@@ -18,3 +18,11 @@ function testToLower() returns string {
     string str = "Hello Ballerina!";
     return str.toLowerAscii();
 }
+
+function testLength() returns int {
+    return "Hello Ballerina!".length();
+}
+
+function testSubString() returns string {
+    return "Hello Ballerina!".substring(6, 9);
+}
