@@ -39,6 +39,7 @@
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
+            <package name="org.ballerinalang.test.closures.*"/>
             <!-- <package name="org.ballerinalang.test.privacy.*"/> -->
             <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
@@ -93,6 +94,7 @@
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
+            <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
@@ -119,6 +121,11 @@
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
             <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
+                <methods>
+                    <exclude name="testFunctionPointerNative"/>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
                     <include name="simpleLock"/>
