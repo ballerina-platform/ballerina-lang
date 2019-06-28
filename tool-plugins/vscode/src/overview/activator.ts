@@ -48,15 +48,15 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 'Project Overview',
                 { viewColumn: ViewColumn.One, preserveFocus: true } ,
                 getCommonWebViewOptions()
-            );
+			);
 
             const editor = window.activeTextEditor;
             if(!editor) {
                 return;
             }
 
-			rpcHandler = WebViewRPCHandler.create(overviewPanel.webview, langClient);
-			const html = render(context, langClient, Uri.parse(sourceRoot).toString());
+			rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
+			const html = render(context, langClient, Uri.file(sourceRoot).toString());
 			if (overviewPanel && html) {
 				overviewPanel.webview.html = html;
 			}
