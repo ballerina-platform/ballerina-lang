@@ -15,8 +15,12 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "sayHello(${1:caller}, ${2:request});",
-      "insertTextFormat": "Snippet"
+      "insertText": "sayHello(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "serviceFunc()",
@@ -28,8 +32,12 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "serviceFunc();",
-      "insertTextFormat": "Snippet"
+      "insertText": "serviceFunc(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "testVal",

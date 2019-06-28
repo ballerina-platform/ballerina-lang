@@ -166,7 +166,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error",
+            groups = { "brokenOnJBallerina" })
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);

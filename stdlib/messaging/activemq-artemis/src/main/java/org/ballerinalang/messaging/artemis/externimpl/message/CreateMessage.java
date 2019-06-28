@@ -29,26 +29,19 @@ import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * Extern function to create an ActiveMQ Artemis message.
@@ -64,95 +57,76 @@ import java.util.Map;
                 type = TypeKind.OBJECT,
                 structType = ArtemisConstants.MESSAGE_OBJ,
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
-        ),
-        args = {
-                @Argument(
-                        name = "session",
-                        type = TypeKind.OBJECT,
-                        structType = ArtemisConstants.SESSION_OBJ
-                ),
-                @Argument(
-                        name = "data",
-                        type = TypeKind.UNION
-                ),
-                @Argument(
-                        name = "config",
-                        type = TypeKind.RECORD,
-                        structType = "ConnectionConfiguration"
-                )
-        }
+        )
 )
 public class CreateMessage extends BlockingNativeCallableUnit {
     private static final Logger logger = LoggerFactory.getLogger(CreateMessage.class);
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
-        String type = messageObj.get(ArtemisConstants.MESSAGE_TYPE).stringValue();
+    }
 
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> sessionObj = (BMap<String, BValue>) context.getRefArgument(1);
-        BValue dataVal = context.getRefArgument(2);
-
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> configObj = (BMap<String, BValue>) context.getRefArgument(3);
-        long expiration = ((BInteger) configObj.get(ArtemisConstants.EXPIRATION)).intValue();
-        long timeStamp = ((BInteger) configObj.get(ArtemisConstants.TIME_STAMP)).intValue();
-        byte priority = (byte) ((BByte) configObj.get(ArtemisConstants.PRIORITY)).byteValue();
-        boolean durable = ((BBoolean) configObj.get(ArtemisConstants.DURABLE)).booleanValue();
-        BValue routingType = configObj.get(ArtemisConstants.ROUTING_TYPE);
-        BValue groupId = configObj.get(ArtemisConstants.GROUP_ID);
+    public static void createMessage(Strand strand, ObjectValue messageObj, ObjectValue sessionObj, Object dataVal,
+                                     MapValue configObj) {
+        String type = messageObj.getStringValue(ArtemisConstants.MESSAGE_TYPE);
+        long expiration = configObj.getIntValue(ArtemisConstants.EXPIRATION);
+        long timeStamp = configObj.getIntValue(ArtemisConstants.TIME_STAMP);
+        byte priority = Byte.valueOf(configObj.get(ArtemisConstants.PRIORITY).toString());
+        boolean durable = configObj.getBooleanValue(ArtemisConstants.DURABLE);
+        Object routingType = configObj.get(ArtemisConstants.ROUTING_TYPE);
+        Object groupId = configObj.get(ArtemisConstants.GROUP_ID);
         int groupSequence = ArtemisUtils.getIntFromConfig(configObj, ArtemisConstants.GROUP_SEQUENCE, logger);
-        BValue correlationId = configObj.get(ArtemisConstants.CORRELATION_ID);
-        BValue replyTo = configObj.get(ArtemisConstants.REPLY_TO);
+        Object correlationId = configObj.get(ArtemisConstants.CORRELATION_ID);
+        Object replyTo = configObj.get(ArtemisConstants.REPLY_TO);
 
         ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
 
         byte messageType = getMessageType(type);
         ClientMessage message = session.createMessage(messageType, durable, expiration, timeStamp, priority);
-        if (routingType instanceof BString) {
-            message.setRoutingType(ArtemisUtils.getRoutingTypeFromString(routingType.stringValue()));
+        if (routingType instanceof String) {
+            message.setRoutingType(ArtemisUtils.getRoutingTypeFromString((String) routingType));
         }
-        if (groupId instanceof BString) {
-            message.setGroupID(groupId.stringValue());
+        if (groupId instanceof String) {
+            message.setGroupID((String) groupId);
         }
         message.setGroupSequence(groupSequence);
-        if (correlationId instanceof BString) {
-            message.setCorrelationID(correlationId.stringValue());
+        if (correlationId instanceof String) {
+            message.setCorrelationID(correlationId);
         }
-        if (replyTo instanceof BString) {
-            message.setReplyTo(new SimpleString(replyTo.stringValue()));
+        if (replyTo instanceof String) {
+            message.setReplyTo(new SimpleString((String) replyTo));
         }
         if (messageType == Message.TEXT_TYPE) {
-            TextMessageUtil.writeBodyText(message.getBodyBuffer(), new SimpleString(dataVal.stringValue()));
+            TextMessageUtil.writeBodyText(message.getBodyBuffer(), new SimpleString((String) dataVal));
         } else if (messageType == Message.BYTES_TYPE) {
-            BytesMessageUtil.bytesWriteBytes(message.getBodyBuffer(), ArtemisUtils.getBytesData((BValueArray) dataVal));
+            BytesMessageUtil.bytesWriteBytes(message.getBodyBuffer(), ArtemisUtils.getBytesData((ArrayValue) dataVal));
         } else if (messageType == Message.MAP_TYPE) {
             @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            Map<String, BValue> mapObj = ((BMap<String, BValue>) dataVal).getMap();
+            String[] keys = ((MapValue<String, Object>) dataVal).getKeys();
             TypedProperties map = new TypedProperties();
-            for (Map.Entry<String, BValue> entry : mapObj.entrySet()) {
-                SimpleString key = new SimpleString(entry.getKey());
-                BValue value = entry.getValue();
-                if (value instanceof BString) {
-                    map.putSimpleStringProperty(key, new SimpleString(value.stringValue()));
-                } else if (value instanceof BInteger) {
-                    map.putLongProperty(key, ((BInteger) value).intValue());
-                } else if (value instanceof BFloat) {
-                    map.putDoubleProperty(key, ((BFloat) value).floatValue());
-                } else if (value instanceof BByte) {
-                    map.putByteProperty(key, (byte) ((BByte) value).byteValue());
-                } else if (value instanceof BBoolean) {
-                    map.putBooleanProperty(key, ((BBoolean) value).booleanValue());
-                } else if (value instanceof BValueArray) {
-                    map.putBytesProperty(key, ArtemisUtils.getBytesData((BValueArray) value));
+            for (String keyStr : keys) {
+                SimpleString key = new SimpleString(keyStr);
+                @SuppressWarnings(ArtemisConstants.UNCHECKED)
+                Object value = ((MapValue<String, Object>) dataVal).get(keyStr);
+                if (value instanceof String) {
+                    map.putSimpleStringProperty(key, new SimpleString((String) value));
+                } else if (value instanceof Long) {
+                    map.putLongProperty(key, (long) value);
+                } else if (value instanceof Double) {
+                    map.putDoubleProperty(key, (Double) value);
+                } else if (value instanceof Integer) {
+                    map.putIntProperty(key, (Integer) value);
+                } else if (value instanceof Byte) {
+                    map.putByteProperty(key, (Byte) value);
+                } else if (value instanceof Boolean) {
+                    map.putBooleanProperty(key, (Boolean) value);
+                } else if (value instanceof ArrayValue) {
+                    map.putBytesProperty(key, ArtemisUtils.getBytesData((ArrayValue) value));
                 }
                 MapMessageUtil.writeBodyMap(message.getBodyBuffer(), map);
             }
         } else if (messageType == Message.STREAM_TYPE) {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> streamObj = (BMap<String, BValue>) dataVal;
+            ObjectValue streamObj = (ObjectValue) dataVal;
             Channel channel = (Channel) streamObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             message.setBodyInputStream(channel.getInputStream());
         }
@@ -161,7 +135,7 @@ public class CreateMessage extends BlockingNativeCallableUnit {
         messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, message);
     }
 
-    private byte getMessageType(String type) {
+    private static byte getMessageType(String type) {
         switch (type) {
             case "TEXT":
                 return Message.TEXT_TYPE;

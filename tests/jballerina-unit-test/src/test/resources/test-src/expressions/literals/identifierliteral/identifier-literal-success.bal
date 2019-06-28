@@ -13,16 +13,16 @@ function getConstWithIL() returns (float) {
     return ^"const IL";
 }
 
-function defineAndGetIL() returns (string, float, int) {
+function defineAndGetIL() returns [string, float, int] {
     string ^"local string var" = ^"global var";
     float ^"local float var" = ^"const IL";
     int ^"local int var" = 99934;
-    return (^"local string var", ^"local float var", ^"local int var");
+    return [^"local string var", ^"local float var", ^"local int var"];
 }
 
-function useILWithinStruct() returns (string, string, int) {
+function useILWithinStruct() returns [string, string, int] {
     Person person = {^"first name": "Tom", ^"last name":"hank", ^"current age": 50};
-    return (person.^"first name", person.^"last name", person.^"current age");
+    return [person.^"first name", person.^"last name", person.^"current age"];
 }
 
 type Person record {
@@ -31,9 +31,9 @@ type Person record {
     int ^"current age";
 };
 
-function useILInStructVar() returns (string, string, int) {
+function useILInStructVar() returns [string, string, int] {
     Person ^"person 1" = {^"first name": "Harry", ^"last name":"potter", ^"current age": 25};
-    return (^"person 1".^"first name", ^"person 1".^"last name", ^"person 1".^"current age");
+    return [^"person 1".^"first name", ^"person 1".^"last name", ^"person 1".^"current age"];
 }
 
 function useILAsrefType()returns (json) {
@@ -47,16 +47,16 @@ function useILAsArrayIndex() returns (float) {
     return ^"float array"[^"array index"];
 }
 
-function passILValuesToFunction() returns (string, int) {
+function passILValuesToFunction() returns [string, int] {
     string ^"first name" = "Bill";
     string ^"last name" = "Kary";
     int age = 40;
     return passILValuesAsParams(^"first name", ^"last name", age);
 }
 
-function passILValuesAsParams(string ^"first name", string ^"last name", int ^"current age") returns (string, int) {
+function passILValuesAsParams(string ^"first name", string ^"last name", int ^"current age") returns [string, int] {
     string ^"full name" = ^"first name" + " " + ^"last name";
-    return (^"full name", ^"current age");
+    return [^"full name", ^"current age"];
 }
 
 function testCharInIL() returns (string) {
@@ -107,9 +107,9 @@ function ^"test function for identifier"(string val) returns (string) {
 //    return value;
 //}
 
-function useILInStructName() returns (string, string, int, string?) {
+function useILInStructName() returns [string, string, int, string?] {
     ^"family person" ^"person one" = {^"first name": "Tom", ^"last name":"hank", ^"current age": 50};
-    return (^"person one".^"first name", ^"person one".^"last name", ^"person one".^"current age", ^"person one"["first name"]);
+    return [^"person one".^"first name", ^"person one".^"last name", ^"person one".^"current age", ^"person one"["first name"]];
 }
 
 type ^"family person" record {
@@ -123,9 +123,9 @@ function testUnicodeInIL() returns (string) {
     return ^"සිංහල වචනය";
 }
 
-function testAcessILWithoutPipe() returns (string, string) {
+function testAcessILWithoutPipe() returns [string, string] {
      string ^"x" = "hello";
-     return (^"x", x);
+     return [^"x", x];
  }
  
  function testAcessJSONFielAsIL() returns (json) {
