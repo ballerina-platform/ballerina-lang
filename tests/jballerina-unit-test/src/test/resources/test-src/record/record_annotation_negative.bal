@@ -79,7 +79,7 @@ type TestConnector record {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service PizzaService on new http:Listener(9090) {
+service PizzaService on new http:MockListener(9090) {
 
     # Check orderPizza resource.
     #

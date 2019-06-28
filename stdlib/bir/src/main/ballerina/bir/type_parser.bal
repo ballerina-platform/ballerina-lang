@@ -216,7 +216,10 @@ public type TypeParser object {
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
-        obj.initFunction = self.parseRecordInitFunction();
+        boolean isInitFuncAvailable = self.readInt8() == 1;
+        if (isInitFuncAvailable) {
+            obj.initFunction = self.parseRecordInitFunction();
+        }
         return obj;
     }
 
