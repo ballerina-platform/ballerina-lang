@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Testing Package init with workers.
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class PackageInitWorkerTest {
 
     @Test
