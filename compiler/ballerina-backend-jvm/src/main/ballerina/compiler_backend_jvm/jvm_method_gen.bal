@@ -698,20 +698,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VarRef ref = getVarRef(paramType);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
+            argIndex += 2;
             if (!isExternFunction) {
                 addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }
+                argIndex -= 1;
+            }  
         }
     } else {
         //load closureMaps
@@ -725,20 +728,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
             mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
             i += 1;
-
+            
+            argIndex += 2;
             if (!isExternFunction) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
+                argIndex -= 1;
             }   
         }
     }

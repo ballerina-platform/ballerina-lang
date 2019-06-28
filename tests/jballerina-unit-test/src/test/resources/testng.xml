@@ -95,7 +95,7 @@
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
-            <package name="org.ballerinalang.test.expressions.lambda"/>
+            <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
@@ -164,11 +164,6 @@
             <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
             <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
             <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
-                <methods>
-                    <exclude name="testFunctionPointerNative"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
                     <include name="simpleLock"/>
