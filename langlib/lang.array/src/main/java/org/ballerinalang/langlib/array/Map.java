@@ -46,12 +46,10 @@ public class Map {
         BType elemType = ((BFunctionType) func.getType()).retType;
         BType arrType = new BArrayType(elemType);
         ArrayValue newArr = new ArrayValue(arrType);
-        Object[] args = new Object[]{strand, null};
         int size = arr.size();
 
         for (int i = 0; i < size; i++) {
-            args[1] = arr.get(i);
-            Object newVal = func.apply(args);
+            Object newVal = func.apply(new Object[]{strand, arr.get(i)});
             newArr.add(i, newVal);
         }
 

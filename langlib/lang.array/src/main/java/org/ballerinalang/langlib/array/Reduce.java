@@ -27,19 +27,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.array:filter(Type[], function).
+ * Native implementation of lang.array:reduce(Type[], function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "filter",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
+        orgName = "ballerina", packageName = "lang.array", functionName = "reduce",
+        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION),
+                @Argument(name = "initial", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
 public class Reduce {
 
-    public static Object filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
+    public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
         int size = arr.size();
         Object accum = initial;
 

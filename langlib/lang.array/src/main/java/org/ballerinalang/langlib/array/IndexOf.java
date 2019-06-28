@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,6 +41,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IndexOf {
 
     public static Object indexOf(Strand strand, ArrayValue arr, Object val, int startIndex) {
-        throw BallerinaErrors.createError("Function 'indexOf()' is not implemented");
+        int size = arr.size();
+
+        for (int i = startIndex; i < size; i++) {
+            if (TypeChecker.isEqual(val, arr.get(i))) {
+                return i;
+            }
+        }
+
+        return null;
     }
 }
