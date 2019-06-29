@@ -1192,9 +1192,15 @@ public class Desugar extends BLangNodeVisitor {
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
+        BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
+                symTable.anyType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
+        BLangSimpleVariableDef tupFirstElem = createVarDef("key", indexBasesAccessExpr.type,
+                indexBasesAccessExpr, pos);
+        functionBlock.addStatement(tupFirstElem);
+
         // Create the if statements
         for (BLangRecordVarRefKeyValue variableKeyValueNode : recordVarRef.recordRefFields) {
-            createIfStmt(pos, keyValSymbol, functionBlock, variableKeyValueNode.variableName.getValue());
+            createIfStmt(pos, tupFirstElem.var.symbol, functionBlock, variableKeyValueNode.variableName.getValue());
         }
 
         // Create the final return true statement
@@ -1231,7 +1237,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef tupFirstElem = createVarDef("key", indexBasesAccessExpr.type,
                 indexBasesAccessExpr, pos);
         functionBlock.addStatement(tupFirstElem);
-        BLangSimpleVarRef firstElemRef = ASTBuilderUtil.createVariableRef(pos, tupFirstElem.var.symbol);
 
         // Create the if statements
         for (String toRemoveItem : toRemoveList) {
