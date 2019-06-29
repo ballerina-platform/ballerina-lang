@@ -22,7 +22,6 @@
 <suite name="ballerina-test-suite">
     <listeners>
         <listener class-name="org.ballerinalang.stdlib.common.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.stdlib.common.JBallerinaTestInitializer" />
     </listeners>
 
     <test name="ballerina-observe-test-suite" preserve-order="true" parallel="false">
