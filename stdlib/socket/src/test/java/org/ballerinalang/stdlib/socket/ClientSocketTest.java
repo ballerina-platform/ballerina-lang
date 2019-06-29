@@ -81,7 +81,8 @@ public class ClientSocketTest {
         executor.shutdownNow();
     }
 
-    @Test(description = "Open client socket connection to the remote server and write content")
+    @Test(description = "Open client socket connection to the remote server and write content",
+          enabled = false)
     public void testOneWayWrite() {
         String msg = "Hello Ballerina";
         BValue[] args = { new BString(msg) };
