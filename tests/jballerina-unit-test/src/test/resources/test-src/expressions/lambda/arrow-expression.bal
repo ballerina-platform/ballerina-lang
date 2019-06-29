@@ -35,8 +35,8 @@ function returnsArrowExpr() returns function (int x, string y) returns string {
     return (x, y) => x + y;
 }
 
-function testArrowExprReturnTuple() returns (string, int) {
-    function (int, string) returns (string, int) lambda = (x, y) => (x + y, x);
+function testArrowExprReturnTuple() returns [string, int] {
+    function (int, string) returns [string, int] lambda = (x, y) => [x + y, x];
     return lambda.call(12, "John");
 }
 
@@ -77,9 +77,9 @@ function testNillableParameter() returns string {
     return lambda.call(());
 }
 
-function testTupleInput() returns (string, string) {
-    function ((string, boolean, Person), string) returns (string, string) lambda = (tupleEntry, str) => (tupleEntry[2].name, str);
-    (string, boolean, Person) tupleEntry = ("John", true, {name: "Doe", age: 12});
+function testTupleInput() returns [string, string] {
+    function ([string, boolean, Person], string) returns [string, string] lambda = (tupleEntry, str) => [tupleEntry[2].name, str];
+    [string, boolean, Person] tupleEntry = ["John", true, {name: "Doe", age: 12}];
     return lambda.call(tupleEntry, "Peter");
 }
 
