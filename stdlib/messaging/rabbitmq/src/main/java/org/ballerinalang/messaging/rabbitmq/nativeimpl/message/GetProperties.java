@@ -27,12 +27,24 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 
 /**
  * Retrieves the basic properties of the message.
  *
  * @since 0.995.0
  */
+@BallerinaFunction(
+        orgName = RabbitMQConstants.ORG_NAME,
+        packageName = RabbitMQConstants.RABBITMQ,
+        functionName = "getProperties",
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = RabbitMQConstants.MESSAGE_OBJECT,
+                structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
+        isPublic = true
+)
 public class GetProperties extends BlockingNativeCallableUnit {
 
     @Override
