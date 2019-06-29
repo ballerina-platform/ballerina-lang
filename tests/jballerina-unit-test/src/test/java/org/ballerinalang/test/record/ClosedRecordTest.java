@@ -234,13 +234,15 @@ public class ClosedRecordTest {
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                                          "'typedesc', 'future', 'anydata', 'ophandle', '(', '[', '|}', '*', '@', Identifier}",
+                                          "'typedesc', 'future', 'anydata', " +
+                                          "'ophandle', '(', '[', '|}', '*', '@', Identifier}",
                                   19, 25);
         BAssertUtil.validateError(result, 5,
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                                          "'typedesc', 'future', 'anydata', 'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
+                                          "'typedesc', 'future', 'anydata', " +
+                                          "'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -251,13 +253,15 @@ public class ClosedRecordTest {
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                                          "'typedesc', 'future', 'anydata', 'ophandle', '}', '(', '[', '*', '@', Identifier}",
+                                          "'typedesc', 'future', 'anydata', " +
+                                          "'ophandle', '}', '(', '[', '*', '@', Identifier}",
                                   25, 25);
         BAssertUtil.validateError(result, 9,
                                   "mismatched input '|'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                                          "'typedesc', 'future', 'anydata', 'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
+                                          "'typedesc', 'future', 'anydata', " +
+                                          "'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -266,7 +270,8 @@ public class ClosedRecordTest {
                                   "mismatched input '}'. expecting {'service', 'function', 'object', 'record', " +
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
-                                          "'typedesc', 'future', 'anydata', 'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
+                                          "'typedesc', 'future', 'anydata', " +
+                                          "'ophandle', '(', '[', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",

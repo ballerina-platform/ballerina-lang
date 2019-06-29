@@ -410,7 +410,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                         jvmClassMap[moduleClass] = class;
                     }
                 }
-BRunUtil.javaBRunUtil.java            }
+            }
             birFunctionMap[pkgName + functionName] = getFunctionWrapper(currentFunc, orgName, moduleName,
                                                                         versionValue, moduleClass);
         }
