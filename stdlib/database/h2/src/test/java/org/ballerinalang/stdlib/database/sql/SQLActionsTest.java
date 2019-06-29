@@ -359,6 +359,11 @@ public class SQLActionsTest {
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test failed select query error")
+    public void testErrorWithSelectData() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithSelectData");
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina\\/sql}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
@@ -368,6 +373,11 @@ public class SQLActionsTest {
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
         Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test error for failed update with generated id action")
+    public void testFailedGeneratedKeyOnInsertError() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsertError");
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
@@ -377,6 +387,11 @@ public class SQLActionsTest {
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed batch update")
+    public void testErrorWithBatchUpdate() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
@@ -392,6 +407,13 @@ public class SQLActionsTest {
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
+        Assert.assertTrue(returns[0].stringValue()
+                .contains("execute query failed: unsupported array type for parameter index 0"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed parameter array update")
+    public void testErrorWithInvalidArrayofQueryParameters() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}ApplicationError"));

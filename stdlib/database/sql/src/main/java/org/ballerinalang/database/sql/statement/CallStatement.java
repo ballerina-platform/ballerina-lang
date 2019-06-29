@@ -33,8 +33,8 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -139,17 +139,17 @@ public class CallStatement extends AbstractSQLStatement {
 
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
-            throws SQLException {
+            throws SQLException, ApplicationException {
         ArrayValue bTables = new ArrayValue(BTypes.typeTable);
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
                 && (structTypes != null && structTypes.size() > 1)) {
-            throw new BallerinaException(
+            throw new ApplicationException(
                     "Retrieving result sets from stored procedures returning more than one result set, "
                             + "is not supported");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
-            throw new BallerinaException(
+            throw new ApplicationException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
@@ -222,7 +222,7 @@ public class CallStatement extends AbstractSQLStatement {
                     setOutParameterValue(stmt, sqlType, index, paramValue, rm);
                 }
             } else {
-                throw new BallerinaException("out value cannot set for null parameter with index: " + index);
+                throw new ApplicationException("out value cannot set for null parameter with index: " + index);
             }
         }
     }
@@ -345,17 +345,19 @@ public class CallStatement extends AbstractSQLStatement {
                                 constructTable(resourceManager, rs, getStructType(paramValue),
                                         datasource.getDatabaseProductName()));
                     } else {
-                        throw new BallerinaException(
+                        throw new ApplicationException(
                                 "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
                     }
                     break;
                 }
                 default:
-                    throw new BallerinaException(
+                    throw new ApplicationException(
                             "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in getting out parameter value: " + e.getMessage(), e);
+            throw new DatabaseException("error in getting out parameter value: ", e);
+        } catch (IOException e) {
+            throw new ApplicationException("error in getting out parameter value: ", e.getMessage());
         }
     }
 
@@ -441,7 +443,7 @@ public class CallStatement extends AbstractSQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw new Error("error in cleaning sql resources: ", e);
         }
     }
 }

@@ -20,7 +20,7 @@ package org.ballerinalang.database.sql.exceptions;
 /**
  * The exception to throw Ballerina SQL application related exceptions.
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
 public class ApplicationException extends Exception {
 

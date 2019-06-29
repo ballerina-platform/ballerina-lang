@@ -22,7 +22,7 @@ import java.sql.SQLException;
 /**
  * The exception to throw Ballerina SQL database related exceptions.
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
 public class DatabaseException extends Exception {
 

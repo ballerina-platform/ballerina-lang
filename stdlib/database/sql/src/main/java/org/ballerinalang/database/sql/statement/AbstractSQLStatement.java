@@ -40,7 +40,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
@@ -406,7 +405,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw new Error("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
@@ -427,7 +426,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw new Error("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
@@ -1377,7 +1376,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return null;
     }
 
-    private byte[] getByteArray(Object value) {
+    private byte[] getByteArray(Object value) throws ApplicationException {
         byte[] val = null;
         if (value instanceof ArrayValue) {
             val = ((ArrayValue) value).getBytes();
@@ -1388,11 +1387,11 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return val;
     }
 
-    private byte[] getBytesFromBase64String(String base64Str) {
+    private byte[] getBytesFromBase64String(String base64Str) throws ApplicationException {
         try {
             return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
         } catch (Exception e) {
-            throw new BallerinaException("error in processing base64 string: " + e.getMessage(), e);
+            throw new ApplicationException("error in processing base64 string: ", e.getMessage());
         }
     }
 

@@ -65,10 +65,10 @@ public class SQLDatasourceUtils {
      *
      * @param data clob data
      * @return string value
-     * @throws ApplicationException SQL application related exception
-     * @throws DatabaseException SQL database related exception
+     * @throws  IOException error occurred while reading clob value
+     * @throws  SQLException error occurred while reading clob value
      */
-    public static String getString(Clob data) throws ApplicationException, DatabaseException {
+    public static String getString(Clob data) throws IOException, SQLException {
         if (data == null) {
             return null;
         }
@@ -79,10 +79,6 @@ public class SQLDatasourceUtils {
                 sb.append((char) pos);
             }
             return sb.toString();
-        } catch (IOException e) {
-            throw new ApplicationException("error occurred while reading clob value: ", e.getMessage());
-        } catch (SQLException e) {
-            throw new DatabaseException("error occurred while reading clob value: ", e);
         }
     }
 
@@ -91,8 +87,9 @@ public class SQLDatasourceUtils {
      *
      * @param data blob data
      * @return string value
+     * @throws  SQLException error occurred while reading blob value
      */
-    public static String getString(Blob data) {
+    public static String getString(Blob data) throws SQLException {
         // Directly allocating full length arrays for decode byte arrays since anyway we are building
         // new String in memory.
         // Position of the getBytes has to be 1 instead of 0.
@@ -102,13 +99,9 @@ public class SQLDatasourceUtils {
         if (data == null) {
             return null;
         }
-        try {
-            byte[] encode = getBase64Encode(
-                    new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
-            return new String(encode, Charset.defaultCharset());
-        } catch (SQLException e) {
-            throw new BallerinaException("error occurred while reading blob value", e);
-        }
+        byte[] encode = getBase64Encode(
+                new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
+        return new String(encode, Charset.defaultCharset());
     }
 
     /**
@@ -125,7 +118,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static String getString(java.util.Date value) throws ApplicationException {
+    public static String getString(java.util.Date value) {
         if (value == null) {
             return null;
         }
@@ -435,7 +428,7 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    private static String getString(Calendar calendar, String type) throws ApplicationException {
+    private static String getString(Calendar calendar, String type) {
         if (!calendar.isSet(Calendar.ZONE_OFFSET)) {
             calendar.setTimeZone(TimeZone.getDefault());
         }
@@ -456,7 +449,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new ApplicationException("invalid type for datetime data: " + type);
+            throw new AssertionError("invalid type for datetime data: " + type);
         }
         return datetimeString.toString();
     }

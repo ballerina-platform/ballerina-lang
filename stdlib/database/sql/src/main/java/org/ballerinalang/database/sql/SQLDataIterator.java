@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.database.sql;
 
-import org.ballerinalang.database.sql.exceptions.ApplicationException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -37,6 +36,7 @@ import org.ballerinalang.jvm.values.TableIterator;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -236,7 +236,7 @@ public class SQLDataIterator extends TableIterator {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (IOException | SQLException e) {
             throw new BallerinaException(
                     "error in retrieving next value for column: " + columnName + ": of SQL Type: " + sqlType + ": "
                             + "at " + "index:" + index + ":" + e.getMessage());
@@ -483,7 +483,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDateValue(MapValue<String, Object> record, String fieldName, java.util.Date date,
-                                 BType fieldType) throws ApplicationException {
+                                 BType fieldType) {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             handleMappingDateValueToUnionType(fieldType, record, fieldName, date);
@@ -644,7 +644,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToUnionType(BType fieldType, MapValue<String, Object> record,
-                                                   String fieldName, java.util.Date date) throws ApplicationException {
+                                                   String fieldName, java.util.Date date) {
         int type = retrieveNonNilTypeTag(fieldType);
         switch (type) {
         case TypeTags.STRING_TAG:
@@ -664,8 +664,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingDateValueToNonUnionType(java.util.Date date, int fieldTypeTag,
-                                                      MapValue<String, Object> record, String fieldName)
-            throws ApplicationException {
+                                                      MapValue<String, Object> record, String fieldName) {
         if (date != null) {
             switch (fieldTypeTag) {
             case TypeTags.STRING_TAG:
