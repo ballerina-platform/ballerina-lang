@@ -43,9 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -237,7 +235,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -3692,24 +3689,7 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.expr instanceof BLangTypedescExpr) {
             targetType = ((BLangTypedescExpr) iExpr.expr).resolvedType;
         }
-        boolean safe;
-        if (!types.isValueType(targetType)) {
-            if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR ||
-                    iExpr.symbol.kind == SymbolKind.CAST_OPERATOR) {
-                // TODO: These should be desugared to specific util functions since convert can be done only if source
-                // shape is a member set of shapes of the target type. ex. datatable to json.
-                return createTypeCastExpr(iExpr.requiredArgs.get(0), targetType, (BOperatorSymbol) iExpr.symbol);
-            }
-            // Handle conversions which can be done with clone.stamp.
-            return visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                 iExpr.requiredArgs.get(0), iExpr.type);
-        }
-        // Handle simple value conversion.
-        if (iExpr.symbol instanceof BCastOperatorSymbol) {
-            safe = ((BCastOperatorSymbol) iExpr.symbol).safe;
-        } else {
-            safe = ((BConversionOperatorSymbol) iExpr.symbol).safe;
-        }
+
         // TODO: We need to cast the conversion input and output values because simple convert method use anydata.
         // We can improve code by adding specific convert function so we can get rid of those below casting.
         BLangExpression inputTypeCastExpr = iExpr.requiredArgs.get(0);
@@ -3717,8 +3697,16 @@ public class Desugar extends BLangNodeVisitor {
             inputTypeCastExpr = createTypeCastExpr(iExpr.requiredArgs.get(0), iExpr.requiredArgs.get(0).type,
                                                    symTable.anydataType);
         }
-        BLangExpression invocationExpr = visitTypeConversionInvocation(iExpr.expr.pos, SIMPLE_VALUE_CONVERT,
-                                                                       iExpr.expr, inputTypeCastExpr, iExpr.type);
+
+        BLangBuiltInMethod convertMethod;
+        if (types.isValueType(targetType)) {
+            convertMethod = BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
+        } else {
+            convertMethod = BLangBuiltInMethod.CONVERT;
+        }
+
+        BLangExpression invocationExpr =
+                visitTypeConversionInvocation(iExpr.expr.pos, convertMethod, iExpr.expr, inputTypeCastExpr, iExpr.type);
         return invocationExpr;
     }
 

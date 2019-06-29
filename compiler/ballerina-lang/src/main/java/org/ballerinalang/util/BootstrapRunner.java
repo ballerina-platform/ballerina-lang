@@ -8,6 +8,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,12 +16,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
  */
 public class BootstrapRunner {
+    private static PrintStream outStream = System.out;
+    private static PrintStream errorStream = System.err;
 
     public static void generateJarBinary(String entryBir, String jarOutputPath, String... birCachePaths) {
 
@@ -47,13 +51,21 @@ public class BootstrapRunner {
         commands.addAll(Arrays.asList(birCachePaths));
 
         ProcessBuilder balProcess = new ProcessBuilder(commands);
-        balProcess.inheritIO();
 
-        // following assumes it's running in gradle. pass as System.prop to be more flexible
-//        balProcess.directory(new File("./build"));
         try {
             Process process = balProcess.start();
+            Scanner errorScanner = new Scanner(process.getErrorStream());
+            Scanner outputScanner = new Scanner(process.getInputStream());
+
             boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
+
+            while (outputScanner.hasNext()) {
+                outStream.println(outputScanner.nextLine());
+            }
+
+            while (errorScanner.hasNext()) {
+                errorStream.println(errorScanner.nextLine());
+            }
             if (!processEnded) {
                 throw new BLangCompilerException("failed to generate jar file within 120s.");
             }
