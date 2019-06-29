@@ -50,8 +50,8 @@ public class InitHandlerTest {
     @Test(description = "Test if the generated source are runnable.")
     public void testGeneratedSourceContent() throws IOException {
         Manifest manifest = new Manifest();
-        manifest.setName("wso2");
-        manifest.setVersion("1.0.0");
+        manifest.getProject().setOrgName("wso2");
+        manifest.getProject().setVersion("1.0.0");
 
         SrcFile packageFile = new SrcFile("wso2_abc", FileType.SERVICE);
         SrcFile mainFile = new SrcFile("main_runner", FileType.MAIN);
@@ -73,10 +73,10 @@ public class InitHandlerTest {
 
         String tomlFileContents = new String(tomlFileBytes, Charset.defaultCharset());
         Assert.assertTrue(tomlFileContents.contains("[project]"), "Project header missing in Ballerina.toml");
-        Assert.assertTrue(tomlFileContents.contains("org-name = \"" + manifest.getName() + "\""),
-                          "Org-Name missing in Ballerina.toml");
-        Assert.assertTrue(tomlFileContents.contains("version = \"" + manifest.getVersion() + "\""),
-                          "Version missing in Ballerina.toml");
+        Assert.assertTrue(tomlFileContents.contains("orgName = \"" + manifest.getProject().getOrgName() + "\""),
+                          "orgName missing in Ballerina.toml");
+        Assert.assertTrue(tomlFileContents.contains("version = \"" + manifest.getProject().getVersion() + "\""),
+                          "version missing in Ballerina.toml");
 
         Path servicesBalFile = tmpDir.resolve(packageFile.getName()).resolve("hello_service.bal");
         Path mainBalFile = tmpDir.resolve(mainFile.getName());

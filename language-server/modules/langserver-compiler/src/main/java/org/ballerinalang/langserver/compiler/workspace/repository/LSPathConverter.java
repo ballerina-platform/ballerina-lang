@@ -47,7 +47,7 @@ public class LSPathConverter extends PathConverter {
         if (id.version.value.isEmpty() && !id.orgName.equals(Names.BUILTIN_ORG)
                 && !id.orgName.equals(Names.ANON_ORG)) {
             Manifest manifest = TomlParserUtils.getManifest(Paths.get(this.toString()));
-            id.version = new Name(manifest.getVersion());
+            id.version = new Name(manifest.getProject().getVersion());
         }
         // Returns an In-memory source entry with backing-off capability to read from the FileSystem
         return Stream.of(new LSInMemorySourceEntry(path, this.start(), id, documentManager));
