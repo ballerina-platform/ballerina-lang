@@ -1375,7 +1375,6 @@ public class TypeChecker {
             return true;
         }
         switch (type.getTag()) {
-            case TypeTags.TYPEDESC_TAG:
             case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:

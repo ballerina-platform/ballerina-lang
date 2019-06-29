@@ -252,20 +252,6 @@ public class ArrayFillTest {
     }
 
     @Test
-    public void testTypedescArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTypedescArrayFill", args);
-        BValueArray xmlArr = (BValueArray) returns[0];
-        assertEquals(xmlArr.size(), index + 1);
-
-        for (int i = 0; i < index; i++) {
-            assertEquals(xmlArr.getBValue(i).stringValue(), "null");
-        }
-
-        assertEquals(xmlArr.getBValue(index).stringValue(), "int");
-    }
-
-    @Test
     public void testUnionArrayFill1() {
         BValue[] args = new BValue[]{new BInteger(index)};
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUnionArrayFill1", args);
@@ -520,29 +506,36 @@ public class ArrayFillTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
-    public void testArrayFillWithObjWithInitParamTest() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithObjWithInitParamTest");
+    public void testArrayFillWithObjWithInitParam() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithObjWithInitParam");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
-    public void testArrayFillWithIntFiniteTypesTest() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithIntFiniteTypesTest");
+    public void testArrayFillWithIntFiniteTypes() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithIntFiniteTypes");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
-    public void testArrayFillWithFloatFiniteTypesTest() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithFloatFiniteTypesTest");
+    public void testArrayFillWithFloatFiniteTypes() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithFloatFiniteTypes");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
-    public void testArrayFillWithStringFiniteTypesTest() {
-        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithStringFiniteTypesTest");
+    public void testArrayFillWithStringFiniteTypes() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithStringFiniteTypes");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testArrayFillWithTypedesc() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithTypedesc");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

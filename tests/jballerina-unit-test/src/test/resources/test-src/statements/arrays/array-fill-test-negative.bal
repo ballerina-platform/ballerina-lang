@@ -22,7 +22,7 @@ type ObjInitWithParam object {
     }
 };
 
-function testArrayFillWithObjWithInitParamTest() {
+function testArrayFillWithObjWithInitParam() {
     ObjInitWithParam[] objWithParamsArray = [];
     ObjInitWithParam o = new(1);
     objWithParamsArray[0] = o;
@@ -32,7 +32,7 @@ function testArrayFillWithObjWithInitParamTest() {
 // int based finite type.
 type allIntNonZero 1|2|3;
 
-function testArrayFillWithIntFiniteTypesTest() {
+function testArrayFillWithIntFiniteTypes() {
     allIntNonZero[] arr = [];
     arr[1] = 1;
 }
@@ -40,7 +40,7 @@ function testArrayFillWithIntFiniteTypesTest() {
 // float based finite type.
 type allFloatNonZero 1.0|3.143;
 
-function testArrayFillWithFloatFiniteTypesTest() {
+function testArrayFillWithFloatFiniteTypes() {
     allFloatNonZero[] arr = [];
     arr[1] = 1.0;
 }
@@ -48,9 +48,14 @@ function testArrayFillWithFloatFiniteTypesTest() {
 // string based finite type.
 type allStrNonEmpty "a"|"b"|"c";
 
-function testArrayFillWithStringFiniteTypesTest() {
+function testArrayFillWithStringFiniteTypes() {
     allStrNonEmpty[] strFiniteNonEmptyArr = [];
     strFiniteNonEmptyArr[1] = "a";
+}
+
+function testArrayFillWithTypedesc() {
+    typedesc[] typedescArr = [];
+    typedescArr[1] = int;
 }
 
 type Student object {

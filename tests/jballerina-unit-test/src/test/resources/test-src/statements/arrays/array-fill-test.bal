@@ -140,12 +140,6 @@ function testXMLArrayFill(int index) returns xml[] {
     return ar;
 }
 
-function testTypedescArrayFill(int index) returns typedesc[] {
-    typedesc[] ar = [];
-    ar[index] = int;
-    return ar;
-}
-
 function testUnionArrayFill1(int index) returns (string|int|Person|())[] {
     (string|int|Person|()) value = "Hello World!";
     (string|int|Person|())[] ar = [];
