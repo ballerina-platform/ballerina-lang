@@ -68,8 +68,8 @@ public class HtmlDocTest {
 
     @Test(description = "Optional Array Type args should be captured correctly")
     public void testOptionalArrayTypes() {
-        BLangPackage bLangPackage = createPackage("public function find(string[]? names, string name) returns (boolean)" +
-                "{return true;}");
+        BLangPackage bLangPackage = createPackage("public function find(string[]? names, string name)" +
+                " returns (boolean) { return true; }");
         Module module = generateModule(bLangPackage);
         Assert.assertEquals(module.functions.size(), 1);
         Assert.assertEquals(module.functions.get(0).name, "find");
