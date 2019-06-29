@@ -54,10 +54,11 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
         int ownerEndCol = ownerPos.getEndColumn();
         int nodeStartLine = nodePos.getStartLine();
         int nodeStartCol = nodePos.getStartColumn();
+        int nodeEndLine = nodePos.getEndLine();
         List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
         boolean isLastField = keyValuePairs.indexOf(node) == keyValuePairs.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && nodeStartCol > col)) ||
-                (isLastField && ((line < ownerEndLine)
+                (isLastField && ((line < ownerEndLine && line > nodeEndLine)
                         || (line == ownerEndLine && col < ownerEndCol)));
         
         if (isCursorBefore) {
