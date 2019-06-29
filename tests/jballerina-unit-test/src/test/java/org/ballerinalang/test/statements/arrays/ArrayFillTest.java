@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,11 +50,14 @@ import static org.testng.Assert.assertNull;
 public class ArrayFillTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeCompileResult;
     private final long index = 250;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/statements/arrays/array_fill_test.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/array-fill-test.bal");
+        negativeCompileResult =
+                BCompileUtil.compile("test-src/statements/arrays/array-fill-test-negative.bal");
     }
 
     @Test
@@ -472,6 +476,87 @@ public class ArrayFillTest {
         }
 
         assertEquals(singletonArray.getBValue(index).stringValue(), "1");
+    }
+
+    @Test
+    public void testSingletonTypeArrayFill1() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSingletonTypeArrayFill1");
+        BValueArray singletonArray = (BValueArray) returns[0];
+        assertEquals(singletonArray.size(), 2);
+        assertEquals(singletonArray.getRefValue(0).stringValue(), "true");
+        assertEquals(singletonArray.getRefValue(1).stringValue(), "true");
+    }
+
+    @Test
+    public void testSequentialArrayInsertion() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSequentialArrayInsertion");
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 5);
+    }
+
+    @Test
+    public void testTwoDimensionalArrayFill() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTwoDimensionalArrayFill");
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 2);
+        assertEquals(resultArray.getRefValue(0).stringValue(), "[0, 0]");
+        assertEquals(resultArray.getRefValue(1).stringValue(), "[1, 3]");
+    }
+
+    @Test
+    public void testArrayFillWithObjsTest() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithObjsTest");
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 3);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testArrayFillWithObjWithInitParamTest() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithObjWithInitParamTest");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testArrayFillWithIntFiniteTypesTest() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithIntFiniteTypesTest");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testArrayFillWithFloatFiniteTypesTest() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithFloatFiniteTypesTest");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testArrayFillWithStringFiniteTypesTest() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testArrayFillWithStringFiniteTypesTest");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testNonSequentialArrayInsertion() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testNonSequentialArrayInsertion");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testIllegalArrayInsertion() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testIllegalArrayInsertion");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testIllegalTwoDimensionalArrayInsertion() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
     }
 
     private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {

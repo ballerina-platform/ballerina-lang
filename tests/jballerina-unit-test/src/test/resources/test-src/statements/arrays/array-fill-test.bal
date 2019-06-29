@@ -269,3 +269,56 @@ function testSingletonTypeArrayFill(int index) returns One[] {
     ar[index] = 1;
     return ar;
 }
+
+type bTrue true;
+
+function testSingletonTypeArrayFill1() returns bTrue[] {
+    bTrue[] bTrueAr1 = [];
+    bTrueAr1[1] = true;
+    return bTrueAr1;
+}
+
+type Student object {
+    public string name;
+    public int age;
+
+    public function __init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+};
+
+function testSequentialArrayInsertion() returns Student[] {
+    Student s = new("Grainier", 28);
+    Student[] arr = [];
+    int i = 0;
+    while (i < 5) {
+        arr[i] = s;
+        i += 1;
+    }
+    return arr;
+}
+
+function testTwoDimensionalArrayFill() returns int[][2] {
+    int[][2] x = [];
+    x[1] = [1, 3];
+    return x;
+}
+
+type Obj object {
+    int i;
+
+    function __init() {
+        self.i = 1;
+    }
+};
+
+function testArrayFillWithObjsTest() returns Obj[][] {
+    Obj o = new;
+    Obj[] objArray = [];
+    objArray[0] = o;
+    Obj[][] multiDimObjArray = [];
+    multiDimObjArray[0] = objArray;
+    multiDimObjArray[2] = objArray;
+    return multiDimObjArray;
+}
