@@ -38,6 +38,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private boolean removeBlock;
     private int rightParenthesisCount;
     private int rightBraceCount;
+    private int rightBracketCount;
     private int ltSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
@@ -52,6 +53,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.capturedAssignToken = false;
         this.rightParenthesisCount = 0;
         this.rightBraceCount = 0;
+        this.rightBracketCount = 0;
         this.ltSymbolCount = 0;
         this.processedTokens = new ArrayList<>();
     }
@@ -70,6 +72,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.removeBlock = true;
             } else if (type == BallerinaParser.ASSIGN) {
                 this.capturedAssignToken = true;
+            } else if (BallerinaParser.RIGHT_BRACKET == type) {
+                rightBracketCount++;
             }
             processToken(token.get());
             tokenIndex = token.get().getTokenIndex() - 1;
@@ -129,6 +133,11 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.rightBraceCount--;
             return false;
         }
+        if (type == BallerinaParser.LEFT_BRACKET && this.rightBracketCount > 0) {
+            this.processToken(token);
+            this.rightBracketCount--;
+            return false;
+        }
         /*
         Specially capture the LT token in order to avoid Right token removal during the following case
         public annotation <resource,r> ...
@@ -153,6 +162,6 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
         }
         
-        return rightParenthesisCount == 0 && this.rightBraceCount == 0;
+        return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;
     }
 }

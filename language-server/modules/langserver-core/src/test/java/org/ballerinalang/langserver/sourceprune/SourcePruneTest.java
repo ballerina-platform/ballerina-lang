@@ -148,7 +148,9 @@ public class SourcePruneTest {
                 {"src_prune_config24.json"},
                 // Annotation Definition
                 {"src_prune_config25.json"},
-//                {"src_prune_config26.json"},
+                {"src_prune_config26.json"},
+                {"src_prune_config78.json"},
+                {"src_prune_config79.json"},
                 // Global variable Definition
                 {"src_prune_config27.json"},
                 {"src_prune_config28.json"},

@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Invoc
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordLiteralScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
@@ -469,7 +470,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangService serviceNode) {
         BLangObjectTypeNode serviceType = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
         List<BLangNode> serviceContent = new ArrayList<>();
-        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceType.symbol.scope, symbolEnv);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceType.symbol.scope, symbolEnv);
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         List<BLangFunction> serviceFunctions = ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode)
                 .getFunctions();
@@ -631,13 +632,13 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
+        symbolEnv.copyTo(annotationAttachmentEnv);
         PackageID packageID = annAttachmentNode.annotationSymbol.pkgID;
         if (packageID.getOrgName().getValue().equals("ballerina") && packageID.getName().getValue().equals("grpc")
                 && annAttachmentNode.annotationName.getValue().equals("ServiceDescriptor")) {
             return;
         }
-        CompletionVisitorUtil.isCursorWithinBlock(annAttachmentNode.getPosition(), annotationAttachmentEnv,
-                this.lsContext, this);
+        this.acceptNode(annAttachmentNode.expr, annotationAttachmentEnv);
     }
 
     @Override
@@ -646,6 +647,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .isCursorBeforeNode(bLangMatchExpression.getPosition(), this, this.lsContext, bLangMatchExpression,
                         null)) {
             SymbolEnv matchExprEnv = new SymbolEnv(bLangMatchExpression, symbolEnv.scope);
+            symbolEnv.copyTo(matchExprEnv);
             final TreeVisitor visitor = this;
             Class fallbackCursorPositionResolver = this.cursorPositionResolver;
             this.cursorPositionResolver = MatchExpressionScopeResolver.class;
@@ -689,9 +691,23 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        SymbolEnv annotationAttachmentEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
-        CompletionVisitorUtil.isCursorWithinBlock(recordLiteral.getPosition(),
-                annotationAttachmentEnv, this.lsContext, this);
+        if (CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(recordLiteral.getPosition(), this, this.lsContext, recordLiteral)) {
+            return;
+        }
+        SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
+        symbolEnv.copyTo(recordLiteralEnv);
+        this.blockOwnerStack.push(recordLiteral);
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        if (keyValuePairs.isEmpty() && CompletionVisitorUtil.isCursorWithinBlock(recordLiteral.pos, recordLiteralEnv,
+                lsContext, this)) {
+            return;
+        }
+        keyValuePairs.forEach(keyValue -> {
+            this.cursorPositionResolver = RecordLiteralScopeResolver.class;
+            this.acceptNode(keyValue, recordLiteralEnv);
+        });
+        this.blockOwnerStack.pop();
     }
 
     @Override
@@ -709,8 +725,15 @@ public class TreeVisitor extends LSNodeVisitor {
             this.visitMatchPatternClause(patternClause, patternClause.body);
         }
     }
-    
-    
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        if(CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(recordKeyValue.valueExpr.getPosition(), this, this.lsContext, recordKeyValue)) {
+            return;
+        }
+        this.acceptNode(recordKeyValue.valueExpr, this.symbolEnv);
+    }
 
     ///////////////////////////////////
     /////   Other Public Methods  /////
