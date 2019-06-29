@@ -20,12 +20,22 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:fromCodePointInts(string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "fromCodePointInts",
+        args = {@Argument(name = "codePoints", type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
+        isPublic = true
+)
 public class FromCodePointInts {
 
     public static Object fromCodePointInts(Strand strand, ArrayValue codePoints) {

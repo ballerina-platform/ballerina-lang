@@ -260,7 +260,7 @@ function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
         if (mappingPath.exists()) {
             var externalMap = readMap(mappingFile);
             foreach var (key,val) in externalMap {
-                externalMapCache[key] = val;
+                externalMapCache[cleanupName(key)] = val;
             }
         }
         compiledPkgCache[orgName + moduleName] = parsedPkg;
@@ -485,23 +485,33 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
      return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
 }
 
+// TODO 29/06/2019: Refactor this to properly handle lang.* modules
 function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
 
     // Add the builtin and utils modules to the imported list of modules
-    bir:ImportModule builtinModule = {modOrg : {value:"ballerina"}, 
-                                      modName : {value:"builtin"}, 
-                                      modVersion : {value:""}};
+    bir:ImportModule annotationsModule = {modOrg : {value:"ballerina"},
+                                          modName : {value:"lang.annotations"},
+                                          modVersion : {value:""}};
 
-    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"}, 
-                                      modName : {value:"utils"}, 
-                                      modVersion : {value:""}};
+    bir:ImportModule langStringModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.string"},
+                                         modVersion : {value:""}};
 
-    if (isSameModule(moduleId, builtinModule)) {
+    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
+                                    modName : {value:"utils"},
+                                    modVersion : {value:""}};
+
+    if (isSameModule(moduleId, annotationsModule)) {
+        return;
+    }
+
+    if (isSameModule(moduleId, langStringModule)) {
         return;
     }
 
     if (isSameModule(moduleId, utilsModule)) {
-        module.importModules[module.importModules.length()] = builtinModule;
+        module.importModules[module.importModules.length()] = annotationsModule;
+        module.importModules[module.importModules.length()] = langStringModule;
         return;
     }
 
