@@ -40,6 +40,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
@@ -390,15 +391,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     /**
      * This will close database connection and statement.
      *
-     * @param errorMessagePrefix Error message prefix
      * @param stmt SQL statement
      * @param conn SQL connection
      * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
      * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
      * of externally.
      */
-    protected void cleanupResources(String errorMessagePrefix, Statement stmt, Connection conn,
-                                    boolean connectionClosable) {
+    protected void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
@@ -407,14 +406,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new Error(errorMessagePrefix + "error in cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
     /**
      * This will close database connection, statement and the resultset.
      *
-     * @param errorMessagePrefix Error message prefix
      * @param rs   SQL resultset
      * @param stmt SQL statement
      * @param conn SQL connection
@@ -422,15 +420,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
      * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
      * of externally.
      */
-    protected void cleanupResources(String errorMessagePrefix, ResultSet rs, Statement stmt, Connection conn,
-                                    boolean connectionClosable) {
+    protected void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
-            cleanupResources(errorMessagePrefix, stmt, conn, connectionClosable);
+            cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new Error(errorMessagePrefix + "error in cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 

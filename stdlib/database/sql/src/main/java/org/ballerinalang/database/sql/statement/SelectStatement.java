@@ -89,19 +89,19 @@ public class SelectStatement extends AbstractSQLStatement {
             }
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
         } catch (SQLException e) {
-            cleanupResources(errorMessagePrefix, rs, stmt, conn, true);
+            cleanupResources(rs, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (DatabaseException e) {
-            cleanupResources(errorMessagePrefix, null, stmt, conn, true);
+            cleanupResources(null, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
-            cleanupResources(errorMessagePrefix, null, stmt, conn, true);
+            cleanupResources(null, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());

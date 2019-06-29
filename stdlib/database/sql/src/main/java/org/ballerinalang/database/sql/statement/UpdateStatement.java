@@ -113,7 +113,7 @@ public class UpdateStatement extends AbstractSQLStatement {
             //handleErrorOnTransaction(context);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
-            cleanupResources(errorMessagePrefix, rs, stmt, conn, !isInTransaction);
+            cleanupResources(rs, stmt, conn, !isInTransaction);
         }
     }
 

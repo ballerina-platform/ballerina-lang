@@ -131,7 +131,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // checkAndObserveSQLError(context, e.getMessage());
             return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix + ": ");
         } finally {
-            cleanupResources(errorMessagePrefix + ": ", stmt, conn, !isInTransaction);
+            cleanupResources(stmt, conn, !isInTransaction);
         }
     }
 

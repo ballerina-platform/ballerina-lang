@@ -207,14 +207,17 @@ public type UpdateResult record {|
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
 
 public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
-# Represents the error which is related to SQL database errors
+
+# Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
+# database resource clean-up and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
 public const APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
+
 # Represents the error which is related to Non SQL errors
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
-# Represents the error that will be returned if there is any error from the SQL Connector remote functions
+# Represents a database or application level error returned from JDBC client remote functions.
 public type JdbcClientError DatabaseError|ApplicationError;
 
 # Represents the properties which are related to SQL database errors
