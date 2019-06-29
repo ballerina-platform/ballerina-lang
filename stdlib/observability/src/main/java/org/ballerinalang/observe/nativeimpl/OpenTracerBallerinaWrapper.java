@@ -27,8 +27,6 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.HashMap;
 import java.util.Map;

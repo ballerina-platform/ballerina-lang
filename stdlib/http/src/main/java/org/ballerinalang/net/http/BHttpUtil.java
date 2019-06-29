@@ -39,8 +39,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -90,16 +88,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -1163,23 +1154,6 @@ public class BHttpUtil {
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
         return new DefaultHttpWsConnectorFactory();
-    }
-
-    public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> {
-            injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            ctx.addTag(TAG_KEY_PEER_ADDRESS,
-                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
-            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-            // some value to HTTP Status Code to make sure that tags will not change depending on various
-            // circumstances.
-            // HTTP Status code must be a number.
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
-        });
     }
 
     public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {
