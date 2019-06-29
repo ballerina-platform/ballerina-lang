@@ -1181,12 +1181,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(arrayIndexAccessExpr.indexExpr, this.env);
         Operand indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
 
-        BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
+        BType arrayType = arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
