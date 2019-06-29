@@ -133,7 +133,7 @@ public function generateValueCreatorMethods(jvm:ClassWriter cw, bir:TypeDef?[] t
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BObjectType) {
+        if (bType is bir:BObjectType && !bType.isAbstract) {
             objectTypeDefs[i] = typeDef;
             i += 1;
         }
@@ -185,19 +185,45 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
 
 function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] objectTypeDefs, string pkgName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
-        io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT_VALUE), (), ());
+        io:sprintf("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT, OBJECT_VALUE), (), ());
 
+    BalToJVMIndexMap indexMap = new;
+
+    bir:VariableDcl selfVar = { typeValue: "any",
+                                    name: { value: "self" },
+                                    kind: "ARG" };
+    bir:VariableDcl var1 = { typeValue: "string",
+                                    name: { value: "var1" },
+                                    kind: "ARG" };
+    bir:VariableDcl scheduler = { typeValue: "any",
+                                    name: { value: "scheduler" },
+                                    kind: "ARG" };
+    bir:VariableDcl parent = { typeValue: "any",
+                                    name: { value: "parent" },
+                                    kind: "ARG" };
+    bir:VariableDcl properties = { typeValue: "any",
+                                    name: { value: "properties" },
+                                    kind: "ARG" };
+    bir:VariableDcl args = { typeValue: "any",
+                                    name: { value: "args" },
+                                    kind: "ARG" };
+    _ = indexMap.getIndex(selfVar);
+    int var1Index = indexMap.getIndex(var1);
+    int schedulerIndex = indexMap.getIndex(scheduler);
+    int parentIndex = indexMap.getIndex(parent);
+    int propertiesIndex = indexMap.getIndex(properties);
+    int argsIndex = indexMap.getIndex(args);
+    
     mv.visitCode();
 
-    int fieldNameRegIndex = 1;
     jvm:Label defaultCaseLabel = new jvm:Label();
 
     // sort the fields before generating switch case
     NodeSorter sorter = new();
     sorter.sortByHash(objectTypeDefs);
 
-    jvm:Label[] labels = createLabelsforSwitch(mv, fieldNameRegIndex, objectTypeDefs, defaultCaseLabel);
-    jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, objectTypeDefs, labels,
+    jvm:Label[] labels = createLabelsforSwitch(mv, var1Index, objectTypeDefs, defaultCaseLabel);
+    jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeDefs, labels,
             defaultCaseLabel);
 
     int i = 0;
@@ -214,12 +240,55 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
+
+        bir:VariableDcl tempVar = { typeValue: typeDef.typeValue,
+                                    name: { value: "tempVar" },
+                                    kind: "LOCAL" };
+        int tempVarIndex = indexMap.getIndex(tempVar);
+        mv.visitVarInsn(ASTORE, tempVarIndex);
+        
+        mv.visitTypeInsn(NEW, STRAND);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, schedulerIndex);
+        mv.visitVarInsn(ALOAD, parentIndex);
+        mv.visitVarInsn(ALOAD, propertiesIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
+        bir:VariableDcl strandVar = { typeValue: "any",
+                                    name: { value: "strandVar" },
+                                    kind: "LOCAL" };
+        int strandVarIndex = indexMap.getIndex(strandVar);
+        mv.visitVarInsn(ASTORE, strandVarIndex);
+        
+        mv.visitVarInsn(ALOAD, tempVarIndex);
+        mv.visitVarInsn(ALOAD, strandVarIndex);
+
+        mv.visitLdcInsn("__init");        
+        mv.visitVarInsn(ALOAD, argsIndex);
+
+        string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
+        mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+
+        bir:VariableDcl tempResult = { typeValue: "any",
+                                    name: { value: "tempResult" },
+                                    kind: "LOCAL" };
+        int tempResultIndex = indexMap.getIndex(tempResult);
+        mv.visitVarInsn(ASTORE, tempResultIndex);
+        mv.visitVarInsn(ALOAD, tempResultIndex);
+        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+        jvm:Label noErrorLabel = new jvm:Label();
+        mv.visitJumpInsn(IFEQ, noErrorLabel);
+        mv.visitVarInsn(ALOAD, tempResultIndex);
+        mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
+        mv.visitInsn(ATHROW);
+        mv.visitLabel(noErrorLabel);
+        mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitInsn(ARETURN);
+
         i += 1;
     }
 
-    createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-    mv.visitMaxs(objectTypeDefs.length() + 10, objectTypeDefs.length() + 10);
+    createDefaultCase(mv, defaultCaseLabel, var1Index);
+    mv.visitMaxs(objectTypeDefs.length() + 100, objectTypeDefs.length() + 100);
     mv.visitEnd();
 }
 
@@ -975,6 +1044,8 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
         if (value is ()) {
             mv.visitInsn(ACONST_NULL);
+        } else if (value is bir:Decimal) { 
+            // do nothing
         } else {
             mv.visitLdcInsn(value);
         }
@@ -986,7 +1057,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
         } else if (value is float) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
         } else if (value is byte) {
-            mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
+        } else if (value is bir:Decimal) {
+            mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(value.value);
+            mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
         } else {
             // if value is string or (), then do nothing
         }

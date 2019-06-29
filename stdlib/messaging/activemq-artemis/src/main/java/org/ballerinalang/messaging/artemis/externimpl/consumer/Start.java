@@ -23,11 +23,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -50,16 +50,16 @@ import java.util.concurrent.CountDownLatch;
         )
 )
 public class Start extends BlockingNativeCallableUnit {
-    private CountDownLatch countDownLatch = new CountDownLatch(1);
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object start(Strand strand, ObjectValue listenerObj) {
         try {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> listenerObj = (BMap<String, BValue>) context.getRefArgument(0);
+            CountDownLatch countDownLatch = new CountDownLatch(1);
             listenerObj.addNativeData(ArtemisConstants.COUNTDOWN_LATCH, countDownLatch);
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> sessionObj = (BMap<String, BValue>) listenerObj.get("session");
+            ObjectValue sessionObj = listenerObj.getObjectValue(ArtemisConstants.SESSION);
             ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
             session.start();
             // It is essential to keep a non-daemon thread running in order to avoid the java program or the
@@ -72,7 +72,9 @@ public class Start extends BlockingNativeCallableUnit {
                 }
             }).start();
         } catch (ActiveMQException e) {
-            context.setReturnValues(ArtemisUtils.getError(context, "Error on starting the session"));
+            return ArtemisUtils.getError(e);
         }
+        return null;
     }
+
 }

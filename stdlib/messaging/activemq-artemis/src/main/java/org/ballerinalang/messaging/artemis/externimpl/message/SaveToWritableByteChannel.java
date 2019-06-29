@@ -24,11 +24,11 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -64,21 +64,20 @@ public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static Object saveToWritableByteChannel(Strand strand, ObjectValue messageObj, ObjectValue byteChannelObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         if (message.getType() == Message.STREAM_TYPE) {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> byteChannelObj = (BMap<String, BValue>) context.getRefArgument(1);
             Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             try {
                 message.saveToOutputStream(Channels.newOutputStream(channel.getByteChannel()));
             } catch (ActiveMQException e) {
-                context.setReturnValues(ArtemisUtils.getError(context, "Error while writing to WritableByteChannel"));
+                return ArtemisUtils.getError("Error while writing to WritableByteChannel");
             }
-
         } else {
-            context.setReturnValues(ArtemisUtils.getError(context, "Unsupported type"));
+            return ArtemisUtils.getError("Unsupported type");
         }
+        return null;
     }
 }

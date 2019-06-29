@@ -156,7 +156,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/grpc",
+      "label": "grpc",
       "kind": "Module",
       "detail": "Package",
       "insertText": "grpc",
