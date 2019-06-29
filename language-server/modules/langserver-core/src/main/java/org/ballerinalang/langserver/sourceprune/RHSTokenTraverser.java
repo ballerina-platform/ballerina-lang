@@ -116,7 +116,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             {printMessage();}
         }
          */
-        if (type == BallerinaParser.LEFT_BRACE&& (this.lastProcessedToken == BallerinaParser.EQUAL_GT
+        if (type == BallerinaParser.LEFT_BRACE && (this.lastProcessedToken == BallerinaParser.EQUAL_GT
                 || this.lastProcessedToken == BallerinaParser.COLON)) {
             this.leftBraceCount++;
             this.processToken(token);

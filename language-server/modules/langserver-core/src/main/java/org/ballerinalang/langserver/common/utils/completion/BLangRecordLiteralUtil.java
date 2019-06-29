@@ -41,6 +41,9 @@ public class BLangRecordLiteralUtil {
      * @return {@link CompletionItem}   List of Completion Items
      */
     public static ArrayList<CompletionItem> getFieldsForMatchingRecord(BLangRecordLiteral recordLiteral) {
+        if (!(recordLiteral.type instanceof BRecordType)) {
+            return new ArrayList<>();
+        }
         List<BField> fields = ((BRecordType) recordLiteral.type).fields;
         ArrayList<CompletionItem> completionItems = new ArrayList<>(CommonUtil.getRecordFieldCompletionItems(fields));
         completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
