@@ -21,8 +21,6 @@ package org.ballerinalang.jvm.observability;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
-import org.ballerinalang.jvm.types.BServiceType;
-import org.ballerinalang.jvm.types.BType;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +33,7 @@ import java.util.function.Supplier;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_CONNECTOR;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_SPAN_KIND;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
 
 /**
  * Util class used for observability.
@@ -128,9 +123,11 @@ public class ObserveUtils {
         if (observerCtx == null) {
 //            observerCtx = new ObserverContext();
 //            observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
-//            observerCtx.setConnectorName(UNKNOWN_CONNECTOR); // We have to set this explicitly as it'll give errors when
+//            // We have to set this explicitly as it'll give errors when
+//            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
 //            // monitoring metrics
-//            observerCtx.setServiceName(UNKNOWN_SERVICE); // We have to set this explicitly as it'll give errors when
+//            // We have to set this explicitly as it'll give errors when
+//            observerCtx.setServiceName(UNKNOWN_SERVICE);
 //            // monitoring metrics
 ////            observerCtx.setResourceName(strand.getId());
 //            observerCtx.setServer();
@@ -196,16 +193,17 @@ public class ObserveUtils {
 //            return;
 //        }
 //
-//        // Peek the immediate frame at the top and set the parent observer context of the current frame as the observer
-//        // context
+//        // Peek the immediate frame at the top and set the parent observer context of 
+//        // the current frame as the observer context
 //        strand.peekFrame(1).observerContext = strand.currentFrame.observerContext.getParent();
 //        stopObservation(strand.currentFrame.observerContext);
+        // TODO:
     }
 
     /**
      * Get the full service name.
      *
-     * @param serviceType service info
+     * @param strand Strand
      * @return service name
      */
     public static String getFullServiceName(Strand strand) {

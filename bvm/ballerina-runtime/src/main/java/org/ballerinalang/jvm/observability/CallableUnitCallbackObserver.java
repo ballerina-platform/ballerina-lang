@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
  *
  * @since 1.0
  */
-public class CallableUnitCallbackObserver extends CallbackObserver implements CallableUnitCallback {
+public class CallableUnitCallbackObserver extends CallbackObserver {
 
     private CallableUnitCallback callback;
 

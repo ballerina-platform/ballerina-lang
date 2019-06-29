@@ -19,7 +19,6 @@
 package org.ballerinalang.jvm.observability.tracer;
 
 import io.opentracing.Span;
-
 import org.ballerinalang.jvm.observability.ObserverContext;
 
 import java.util.Collections;

@@ -19,7 +19,6 @@
 package org.ballerinalang.jvm.observability.tracer;
 
 import io.opentracing.Tracer;
-
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.io.PrintStream;
@@ -27,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.JAEGER;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TRACER_NAME_CONFIG;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
  * Class that creates the tracer for a given service.
@@ -37,7 +36,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 public class TracersStore {
 
     private TracerGenerator tracer;
-    private Map<String, Tracer> tracerStore;
+    private Map<String, Tracer> tracerStore = null;
     private static final PrintStream consoleError = System.err;
     private static TracersStore instance = new TracersStore();
 

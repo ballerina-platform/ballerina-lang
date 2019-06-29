@@ -82,7 +82,7 @@ public class ObservabilityUtils {
      * Start a server observation.
      *
      * @param connectorName The server connector name.
-     * @param serviceType   Instance of {@link ServiceInfo}.
+     * @param serviceType   Service type.
      * @param resourceName  The resource name.
      * @param parentStrand The {@link Strand} instance. If this is null when starting the
      *                      observation, the
@@ -143,7 +143,7 @@ public class ObservabilityUtils {
 
     /**
      * Continue server observation if the
-     * {@link #startServerObservation(String, ServiceInfo, String, Strand)} was called
+     * {@link #startServerObservation(String, BServiceType, String, Strand)} was called
      * without {@link Strand}.
      *
      * @param observerContext The {@link ObserverContext} instance.
@@ -167,7 +167,7 @@ public class ObservabilityUtils {
      * called without {@link Strand}.
      *
      * @param observerContext The {@link ObserverContext} instance.
-     * @param parentCtx       The {@link Strand} instance.
+     * @param parentStrand       The {@link Strand} instance.
      */
     public static void continueClientObservation(ObserverContext observerContext, Strand parentStrand) {
         if (!enabled) {
@@ -226,7 +226,6 @@ public class ObservabilityUtils {
 
     private static ObserverContext populateAndGetParentObserverContext(Strand parentStrand) {
         List<Strand> ancestors = new ArrayList<>();
-        Object ctx = null;
         Strand parent = parentStrand;
         while (parent != null) {
             if (parent.observerContext != null) {
@@ -236,7 +235,7 @@ public class ObservabilityUtils {
             }
             parent = parent.parent;
         }
-        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : new ObserverContext();
+        ObserverContext observerContext = new ObserverContext();
         while (observerContext.isFinished() && observerContext.getParent() != null) {
             observerContext = observerContext.getParent();
         }
