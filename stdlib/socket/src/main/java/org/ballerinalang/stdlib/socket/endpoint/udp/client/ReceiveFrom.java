@@ -24,7 +24,9 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingCallback;
 import org.ballerinalang.stdlib.socket.tcp.ReadPendingSocketMap;
@@ -37,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.channels.DatagramChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
 
 /**
  * 'ReceiveFrom' method implementation of the UDP socket client action.
@@ -47,6 +51,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_R
         orgName = "ballerina",
         packageName = "socket",
         functionName = "receiveFrom",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = UDP_CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class ReceiveFrom implements NativeCallableUnit {

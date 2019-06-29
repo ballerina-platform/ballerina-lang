@@ -22,7 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
@@ -33,6 +35,8 @@ import java.nio.channels.DatagramChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
 
 /**
  * 'close' method implementation of the UDP socket client action.
@@ -43,6 +47,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "close",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = UDP_CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
