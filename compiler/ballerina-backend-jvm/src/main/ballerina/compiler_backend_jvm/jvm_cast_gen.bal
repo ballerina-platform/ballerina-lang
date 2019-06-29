@@ -402,7 +402,7 @@ function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
         // do nothing
     } else if (sourceType is bir:BTypeAny ||
                 sourceType is bir:BTypeAnyData ||
-                sourceType is bir:BUnionType || 
+                sourceType is bir:BUnionType ||
                 sourceType is bir:BJSONType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
     } else {

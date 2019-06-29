@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -49,6 +50,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -67,6 +69,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -922,6 +925,10 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 bvmValue = new BHandleValue(((HandleValue) value).value);
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+                FPValue functionValue = (FPValue) value;
+                bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
+                break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -1035,6 +1042,15 @@ public class BRunUtil {
                 return bFiniteType;
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
+            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+                org.ballerinalang.jvm.types.BFunctionType jvmBFunctionType =
+                        (org.ballerinalang.jvm.types.BFunctionType) jvmType;
+                BType[] bParamTypes = new BType[jvmBFunctionType.paramTypes.length];
+                for (int i = 0; i < jvmBFunctionType.paramTypes.length; i++) {
+                    bParamTypes[i] = getBVMType(jvmBFunctionType.paramTypes[i], selfTypeStack);
+                }
+                BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
+                return new BFunctionType(bParamTypes, new BType[]{bRetType});
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

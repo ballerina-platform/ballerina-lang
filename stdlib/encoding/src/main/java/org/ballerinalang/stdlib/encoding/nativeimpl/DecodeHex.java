@@ -22,12 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.encoding.Constants;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 /**
@@ -36,28 +31,13 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
  * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding", functionName = "decodeHex",
-        args = {
-                @Argument(name = "input", type = TypeKind.STRING)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD, structType = Constants.ENCODING_ERROR,
-                        structPackage = Constants.ENCODING_PACKAGE)
-        },
-        isPublic = true
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "decodeHex", isPublic = true
 )
 public class DecodeHex extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String input = context.getStringArgument(0);
-        try {
-            byte[] output = EncodingUtil.decodeHex(input);
-            context.setReturnValues(new BValueArray(output));
-        } catch (IllegalArgumentException e) {
-            context.setReturnValues(EncodingUtil.createEncodingError(context, "input is not a valid Hex value"));
-        }
     }
 
     public static Object decodeHex(Strand strand, String input) {

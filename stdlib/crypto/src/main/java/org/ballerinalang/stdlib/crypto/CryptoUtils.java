@@ -265,7 +265,7 @@ public class CryptoUtils {
         BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, Constants.CRYPTO_PACKAGE,
                 Constants.CRYPTO_ERROR);
         errorRecord.put(Constants.MESSAGE, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.CRYPTO_ERROR_CODE, errorRecord);
     }
 
     /**
@@ -275,7 +275,7 @@ public class CryptoUtils {
      * @return conversion error
      */
     public static ErrorValue createCryptoError(String errMsg) {
-        return BallerinaErrors.createError(Constants.ENCODING_ERROR_CODE, errMsg);
+        return BallerinaErrors.createError(Constants.CRYPTO_ERROR_CODE, errMsg);
     }
 
     /**
