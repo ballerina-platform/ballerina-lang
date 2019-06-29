@@ -50,6 +50,6 @@ public class AddSubscription extends BlockingNativeCallableUnit {
     public static void addSubscription(Strand strand, MapValue<String, Object> subscriptionDetails) {
         String topic = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_TOPIC);
         String callback = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_CALLBACK);
-        Hub.getInstance().registerSubscription(topic, callback, subscriptionDetails);
+        Hub.getInstance().registerSubscription(strand, topic, callback, subscriptionDetails);
     }
 }

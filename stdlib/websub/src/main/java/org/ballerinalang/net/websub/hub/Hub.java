@@ -18,19 +18,25 @@
 
 package org.ballerinalang.net.websub.hub;
 
-import org.ballerinalang.broker.BallerinaBroker;
-import org.ballerinalang.broker.BallerinaBrokerByteBuf;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.net.websub.broker.BallerinaBroker;
+import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubUtils.executeFunction;
 
 /**
  * The Ballerina WebSub Hub.
@@ -48,15 +54,14 @@ public class Hub {
     private boolean hubPersistenceEnabled;
     private volatile boolean started = false;
 
-    //TODO: check if this could be removed
-    private ProgramFile hubProgramFile;
-
     // TODO: 9/23/18 make CopyOnWriteArrayList?
     private List<String> topics = new ArrayList<>();
     private List<HubSubscriber> subscribers = new ArrayList<>();
+    private ClassLoader classLoader = this.getClass().getClassLoader();
 
     private static final String BASE_PATH = "/websub";
     private static final String HUB_PATH = "/hub";
+    private static final String HUB_SERVICE = "hub_service";
 
     public static Hub getInstance() {
         return instance;
@@ -73,7 +78,7 @@ public class Hub {
         return hubObject;
     }
 
-    public void registerTopic(String topic, boolean loadingOnStartUp) throws BallerinaWebSubException {
+    public void registerTopic(Strand strand, String topic, boolean loadingOnStartUp) throws BallerinaWebSubException {
         if (isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic registration not allowed at the Hub: topic already exists");
         } else if (topic == null || topic.isEmpty()) {
@@ -82,25 +87,19 @@ public class Hub {
             topics.add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 Object[] args = {"register", topic};
-                //TODO need API to call floating ballerina methods
-//                FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-//                        .getFunctionInfo("persistTopicRegistrationChange");
-//                BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
+                executeFunction(strand, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
             }
         }
     }
 
-    public void unregisterTopic(String topic) throws BallerinaWebSubException {
+    public void unregisterTopic(Strand strand, String topic) throws BallerinaWebSubException {
         if (topic == null || !isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
         } else {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 Object[] args = {"unregister", topic};
-                //TODO need API to call floating ballerina methods
-//                FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-//                        .getFunctionInfo("persistTopicRegistrationChange");
-//                BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
+                executeFunction(strand, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
             }
         }
     }
@@ -111,12 +110,13 @@ public class Hub {
 
     /**
      * Method to add a subscription to the topic on MB.
-     *
+     * @param strand
      * @param topic     the topic to which the subscription should be added
      * @param callback  the callback registered for the particular subscription
      * @param subscriptionDetails the subscription details
      */
-    public void registerSubscription(String topic, String callback, MapValue<String, Object> subscriptionDetails) {
+    public void registerSubscription(Strand strand, String topic, String callback,
+                                     MapValue<String, Object> subscriptionDetails) {
         if (!started) {
             //TODO: Revisit to check if this needs to be returned as an error, currently not required since this check
             // is performed at Ballerina level
@@ -124,12 +124,12 @@ public class Hub {
         } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
-            if (getSubscribers().contains(new HubSubscriber("", topic, callback, null))) {
-                unregisterSubscription(topic, callback);
+            if (getSubscribers().contains(new HubSubscriber(strand,"", topic, callback, null))) {
+                unregisterSubscription(strand, topic, callback);
             }
             String queue = UUID.randomUUID().toString();
 
-            HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
+            HubSubscriber subscriberToAdd = new HubSubscriber(strand, queue, topic, callback, subscriptionDetails);
             brokerInstance.addSubscription(topic, subscriberToAdd);
             getSubscribers().add(subscriberToAdd);
         }
@@ -138,18 +138,19 @@ public class Hub {
     /**
      * Method to remove a subscription to the topic on MB.
      *
+     * @param strand
      * @param topic     the topic to which the subscription should was added
      * @param callback  the callback registered for the particular subscription
      */
-    public void unregisterSubscription(String topic, String callback) {
+    public void unregisterSubscription(Strand strand, String topic, String callback) {
         if (!started) {
             logger.error("Hub Service not started: unsubscription failed.");
             return;
         }
-        HubSubscriber subscriberToUnregister = new HubSubscriber("", topic, callback, null);
+        HubSubscriber subscriberToUnregister = new HubSubscriber(strand, "", topic, callback, null);
         if (!getSubscribers().contains(subscriberToUnregister)) {
             if (callback.endsWith("/")) {
-                unregisterSubscription(topic, callback.substring(0, callback.length() - 1));
+                unregisterSubscription(strand, topic, callback.substring(0, callback.length() - 1));
             }
             return;
         } else {
@@ -189,13 +190,15 @@ public class Hub {
     /**
      * Method to start up the default Ballerina WebSub Hub.
      *
+     * @param strand                    current strand
      * @param topicRegistrationRequired whether a topic needs to be registered at the hub prior to
      *                                  publishing/subscribing to the topic
      * @param publicUrl                 the URL for the hub to be included in content delivery requests
      * @param hubListener               the http:Listener to which the hub service is attached
      */
     @SuppressWarnings("unchecked")
-    public void startUpHubService(boolean topicRegistrationRequired, String publicUrl, ObjectValue hubListener) {
+    public void startUpHubService(Strand strand, boolean topicRegistrationRequired, String publicUrl,
+                                  ObjectValue hubListener) {
         synchronized (this) {
             if (!isStarted()) {
                 try {
@@ -203,28 +206,20 @@ public class Hub {
                 } catch (Exception e) {
                     throw new BallerinaException("Error starting up internal broker for WebSub Hub");
                 }
-                //TODO need API to call floating ballerina methods
-//                ProgramFile hubProgramFile = context.getProgramFile();
-//                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
-//
-//                if (hubPackageInfo != null) {
-//                    hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
-//                    String hubUrl = populateHubUrl(publicUrl, hubListener);
-//                    Object[] args = new Object[0];
-//                    //TODO: change once made public and available as a param
-//                    hubPersistenceEnabled = Boolean.parseBoolean((BVMExecutor.executeFunction(hubProgramFile,
-//                        hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
-//
-//                    PrintStream console = System.err;
-//                    console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
-//                    setHubProgramFile(hubProgramFile);
-//                    started = true;
-//                    BVMExecutor.executeFunction(hubProgramFile, hubPackageInfo
-//                            .getFunctionInfo("setupOnStartup"), args);
-//                    setHubUrl(hubUrl);
-//                    setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-//                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), hubListener));
-//                }
+                hubTopicRegistrationRequired = topicRegistrationRequired;
+                String hubUrl = populateHubUrl(publicUrl, hubListener);
+                //TODO: change once made public and available as a param
+                Object returnValue = executeFunction(strand, classLoader, "hub_configuration",
+                                                     "isHubPersistenceEnabled");
+                hubPersistenceEnabled = Boolean.parseBoolean(returnValue.toString());
+
+                PrintStream console = System.err;
+                console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
+                started = true;
+                executeFunction(strand, classLoader, HUB_SERVICE, "setupOnStartup");
+                setHubUrl(hubUrl);
+                setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE, STRUCT_WEBSUB_BALLERINA_HUB, hubUrl,
+                                                               hubListener));
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
             }
@@ -251,7 +246,6 @@ public class Hub {
                 started = false;
                 setHubObject(null);
                 setHubUrl(null);
-                setHubProgramFile(null);
                 hubTopicRegistrationRequired = false;
                 hubPersistenceEnabled = false;
                 topics = new ArrayList<>();
@@ -264,24 +258,6 @@ public class Hub {
                 throw new BallerinaWebSubException("Hub Service already stopped");
             }
         }
-    }
-
-    /**
-     * Method to retrieve the program file for the WebSub Hub service.
-     *
-     * @return the program file returned when compiling the package at Hub start up
-     */
-    ProgramFile getHubProgramFile() {
-        return hubProgramFile;
-    }
-
-    /**
-     * Method to set the program file for the WebSub Hub service.
-     *
-     * @param programFile the program file result to set
-     */
-    private void setHubProgramFile(ProgramFile programFile) {
-        hubProgramFile = programFile;
     }
 
     private void setHubUrl(String hubUrl) {

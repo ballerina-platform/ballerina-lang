@@ -45,6 +45,6 @@ public class RemoveSubscription extends BlockingNativeCallableUnit {
     }
 
     public static void removeSubscription(Strand strand, String topic, String callback) {
-        Hub.getInstance().unregisterSubscription(topic, callback);
+        Hub.getInstance().unregisterSubscription(strand, topic, callback);
     }
 }

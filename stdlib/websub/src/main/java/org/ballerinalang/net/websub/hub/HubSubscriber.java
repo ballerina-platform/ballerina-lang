@@ -21,7 +21,10 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.net.websub.WebSubUtils;
+import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -37,8 +40,11 @@ public class HubSubscriber extends Consumer {
     private final String topic;
     private final String callback;
     private final MapValue<String, Object> subscriptionDetails;
+    private final Strand strand;
 
-    HubSubscriber(String queue, String topic, String callback, MapValue<String, Object> subscriptionDetails) {
+    HubSubscriber(Strand strand, String queue, String topic, String callback,
+                  MapValue<String, Object> subscriptionDetails) {
+        this.strand = strand;
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
@@ -46,14 +52,13 @@ public class HubSubscriber extends Consumer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void send(Message message) throws BrokerException {
-        //TODO need API to call floating ballerina methods
-//        ProgramFile programFile = Hub.getInstance().getHubProgramFile();
-//        BValue content =
-//                ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-//        BValue[] args = {new BString(getCallback()), getSubscriptionDetails(), content};
-//        BVMExecutor.executeFunction(programFile, programFile.getPackageInfo(WEBSUB_PACKAGE)
-//                                     .getFunctionInfo("distributeContent"), args);
+        MapValue<String, Object> content =
+                (MapValue<String, Object>) ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf())
+                        .unwrap()).getValue();
+        Object[] args = {getCallback(), getSubscriptionDetails(), content};
+        WebSubUtils.executeFunction(strand, this.getClass().getClassLoader(), "hub_service", "distributeContent", args);
     }
 
     @Override

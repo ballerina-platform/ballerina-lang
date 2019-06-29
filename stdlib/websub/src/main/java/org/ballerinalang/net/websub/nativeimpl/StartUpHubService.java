@@ -61,7 +61,7 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
             return getHubStartedUpError(hubInstance);
         }
         try {
-            hubInstance.startUpHubService(topicRegistrationRequired, publicUrl, hubListener);
+            hubInstance.startUpHubService(strand, topicRegistrationRequired, publicUrl, hubListener);
         } catch (BallerinaWebSubException e) {
             return getHubStartedUpError(hubInstance);
         }

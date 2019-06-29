@@ -49,7 +49,7 @@ public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
 
     public static Object unregisterTopicAtHub(Strand strand, String topic) {
         try {
-            Hub.getInstance().unregisterTopic(topic);
+            Hub.getInstance().unregisterTopic(strand, topic);
         } catch (BallerinaWebSubException e) {
             return WebSubUtils.createError(e.getMessage());
         }

@@ -50,7 +50,7 @@ public class RegisterTopicAtHub extends BlockingNativeCallableUnit {
 
     public static Object registerTopicAtHub(Strand strand, String topic, boolean loadingOnStartUp) {
         try {
-            Hub.getInstance().registerTopic(topic, loadingOnStartUp);
+            Hub.getInstance().registerTopic(strand, topic, loadingOnStartUp);
         } catch (BallerinaWebSubException e) {
             return WebSubUtils.createError(e.getMessage());
         }

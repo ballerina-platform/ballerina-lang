@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -46,9 +47,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.ballerinalang.jvm.BallerinaErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
@@ -86,6 +89,10 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private WebSubServicesRegistry webSubServicesRegistry;
     private PrintStream console = System.out;
     private Strand strand;
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_BRE_DIR = "bre";
+    public static final String BALLERINA_LIB_DIR = "lib";
+
 
     public BallerinaWebSubConnectorListener(Strand strand, WebSubServicesRegistry webSubServicesRegistry,
                                             MapValueImpl endpointConfig) {
@@ -196,20 +203,53 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private void validateSignature(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
                                    ObjectValue request) {
         //invoke processWebSubNotification function
-//        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
-//        FunctionInfo functionInfo = packageInfo.getFunctionInfo("processWebSubNotification");
-        //TODO Need an API to call ballerina method: issue : #16043
-//        BValue[] returnValues = BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(),
-//                functionInfo, requestStruct, httpResource.getBalResource().getService().getBValue());
-//
-//        BError errorStruct = (BError) returnValues[0];
-//        if (errorStruct != null) {
-//            log.debug("Signature Validation failed for Notification: " +
-//                              ((BMap) errorStruct.getDetails()).get(ERROR_MESSAGE_FIELD).stringValue());
-//            httpCarbonMessage.setHttpStatusCode(404);
-//            throw new BallerinaException("validation failed for notification");
-//        }
+        System.out.println("BallerinaWebSubConnectorListener-validateSignature-225");
+        Object returnValue;
+        try {
+            Object[] args = {request, httpResource.getParentService().getBalService()};
+            returnValue = WebSubUtils.executeFunction(strand, this.getClass().getClassLoader(), "commons",
+                                                      "processWebSubNotification", args);
+        } catch (BallerinaException e) {
+            log.debug("Signature Validation failed: " + e.getMessage());
+            httpCarbonMessage.setHttpStatusCode(404);
+            throw WebSubUtils.createError(e.getMessage());
+        }
+        ErrorValue error = (ErrorValue) returnValue;
+        if (error != null) {
+            log.debug("Signature Validation failed for Notification: " +
+                              ((MapValue) error.getDetails()).getStringValue(ERROR_MESSAGE_FIELD));
+            httpCarbonMessage.setHttpStatusCode(404);
+            throw new BallerinaException("validation failed for notification");
+        }
     }
+
+//    private Object executeFunction(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
+//                                   ObjectValue request, String className, String methodName) {
+//        try {
+//            Class<?> commonsClazz = this.getClass().getClassLoader().loadClass(className);
+//            int paramCount = httpResource.getParamTypes().size() * 2 + 1;
+//            Class<?>[] jvmParamTypes = new Class[paramCount];
+//            Object[] jvmArgs = new Object[paramCount];
+//            jvmParamTypes[0] = Strand.class;
+//            jvmArgs[0] = strand;
+//            jvmParamTypes[1] = ObjectValue.class;
+//            jvmArgs[1] = request;
+//            jvmParamTypes[2] = boolean.class;
+//            jvmArgs[2] = true;
+//            jvmParamTypes[3] = ObjectValue.class;
+//            jvmArgs[3] = httpResource.getParentService().getBalService();
+//            jvmParamTypes[4] = boolean.class;
+//            jvmArgs[4] = true;
+//
+//
+//            Method method = commonsClazz.getDeclaredMethod(methodName, jvmParamTypes);
+//            return method.invoke(null, jvmArgs);
+//        } catch (Exception e) {
+//            log.debug("Signature Validation function invocation failed: " + e.getMessage());
+//            httpCarbonMessage.setHttpStatusCode(404);
+//            throw new BallerinaException("Signature Validation function invocation failed: " + e.getMessage());
+//        }
+//    }
 
     /**
      * Method to retrieve the struct representing the WebSub subscriber service endpoint.
