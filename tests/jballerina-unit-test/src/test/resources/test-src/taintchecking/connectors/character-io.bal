@@ -4,7 +4,7 @@ public function main (string... args) {
     string filePath = "/test/path";
     string chars = "data";
 
-    io:ReadableByteChannel rbh = io:openReadableFile(filePath);
+    io:ReadableByteChannel rbh = checkpanic io:openReadableFile(filePath);
     io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
     io:WritableByteChannel wbh = io:openWritableFile(filePath);
