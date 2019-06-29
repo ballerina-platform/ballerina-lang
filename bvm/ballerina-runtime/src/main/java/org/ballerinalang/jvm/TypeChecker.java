@@ -621,13 +621,7 @@ public class TypeChecker {
             return false;
         }
 
-        // Adjust the number of the attached functions of the lhs struct based on
-        //  the availability of the initializer function.
-        int targetAttachedFunctionCount = targetType.initializer != null ? targetFuncs.length - 1 : targetFuncs.length;
-        int sourceAttachedFunctionCount =
-                sourceObjectType.initializer != null ? sourceFuncs.length - 1 : sourceFuncs.length;
-
-        if (targetFields.size() > sourceFields.size() || targetAttachedFunctionCount > sourceAttachedFunctionCount) {
+        if (targetFields.size() > sourceFields.size() || targetFuncs.length > sourceFuncs.length) {
             return false;
         }
 
