@@ -62,6 +62,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         int[] updatedCount;
         int paramArrayCount = 0;
         boolean isInTransaction = false;
+        String errorMessagePrefix = "execute batch update failed";
         try {
             conn = getDatabaseConnection(client, datasource, false);
             stmt = conn.prepareStatement(query);
@@ -95,45 +96,42 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             updatedCount = e.getUpdateCounts();
             return processAndSetBatchUpdateResult(updatedCount, paramArrayCount);
         } catch (SQLException e) {
-            String errorMessage = "execute batch update failed";
             if (conn != null) {
                 if (!isInTransaction) {
                     try {
                         conn.rollback();
                     } catch (SQLException ex) {
-                        errorMessage += ", failed to rollback any changes happened in-between";
+                        errorMessagePrefix += ", failed to rollback any changes happened in-between";
                     }
                 }
             }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessage + ": ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": ");
         } catch (DatabaseException e) {
-            String errorMessage = "execute batch update failed";
             if (!isInTransaction) {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    errorMessage += ", failed to rollback any changes happened in-between";
+                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
                 }
             }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessage + ": ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": ");
         } catch (ApplicationException e) {
-            String errorMessage = "execute batch update failed";
             if (!isInTransaction) {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    errorMessage += ", failed to rollback any changes happened in-between";
+                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
                 }
             }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
-            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessage + ": ");
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix + ": ");
         } finally {
-            cleanupResources(stmt, conn, !isInTransaction);
+            cleanupResources(errorMessagePrefix + ": ", stmt, conn, !isInTransaction);
         }
     }
 

@@ -70,6 +70,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         boolean isInTransaction = false;
+        String errorMessagePrefix = "execute update failed: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(client, datasource, false);
@@ -100,19 +101,19 @@ public class UpdateStatement extends AbstractSQLStatement {
             }
             return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute update failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
             //handleErrorOnTransaction(context);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         }  catch (DatabaseException e) {
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute update failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         }  catch (ApplicationException e) {
-            return SQLDatasourceUtils.getSQLApplicationError(e, "execute update failed: ");
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
             //handleErrorOnTransaction(context);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
-            cleanupResources(rs, stmt, conn, !isInTransaction);
+            cleanupResources(errorMessagePrefix, rs, stmt, conn, !isInTransaction);
         }
     }
 

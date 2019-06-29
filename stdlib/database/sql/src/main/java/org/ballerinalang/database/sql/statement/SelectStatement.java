@@ -69,6 +69,7 @@ public class SelectStatement extends AbstractSQLStatement {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        String errorMessagePrefix = "execute query failed: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(client, datasource, true);
@@ -88,23 +89,23 @@ public class SelectStatement extends AbstractSQLStatement {
             }
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
         } catch (SQLException e) {
-            cleanupResources(rs, stmt, conn, true);
+            cleanupResources(errorMessagePrefix, rs, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute query failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (DatabaseException e) {
-            cleanupResources(null, stmt, conn, true);
+            cleanupResources(errorMessagePrefix, null, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute query failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
-            cleanupResources(null, stmt, conn, true);
+            cleanupResources(errorMessagePrefix, null, stmt, conn, true);
             //TODO: JBalMigration Commenting out transaction handling and observability
             //handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLApplicationError(e, "execute query failed: ");
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
         }
     }
 

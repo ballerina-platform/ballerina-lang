@@ -87,6 +87,7 @@ public class CallStatement extends AbstractSQLStatement {
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = false;
+        String errorMessagePrefix = "execute stored procedure failed: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(client, datasource, false);
@@ -116,23 +117,23 @@ public class CallStatement extends AbstractSQLStatement {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
-                cleanupResources(resultSets, stmt, conn, !isInTransaction);
+                cleanupResources(errorMessagePrefix, resultSets, stmt, conn, !isInTransaction);
             }
         } catch (SQLException e) {
-            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            cleanupResources(errorMessagePrefix, resultSets, stmt, conn, !isInTransaction);
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute stored procedure failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (DatabaseException e) {
-            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            cleanupResources(errorMessagePrefix, resultSets, stmt, conn, !isInTransaction);
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, "execute stored procedure failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
-            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            cleanupResources(errorMessagePrefix, resultSets, stmt, conn, !isInTransaction);
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLApplicationError(e, "execute stored procedure failed: ");
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
     }
@@ -424,6 +425,7 @@ public class CallStatement extends AbstractSQLStatement {
     /**
      * This will close database connection, statement and result sets.
      *
+     * @param errorMessagePrefix Error message prefix
      * @param resultSets SQL result sets
      * @param stmt SQL statement
      * @param conn SQL connection
@@ -431,8 +433,8 @@ public class CallStatement extends AbstractSQLStatement {
      * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
      * of externally.
      */
-    private void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
-            boolean connectionClosable) {
+    private void cleanupResources(String errorMessagePrefix, List<ResultSet> resultSets, Statement stmt,
+                                  Connection conn, boolean connectionClosable) {
         try {
             if (resultSets != null) {
                 for (ResultSet rs : resultSets) {
@@ -441,9 +443,9 @@ public class CallStatement extends AbstractSQLStatement {
                     }
                 }
             }
-            cleanupResources(stmt, conn, connectionClosable);
+            cleanupResources(errorMessagePrefix, stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new Error("error in cleaning sql resources: ", e);
+            throw new Error(errorMessagePrefix + "error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 }
