@@ -1749,7 +1749,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @return if the invocation is blocked due to an unanalyzed invocation
      */
     private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
-        updateInvokableSymbolsRetTypeTaintAnnotation(invNode);
         if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null
                 || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).attachedOuterFunction)) {
             if (Symbols.isNative(invNode.symbol)
@@ -1812,16 +1811,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             validateReturnAndParameterTaintedAnnotations(invNode, taintTable);
         }
         return false;
-    }
-
-    private void updateInvokableSymbolsRetTypeTaintAnnotation(BLangInvokableNode invNode) {
-        if (hasAnnotation(invNode.returnTypeAnnAttachments, ANNOTATION_UNTAINTED)) {
-            invNode.symbol.returnTypeTaintednessAnnot = TaintRecord.TaintAnnotation.UNTAINTED;
-        } else if (hasAnnotation(invNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)) {
-            invNode.symbol.returnTypeTaintednessAnnot = TaintRecord.TaintAnnotation.TAINTED;
-        } else {
-            invNode.symbol.returnTypeTaintednessAnnot = TaintRecord.TaintAnnotation.NON;
-        }
     }
 
     private void visitAttachedInvokable(BLangFunction invNode) {
@@ -2420,9 +2409,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 return (BVarSymbol) ((BLangSimpleVarRef) expr).symbol;
             case FIELD_BASED_ACCESS_EXPR:
-                return (BVarSymbol) ((BLangFieldBasedAccess) expr).symbol;
+                return getMethodReceiverSymbol(((BLangFieldBasedAccess) expr).expr);
             case INDEX_BASED_ACCESS_EXPR:
-                return (BVarSymbol) ((BLangIndexBasedAccess) expr).symbol;
+                return getMethodReceiverSymbol(((BLangIndexBasedAccess) expr).expr);
             case INVOCATION:
                 return (BVarSymbol) ((BLangInvocation) expr).symbol;
             default:

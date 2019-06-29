@@ -24,7 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test taintedness propagation when listener is marked @tainted and @untainted
+ * Test taintedness propagation when listener is marked @tainted and @untainted.
  */
 public class ListenerServiceTaintedStatusPropagationTest {
     @Test

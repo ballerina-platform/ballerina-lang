@@ -294,11 +294,11 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     Participant2pcClientEP participantEP;
     if (httpClientCache.hasKey(participantURL)) {
-        return <Participant2pcClientEP>httpClientCache.get(participantURL);
+        return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                return <Participant2pcClientEP>httpClientCache.get(participantURL);
+                return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
             }
             participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
