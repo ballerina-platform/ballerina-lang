@@ -1038,12 +1038,12 @@ public class HttpUtil {
 //    }
 
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        return (MapValue) resource.getAnnotation(pkgPath + ":" + HttpConstants.ANN_NAME_RESOURCE_CONFIG);
+        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
     }
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
-        return (MapValue) resource.getAnnotation(transactionPackagePath + ":" +
-                                                         TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+        return (MapValue) resource.getAnnotation(transactionPackagePath,
+                                                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }
 
     private static int getIntValue(long val) {

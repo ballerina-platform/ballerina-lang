@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 /**
  * expression .@ annot-tag-reference.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public interface AnnotAccessNode extends VariableReferenceNode {
 

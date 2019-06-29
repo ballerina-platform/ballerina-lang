@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.995.0
+ * @since 1.0
  */
 public class BLangAnnotAccessExpr extends BLangAccessExpression implements AnnotAccessNode {
 

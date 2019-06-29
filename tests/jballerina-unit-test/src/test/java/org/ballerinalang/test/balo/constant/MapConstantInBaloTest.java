@@ -59,7 +59,7 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":true, \"key2\":false}, " +
-                "\"key6\":{\"key3\":false, \"key4\":true}, \"key7\":{\"key9\":false, \"key8\":true}}");
+                "\"key6\":{\"key3\":false, \"key4\":true}, \"key7\":{\"key8\":true, \"key9\":false}}");
     }
 
     @Test
@@ -73,8 +73,8 @@ public class MapConstantInBaloTest {
     public void testComplexIntConstMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key7:\":{\"key9\":9, \"key8\":8}, \"key5\":{\"key1\":1, " +
-                "\"key2\":2}, \"key6\":{\"key3\":3, \"key4\":4}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":1, \"key2\":2}, \"key6\":{\"key3\":3, " +
+                "\"key4\":4}, \"key7:\":{\"key8\":8, \"key9\":9}}");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":10, \"key2\":20}, \"key6\":{\"key3\":30, " +
-                "\"key4\":40}, \"key7\":{\"key9\":90, \"key8\":80}}");
+                "\"key4\":40}, \"key7\":{\"key8\":80, \"key9\":90}}");
     }
 
     @Test
@@ -104,7 +104,7 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":100, \"key2\":200}, " +
-                "\"key6\":{\"key3\":300, \"key4\":400}, \"key7\":{\"key9\":900, \"key8\":800}}");
+                "\"key6\":{\"key3\":300, \"key4\":400}, \"key7\":{\"key8\":800, \"key9\":900}}");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":1.0, \"key2\":2.0}, \"key6\":{\"key3\":3" +
-                ".0, \"key4\":4.0}, \"key7\":{\"key9\":9.0, \"key8\":8.0}}");
+                ".0, \"key4\":4.0}, \"key7\":{\"key8\":8.0, \"key9\":9.0}}");
     }
 
     @Test
@@ -134,8 +134,8 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":\"value1\", \"key2\":\"value2\"}, " +
-                "\"key6\":{\"key3\":\"value3\", \"key4\":\"value4\"}, \"key7\":{\"key9\":\"value9\", " +
-                "\"key8\":\"value8\"}}");
+                "\"key6\":{\"key3\":\"value3\", \"key4\":\"value4\"}, \"key7\":{\"key8\":\"value8\", " +
+                "\"key9\":\"value9\"}}");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class MapConstantInBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilConstMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":(), \"key2\":()}, \"key6\":{\"key3\":(), " +
-                "\"key4\":()}, \"key7\":{\"key9\":(), \"key8\":()}}");
+                "\"key4\":()}, \"key7\":{\"key8\":(), \"key9\":()}}");
     }
 
     @Test
@@ -264,7 +264,6 @@ public class MapConstantInBaloTest {
     public void testConstInAnnotations() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"testorg/foo\", " +
-                "moduleVersion:\"v1\", value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}");
     }
 }

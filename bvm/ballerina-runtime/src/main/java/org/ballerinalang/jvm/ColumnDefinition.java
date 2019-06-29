@@ -25,18 +25,18 @@ package org.ballerinalang.jvm;
 public class ColumnDefinition {
 
     protected String name;
-    protected int mappedType;
+    protected int mappedTypeTag;
 
     public ColumnDefinition(String name, int mappedType) {
         this.name = name;
-        this.mappedType = mappedType;
+        this.mappedTypeTag = mappedType;
     }
 
     public String getName() {
         return name;
     }
 
-    public int getType() {
-        return mappedType;
+    public int getTypeTag() {
+        return mappedTypeTag;
     }
 }

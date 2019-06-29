@@ -20,12 +20,16 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <listeners>
-        <listener class-name="org.ballerinalang.stdlib.auth.util.JBallerinaTestInitializer"/>
-    </listeners>
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+
         <packages>
             <package name="org.ballerinalang.stdlib.auth.*"/>
         </packages>

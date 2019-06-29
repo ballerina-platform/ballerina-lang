@@ -373,7 +373,7 @@ public class TestUtil {
         return getResponseString(result);
     }
 
-    private static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
+    public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(Paths.get(filePath).toUri().toString());
 
@@ -396,7 +396,7 @@ public class TestUtil {
         return completionParams;
     }
 
-    private static String getResponseString(CompletableFuture completableFuture) {
+    public static String getResponseString(CompletableFuture completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

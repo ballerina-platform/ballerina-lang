@@ -37,9 +37,9 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 49);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'a'", 29, 9);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'fOut'", 34, 17);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 50, 9);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 50, 13);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'a'", 56, 13);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 64, 17);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 64, 21);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'l'", 81, 58);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 81, 62);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 81, 66);

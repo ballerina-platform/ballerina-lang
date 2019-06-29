@@ -175,7 +175,7 @@ public class Generator {
 
     public static Constant createDocForConstant(BLangConstant constant) {
         String constantName = constant.getName().getValue();
-        java.lang.Object value = constant.value;
+        java.lang.Object value = constant.symbol.value;
         String desc = description(constant);
         BLangType typeNode = constant.typeNode != null ? constant.typeNode : constant.associatedTypeDefinition.typeNode;
         return new Constant(constantName, desc, Type.fromTypeNode(typeNode), value.toString());

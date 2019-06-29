@@ -25,15 +25,16 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get Resource's Annotations.
+ * Get a resource's annotations.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "reflect",
         functionName = "getResourceAnnotationsExternal"
 )
 public class GetResourceAnnotationsExternal extends BlockingNativeCallableUnit {
+
     public static Object getResourceAnnotationsExternal(Strand strand, ObjectValue service, String resourceName,
                                                         String annot) {
         AttachedFunction[] functions = service.getType().getAttachedFunctions();

@@ -27,7 +27,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 /**
  * Class to test annotation attachments.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public class AnnotationAttachmentPointTest {
 

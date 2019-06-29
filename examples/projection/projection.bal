@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Create a `record` type that represents the `Person`.
+// Creates a `record` type that represents the `Person`.
 type Person record {
     string name;
     int age;
@@ -10,7 +10,7 @@ type Person record {
     string phoneNo;
 };
 
-// Create a `record` type that represents the `Message`.
+// Creates a `record` type that represents the `Message`.
 type Message record {
     string name;
     string address;
@@ -28,8 +28,8 @@ Message[] globalChildrenMessageArray = [];
 
 function initProjectionQuery() {
     // This is a streaming query that filters events based on the attribute age
-    // and generates a custom message by calling a user defined function.
-    // Filtered events are pushed to a `stream` called `childrenMessageStream`.
+    // and generates a custom message by calling a user-defined function.
+    // The filtered events are pushed to a `stream` called `childrenMessageStream`.
     forever {
         from personStream where personStream.age <= 16
         select personStream.name, personStream.address,
@@ -69,7 +69,7 @@ public function main() {
     // `childrenMessageStream` stream receives a valid event, this function is called.
     childrenMessageStream.subscribe(printChildrenMessage);
 
-    // Simulate the sample event that represents the `Person`.
+    // Simulates the sample event that represents the `Person`.
     foreach var t in personArray {
         personStream.publish(t);
     }

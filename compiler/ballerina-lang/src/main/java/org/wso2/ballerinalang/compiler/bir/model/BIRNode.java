@@ -18,13 +18,13 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,11 +168,19 @@ public abstract class BIRNode {
          * Value represents Flags.
          */
         public int flags;
+        public PackageID pkgId;
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
                                     Name name, VarScope scope, VarKind kind) {
             super(pos, type, name, scope, kind);
             this.flags = flags;
+        }
+
+        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
+                                    VarScope scope, VarKind kind) {
+            super(pos, type, name, scope, kind);
+            this.flags = flags;
+            this.pkgId = pkgId;
         }
 
         @Override
@@ -351,12 +359,13 @@ public abstract class BIRNode {
          */
         public Name name;
 
-
         public List<BIRFunction> attachedFuncs;
 
         public int flags;
 
         public BType type;
+
+        public boolean isLabel;
 
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
@@ -364,11 +373,12 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags,
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel,
                                  BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
             this.flags = flags;
+            this.isLabel = isLabel;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
         }
@@ -376,6 +386,11 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
 
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(type) + " " + String.valueOf(name);
         }
     }
 
@@ -483,7 +498,7 @@ public abstract class BIRNode {
         public int flags;
 
         /**
-         * Type of the constant.
+         * Type of the constant symbol.
          */
         public BType type;
 
@@ -551,13 +566,10 @@ public abstract class BIRNode {
      *
      * @since 1.0.0
      */
-    public static class BIRAnnotationValueEntry {
-        public BType type;
-        public Object value;
+    public static class BIRAnnotationValueEntry extends ConstValue {
 
-        public BIRAnnotationValueEntry(BType type, Object value) {
-            this.type = type;
-            this.value = value;
+        public BIRAnnotationValueEntry(Object value, BType type) {
+            super(value, type);
         }
     }
 
@@ -567,17 +579,12 @@ public abstract class BIRNode {
      * @since 0.995.0
      */
     public static class ConstValue {
-        public BType valueType;
-        public Object literalValue;
+        public BType type;
+        public Object value;
 
-        public Map<Name, ConstValue> constantValueMap;
-
-        public ConstValue() {
-            this.constantValueMap = new HashMap<>();
-        }
-
-        public Map<Name, ConstValue> getConstantValueMap() {
-            return constantValueMap;
+        public ConstValue(Object value, BType type) {
+            this.value = value;
+            this.type = type;
         }
     }
 

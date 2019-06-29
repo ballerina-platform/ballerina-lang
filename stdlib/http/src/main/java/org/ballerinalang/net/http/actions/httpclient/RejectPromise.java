@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class RejectPromise extends AbstractHTTPAction {
@@ -53,7 +53,7 @@ public class RejectPromise extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+                .getNativeData(HttpConstants.CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
         callback.notifySuccess();
     }
@@ -63,7 +63,7 @@ public class RejectPromise extends AbstractHTTPAction {
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
     }
 }

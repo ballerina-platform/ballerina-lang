@@ -73,9 +73,12 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
+    implementation project(':ballerina-runtime')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'
+    testCompile project(':ballerina-jvm')
 }
 
 configurations {

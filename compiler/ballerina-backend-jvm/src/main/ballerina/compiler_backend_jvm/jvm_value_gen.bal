@@ -80,7 +80,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var [name, call] in lambdas {
+        foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -357,6 +357,7 @@ public type ObjectGenerator object {
         }
 
         self.createRecordConstructor(cw, className);
+        self.createLambdas(cw);
         cw.visitEnd();
         return cw.toByteArray();
     }

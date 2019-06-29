@@ -838,7 +838,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
@@ -865,7 +866,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = [inst, methodClass];
+        lambdas[lambdaName] = (inst, methodClass);
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
@@ -1078,6 +1079,14 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (varDcl.kind == bir:VAR_KIND_SELF) {
         mv.visitVarInsn(ALOAD, 0);
         return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+        return;
     }
 
     if (bType is bir:BTypeInt) {
@@ -1119,9 +1128,17 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
     bir:BType bType = varDcl.typeValue;
 
-    if (varDcl.kind == "GLOBAL") {
+    if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
         string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
+        return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;

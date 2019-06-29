@@ -535,7 +535,7 @@ type TerminatorGenerator object {
         }
         boolean isVoid = returnType is bir:BTypeNil;
         createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
-        lambdas[lambdaName] = [callIns, methodClass];
+        lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);
@@ -628,7 +628,7 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitInsn(DUP);
 
-        // 0th index 
+        // 0th index
         self.mv.visitIntInsn(BIPUSH, 0);
 
         self.mv.visitVarInsn(ALOAD, localVarOffset);

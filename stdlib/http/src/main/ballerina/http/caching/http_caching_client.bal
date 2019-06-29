@@ -79,7 +79,7 @@ public type HttpCachingClient client object {
 
     public string url = "";
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
     public HttpCache cache;
     public CacheConfig cacheConfig = {};
 
@@ -92,7 +92,7 @@ public type HttpCachingClient client object {
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(url, config);
-        if (httpSecureClient is Client) {
+        if (httpSecureClient is HttpClient) {
             self.httpClient = httpSecureClient;
         } else {
             panic httpSecureClient;
@@ -228,7 +228,7 @@ public type HttpCachingClient client object {
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns Client|error {
+                                                                                      returns HttpClient|error {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
@@ -356,8 +356,8 @@ public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
     self.httpClient->rejectPromise(promise);
 }
 
-function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
-                           boolean isShared, boolean forwardRequest) returns @tainted Response|error {
+function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
+                           boolean isShared, boolean forwardRequest) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 
@@ -428,7 +428,7 @@ function getCachedResponse(HttpCache cache, Client httpClient, Request req, stri
     return response;
 }
 
-function getValidationResponse(Client httpClient, Request req, Response cachedResponse, HttpCache cache,
+function getValidationResponse(HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                                                                 returns Response|error {
     // If the no-cache directive is set, always validate the response before serving
@@ -572,7 +572,7 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
     return STALE;
 }
 
-function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns @tainted boolean {
+function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns boolean {
     int currentAge = getResponseAge(cachedResponse);
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
     return freshnessLifetime > currentAge;
@@ -617,15 +617,15 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(Client httpClient, string path, Response cachedResponse) returns Response|error {
+function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
-        validationRequest.setHeader(IF_NONE_MATCH, <@untainted> cachedResponse.getHeader(ETAG));
+        validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
     }
 
     if (cachedResponse.hasHeader(LAST_MODIFIED)) {
-        validationRequest.setHeader(IF_MODIFIED_SINCE, <@untainted> cachedResponse.getHeader(LAST_MODIFIED));
+        validationRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
     }
 
     // TODO: handle cases where neither of the above 2 headers are present
@@ -633,7 +633,7 @@ function sendValidationRequest(Client httpClient, string path, Response cachedRe
     return httpClient->get(path, message = validationRequest);
 }
 
-function sendNewRequest(Client httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
+function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
                                                                                 returns Response|error {
     if (forwardRequest) {
         return httpClient->forward(path, request);
@@ -649,11 +649,11 @@ function sendNewRequest(Client httpClient, Request request, string path, string 
 }
 
 function setAgeHeader(Response cachedResponse) {
-    cachedResponse.setHeader(AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse));
+    cachedResponse.setHeader(AGE, "" + calculateCurrentResponseAge(cachedResponse));
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
-function calculateCurrentResponseAge(Response cachedResponse) returns @tainted int {
+function calculateCurrentResponseAge(Response cachedResponse) returns int {
     int ageValue = getResponseAge(cachedResponse);
     int dateValue = getDateValue(cachedResponse);
     int now = time:currentTime().time;
@@ -698,7 +698,7 @@ function isAStrongValidator(string etag) returns boolean {
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders(Response cachedResponse, Response validationResponse) {
-    string[] headerNames = <@untainted string[]> validationResponse.getHeaderNames();
+    string[] headerNames = untaint validationResponse.getHeaderNames();
 
     log:printDebug("Updating response headers using validation response.");
 
@@ -721,14 +721,14 @@ function retain2xxWarnings(Response cachedResponse) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;
                 });
-                cachedResponse.addHeader(WARNING, <@untainted> warningHeader);
+                cachedResponse.addHeader(WARNING, warningHeader);
                 continue;
             }
         }
     }
 }
 
-function getResponseAge(Response cachedResponse) returns @tainted int {
+function getResponseAge(Response cachedResponse) returns int {
     if (!cachedResponse.hasHeader(AGE)) {
         return 0;
     }

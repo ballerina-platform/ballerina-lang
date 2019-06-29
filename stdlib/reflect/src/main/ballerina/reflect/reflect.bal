@@ -14,37 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type anyStruct record {|
-    any...;
-|};
-
-public type annotationData record {
-    string name;
-    string moduleName;
-    string moduleVersion;
-    record {| any...; |} value;
-};
-
-public function getServiceAnnotations(service serviceType) returns annotationData[] = external;
-
-public function getResourceAnnotations(service serviceType, string resourceName) returns annotationData[] = external;
-
-public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;
-
 const COLON = ":";
 
-public function getServiceAnnots(service serviceType, string? moduleName = (), string annotName) returns any {
+public function getServiceAnnotations(service serviceType, string? moduleName = (), string annotName) returns any {
     return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
 }
 
-public function getResourceAnnots(service serviceType, string resourceName, string? moduleName = (),
+public function getResourceAnnotations(service serviceType, string resourceName, string? moduleName = (),
                                        string annotName) returns any {
     return getResourceAnnotationsExternal(serviceType, resourceName,
-                                          getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
-}
-
-public function getFunctionAnnots(any functionPointer, string? moduleName = (), string annotName) returns any {
-    return getFunctionAnnotationsExternal(functionPointer,
                                           getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
 }
 
@@ -52,8 +30,6 @@ function getServiceAnnotationsExternal(service serviceType, string annot) return
 
 function getResourceAnnotationsExternal(service serviceType, string resourceName, string annot)
     returns any = external;
-
-function getFunctionAnnotationsExternal(any functionPointer, string annot) returns any = external;
 
 function getAnnotQualifiedIdentifier(string? moduleName = (), string annotName) returns string {
     if (moduleName is string) {

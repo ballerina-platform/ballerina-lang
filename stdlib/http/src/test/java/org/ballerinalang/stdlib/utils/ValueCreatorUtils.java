@@ -19,13 +19,12 @@ package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PUSH_PROMISE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE;
 
@@ -37,19 +36,12 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE;
 public class ValueCreatorUtils {
 
     public static ObjectValue createRequestObject() {
-        ObjectValue request = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
-        HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
-        HttpUtil.checkEntityAvailability(request);
-        HttpUtil.enrichOutboundMessage(requestMsg, request);
-        return request;
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST);
     }
 
     public static ObjectValue createResponseObject() {
-        ObjectValue response = BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE);
-        HttpUtil.checkEntityAvailability(response);
-        return response;
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE);
     }
-
 
     public static ObjectValue createEntityObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -57,5 +49,9 @@ public class ValueCreatorUtils {
 
     public static ObjectValue createMediaTypeObject() {
         return BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+    }
+
+    public static ObjectValue createPushPromiseObject() {
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, PUSH_PROMISE);
     }
 }

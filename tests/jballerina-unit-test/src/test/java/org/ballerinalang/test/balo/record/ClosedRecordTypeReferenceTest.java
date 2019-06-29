@@ -148,7 +148,8 @@ public class ClosedRecordTypeReferenceTest {
         assertEquals(manager.get("dept").stringValue(), "Engineering");
     }
 
-    @Test(description = "Test case for default value initializing in type referenced fields")
+    @Test(description = "Test case for default value initializing in type referenced fields",
+            groups = { "brokenOnJBallerina" })
     public void testDefaultValueInit() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
         BMap manager = (BMap) returns[0];
@@ -159,7 +160,8 @@ public class ClosedRecordTypeReferenceTest {
         assertEquals(manager.get("dept").stringValue(), "");
     }
 
-    @Test(description = "Test case for default value initializing in type referenced fields from a BALO")
+    @Test(description = "Test case for default value initializing in type referenced fields from a BALO",
+            groups = { "brokenOnJBallerina" })
     public void testDefaultValueInitInBALOs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALOs");
         BMap manager = (BMap) returns[0];

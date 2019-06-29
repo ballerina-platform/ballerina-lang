@@ -103,7 +103,7 @@ type RecordName11 record {
     |} sdd;
 };
 
-function testRecordTypes3() returns (typedesc, typedesc) {
+function testRecordTypes3() returns [typedesc, typedesc] {
     typedesc a = RecordA;
     typedesc b = record {
         string c;
@@ -111,10 +111,10 @@ function testRecordTypes3() returns (typedesc, typedesc) {
     };
     typedesc b1 =
     record {string c; int d;};
-    return (a, b);
+    return [a, b];
 }
 
-function testRecordTypes4() returns (typedesc, typedesc) {
+function testRecordTypes4() returns [typedesc, typedesc] {
     typedesc a = RecordA;
     typedesc b = record {string c; int d;};
     typedesc b1 =
@@ -122,5 +122,5 @@ function testRecordTypes4() returns (typedesc, typedesc) {
         string c;
         int d;
     };
-    return (a, b);
+    return [a, b];
 }

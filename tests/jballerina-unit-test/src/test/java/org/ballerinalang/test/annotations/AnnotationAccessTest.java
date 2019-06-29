@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test annotation access.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public class AnnotationAccessTest {
 
@@ -41,8 +41,8 @@ public class AnnotationAccessTest {
         resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
 
-//        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
-//        Assert.assertEquals(resultTwo.getErrorCount(), 0);
+        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
+        Assert.assertEquals(resultTwo.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -54,7 +54,7 @@ public class AnnotationAccessTest {
     }
 
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
-            dataProvider = "annotAccessWithSourceOnlyPointsTests", enabled = false)
+            dataProvider = "annotAccessWithSourceOnlyPointsTests")
     public void testSourceOnlyAnnotAccess(String testFunction) {
         BValue[] returns = BRunUtil.invoke(resultTwo, testFunction);
         Assert.assertEquals(returns.length, 1);

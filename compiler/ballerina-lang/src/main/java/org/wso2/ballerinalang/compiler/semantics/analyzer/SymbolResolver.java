@@ -953,7 +953,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
-            constrainedType = new BTableType(TypeTags.TABLE, constraintType, null);
+            // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
+            resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
+            return;
         } else if (type.tag == TypeTags.STREAM) {
             constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {

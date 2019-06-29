@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test annotation declarations.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 public class AnnotationDeclarationTest {
 

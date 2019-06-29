@@ -224,11 +224,11 @@ public class HttpResource {
     }
 
     protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
-        return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH + ":" + ANN_NAME_RESOURCE_CONFIG);
+        return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
-        return resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN + ":" + ANN_NAME_INTERRUPTIBLE) != null;
+        return resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 
     private static List<String> getAsStringList(Object[] values) {

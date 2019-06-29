@@ -250,7 +250,7 @@ function buildResponse(ResponseMessage message) returns Response {
 # + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
-                                                Client httpClient, string verb = "") returns @tainted HttpResponse|error {
+                                                HttpClient httpClient, string verb = "") returns HttpResponse|error {
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
         return result;
@@ -342,22 +342,22 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = <@untainted string> bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, contentType = untaint bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = <@untainted string> inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, contentType = untaint inRequest.getContentType());
     }
     return inRequest;
 }
 
-function isMultipartRequest(Request request) returns @tainted boolean {
+function isMultipartRequest(Request request) returns boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
         request.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function isNestedEntity(mime:Entity entity) returns @tainted boolean {
+function isNestedEntity(mime:Entity entity) returns boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
         entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }

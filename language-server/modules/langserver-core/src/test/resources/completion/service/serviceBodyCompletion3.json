@@ -16,8 +16,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
@@ -30,8 +34,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithoutJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
@@ -44,13 +52,17 @@
         }
       },
       "sortText": "120",
-      "insertText": "startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers});",
-      "insertTextFormat": "Snippet"
+      "insertText": "startForever(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "myService1",
       "kind": "Variable",
-      "detail": "myService1$$service$0",
+      "detail": "myService1",
       "sortText": "110",
       "insertText": "myService1",
       "insertTextFormat": "Snippet"
@@ -66,13 +78,13 @@
     {
       "label": "ep1",
       "kind": "Variable",
-      "detail": "ballerina/http:Listener",
+      "detail": "http:Listener",
       "sortText": "110",
       "insertText": "ep1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/http",
+      "label": "http",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",

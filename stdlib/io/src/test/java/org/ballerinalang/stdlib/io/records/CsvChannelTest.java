@@ -134,7 +134,7 @@ public class CsvChannelTest {
         BRunUtil.invoke(csvInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readColonDelimitedRecords'", enabled = false)
+    @Test(description = "Test 'readColonDelimitedRecords'")
     public void openAndReadColonDelimitedFileTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleWithColon.txt";
         BValueArray records;

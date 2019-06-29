@@ -47,7 +47,7 @@ public type RetryClient client object {
     public string url;
     public ClientEndpointConfig config;
     public RetryInferredConfig retryInferredConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
 
     # Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP
     # client to provide retrying over HTTP requests.
@@ -57,7 +57,7 @@ public type RetryClient client object {
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
     public function __init(string url, ClientEndpointConfig config, RetryInferredConfig retryInferredConfig,
-                                        Client httpClient) {
+                                        HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.retryInferredConfig = retryInferredConfig;
@@ -306,15 +306,15 @@ public remote function RetryClient.rejectPromise(PushPromise promise) {
 // of the http verb and invokes the perform action method.
 // verb is used for submit methods only.
 function performRetryClientExecuteAction(@sensitive string path, Request request, @sensitive string httpVerb,
-                                         RetryClient retryClient, string verb = "") returns @tainted HttpResponse|error {
+                                         RetryClient retryClient, string verb = "") returns HttpResponse|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performRetryAction(path, request, connectorAction, retryClient, verb = verb);
 }
 
 // Handles all the actions exposed through the retry client.
 function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
-                            RetryClient retryClient, string verb = "") returns @tainted HttpResponse|error {
-    Client httpClient = retryClient.httpClient;
+                            RetryClient retryClient, string verb = "") returns HttpResponse|error {
+    HttpClient httpClient = retryClient.httpClient;
     int currentRetryCount = 0;
     int retryCount = retryClient.retryInferredConfig.count;
     int interval = retryClient.retryInferredConfig.interval;

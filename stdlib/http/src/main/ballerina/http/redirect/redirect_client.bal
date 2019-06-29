@@ -33,7 +33,7 @@ public type RedirectClient client object {
     public string url;
     public ClientEndpointConfig config;
     public FollowRedirects redirectConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
     public int currentRedirectCount = 0;
 
     # Create a redirect client with the given configurations.
@@ -42,7 +42,7 @@ public type RedirectClient client object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, Client httpClient) {
+    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.redirectConfig = redirectConfig;
@@ -331,12 +331,12 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted HttpResponse|error {
     var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
-    if (retryClient is Client) {
+    if (retryClient is HttpClient) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
         HttpResponse|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient.httpClient);
+            redirectMethod, retryClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;
