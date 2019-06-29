@@ -313,7 +313,7 @@ type Obj object {
     }
 };
 
-function testArrayFillWithObjsTest() returns Obj[][] {
+function testArrayFillWithObjs() returns Obj[][] {
     Obj o = new;
     Obj[] objArray = [];
     objArray[0] = o;
@@ -321,4 +321,11 @@ function testArrayFillWithObjsTest() returns Obj[][] {
     multiDimObjArray[0] = objArray;
     multiDimObjArray[2] = objArray;
     return multiDimObjArray;
+}
+
+function testArrayFillWithStreams() returns stream<Obj>[] {
+    stream<Obj>[] objStreamArr = [];
+    stream<Obj> objStream = new;
+    objStreamArr[1] = objStream;
+    return objStreamArr;
 }

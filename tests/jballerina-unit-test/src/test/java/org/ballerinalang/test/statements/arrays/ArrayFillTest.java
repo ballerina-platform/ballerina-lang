@@ -504,10 +504,17 @@ public class ArrayFillTest {
     }
 
     @Test
-    public void testArrayFillWithObjsTest() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithObjsTest");
+    public void testArrayFillWithObjs() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithObjs");
         BValueArray resultArray = (BValueArray) returns[0];
         assertEquals(resultArray.size(), 3);
+    }
+
+    @Test
+    public void testArrayFillWithStreams() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithStreams");
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 2);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
