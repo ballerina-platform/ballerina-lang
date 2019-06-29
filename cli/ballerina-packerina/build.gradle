@@ -27,4 +27,10 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
 description = 'Ballerina - Packerina'
