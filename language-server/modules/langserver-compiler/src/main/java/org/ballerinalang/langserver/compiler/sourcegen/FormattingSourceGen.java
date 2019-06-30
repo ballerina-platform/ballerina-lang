@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.formatting;
+package org.ballerinalang.langserver.compiler.sourcegen;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.format.FormattingConstants;
 
 import java.util.ArrayList;
 import java.util.Comparator;

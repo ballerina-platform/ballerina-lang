@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.formatting;
+package org.ballerinalang.langserver.compiler.format;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
