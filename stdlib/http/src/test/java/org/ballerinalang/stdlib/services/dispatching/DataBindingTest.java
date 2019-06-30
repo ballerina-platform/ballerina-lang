@@ -19,15 +19,14 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,12 +43,11 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
  */
 public class DataBindingTest {
 
-    private static final String TEST_EP = "testEP";
-    private CompileResult compileResult;
+    private static final int TEST_EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
-        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/dispatching/data-binding-test.bal");
+        BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
     }
 
     @Test(description = "Test data binding with string payload")
@@ -57,7 +55,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -70,7 +68,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body2/hello", "POST", "WSO2");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -85,7 +83,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'ballerina'}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -100,7 +98,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "<name>WSO2</name>");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_XML);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -115,7 +113,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "WSO2");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), OCTET_STREAM);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -128,7 +126,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'wso2','age':12}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -143,7 +141,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
                 "[{'name':'wso2','age':12}, {'name':'ballerina','age':3}]");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(bJson.stringValue(), "[{\"name\":\"wso2\", \"age\":12}, " +
@@ -154,7 +152,7 @@ public class DataBindingTest {
     public void testDataBindingWithoutContentType() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -167,7 +165,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'EI'}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -182,7 +180,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "{'name':'WSO2', 'team':'ballerina'}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -195,7 +193,7 @@ public class DataBindingTest {
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -207,7 +205,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Services.invoke(TEST_EP_PORT, requestMsg);
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
@@ -216,14 +214,14 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "ballerina");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Services.invoke(TEST_EP_PORT, requestMsg);
     }
 
     @Test
     public void testDataBindingWithEmptyJsonPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNull(((BMap<String, BValue>) bJson).get("Key"), "Key variable not set properly.");
@@ -239,7 +237,7 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':8}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Services.invoke(TEST_EP_PORT, requestMsg);
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
@@ -249,6 +247,6 @@ public class DataBindingTest {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Services.invoke(TEST_EP_PORT, requestMsg);
     }
 }

@@ -95,7 +95,7 @@ public function testSendMapByteArray() {
     var err = prod->send(msg);
 }
 
-public function testSendMapBoolean() {
+public function main() {
     artemis:Producer prod = new(config, "queue12", addressConfig = addressConfig);
     map<boolean> msg = {
         "first": true,

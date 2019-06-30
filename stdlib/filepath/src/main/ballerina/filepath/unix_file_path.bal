@@ -38,7 +38,7 @@ function buildUnixPath(string... parts) returns string|error {
     return parse(finalPath);
 }
 
-function getUnixRoot(string input) returns (string, int)|error {
+function getUnixRoot(string input) returns [string, int]|error {
     int length = input.length();
     int offset = 0;
     string root = "";
@@ -46,7 +46,7 @@ function getUnixRoot(string input) returns (string, int)|error {
         root = pathSeparator;
         offset = 1;
     }
-    return (root, offset);
+    return [root, offset];
 }
 
 function getUnixOffsetIndex(string path) returns int[]|error {

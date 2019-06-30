@@ -827,7 +827,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
@@ -854,7 +855,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = [inst, methodClass];
+        lambdas[lambdaName] = (inst, methodClass);
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

@@ -71,3 +71,7 @@ createBalo {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+createBirJar {
+   onlyIf { false }
+}

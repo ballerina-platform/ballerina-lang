@@ -23,23 +23,23 @@ import ballerina/encoding;
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
 # + audienceAsArray - Always represent audience as an array (even when there is single audience)
-public type JWTIssuerConfig record {|
-    crypto:KeyStore keyStore?;
-    string keyAlias?;
-    string keyPassword?;
+public type JwtIssuerConfig record {|
+    crypto:KeyStore keyStore;
+    string keyAlias;
+    string keyPassword;
     boolean audienceAsArray = false;
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JWTIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# in the `JwtIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
 # + config - JWT issuer config record
 # + return - JWT token string or an error if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? config) returns (string|error) {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|error {
     boolean audienceAsArray = false;
-    if (config is JWTIssuerConfig) {
+    if (config is JwtIssuerConfig) {
         audienceAsArray = config.audienceAsArray;
     }
     string jwtHeader = check buildHeaderString(header);
@@ -48,37 +48,33 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JWTIssuerConfig? 
     if (header.alg == NONE) {
         return (jwtAssertion);
     } else {
-        if (config is JWTIssuerConfig) {
-            var keyStore = config["keyStore"];
-            var keyAlias = config["keyAlias"];
-            var keyPassword = config["keyPassword"];
-            if (keyStore is crypto:KeyStore && keyAlias is string && keyPassword is string) {
-                var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
-                                                               keyPassword = keyPassword);
-                string signature = "";
-                if (header.alg == RS256) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else if (header.alg == RS384) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else if (header.alg == RS512) {
-                    signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
-                                                                                    privateKey));
-                } else {
-                    return prepareError("Unsupported JWS algorithm.");
-                }
-                return (jwtAssertion + "." + signature);
+        if (config is JwtIssuerConfig) {
+            crypto:KeyStore keyStore = config.keyStore;
+            string keyAlias = config.keyAlias;
+            string keyPassword = config.keyPassword;
+            var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                           keyPassword = keyPassword);
+            string signature = "";
+            if (header.alg == RS256) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
+            } else if (header.alg == RS384) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
+            } else if (header.alg == RS512) {
+                signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
+                                                                                privateKey));
             } else {
-                return prepareError("Signing JWT requires keyStore, keyAlias and keyPassword.");
+                return prepareError("Unsupported JWS algorithm.");
             }
+            return (jwtAssertion + "." + signature);
         } else {
-            return prepareError("Signing JWT requires JWTIssuerConfig with keystore information.");
+            return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
         }
     }
 }
 
-function buildHeaderString(JwtHeader header) returns (string|error) {
+function buildHeaderString(JwtHeader header) returns string|error {
     json headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
         return prepareError("Mandatory field signing algorithm (alg) is empty.");
@@ -100,7 +96,7 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns (string|error) {
+function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns string|error {
     json payloadJson = {};
     var sub = payload["sub"];
     if (sub is string) {
@@ -142,7 +138,7 @@ function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns
     return encoding:encodeBase64Url(payloadInString.toByteArray("UTF-8"));
 }
 
-function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
+function addMapToJson(json inJson, map<json> mapToConvert) returns json {
     if (mapToConvert.length() != 0) {
         foreach var key in mapToConvert.keys() {
             inJson[key] = mapToConvert[key];
@@ -150,22 +146,3 @@ function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
     }
     return inJson;
 }
-
-# Represents authentication provider configurations that supports generating JWT for client interactions.
-#
-# + issuer - Expected JWT token issuer
-# + audience - Expected JWT token audience
-# + expTime - Expiry time for newly issued JWT tokens
-# + keyStore - Keystore containing the signing key
-# + keyAlias - Key alias for signing newly issued JWT tokens
-# + keyPassword - Key password for signing newly issued JWT tokens
-# + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtIssuerConfig record {|
-    string issuer;
-    string[] audience;
-    int expTime = 300;
-    crypto:KeyStore keyStore;
-    string keyAlias;
-    string keyPassword;
-    JwtSigningAlgorithm signingAlg = RS256;
-|};

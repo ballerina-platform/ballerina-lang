@@ -44,9 +44,13 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.CheckForNull;
 
@@ -384,6 +388,30 @@ public class LSCompilerUtil {
      */
     public static Optional<Path> getUntitledFilePath(String filePath) {
         return getUntitledFileId(filePath).map(LSCompilerUtil::createTempFile);
+    }
+
+    /**
+     * Get the list of module names in the repo.
+     *
+     * @param projectRoot project root path
+     * @return {@link List} List of module names
+     */
+    public static List<String> getCurrentProjectModules(Path projectRoot) {
+        try {
+            Stream<Path> pathStream = Files.walk(projectRoot);
+            return pathStream
+                    .filter(path -> { 
+                        try { 
+                            return Files.isDirectory(path) && !Files.isHidden(path); 
+                        } catch (IOException e) { 
+                            return false; 
+                        }
+                    })
+                    .map(path -> path.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
     }
 
     /**

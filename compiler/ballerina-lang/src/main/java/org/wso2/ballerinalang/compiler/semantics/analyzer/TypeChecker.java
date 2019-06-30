@@ -1452,8 +1452,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
-
                     cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
+                    actualType = matchedType;
+                    break;
                 }
                 types.checkType(cIExpr, matchedType, expType);
                 cIExpr.type = matchedType;
@@ -2186,7 +2187,11 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexExpr, env, symTable.stringType);
 
         if (indexExpr.type.tag == TypeTags.STRING) {
-            actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
+            if (xmlAttributeAccessExpr.lhsVar) {
+                actualType = symTable.stringType;
+            } else {
+                actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
+            }
         }
 
         xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));
