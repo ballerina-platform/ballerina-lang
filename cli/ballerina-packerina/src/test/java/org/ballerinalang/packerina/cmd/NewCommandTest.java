@@ -29,6 +29,8 @@ import java.nio.file.Path;
 
 /**
  * Test cases for ballerina new command.
+ *
+ * @since 0.992.0
  */
 public class NewCommandTest extends CommandTest {
 
@@ -107,17 +109,6 @@ public class NewCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("Ballerina new - Create a Ballerina project"));
     }
 
-/*    @Test(description = "Test new command with invalid option")
-    public void testNewCommandInvalidOption() {
-        // Test if no arguments was passed in
-        String[] args = {"--invalid"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream);
-        new CommandLine(newCommand).parse(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Ballerina new - Create a Ballerina project"));
-    }*/
-
     @Test(description = "Test if directory already exists")
     public void testNewCommandDirectoryExist() throws IOException {
         // Test if no arguments was passed in
@@ -155,6 +146,5 @@ public class NewCommandTest extends CommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("src").resolve("subdir")));
     }
 
-    // Test if do not have permission
     // Test if a path given to new command
 }
