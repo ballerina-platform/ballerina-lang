@@ -11,7 +11,7 @@ service echo on echoEP {
         methods:["POST"],
         body:"person"
     }
-    resource function echo1 (http:Caller caller, http:Request req, string key, json ballerina) {
+    resource function echo1 (http:Caller caller, http:Request req, json ballerina) {
         http:Response res = new;
         checkpanic caller->respond(res);
     }
