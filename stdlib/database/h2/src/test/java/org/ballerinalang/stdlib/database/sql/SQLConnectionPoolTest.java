@@ -70,7 +70,7 @@ public class SQLConnectionPoolTest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testGlobalConnectionPoolSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -81,7 +81,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testGlobalConnectionPoolsMultipleDestinations() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -101,7 +101,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testGlobalConnectionPoolSingleDestinationConcurrent() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestinationConcurrent");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -115,7 +115,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testLocalSharedConnectionPoolConfigSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -126,7 +126,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testLocalSharedConnectionPoolConfigMultipleDestinations() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigMultipleDestinations");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -171,7 +171,7 @@ public class SQLConnectionPoolTest {
         Assert.assertEquals(returns[0].stringValue(), "(1, 1, \"Client has been stopped\", 1)");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(groups = POOL_TEST_GROUP, expectedExceptions = BLangRuntimeException.class)
     public void testStopClientUsingGlobalPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
