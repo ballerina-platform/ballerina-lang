@@ -191,6 +191,15 @@
         ],
         "commands": [
             {
+                "command": "ballerina.showProjectOverview",
+                "title": "Project Overview",
+                "icon": {
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
+                    "light": "./resources/images/icons/design-view.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.showDiagram",
                 "title": "Show Diagram",
                 "icon": {

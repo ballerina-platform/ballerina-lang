@@ -82,9 +82,8 @@ export const Statement: React.StatelessComponent<{
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {!viewState.hiddenBlock && !viewState.hidden &&
-                    <g className="statement"
-                    >
+                {(!viewState.hiddenBlock && !viewState.hidden) &&
+                    <g className="statement">
                         {viewState.isAction && !viewState.isReturn
                             && <ActionInvocation
                                 model={viewState}
@@ -97,7 +96,7 @@ export const Statement: React.StatelessComponent<{
                                 action={viewState.bBox.label}
                                 astModel={model}
                             />}
-                        {!viewState.isAction && !viewState.hiddenBlock && !expandedFunction &&
+                        {!viewState.isAction && !expandedFunction &&
                             <SourceLinkedLabel {...statementProps} />
                         }
                         { expander }

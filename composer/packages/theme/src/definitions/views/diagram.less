@@ -180,6 +180,7 @@
                     stroke: gray;
                     stroke-width: 1px;
                     fill: aliceblue;
+                    cursor: pointer;
                 }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -314,6 +315,16 @@
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
                             stroke-width: @diagram-life-line-stroke-width;
+                        }
+                    }
+                    .expanded-hidden-block {
+                        .frame {
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            fill: none;
+                        }
+                        .collapser {
+                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                            cursor: pointer;
                         }
                     }
                 }

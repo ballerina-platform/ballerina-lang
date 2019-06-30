@@ -4,6 +4,7 @@ import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
+import { visitor as hiddenBlockVisitor } from "../visitors/hidden-block-visitor";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
 import { visitor as interactionModeVisitor } from "../visitors/mode-visitors/interaction-mode-visitor";
@@ -70,6 +71,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         } else {
             ASTUtil.traversNode(ast, statementModeVisitor);
         }
+        // Mark hidden blocks
+        ASTUtil.traversNode(ast, hiddenBlockVisitor);
         // Calculate dimention of AST Nodes.
         ASTUtil.traversNode(ast, sizingVisitor);
         // Calculate positions of the AST Nodes.
