@@ -15,7 +15,7 @@ import java.util.Comparator;
 /**
  * Command tests supper class.
  *
- * @since 1.0
+ * @since 0.992.0
  */
 public abstract class CommandTest {
     protected Path tmpDir;
