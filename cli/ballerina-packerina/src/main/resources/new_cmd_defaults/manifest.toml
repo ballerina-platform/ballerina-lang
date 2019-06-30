@@ -1,0 +1,12 @@
+[project]
+orgName= "ORG_NAME"
+version= "0.1.0"
+
+# license= ""
+# authors= ["<auther-name>"]
+# keywords= ["key1", "key2"]
+# repository= ""
+
+
+[dependencies]
+
