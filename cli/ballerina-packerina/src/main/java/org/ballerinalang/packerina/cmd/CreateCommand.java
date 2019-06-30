@@ -25,7 +25,11 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +38,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +54,8 @@ public class CreateCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private static FileSystem jarFs;
+    private static Map<String, String> env;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -64,11 +72,31 @@ public class CreateCommand implements BLauncherCmd {
     public CreateCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
+        initJarFs();
     }
 
     public CreateCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
+        initJarFs();
+    }
+
+    private void initJarFs() {
+        URI uri = null;
+        try {
+            uri = CreateCommand.class.getClassLoader().getResource("create_cmd_templates").toURI();
+            if (uri.toString().contains("!")) {
+                final String[] array = uri.toString().split("!");
+                if (null == jarFs) {
+                    env = new HashMap<>();
+                    jarFs = FileSystems.newFileSystem(URI.create(array[0]), env);
+                }
+            }
+        } catch (URISyntaxException e) {
+            throw new AssertionError();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
     }
 
     @Override
@@ -200,11 +228,13 @@ public class CreateCommand implements BLauncherCmd {
 
             applyTemplate(modulePath, template);
 
+        } catch (AccessDeniedException e) {
+            throw new ModuleCreateException("Access Denied");
         } catch (IOException e) {
-            throw new ModuleCreateException();
+            throw new ModuleCreateException(e.getMessage());
         } catch (TemplateException e) {
             // todo decide if we need to delete the module directory.
-            throw new ModuleCreateException();
+            throw new ModuleCreateException(e.getMessage());
         }
     }
 
@@ -213,10 +243,20 @@ public class CreateCommand implements BLauncherCmd {
             Path templateDir = getTemplatePath();
             Stream<Path> walk = Files.walk(templateDir, 1);
 
-            return walk.filter(Files::isDirectory)
-                    .filter(p -> !templateDir.equals(p))
-                    .map(x -> x.getFileName().toString())
+            List<String> templates = walk.filter(Files::isDirectory)
+                    .filter(directory -> !templateDir.equals(directory))
+                    .filter(directory -> directory.getFileName() != null)
+                    .map(directory -> directory.getFileName())
+                    .map(fileName -> fileName.toString())
                     .collect(Collectors.toList());
+
+            if (null != CreateCommand.jarFs) {
+                return templates.stream().map(t -> t
+                        .replace(CreateCommand.jarFs.getSeparator(), ""))
+                        .collect(Collectors.toList());
+            } else {
+                return templates;
+            }
 
         } catch (IOException e) {
             // we will return an empty list if error.
@@ -228,9 +268,15 @@ public class CreateCommand implements BLauncherCmd {
 
     private Path getTemplatePath() throws TemplateException {
         try {
-            return Paths.get(ClassLoader.getSystemResource("templates").toURI());
+            URI uri = getClass().getClassLoader().getResource("create_cmd_templates").toURI();
+            if (uri.toString().contains("!")) {
+                final String[] array = uri.toString().split("!");
+                return jarFs.getPath(array[1]);
+            } else {
+                return Paths.get(uri);
+            }
         } catch (URISyntaxException e) {
-            throw new TemplateException();
+            throw new TemplateException(e.getMessage());
         }
     }
 
@@ -240,7 +286,7 @@ public class CreateCommand implements BLauncherCmd {
         try {
             Files.walkFileTree(templateDir, new Copy(templateDir, modulePath));
         } catch (IOException e) {
-            throw new TemplateException();
+            throw new TemplateException(e.getMessage());
         }
     }
 
@@ -264,7 +310,7 @@ public class CreateCommand implements BLauncherCmd {
         public FileVisitResult preVisitDirectory (Path dir, BasicFileAttributes attrs)
                 throws IOException {
 
-            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
@@ -275,16 +321,20 @@ public class CreateCommand implements BLauncherCmd {
         public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
                 throws IOException {
 
-            Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+            Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
     }
 
     static class TemplateException extends Exception {
-
+        public TemplateException(String message) {
+            super(message);
+        }
     }
 
     static class ModuleCreateException extends Exception {
-
+        public ModuleCreateException(String message) {
+            super(message);
+        }
     }
 }
