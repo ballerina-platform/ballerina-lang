@@ -43,11 +43,11 @@ task createBalo(type: Exec) {
 
     doFirst {
         configurations.balo.each {
-			if (OperatingSystem.current().isWindows()) {
-				commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests'
-			} else {
-				commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests'
-			}
+            if (OperatingSystem.current().isWindows()) {
+                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests'
+            } else {
+                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests'
+            }
         }
     }
 

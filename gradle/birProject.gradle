@@ -57,27 +57,27 @@ task createBirJar(type: Exec) {
         }
 
         configurations.birJarCompile.each {
-			if (OperatingSystem.current().isWindows()) {
-				commandLine 'cmd.exe', '/c',
+            if (OperatingSystem.current().isWindows()) {
+                commandLine 'cmd.exe', '/c',
 
-						new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
 
-						generatedBirDir + project.ext.moduleName + '.bir',
-						mapPath,
-						"$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-						'false',
-						"$buildDir/bir-cache"
-			} else {
-				commandLine 'sh',
+                        generatedBirDir + project.ext.moduleName + '.bir',
+                        mapPath,
+                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
+                        'false',
+                        "$buildDir/bir-cache"
+            } else {
+                commandLine 'sh',
 
-						new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
 
-						generatedBirDir + project.ext.moduleName + '.bir',
-						mapPath,
-						"$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-						'false',
-						"$buildDir/bir-cache"
-			}
+                        generatedBirDir + project.ext.moduleName + '.bir',
+                        mapPath,
+                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
+                        'false',
+                        "$buildDir/bir-cache"
+            }
         }
     }
 
