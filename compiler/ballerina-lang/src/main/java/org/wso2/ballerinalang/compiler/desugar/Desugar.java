@@ -4691,10 +4691,13 @@ public class Desugar extends BLangNodeVisitor {
          * }
          */
 
-        // Add pattern to lift nil
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(accessExpr.pos, accessExpr.expr, new ArrayList<>());
-        matchStmt.patternClauses.add(getMatchNullPattern(accessExpr, tempResultVar));
-        matchStmt.type = type;
+
+        // Add pattern to lift nil
+        if (accessExpr.optionalFieldAccess) {
+            matchStmt.patternClauses.add(getMatchNullPattern(accessExpr, tempResultVar));
+            matchStmt.type = type;
+        }
 
         // Add pattern to lift error, only if the safe navigation is used
         if (accessExpr.safeNavigate) {

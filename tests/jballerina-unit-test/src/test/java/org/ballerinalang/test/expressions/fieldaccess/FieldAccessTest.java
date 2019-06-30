@@ -129,4 +129,19 @@ public class FieldAccessTest {
             Assert.assertEquals(array.getBoolean(i), 1);
         }
     }
+
+    @Test(dataProvider = "nonNilLiftingJsonFieldAccessFunctions")
+    public void testNonNilLiftingJsonFieldAccess(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "nonNilLiftingJsonFieldAccessFunctions")
+    public Object[][] nonNilLiftingJsonFieldAccessFunctions() {
+        return new Object[][] {
+            { "testNonNilLiftingJsonAccess1" },
+            { "testNonNilLiftingJsonAccess2" },
+            { "testNonNilLiftingJsonAccess3" }
+        };
+    }
 }
