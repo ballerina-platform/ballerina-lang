@@ -232,6 +232,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
@@ -459,6 +460,9 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
         });
+
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
@@ -468,13 +472,12 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
 
-        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
-
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
+        pkgNode.initFunction = splitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -5632,5 +5635,108 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.type = binaryExpr.type;
 
         result = rewriteExpr(stmtExpr);
+    }
+
+    /**
+     * Split packahe init function into several smaller functions.
+     *
+     * @param packageNode package node
+     * @param env symbol environment
+     * @return initial init function but trimmed in size
+     */
+    private BLangFunction splitFunction(BLangPackage packageNode, SymbolEnv env) {
+        int methodSize = INIT_METHOD_SPLIT_SIZE;
+        if (packageNode.initFunction.body.stmts.size() < methodSize || !isJvmTarget) {
+            return packageNode.initFunction;
+        }
+        BLangFunction initFunction = packageNode.initFunction;
+
+        List<BLangFunction> genFuncs = new ArrayList<>();
+        List<BLangStatement> stmts = new ArrayList<>();
+        stmts.addAll(initFunction.body.stmts);
+        initFunction.body.stmts.clear();
+        BLangFunction newFunc = initFunction;
+
+        // until we get to a varDef, stmts are independent, divide it based on methodSize
+        int varDefIndex = 0;
+        for (int i = 0; i < stmts.size(); i++) {
+            if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
+                varDefIndex = i;
+                break;
+            }
+            if (i > 0 && i % methodSize == 0) {
+                genFuncs.add(newFunc);
+                newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+            }
+
+            newFunc.body.stmts.add(stmts.get(i));
+        }
+
+        // from a varDef to a service constructor, those stmts should be within single method
+        List<BLangStatement> chunkStmts = new ArrayList<>();
+        for (int i = varDefIndex; i < stmts.size(); i++) {
+            BLangStatement stmt = stmts.get(i);
+            chunkStmts.add(stmt);
+            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
+                    (newFunc.body.stmts.size() + chunkStmts.size() > methodSize)) {
+                // enf of current chunk
+                if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
+                    genFuncs.add(newFunc);
+                    newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+                    symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+                }
+                newFunc.body.stmts.addAll(chunkStmts);
+                chunkStmts.clear();
+            }
+        }
+
+        if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
+            genFuncs.add(newFunc);
+            newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+            symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+        }
+        newFunc.body.stmts.addAll(chunkStmts);
+        genFuncs.add(newFunc);
+
+        for (int j = 0; j < genFuncs.size() - 1; j++) {
+            BLangFunction thisFunction = genFuncs.get(j);
+            BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos,
+                    thisFunction.body);
+            expressionStmt.expr = createInvocationNode(genFuncs.get(j + 1).name.value, new ArrayList<>(),
+                    symTable.nilType);
+            expressionStmt.expr.pos = initFunction.pos;
+
+            if (j > 0) { // skip init func
+                thisFunction = rewrite(thisFunction, env);
+                packageNode.functions.add(thisFunction);
+                packageNode.topLevelNodes.add(thisFunction);
+            }
+        }
+
+        // add last func
+        BLangFunction lastFunc = genFuncs.get(genFuncs.size() - 1);
+        lastFunc = rewrite(lastFunc, env);
+        packageNode.functions.add(lastFunc);
+        packageNode.topLevelNodes.add(lastFunc);
+
+        return genFuncs.get(0);
+    }
+
+    /**
+     * Create an intermediate package init function.
+     *
+     * @param pkgNode package node
+     * @param env     symbol environment of package
+     * @param iteration intermediate function index
+     */
+    private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env, int iteration) {
+        String alias = pkgNode.symbol.pkgID.toString();
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
+                new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration));
+        // Create invokable symbol for init function
+        createInvokableSymbol(initFunction, env);
+        return initFunction;
     }
 }
