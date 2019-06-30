@@ -71,4 +71,18 @@ public class NestedForeachTest {
                 " 1:C:11.0 1:C:12.0 2:A:10.0 2:A:11.0 2:A:12.0 2:B:10.0 2:B:11.0 2:B:12.0 2:C:10.0 2:C:11.0 2:C:12.0 " +
                 "3:A:10.0 3:A:11.0 3:A:12.0 3:B:10.0 3:B:11.0 3:B:12.0 3:C:10.0 3:C:11.0 3:C:12.0 ");
     }
+
+    @Test
+    public void testNestedForeachWithBreak1() {
+        BValue[] returns = BRunUtil.invoke(program, "testNestedForeachWithBreak1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "innerouter");
+    }
+
+    @Test
+    public void testNestedForeachWithBreak2() {
+        BValue[] returns = BRunUtil.invoke(program, "testNestedForeachWithBreak2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "level4level3level2level1");
+    }
 }
