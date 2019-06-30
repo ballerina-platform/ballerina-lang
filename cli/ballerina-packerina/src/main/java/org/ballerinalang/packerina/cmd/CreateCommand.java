@@ -229,7 +229,7 @@ public class CreateCommand implements BLauncherCmd {
             applyTemplate(modulePath, template);
 
         } catch (AccessDeniedException e) {
-            throw new ModuleCreateException("Access Denied");
+            throw new ModuleCreateException("Insufficient Permission");
         } catch (IOException e) {
             throw new ModuleCreateException(e.getMessage());
         } catch (TemplateException e) {

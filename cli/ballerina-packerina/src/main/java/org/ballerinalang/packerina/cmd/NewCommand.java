@@ -107,7 +107,7 @@ public class NewCommand implements BLauncherCmd {
             Files.createDirectories(path);
             CommandUtil.initProject(path);
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while creating project : " + "Access Denied");
+            errStream.println("error: Error occurred while creating project : " + "Insufficient Permission");
         } catch (IOException e) {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
