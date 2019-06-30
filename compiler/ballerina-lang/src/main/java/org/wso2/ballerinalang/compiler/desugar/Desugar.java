@@ -2193,7 +2193,10 @@ public class Desugar extends BLangNodeVisitor {
         fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
         BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
         BType varRefType = fieldAccessExpr.expr.type;
-        if (varRefType.tag == TypeTags.OBJECT) {
+        int varRefTypeTag = varRefType.tag;
+        if (varRefTypeTag == TypeTags.OBJECT ||
+                (varRefTypeTag == TypeTags.UNION &&
+                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.OBJECT)) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
@@ -2202,7 +2205,9 @@ public class Desugar extends BLangNodeVisitor {
                         (BVarSymbol) fieldAccessExpr.symbol, false);
                 addToLocks(fieldAccessExpr, targetVarRef);
             }
-        } else if (varRefType.tag == TypeTags.RECORD) {
+        } else if (varRefTypeTag == TypeTags.RECORD ||
+                (varRefTypeTag == TypeTags.UNION &&
+                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.RECORD)) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
@@ -2211,11 +2216,11 @@ public class Desugar extends BLangNodeVisitor {
                         (BVarSymbol) fieldAccessExpr.symbol, true);
                 addToLocks(fieldAccessExpr, targetVarRef);
             }
-        } else if (varRefType.tag == TypeTags.MAP) {
+        } else if (varRefTypeTag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-        } else if (varRefType.tag == TypeTags.JSON) {
+        } else if (varRefTypeTag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (varRefTypeTag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                     fieldAccessExpr.fieldKind);
         }

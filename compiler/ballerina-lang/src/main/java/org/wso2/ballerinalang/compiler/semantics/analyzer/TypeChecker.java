@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1246,12 +1245,26 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (isSafeNavigable(fieldAccessExpr, varRefType)) {
-            varRefType = getSafeType(varRefType, fieldAccessExpr);
-        }
-
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+
+        BType actualType = symTable.semanticError;
+        if (isSubTypeOfBaseType(varRefType, TypeTags.OBJECT)) {
+            actualType = checkObjectFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        } else if (isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
+            actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        } else if (isLax(varRefType)) {
+            actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
+            fieldAccessExpr.safeNavigate = true;
+            fieldAccessExpr.originalType = symTable.jsonType;
+        } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                isSafeNavigable((BLangAccessExpression) fieldAccessExpr.expr, varRefType)) {
+            varRefType = getSafeType(varRefType, (BLangAccessExpression) fieldAccessExpr.expr);
+            if (isLax(varRefType)) {
+                actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
+                fieldAccessExpr.safeNavigate = true;
+                fieldAccessExpr.originalType = symTable.jsonType;
+            }
+        }
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
@@ -1262,9 +1275,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // Get the effective types of the expression. If there are errors/nill propagating from parent
-        // expressions, then the effective type will include those as well.
-        actualType = getAccessExprFinalType(fieldAccessExpr, actualType);
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
@@ -3146,6 +3156,81 @@ public class TypeChecker extends BLangNodeVisitor {
                 && ((BLangInvocation) accessExpr).builtInMethod == BLangBuiltInMethod.IS_FROZEN);
     }
 
+    private boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == baseTypeTag;
+        }
+
+        Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+        return memberTypes.stream().allMatch(memType -> memType.tag == baseTypeTag);
+    }
+
+    private BType checkObjectFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        if (varRefType.tag == TypeTags.OBJECT) {
+            return checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) varRefType);
+        }
+
+        // If the type is not an object, it needs to be a union of objects.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) memType);
+
+            if (individualFieldType == symTable.semanticError) {
+                return individualFieldType;
+            }
+
+            if (individualFieldType.tag == TypeTags.UNION) {
+                fieldTypeMembers.addAll(((BUnionType) individualFieldType).getMemberTypes());
+                continue;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
+    private BType checkRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        if (varRefType.tag == TypeTags.RECORD) {
+            return checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+        }
+
+        // If the type is not an record, it needs to be a union of records.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) memType);
+
+            if (individualFieldType == symTable.semanticError) {
+                return individualFieldType;
+            }
+
+            if (individualFieldType.tag == TypeTags.UNION) {
+                fieldTypeMembers.addAll(((BUnionType) individualFieldType).getMemberTypes());
+                continue;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.semanticError;
         switch (varRefType.tag) {
@@ -3157,18 +3242,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
-                break;
-            case TypeTags.STREAM:
-                BType streamConstraintType = ((BStreamType) varRefType).constraint;
-                if (streamConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) streamConstraintType);
-                }
-                break;
-            case TypeTags.TABLE:
-                BType tableConstraintType = ((BTableType) varRefType).constraint;
-                if (tableConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) tableConstraintType);
-                }
                 break;
             case TypeTags.JSON:
                 actualType = symTable.jsonType;
@@ -3661,6 +3734,18 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
         return true;
+    }
+
+    private boolean isLax(BType type) {
+        switch (type.tag) {
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.MAP:
+                return isLax(((BMapType) type).constraint);
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
+        }
+        return false;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

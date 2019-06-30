@@ -44,6 +44,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.KEY_NOT_FOUND_ERROR;
+
 /**
  * Common utility methods used for JSON manipulation.
  * 
@@ -123,11 +126,18 @@ public class JSONUtils {
      */
     public static Object getElement(Object json, String elementName) {
         if (!isJSONObject(json)) {
-            return null;
+            return BallerinaErrors.createError(JSON_OPERATION_ERROR, "JSON value is not a mapping");
+        }
+
+        MapValueImpl<String, Object> jsonObject = (MapValueImpl<String, Object>) json;
+
+        if (!jsonObject.containsKey(elementName)) {
+            return BallerinaErrors.createError(KEY_NOT_FOUND_ERROR, "Key '" + elementName + "' not found in JSON " +
+                    "mapping");
         }
 
         try {
-            return ((MapValueImpl<String, Object>) json).get(elementName);
+            return jsonObject.get(elementName);
         } catch (BallerinaException e) {
             if (e.getDetail() != null) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
