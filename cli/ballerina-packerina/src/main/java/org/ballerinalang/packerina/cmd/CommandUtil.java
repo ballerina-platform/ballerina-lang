@@ -109,6 +109,7 @@ public class CommandUtil {
      * Initialize a new ballerina project in the given path.
      *
      * @param path Project path
+     * @throws IOException If any IO exception occurred
      */
     public static void initProject(Path path) throws IOException {
             // We will be creating following in the project directory
