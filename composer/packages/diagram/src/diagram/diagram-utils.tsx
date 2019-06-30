@@ -20,23 +20,38 @@ interface CalcTextLengthOptions {
     bold: boolean;
 }
 
+interface GetComponentsOptions {
+    skipHidden?: boolean;
+    commonProps?: any;
+}
 export class DiagramUtils {
     public static isDrawable(node: any): boolean {
         return (components as any)[node.kind] !== undefined;
     }
 
-    public static getComponents(nodeArray: any): React.ReactNode[] {
+    public static getComponents(nodeArray: any, options: GetComponentsOptions = {}): React.ReactNode[] {
         // Convert to array
         if (!(nodeArray instanceof Array)) {
             nodeArray = [nodeArray];
         }
+
+        const {
+            skipHidden = true,
+            commonProps = {}
+        } = options;
+
         const children: any = [];
         nodeArray.forEach((node: any) => {
+            const allProps = {
+                model: node,
+                ...commonProps
+            };
+
             const ChildComp = (components as any)[node.kind];
             if (!ChildComp) { return; }
             // Do not return hidden elements
-            if (node.viewState && node.viewState.hidden) {return; }
-            children.push(<ChildComp model={node} />);
+            if (node.viewState && node.viewState.hidden && skipHidden) { return; }
+            children.push(<ChildComp {...allProps} />);
         });
         return children;
     }
