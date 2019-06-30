@@ -88,6 +88,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
+            addObjectInitFunction(mv, bType.constructor, bType, indexMap);
             addObjectAttachedFunctions(mv, bType.attachedFunctions, bType, indexMap);
         } else if (bType is bir:BServiceType) {
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -604,6 +605,29 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
     // Set the fields of the object
     mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setAttachedFunctions", 
             io:sprintf("([L%s;)V", ATTACHED_FUNCTION), false);
+}
+
+# Add the init function information to an object type. The object type is assumed
+# to be at the top of the stack.
+#
+# + mv - method visitor
+# + initFunction - init functions to be added
+function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
+                                    bir:BObjectType objType, BalToJVMIndexMap indexMap) {
+    if (initFunction is bir:BAttachedFunction && initFunction.name.value.contains("__init")) {
+        mv.visitInsn(DUP);
+        createObjectAttachedFunction(mv, initFunction, objType);
+        bir:VariableDcl attachedFuncVar = { typeValue: "any",
+            name: { value: objType.name.value + initFunction.name.value},
+            kind: "LOCAL" };
+        int attachedFunctionVarIndex = indexMap.getIndex(attachedFuncVar);
+        mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
+        mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
+        mv.visitInsn(DUP);
+        mv.visitInsn(POP);
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+            io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
+    }
 }
 
 # Create a attached function information for objects.
