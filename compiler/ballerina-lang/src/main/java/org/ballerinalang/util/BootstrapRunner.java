@@ -34,7 +34,8 @@ public class BootstrapRunner {
         }
 
         List<String> commands = new ArrayList<>();
-        if (System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows")) {
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows");
+        if (isWindows) {
             commands.add("cmd.exe");
             commands.add("/c");
             commands.add(bootstrapHome + "\\bin\\ballerina.bat");
@@ -45,7 +46,11 @@ public class BootstrapRunner {
         commands.add("run");
         commands.add(bootstrapHome + "/bin/compiler_backend_jvm.balx");
         commands.add(entryBir);
-        commands.add(""); // no native map for test file
+        if (isWindows) {
+            commands.add("\"\""); // no native map for test file
+        } else {
+            commands.add(""); // no native map for test file
+        }
         commands.add(jarOutputPath);
         commands.add("false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
@@ -90,15 +95,15 @@ public class BootstrapRunner {
 
                 byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
                 Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
-                                                .resolve(id.name.value)
-                                                .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
+                        .resolve(id.name.value)
+                        .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
                 Files.createDirectories(pkgBirDir);
                 Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
                 Files.write(pkgBir, bytes);
 
                 String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
                 generateJarBinary(pkgBir.toString(), jarOutputPath, birCache.toString(),
-                                  importsBirCache.toString());
+                        importsBirCache.toString());
             }
         }
     }
@@ -123,7 +128,7 @@ public class BootstrapRunner {
 
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget);
         generateJarBinary(entryBir.toString(), jarTarget.toString(), systemBirCache.toString(),
-                          importsBirCache.toString());
+                importsBirCache.toString());
 
 
         if (!Files.exists(jarTarget)) {
