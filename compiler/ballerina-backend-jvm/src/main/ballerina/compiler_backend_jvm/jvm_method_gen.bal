@@ -708,13 +708,13 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
-            argIndex += 2;
+            argIndex += 1;
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-                argIndex -= 1;
             }  
+            argIndex += 1;
         }
     } else {
         //load closureMaps
@@ -738,14 +738,14 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
             i += 1;
+            argIndex += 1;
             
-            argIndex += 2;
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-                argIndex -= 1;
-            }   
+            } 
+            argIndex += 1; 
         }
     }
 
