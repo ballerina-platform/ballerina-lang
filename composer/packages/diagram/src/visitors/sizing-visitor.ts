@@ -263,6 +263,12 @@ class SizingVisitor implements Visitor {
 
     public endVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden) {
+            viewState.bBox.w = 0;
+            viewState.bBox.h = 0;
+            return;
+        }
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
@@ -280,6 +286,13 @@ class SizingVisitor implements Visitor {
 
     public endVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
+
+        if (node.viewState.hidden) {
+            viewState.bBox.w = 0;
+            viewState.bBox.h = 0;
+            return;
+        }
+
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;

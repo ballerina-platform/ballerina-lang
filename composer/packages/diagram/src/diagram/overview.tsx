@@ -1,7 +1,7 @@
 import { ASTNode } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
 import React from "react";
-import { DropdownItemProps, List, ListItemProps } from "semantic-ui-react";
+import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
@@ -139,6 +139,10 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 nodes: module.nodeInfo.map((nodeInfo) => (nodeInfo.node))
             };
         });
+
+        if (!(modules.length > 0)) {
+            return <Loader active/>;
+        }
 
         return <div className="overview">
             <List relaxed>
