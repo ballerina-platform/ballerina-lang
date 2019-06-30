@@ -461,6 +461,9 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
         });
+
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
@@ -469,8 +472,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
-
-        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
