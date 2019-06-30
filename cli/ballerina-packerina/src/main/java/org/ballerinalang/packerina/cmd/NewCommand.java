@@ -34,6 +34,8 @@ import static org.ballerinalang.packerina.cmd.Constants.NEW_COMMAND;
 
 /**
  * New command for creating a ballerina project.
+ *
+ * @since 0.992.0
  */
 @CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina project")
 public class NewCommand implements BLauncherCmd {
