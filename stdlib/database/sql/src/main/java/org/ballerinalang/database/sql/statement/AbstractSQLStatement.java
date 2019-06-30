@@ -441,7 +441,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 */
 
     public Connection getDatabaseConnection(ObjectValue client, SQLDatasource datasource, boolean isSelectQuery)
-            throws SQLException {
+            throws DatabaseException {
         //TODO: JBalMigration Commenting out transaction handling and observability
         //TODO: #16033
         /*Connection conn;
@@ -493,7 +493,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
         return conn;*/
-        Connection conn = datasource.getSQLConnection();
+        Connection conn;
+        try {
+            conn = datasource.getSQLConnection();
+        } catch (SQLException e) {
+            throw new DatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
+        }
         return conn;
     }
 
