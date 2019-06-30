@@ -37,7 +37,7 @@ install:
 
 script:
   - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - ./gradlew build --console=plain --stacktrace -scan
+  - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan
   # Killing background sleep loop
   - kill %1
 
@@ -49,4 +49,6 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
     - $HOME/.m2
