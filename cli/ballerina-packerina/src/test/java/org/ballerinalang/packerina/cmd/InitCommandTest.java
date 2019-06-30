@@ -10,6 +10,8 @@ import java.nio.file.Path;
 
 /**
  * Test init command.
+ *
+ * @since 0.992.0
  */
 public class InitCommandTest extends CommandTest {
 

@@ -31,7 +31,7 @@ import java.util.Locale;
 /**
  * Packerina command util.
  *
- * @since 0.991.0
+ * @since 0.992.0
  */
 public class CommandUtil {
 

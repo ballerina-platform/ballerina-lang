@@ -30,7 +30,7 @@ import java.nio.file.Path;
 /**
  * Test cases for ballerina create command.
  *
- * @since 1.0
+ * @since 0.992.0
  */
 public class CreateCommandTest extends CommandTest {
 
