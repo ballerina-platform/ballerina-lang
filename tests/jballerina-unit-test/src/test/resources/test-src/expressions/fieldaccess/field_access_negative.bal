@@ -24,15 +24,16 @@ type Person record {
     string name;
     Person? employer = ();
     float salary;
+    int id;
 };
 
-function testFieldAccess1() {
+function testInvalidOptionalFieldAccess1() {
     Employee e = { name: "Anne" };
     _ = e.id;
     _ = e.salary;
 }
 
-function testFieldAccess2() {
+function testInvalidOptionalFieldAccess2() {
     Employee e = { name: "Anne" };
     Employee|Person ep = e;
     _ = ep.salary;
@@ -49,9 +50,48 @@ type PersonTwo record {
     float salary;
 };
 
-function testFieldAccess3() {
+function testInvalidFieldAccessType() {
     PersonTwo e = { name: "s1", id: "s2", salary: 100.0 };
     EmployeeTwo|PersonTwo ep = e;
     string id = ep.id;
     int id2 = ep.id;
+}
+
+function testInvalidFieldAccessOnMap() {
+    map<string> m = { one: "hello" };
+    string s = m.one;
+}
+
+function testInvalidFieldAccessOnUnion1() {
+    map<string> m = { name: "Anne" };
+    map<string>|EmployeeTwo me = m;
+    string s = me.name;
+}
+
+function testInvalidFieldAccessOnUnion2() {
+    EmployeeTwo e = { name: "Anne", id: 1000 };
+    EmployeeTwo? en = e;
+    string? s = en.name;
+}
+
+function testInvalidFieldAccessOnUnion3() {
+    map<string> m = { name: "Anne" };
+    map<string>|map<int> m2 = m;
+    string|int s = m2.name;
+}
+
+function testInvalidFieldAccessTypeOnJson() {
+    json m = { one: "hello" };
+    json s = m.one;
+}
+
+function testInvalidFieldAccessTypeOnJsonMap() {
+    map<json> m = { one: "hello" };
+    json s = m.one;
+}
+
+function testInvalidFieldAccessOnJsonInUnion() {
+    json m = { one: { two: "hello" } };
+    json|error one = m.one;
+    json|error two = one.two;
 }

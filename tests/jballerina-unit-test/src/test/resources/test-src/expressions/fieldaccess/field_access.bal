@@ -25,13 +25,13 @@ type Person record {
     Person? employer = ();
 };
 
-function testFieldAccess1() returns boolean {
+function testRecordFieldAccess1() returns boolean {
     string s = "Anne";
     Employee e = { name: s, id: 100 };
     return s == e.name;
 }
 
-function testFieldAccess2() returns boolean {
+function testRecordFieldAccess2() returns boolean {
     string s = "Anne";
     Employee e = { name: s, id: 1001 };
     Employee|Person ep = e;
@@ -51,7 +51,7 @@ type PersonTwo record {
     float salary;
 };
 
-function testFieldAccess3() returns boolean {
+function testRecordFieldAccess3() returns boolean {
     string s1 = "John";
     string s2 = "ASD123";
     PersonTwo e = { name: s1, id: s2, salary: 100.0 };
@@ -59,4 +59,89 @@ function testFieldAccess3() returns boolean {
     string name = ep.name;
     string|int id = ep.id;
     return name == s1 && id == s2;
+}
+
+int i = 12;
+json j1 = { a: { b: i } };
+map<json> j2 = { a: { b: i } };
+
+function testJsonFieldAccessPositive() returns boolean[2] {
+    return [testJsonFieldAccessPositive1(j1), testJsonFieldAccessPositive2(j1)];
+}
+
+function testJsonFieldAccessNegative() returns boolean[5] {
+    return [testNonMappingJsonFieldAccessNegative1(j1), testNonMappingJsonFieldAccessNegative2(j1),
+            testJsonFieldAccessNegativeMissingKey1(j1), testJsonFieldAccessNegativeMissingKey2(j1),
+            testJsonFieldAccessNegativeMissingKey3(j1)];
+}
+
+function testMapJsonFieldAccessPositive() returns boolean[2] {
+    return [testJsonFieldAccessPositive1(j2), testJsonFieldAccessPositive2(j2)];
+}
+
+function testMapJsonFieldAccessNegative() returns boolean[5] {
+    return [testNonMappingJsonFieldAccessNegative1(j2), testNonMappingJsonFieldAccessNegative2(j2),
+            testJsonFieldAccessNegativeMissingKey1(j2), testJsonFieldAccessNegativeMissingKey2(j2),
+            testJsonFieldAccessNegativeMissingKey3(j2)];
+}
+
+function testJsonFieldAccessPositive1(json j) returns boolean {
+    json be = { b: i };
+    json|error a = j.a;
+    return a is json && a == be;
+}
+
+function testJsonFieldAccessPositive2(json j) returns boolean {
+    json|error b = j.a.b;
+    return b is json && b == i;
+}
+
+function testNonMappingJsonFieldAccessNegative1(json j) returns boolean {
+    json|error a = j.a.b.c;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}JSONOperationError" && detailMap["message"] == "JSON value is not a mapping";
+    }
+    return false;
+}
+
+function testNonMappingJsonFieldAccessNegative2(json j) returns boolean {
+    json|error a = j.a.b.c.d;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}JSONOperationError" && detailMap["message"] == "JSON value is not a mapping";
+    }
+    return false;
+}
+
+function testJsonFieldAccessNegativeMissingKey1(json j) returns boolean {
+    json|error a = j.a.d;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'd' not found in JSON mapping";
+    }
+    return false;
+}
+
+function testJsonFieldAccessNegativeMissingKey2(json j) returns boolean {
+    json|error a = j.e;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
+}
+
+function testJsonFieldAccessNegativeMissingKey3(json j) returns boolean {
+    json|error a = j.e.f;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
 }

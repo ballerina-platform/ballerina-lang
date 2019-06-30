@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.fieldaccess;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -47,31 +48,85 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
-                              "for non-required field 'id'", 31, 9);
+                              "for non-required field 'id'", 32, 9);
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
-                              "for non-required field 'salary'", 32, 9);
+                              "for non-required field 'salary'", 33, 9);
         validateError(negativeResult, i++, "invalid operation: type 'Employee|Person' does not support field access " +
-                "for non-required field 'salary'", 38, 9);
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 55, 17);
-        validateError(negativeResult, i, "incompatible types: expected 'int', found 'int|string'", 56, 15);
+                "for non-required field 'salary'", 39, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 56, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 57, 15);
+        validateError(negativeResult, i++, "invalid operation: type 'map<string>' does not support field access",
+                      62, 16);
+        validateError(negativeResult, i++, "invalid operation: type 'map<string>|EmployeeTwo' does not support " +
+                              "field access", 68, 16);
+        validateError(negativeResult, i++, "invalid operation: type 'EmployeeTwo?' does not support field access",
+                      74, 17);
+        validateError(negativeResult, i++, "invalid operation: type 'map<string>|map<int>' does not support " +
+                              "field access", 80, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 85, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 90, 14);
+        validateError(negativeResult, i, "invalid operation: type 'json|error' does not support field access", 96, 22);
     }
 
-    @Test(dataProvider = "fieldAccessFunctions")
-    public void testFieldAccessPositive(String function) {
+    @Test(dataProvider = "recordFieldAccessFunctions")
+    public void testRecordFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-
-    @DataProvider(name = "fieldAccessFunctions")
-    public Object[][] fieldAccessFunctions() {
+    @DataProvider(name = "recordFieldAccessFunctions")
+    public Object[][] recordFieldAccessFunctions() {
         return new Object[][] {
-                { "testFieldAccess1" },
-                { "testFieldAccess2" },
-                { "testFieldAccess3" }
+            { "testRecordFieldAccess1" },
+            { "testRecordFieldAccess2" },
+            { "testRecordFieldAccess3" }
         };
+    }
+
+    @Test
+    public void testJsonFieldAccessPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessPositive");
+        Assert.assertEquals(returns.length, 1);
+        BValueArray array = ((BValueArray) returns[0]);
+        Assert.assertEquals(array.size(), 2);
+        for (int i = 0; i < 2; i++) {
+            Assert.assertEquals(array.getBoolean(i), 1);
+        }
+    }
+
+    @Test
+    public void testJsonFieldAccessNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessNegative");
+        Assert.assertEquals(returns.length, 1);
+        BValueArray array = ((BValueArray) returns[0]);
+        Assert.assertEquals(array.size(), 5);
+        for (int i = 0; i < 5; i++) {
+            Assert.assertEquals(array.getBoolean(i), 1);
+        }
+    }
+
+    @Test
+    public void testMapJsonFieldAccessPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapJsonFieldAccessPositive");
+        Assert.assertEquals(returns.length, 1);
+        BValueArray array = ((BValueArray) returns[0]);
+        Assert.assertEquals(array.size(), 2);
+        for (int i = 0; i < 2; i++) {
+            Assert.assertEquals(array.getBoolean(i), 1);
+        }
+    }
+
+    @Test
+    public void testMapJsonFieldAccessNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
+        Assert.assertEquals(returns.length, 1);
+        BValueArray array = ((BValueArray) returns[0]);
+        Assert.assertEquals(array.size(), 5);
+        for (int i = 0; i < 5; i++) {
+            Assert.assertEquals(array.getBoolean(i), 1);
+        }
     }
 }

@@ -594,8 +594,13 @@ public class Types {
             if (source.tag == TypeTags.JSON) {
                 return true;
             }
+
             if (source.tag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable(source, target, unresolvedTypes);
+            }
+
+            if (source.tag == TypeTags.MAP) {
+                return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
             }
         }
 
