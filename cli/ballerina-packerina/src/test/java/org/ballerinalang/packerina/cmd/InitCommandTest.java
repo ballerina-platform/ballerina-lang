@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Test init command.
+ */
 public class InitCommandTest extends CommandTest {
 
     @Test(description = "Test init command with help flag")
