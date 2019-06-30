@@ -33,10 +33,6 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     public BLangExpression indexExpr;
 
-    public BLangIndexBasedAccess() {
-        this.safeNavigate = false;
-    }
-
     @Override
     public BLangExpression getExpression() {
         return expr;

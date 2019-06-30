@@ -29,7 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 public abstract class BLangAccessExpression extends BLangVariableReference implements VariableReferenceNode {
 
     public BLangExpression expr;
-    public boolean safeNavigate;
+    public boolean safeNavigate = false;
+    public boolean optionalFieldAccess = false;
     public BType originalType;
     public boolean leafNode;
 }
