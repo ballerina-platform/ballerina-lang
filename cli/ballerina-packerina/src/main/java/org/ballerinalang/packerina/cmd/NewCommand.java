@@ -20,11 +20,11 @@ package org.ballerinalang.packerina.cmd;
 
 
 import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.util.BCompileUtil;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -106,6 +106,8 @@ public class NewCommand implements BLauncherCmd {
         try {
             Files.createDirectories(path);
             CommandUtil.initProject(path);
+        } catch (AccessDeniedException e) {
+            errStream.println("error: Error occurred while creating project : " + "Access Denied");
         } catch (IOException e) {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;

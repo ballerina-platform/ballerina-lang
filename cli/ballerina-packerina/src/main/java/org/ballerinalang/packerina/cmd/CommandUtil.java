@@ -131,8 +131,8 @@ public class CommandUtil {
             Files.createDirectory(test);
             Files.createDirectory(testResources);
 
-            String defaultManifest = BCompileUtil.readFileAsString("defaults/manifest.toml");
-            String defaultGitignore = BCompileUtil.readFileAsString("defaults/gitignore");
+            String defaultManifest = BCompileUtil.readFileAsString("new_cmd_defaults/manifest.toml");
+            String defaultGitignore = BCompileUtil.readFileAsString("new_cmd_defaults/gitignore");
 
             // replace manifest org with a guessed value.
             defaultManifest = defaultManifest.replaceAll("ORG_NAME", CommandUtil.guessOrgName());
