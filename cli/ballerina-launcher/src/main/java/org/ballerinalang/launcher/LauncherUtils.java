@@ -23,16 +23,16 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.launcher.util.BFileUtil;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.BackendCodeGeneratorProvider;
+import org.ballerinalang.util.BootstrapRunner;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -73,6 +73,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +94,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
@@ -437,16 +439,29 @@ public class LauncherUtils {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPkgNode = compiler.compile(source);
 
-        CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-                getBackendCodeGenerator();
-        Optional result = jvmCodeGen.generate(false, entryPkgNode, context, sourceRootPath.toString());
-        if (!result.isPresent()) {
-            throw new RuntimeException("Compiled binary jar is not found");
+//        CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
+//                getBackendCodeGenerator();
+        String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                "ballerina.home is not set");
+        JBallerinaInMemoryClassLoader classLoader;
+        try {
+            classLoader = BootstrapRunner.createClassLoaders(entryPkgNode,
+                    Paths.get(balHome).resolve("bir-cache"),
+                    sourceRootPath,  Optional.empty());
+        } catch (IOException e) {
+            throw new BLangCompilerException("error invoking jballerina backend", e);
         }
-        entryPkgNode.jarBinaryContent = (byte[]) result.get();
+//        Optional result = jvmCodeGen.generate(false, entryPkgNode, context, sourceRootPath.toString());
+//        if (!result.isPresent()) {
+//            throw new RuntimeException("Compiled binary jar is not found");
+//        }
+//        entryPkgNode.jarBinaryContent = (byte[]) result.get();
 
-        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(entryPkgNode.jarBinaryContent);
-        String initClassName = getModuleInitClassName(entryPkgNode.jarBinaryContent);
+//        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(entryPkgNode.jarBinaryContent);
+//        String initClassName = getModuleInitClassName(entryPkgNode.jarBinaryContent);
+        String initClassName = BFileUtil.getQualifiedClassName(entryPkgNode.packageID.orgName.value,
+                entryPkgNode.packageID.name.value,
+                MODULE_INIT_CLASS_NAME);
         runInMemoryJar(classLoader, args, initClassName);
         return;
     }
@@ -599,19 +614,20 @@ public class LauncherUtils {
         }
     }
 
-    private static String getModuleInitClassName(byte[] jarContent) {
-        try (JarInputStream jarStream = new JarInputStream(new ByteArrayInputStream(jarContent))) {
-            Manifest mf = jarStream.getManifest();
-            Attributes attributes = mf.getMainAttributes();
-            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
-            if (initClassName == null) {
-                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
-            }
-            return initClassName.replaceAll("/", ".");
-        } catch (IOException e) {
-            throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
-        }
-    }
+//    private static String getModuleInitClassName(byte[] jarContent) {
+//        try (JarInputStream jarStream = new JarInputStream(new ByteArrayInputStream(jarContent))) {
+//            Manifest mf = jarStream.getManifest();
+//            Attributes attributes = mf.getMainAttributes();
+//            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
+//            if (initClassName == null) {
+//                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
+//            }
+//            return initClassName.replaceAll("/", ".");
+//        } catch (IOException e) {
+//            throw createLauncherException("error while getting init class name from manifest due to "
+//            + e.getMessage());
+//        }
+//    }
 
     private static ProgramFile compileModule(Path sourceRootPath, Path sourcePath, boolean offline,
                                              boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,
