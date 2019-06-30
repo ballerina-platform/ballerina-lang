@@ -617,7 +617,7 @@ public class BCompileUtil {
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,
                                                                                   buildDir.resolve("test-bir-temp"),
-                                                                                  Optional.empty());
+                                                                                  Optional.empty(), false);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
