@@ -20,15 +20,13 @@ package org.ballerinalang.packerina.cmd;
 
 
 import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.util.BCompileUtil;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 
@@ -64,7 +62,7 @@ public class InitCommand implements BLauncherCmd {
         }
 
         // If the current directory is a ballerina project ignore.
-        if(CommandUtil.isProject(this.userDir)) {
+        if (CommandUtil.isProject(this.userDir)) {
             CommandUtil.printError(errStream,
                     "Directory is already a ballerina project",
                     null,
@@ -73,20 +71,6 @@ public class InitCommand implements BLauncherCmd {
         }
 
         // Check if there is a ballerina project in sub level.
-
-<<<<<<< HEAD
-                out.print("\n");
-            } else {
-                manifest = new Manifest();
-                manifest.getProject().setOrgName(guessOrgName());
-                manifest.getProject().setVersion(DEFAULT_VERSION);
-                if (isDirEmpty(projectPath)) {
-                    SrcFile srcFile = new SrcFile("", FileType.SERVICE);
-                    sourceFiles.add(srcFile);
-                }
-            }
-=======
->>>>>>> Add new and create commands
 
         // Check if the command is executed inside a ballerina project
         Path projectRoot = CommandUtil.findProjectRoot(this.userDir);
@@ -100,8 +84,10 @@ public class InitCommand implements BLauncherCmd {
 
         try {
             CommandUtil.initProject(this.userDir);
+        } catch (AccessDeniedException e) {
+            errStream.println("error: Error occurred while initializing project : " + "Access Denied");
         } catch (IOException e) {
-            errStream.println("error: Error occurred while creating project : " + e.getMessage());
+            errStream.println("error: Error occurred while initializing project : " + e.getMessage());
             return;
         }
         errStream.println("Ballerina project initialised ");
@@ -110,32 +96,6 @@ public class InitCommand implements BLauncherCmd {
         errStream.println("    Use `ballerina create` to create a ballerina module.");
     }
 
-
-<<<<<<< HEAD
-            String orgName;
-            do {
-                out.print("Organization name: (" + defaultOrg + ") ");
-                orgName = scanner.nextLine().trim();
-            } while (!validateOrgName(orgName));
-            // Set org-name
-            manifest.getProject().setOrgName(orgName.isEmpty() ? defaultOrg : orgName);
-            String version;
-            do {
-                out.print("Version: (" + DEFAULT_VERSION + ") ");
-                version = scanner.nextLine().trim();
-                version = version.isEmpty() ? DEFAULT_VERSION : version;
-            } while (!validateVersion(out, version));
-
-            manifest.getProject().setVersion(version);
-        }
-        return manifest;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-=======
->>>>>>> Add new and create commands
     @Override
     public String getName() {
         return INIT_COMMAND;
