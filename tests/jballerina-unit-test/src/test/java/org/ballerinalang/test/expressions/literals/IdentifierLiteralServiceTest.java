@@ -25,8 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,22 +35,20 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * identifier literals in service and resource names.
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class IdentifierLiteralServiceTest {
 
-    private CompileResult application;
-    private static final String MOCK_ENDPOINT_NAME = "testEP";
+    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
-        application = BServiceUtil
-                .setupProgramFile(this,
-                                  "test-src/expressions/literals/identifierliteral/identifier-literal-service.bal");
+        BCompileUtil.compile("test-src/expressions/literals/identifierliteral/identifier-literal-service.bal");
     }
 
     @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertTrue(bJson instanceof BMap);
@@ -62,10 +59,9 @@ public class IdentifierLiteralServiceTest {
     @Test(description = "Test identifier literals payload")
     public void testIdentifierLiteralsInPayload() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
         Assert.assertNotNull(response);
-        String payload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        String payload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(payload, "hello");
     }
 }

@@ -37,6 +37,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.TableValue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -206,10 +208,10 @@ public class JSONUtils {
         try {
             return Lists.get((ArrayValue) jsonArray, index);
         } catch (ErrorValue e) {
-            if (e.getDetails() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetails());
-            }
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR,
+                                                           BallerinaErrors.getErrorMessageFromDetail(
+                                                                   (MapValueImpl<String, Object>) e.getDetails()));
+
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -474,6 +476,20 @@ public class JSONUtils {
         }
     }
 
+    /**
+     * Convert {@link TableValue} to JSON.
+     *
+     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
+     * @return JSON representation of the provided table
+     */
+    public static Object toJSON(TableValue table) {
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+        if (table.isInMemoryTable()) {
+            return jsonDataSource.build();
+        }
+
+        return new StreamingJsonValue(jsonDataSource);
+    }
     // Private methods
 
     /**

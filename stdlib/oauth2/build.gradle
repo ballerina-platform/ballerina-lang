@@ -18,6 +18,43 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+dependencies {
+    baloCreat project(':lib-creator')
+
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-auth')
+    implementation project(':ballerina-encoding')
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-log-api')
+    implementation project(':ballerina-mime')
+    implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-utils')
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    //transitive
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+}
+
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
@@ -28,41 +65,14 @@ configurations.testCompileClasspath {
     }
 }
 
-dependencies {
-    baloCreat project(':lib-creator')
-
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
-    implementation project(':ballerina-auth')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-mime')
-    implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-config-api')
-
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-
-    //transitive
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
-
-description = 'Ballerina - OAuth2'
 
 createBalo {
     jvmTarget = 'true'
 }
+
+description = 'Ballerina - OAuth2'

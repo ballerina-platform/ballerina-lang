@@ -15,10 +15,12 @@
 // under the License.
 
 public type Package record {|
+    //TODO: change to ModuleID[]
     ImportModule[] importModules = [];
     TypeDef?[] typeDefs = [];
     GlobalVariableDcl?[] globalVars;
     Function?[] functions = [];
+    //TODO: change to ModuleID
     Name name = {};
     Name org = {};
     BType?[] types = [];
@@ -224,7 +226,10 @@ public type GlobalVarKind VAR_KIND_GLOBAL;
 public const VAR_KIND_SELF = "SELF";
 public type SelfVarKind VAR_KIND_SELF;
 
-public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind;
+public const VAR_KIND_CONSTANT = "CONSTANT";
+public type ConstantVarKind VAR_KIND_CONSTANT;
+
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind | SelfVarKind | ConstantVarKind;
 
 
 public const VAR_SCOPE_GLOBAL = "GLOBAL_SCOPE";
@@ -244,6 +249,8 @@ public type VariableDcl record {|
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
+
     anydata...; // This is to type match with Object type fields in subtypes
 |};
 
@@ -253,10 +260,11 @@ public type FunctionParam record {|
 |};
 
 public type GlobalVariableDcl record {|
-    VarKind kind = "GLOBAL";
+    VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
+    ModuleID moduleId?;
     int flags = PRIVATE;
 |};
 
@@ -386,7 +394,7 @@ public type BFutureType record {|
 public type BFiniteType record {|
     Name name = {};
     int flags;
-    (int | string | boolean | float | byte| ()) [] values;
+    (int | string | boolean | float | byte| () | Decimal) [] values;
 |};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
@@ -432,7 +440,7 @@ public type ConstantLoad record {|
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string | boolean | float | byte | () value;
+    int | string | boolean | float | byte | () | Decimal value;
 |};
 
 public type NewMap record {|
@@ -730,4 +738,8 @@ public type WaitAll record {|
     VarRef?[] futures;
     string[] keys;
     BasicBlock thenBB;
+|};
+
+public type Decimal record {|
+    string value;
 |};

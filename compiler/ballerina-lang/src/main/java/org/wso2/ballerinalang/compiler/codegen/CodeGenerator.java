@@ -1182,12 +1182,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(arrayIndexAccessExpr.indexExpr, this.env);
         Operand indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
 
-        BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
+        BType arrayType = arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
@@ -2119,16 +2119,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
         // Add the finite type to the CP and get index.
-        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        BType symbolType = constant.typeNode != null ? constant.typeNode.type : constantSymbol.type;
+        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbolType.getDesc());
         // Add the value type to the CP and get index.
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalType.getDesc());
 
         // Get the value of the constant.
-        BLangExpression value = (BLangExpression) constant.value;
+        BLangExpression value = constant.expr;
 
         if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
             // Create a new constant value object.
-            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) constant.value);
+            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) value);
             constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
             constantValue.literalValueTypeTag = value.type.tag;
@@ -2138,7 +2139,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             // Get key-value info.
             ConstantValue constantValue = new ConstantValue();
-            constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
+            // constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.value);
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
@@ -2238,7 +2239,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
                 BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
                 // Get the literal value.
-                Object literalValue = symbol.literalValue;
+                Object literalValue = symbol.value;
 
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);

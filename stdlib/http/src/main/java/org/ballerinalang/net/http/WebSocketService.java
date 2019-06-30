@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -39,13 +40,16 @@ public class WebSocketService {
     private String basePath;
     private HttpResource upgradeResource;
     private int maxFrameSize = WebSocketConstants.DEFAULT_MAX_FRAME_SIZE;
+    private Scheduler scheduler;
 
-    public WebSocketService() {
+    public WebSocketService(Scheduler scheduler) {
+        this.scheduler = scheduler;
         service = null;
     }
 
     @SuppressWarnings("unchecked")
-    public WebSocketService(ObjectValue service) {
+    public WebSocketService(ObjectValue service, Scheduler scheduler) {
+        this.scheduler = scheduler;
         this.service = service;
         for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
             resourceMap.put(resource.getName(), resource);
@@ -67,8 +71,9 @@ public class WebSocketService {
 
     }
 
-    public WebSocketService(String httpBasePath, HttpResource upgradeResource, ObjectValue service) {
-        this(service);
+    public WebSocketService(String httpBasePath, HttpResource upgradeResource, ObjectValue service,
+                            Scheduler scheduler) {
+        this(service, scheduler);
         MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
                 upgradeResource.getBalResource());
         if (resourceConfigAnnotation == null) {
@@ -83,16 +88,12 @@ public class WebSocketService {
 
     public String getName() {
         if (service != null) {
-            //TODO please verify this
-            String name = service.getType().getName();
+            //With JBallerina this is the way to get the key
+            String name = service.getType().getAnnotationKey();
             return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
         }
         return null;
     }
-
-//    public ServiceInfo getServiceInfo() {
-//        return service != null ? service.getServiceInfo() : null;
-//    }
 
     public AttachedFunction getResourceByName(String resourceName) {
         return resourceMap.get(resourceName);
@@ -140,5 +141,9 @@ public class WebSocketService {
     public ObjectValue getBalService() {
         //TODO check service = null scenarios
         return service;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 }

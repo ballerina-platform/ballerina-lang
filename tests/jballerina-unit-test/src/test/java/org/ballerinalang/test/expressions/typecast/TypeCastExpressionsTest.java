@@ -81,14 +81,14 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string\\|int\\|null\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
+                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(string,int\\|string,float\\)' cannot be cast" +
-                    " to '\\(string,int,float\\)'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,int\\|string,float\\]' cannot be cast" +
+                    " to '\\[string,int,float\\]'.*")
     public void testTupleCastNegative() {
         BRunUtil.invoke(result, "testTupleCastNegative");
     }

@@ -18,10 +18,6 @@
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-configurations.all {
-    resolutionStrategy.preferProjectModules()
-}
-
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
@@ -47,6 +43,26 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - LDAP'

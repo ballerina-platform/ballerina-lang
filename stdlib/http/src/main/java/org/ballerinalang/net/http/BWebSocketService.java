@@ -55,7 +55,7 @@ public class BWebSocketService {
         ParamDetail param = service.getResources()[0].getParamDetails().get(0);
         Annotation configAnnotation = BWebSocketUtil.getServiceConfigAnnotation(service);
 
-        if (param != null && WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(param.getVarType().toString())) {
+        if (param != null && WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(param.getVarType().toString())) {
             Struct configAnnotationStruct = null;
             if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
                 negotiableSubProtocols = BWebSocketUtil.findNegotiableSubProtocols(configAnnotationStruct);

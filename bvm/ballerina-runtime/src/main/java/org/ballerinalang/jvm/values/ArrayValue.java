@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +78,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     private byte[] byteValues;
     private double[] floatValues;
     private String[] stringValues;
+    private BigDecimal[] decimalValues;
 
     public BType elementType;
 
@@ -116,6 +118,12 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.stringValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeString);
+    }
+
+    public ArrayValue(BigDecimal[] values) {
+        this.decimalValues = values;
+        this.size = values.length;
+        setArrayElementType(BTypes.typeDecimal);
     }
 
     public ArrayValue(BType type) {
@@ -257,6 +265,11 @@ public class ArrayValue implements RefValue, CollectionValue {
     public String getString(long index) {
         rangeCheckForGet(index, size);
         return stringValues[(int) index];
+    }
+
+    public BigDecimal getDecimal(long index) {
+        rangeCheckForGet(index, size);
+        return decimalValues[(int) index];
     }
 
     public Object get(long index) {
@@ -662,6 +675,15 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    private void fillerValueCheck(int index, int size) {
+        // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
+        // to the array, then an exception will be thrown.
+        if (!TypeChecker.hasFillerValue(elementType) && (index > size)) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_ARRAY_INSERTION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+        }
+    }
+
     Object newArrayInstance(Class<?> componentType) {
         return (size > 0) ?
                 Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
@@ -710,6 +732,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
+        fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }

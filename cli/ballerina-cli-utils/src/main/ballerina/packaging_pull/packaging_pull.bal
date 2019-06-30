@@ -260,11 +260,11 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 # + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read, or error if read failed
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int)|error {
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns [byte[], int]|error {
     byte[] bytes;
     int numberOfBytesRead;
-    (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
-    return (bytes, numberOfBytesRead);
+    [bytes, numberOfBytesRead] = check (byteChannel.read(numberOfBytes));
+    return [bytes, numberOfBytesRead];
 }
 
 # This function will write the bytes from the byte channel.
@@ -304,7 +304,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     while (!completed) {
-        (readContent, readCount) = check readBytes(src, bytesChunk);
+        [readContent, readCount] = check readBytes(src, bytesChunk);
         if (readCount <= startVal) {
             completed = true;
         }

@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.values.BMap;
@@ -38,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
@@ -83,10 +83,11 @@ public class Forward extends AbstractHTTPAction {
         return outboundRequestMsg;
     }
 
-    public static Object nativeForward(Strand strand, String url, MapValue config, String path,
-                                       ObjectValue requestObj) {
+    @SuppressWarnings("unchecked")
+    public static Object nativeForward(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, path, requestObj);
-        HttpClientConnector clientConnector = (HttpClientConnector) config.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);

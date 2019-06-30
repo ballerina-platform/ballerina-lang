@@ -63,7 +63,7 @@ public class BallerinaSdkType extends SdkType {
     @Nullable
     @Override
     public String suggestHomePath() {
-        VirtualFile suggestSdkDirectory = BallerinaSdkUtil.suggestSdkDirectory();
+        VirtualFile suggestSdkDirectory = BallerinaSdkUtils.suggestSdkDirectory();
         return suggestSdkDirectory != null ? suggestSdkDirectory.getPath() : null;
     }
 
@@ -105,7 +105,7 @@ public class BallerinaSdkType extends SdkType {
     @Nullable
     @Override
     public String getVersionString(@NotNull String sdkHome) {
-        return BallerinaSdkUtil.retrieveBallerinaVersion(sdkHome);
+        return BallerinaSdkUtils.retrieveBallerinaVersion(sdkHome);
     }
 
     @Nullable
@@ -145,7 +145,7 @@ public class BallerinaSdkType extends SdkType {
         }
         modificator.setHomePath(path);
 
-        for (VirtualFile file : BallerinaSdkUtil.getSdkDirectoriesToAttach(path, versionString)) {
+        for (VirtualFile file : BallerinaSdkUtils.getSdkDirectoriesToAttach(path, versionString)) {
             modificator.addRoot(file, OrderRootType.CLASSES);
             modificator.addRoot(file, OrderRootType.SOURCES);
         }

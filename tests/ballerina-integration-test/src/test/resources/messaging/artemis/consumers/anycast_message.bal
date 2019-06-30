@@ -33,12 +33,12 @@ service anyCastConsumer on artemisListener {
             io:print("byte[] ");
         } else if (payload is map<string>) {
             io:print("map<string> ");
-        } else if (payload is map<int>) {
-            io:print("map<int> ");
         } else if (payload is map<float>) {
             io:print("map<float> ");
         } else if (payload is map<byte>) {
             io:print("map<byte> ");
+        } else if (payload is map<int>) {
+            io:print("map<int> ");
         } else if (payload is map<boolean>) {
             io:print("map<boolean> ");
         } else if (payload is map<byte[]>) {

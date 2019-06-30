@@ -16,6 +16,9 @@
 
 import ballerina/log;
 
+const string EMPTY_STRING = "";
+const string WHITE_SPACE = " ";
+
 # Constant for the auth error code.
 public const JWT_ERROR_CODE = "{ballerina/jwt}JWTError";
 

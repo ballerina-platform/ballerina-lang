@@ -75,7 +75,7 @@ public class BArrayType extends BType {
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.DECIMAL_TAG:
-                return (V) new ArrayValue(elementType, size);
+                return (V) new ArrayValue(new BArrayType(elementType), size);
             case TypeTags.ARRAY_TAG: // fall through
             default:
                 return (V) new ArrayValue(this);
