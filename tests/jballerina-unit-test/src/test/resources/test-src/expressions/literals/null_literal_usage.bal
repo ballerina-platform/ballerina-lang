@@ -66,8 +66,8 @@ function utilFn(json j) returns json {
     return j;
 }
 
-function testNullInATuple() returns (int, json, string) {
-    (int, json, string) tup = (50, null, "foo");
+function testNullInATuple() returns [int, json, string] {
+    [int, json, string] tup = [50, null, "foo"];
     return tup;
 }
 

@@ -20,12 +20,22 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:iterator(string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "iterator",
+        args = {@Argument(name = "str", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+        isPublic = true
+)
 public class GetIterator {
 
     public static ObjectValue iterator(Strand strand, String str) {

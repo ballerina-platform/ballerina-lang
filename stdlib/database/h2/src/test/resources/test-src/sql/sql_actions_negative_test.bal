@@ -121,7 +121,7 @@ function testBatchUpdate() returns string {
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
     sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var x = trap testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+    var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
     if (x is int[]) {
         updateCount = x;
@@ -151,7 +151,7 @@ function testInvalidArrayofQueryParameters() returns string {
     xml x2 = xml `<book>The Lost World2</book>`;
     xml[] xmlDataArray = [x1, x2];
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
-    var x = trap testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
+    var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
         var j = json.convert(x);

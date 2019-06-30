@@ -19,12 +19,22 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:codePointCompare(string, string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "codePointCompare",
+        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
+        isPublic = true
+)
 public class CodePointCompare {
 
     public static int codePointCompare(Strand strand, String str1, String str2) {

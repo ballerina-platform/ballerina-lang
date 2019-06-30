@@ -6,144 +6,22 @@
   "source": "function/source/variableBoundItemSuggestions4.bal",
   "items": [
     {
-      "label": "equalsIgnoreCase(string anotherString)(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nCompares two strings, ignoring the case of the strings.\n  \n  \n---    \n**Parameters**  \n- _anotherString_  \n    The string to be compared  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "equalsIgnoreCase(${1:anotherString})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toUpper()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to uppercase.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "toUpper()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "substring(int startIndex, int endIndex)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a new string that is the substring of the specified string.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    The starting index  \n  \n- _endIndex_  \n    The ending index  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "substring(${1:startIndex}, ${2:endIndex})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lastIndexOf(string substring)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the last occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "lastIndexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "replaceFirst(string regex, string replaceWith)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces the first instance of the replacePattern with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "replaceFirst(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "length()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the length of the specified string.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "contains(string substring)(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string contains the specified substring.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to be compared  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "contains(${1:substring})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "indexOf(string substring)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the first occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "indexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "trim()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "trim()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "hasSuffix(string suffix)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string ends with specified suffix.\n  \n  \n---    \n**Parameters**  \n- _suffix_  \n    The suffix to be compared  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string ends with specified suffix.\n  \n  \n---    \n**Parameters**  \n- _suffix_  \n    The suffix to be compared  \n  \n  \n**Return**  \nboolean"
         }
       },
       "sortText": "121",
-      "insertText": "hasSuffix(${1:suffix})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasSuffix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "unescape()(string)",
@@ -152,68 +30,16 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns an unescaped string by omitting the escape characters of the original string.\n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns an unescaped string by omitting the escape characters of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
       "sortText": "121",
-      "insertText": "unescape()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toLower()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to lowercase.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "toLower()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "hasPrefix(string prefix)(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string starts with the specified prefix.\n  \n  \n---    \n**Parameters**  \n- _prefix_  \n    The prefix to be compared  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "hasPrefix(${1:prefix})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "replaceAll(string regex, string replaceWith)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces each substring of the string that matches the given regular expression with the given replacement.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regular expression to search for  \n  \n- _replaceWith_  \n    The replacement string  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "replaceAll(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "replace(string regex, string replaceWith)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces all instances of the replacePattern string with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "replace(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "unescape(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "split(string regex)(string[])",
@@ -222,26 +48,16 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nSplits the string with the given regular expression to produce a string array.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regex to split the string  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nSplits the string with the given regular expression to produce a string array.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regex to split the string  \n  \n  \n**Return**  \nstring[]"
         }
       },
       "sortText": "121",
-      "insertText": "split(${1:regex})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "findAll(string regex)(string[]|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "findAll(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "split(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "matches(string regex)(boolean|error)",
@@ -250,26 +66,52 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nboolean|error"
         }
       },
       "sortText": "121",
-      "insertText": "matches(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "matches(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "toByteArray(string encoding)(byte[])",
+      "label": "replace(string regex, string replaceWith)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nConverts string to a byte array.\n  \n  \n---    \n**Parameters**  \n- _encoding_  \n    Encoding to be used in the conversion  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces all instances of the replacePattern string with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
         }
       },
       "sortText": "121",
-      "insertText": "toByteArray(${1:encoding})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replace(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf(string substring)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the first occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "sortText": "121",
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hashCode()(int)",
@@ -278,12 +120,250 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a hash code for this string.\n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a hash code for this string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
         }
       },
       "sortText": "121",
-      "insertText": "hashCode()",
-      "insertTextFormat": "Snippet"
+      "insertText": "hashCode(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "hasPrefix(string prefix)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string starts with the specified prefix.\n  \n  \n---    \n**Parameters**  \n- _prefix_  \n    The prefix to be compared  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "121",
+      "insertText": "hasPrefix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "substring(int startIndex, int endIndex)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a new string that is the substring of the specified string.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    The starting index  \n  \n- _endIndex_  \n    The ending index  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "contains(string substring)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string contains the specified substring.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to be compared  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "121",
+      "insertText": "contains(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "findAll(string regex)(string[]|error)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nstring[]|error"
+        }
+      },
+      "sortText": "121",
+      "insertText": "findAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "lastIndexOf(string substring)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the last occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "sortText": "121",
+      "insertText": "lastIndexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "equalsIgnoreCase(string anotherString)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nCompares two strings, ignoring the case of the strings.\n  \n  \n---    \n**Parameters**  \n- _anotherString_  \n    The string to be compared  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "121",
+      "insertText": "equalsIgnoreCase(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "trim()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "replaceAll(string regex, string replaceWith)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces each substring of the string that matches the given regular expression with the given replacement.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regular expression to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "replaceAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "replaceFirst(string regex, string replaceWith)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces the first instance of the replacePattern with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "replaceFirst(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "length()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the length of the specified string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "sortText": "121",
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toByteArray(string encoding)(byte[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts string to a byte array.\n  \n  \n---    \n**Parameters**  \n- _encoding_  \n    Encoding to be used in the conversion  \n  \n  \n**Return**  \nbyte[]"
+        }
+      },
+      "sortText": "121",
+      "insertText": "toByteArray(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toLower()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to lowercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "toLower(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toUpper()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to uppercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "121",
+      "insertText": "toUpper(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "freeze()",
@@ -291,7 +371,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "freeze()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "isFrozen()",
@@ -299,7 +383,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "stamp(anydata a)",
@@ -307,7 +395,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "clone()",
@@ -315,7 +407,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "clone()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "convert(anydata a)",
@@ -323,7 +419,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "convert(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

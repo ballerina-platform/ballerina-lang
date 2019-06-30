@@ -236,10 +236,10 @@ function test15() returns int {
     return foo.call(7);
 }
 
-function testClosureWithTupleTypes((string, float, string) g) returns (function (string, (string, float, string)) returns (string)){
-    return function (string x, (string, float, string) y) returns (string) {
-       var (i, j, k) = y;
-       var (l, m, n) = g;
+function testClosureWithTupleTypes([string, float, string] g) returns (function (string, [string, float, string]) returns (string)){
+    return function (string x, [string, float, string] y) returns (string) {
+       var [i, j, k] = y;
+       var [l, m, n] = g;
        return x + i + j + k + l + m + n;
     };
 }
@@ -248,23 +248,23 @@ function test16() returns string {
     string a = "Hello";
     float b = 11.1;
     string c = "World !!!";
-    var foo = testClosureWithTupleTypes((a, b, c));
+    var foo = testClosureWithTupleTypes([a, b, c]);
     string i = "Ballerina";
     float j = 15.0;
     string k = "Program !!!";
-    return foo.call("Im", (i, j, k));
+    return foo.call("Im", [i, j, k]);
 }
 
-function testClosureWithTupleTypesOrder((string, float, string) g) returns (function ((string, float, string), string) returns (string)){
+function testClosureWithTupleTypesOrder([string, float, string] g) returns (function ([string, float, string], string) returns (string)){
     string i = "HelloInner";
     float j = 44.8;
     string k = "World Inner!!!";
-    (string, float, string) r = (i, j, k);
+    [string, float, string] r = [i, j, k];
 
-    return function ((string, float, string) y, string x) returns (string) {
-       var (a, b, c) = g;
-       var (d, e, f) = y;
-       var (i1, j1, k1) = r;
+    return function ([string, float, string] y, string x) returns (string) {
+       var [a, b, c] = g;
+       var [d, e, f] = y;
+       var [i1, j1, k1] = r;
 
        return x + a + b + c + d + e + f + i1 + j1 + k1;
     };
@@ -279,8 +279,8 @@ function test17() returns string {
     float b = 11.1;
     string c = "World !!!";
 
-    var foo = testClosureWithTupleTypesOrder((a, b, c));
-    return foo.call((d, e, f), "I'm");
+    var foo = testClosureWithTupleTypesOrder([a, b, c]);
+    return foo.call([d, e, f], "I'm");
 }
 
 function globalVarAccessAndModifyTest() returns (int) {
@@ -592,14 +592,14 @@ function testMultiLevelBlockStatements2() returns (function(int[], int[], int[])
 }
 
 
-function test28() returns (int, int) {
+function test28() returns [int, int] {
     var foo = testMultiLevelBlockStatements1();
     var baz = foo.call();
     var bar = testMultiLevelBlockStatements2();
     int[] i = [1,2];
     int[] j = [1,2,3];
     int[] k = [1,2,3,4];
-    return (baz.call(4), bar.call(i,j,k));
+    return [baz.call(4), bar.call(i,j,k)];
 }
 
 
@@ -629,7 +629,7 @@ function function4(string firstParameter) returns (function (string) returns boo
     };
 }
 
-function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean) {
+function test29() returns [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean] {
     var a1 = function1("ABC");
     boolean b10 = a1.call("ABC");
     boolean b11 = a1.call("GHJ");
@@ -646,7 +646,7 @@ function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean,
     boolean b40 = a4.call("ABC");
     boolean b41 = a4.call("ERWWS");
 
-    return (b10, b11, b20, b21, b30, b31, b40, b41);
+    return [b10, b11, b20, b21, b30, b31, b40, b41];
 }
 
 function test30() returns int|string {

@@ -90,7 +90,7 @@ public class Resolve extends BlockingNativeCallableUnit {
         }
 
         ObjectValue parentPathStruct = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH, Constants
-                .PATH_STRUCT);
+                .PATH_STRUCT, "");
         parentPathStruct.call(strand, Constants.INIT_FUNCTION_NAME, newPath.toString(), true);
         return parentPathStruct;
     }

@@ -40,7 +40,6 @@ import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Iterator implementation for table data types.
@@ -179,8 +178,8 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public Map<String, Object> generateNext() {
-        Map<String, Object> bStruct = new MapValueImpl<>(type);
+    public MapValue<String, Object> generateNext() {
+        MapValue<String, Object> bStruct = new MapValueImpl<>(type);
         int index = 0;
         try {
             Collection<BField> structFields = type.getFields().values();
