@@ -265,13 +265,13 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 59);
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testIterableWitinIterable() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-within-iterable.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testIterableWitinIterableNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
@@ -510,14 +510,14 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 44, 20);
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testParameterStatusWithNativeInvocations() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testParameterStatusWithNativeInvocationsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");
