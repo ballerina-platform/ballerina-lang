@@ -9,4 +9,4 @@ type Tst record {
 };
 
 # Documentation for Test annotation
-annotation Test Tst;
+annotation Tst Test;

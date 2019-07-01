@@ -759,7 +759,7 @@ function testError_1() returns [boolean, boolean, boolean, boolean] {
     boolean b1 = f is error;
     boolean b2 = f is MyError;
 
-    e = error(ERR_REASON, { errDetail: "error detail" });
+    e = error(ERR_REASON, errDetail = "error detail");
     f = e;
     boolean b3 = f is error;
     boolean b4 = f is MyError;
@@ -767,7 +767,7 @@ function testError_1() returns [boolean, boolean, boolean, boolean] {
 }
 
 function testError_2() returns [boolean, boolean, boolean] {
-    MyError e = error(ERR_REASON, { message: "detail message" });
+    MyError e = error(ERR_REASON, message = "detail message");
     any|error f = e;
     return [f is MyError, f is error, f is MyErrorTwo];
 }

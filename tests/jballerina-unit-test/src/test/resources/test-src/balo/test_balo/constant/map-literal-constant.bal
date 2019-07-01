@@ -150,10 +150,12 @@ function testNullConstKeyReferenceInLocalVar() returns () {
     i: foo:iConst,
     m: foo:mConst
 }
-function testFunction() {
+type RecordOne record {
 
-}
+};
 
-function testConstInAnnotations() returns reflect:annotationData[] {
-    return reflect:getFunctionAnnotations(testFunction);
+function testConstInAnnotations() returns foo:TestConfig? {
+    RecordOne r1 = {};
+    typedesc t = typeof r1;
+    return t.@foo:testAnnotation;
 }
