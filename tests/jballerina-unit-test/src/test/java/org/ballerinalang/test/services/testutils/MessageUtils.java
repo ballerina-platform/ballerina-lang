@@ -22,9 +22,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpResourceArguments;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -79,7 +79,7 @@ public class MessageUtils {
         carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
                 new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
-        carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HashMap<String, String>());
+        carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HttpResourceArguments());
         carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;
     }

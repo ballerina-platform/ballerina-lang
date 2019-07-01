@@ -157,10 +157,10 @@ function getConstPath() returns(string) {
     return "/constantPath";
 }
 
-@http:ServiceConfig
+@http:ServiceConfig {}
 service hello on echoEP {
 
-    @http:ResourceConfig
+    @http:ResourceConfig {}
     resource function echo(http:Caller caller, http:Request req) {
         checkpanic caller->respond("Uninitialized configs");
     }

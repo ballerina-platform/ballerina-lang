@@ -19,8 +19,6 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -230,28 +228,17 @@ public class HttpResource {
     }
 
     protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
-        ArrayValue annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
-
-        if (annotation == null) {
-            return null;
-        }
-
-        if (annotation.size() > 1) {
-            throw new BallerinaException("multiple resource configuration annotations found in resource: " +
-                            resource.parent.getName() + "." + resource.getName());
-        }
-        return annotation.isEmpty() ? null : (MapValue) annotation.get(0);
+        return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
     }
 
     protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
-        ArrayValue annotation = resource.type.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
-        return annotation == null ? new MapValueImpl() : (MapValue) ((MapValue) annotation.get(0)).get(
-                ANN_FIELD_PATH_PARAM_ORDER);
+        Object annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
+        return annotation == null ? new MapValueImpl() :
+                (MapValue) ((MapValue) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
-        ArrayValue annotation = resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
-        return annotation != null && !annotation.isEmpty();
+        return resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 
     private static List<String> getAsStringList(Object[] values) {
