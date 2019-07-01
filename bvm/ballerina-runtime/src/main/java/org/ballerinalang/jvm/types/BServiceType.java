@@ -32,10 +32,8 @@ public class BServiceType extends BObjectType {
         super(typeName, pkg, flags);
     }
 
-    public BServiceType(String typeName, BPackage pkg, int flags, MapValue globalAnnotationMap, Strand strand,
-                        BServiceType originalType, AttachedFunction[] attachedFunctions) {
-        super(typeName, pkg, flags);
-
+    public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand, BServiceType originalType,
+                                                 AttachedFunction[] attachedFunctions) {
         this.setAttachedFunctions(attachedFunctions);
         this.setFields(originalType.getFields());
         this.initializer = originalType.initializer;

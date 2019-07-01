@@ -361,7 +361,6 @@ type InstructionGenerator object {
 
     function generateAnnotAccessIns(bir:BinaryOp binaryIns) {
         self.loadVar(binaryIns.rhsOp1.variableDcl);
-        addBoxInsn(self.mv, binaryIns.rhsOp1.variableDcl.typeValue);
         self.loadVar(binaryIns.rhsOp2.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
             io:sprintf("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
@@ -824,7 +823,7 @@ type InstructionGenerator object {
         bir:BType typeValue = typeDef.typeValue;
         if (typeValue is bir:BServiceType) {
             // For services, create a new type for each new service value. TODO: do only for local vars
-            createServiceType(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex = strandIndex);
+            duplicateServiceTypeWithAnnots(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex);
         } else {
             loadExternalOrLocalType(self.mv, typeDefRef);
         }

@@ -199,7 +199,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "white, bob");
     }
 
-    @Test(enabled = false) //TODO fix
+    @Test
     public void testFunctionPointerNative() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-native.bal");
         BValue[] returns = BRunUtil.invoke(result, "test1");

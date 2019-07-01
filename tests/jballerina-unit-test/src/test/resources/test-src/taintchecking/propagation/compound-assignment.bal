@@ -1,4 +1,3 @@
-xmlns "http://sample.com/wso2/a1" as ns0;
 
 public function main (string... args) returns error? {
     string x = "static";

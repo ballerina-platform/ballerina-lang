@@ -83,4 +83,8 @@ public class BErrorType extends AnnotatableType {
     public String getAnnotationKey() {
         return typeName;
     }
+
+    public BType getDetailType() {
+        return detailType;
+    }
 }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -83,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -699,6 +699,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            createErrorConstructorInvocation(invocationExpr);
+            return;
+        }
         createCall(invocationExpr, false);
     }
 
@@ -822,6 +826,28 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
+    }
+
+    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
+        // Create a temporary variable to store the error.
+        BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarError);
+        BIROperand lhsOp = new BIROperand(tempVarError);
+
+        // visit reason and detail expressions
+        this.env.targetOperand = lhsOp;
+        invocationExpr.requiredArgs.get(0).accept(this);
+        BIROperand reasonOp = this.env.targetOperand;
+
+        invocationExpr.requiredArgs.get(1).accept(this);
+        BIROperand detailsOp = this.env.targetOperand;
+
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
+                lhsOp, reasonOp, detailsOp);
+        emit(newError);
+        this.env.targetOperand = lhsOp;
     }
 
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
@@ -981,6 +1007,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile astWhileStmt) {
+        BIRBasicBlock currentEnclLoopBB = this.env.enclLoopBB;
+        BIRBasicBlock currentEnclLoopEndBB = this.env.enclLoopEndBB;
+
         // Create a basic block for the while expression.
         BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclBasicBlocks.add(whileExprBB);
@@ -1015,6 +1044,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(whileEndBB);
         this.env.enclBB = whileEndBB;
+
+        this.env.enclLoopBB = currentEnclLoopBB;
+        this.env.enclLoopEndBB = currentEnclLoopEndBB;
     }
 
 
@@ -1347,25 +1379,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         UnaryOP unaryIns = new UnaryOP(unaryExpr.pos, getUnaryInstructionKind(unaryExpr.operator), lhsOp, rhsOp);
         emit(unaryIns);
-        this.env.targetOperand = lhsOp;
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errorExpr) {
-        // Create a temporary variable to store the error.
-        BIRVariableDcl tempVarError = new BIRVariableDcl(errorExpr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarError);
-        BIROperand lhsOp = new BIROperand(tempVarError);
-        // visit reason and detail expressions
-        this.env.targetOperand = lhsOp;
-        errorExpr.reasonExpr.accept(this);
-        BIROperand reasonOp = this.env.targetOperand;
-        errorExpr.detailsExpr.accept(this);
-        BIROperand detailsOp = this.env.targetOperand;
-        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorExpr.pos, errorExpr.type, lhsOp,
-                                                                           reasonOp, detailsOp);
-        emit(newError);
         this.env.targetOperand = lhsOp;
     }
 

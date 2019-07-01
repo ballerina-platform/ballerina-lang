@@ -50,6 +50,7 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +59,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -635,13 +637,7 @@ public class TypeChecker {
             return false;
         }
 
-        // Adjust the number of the attached functions of the lhs struct based on
-        //  the availability of the initializer function.
-        int targetAttachedFunctionCount = targetType.initializer != null ? targetFuncs.length - 1 : targetFuncs.length;
-        int sourceAttachedFunctionCount =
-                sourceObjectType.initializer != null ? sourceFuncs.length - 1 : sourceFuncs.length;
-
-        if (targetFields.size() > sourceFields.size() || targetAttachedFunctionCount > sourceAttachedFunctionCount) {
+        if (targetFields.size() > sourceFields.size() || targetFuncs.length > sourceFuncs.length) {
             return false;
         }
 
@@ -1059,8 +1055,16 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        return checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes) &&
-                checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
+        if (reasonTypeMatched
+                && ((BErrorType) sourceType).detailType.getTag() == TypeTags.RECORD_TYPE_TAG
+                && targetType.detailType.getTag() == TypeTags.MAP_TAG
+                && checkIsType(targetType, BTypes.typeError, unresolvedTypes)) {
+            // User defined error type with Record detail type (record fields are pure constrained at error constructor)
+            // is equal to Ballerina error type with pure constrained map as detail.
+            return true;
+        }
+        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1070,7 +1074,7 @@ public class TypeChecker {
             return false;
         }
         return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues) &&
+                targetType.reasonType, unresolvedValues) &&
                 checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
@@ -1376,5 +1380,125 @@ public class TypeChecker {
 
             return true;
         }
+    }
+
+    /**
+     * Checks whether a given {@link BType} has an implicit initial value or not.
+     * @param type {@link BType} to be analyzed.
+     * @return whether there's an implicit initial value or not.
+     */
+    public static boolean hasFillerValue(BType type) {
+        return hasFillerValue(type, new ArrayList<>());
+    }
+
+    private static boolean hasFillerValue(BType type, List<BType> unanalyzedTypes) {
+        if (type == null) {
+            return true;
+        }
+        if (type.getTag() < TypeTags.RECORD_TYPE_TAG) {
+            return true;
+        }
+        switch (type.getTag()) {
+            case TypeTags.STREAM_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.ANY_TAG:
+                return true;
+            case TypeTags.ARRAY_TAG:
+                return hasFillerValue(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkFillerValue((BFiniteType) type);
+            case TypeTags.OBJECT_TYPE_TAG:
+                return checkFillerValue((BObjectType) type);
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkFillerValue((BRecordType) type, unanalyzedTypes);
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasFillerValue);
+            case TypeTags.UNION_TAG:
+                return checkFillerValue((BUnionType) type);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkFillerValue(BUnionType type) {
+        // NIL is a member.
+        if (type.isNullable()) {
+            return true;
+        }
+        // All members are of same type.
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember;
+        for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
+            }
+        }
+        // Control reaching this point means there is only one type in the union.
+        return BTypes.isValueType(firstMember) && hasFillerValue(firstMember);
+    }
+
+    private static boolean checkFillerValue(BRecordType type, List<BType> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(type)) {
+            return true;
+        }
+        unAnalyzedTypes.add(type);
+        return type.getFields().values().stream().allMatch(f -> Flags.isFlagOn(f.flags, Flags.OPTIONAL)
+                || hasFillerValue(f.type, unAnalyzedTypes));
+    }
+
+
+
+    private static boolean checkFillerValue(BObjectType type) {
+        if (type.getTag() == TypeTags.SERVICE_TAG) {
+            return false;
+        } else {
+            AttachedFunction initializerFunc = type.initializer;
+            if (initializerFunc == null) {
+                // No __init function found.
+                return true;
+            }
+            BFunctionType initFuncType = initializerFunc.type;
+            // Todo: check defaultable params of the init func as well
+            boolean noParams = initFuncType.paramTypes.length == 0;
+            boolean nilReturn = initFuncType.retType.getTag() == TypeTags.NULL_TAG;
+            return noParams && nilReturn;
+        }
+    }
+
+    private static boolean checkFillerValue(BFiniteType type) {
+        // Has NIL element as a member.
+        if (type.valueSpace.stream().anyMatch(Objects::isNull)) {
+            return true;
+        }
+        // For singleton types, that value is the implicit initial value
+        if (type.valueSpace.size() == 1) {
+            return true;
+        }
+        Object firstElement = type.valueSpace.iterator().next();
+        boolean sameType = type.valueSpace.stream().allMatch(value -> value.getClass() == firstElement.getClass());
+        if (!sameType) {
+            return false;
+        }
+        if (firstElement instanceof String) {
+            // check empty string for strings, and 0.0 for decimals
+            return containsElement(type.valueSpace, "\"\"");
+        } else if (firstElement instanceof Byte
+                || firstElement instanceof Integer
+                || firstElement instanceof Long) {
+            return containsElement(type.valueSpace, "0");
+        } else if (firstElement instanceof Float
+                || firstElement instanceof Double
+                || firstElement instanceof BigDecimal) {
+            return containsElement(type.valueSpace, "0.0");
+        } else if (firstElement instanceof Boolean) {
+            return containsElement(type.valueSpace, "false");
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean containsElement(Set<Object> valueSpace, String e) {
+        return valueSpace.stream().anyMatch(v -> v != null && v.toString().equals(e));
     }
 }

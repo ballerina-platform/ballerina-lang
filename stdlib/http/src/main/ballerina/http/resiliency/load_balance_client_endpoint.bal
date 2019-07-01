@@ -324,7 +324,9 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
     string lastErrorMessage = <string> actError.detail().message;
     loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
-    LoadBalanceActionError err = error(HTTP_ERROR_CODE, loadBalanceActionErrorData);
+    LoadBalanceActionError err = error(HTTP_ERROR_CODE, message = loadBalanceActionErrorData.message,
+                                                        statusCode = loadBalanceActionErrorData.statusCode,
+                                                        httpActionErr = loadBalanceActionErrorData.httpActionErr);
     return err;
 }
 

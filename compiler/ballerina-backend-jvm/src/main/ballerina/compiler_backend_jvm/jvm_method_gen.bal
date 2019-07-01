@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -263,7 +263,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
@@ -365,7 +365,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -525,7 +525,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:FPLoad) {
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
-                instGen.generateTypeTestIns(inst);
+                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {
@@ -701,20 +701,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VarRef ref = getVarRef(paramType);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
+            argIndex += 1;
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
             }
+            argIndex += 1;
         }
     } else {
         //load closureMaps
@@ -728,21 +731,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
             mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
             i += 1;
+            argIndex += 1;
 
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }
+            }argIndex += 1;
         }
     }
 
@@ -999,7 +1004,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     mv.visitInsn(DUP);
     mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
 
-    // load null here for type, since these are fp's created for internal usages. 
+    // load null here for type, since these are fp's created for internal usages.
     mv.visitInsn(ACONST_NULL);
 
     if (isVoid) {

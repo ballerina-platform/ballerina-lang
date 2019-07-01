@@ -39,7 +39,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             //TODO: set the proper protocol
             string protocolName = PROTOCOL_DURABLE;
             RemoteProtocol[] protocols = [{
-            name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
+            name:protocolName, url:getParticipantProtocolAt(protocolName, untaint transactionBlockId)
             }];
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }

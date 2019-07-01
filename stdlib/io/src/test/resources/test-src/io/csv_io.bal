@@ -60,7 +60,7 @@ function nextRecord() returns (string[]|error) {
     } else if (result is error) {
         return result;
     } else {
-        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
+        error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
         return e;
     }
 }

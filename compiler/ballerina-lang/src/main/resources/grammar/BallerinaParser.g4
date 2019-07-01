@@ -421,6 +421,7 @@ matchStatement
 matchPatternClause
     :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 bindingPattern
@@ -435,7 +436,33 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorMatchPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    ;
+
+errorArgListMatchPattern
+    :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
+errorRestBindingPattern
+    :   ELLIPSIS Identifier
+    ;
+
+restMatchPattern
+    :   ELLIPSIS VAR Identifier
+    ;
+
+simpleMatchPattern
+    :   VAR? Identifier
+    ;
+
+errorDetailBindingPattern
+    :   Identifier ASSIGN bindingPattern
     ;
 
 listBindingPattern
@@ -469,9 +496,9 @@ restBindingPattern
     ;
 
 bindingRefPattern
-    :   variableReference
+    :   errorRefBindingPattern
+    |   variableReference
     |   structuredRefBindingPattern
-    |   errorRefBindingPattern
     ;
 
 structuredRefBindingPattern
@@ -498,7 +525,15 @@ closedRecordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorNamedArgRefPattern
+    : Identifier ASSIGN bindingRefPattern
+    ;
+
+errorRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 entryRefBindingPattern
@@ -721,7 +756,6 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
-    |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
@@ -763,10 +797,6 @@ typeDescExpr
 typeInitExpr
     :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
     |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
-    ;
-
-errorConstructorExpr
-    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
     ;
 
 serviceConstructorExpr
@@ -889,7 +919,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)* XMLCommentText* XML_COMMENT_END
     ;
 
 element
@@ -959,6 +989,7 @@ reservedWord
     |   START
     |   CONTINUE
     |   OBJECT_INIT
+    |   TYPE_ERROR
     ;
 
 
