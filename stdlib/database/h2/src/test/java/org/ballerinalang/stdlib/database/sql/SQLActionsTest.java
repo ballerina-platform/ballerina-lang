@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.stdlib.database.sql;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -417,6 +418,22 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}ApplicationError"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error type for application level errors")
+    public void testCheckApplicationErrorType() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckApplicationErrorType");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error type for database errors")
+    public void testCheckDatabaseErrorType() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckDatabaseErrorType");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test(groups = { CONNECTOR_TEST, "broken" },

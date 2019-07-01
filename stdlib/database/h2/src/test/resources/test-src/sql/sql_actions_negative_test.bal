@@ -300,6 +300,59 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
     return returnData;
 }
 
+function testCheckApplicationErrorType() returns [boolean, boolean] {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    string returnData = "";
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `<book>The Lost World2</book>`;
+    xml[] xmlDataArray = [x1, x2];
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
+    var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
+
+    boolean isJdbcClientError = false;
+    boolean isApplicationError = false;
+
+    if (x is sql:JdbcClientError) {
+        isJdbcClientError = true;
+        if (x is sql:ApplicationError) {
+            isApplicationError = true;
+        }
+    }
+    checkpanic testDB.stop();
+    return [isJdbcClientError, isApplicationError];
+}
+
+function testCheckDatabaseErrorType() returns [boolean, boolean] {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+    json retVal;
+    var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
+
+    boolean isJdbcClientError = false;
+    boolean isDatabaseError = false;
+
+    if (x is sql:JdbcClientError) {
+        isJdbcClientError = true;
+        if (x is sql:DatabaseError) {
+            isDatabaseError = true;
+        }
+    }
+    checkpanic testDB.stop();
+    return [isJdbcClientError, isDatabaseError];
+}
+
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
