@@ -235,7 +235,7 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 61, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'anydata|error'", 62, 16);
+                "incompatible types: expected 'string', found '(anydata|error)'", 62, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 68, 16);
         BAssertUtil.validateError(resultNegative, ++i,
