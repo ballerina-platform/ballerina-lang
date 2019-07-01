@@ -21,7 +21,7 @@ function f1() returns string|error {
     return "test";
 }
 
-service hello1 on new http:Listener(9090) {
+service hello1 on new http:MockListener(9090) {
     resource function sayHello1 (http:Caller caller, http:Request req) returns error? {
         http:Response res = new;
         res.setPayload("Hello, World!");

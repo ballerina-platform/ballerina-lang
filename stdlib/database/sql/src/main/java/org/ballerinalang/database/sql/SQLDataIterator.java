@@ -702,8 +702,8 @@ public class SQLDataIterator extends TableIterator {
             return name;
         }
 
-        public int getType() {
-            return mappedType;
+        public int getTypeTag() {
+            return mappedTypeTag;
         }
 
         public int getSqlType() {

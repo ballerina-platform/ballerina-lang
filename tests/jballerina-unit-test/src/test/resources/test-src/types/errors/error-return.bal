@@ -8,7 +8,7 @@ function getQuote(string name) returns (float|InvalidNameError) {
         return 11.5;
     }
 
-    InvalidNameError err = error("invalid name", {companyName: name });
+    InvalidNameError err = error("invalid name", companyName = name);
     return err;
 }
 

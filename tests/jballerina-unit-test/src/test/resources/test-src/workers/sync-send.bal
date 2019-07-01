@@ -55,7 +55,7 @@ function multipleSyncSend() returns string{
                 append2 = append2 + "w2";
          }
          if(false){
-              error err = error("err", { message: "err msg" });
+              error err = error("err", message = "err msg");
               return err;
          }
          b = <- w1;
@@ -86,7 +86,7 @@ function returnNil() returns any|error {
 
    worker w2 returns error? {
      if(false){
-          error err = error("err", { message: "err msg" });
+          error err = error("err", message = "err msg");
           return err;
      }
      int b = 15;
@@ -121,12 +121,12 @@ function multiWorkerSend() returns string{
 
        worker w2 returns error? {
          if(false){
-              error err = error("err", { message: "err msg" });
+              error err = error("err", message = "err msg");
               return err;
          }
 
          if(false){
-              error err = error("err", { message: "err msg" });
+              error err = error("err", message = "err msg");
               return err;
          }
          int b = 15;
@@ -184,7 +184,7 @@ function errorResult() returns error? {
 
        worker w2 returns error? {
          if(false){
-              error err = error("err", { message: "err msg" });
+              error err = error("err", message = "err msg");
               return err;
          }
          int b = 15;
@@ -204,7 +204,7 @@ function errorResult() returns error? {
 
        worker w3 returns error|string {
                 if(false){
-                     error err = error("err", { message: "err msg" });
+                     error err = error("err", message = "err msg");
                      return err;
                 }
                 int b;
@@ -217,8 +217,7 @@ function errorResult() returns error? {
                 b = <- w2;
                 if (b > 0) {
                     map<string> reason = { k1: "error3" };
-                    map<string> details = { message: "msg3" };
-                    error er3 = error(reason.k1, details);
+                    error er3 = error(reason.k1, message = "msg3");
                     return er3;
                 }
                 foreach var i in 1 ... 5 {
@@ -259,7 +258,7 @@ function panicTest() returns error? {
 
        worker w3 returns string|error {
                 if(false){
-                     error err = error("err", { message: "err msg" });
+                     error err = error("err", message = "err msg");
                      return err;
                 }
                 int b;
@@ -269,8 +268,7 @@ function panicTest() returns error? {
                 b = <- w2;
                 if (b > 0) {
                     map<string> reason = { k1: "error3" };
-                    map<string> details = { message: "msg3" };
-                    error er3 = error(reason.k1, details);
+                    error er3 = error(reason.k1, message = "msg3");
                     panic er3;
                 }
 

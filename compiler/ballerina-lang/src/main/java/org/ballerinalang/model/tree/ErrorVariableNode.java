@@ -18,6 +18,8 @@
  */
 package org.ballerinalang.model.tree;
 
+import java.util.List;
+
 /**
  * Represents an error variable node.
  * error (reason, detail) = getError();
@@ -28,5 +30,15 @@ public interface ErrorVariableNode extends VariableNode, AnnotatableNode, Docume
 
     VariableNode getReason();
 
-    VariableNode getDetail();
+    List<? extends ErrorDetailEntry> getDetail();
+
+    /**
+     * Interface for error detail entry.
+     */
+    interface ErrorDetailEntry {
+
+        IdentifierNode getKey();
+
+        VariableNode getValue();
+    }
 }
