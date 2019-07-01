@@ -1,0 +1,81 @@
+{
+  "position": {
+    "line": 14,
+    "character": 5
+  },
+  "source": "annotation/source/annotationBodyCompletion6.bal",
+  "items": [
+    {
+      "label": "endpoints",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "endpoints: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "host",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "host: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "basePath",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "basePath: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "compression",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "compression: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "chunking",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "chunking: ${1:\"AUTO\"} // Values allowed: AUTO|ALWAYS|NEVER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cors",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "cors: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "versioning",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "versioning: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "auth: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauth: {}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
