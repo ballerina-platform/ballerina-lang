@@ -1007,6 +1007,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile astWhileStmt) {
+        BIRBasicBlock currentEnclLoopBB = this.env.enclLoopBB;
+        BIRBasicBlock currentEnclLoopEndBB = this.env.enclLoopEndBB;
+
         // Create a basic block for the while expression.
         BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclBasicBlocks.add(whileExprBB);
@@ -1041,6 +1044,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(whileEndBB);
         this.env.enclBB = whileEndBB;
+
+        this.env.enclLoopBB = currentEnclLoopBB;
+        this.env.enclLoopEndBB = currentEnclLoopEndBB;
     }
 
 
