@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
  * Integration test for observability of metrics.

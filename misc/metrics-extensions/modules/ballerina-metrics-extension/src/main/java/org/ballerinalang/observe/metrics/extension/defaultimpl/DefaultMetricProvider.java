@@ -18,12 +18,12 @@
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.PolledGauge;
-import org.ballerinalang.util.metrics.StatisticConfig;
-import org.ballerinalang.util.metrics.spi.MetricProvider;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.PolledGauge;
+import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
+import org.ballerinalang.jvm.observability.metrics.spi.MetricProvider;
 
 import java.util.function.ToDoubleFunction;
 

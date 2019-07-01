@@ -52,7 +52,7 @@ public class SourcePruner {
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
                 BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION,
-                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER
+                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER, BallerinaParser.LEFT_BRACKET
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,
@@ -180,6 +180,8 @@ public class SourcePruner {
         context.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, 0);
         context.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.RIGHT_BRACKET_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, LHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, RHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, BLOCK_REMOVE_KW_TERMINALS);
