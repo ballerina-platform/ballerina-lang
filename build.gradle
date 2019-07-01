@@ -47,7 +47,9 @@ subprojects {
     release {
         git {
             //To release from any branch
-            requireBranch = null;
+            requireBranch = null
+            failOnCommitNeeded = false
+
         }
     }
 }
