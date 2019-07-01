@@ -50,6 +50,8 @@ import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -167,9 +169,19 @@ public class Utils {
 
     private static ErrorValue createBase64Error(String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BallerinaErrors.createError(MIME_ERROR_CODE, msg);
+            return BallerinaErrors.createError("{ballerina/mime}EncodeFailed", createMimeErrorRecord(msg));
+//            return BallerinaErrors.createError(MIME_ERROR_CODE, msg);
         }
         return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, msg);
+    }
+
+
+    private static MapValue createMimeErrorRecord(String msg) {
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("message", msg);
+        MapValue<String, Object> mimeErrorRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_MIME, "Detail", valueMap);
+//        BallerinaValues.createRecord(mimeErrorRecord, msg, "no cause");
+        return mimeErrorRecord;
     }
 
     /**
