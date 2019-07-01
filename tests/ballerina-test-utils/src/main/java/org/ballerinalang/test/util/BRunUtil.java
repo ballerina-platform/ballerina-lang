@@ -268,6 +268,29 @@ public class BRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
+    public static BValue[] invoke(CompileResult compileResult, String functionName, Object[] args) {
+        return invokeOnJBallerina(compileResult, functionName, args, getJvmParamTypes(args));
+    }
+
+    private static Class<?>[] getJvmParamTypes(Object[] args) {
+        Class<?>[] paramTypes = new Class<?>[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+
+            if (arg instanceof ObjectValue) {
+                paramTypes[i] = ObjectValue.class;
+            } else if (arg instanceof XMLValue) {
+                paramTypes[i] = XMLValue.class;
+            } else if (arg instanceof String) {
+                paramTypes[i] = String.class;
+            } else {
+                // This is done temporarily, until blocks are added here for all possible cases.
+                throw new RuntimeException("unknown param type: " + arg.getClass());
+            }
+        }
+        return paramTypes;
+    }
+
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         BValue[] response = invokeFunction(compileResult, functionName, args);
         return spreadToBValueArray(response);
@@ -281,14 +304,53 @@ public class BRunUtil {
      * @param compileResult CompileResult instance
      * @param functionName  Name of the function to invoke
      * @param args          Input parameters for the function
+     * @param paramTypes    Types of the parameters of the function
      * @return return values of the function
      */
+    private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, Object[] args,
+                                               Class<?>[] paramTypes) {
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        args = addDefaultableBoolean(args);
+        paramTypes = addDefaultableBooleanType(paramTypes);
+        return invoke(compileResult, function, functionName, args, paramTypes);
+    }
+
+    /**
+     * This method takes care of invocation on JBallerina and the mapping of input and output values. It will use the
+     * given BVM based argument and function details to invoke on JBallerina and return results as BValues to maintain
+     * backward compatibility with existing invoke methods in BRunUtil.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName  Name of the function to invoke
+     * @param args          Input parameters for the function
+     * @return return values of the function
+     */
+    @Deprecated
     private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
         args = addDefaultableBoolean(args);
         return invoke(compileResult, function, functionName, args);
     }
 
+    private static Object[] addDefaultableBoolean(Object[] args) {
+        Object[] result = new Object[args.length * 2];
+        for (int j = 0, i = 0; i < args.length; i++) {
+            result[j] = args[i];
+            result[j + 1] = true;
+            j += 2;
+        }
+        return result;
+    }
+
+    private static Class<?>[] addDefaultableBooleanType(Class<?>[] paramTypes) {
+        Class<?>[] result = new Class<?>[paramTypes.length * 2];
+        for (int j = 0, i = 0; i < paramTypes.length; i++) {
+            result[j] = paramTypes[i];
+            result[j + 1] = boolean.class;
+            j += 2;
+        }
+        return result;
+    }
 
     private static BValue[] addDefaultableBoolean(BValue[] args) {
         BValue[] result = new BValue[args.length * 2];
@@ -306,9 +368,77 @@ public class BRunUtil {
      * @param compileResult CompileResult instance
      * @param function function model instance from BIR model
      * @param functionName name of the function to be invoked
+     * @param args input arguments to be used with function invocation
+     * @param paramTypes types of the parameters of the function
+     * @return return the result from function invocation
+     */
+    private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
+                                   Object[] args, Class<?>[] paramTypes) {
+        assert args.length == paramTypes.length;
+        Class<?>[] jvmParamTypes = new Class[paramTypes.length + 1];
+        jvmParamTypes[0] = Strand.class;
+        Object[] jvmArgs = new Object[args.length + 1];
+
+        for (int i = 0; i < args.length; i++) {
+            jvmArgs[i + 1] = args[i];
+            jvmParamTypes[i + 1] = paramTypes[i];
+        }
+
+        Object jvmResult;
+        BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
+        String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
+                getClassName(function.pos.src.cUnitName));
+        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
+        try {
+            Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
+            Function<Object[], Object> func = a -> {
+                try {
+                    return method.invoke(null, a);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                } catch (InvocationTargetException e) {
+                    Throwable t = e.getTargetException();
+                    if (t instanceof BLangRuntimeException) {
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                    }
+                    if (t instanceof ErrorValue) {
+                        throw new org.ballerinalang.util.exceptions
+                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                    }
+                    if (t instanceof StackOverflowError) {
+                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                    }
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                }
+            };
+
+            Scheduler scheduler = new Scheduler(4, false);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
+            scheduler.start();
+            if (futureValue.panic instanceof RuntimeException) {
+                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                        futureValue.panic);
+            }
+            jvmResult = futureValue.result;
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+        }
+
+        BValue result = getBVMValue(jvmResult);
+        return new BValue[] { result };
+    }
+
+    /**
+     * This method handles the input arguments and output result mapping between BVM types, values to JVM types, values.
+     *
+     * @param compileResult CompileResult instance
+     * @param function function model instance from BIR model
+     * @param functionName name of the function to be invoked
      * @param bvmArgs input arguments to be used with function invocation
      * @return return the result from function invocation
      */
+    @Deprecated
     private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    BValue[] bvmArgs) {
         List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = new ArrayList<>();

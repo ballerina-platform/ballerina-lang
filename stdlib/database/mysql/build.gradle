@@ -36,4 +36,8 @@ dependencies {
     implementation project(':ballerina-runtime')
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - mysql'

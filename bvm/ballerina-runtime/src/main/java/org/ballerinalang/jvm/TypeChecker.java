@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
@@ -331,6 +332,21 @@ public class TypeChecker {
             return null;
         }
         return new TypedescValue(type);
+    }
+
+    /**
+     * Get the annotation value if present.
+     *
+     * @param typedescValue     The typedesc value
+     * @param annotTag          The annot-tag-reference
+     * @return the annotation value if present, nil else
+     */
+    public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {
+        BType describingType = typedescValue.getDescribingType();
+        if (!(describingType instanceof AnnotatableType)) {
+            return null;
+        }
+        return ((AnnotatableType) describingType).getAnnotation(annotTag);
     }
 
     public static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {

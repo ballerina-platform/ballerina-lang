@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -463,7 +464,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode);
+        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
@@ -1285,7 +1286,7 @@ public class Desugar extends BLangNodeVisitor {
         ifStmt.expr = groupExpr;
     }
 
-    private BLangLambdaFunction createLambdaFunction(BLangFunction function, BInvokableSymbol functionSymbol) {
+    BLangLambdaFunction createLambdaFunction(BLangFunction function, BInvokableSymbol functionSymbol) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = function;
         lambdaFunction.type = functionSymbol.type;
@@ -2410,7 +2411,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        // If the the variable is not used in lhs, then add a conversion if required. 
+        // If the the variable is not used in lhs, then add a conversion if required.
         // This is done to make the types compatible for narrowed types.
         genVarRefExpr.lhsVar = varRefExpr.lhsVar;
         BType targetType = genVarRefExpr.type;
@@ -3486,6 +3487,23 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpr.pos = annotAccessExpr.pos;
+        binaryExpr.opKind = OperatorKind.ANNOT_ACCESS;
+        binaryExpr.lhsExpr = annotAccessExpr.expr;
+        binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(annotAccessExpr.pkgAlias.pos, symTable.stringType,
+                                                          annotAccessExpr.annotationSymbol.bvmAlias());
+        binaryExpr.type = annotAccessExpr.type;
+        binaryExpr.opSymbol = new BOperatorSymbol(names.fromString(OperatorKind.ANNOT_ACCESS.value()), null,
+                                                  new BInvokableType(Lists.of(binaryExpr.lhsExpr.type,
+                                                                              binaryExpr.rhsExpr.type),
+                                                                     annotAccessExpr.type, null), null,
+                                                  InstructionCodes.ANNOT_ACCESS);
+        result = rewriteExpr(binaryExpr);
+    }
+
+    @Override
     public void visit(BLangIsLikeExpr isLikeExpr) {
         isLikeExpr.expr = rewriteExpr(isLikeExpr.expr);
         result = isLikeExpr;
@@ -3923,7 +3941,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+    BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
                                                       List<BLangExpression> requiredArgs) {
         BInvokableSymbol invokableSymbol
                 = (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
@@ -4512,7 +4530,7 @@ public class Desugar extends BLangNodeVisitor {
 
     BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         if (lhsType.tag == TypeTags.NONE) {
-            return expr; 
+            return expr;
         }
 
         BType rhsType = expr.type;

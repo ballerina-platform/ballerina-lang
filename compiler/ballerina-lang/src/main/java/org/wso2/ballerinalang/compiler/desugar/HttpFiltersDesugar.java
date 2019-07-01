@@ -467,7 +467,7 @@ public class HttpFiltersDesugar {
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue(PACKAGE_NAME);
         annoAttachment.pkgAlias = pkgAlias;
-        annoAttachment.attachPoints.add(AttachPoint.RESOURCE);
+        annoAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol;
         BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString

@@ -107,8 +107,8 @@ function testGetModifiedTime(string pathValue) returns string|error {
     return time:toString(modifiedTime);
 }
 
-function testCopyToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testCopyToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
     if (result is error) {
@@ -136,8 +136,8 @@ function testFolderDelete(string path) returns boolean {
     }
 }
 
-function testMoveToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testMoveToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
     if (moveResult is error) {
