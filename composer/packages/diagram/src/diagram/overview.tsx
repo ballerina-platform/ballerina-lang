@@ -10,7 +10,7 @@ import { TopMenu } from "./top-menu";
 
 const modes = [
     {
-        text: "Interaction",
+        text: "Interactions",
         type: DiagramMode.INTERACTION
     },
     {
