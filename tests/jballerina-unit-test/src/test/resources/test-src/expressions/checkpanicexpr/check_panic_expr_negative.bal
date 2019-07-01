@@ -21,7 +21,7 @@ public type MyError error<string, record { int code; }>;
 public type CustomError error<string, record { int code; string data; }>;
 
 function readLine() returns MyError | CustomError {
-    MyError e = error("io error");
+    MyError e = error("io error", code = 0);
     return e;
 }
 
@@ -39,7 +39,7 @@ function testCheckedExprSemanticErrors4() returns error? {
 }
 
 function readLineProper() returns string | MyError | CustomError {
-    MyError e = error("io error");
+    MyError e = error("io error", code = 0);
     return e;
 }
 

@@ -61,7 +61,7 @@ public class Register extends AbstractGrpcNativeFunction {
                         "initializing service register builder.");
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service,
-                        service.getType().getAnnotation("ballerina/grpc", "ServiceDescriptor")));
+                        service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
                 return null;
             }
         } catch (GrpcServerException e) {

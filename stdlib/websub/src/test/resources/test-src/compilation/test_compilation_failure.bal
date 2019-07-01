@@ -26,12 +26,6 @@ service websubSubscriber =
     topic: "http://websubpubtopic.com",
     hub: "http://websubpubhub.com"
 }
-@websub:SubscriberServiceConfig {
-    path: "/websub",
-    subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
-}
 service {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest) {
     }

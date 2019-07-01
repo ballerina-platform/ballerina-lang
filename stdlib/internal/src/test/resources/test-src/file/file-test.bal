@@ -92,11 +92,11 @@ function testFolderContent(string rootPathValue) returns boolean|error {
                 testReadFile(xmlFilePath.getPathValue()) &&
                 paths.length() == 1;
         } else {
-            error listNotFound = error(INTERNAL_ERROR_CODE, { message : "File list fetching error" });
+            error listNotFound = error(INTERNAL_ERROR_CODE, message = "File list fetching error");
             return listNotFound;
         }
     } else {
-        error directoryNotFound = error(INTERNAL_ERROR_CODE, { message : "Directory not found" });
+        error directoryNotFound = error(INTERNAL_ERROR_CODE, message = "Directory not found");
         return directoryNotFound;
     }
 }
@@ -107,8 +107,8 @@ function testGetModifiedTime(string pathValue) returns string|error {
     return time:toString(modifiedTime);
 }
 
-function testCopyToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testCopyToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
     if (result is error) {
@@ -136,8 +136,8 @@ function testFolderDelete(string path) returns boolean {
     }
 }
 
-function testMoveToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testMoveToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
     if (moveResult is error) {
