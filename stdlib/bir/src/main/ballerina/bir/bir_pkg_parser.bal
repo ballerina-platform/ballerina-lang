@@ -52,7 +52,15 @@ public type PackageParser object {
     public function skipAnnotation() {
         _ = self.reader.readInt32();
         _ = self.reader.readInt32();
-        _ = self.reader.readInt32();
+
+        int attachPointCount = self.reader.readInt32();
+        int i = 0;
+        while (i < attachPointCount) {
+            _ = self.reader.readInt32();
+            _ = self.reader.readBoolean();
+            i += 1;
+        }
+
         _ = self.reader.readTypeCpRef();
     }
 
@@ -438,7 +446,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {
-        value = reader.readStringCpRef();
+        Decimal d = {value : reader.readStringCpRef()};
+        value = d;
     } else if (bType is BTypeBoolean) {
         value = reader.readBoolean();
     } else if (bType is BTypeFloat) {

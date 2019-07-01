@@ -398,22 +398,22 @@ public class TableIterator implements DataIterator {
         columnDefs = new ArrayList<>(structFields.size());
         for (BField sf : structFields) {
             BType type = sf.getFieldType();
-            int typeKind = TypeTags.ANY_TAG;
+            int typeTag = TypeTags.ANY_TAG;
             switch (type.getTag()) {
                 case TypeTags.INT_TAG | TypeTags.STRING_TAG | TypeTags.FLOAT_TAG | TypeTags.BOOLEAN_TAG
                      | TypeTags.JSON_TAG | TypeTags.XML_TAG:
-                    typeKind = type.getTag();
+                    typeTag = type.getTag();
                     break;
                 case TypeTags.ARRAY_TAG:
                     BType elementType = ((BArrayType) type).getElementType();
                     if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                        typeKind = TypeTags.BYTE_TAG;
+                        typeTag = TypeTags.BYTE_TAG;
                     } else {
-                        typeKind = TypeTags.ARRAY_TAG;
+                        typeTag = TypeTags.ARRAY_TAG;
                     }
                     break;
             }
-            ColumnDefinition def = new ColumnDefinition(sf.getFieldName(), typeKind);
+            ColumnDefinition def = new ColumnDefinition(sf.getFieldName(), typeTag);
             columnDefs.add(def);
         }
     }

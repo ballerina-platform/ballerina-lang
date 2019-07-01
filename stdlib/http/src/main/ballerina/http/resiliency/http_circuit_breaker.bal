@@ -568,8 +568,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    map<anydata|error> errorDetail = { message : errorMessage };
-    error httpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
+    error httpConnectorErr = error(HTTP_ERROR_CODE, message = errorMessage);
     return httpConnectorErr;
 }
 
@@ -579,8 +578,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        map<anydata|error> errorDetail = { message : errorMessage };
-        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, errorDetail);
+        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, message = errorMessage);
         panic circuitBreakerConfigError;
     }
 }

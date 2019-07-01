@@ -175,14 +175,6 @@ public class VarDeclaredAssignmentStmtTest {
     }
 
     @Test
-    public void testVarDeclarationWithArrayInit() {
-        CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "array element type 'float|int' does not have an " +
-                "implicit initial value, use 'float|int?'", 2, 17);
-    }
-
-    @Test
     public void testVarDeclarationWithAllDeclaredSymbols() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declared-symbols-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 3);
@@ -207,7 +199,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible convert operation: 'json' value cannot be converted as 'Person'");
+                            "'json' value cannot be converted to 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -219,7 +211,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible convert operation: 'json' value cannot be converted as 'PersonA'");
+                            "'json' value cannot be converted to 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")

@@ -35,24 +35,24 @@ import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COM
 public class SignatureParams {
 
     private HttpResource resource;
-    private final List<BType> paramDetails;
+    private final List<BType> paramTypes;
     private BType entityBody;
-    private List<BType> pathParams;
+    private List<BType> pathParamTypes;
     private int paramCount = COMPULSORY_PARAM_COUNT;
 
     SignatureParams(HttpResource resource) {
         this.resource = resource;
-        this.paramDetails = resource.getParamTypes();
+        this.paramTypes = resource.getParamTypes();
     }
 
     void validate() {
         if (resource.getEntityBodyAttributeValue() == null ||
                 resource.getEntityBodyAttributeValue().isEmpty()) {
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, paramDetails.size()));
+            validatePathParam(paramTypes.subList(COMPULSORY_PARAM_COUNT, paramTypes.size()));
         } else {
-            int lastParamIndex = paramDetails.size() - 1;
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, lastParamIndex));
-            validateEntityBodyParam(paramDetails.get(lastParamIndex));
+            int lastParamIndex = paramTypes.size() - 1;
+            validatePathParam(paramTypes.subList(COMPULSORY_PARAM_COUNT, lastParamIndex));
+            validateEntityBodyParam(paramTypes.get(lastParamIndex));
         }
     }
 
@@ -65,16 +65,10 @@ public class SignatureParams {
             }
             paramCount++;
         }
-        this.pathParams = paramDetails;
+        this.pathParamTypes = paramDetails;
     }
 
     private void validateEntityBodyParam(BType entityBodyParamType) {
-        //TODO move this validation to compile time
-//        String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
-//        if (!entityBodyAttributeValue.equals(entityBodyParamType.getVarName())) {
-//            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
-//                    "' as param name, but found '" + entityBodyParamType.getVarName() + "'");
-//        }
         int type = entityBodyParamType.getTag();
         if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
                 type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParamType))) {
@@ -101,8 +95,8 @@ public class SignatureParams {
         return entityBody;
     }
 
-    List<BType> getPathParams() {
-        return pathParams;
+    List<BType> getPathParamTypes() {
+        return pathParamTypes;
     }
 
     int getParamCount() {

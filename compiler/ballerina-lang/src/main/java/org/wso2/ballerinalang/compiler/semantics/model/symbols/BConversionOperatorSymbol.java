@@ -45,4 +45,8 @@ public class BConversionOperatorSymbol extends BOperatorSymbol {
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
         this.safe = safe;
     }
+
+    public boolean isSafeOperation() {
+        return this.safe;
+    }
 }

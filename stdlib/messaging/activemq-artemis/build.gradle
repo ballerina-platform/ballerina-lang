@@ -17,6 +17,12 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
@@ -35,6 +41,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
+    implementation project(':ballerina-runtime')
     implementation 'org.apache.activemq:artemis-core-client'
 
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
@@ -48,6 +55,22 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     testCompile 'org.testng:testng'
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')}
+
+createBalo {
+    jvmTarget = 'true'
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - ActiveMQ Artemis'

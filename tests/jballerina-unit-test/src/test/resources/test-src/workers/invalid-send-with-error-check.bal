@@ -17,7 +17,7 @@ public function main() {
 }
 
 function mayGoWrong() returns float|error {
-    error err = error("err", { message: "err msg" });
+    error err = error("err", message = "err msg");
     return err;
 }
 
