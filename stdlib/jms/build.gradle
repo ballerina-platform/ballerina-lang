@@ -41,4 +41,8 @@ dependencies {
     implementation 'org.testng:testng'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - JMS'
