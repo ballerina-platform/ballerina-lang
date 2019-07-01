@@ -4419,6 +4419,11 @@ public class Desugar extends BLangNodeVisitor {
             } else if (NodeKind.ERROR_VARIABLE == structuredPattern.bindingPatternVariable.getKind()) {
                 varDefStmt = ASTBuilderUtil.createErrorVariableDef(pattern.pos,
                         (BLangErrorVariable) structuredPattern.bindingPatternVariable);
+//                BLangErrorVariable errorVariable = (BLangErrorVariable) structuredPattern.bindingPatternVariable;
+//                if (errorVariable.expectedMatchedReason != null) {
+//                    ifCondition = createErrorReasonMatchCondition(ifCondition, errorVariable);
+//                }
+
             } else {
                 varDefStmt = ASTBuilderUtil
                         .createVariableDef(pattern.pos, (BLangSimpleVariable) structuredPattern.bindingPatternVariable);
@@ -4446,6 +4451,34 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
         return ifNode;
     }
+
+//    private BLangExpression createErrorReasonMatchCondition(BLangExpression ifCondition,
+//                                                            BLangErrorVariable errorVariable) {
+//        BLangSimpleVarRef expectedReasonRef =
+//                ASTBuilderUtil.createVariableRef(errorVariable.pos, errorVariable.expectedMatchedReason);
+//        BLangExpression reasonToMatch = addConversionExprIfRequired(expectedReasonRef, errorVariable.reason.type);
+//
+//        BLangSimpleVarRef errorReasonRef =
+//                ASTBuilderUtil.createVariableRef(errorVariable.pos, errorVariable.reason.symbol);
+//
+//        BLangBinaryExpr reasonEqualityCheck = ASTBuilderUtil.createBinaryExpr(errorVariable.pos,
+//                errorReasonRef,
+//                reasonToMatch,
+//                symTable.booleanType,
+//                OperatorKind.EQUAL,
+//                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+//                        symTable.stringType,
+//                        symTable.stringType));
+//
+//        return ASTBuilderUtil.createBinaryExpr(errorVariable.pos,
+//                ifCondition,
+//                reasonEqualityCheck,
+//                symTable.booleanType,
+//                OperatorKind.AND,
+//                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
+//                        symTable.booleanType,
+//                        symTable.booleanType));
+//    }
 
     private BLangBlockStmt getMatchPatternBody(BLangMatchBindingPatternClause pattern,
                                                BLangSimpleVariable matchExprVar) {
@@ -4680,10 +4713,12 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC,
-                                                                    names.fromString("$anonErrorType$" + errorCount++),
-                                                                    env.enclPkg.symbol.pkgID,
-                                                                    null, null);
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(
+                    SymTag.ERROR,
+                    Flags.PUBLIC,
+                    names.fromString("$anonErrorType$" + errorCount++),
+                    env.enclPkg.symbol.pkgID,
+                    null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.pureTypeConstrainedMap;
@@ -4693,7 +4728,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType, detailType);
+            BErrorType errorType = new BErrorType(errorTypeSymbol,
+                    ((BErrorType) errorVariable.type).reasonType,
+                    detailType);
             errorTypeSymbol.type = errorType;
 
             createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType));

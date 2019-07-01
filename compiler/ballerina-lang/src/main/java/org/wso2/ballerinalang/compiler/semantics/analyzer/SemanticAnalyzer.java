@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -575,6 +576,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        // match err1 { error(reason,....) => ... }
+        // reason must be a const of subtype of string.
+        // then we match the error with this specific reason.
+        if (!varNode.reasonVarPrefixAvailable) {
+            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null,
+                    ((BErrorType) varNode.type).detailType);
+            varNode.type = errorType;
+
+            if (varNode.reasonMatchConst != null) {
+                BTypeSymbol reasonConstTypeSymbol = new BTypeSymbol(SymTag.FINITE_TYPE,
+                        Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID, null, this.env.scope.owner);
+                LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
+                members.add(varNode.reasonMatchConst);
+                errorType.reasonType = new BFiniteType(reasonConstTypeSymbol, members);
+            } else {
+                BSymbol reason = symResolver.lookupSymbol(env, names.fromIdNode(varNode.reason.name), SymTag.CONSTANT);
+                if (reason == symTable.notFoundSymbol) {
+                    dlog.error(varNode.pos, DiagnosticCode.CANNOT_FIND_MATCH_ERROR_REASON_CONST, varNode.reason);
+                }
+                errorType.reasonType = reason.type;
+                //varNode.expectedMatchedReason = reason;
+            }
         }
         if (!validateErrorVariable(varNode)) {
             varNode.type = symTable.semanticError;

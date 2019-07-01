@@ -717,15 +717,28 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
+                          boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
-        errorVariable.reason = (BLangSimpleVariable)
-                generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, pos, false);
+
+        if (constReasonMatchPattern) {
+            BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            reasonLiteral.setValue(reason);
+            errorVariable.reasonMatchConst = reasonLiteral;
+
+            errorVariable.reason = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
+        } else {
+            errorVariable.reason = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
+        }
+
+        errorVariable.reasonVarPrefixAvailable = reasonVar;
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, pos, false);
+                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, restParamPos, false);
         }
     }
 
