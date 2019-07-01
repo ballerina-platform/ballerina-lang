@@ -237,9 +237,9 @@ public class ErrorVariableReferenceTest {
                 "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 78, 58);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 91, 40);
-        BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', found 'map<anydata|error>'",
-                                  91, 40);
+        BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', found 'map<" +
+                        "(anydata|error)>'", 91, 40);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'string?', found 'anydata|error'", 100, 30);
+                                  incompatibleTypes + "expected 'string?', found '(anydata|error)'", 100, 30);
     }
 }

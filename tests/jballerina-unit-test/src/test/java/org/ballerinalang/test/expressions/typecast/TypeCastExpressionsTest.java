@@ -288,8 +288,9 @@ public class TypeCastExpressionsTest {
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
         validateError(resultNegative, errIndex++, "type cast not yet supported for type 'future<int>'", 25, 22);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int|foo'", 30, 16);
-        validateError(resultNegative, errIndex, "incompatible types: 'int|foo' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
+                30, 16);
+        validateError(resultNegative, errIndex, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
     }
 
     @DataProvider

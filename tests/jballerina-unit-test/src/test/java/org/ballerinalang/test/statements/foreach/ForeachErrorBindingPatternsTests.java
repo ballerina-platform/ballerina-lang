@@ -74,17 +74,17 @@ public class ForeachErrorBindingPatternsTests {
                 "invalid error variable; expecting an error type but found 'error?' in type definition", 25, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'error', found 'error'", 38, 13);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found 'map<string|boolean>'", 52, 25);
+                "incompatible types: expected 'map<string>', found 'map<(string|boolean)>'", 52, 25);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 56, 28);
+                "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 56, 28);
         BAssertUtil.validateError(negative, i++,
                 "invalid error variable; expecting an error type but found '[string,error?]' in type definition",
                 68, 17);
         BAssertUtil.validateError(negative, i++,
                 "incompatible types: expected '[string,error]', found '[string,error]'", 83, 13);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found 'map<string|boolean>'", 97, 25);
+                "incompatible types: expected 'map<string>', found 'map<(string|boolean)>'", 97, 25);
         BAssertUtil.validateError(negative, i,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 101, 28);
+                "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 101, 28);
     }
 }
