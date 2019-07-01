@@ -233,7 +233,7 @@ public type CustomLoadBalancerRule object {
         self.index = index;
     }
 
-    # Provides an HTTP client which is chosen according to the custom algorithm.
+    # Provides an HTTP client, which is chosen according to the custom algorithm.
     #
     # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
     # + return - Chosen `CallerActions` from the algorithm or an `error` in the case of a failure in
