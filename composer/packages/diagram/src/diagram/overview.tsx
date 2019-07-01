@@ -1,4 +1,4 @@
-import { ASTNode } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
 import React from "react";
 import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
@@ -194,8 +194,13 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             Object.keys(module.compilationUnits).forEach((cUnitName) => {
                 const cUnit = module.compilationUnits[cUnitName];
 
-                cUnit.ast.topLevelNodes.forEach((node) => {
-                    if ((node as any).ws && DiagramUtils.isDrawable(node)) {
+                cUnit.ast.topLevelNodes.forEach((topLevelNode) => {
+                    const node = topLevelNode as ASTNode;
+                    if (node.ws && DiagramUtils.isDrawable(node)) {
+                        if (ASTKindChecker.isTypeDefinition(node)
+                            && (node.service || !ASTUtil.isValidObjectType(node))) {
+                            return;
+                        }
                         newModule.nodeInfo.push({uri: cUnit.uri, node: (node as ASTNode)});
                     }
                 });
