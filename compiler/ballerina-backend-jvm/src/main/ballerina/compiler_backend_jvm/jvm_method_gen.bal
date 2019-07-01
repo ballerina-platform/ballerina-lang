@@ -1019,10 +1019,6 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue.retType is bir:BTypeNil;
 
-    if (!isVoidFunction) {
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-    }
-
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
@@ -1116,9 +1112,20 @@ if (hasInitFunction(pkg)) {
     
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
+            // store future value
+            bir:VariableDcl futureVar = { typeValue: "any",
+                                    name: { value: "dummy" },
+                                    kind: "ARG" };
+            int futureVarIndex = indexMap.getIndex(futureVar);
+            mv.visitVarInsn(ASTORE, futureVarIndex);
+            jvm:Label jumpAfterPrint = new;
+            mv.visitVarInsn(ALOAD, futureVarIndex);
+            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+
+            mv.visitJumpInsn(IFNULL, jumpAfterPrint);
+
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitInsn(DUP_X1);
-            mv.visitInsn(POP);
+            mv.visitVarInsn(ALOAD, futureVarIndex);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
             bir:BType returnType = userMainFunc.typeValue.retType;
             addUnboxInsn(mv, returnType);
@@ -1133,6 +1140,7 @@ if (hasInitFunction(pkg)) {
             } else {
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
             }
+            mv.visitLabel(jumpAfterPrint);
         }
     }
 
