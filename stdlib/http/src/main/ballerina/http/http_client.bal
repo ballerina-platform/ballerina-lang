@@ -200,7 +200,7 @@ public type HttpTimeoutError record {|
     int statusCode = 0;
 |};
 
-function createClient(string url, ClientEndpointConfig config) returns HttpClient|error {
+function createClient(string url, ClientEndpointConfig config) returns HttpClient {
     HttpClient simpleClient = new(url, config = config);
     return simpleClient;
 }

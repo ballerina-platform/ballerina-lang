@@ -371,16 +371,12 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Http
     }
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns HttpClient {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
             var retryClient = createRetryClient(url, configuration);
-            if (retryClient is HttpClient) {
-                return new RedirectClient(url, configuration, redirectConfig, retryClient);
-            } else {
-                return retryClient;
-            }
+            return new RedirectClient(url, configuration, redirectConfig, retryClient);
         } else {
             return createRetryClient(url, configuration);
         }
@@ -389,7 +385,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns HttpClient|error {
+function checkForRetry(string url, ClientEndpointConfig config) returns HttpClient {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -402,7 +398,7 @@ function checkForRetry(string url, ClientEndpointConfig config) returns HttpClie
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns HttpClient|error {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns HttpClient {
     HttpClient cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
@@ -410,19 +406,9 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         boolean[] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
-            var redirectClient = createRedirectClient(uri, configuration);
-            if (redirectClient is HttpClient) {
-                cbHttpClient = redirectClient;
-            } else {
-                return redirectClient;
-            }
+            cbHttpClient = createRedirectClient(uri, configuration);
         } else {
-            var retryClient = checkForRetry(uri, configuration);
-            if (retryClient is HttpClient) {
-                cbHttpClient = retryClient;
-            } else {
-                return retryClient;
-            }
+            cbHttpClient = checkForRetry(uri, configuration);
         }
 
         time:Time circuitStartTime = time:currentTime();
@@ -459,7 +445,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns HttpClient {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -472,18 +458,10 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         };
         if (configuration.cache.enabled) {
             var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-            if (httpCachingClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
-            } else {
-                return httpCachingClient;
-            }
+            return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
         } else {
-            var httpSecureClient = createHttpSecureClient(url, configuration);
-            if (httpSecureClient is HttpClient) {
-                return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
-            } else {
-                return httpSecureClient;
-            }
+            HttpClient httpSecureClient = createHttpSecureClient(url, configuration);
+            return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
         }
     } else {
         //remove following once we can ignore

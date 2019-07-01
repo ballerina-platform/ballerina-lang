@@ -34,12 +34,7 @@ public type HttpSecureClient client object {
     public function __init(string url, ClientEndpointConfig config) {
         self.url = url;
         self.config = config;
-        var simpleClient = createClient(url, self.config);
-        if (simpleClient is HttpClient) {
-            self.httpClient = simpleClient;
-        } else {
-            panic simpleClient;
-        }
+        self.httpClient = createClient(url, self.config);
     }
 
     # This wraps the `post()` function of the underlying HTTP remote functions provider. Add relevant authentication
@@ -263,7 +258,7 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|error {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
     HttpSecureClient httpSecureClient;
     if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
