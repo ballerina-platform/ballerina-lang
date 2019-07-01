@@ -1,6 +1,6 @@
-import ballerina/runtime;
+//import ballerina/runtime;
 
-function errorConstructReasonTest() returns [error, error, error, string, any, string] {
+function errorConstructReasonTest() returns (error, error, error, string, any, string) {
     error er1 = error("error1");
 
     string s = "error2";
@@ -9,22 +9,21 @@ function errorConstructReasonTest() returns [error, error, error, string, any, s
     map<string> m = { k1: "error3" };
     error er3 = error(m.k1);
 
-    return [er1, er2, er3, er1.reason(), er2.reason(), er3.reason()];
+    return (er1, er2, er3, er1.reason(), er2.reason(), er3.reason());
 }
 
-function errorConstructDetailTest() returns [error, error, error, any, any, any] {
+function errorConstructDetailTest() returns (error, error, error, any, any, any) {
     error er1 = error("error1", message = "msg1");
 
     string s = "error2";
     map<anydata> m2 = { message: "msg2" };
-    anydata msg2 = m2.message;
     error er2 = error(s, message = m2.message);
 
     map<string> reason = { k1: "error3" };
     map<string> details = { message: "msg3" };
     error er3 = error(reason.k1, message = details.message);
 
-    return [er1, er2, er3, er1.detail(), er2.detail(), er3.detail()];
+    return (er1, er2, er3, er1.detail(), er2.detail(), er3.detail());
 }
 
 function errorPanicTest(int i) returns string {
@@ -70,19 +69,19 @@ public function testErrorWithErrorConstructor() returns string {
     return errorData.data;
 }
 
-function getCallStackTest() returns runtime:CallStackElement[] {
-    return runtime:getCallStack();
-}
+//function getCallStackTest() returns runtime:CallStackElement[] {
+//    return runtime:getCallStack();
+//}
 
-function testConsecutiveTraps() returns [string, string] {
+function testConsecutiveTraps() returns (string, string) {
     error? e1 = trap generatePanic();
     error? e2 = trap generatePanic();
     if e1 is error {
         if e2 is error {
-            return [e1.reason(), e2.reason()];
+            return (e1.reason(), e2.reason());
         }
     }
-    return ["Failed", "Failed"];
+    return ("Failed", "Failed");
 }
 
 function generatePanic() {
@@ -204,23 +203,3 @@ public function testRuntimeFailingWhenAssigningErrorToAny() {
 public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
     mapVal[index] = member;
 }
-
-const string reasonA = "ErrNo-1";
-type UserDefErrorTwoA error<reasonA, map<string>>;
-
-public function errorReasonInference() returns [error, error] {
-    UserDefErrorTwoA er1 = error();
-    UserDefErrorTwoA er2 = error(arg1 = "arg1-1", arg2 = "arg2-2");
-    return [er1, er2];
-}
-
-const string reasonB = "ErrorNo-2";
-type UserDefErrorTwoB error<reasonA|reasonB, map<string>>;
-public function errorReasonSubType() returns [error, error, error, error] {
-    UserDefErrorTwoB er_rA = error(reasonA);
-    UserDefErrorTwoB er_rB = error(reasonB);
-    UserDefErrorTwoB er_aALit = error("ErrNo-1");
-    UserDefErrorTwoB er_aBLit = error("ErrorNo-2");
-    return [er_rA, er_rB, er_aALit, er_aBLit];
-}
-

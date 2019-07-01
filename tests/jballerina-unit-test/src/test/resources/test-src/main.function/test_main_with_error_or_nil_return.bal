@@ -28,15 +28,14 @@ public function main(string s, int code) returns error? {
     io:print("error? returning main invoked");
     match s {
         "error" => {
-            error e = error("generic error", { statusCode: code });
+            error e = error("generic error", statusCode = code);
             return e;
         }
         "nil" => {
             return;
         }
         "user_def_error" => {
-            ErrorRecord errRec = { message: "error message", statusCode: code };
-            USER_DEF_ERROR e = error(ERR_REASON, errRec);
+            USER_DEF_ERROR e = error(ERR_REASON, message = "error message", statusCode = code);
             return e;
         }
     }

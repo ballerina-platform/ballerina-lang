@@ -136,6 +136,21 @@
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+            <class name="org.ballerinalang.test.error.ErrorTest" />
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest"/>
+            <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
+            <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest">
+                <methods>
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                    <exclude name="testErrorInRecordWithDestructure2"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.variabledef.ErrorVariableDefinitionTest">
+                <methods>
+                    <!-- fails at record destructure -->
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

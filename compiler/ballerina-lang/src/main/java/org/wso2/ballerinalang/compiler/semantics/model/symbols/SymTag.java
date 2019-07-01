@@ -50,4 +50,5 @@ public class SymTag {
     public static final int CHANNEL = 1 << 27;
     public static final int CONSTANT = 1 << 28 | VARIABLE_NAME;
     public static final int FUNCTION_TYPE = 1 << 29 | TYPE | VARIABLE_NAME;
+    public static final int CONSTRUCTOR = 1 << 30 | INVOKABLE;
 }

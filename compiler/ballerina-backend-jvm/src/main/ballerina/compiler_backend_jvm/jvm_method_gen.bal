@@ -124,7 +124,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     returnVarRefIndex = indexMap.getIndex(varDcl);
     bir:BType returnType = func.typeValue.retType;
     genDefaultValue(mv, returnType, returnVarRefIndex);
-    
+
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
@@ -263,7 +263,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
@@ -365,7 +365,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -447,8 +447,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-        // Cases will be generate between instructions and terminator of the basic block. So if basic block is 
-        // trapped we need to generate two try catches as for instructions and terminator. 
+        // Cases will be generate between instructions and terminator of the basic block. So if basic block is
+        // trapped we need to generate two try catches as for instructions and terminator.
         if (isTrapped && insCount > 0) {
             endLabel = new;
             handlerLabel = new;
@@ -525,7 +525,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:FPLoad) {
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
-                instGen.generateTypeTestIns(inst);
+                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {
@@ -582,7 +582,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
         }
-        
+
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
@@ -590,7 +590,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 currentEE = errorEntries[errorEntryCnt];
             }
         }
-        
+
         var thenBB = terminator["thenBB"];
         if (thenBB is bir:BasicBlock) {
             genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
@@ -599,7 +599,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     }
 }
 
-function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName, 
+function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName,
                         int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
@@ -996,7 +996,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     mv.visitInsn(DUP);
     mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
 
-    // load null here for type, since these are fp's created for internal usages. 
+    // load null here for type, since these are fp's created for internal usages.
     mv.visitInsn(ACONST_NULL);
 
     if (isVoid) {
@@ -1113,7 +1113,7 @@ if (hasInitFunction(pkg)) {
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
         errorGen.printStackTraceFromFutureValue(mv);
         mv.visitInsn(POP);
-    
+
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -1243,7 +1243,7 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
