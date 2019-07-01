@@ -439,26 +439,18 @@ public class LauncherUtils {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPkgNode = compiler.compile(source);
 
-//        CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-//                getBackendCodeGenerator();
         String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                 "ballerina.home is not set");
         JBallerinaInMemoryClassLoader classLoader;
         try {
+            Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             classLoader = BootstrapRunner.createClassLoaders(entryPkgNode,
                     Paths.get(balHome).resolve("bir-cache"),
-                    sourceRootPath,  Optional.empty());
+                    targetDirectory,  Optional.empty());
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
-//        Optional result = jvmCodeGen.generate(false, entryPkgNode, context, sourceRootPath.toString());
-//        if (!result.isPresent()) {
-//            throw new RuntimeException("Compiled binary jar is not found");
-//        }
-//        entryPkgNode.jarBinaryContent = (byte[]) result.get();
 
-//        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(entryPkgNode.jarBinaryContent);
-//        String initClassName = getModuleInitClassName(entryPkgNode.jarBinaryContent);
         String initClassName = BFileUtil.getQualifiedClassName(entryPkgNode.packageID.orgName.value,
                 entryPkgNode.packageID.name.value,
                 MODULE_INIT_CLASS_NAME);
@@ -613,21 +605,6 @@ public class LauncherUtils {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
     }
-
-//    private static String getModuleInitClassName(byte[] jarContent) {
-//        try (JarInputStream jarStream = new JarInputStream(new ByteArrayInputStream(jarContent))) {
-//            Manifest mf = jarStream.getManifest();
-//            Attributes attributes = mf.getMainAttributes();
-//            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
-//            if (initClassName == null) {
-//                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
-//            }
-//            return initClassName.replaceAll("/", ".");
-//        } catch (IOException e) {
-//            throw createLauncherException("error while getting init class name from manifest due to "
-//            + e.getMessage());
-//        }
-//    }
 
     private static ProgramFile compileModule(Path sourceRootPath, Path sourcePath, boolean offline,
                                              boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,

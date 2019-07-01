@@ -371,7 +371,6 @@ public class BServerInstance implements BServer {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
-//            processBuilder.environment().put("BAL_JAVA_DEBUG", "5005");
             process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
