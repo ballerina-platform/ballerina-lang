@@ -383,7 +383,7 @@ public type ClientCredentialsGrantConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# The `PasswordGrantConfig` record can be used to configure OAuth2 password grant type
+# The `PasswordGrantConfig` record can be used to configure the OAuth2 password grant type.
 #
 # + tokenUrl - Token URL for the authorization server
 # + username - Username for password grant authentication
