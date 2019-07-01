@@ -146,7 +146,7 @@ public type RequestLimits record {|
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single connection and user can
+#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authenticaton configurations
 public type ServiceEndpointConfiguration record {|
