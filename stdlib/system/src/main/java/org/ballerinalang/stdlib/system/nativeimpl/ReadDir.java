@@ -20,9 +20,12 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -35,7 +38,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.stdlib.system.utils.SystemUtils.getFileInfo;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
 
 /**
  * Extern function ballerina.system:readDir.
@@ -52,35 +56,33 @@ public class ReadDir extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+    }
 
-        String inputPath = context.getStringArgument(0);
-        File inputFile = Paths.get(inputPath).toAbsolutePath().toFile();
+    public static Object readDir(Strand strand, String path) {
+        File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
-                    "File doesn't exist in path " + inputPath));
-            return;
+            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + path);
         }
 
         if (!inputFile.isDirectory()) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " + inputPath +
-                    " is not a directory"));
-            return;
+            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " + path + " is not a directory");
         }
-        BMap[] results = null;
+        ObjectValue[] results;
         try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
             results = walk.map(x -> {
                 try {
-                    return getFileInfo(context, x.toFile());
+                    return SystemUtils.getFileInfo(x.toFile());
                 } catch (IOException e) {
                     throw new BallerinaException("Error while accessing file info", e);
                 }
-            }).toArray(BMap[]::new);
-            context.setReturnValues(new BValueArray(results, BTypes.typeMap));
+            }).toArray(ObjectValue[]::new);
+            BType fileInfoType = BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE).getType();
+            return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
-            context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", ex));
+            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
         } catch (SecurityException ex) {
-            context.setReturnValues(SystemUtils.getBallerinaError("PERMISSION_ERROR", ex));
+            return SystemUtils.getBallerinaError("PERMISSION_ERROR", ex);
         }
     }
 }
