@@ -107,7 +107,7 @@ function readLineError() returns string | MyError {
 }
 
 function readLineCustomError() returns string | CustomError {
-    CustomError e = error("custom io error", { data: "foo.txt"});
+    CustomError e = error("custom io error", data = "foo.txt");
     return e;
 }
 

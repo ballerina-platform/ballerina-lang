@@ -14,33 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// int based finite type.
-type allInitZero 0|1|2;
-type allInitNonZero 1|2|3;
+annotation map<string> v0 on source var;
+annotation Foo v1 on source annotation;
+annotation Bar v2 on source const, type;
+annotation map<anydata> v3 on return, source external;
+annotation map<int> v4 on source const, source external;
+annotation Foo v5 on source type;
+annotation Bar v6 on source listener, return;
+annotation Bar v7 on object type, source function;
+annotation Bar v8 on source resource function, source parameter;
+annotation map<string> v9 on source listener;
 
-allInitZero[] ar1 = [];
-allInitNonZero[] ar2 = [];
+type Foo record {
+    string val1;
+};
 
-// float based finite type.
-type allFloatZero 0.0|1.0|3.14;
-type allFloatNonZero 1.0|3.143;
-
-allFloatZero[] fAr1 = [];
-allFloatNonZero[] fAr2 = [];
-
-// boolean based finit type.
-type bool true|false;
-type bTrue true;
-
-bool[] bAr1 = [];
-bTrue[] bTrueAr1 = [];
-
-// string based finite type.
-type allStrInclEmpty ""|"a"|"b";
-type allStrNonEmpty "a"|"b"|"c";
-
-allStrInclEmpty[] strFiniteArr = [];
-allStrNonEmpty[] strFiniteNonEmptyArr = [];
-
-type U int|float?;
-U[] u = [];
+type Bar record {|
+    string val1;
+    int val2;
+|};

@@ -29,6 +29,6 @@ public const JWT_ERROR_CODE = "{ballerina/jwt}JWTError";
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
-    error preparedError = error(JWT_ERROR_CODE, { message: message, reason: err.reason() });
+    error preparedError = error(JWT_ERROR_CODE, message = message, reason = err.reason());
     return preparedError;
 }

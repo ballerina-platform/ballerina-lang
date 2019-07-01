@@ -234,7 +234,7 @@ dependencies {
     // dist project(':ballerina-websub')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
+//    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':strip-bouncycastle')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
@@ -245,7 +245,7 @@ dependencies {
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

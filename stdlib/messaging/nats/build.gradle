@@ -62,4 +62,8 @@ createBalo {
     jvmTarget = 'true'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - NATS'

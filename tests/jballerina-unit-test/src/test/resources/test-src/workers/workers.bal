@@ -79,7 +79,7 @@ public function receiveWithTrap() returns error|int {
    worker w1 {
      int i = 2;
      if(true) {
-          error err = error("err", { message: "err msg" });
+          error err = error("err", message = "err msg");
           panic err;
      }
      i -> w2;
@@ -97,7 +97,7 @@ public function receiveWithCheck() returns error|int {
     worker w1 returns boolean|error{
       int i = 2;
       if(true){
-           error err = error("err", { message: "err msg" });
+           error err = error("err", message = "err msg");
            return err;
       }
       i -> w2;

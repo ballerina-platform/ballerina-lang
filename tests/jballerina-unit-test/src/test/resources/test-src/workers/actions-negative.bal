@@ -48,7 +48,7 @@ function workerActionFirstTest() {
     worker w2 returns error? {
         // Receive expr should get anydata
         if(false){
-             error err = error("err", { message: "err msg" });
+             error err = error("err", message = "err msg");
              return err;
         }
         Person p2 = <- w1;
@@ -92,7 +92,7 @@ function workerActionThirdTest() {
     }
     worker w2 returns error?{
         if(false){
-             error err = error("err", { message: "err msg" });
+             error err = error("err", message = "err msg");
              return err;
         }
         int j =0 ;

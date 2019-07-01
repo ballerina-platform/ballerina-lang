@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,33 +18,27 @@
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get Service's Annotations.
+ * Retrieve a service's annotations.
  *
- * @since 0.965.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "reflect",
-        functionName = "getServiceAnnotations"
+        functionName = "getServiceAnnotationsExternal"
 )
-public class GetServiceAnnotations extends AbstractAnnotationReader {
+public class GetServiceAnnotationsExternal extends BlockingNativeCallableUnit {
+    public static Object getServiceAnnotationsExternal(Strand strand, ObjectValue service, String annot) {
+        return service.getType().getAnnotation(annot);
+    }
 
     @Override
     public void execute(Context context) {
-        BType serviceType = context.getRefArgument(0).getType();
-        String serviceVarName = serviceType.getName().split("\\$\\$")[0];
-        context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), serviceVarName));
-    }
 
-    public static ArrayValue getServiceAnnotations(Strand strand, ObjectValue service) {
-        org.ballerinalang.jvm.types.BType serviceType = service.getType();
-        String serviceVarName = serviceType.getName().split("\\$\\$")[0];
-        return getAnnotationValue(serviceType, serviceVarName);
     }
 }

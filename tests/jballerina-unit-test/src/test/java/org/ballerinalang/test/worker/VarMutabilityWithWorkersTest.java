@@ -33,6 +33,7 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class VarMutabilityWithWorkersTest {
 
     private CompileResult compileResult;

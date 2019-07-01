@@ -25,5 +25,5 @@ public type SubscriptionConfigData record {|
 
 
 # Basic Subscription config annotation.
-public annotation<service> SubscriptionConfig SubscriptionConfigData;
+public annotation SubscriptionConfigData SubscriptionConfig on service;
 

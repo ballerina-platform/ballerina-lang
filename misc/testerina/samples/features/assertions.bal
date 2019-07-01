@@ -3,7 +3,7 @@ import ballerina/test;
 // ===== Assert Equals ===== //
 
 // Compare Integer values
-@test:Config
+@test:Config {}
 function testAssertIntEquals (){
 
     int answer = 0;
@@ -15,7 +15,7 @@ function testAssertIntEquals (){
 }
 
 // Compare Float values
-@test:Config
+@test:Config {}
 function testAssertFloatEquals () {
     float a = 10.000;
     float b = 20.050;
@@ -24,7 +24,7 @@ function testAssertFloatEquals () {
 }
 
 // Compare String values
-@test:Config
+@test:Config {}
 function testAssertStringEquals () {
     string a = "John";
     string b = "Doe";
@@ -33,7 +33,7 @@ function testAssertStringEquals () {
 }
 
 // Compare Json objects
-@test:Config
+@test:Config {}
 function testAssertJsonEquals () {
 
     json a = { "name": "Ballerina" };
@@ -42,7 +42,7 @@ function testAssertJsonEquals () {
 }
 
 // Compare boolean values
-@test:Config
+@test:Config {}
 function testAssertBooleanEquals () {
 
     boolean x = true;
@@ -51,7 +51,7 @@ function testAssertBooleanEquals () {
 }
 
 // Compare string arrays
-@test:Config
+@test:Config {}
 function testAssertStringArrayEquals () {
 
     string[] x = ["A", "B", "C"];
@@ -62,7 +62,7 @@ function testAssertStringArrayEquals () {
 }
 
 // Compare Integer arrays
-@test:Config
+@test:Config {}
 function testAssertIntArrayEquals () {
 
     int[] x = [1, 2, 3];
@@ -72,7 +72,7 @@ function testAssertIntArrayEquals () {
 }
 
 // Compare Float arrays
-@test:Config
+@test:Config {}
 function testAssertFloatArrayEquals () {
 
     float[] x = [1.1, 2.2, 3.3];
@@ -84,7 +84,7 @@ function testAssertFloatArrayEquals () {
 // ===== Assert Not Equals ==== //
 
 // Compare distinct strings
-@test:Config
+@test:Config {}
 function testAssertNotEqualsString () {
 
     string s1 = "abc";
@@ -95,7 +95,7 @@ function testAssertNotEqualsString () {
 }
 
 // Compare distinct Json
-@test:Config
+@test:Config {}
 function testAssertNotEqualsJson () {
 
     json s1 = {"a":"b"};
@@ -107,14 +107,14 @@ function testAssertNotEqualsJson () {
 // ===== Assert True ===== //
 
 // Asserts true
-@test:Config
+@test:Config {}
 function testAssertTrue () {
     boolean value = true;
     test:assertTrue(value, msg = "assertTrue failed");
 }
 
 // Assert false
-@test:Config
+@test:Config {}
 function testAssertFalse () {
 
     boolean value = false;
@@ -124,7 +124,7 @@ function testAssertFalse () {
 // ==== Asset Fail ==== //
 
 // Assert Fail
-@test:Config
+@test:Config {}
 function testAssertFail1 () {
     // I'm expecting a error
     error err = error("");
@@ -133,7 +133,7 @@ function testAssertFail1 () {
 }
 
 // Assert Fail
-@test:Config
+@test:Config {}
 function testAssertFail2 () {
     if (true) {
         return;
