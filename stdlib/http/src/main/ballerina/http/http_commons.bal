@@ -342,22 +342,22 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = untaint bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, contentType = <@untainted> bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = untaint inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, contentType = <@untainted> inRequest.getContentType());
     }
     return inRequest;
 }
 
-function isMultipartRequest(Request request) returns boolean {
+function isMultipartRequest(Request request) returns @tainted boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
         request.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function isNestedEntity(mime:Entity entity) returns boolean {
+function isNestedEntity(mime:Entity entity) returns @tainted boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
         entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }

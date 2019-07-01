@@ -213,6 +213,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
+    private Types types;
 
     private boolean overridingAnalysis = true;
     private boolean entryPointPreAnalysis;
@@ -258,6 +259,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         names = Names.getInstance(context);
         dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
+        types = Types.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -634,6 +636,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         overridingAnalysis = false;
+        ifNode.expr.accept(this);
+        // return tainted status of if conditional expr does not affect overal taintedness.
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
@@ -1719,7 +1725,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean isBlocked = processBlockedNode(invNode);
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-            this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
+            for (TaintRecord.TaintError taintError : getCurrentAnalysisState().taintErrorSet) {
+                if (taintError.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
+                    int i = 0;
+                } else {
+                    dlogSet.add(taintError);
+                }
+            }
         }
     }
 
@@ -1853,8 +1865,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangInvokableNode invokableNode,
             Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
 
-        if (this.analyzerPhase != AnalyzerPhase.INITIAL_ANALYSIS
-                || this.analyzerPhase != AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS) {
+        if (this.analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
+                || this.analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
             return;
         }
 
@@ -1875,6 +1887,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             TaintedStatus taintedStatus = taintRecord.parameterTaintedStatusList.get(i);
             if (taintedStatus == TaintedStatus.TAINTED) {
                 BLangSimpleVariable param = getParam(invokableNode, i, requiredParamCount, defaultableParamCount);
+                // Although we consider self as a parameter, we can not mark it as @tainted, hence skip error for it.
+                if (i == 0 && (invokableNode.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED) {
+                    // skip 0th param (self) for object methods.
+                    continue;
+                }
                 if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
                     dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
                             invokableNode.name);
@@ -2160,19 +2177,25 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void updateParameterTaintedStatuses(List<BLangSimpleVariable> paramList, int startIndex) {
         if (getCurrentAnalysisState().parameterTaintedStatus.size() <= startIndex) {
             // If list do not have the tainted state of current parameter list already, add new entries to the list.
-            paramList.forEach(param -> {
+            for (BLangSimpleVariable param : paramList) {
                 TaintedStatus taintedStateBasedOnAnnotations = getTaintedStatusBasedOnAnnotations(param.annAttachments);
                 if (taintedStateBasedOnAnnotations == TaintedStatus.IGNORED) {
                     // If annotations are not use, use the analyzed status.
-                    getCurrentAnalysisState().parameterTaintedStatus.add(param.symbol.tainted ?
-                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                    if (types.isValueType(param.type)) {
+                        // As we can't push values out of a value typed parameter, function body can't taint
+                        // value typed parameter.
+                        getCurrentAnalysisState().parameterTaintedStatus.add(TaintedStatus.UNTAINTED);
+                    } else {
+                        getCurrentAnalysisState().parameterTaintedStatus.add(param.symbol.tainted ?
+                                TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                    }
                 } else {
                     // If parameter has "tainted" or "untainted" annotation, argument should be updated according to the
                     // annotated status regardless of the analyzed status. This is useful if someone need to explicitly
                     // mark any argument that is set as a parameter "tainted" or "untainted".
                     getCurrentAnalysisState().parameterTaintedStatus.add(taintedStateBasedOnAnnotations);
                 }
-            });
+            }
         } else {
             // If list already contains tainted state of current parameter list, update the existing list. This can
             // happen, when there are multiple returns within the same function.
@@ -2243,14 +2266,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 TaintRecord receiverTaintRecord = taintTable.get(0);
                 if (receiverSymbol.tainted) {
+                    if (receiverTaintRecord == null) {
+                        // there is a taint error when receiver is tainted.
+                        // indicating that at this point receiver/self being tainted cause tainted value
+                        // (via receiver/self) passing to a sensitive parameter down the call.
+                        addTaintError(invocationExpr.pos, receiverSymbol.name.value,
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+                    }
+
                     // does this taint other params and return?
-                    if (receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
+                    if (receiverTaintRecord != null
+                            && receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
                         returnTaintedStatus = TaintedStatus.TAINTED;
                     }
-                    if (receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
+                    if (receiverTaintRecord != null
+                            && receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
                         for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
                             if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                                 addTaintError(receiverTaintRecord.taintError);
+                            } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
+                                addTaintError(invocationExpr.pos,
+                                        getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
                             } else {
                                 // todo: we need a better error message here.
                                 // indicating that at this point receiver/self being tainted cause tainted value
@@ -2287,7 +2323,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     }
                 }
 
-                if (receiverTaintRecord.parameterTaintedStatusList != null) {
+                if (receiverTaintRecord != null && receiverTaintRecord.parameterTaintedStatusList != null) {
                     List<TaintedStatus> actualArgTaintStatus = receiverTaintRecord.parameterTaintedStatusList
                             .subList(1, receiverTaintRecord.parameterTaintedStatusList.size());
                     updateArgTaintedStatus(invocationExpr, actualArgTaintStatus);

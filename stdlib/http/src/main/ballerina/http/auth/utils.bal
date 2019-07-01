@@ -201,11 +201,11 @@ function isServiceResourceSecured(ServiceResourceAuth? serviceResourceAuth) retu
 #
 # + resp - The `Response` instance.
 # + return - Returns the map of the response headers.
-function createResponseHeaderMap(Response resp) returns map<anydata> {
+function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
     map<anydata> headerMap = { STATUS_CODE: resp.statusCode };
     string[] headerNames = resp.getHeaderNames();
     foreach string header in headerNames {
-        string[] headerValues = resp.getHeaders(untaint header);
+        string[] headerValues = resp.getHeaders(<@untainted> header);
         headerMap[header] = headerValues;
     }
     return headerMap;

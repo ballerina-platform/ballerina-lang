@@ -245,7 +245,7 @@ function Request.parseCacheControlHeader () {
         // non-standard directives are ignored
     }
 
-    self.cacheControl = reqCC;
+    self.cacheControl = <@untainted> reqCC;
 }
 
 function appendFields (string[] fields) returns string {

@@ -26,7 +26,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
-    string funcName = cleanupFunctionName(<@untainted string> func.name.value);
+    string funcName = cleanupFunctionName(untaint func.name.value);
 
     int returnVarRefIndex = -1;
 
@@ -422,7 +422,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName) {
     int j = 0;
-    string funcName = cleanupFunctionName(<@untainted string> func.name.value);
+    string funcName = cleanupFunctionName(untaint func.name.value);
 
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
@@ -986,7 +986,7 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
         if (func is bir:Function && func.name.value == "main") {
-            userMainFunc = <@untainted bir:Function> func;
+            userMainFunc = untaint func;
             break;
         }
     }
@@ -1470,7 +1470,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkgName, <@untainted bir:Function> func, pkgEntries);
+        generateFrameClassForFunction(pkgName, untaint func, pkgEntries);
     }
 
     foreach var typeDef in pkg.typeDefs {
@@ -1485,14 +1485,14 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 
 function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
-    bir:Function currentFunc = getFunction(<@untainted bir:Function?> func);
+    bir:Function currentFunc = getFunction(untaint func);
     if (isExternFunc(currentFunc)) {
         return;
     }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
-    currentClass = <@untainted string> frameClassName;
+    currentClass = untaint frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 

@@ -15,7 +15,7 @@
 // under the License.
 
 function addDefaultableBooleanVarsToSignature(bir:Function? func) {
-    bir:Function currentFunc = getFunction(<@untainted bir:Function?> func);
+    bir:Function currentFunc = getFunction(untaint func);
     if (isExternFunc(currentFunc)) {
         return;
     }
