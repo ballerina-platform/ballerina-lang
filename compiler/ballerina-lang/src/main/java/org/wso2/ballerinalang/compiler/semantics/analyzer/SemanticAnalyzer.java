@@ -140,6 +140,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -263,15 +264,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.FUNCTION);
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.RESOURCE);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
+            } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
-            if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.REMOTE);
-            }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+        validateAnnotationAttachmentCount(funcNode.annAttachments);
+
+        if (funcNode.returnTypeNode != null) {
+            funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
+                this.analyzeDef(annotationAttachment, funcEnv);
+            });
+            validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
+        }
+
+        if (Symbols.isNative(funcNode.symbol)) {
+            funcNode.externalAnnAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+                this.analyzeDef(annotationAttachment, funcEnv);
+            });
+            validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
+        }
 
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
@@ -314,9 +331,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.TYPE);
+            if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
+            }
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+
             annotationAttachment.accept(this);
         });
+        validateAnnotationAttachmentCount(typeDefinition.annAttachments);
     }
 
     @Override
@@ -413,9 +435,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         annotationNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.ANNOTATION);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
         });
+        validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -430,31 +453,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
         annAttachmentNode.annotationSymbol = annotationSymbol;
-        if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
-                AttachPoints.asMask(annAttachmentNode.attachPoints))) {
+        if (annotationSymbol.maskedPoints > 0 &&
+                !Symbols.isAttachPointPresent(annotationSymbol.maskedPoints,
+                                              AttachPoints.asMask(annAttachmentNode.attachPoints))) {
             String msg = annAttachmentNode.attachPoints.stream()
-                    .map(AttachPoint::getValue)
-                    .collect(Collectors
-                    .joining(","));
-            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
-                    annotationSymbol, msg);
+                    .map(point -> point.name().toLowerCase())
+                    .collect(Collectors.joining(", "));
+            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED, annotationSymbol, msg);
         }
-        // Validate Annotation Attachment data struct against Annotation Definition struct.
+        // Validate Annotation Attachment expression against Annotation Definition type.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol);
-    }
-
-    private void validateAnnotationAttachmentExpr(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol
-            annotationSymbol) {
-        if (annotationSymbol.attachedType == null) {
-            if (annAttachmentNode.expr != null) {
-                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_NO_VALUE,
-                        annotationSymbol.name);
-            }
-            return;
-        }
-        if (annAttachmentNode.expr != null) {
-            this.typeChecker.checkExpr(annAttachmentNode.expr, env, annotationSymbol.attachedType.type);
-        }
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -470,23 +478,36 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 symbolEnter.defineNode(varNode, env);
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                });
+            } else {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.PARAMETER);
+                    annotationAttachment.accept(this);
+                });
+            }
+        } else {
+            if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.CHANNEL);
+                    annotationAttachment.accept(this);
+                });
+            } else {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.LISTENER);
+                    } else if (Symbols.isFlagOn(varNode.symbol.flags, Flags.SERVICE)) {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
+                    } else {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    }
+                    annotationAttachment.accept(this);
+                });
             }
         }
-
-        if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
-            varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.CHANNEL);
-                annotationAttachment.accept(this);
-            });
-        } else {
-            varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.TYPE);
-                if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                    annotationAttachment.attachPoints.add(AttachPoint.LISTENER);
-                }
-                annotationAttachment.accept(this);
-            });
-        }
+        validateAnnotationAttachmentCount(varNode.annAttachments);
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
@@ -1959,9 +1980,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.SERVICE);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
             this.analyzeDef(annotationAttachment, serviceEnv);
         });
+        validateAnnotationAttachmentCount(serviceNode.annAttachments);
 
         if (serviceNode.isAnonymousServiceValue) {
             return;
@@ -2176,6 +2198,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        constant.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
+            annotationAttachment.accept(this);
+        });
+
         if (expression.getKind() == NodeKind.RECORD_LITERAL_EXPR && constant.typeNode == null) {
             constant.type = symTable.semanticError;
             dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
@@ -2362,6 +2389,57 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 varRefExpr.type = originSymbol.type;
             }
         }
+    }
+
+    private void validateAnnotationAttachmentExpr(BLangAnnotationAttachment annAttachmentNode,
+                                                  BAnnotationSymbol annotationSymbol) {
+        if (annotationSymbol.attachedType == null ||
+                types.isAssignable(annotationSymbol.attachedType.type, symTable.trueType)) {
+            if (annAttachmentNode.expr != null) {
+                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE,
+                                annotationSymbol.name);
+            }
+            return;
+        }
+
+
+        // At this point the type is a subtype of  map<anydata>|record{ anydata...; } or
+        // map<anydata>[]|record{ anydata...; }[], thus an expression is required.
+        if (annAttachmentNode.expr == null) {
+            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
+                            annotationSymbol.name);
+            return;
+        }
+
+        BType annotType = annotationSymbol.attachedType.type;
+        this.typeChecker.checkExpr(annAttachmentNode.expr, env,
+                                   annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
+
+        if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            checkConstantExpression(annAttachmentNode.expr);
+        }
+    }
+
+    private void validateAnnotationAttachmentCount(List<BLangAnnotationAttachment> attachments) {
+        Map<BAnnotationSymbol, Integer> attachmentCounts = new HashMap<>();
+        for (BLangAnnotationAttachment attachment : attachments) {
+            if (attachment.annotationSymbol == null) {
+                continue;
+            }
+
+            attachmentCounts.merge(attachment.annotationSymbol, 1, Integer::sum);
+        }
+
+        attachmentCounts.forEach((symbol, count) -> {
+            if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
+                this.dlog.error(attachments.stream()
+                                        .filter(attachment -> attachment.annotationSymbol.equals(symbol))
+                                        .findFirst()
+                                        .get().pos,
+                                DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
+                                symbol.name);
+            }
+        });
     }
 
     /**

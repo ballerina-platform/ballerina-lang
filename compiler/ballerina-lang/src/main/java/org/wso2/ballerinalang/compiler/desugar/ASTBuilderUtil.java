@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
@@ -52,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -158,6 +160,7 @@ public class ASTBuilderUtil {
         castExpr.expr = exprToWrap;
         castExpr.conversionSymbol = createUnboxValueOpSymbolToAnyType(exprToWrap.type, symTable);
         castExpr.type = symTable.anyType;
+        castExpr.targetType = castExpr.type;
         return castExpr;
     }
 
@@ -615,6 +618,24 @@ public class ASTBuilderUtil {
         recordLiteralNode.pos = pos;
         recordLiteralNode.type = type;
         return recordLiteralNode;
+    }
+
+    static BLangRecordLiteral.BLangRecordKeyValue createBLangRecordKeyValue(BLangExpression key,
+                                                                            BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValue recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+        recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
+        recordKeyValue.valueExpr = value;
+        return recordKeyValue;
+    }
+
+    static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(DiagnosticPos pos, BArrayType type) {
+        final BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode =
+                (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        arrayLiteralNode.pos = pos;
+        arrayLiteralNode.type = type;
+        arrayLiteralNode.exprs = new ArrayList<>();
+        return arrayLiteralNode;
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {

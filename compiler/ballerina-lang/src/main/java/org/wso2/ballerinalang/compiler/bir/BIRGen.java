@@ -173,6 +173,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
+
 /**
  * Lower the AST to BIR.
  *
@@ -500,10 +502,9 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
-        //TODO is it good to send nill type? fix
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags,
-                                                 annSymbol.attachPoints, annSymbol.attachedType == null ?
-                                                         symTable.noType : annSymbol.attachedType.type);
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags, annSymbol.points,
+                annSymbol.attachedType == null ? symTable.trueType : annSymbol.attachedType.type);
+
         this.env.enclPkg.annotations.add(birAnn);
     }
 
@@ -671,8 +672,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        Name name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? new Name(ANNOTATION_DATA) :
+                this.env.nextGlobalVarId(names);
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
-                                                                  varNode.symbol.type, this.env.nextGlobalVarId(names),
+                                                                  varNode.symbol.type, name,
                                                                   VarScope.GLOBAL, VarKind.GLOBAL);
         this.env.enclPkg.globalVars.add(birVarDcl);
 
@@ -1746,6 +1749,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.CLOSED_RANGE;
             case HALF_OPEN_RANGE:
                 return InstructionKind.HALF_OPEN_RANGE;
+            case ANNOT_ACCESS:
+                return InstructionKind.ANNOT_ACCESS;
             case BITWISE_AND:
                 return InstructionKind.BITWISE_AND;
             case BITWISE_OR:

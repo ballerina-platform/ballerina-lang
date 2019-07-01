@@ -2309,7 +2309,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).maskedPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 

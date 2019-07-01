@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        generateUserDefinedTypes(mv, module.typeDefs, indexMap);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -498,7 +498,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
-                instGen.generateObjectNewIns(inst);
+                instGen.generateObjectNewIns(inst, localVarOffset);
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(inst);
@@ -576,6 +576,9 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
+            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
+                generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
+            }
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
@@ -698,20 +701,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VarRef ref = getVarRef(paramType);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
+            argIndex += 1;
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }
+            }  
+            argIndex += 1;
         }
     } else {
         //load closureMaps
@@ -725,21 +731,24 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
             mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
             i += 1;
-
+            argIndex += 1;
+            
             if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }   
+            } 
+            argIndex += 1; 
         }
     }
 
@@ -1401,6 +1410,34 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     mv.visitLdcInsn(paramIndex);
     mv.visitInsn(L2I);
     mv.visitInsn(AALOAD);
+}
+
+function generateAnnotLoad(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string pkgName) {
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = pkgName;
+    }
+
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+
+        if (bType is bir:BFiniteType || bType is bir:BServiceType) {
+            continue;
+        }
+
+        loadAnnots(mv, typePkgName, typeDef);
+    }
+}
+
+function loadAnnots(jvm:MethodVisitor mv, string pkgName, bir:TypeDef typeDef) {
+    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                            lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    loadExternalOrLocalType(mv, typeDef);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
+        io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
 }
 
 type BalToJVMIndexMap object {

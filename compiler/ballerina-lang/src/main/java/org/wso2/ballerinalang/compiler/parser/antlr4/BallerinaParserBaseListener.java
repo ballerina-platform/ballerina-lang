@@ -136,6 +136,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -359,6 +371,54 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDualAttachPoint(BallerinaParser.DualAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDualAttachPoint(BallerinaParser.DualAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDualAttachPointIdent(BallerinaParser.DualAttachPointIdentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDualAttachPointIdent(BallerinaParser.DualAttachPointIdentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSourceOnlyAttachPoint(BallerinaParser.SourceOnlyAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSourceOnlyAttachPoint(BallerinaParser.SourceOnlyAttachPointContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSourceOnlyAttachPointIdent(BallerinaParser.SourceOnlyAttachPointIdentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSourceOnlyAttachPointIdent(BallerinaParser.SourceOnlyAttachPointIdentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2243,6 +2303,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

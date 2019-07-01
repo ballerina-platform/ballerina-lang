@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -1729,6 +1730,25 @@ public class BLangPackageBuilder {
         invokableNode.setBody(block);
     }
 
+    void endExternalFunctionBody(int annotCount) {
+        InvokableNode invokableNode = this.invokableNodeStack.peek();
+
+        if (annotCount == 0 || annotAttachmentStack.empty()) {
+            return;
+        }
+
+        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(annotCount);
+        for (int i = 0; i < annotCount; i++) {
+            if (annotAttachmentStack.empty()) {
+                break;
+            }
+            tempAnnotAttachments.add(annotAttachmentStack.pop());
+        }
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(tempAnnotAttachments);
+        tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
+    }
+
     void addImportPackageDeclaration(DiagnosticPos pos,
                                      Set<Whitespace> ws,
                                      String orgName,
@@ -2146,7 +2166,7 @@ public class BLangPackageBuilder {
     }
 
     void endAnnotationDef(Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos, boolean publicAnnotation,
-                          boolean isTypeAttached) {
+                          boolean isTypeAttached, boolean isConst) {
         BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.addWS(ws);
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
@@ -2156,9 +2176,15 @@ public class BLangPackageBuilder {
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
-        while (!attachPointStack.empty()) {
-            annotationNode.attachPoints.add(attachPointStack.pop());
+
+        if (isConst) {
+            annotationNode.flagSet.add(Flag.CONSTANT);
         }
+
+        while (!attachPointStack.empty()) {
+            annotationNode.addAttachPoint(attachPointStack.pop());
+        }
+
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();
         }
@@ -2704,19 +2730,24 @@ public class BLangPackageBuilder {
     void startServiceDef(DiagnosticPos pos) {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
-        attachAnnotations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
                        boolean isAnonServiceValue) {
+        endServiceDef(pos, ws, serviceName, identifierPos, isAnonServiceValue, this.annotAttachmentStack.size());
+    }
+
+    void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
+                       boolean isAnonServiceValue, int annotCount) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
         //      This is a global variable if the service is defined in module level.
         //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        attachAnnotations(serviceNode, annotCount);
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
@@ -3705,6 +3736,17 @@ public class BLangPackageBuilder {
         typeTestExpr.pos = pos;
         typeTestExpr.addWS(ws);
         addExpressionNode(typeTestExpr);
+    }
+
+    void createAnnotAccessNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
+        annotAccessExpr.pos = pos;
+        annotAccessExpr.addWS(ws);
+        annotAccessExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
+        addExpressionNode(annotAccessExpr);
     }
 
     void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {
