@@ -19,9 +19,11 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -125,6 +127,7 @@ public class SymbolTable {
 
     public final BTypeSymbol errSymbol;
     public final BType semanticError;
+    public final BConstructorSymbol errorConstructor;
 
     public BErrorType errorType;
     public BUnionType pureType;
@@ -194,6 +197,12 @@ public class SymbolTable {
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);
         errorSymbol.type = this.errorType;
+
+        // Initialize constructor symbol for ballerina built-in error type
+        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR,
+                errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
+        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        rootScope.define(errorConstructor.name, this.errorConstructor);
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
         this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);

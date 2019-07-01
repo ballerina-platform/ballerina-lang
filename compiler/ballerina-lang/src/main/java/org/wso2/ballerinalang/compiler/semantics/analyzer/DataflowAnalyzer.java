@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1043,12 +1042,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(trapExpr.expr, env);
     }
 
-    @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        analyzeNode(errorConstructorExpr.detailsExpr, env);
-        analyzeNode(errorConstructorExpr.reasonExpr, env);
-    }
-
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         BLangService serviceNode = serviceConstructorExpr.serviceNode;
         serviceNode.annAttachments.forEach(bLangAnnotationAttachment ->
@@ -1094,7 +1087,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         analyzeNode(varRefExpr.reason, env);
-        analyzeNode(varRefExpr.detail, env);
+        for (BLangNamedArgsExpression args : varRefExpr.detail) {
+            analyzeNode(args.expr, env);
+        }
+        analyzeNode(varRefExpr.restVar, env);
     }
 
     @Override
@@ -1264,8 +1260,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
-                checkAssignment(errorVarRef.reason);
-                checkAssignment(errorVarRef.detail);
+                if (errorVarRef.reason != null) {
+                    checkAssignment(errorVarRef.reason);
+                }
+                for (BLangNamedArgsExpression expression : errorVarRef.detail) {
+                    checkAssignment(expression);
+                    this.uninitializedVars.remove(((BLangVariableReference) expression.expr).symbol);
+                }
+                if (errorVarRef.restVar != null) {
+                    checkAssignment(errorVarRef.restVar);
+                }
                 return;
             case INDEX_BASED_ACCESS_EXPR:
             case FIELD_BASED_ACCESS_EXPR:

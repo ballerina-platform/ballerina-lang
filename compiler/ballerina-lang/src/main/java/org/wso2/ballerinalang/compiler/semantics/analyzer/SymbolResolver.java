@@ -200,6 +200,11 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+            return true;
+        }
+
         //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {

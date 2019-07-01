@@ -894,15 +894,60 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        String detailIdentifier = null;
-        DiagnosticPos detailIdPos = null;
-        if (ctx.Identifier(1) != null) {
-            detailIdentifier = ctx.Identifier(1).getText();
-            detailIdPos = getCurrentPos(ctx.Identifier(1));
+        String reasonIdentifier = ctx.Identifier().getText();
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+
+        String restIdentifier = null;
+        if (ctx.errorRestBindingPattern() != null) {
+            restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
         }
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier(0).getText(),
-                                         getCurrentPos(ctx.Identifier(0)), detailIdentifier, detailIdPos,
-                                         ctx.recordBindingPattern() != null);
+
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier);
+    }
+
+    @Override
+    public void enterErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorBindingNode();
+    }
+
+    @Override
+    public void enterErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorBindingNode();
+    }
+
+    @Override
+    public void exitErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String restIdentifier = null;
+        if (ctx.restMatchPattern() != null) {
+            restIdentifier = ctx.restMatchPattern().Identifier().getText();
+        }
+
+        String reasonIdentifier = null;
+        if (ctx.simpleMatchPattern() != null) {
+            reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
+        }
+
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, restIdentifier);
+    }
+
+    @Override
+    public void exitErrorDetailBindingPattern(BallerinaParser.ErrorDetailBindingPatternContext ctx) {
+        String bindingVarName = null;
+        if (ctx.bindingPattern() != null && ctx.bindingPattern().Identifier() != null) {
+            bindingVarName = ctx.bindingPattern().Identifier().getText();
+        }
+        this.pkgBuilder.addErrorDetailBinding(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                bindingVarName);
     }
 
     @Override
@@ -910,11 +955,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean recordBindingPattern = false;
-        if (ctx.recordRefBindingPattern() != null || ctx.variableReference().size() == 2) {
-            recordBindingPattern = true;
+
+        int numNamedArgs = ctx.errorNamedArgRefPattern().size();
+        boolean reasonRefAvailable = ctx.variableReference() != null;
+
+        boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
+
+        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
+                numNamedArgs, reasonRefAvailable, restPatternAvailable);
+    }
+
+    @Override
+    public void exitErrorNamedArgRefPattern(BallerinaParser.ErrorNamedArgRefPatternContext ctx) {
+        if (isInErrorState) {
+            return;
         }
-        this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx), recordBindingPattern);
+
+        this.pkgBuilder.addNamedArgument(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override
@@ -1240,15 +1297,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addErrorConstructor(getCurrentPos(ctx), getWS(ctx), ctx.COMMA() != null);
-    }
-
-    @Override
     public void exitServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx) {
         if (isInErrorState) {
             return;
@@ -1470,7 +1518,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.bindingPattern() != null) {
+        if (ctx.bindingPattern() != null || ctx.errorMatchPattern() != null) {
             boolean isTypeGuardPresent = ctx.IF() != null;
             this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx), isTypeGuardPresent);
             return;

@@ -83,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -934,6 +933,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        // handle error constructor invocation
+        if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            ((BInvokableSymbol) invocationExpr.symbol).taintTable = createIdentityTaintTable(invocationExpr);
+        }
+
         if (invocationExpr.functionPointerInvocation) {
             // Skip function pointers and assume returns of function pointer executions are untainted.
             // TODO: Resolving function pointers / lambda expressions and perform analysis.
@@ -994,6 +998,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 analyzeInvocation(invocationExpr);
             }
         }
+    }
+
+    private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {
+        Map<Integer, TaintRecord> taintTable = new HashMap<>();
+
+        int requiredParamCount = invocationExpr.requiredArgs.size();
+        int defaultableParamCount = invocationExpr.namedArgs.size();
+        int totalParamCount = requiredParamCount + defaultableParamCount + (invocationExpr.restArgs == null ? 0 : 1);
+
+        for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
+            TaintRecord record = new TaintRecord(
+                    i == ALL_UNTAINTED_TABLE_ENTRY_INDEX ? TaintedStatus.UNTAINTED : TaintedStatus.TAINTED,
+                    new ArrayList<>());
+            taintTable.put(i, record);
+
+            for (int j = 0; j < totalParamCount; j++) {
+                record.parameterTaintedStatusList.add(TaintedStatus.UNTAINTED);
+            }
+        }
+
+        return taintTable;
     }
 
     private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
@@ -1319,21 +1344,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkPanicExpr) {
         checkPanicExpr.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
-        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
-        if (errorConstructorExpr.reasonExpr != null) {
-            errorConstructorExpr.reasonExpr.accept(this);
-            reasonTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        if (errorConstructorExpr.detailsExpr != null) {
-            errorConstructorExpr.detailsExpr.accept(this);
-            detailsTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        getCurrentAnalysisState().taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
     }
 
     @Override

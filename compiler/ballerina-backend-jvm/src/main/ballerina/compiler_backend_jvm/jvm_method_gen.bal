@@ -263,7 +263,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
@@ -365,7 +365,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -525,7 +525,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:FPLoad) {
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
-                instGen.generateTypeTestIns(inst);
+                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {
@@ -999,7 +999,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     mv.visitInsn(DUP);
     mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
 
-    // load null here for type, since these are fp's created for internal usages. 
+    // load null here for type, since these are fp's created for internal usages.
     mv.visitInsn(ACONST_NULL);
 
     if (isVoid) {
@@ -1116,7 +1116,7 @@ if (hasInitFunction(pkg)) {
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
         errorGen.printStackTraceFromFutureValue(mv);
         mv.visitInsn(POP);
-    
+
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -1246,7 +1246,7 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();

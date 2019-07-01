@@ -32,7 +32,7 @@ function getGenericError() returns int|error {
 }
 
 function getGenericErrorWithDetail() returns int|error {
-    error e = error("Generic Error", { fatal: true, message: "Something Went Wrong" });
+    error e = error("Generic Error", fatal = true, message = "Something Went Wrong");
     return e;
 }
 
@@ -56,6 +56,6 @@ function returnBallerinaPanicedError() returns int|error {
 public type MyError error<string, record { int code; }>;
 
 function getCustomError() returns int|MyError {
-    MyError e = error("My Error", { code: 12 });
+    MyError e = error("My Error", code = 12);
     return e;
 }

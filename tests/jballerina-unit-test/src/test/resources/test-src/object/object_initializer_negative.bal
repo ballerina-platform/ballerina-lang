@@ -39,7 +39,7 @@ type Person object {
 
 function getError() returns string|error {
     map<string> m = {f: "foo"};
-    error e = error("failed to create Person object", m);
+    error e = error("failed to create Person object", f = "foo");
     return e;
 }
 
@@ -84,7 +84,7 @@ type Person4 object {
 
     function __init() returns FooErr|BarErr {
         self.name = "";
-        FooErr e = error("Foo Error", {f:"foo"});
+        FooErr e = error("Foo Error", f = "foo");
         return e;
     }
 };

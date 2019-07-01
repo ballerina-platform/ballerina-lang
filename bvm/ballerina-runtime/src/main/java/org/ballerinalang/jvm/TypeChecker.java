@@ -1055,8 +1055,16 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        return checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes) &&
-                checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
+        if (reasonTypeMatched
+                && ((BErrorType) sourceType).detailType.getTag() == TypeTags.RECORD_TYPE_TAG
+                && targetType.detailType.getTag() == TypeTags.MAP_TAG
+                && checkIsType(targetType, BTypes.typeError, unresolvedTypes)) {
+            // User defined error type with Record detail type (record fields are pure constrained at error constructor)
+            // is equal to Ballerina error type with pure constrained map as detail.
+            return true;
+        }
+        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1066,7 +1074,7 @@ public class TypeChecker {
             return false;
         }
         return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues) &&
+                targetType.reasonType, unresolvedValues) &&
                 checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
