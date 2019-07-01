@@ -140,7 +140,7 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
                 handleTimeout(msgHolder);
                 closeStream(msgHolder, streamId, ctx);
             } else {
-                // Write occurred before the timeout - set a new timeout with shorter delay.
+                // Read or write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));
             }
         }

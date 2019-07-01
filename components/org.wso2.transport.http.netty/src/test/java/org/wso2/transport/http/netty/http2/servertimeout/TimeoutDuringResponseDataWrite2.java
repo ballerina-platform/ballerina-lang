@@ -31,15 +31,15 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 /**
- * Tests server timeout during response data write with a prior knowledge on HTTP/2 client.
+ * Tests server timeout during response data write with a prior knowledge off HTTP/2 client.
  */
-public class TimeoutDuringResponseDataWrite {
+public class TimeoutDuringResponseDataWrite2 {
     private static final Logger LOG = LoggerFactory.getLogger(TimeoutDuringResponseDataWrite.class);
 
-    private HttpClientConnector h2ClientWithPriorKnowledge;
+    private HttpClientConnector h2ClientWithoutPriorKnowledge;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory connectorFactory;
-    private static final String PRIOR_ON_EXPECTED_ERROR = "HTTP/2 stream 3 reset by the remote peer";
+    private static final String PRIOR_OFF_EXPECTED_ERROR = "HTTP/2 stream 1 reset by the remote peer";
 
 
     @BeforeClass
@@ -60,8 +60,11 @@ public class TimeoutDuringResponseDataWrite {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration1 = getSenderConfiguration();
         senderConfiguration1.setForceHttp2(true);
-        h2ClientWithPriorKnowledge = connectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration1);
+
+        SenderConfiguration senderConfiguration2 = getSenderConfiguration();
+        senderConfiguration2.setForceHttp2(false);
+        h2ClientWithoutPriorKnowledge = connectorFactory.createHttpClientConnector(
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration2);
     }
 
     private SenderConfiguration getSenderConfiguration() {
@@ -75,8 +78,8 @@ public class TimeoutDuringResponseDataWrite {
 
     @Test
     public void testServerTimeout() {
-        HttpCarbonMessage httpMsg = MessageGenerator.generateRequest(HttpMethod.POST, "Test Http2 Message");
-        verifyResult(httpMsg, h2ClientWithPriorKnowledge);
+        HttpCarbonMessage httpMsg1 = MessageGenerator.generateRequest(HttpMethod.POST, "Test Http2 Message");
+        verifyResult(httpMsg1, h2ClientWithoutPriorKnowledge);
     }
 
     private void verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector) {
@@ -91,10 +94,10 @@ public class TimeoutDuringResponseDataWrite {
             OperationStatus status = responseFuture.getStatus();
             if (status.getCause() != null) {
                 String errorMsg = status.getCause().getMessage();
-                assertEquals(errorMsg, PRIOR_ON_EXPECTED_ERROR);
+                assertEquals(errorMsg, PRIOR_OFF_EXPECTED_ERROR);
             } else {
-                fail("TimeoutDuringResponseDataWrite is heavily dependent on timing of events and needs an alternate " +
-                             "solution");
+                fail("TimeoutDuringResponseDataWrite2 is heavily dependent on timing of events and needs an alternate" +
+                             " solution");
             }
         } catch (InterruptedException e) {
             LOG.error("Interrupted exception occurred");
@@ -103,7 +106,7 @@ public class TimeoutDuringResponseDataWrite {
 
     @AfterClass
     public void cleanUp() {
-        h2ClientWithPriorKnowledge.close();
+        h2ClientWithoutPriorKnowledge.close();
         serverConnector.stop();
         try {
             connectorFactory.shutdown();
