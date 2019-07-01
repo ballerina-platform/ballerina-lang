@@ -10,7 +10,7 @@ byte[] blobValue = [];
 
 boolean boolValue = false;
 
-listener http:MockListener echoEP = new(9090);
+listener http:MockListener echoEP = new (9090);
 
 int sampleRequestCount = 0;
 

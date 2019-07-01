@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -354,6 +356,36 @@ public class CommandUtil {
             } catch (WorkspaceDocumentException | IOException e) {
                 //do nothing
             }
+        } else if (isFuncSignatureInNonAbstractObj(diagnosticMessage)) {
+            Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnosticMessage);
+            if (matcher.find() && matcher.groupCount() > 1) {
+                String objectName = matcher.group(2);
+                int colonIndex = objectName.lastIndexOf(":");
+                String simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
+                List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
+                String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
+
+                CodeAction action = new CodeAction(commandTitle);
+                action.setKind(CodeActionKind.QuickFix);
+                action.setCommand(new Command(commandTitle, ChangeAbstractTypeObjExecutor.COMMAND, args));
+                action.setDiagnostics(diagnostics);
+                actions.add(action);
+            }
+        } else if (hasFuncBodyInAbstractObj(diagnosticMessage)) {
+            Matcher matcher = CommandConstants.FUNC_IN_ABSTRACT_OBJ_PATTERN.matcher(diagnosticMessage);
+            if (matcher.find() && matcher.groupCount() > 1) {
+                String objectName = matcher.group(2);
+                int colonIndex = objectName.lastIndexOf(":");
+                String simpleObjName = (colonIndex > -1) ? objectName.substring(colonIndex + 1) : objectName;
+                List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
+                String commandTitle = String.format(CommandConstants.MAKE_OBJ_NON_ABSTRACT_TITLE, simpleObjName);
+
+                CodeAction action = new CodeAction(commandTitle);
+                action.setKind(CodeActionKind.QuickFix);
+                action.setCommand(new Command(commandTitle, ChangeAbstractTypeObjExecutor.COMMAND, args));
+                action.setDiagnostics(diagnostics);
+                actions.add(action);
+            }
         }
         return actions;
     }
@@ -471,6 +503,19 @@ public class CommandUtil {
             client.applyEdit(applyWorkspaceEditParams);
         }
         return applyWorkspaceEditParams;
+    }
+
+    public static BLangObjectTypeNode getObjectNode(int line, int column, String uri,
+                                                  WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                                  LSContext context) throws LSCompilerException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, lsCompiler, context);
+        if (bLangNode.getLeft() instanceof BLangObjectTypeNode) {
+            return (BLangObjectTypeNode) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangObjectTypeNode) {
+            return (BLangObjectTypeNode) bLangNode.getRight();
+        } else {
+            return null;
+        }
     }
 
     public static BLangInvocation getFunctionNode(int line, int column, String uri,
@@ -606,7 +651,7 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, false,
+        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, true,
                                                                        LSCustomErrorStrategy.class, true, false);
 
         // Get the current package.
@@ -649,6 +694,14 @@ public class CommandUtil {
 
     private static boolean isTaintedParamPassed(String diagnosticMessage) {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.TAINTED_PARAM_PASSED);
+    }
+
+    private static boolean isFuncSignatureInNonAbstractObj(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION);
+    }
+
+    private static boolean hasFuncBodyInAbstractObj(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.FUNC_IMPL_FOUND_IN_ABSTRACT_OBJ);
     }
 
     private static CodeAction getDocGenerationCommand(String nodeType, String docUri, int line) {

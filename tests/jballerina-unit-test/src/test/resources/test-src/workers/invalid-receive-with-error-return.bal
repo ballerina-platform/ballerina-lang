@@ -19,7 +19,7 @@ public function main() {
     worker w2 returns TrxError|boolean{
       int j = 25;
       if(false){
-           TrxError err = error("trxErr", { data: "test" });
+           TrxError err = error("trxErr", data = "test");
            return err;
       }
       j = <- w1;
