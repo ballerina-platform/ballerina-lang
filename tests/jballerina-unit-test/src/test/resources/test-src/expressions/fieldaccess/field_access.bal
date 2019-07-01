@@ -75,16 +75,6 @@ function testJsonFieldAccessNegative() returns boolean[5] {
             testJsonFieldAccessNegativeMissingKey3(j1)];
 }
 
-function testMapJsonFieldAccessPositive() returns boolean[2] {
-    return [testJsonFieldAccessPositive1(j2), testJsonFieldAccessPositive2(j2)];
-}
-
-function testMapJsonFieldAccessNegative() returns boolean[5] {
-    return [testNonMappingJsonFieldAccessNegative1(j2), testNonMappingJsonFieldAccessNegative2(j2),
-            testJsonFieldAccessNegativeMissingKey1(j2), testJsonFieldAccessNegativeMissingKey2(j2),
-            testJsonFieldAccessNegativeMissingKey3(j2)];
-}
-
 function testJsonFieldAccessPositive1(json j) returns boolean {
     json be = { b: i };
     json|error a = j.a;
@@ -136,6 +126,67 @@ function testJsonFieldAccessNegativeMissingKey3(json j) returns boolean {
     return false;
 }
 
+function testMapJsonFieldAccessPositive() returns boolean[2] {
+    return [testMapJsonFieldAccessPositive1(j2), testMapJsonFieldAccessPositive2(j2)];
+}
+
+function testMapJsonFieldAccessNegative() returns boolean[5] {
+    return [testNonMappingMapJsonFieldAccessNegative1(j2), testNonMappingMapJsonFieldAccessNegative2(j2),
+            testMapJsonFieldAccessNegativeMissingKey1(j2), testMapJsonFieldAccessNegativeMissingKey2(j2),
+            testMapJsonFieldAccessNegativeMissingKey3(j2)];
+}
+
+function testMapJsonFieldAccessPositive1(map<json> j) returns boolean {
+    json be = { b: i };
+    json|error a = j.a;
+    return a is json && a == be;
+}
+
+function testMapJsonFieldAccessPositive2(map<json> j) returns boolean {
+    json|error b = j.a.b;
+    return b is json && b == i;
+}
+
+function testNonMappingMapJsonFieldAccessNegative1(map<json> j) returns boolean {
+    json|error a = j.a.b.c;
+    return assertNonMappingJsonError(a);
+}
+
+function testNonMappingMapJsonFieldAccessNegative2(map<json> j) returns boolean {
+    json|error a = j.a.b.c.d;
+    return assertNonMappingJsonError(a);
+}
+
+function testMapJsonFieldAccessNegativeMissingKey1(map<json> j) returns boolean {
+    json|error a = j.a.d;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'd' not found in JSON mapping";
+    }
+    return false;
+}
+
+function testMapJsonFieldAccessNegativeMissingKey2(map<json> j) returns boolean {
+    json|error a = j.e;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
+}
+
+function testMapJsonFieldAccessNegativeMissingKey3(map<json> j) returns boolean {
+    json|error a = j.e.f;
+
+    if (a is error) {
+        map<anydata|error> detailMap = a.detail();
+        return a.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
+}
+
 function testNonNilLiftingJsonAccess1() returns boolean {
     json a = ();
     json|error b = a.one;
@@ -152,6 +203,44 @@ function testNonNilLiftingJsonAccess3() returns boolean {
     map<json> a = { one: (), two: "two", three: { j: "mapping" } };
     json|error b = a.one.two;
     return assertNonMappingJsonError(b);
+}
+
+function testLaxUnionFieldAccessPositive() returns boolean {
+    map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
+    map<map<json>>|json mj = m;
+    json|error jv = mj.a.b;
+    return jv == i;
+}
+
+function testLaxUnionFieldAccessNegative1() returns boolean {
+    map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
+    map<map<json>>|json mj = m;
+    json|error jv = mj.a.b.c;
+    return assertNonMappingJsonError(jv);
+}
+
+function testLaxUnionFieldAccessNegative2() returns boolean {
+    map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
+    map<map<json>>|json mj = m;
+    json|error jv = mj.a.e;
+
+    if (jv is error) {
+        map<anydata|error> detailMap = jv.detail();
+        return jv.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
+}
+
+function testLaxUnionFieldAccessNegative3() returns boolean {
+    map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
+    map<map<json>>|json mj = m;
+    json|error jv = mj.e;
+
+    if (jv is error) {
+        map<anydata|error> detailMap = jv.detail();
+        return jv.reason() == "{ballerina}KeyNotFound" && detailMap["message"] == "Key 'e' not found in JSON mapping";
+    }
+    return false;
 }
 
 function assertNonMappingJsonError(json|error je) returns boolean {

@@ -144,4 +144,25 @@ public class FieldAccessTest {
             { "testNonNilLiftingJsonAccess3" }
         };
     }
+
+    @Test
+    public void testLaxUnionFieldAccessPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testLaxUnionFieldAccessPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "laxUnionFieldAccessNegativeFunctions")
+    public void testLaxUnionFieldAccessNegative(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "laxUnionFieldAccessNegativeFunctions")
+    public Object[][] laxUnionFieldAccessNegativeFunctions() {
+        return new Object[][] {
+            { "testLaxUnionFieldAccessNegative1" },
+            { "testLaxUnionFieldAccessNegative2" },
+            { "testLaxUnionFieldAccessNegative3" }
+        };
+    }
 }

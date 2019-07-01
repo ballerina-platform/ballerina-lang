@@ -2224,10 +2224,13 @@ public class Desugar extends BLangNodeVisitor {
                         (BVarSymbol) fieldAccessExpr.symbol, true);
                 addToLocks(fieldAccessExpr, targetVarRef);
             }
-        } else if (varRefTypeTag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-        } else if (varRefTypeTag == TypeTags.JSON) {
+        } else if (types.isLax(varRefType)) {
+            // Handle unions of lax types such as json|map<json>, by casting to json and creating a BLangJSONAccessExpr.
+            fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
             targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+        } else if (varRefTypeTag == TypeTags.MAP) {
+            // TODO: 7/1/19 remove once foreach field access usage is removed.
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefTypeTag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                     fieldAccessExpr.fieldKind);
@@ -4611,7 +4614,7 @@ public class Desugar extends BLangNodeVisitor {
         // Do not add safe navigation checks for JSON. Because null is a valid value for json,
         // we handle it at runtime. This is also required to make function on json such as
         // j.toString(), j.keys() to work.
-        if (type.tag == TypeTags.JSON) {
+        if (type.tag == TypeTags.JSON || types.isAssignable(type, symTable.jsonType)) {
             return false;
         }
 

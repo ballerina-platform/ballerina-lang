@@ -3290,18 +3290,14 @@ public class TypeChecker extends BLangNodeVisitor {
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD, varRefType,
                            fieldName);
             }
-        } else if (isLax(varRefType)) {
+        } else if (types.isLax(varRefType)) {
+            actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
+            fieldAccessExpr.originalType = symTable.jsonType;
+        } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
             fieldAccessExpr.safeNavigate = true;
             fieldAccessExpr.originalType = symTable.jsonType;
-        } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                isSafeNavigable((BLangAccessExpression) fieldAccessExpr.expr, varRefType)) {
-            varRefType = getSafeType(varRefType, (BLangAccessExpression) fieldAccessExpr.expr);
-            if (isLax(varRefType)) {
-                actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
-                fieldAccessExpr.safeNavigate = true;
-                fieldAccessExpr.originalType = symTable.jsonType;
-            }
         } else if (varRefType.tag == TypeTags.XML) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
@@ -3312,6 +3308,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return actualType;
+    }
+
+    private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
+        return fieldBasedAccess.originalType == symTable.jsonType;
     }
 
     private BType checkOptionalFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
@@ -3346,7 +3346,7 @@ public class TypeChecker extends BLangNodeVisitor {
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD,
                            varRefType, fieldName);
             }
-        } else if (isLax(effectiveType)) {
+        } else if (types.isLax(effectiveType)) {
             actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
             fieldAccessExpr.safeNavigate = true;
             fieldAccessExpr.originalType = symTable.jsonType;
@@ -3354,7 +3354,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 isSafeNavigable((BLangAccessExpression) fieldAccessExpr.expr, effectiveType)) {
             effectiveType = getSafeType(effectiveType, (BLangAccessExpression) fieldAccessExpr.expr);
-            if (isLax(effectiveType)) {
+            if (types.isLax(effectiveType)) {
                 actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
                 fieldAccessExpr.safeNavigate = true;
                 fieldAccessExpr.originalType = symTable.jsonType;
@@ -3846,18 +3846,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
         return true;
-    }
-
-    private boolean isLax(BType type) {
-        switch (type.tag) {
-            case TypeTags.JSON:
-                return true;
-            case TypeTags.MAP:
-                return isLax(((BMapType) type).constraint);
-            case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
-        }
-        return false;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

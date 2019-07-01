@@ -197,6 +197,18 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
+    public boolean isLax(BType type) {
+        switch (type.tag) {
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.MAP:
+                return isLax(((BMapType) type).constraint);
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
+        }
+        return false;
+    }
+
     public boolean isSameType(BType source, BType target) {
         return isSameType(source, target, new ArrayList<>());
     }
