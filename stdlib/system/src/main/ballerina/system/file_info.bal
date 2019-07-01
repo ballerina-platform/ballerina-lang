@@ -32,14 +32,14 @@ public type FileInfo object {
         self.dir = dir;
     }
 
-    # Returns the filename.
+    # Returns the file name.
     #
-    # + return - the filename
+    # + return - the file name
     public function getName() returns string {
         return self.name;
     }
 
-    # Returns file size.
+    # Returns the file size.
     #
     # + return - the file size
     public function getSize() returns int {
