@@ -72,12 +72,11 @@ public class ResourceSignatureValidator {
                 count++;
             }
         }
-        if (count > 1) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "There cannot be more than one resource annotations");
-        } else if (count == 0) {
+
+        if (count != 1) {
             return;
         }
+
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
             switch (getAnnotationFieldKey(keyValue)) {
                 case ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE:

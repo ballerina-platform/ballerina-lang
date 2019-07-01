@@ -108,7 +108,7 @@ dependencies {
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
 
 

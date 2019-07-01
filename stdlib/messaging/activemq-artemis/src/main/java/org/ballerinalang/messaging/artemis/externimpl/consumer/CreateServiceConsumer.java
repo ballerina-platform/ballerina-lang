@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -102,8 +101,6 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
 
 
     private static MapValue getServiceConfigAnnotation(ObjectValue service) {
-        ArrayValue annotation = service.getType().getAnnotation(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                                                                "ServiceConfig");
-        return (MapValue) annotation.get(0);
+        return (MapValue) service.getType().getAnnotation(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, "ServiceConfig");
     }
 }
