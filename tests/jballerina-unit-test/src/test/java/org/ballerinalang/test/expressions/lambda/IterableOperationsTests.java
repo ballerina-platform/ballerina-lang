@@ -226,7 +226,7 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
     }
 
-    @Test(enabled = false) //TODO fix
+    @Test
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);

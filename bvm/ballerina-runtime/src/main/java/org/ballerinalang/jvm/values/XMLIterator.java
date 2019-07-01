@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.TypeTags;
 
@@ -150,7 +151,7 @@ public class XMLIterator {
             // Max 2 chars per code point.
             StringBuilder sb = new StringBuilder(2);
             sb.appendCodePoint(codePoint);
-            return sb.toString();
+            return XMLFactory.createXMLText(sb.toString());
         }
 
         @Override
