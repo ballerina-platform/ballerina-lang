@@ -15,40 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  **/
-package org.ballerinalang.utils;
+package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the reason phrase of an error value.
+ * Get the stackTrace of an error value.
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina",
-        packageName = "utils",
-        functionName = "reason",
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.error",
+        functionName = "stackTrace",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.STRING)})
-public class Reason extends BlockingNativeCallableUnit {
+        returnType = {@ReturnType(type = TypeKind.OBJECT)})
+public class StackTrace {
 
-    @Override
-    public void execute(Context context) {
-        BValue refRegVal = context.getRefArgument(0);
-        BString reason = new BString(((BError) refRegVal).getReason());
-        context.setReturnValues(reason);
-    }
+    public static Object stackTrace(Strand strand, ErrorValue value) {
 
-    public static String reason(Strand strand, ErrorValue value) {
-        return value.getReason();
+        throw new UnsupportedOperationException("stackTrace");
     }
 }

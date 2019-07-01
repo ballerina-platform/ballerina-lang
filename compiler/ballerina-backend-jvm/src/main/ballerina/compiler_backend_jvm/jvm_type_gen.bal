@@ -100,6 +100,9 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             addObjectFields(mv, bType.oType.fields);
             addObjectAtatchedFunctions(mv, bType.oType.attachedFunctions, bType.oType, indexMap);
         } else if (bType is bir:BErrorType) {
+            if (bType.moduleId.org == BALLERINA && bType.moduleId.name ==  BUILT_IN_PACKAGE_NAME) {
+                continue;
+            }
             // populate detail field
             mv.visitTypeInsn(CHECKCAST, ERROR_TYPE);
             mv.visitInsn(DUP);
