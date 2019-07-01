@@ -162,7 +162,7 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(PackageID.DEFAULT, null);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null);
         this.rootPkgNode.pos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
                 0, 0);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
@@ -256,11 +256,11 @@ public class SymbolTable {
     private void initializeErrorType() {
 
         BRecordTypeSymbol detailSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
-                PackageID.DEFAULT, null, rootPkgSymbol);
+                rootPkgSymbol.pkgID, null, rootPkgSymbol);
         detailSymbol.scope = new Scope(this.rootPkgSymbol);
         this.detailType = new BRecordType(detailSymbol);
 
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, PackageID.DEFAULT,
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
                 null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
         errorSymbol.type = this.errorType;
@@ -268,12 +268,12 @@ public class SymbolTable {
 
         int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
         BField messageField = new BField(Names.DETAIL_MESSAGE, this.rootPkgNode.pos,
-                new BVarSymbol(flags, Names.DETAIL_MESSAGE, PackageID.DEFAULT, this.stringType, detailSymbol));
+                new BVarSymbol(flags, Names.DETAIL_MESSAGE, rootPkgSymbol.pkgID, this.stringType, detailSymbol));
         this.detailType.fields.add(messageField);
         detailSymbol.scope.define(Names.DETAIL_MESSAGE, messageField.symbol);
 
         BField causeField = new BField(Names.DETAIL_CAUSE, this.rootPkgNode.pos,
-                new BVarSymbol(flags, Names.DETAIL_CAUSE, PackageID.DEFAULT, this.errorType, detailSymbol));
+                new BVarSymbol(flags, Names.DETAIL_CAUSE, rootPkgSymbol.pkgID, this.errorType, detailSymbol));
         this.detailType.fields.add(causeField);
         detailSymbol.scope.define(Names.DETAIL_CAUSE, causeField.symbol);
 
@@ -281,7 +281,7 @@ public class SymbolTable {
 
         // TODO : Remove this. Had to add this due to BIR codegen requires this.
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);
-        BInvokableSymbol initSymbol = Symbols.createFunctionSymbol(0, Names.INIT_FUNCTION_SUFFIX, PackageID.DEFAULT,
+        BInvokableSymbol initSymbol = Symbols.createFunctionSymbol(0, Names.INIT_FUNCTION_SUFFIX, rootPkgSymbol.pkgID,
                 invokableType, detailSymbol, false);
         detailSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initSymbol, invokableType);
         detailSymbol.scope.define(initSymbol.name, initSymbol);
