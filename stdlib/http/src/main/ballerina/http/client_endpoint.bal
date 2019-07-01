@@ -364,7 +364,7 @@ public type OAuth2AuthConfig record {|
     ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
 |};
 
-# The `ClientCredentialsGrantConfig` record can be used to configure OAuth2 client credentials grant type.
+# The `ClientCredentialsGrantConfig` record can be used to configure the OAuth2 client credentials grant type.
 #
 # + tokenUrl - Token URL for the authorization server
 # + clientId - Client ID for the client credentials grant authentication
