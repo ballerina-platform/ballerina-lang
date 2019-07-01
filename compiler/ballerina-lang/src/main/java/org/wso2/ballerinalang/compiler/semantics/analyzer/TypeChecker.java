@@ -3568,13 +3568,16 @@ public class TypeChecker extends BLangNodeVisitor {
                            fieldName);
             }
         } else if (types.isLax(varRefType)) {
-            actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
-            fieldAccessExpr.originalType = symTable.jsonType;
+            BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
-            actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
+            BType laxFieldAccessType =
+                    getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.safeNavigate = true;
-            fieldAccessExpr.originalType = symTable.jsonType;
+            fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
@@ -3588,7 +3591,22 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
-        return fieldBasedAccess.originalType == symTable.jsonType;
+        return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
+    }
+
+    private BType getLaxFieldAccessType(BType exprType) {
+        switch (exprType.tag) {
+            case TypeTags.JSON:
+                return symTable.jsonType;
+            case TypeTags.MAP:
+                return ((BMapType) exprType).constraint;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) exprType;
+                LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+                unionType.getMemberTypes().forEach(bType -> memberTypes.add(getLaxFieldAccessType(bType)));
+                return memberTypes.size() == 1 ? memberTypes.iterator().next() : BUnionType.create(null, memberTypes);
+        }
+        return symTable.semanticError;
     }
 
     private BType checkOptionalFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,

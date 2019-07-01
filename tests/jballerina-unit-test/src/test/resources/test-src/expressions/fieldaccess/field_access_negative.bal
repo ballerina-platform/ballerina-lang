@@ -95,3 +95,13 @@ function testInvalidFieldAccessOnJsonInUnion() {
     json|error one = m.one;
     json|error two = one.two;
 }
+
+function testJsonMapAccessInvalidType() {
+    map<json> m0 = { x: { y: 1 } };
+    map<map<json>>|map<json> m1 = m0;
+    map<json>|error m2 = m1.x;
+
+    map<map<json>> m3 = { a: { b: 1 }, c: { d: 2, e: "hello" } };
+    map<map<json>>|map<map<map<json>>> m4 = m3;
+    map<json> jv = m4.a.b;
+}

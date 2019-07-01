@@ -250,3 +250,17 @@ function assertNonMappingJsonError(json|error je) returns boolean {
     }
     return false;
 }
+
+function testMapJsonFieldAccessTypePositive1() returns boolean {
+    map<map<json>> m1 = { a: { b: 1 }, c: { d: 2, e: "hello" } };
+    map<map<json>>|map<map<map<json>>> m2 = m1;
+    map<json>|error jv = m2.a;
+    return jv is map<json> && jv == <map<int>> { b: 1 };
+}
+
+function testMapJsonFieldAccessTypePositive2() returns boolean {
+    map<map<json>> m1 = { a: { b: 1 }, c: { d: 2, e: "hello" } };
+    map<map<json>>|map<map<map<json>>> m2 = m1;
+    json|error jv = m2.a.b;
+    return jv is json && jv == 1;
+}

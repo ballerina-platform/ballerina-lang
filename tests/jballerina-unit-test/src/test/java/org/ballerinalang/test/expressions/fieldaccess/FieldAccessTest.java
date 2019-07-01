@@ -48,7 +48,7 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 14);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
                               "for non-required field 'id'", 32, 9);
@@ -68,7 +68,12 @@ public class FieldAccessTest {
                               "field access", 80, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 85, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 90, 14);
-        validateError(negativeResult, i, "invalid operation: type 'json|error' does not support field access", 96, 22);
+        validateError(negativeResult, i++, "invalid operation: type 'json|error' does not support field access", 96,
+                      22);
+        validateError(negativeResult, i++, "incompatible types: expected 'map<json>|error', " +
+                              "found 'map<json>|json|error'", 102, 26);
+        validateError(negativeResult, i, "incompatible types: expected 'map<json>', found 'json|map<json>|error'",
+                      106, 20);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
@@ -163,6 +168,20 @@ public class FieldAccessTest {
             { "testLaxUnionFieldAccessNegative1" },
             { "testLaxUnionFieldAccessNegative2" },
             { "testLaxUnionFieldAccessNegative3" }
+        };
+    }
+
+    @Test(dataProvider = "mapJsonFieldAccessTypePositiveFunctions")
+    public void testMapJsonFieldAccessTypePositive(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "mapJsonFieldAccessTypePositiveFunctions")
+    public Object[][] mapJsonFieldAccessTypePositiveFunctions() {
+        return new Object[][] {
+                { "testMapJsonFieldAccessTypePositive1" },
+                { "testMapJsonFieldAccessTypePositive2" }
         };
     }
 }
