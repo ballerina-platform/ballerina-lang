@@ -19,12 +19,13 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the native initialize function that's getting called when instantiating the Counter object.
@@ -41,11 +42,19 @@ import org.ballerinalang.util.metrics.Counter;
 public class CounterInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        Counter counter = Counter.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
-                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
-                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)))
+//        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        Counter counter = Counter.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
+//                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
+//                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)))
+//                .build();
+//        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
+    }
+
+    public static void initialize(Strand strand, ObjectValue counterObj) {
+        Counter counter = Counter.builder((String) counterObj.get(ObserveNativeImplConstants.NAME_FIELD))
+                .description((String) counterObj.get(ObserveNativeImplConstants.DESCRIPTION_FIELD))
+                .tags(Utils.toStringMap((MapValue) counterObj.get(ObserveNativeImplConstants.TAGS_FIELD)))
                 .build();
-        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
+        counterObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
     }
 }

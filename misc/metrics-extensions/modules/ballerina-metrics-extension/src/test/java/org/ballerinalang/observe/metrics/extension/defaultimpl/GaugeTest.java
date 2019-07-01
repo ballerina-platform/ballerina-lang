@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.MetricRegistry;
-import org.ballerinalang.util.metrics.PolledGauge;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.PolledGauge;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

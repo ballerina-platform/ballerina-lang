@@ -19,12 +19,14 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the native increment function implementation of the Counter object.
@@ -50,6 +52,11 @@ public class CounterIncrement extends BlockingNativeCallableUnit {
         BMap bStruct = (BMap) context.getRefArgument(0);
         long amount = context.getIntArgument(0);
         Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
+        counter.increment(amount);
+    }
+
+    public static void increment(Strand strand, ObjectValue counterObj, long amount) {
+        Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         counter.increment(amount);
     }
 }
