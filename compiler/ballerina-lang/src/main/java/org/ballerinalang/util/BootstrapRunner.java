@@ -26,8 +26,8 @@ public class BootstrapRunner {
     private static PrintStream outStream = System.out;
     private static PrintStream errorStream = System.err;
 
-    public static void generateJarBinary(String entryBir, String jarOutputPath, String... birCachePaths) {
-
+    public static void generateJarBinary(String entryBir, String jarOutputPath,
+                                         boolean dumpBir, String... birCachePaths) {
         String bootstrapHome = System.getProperty("ballerina.bootstrap.home");
         if (bootstrapHome == null) {
             throw new BLangCompilerException("ballerina.bootstrap.home property is not set");
@@ -52,7 +52,7 @@ public class BootstrapRunner {
             commands.add(""); // no native map for test file
         }
         commands.add(jarOutputPath);
-        commands.add("false"); // dump bir
+        commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
 
         ProcessBuilder balProcess = new ProcessBuilder(commands);
@@ -85,13 +85,12 @@ public class BootstrapRunner {
     }
 
     public static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                         Path jarTargetDir)
+                                         Path jarTargetDir, boolean dumpBir)
             throws IOException {
-
         for (BPackageSymbol pkg : imports) {
             PackageID id = pkg.pkgID;
             if (!"ballerina".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir);
+                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
 
                 byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
                 Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
@@ -102,7 +101,7 @@ public class BootstrapRunner {
                 Files.write(pkgBir, bytes);
 
                 String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                generateJarBinary(pkgBir.toString(), jarOutputPath, birCache.toString(),
+                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, birCache.toString(),
                         importsBirCache.toString());
             }
         }
@@ -111,8 +110,8 @@ public class BootstrapRunner {
     public static JBallerinaInMemoryClassLoader createClassLoaders(BLangPackage bLangPackage,
                                                                    Path systemBirCache,
                                                                    Path buildRoot,
-                                                                   Optional<Path> jarTargetRoot) throws IOException {
-
+                                                                   Optional<Path> jarTargetRoot,
+                                                                   boolean dumpBir) throws IOException {
         byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
         String fileName = calcFileNameForJar(bLangPackage);
         Files.createDirectories(buildRoot);
@@ -121,15 +120,13 @@ public class BootstrapRunner {
         Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
         Files.write(entryBir, bytes);
 
-
         Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
         Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
         Files.createDirectories(importsTarget);
 
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget);
-        generateJarBinary(entryBir.toString(), jarTarget.toString(), systemBirCache.toString(),
+        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
+        generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
                 importsBirCache.toString());
-
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found");
