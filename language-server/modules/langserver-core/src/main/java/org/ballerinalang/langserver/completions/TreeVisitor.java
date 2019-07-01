@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -405,15 +406,19 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         this.acceptNode(exprStmtNode.expr, symbolEnv);
+        if (!terminateVisitor && CompletionVisitorUtil.withinInvocationArguments(exprStmtNode, this.lsContext)) {
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
+            this.populateSymbols(visibleSymbolEntries, symbolEnv);
+            this.forceTerminateVisitor();
+        }
     }
 
     @Override
     public void visit(BLangInvocation invocationNode) {
-        int curLine = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         
         if (cpr.isCursorBeforeNode(invocationNode.getPosition(), this, this.lsContext, invocationNode,
-                invocationNode.symbol) || curLine != invocationNode.getPosition().getStartLine() - 1) {
+                invocationNode.symbol)) {
             return;
         }
 
@@ -733,6 +738,11 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
         this.acceptNode(recordKeyValue.valueExpr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(bLangExpression -> this.acceptNode(bLangExpression, symbolEnv));
     }
 
     ///////////////////////////////////
