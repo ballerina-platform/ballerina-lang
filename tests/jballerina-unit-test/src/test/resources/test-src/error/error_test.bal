@@ -223,4 +223,3 @@ public function errorReasonSubType() returns [error, error, error, error] {
     UserDefErrorTwoB er_aBLit = error("ErrorNo-2");
     return [er_rA, er_rB, er_aALit, er_aBLit];
 }
-
