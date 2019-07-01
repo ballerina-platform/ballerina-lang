@@ -229,7 +229,7 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<anydata|error>'", 54, 18);
+                "incompatible types: expected 'int', found 'map<(anydata|error)>'", 54, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 55, 47);
         BAssertUtil.validateError(resultNegative, ++i,
