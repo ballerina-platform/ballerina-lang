@@ -101,7 +101,7 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.CPEntry$FloatCPEntry"/>
         <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     </Match>
-        <Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRInstructionWriter"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>

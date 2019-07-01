@@ -1,7 +1,7 @@
-import ballerina/artemis;
+import ballerina/http;
 
-@artemis:ServiceConfig {
-    
+@http:ServiceConfig {
+    c
 }
 service helloService on new http:Listener(8080) {
     resource function sayHello(http:Caller caller, http:Request request) {

@@ -1035,4 +1035,9 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
         // no implementation
     }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        // no implementation
+    }
 }
