@@ -30,10 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_DIR_FIELD;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_MODIFIED_TIME_FIELD;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_NAME_FIELD;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_SIZE_FIELD;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.createTimeRecord;
@@ -94,13 +90,8 @@ public class SystemUtils {
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
                 lastModified.toMillis(), zonedDateTime.getZone().toString());
-
-        ObjectValue fileInfoRecord = BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE);
-        fileInfoRecord.set(FILE_INFO_NAME_FIELD, inputFile.getName());
-        fileInfoRecord.set(FILE_INFO_SIZE_FIELD, inputFile.length());
-        fileInfoRecord.set(FILE_INFO_MODIFIED_TIME_FIELD, lastModifiedInstance);
-        fileInfoRecord.set(FILE_INFO_DIR_FIELD, inputFile.isDirectory());
-        return fileInfoRecord;
+        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE, inputFile.getName(),
+                inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
     }
 
     /**

@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;

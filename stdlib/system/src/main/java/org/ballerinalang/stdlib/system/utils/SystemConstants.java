@@ -44,8 +44,4 @@ public class SystemConstants {
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 
     public static final String FILE_INFO_TYPE = "FileInfo";
-    static final String FILE_INFO_NAME_FIELD = "name";
-    static final String FILE_INFO_SIZE_FIELD = "size";
-    static final String FILE_INFO_MODIFIED_TIME_FIELD = "modifiedTime";
-    static final String FILE_INFO_DIR_FIELD = "dir";
 }
