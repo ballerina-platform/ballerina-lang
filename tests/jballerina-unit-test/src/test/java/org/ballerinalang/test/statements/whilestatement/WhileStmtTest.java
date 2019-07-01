@@ -174,4 +174,16 @@ public class WhileStmtTest {
         String expected = "level2level3level1";
         Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test type narrowing inside the while body")
+    public void testTypeNarrowingInWhileBody() {
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testTypeNarrowingInWhileBody");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "foo1foo2foo3";
+        Assert.assertEquals(actual, expected);
+    }
 }

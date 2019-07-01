@@ -159,3 +159,19 @@ function testNestedWhileWithContinue() returns string {
     }
     return result;
 }
+
+function testTypeNarrowingInWhileBody() returns string {
+    record {| string val; |}?[] arr = [{val: "foo1"}, {val: "foo2"}, {val: "foo3"}, (), {val: "foo5"}];
+
+    record {| string val; |}|() rec = arr[0];
+    int i = 0;
+    string result = "";
+
+    while (rec is record {| string val; |}) {
+        result += rec.val;
+        i += 1;
+        rec = arr[i];
+    }
+
+    return result;
+}
