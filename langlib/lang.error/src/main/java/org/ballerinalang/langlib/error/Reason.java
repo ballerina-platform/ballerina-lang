@@ -15,15 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  **/
-package org.ballerinalang.utils;
+package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,20 +29,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina",
-        packageName = "utils",
-        functionName = "detail",
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.error",
+        functionName = "reason",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
-public class Detail extends BlockingNativeCallableUnit {
+        returnType = {@ReturnType(type = TypeKind.STRING)})
+public class Reason {
 
-    @Override
-    public void execute(Context context) {
-        BValue refRegVal = context.getRefArgument(0);
-        context.setReturnValues(((BError) refRegVal).getDetails());
-    }
-
-    public static Object detail(Strand strand, ErrorValue value) {
-        return value.getDetails();
+    public static String reason(Strand strand, ErrorValue value) {
+        return value.getReason();
     }
 }
