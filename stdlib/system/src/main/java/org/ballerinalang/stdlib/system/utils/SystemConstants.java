@@ -37,7 +37,7 @@ public class SystemConstants {
     public static final String PACKAGE_NAME = "system";
 
     /**
-     * Package path
+     * Package path.
      */
     public static final String SYSTEM_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "system";
 
