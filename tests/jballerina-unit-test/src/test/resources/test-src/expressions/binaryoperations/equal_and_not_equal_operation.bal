@@ -110,17 +110,17 @@ type MyError error<string, ErrorDetail>;
 function testErrorEqualityPositive() returns boolean {
     error e1 = error("reason 1");
     error e2 = error("reason 1");
-    MyError e3 = error("reason 1", {});
+    MyError e3 = error("reason 1");
 
-    error e4 = error("reason 1", { message: "error message", intVal: 5 });
-    MyError e5 = error("reason 1", { message: "error message", intVal: 5 });
+    error e4 = error("reason 1", message = "error message", intVal = 5);
+    MyError e5 = error("reason 1", message = "error message", intVal = 5);
     return e1 == e2 && !(e1 != e2) && e2 == e3 && !(e2 != e3)&& e4 == e5 && !(e4 != e5);
 }
 
 function testErrorEqualityNegative() returns boolean {
     error e1 = error("reason 1");
     error e2 = error("reason 2");
-    MyError e3 = error("reason 1", { message: "error message" });
+    MyError e3 = error("reason 1", message = "error message");
     return e1 == e2 && !(e1 != e2) && e1 == e3 && !(e1 != e3);
 }
 
