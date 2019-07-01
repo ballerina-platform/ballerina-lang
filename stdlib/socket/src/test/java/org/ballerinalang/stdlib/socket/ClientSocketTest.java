@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.socket;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -81,8 +81,7 @@ public class ClientSocketTest {
         executor.shutdownNow();
     }
 
-    @Test(description = "Open client socket connection to the remote server and write content",
-          enabled = false)
+    @Test(description = "Open client socket connection to the remote server and write content")
     public void testOneWayWrite() {
         String msg = "Hello Ballerina";
         BValue[] args = { new BString(msg) };
@@ -91,7 +90,7 @@ public class ClientSocketTest {
     }
 
     @Test(description = "Write some content, then shutdown the write and try to write it again",
-          dependsOnMethods = "testOneWayWrite", enabled = false)
+          dependsOnMethods = "testOneWayWrite")
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1";
         String secondMsg = "Hello Ballerina2";
@@ -103,9 +102,10 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite", enabled = false)
+    @Test(description = "Test echo behavior",
+          dependsOnMethods = "testShutdownWrite")
     public void testClientEcho() {
-        String msg = "Hello Ballerina echo";
+        String msg = "Hello Ballerina Echo";
         BValue[] args = { new BString(msg) };
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "echo", args);
         String echo = echoResult[0].stringValue();

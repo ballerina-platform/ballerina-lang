@@ -67,7 +67,7 @@ public class Close extends BlockingNativeCallableUnit {
                 SelectorManager.getInstance().unRegisterChannel(socketChannel);
             }
             // This need to handle to support multiple client close.
-            if (client.getBooleanValue(IS_CLIENT)) {
+            if (Boolean.parseBoolean(client.getNativeData(IS_CLIENT).toString())) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {

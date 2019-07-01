@@ -66,7 +66,7 @@ public class InitServer extends BlockingNativeCallableUnit {
             serverSocket.socket().setReuseAddress(true);
             listener.addNativeData(SERVER_SOCKET_KEY, serverSocket);
             listener.addNativeData(LISTENER_CONFIG, config);
-            listener.addNativeData(CONFIG_FIELD_PORT, port);
+            listener.addNativeData(CONFIG_FIELD_PORT, (int) port);
             final long timeout = config.getIntValue(READ_TIMEOUT);
             listener.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {

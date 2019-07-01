@@ -26,12 +26,12 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
-    testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
+    testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'

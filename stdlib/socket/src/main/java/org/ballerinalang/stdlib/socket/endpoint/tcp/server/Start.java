@@ -68,7 +68,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
 )
 public class Start implements NativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
-    private final PrintStream console = System.out;
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -83,9 +82,9 @@ public class Start implements NativeCallableUnit {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             ServerSocketChannel channel = (ServerSocketChannel) listener.getNativeData(SERVER_SOCKET_KEY);
-            int port = (int) listener.getIntValue(CONFIG_FIELD_PORT);
+            int port = (int) listener.getNativeData(CONFIG_FIELD_PORT);
             MapValue<String, Object> config = (MapValue<String, Object>) listener.getNativeData(LISTENER_CONFIG);
-            String networkInterface = config.getStringValue(SocketConstants.CONFIG_FIELD_INTERFACE);
+            String networkInterface = (String) config.getNativeData(SocketConstants.CONFIG_FIELD_INTERFACE);
             if (networkInterface == null) {
                 channel.bind(new InetSocketAddress(port));
             } else {

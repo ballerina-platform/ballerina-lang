@@ -74,7 +74,7 @@ public class InitEndpoint implements NativeCallableUnit {
         return false;
     }
 
-    public static Object initEndpoint(Strand strand, ObjectValue client, MapValue<String, Object> address,
+    public static Object initEndpoint(Strand strand, ObjectValue client, Object address,
             MapValue<String, Object> config) {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         SelectorManager selectorManager;
@@ -86,8 +86,9 @@ public class InitEndpoint implements NativeCallableUnit {
             client.addNativeData(SOCKET_KEY, socketChannel);
             client.addNativeData(IS_CLIENT, true);
             if (address != null) {
-                String host = address.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
-                int port = address.getIntValue(SocketConstants.CONFIG_FIELD_PORT).intValue();
+                MapValue<String, Object> addressRecord = (MapValue<String, Object>) address;
+                String host = addressRecord.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
+                int port = addressRecord.getIntValue(SocketConstants.CONFIG_FIELD_PORT).intValue();
                 if (host == null) {
                     socketChannel.bind(new InetSocketAddress(port));
                 } else {

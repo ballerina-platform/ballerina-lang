@@ -60,7 +60,7 @@ public class SendTo extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
-    public static Object write(Strand strand, ObjectValue client, ArrayValue content,
+    public static Object sendTo(Strand strand, ObjectValue client, ArrayValue content,
             MapValue<String, Object> address) {
         DatagramChannel socket = (DatagramChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
         String host = address.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
