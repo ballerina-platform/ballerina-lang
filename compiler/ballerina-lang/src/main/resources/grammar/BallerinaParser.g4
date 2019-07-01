@@ -56,9 +56,13 @@ callableUnitBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
+externalFunctionBody
+    :   ASSIGN annotationAttachment* EXTERNAL
+    ;
+
 functionDefinition
     :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
-     ASSIGN EXTERNAL SEMICOLON)
+     externalFunctionBody SEMICOLON)
     ;
 
 lambdaFunction
@@ -109,11 +113,12 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    callableUnitSignature (callableUnitBody | externalFunctionBody? SEMICOLON)
     ;
 
 annotationDefinition
-    :   PUBLIC? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
+    :   PUBLIC? CONST? ANNOTATION typeName? Identifier (ON attachmentPoint (COMMA attachmentPoint)*)? SEMICOLON
     ;
 
 constantDefinition
@@ -131,16 +136,32 @@ channelType
     ;
 
 attachmentPoint
-    :   SERVICE
-    |   RESOURCE
-    |   FUNCTION
-    |   REMOTE
-    |   OBJECT
-    |   CLIENT
-    |   LISTENER
-    |   TYPE
+    :   dualAttachPoint
+    |   sourceOnlyAttachPoint
+    ;
+
+dualAttachPoint
+    : SOURCE? dualAttachPointIdent
+    ;
+
+dualAttachPointIdent
+    :   OBJECT? TYPE
+    |   (OBJECT | RESOURCE)? FUNCTION
     |   PARAMETER
-    |   ANNOTATION
+    |   RETURN
+    |   SERVICE
+    ;
+
+sourceOnlyAttachPoint
+    :   SOURCE sourceOnlyAttachPointIdent
+    ;
+
+sourceOnlyAttachPointIdent
+    :   ANNOTATION
+    |   EXTERNAL
+    |   VAR
+    |   CONST
+    |   LISTENER
     ;
 
 workerDeclaration
@@ -400,6 +421,7 @@ matchStatement
 matchPatternClause
     :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   errorMatchPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 bindingPattern
@@ -414,7 +436,33 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorMatchPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    ;
+
+errorArgListMatchPattern
+    :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
+errorRestBindingPattern
+    :   ELLIPSIS Identifier
+    ;
+
+restMatchPattern
+    :   ELLIPSIS VAR Identifier
+    ;
+
+simpleMatchPattern
+    :   VAR? Identifier
+    ;
+
+errorDetailBindingPattern
+    :   Identifier ASSIGN bindingPattern
     ;
 
 listBindingPattern
@@ -448,9 +496,9 @@ restBindingPattern
     ;
 
 bindingRefPattern
-    :   variableReference
+    :   errorRefBindingPattern
+    |   variableReference
     |   structuredRefBindingPattern
-    |   errorRefBindingPattern
     ;
 
 structuredRefBindingPattern
@@ -477,7 +525,15 @@ closedRecordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    ;
+
+errorNamedArgRefPattern
+    : Identifier ASSIGN bindingRefPattern
+    ;
+
+errorRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 entryRefBindingPattern
@@ -700,7 +756,6 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
-    |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName GT expression                                           # typeConversionExpression
@@ -727,6 +782,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    |   expression ANNOTATION_ACCESS nameReference                          # annotAccessExpression
     ;
 
 constantExpression
@@ -741,10 +797,6 @@ typeDescExpr
 typeInitExpr
     :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
     |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
-    ;
-
-errorConstructorExpr
-    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
     ;
 
 serviceConstructorExpr
@@ -867,7 +919,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)* XMLCommentText* XML_COMMENT_END
     ;
 
 element
@@ -937,6 +989,7 @@ reservedWord
     |   START
     |   CONTINUE
     |   OBJECT_INIT
+    |   TYPE_ERROR
     ;
 
 

@@ -36,6 +36,7 @@ ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
 TYPEOF      : 'typeof';
+SOURCE      : 'source' ;
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -229,6 +230,9 @@ COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 // Integer Range Operators.
 // CLOSED_RANGE - ELLIPSIS
 HALF_OPEN_RANGE   : '..<' ;
+
+// Annotation Access.
+ANNOTATION_ACCESS   : '.@' ;
 
 DecimalIntegerLiteral
     :   DecimalNumeral

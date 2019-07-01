@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -168,6 +169,11 @@ public class StreamingAggregatorArrayBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
+        // do nothing;
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
         // do nothing;
     }
 }

@@ -1,6 +1,5 @@
 /*
  *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
@@ -14,27 +13,32 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
-package org.ballerinalang.model.tree.expressions;
+
+package org.ballerinalang.jvm.observability.metrics.spi;
+
+import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
 
 /**
- * Represents Error Constructor Node in Ballerina.
+ * Metrics Reporter interface that needs to be implemented by external metric reporters from Ballerina.
  *
- * @since 0.983.0
+ * @since 0.980.0
  */
-public interface ErrorConstructorNode extends ExpressionNode {
+public interface MetricReporter {
 
     /**
-     * Provides error reason expression node.
+     * Initializes the {@link MetricReporter} implementation with configurations.
      *
-     * @return reason expression node.
+     * @throws InvalidConfigurationException if the configurations are invalid.
      */
-    ExpressionNode getReasonExpression();
+    void init() throws InvalidConfigurationException;
 
     /**
-     * Provides details expression as a list.
+     * Returns the name of the tracer. This will be used when loading the tracer by name.
      *
-     * @return details expression.
+     * @return tracer name.
      */
-    ExpressionNode getDetailsExpression();
+    String getName();
+
 }

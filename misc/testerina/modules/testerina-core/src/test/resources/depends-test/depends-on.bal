@@ -13,7 +13,7 @@ public function test2() {
 }
 
 // 1st function
-@test:Config
+@test:Config {}
 public function test1() {
     testString = testString + "test1";
     io:println("test1");

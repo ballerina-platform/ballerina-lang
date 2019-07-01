@@ -62,13 +62,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -835,11 +835,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+
         if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
             BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
             BLangErrorVariable errVar = (BLangErrorVariable) var;
+
+            // Rest pattern in previous binding-pattern can bind to all the error details,
+            // hence current error pattern is not reachable.
+            if (precedingErrVar.restDetail != null) {
+                return true;
+            }
+
+            // Current pattern can bind anything that is bound in preceding, to current's rest binding var.
+            if (errVar.restDetail != null) {
+                return false;
+            }
+
             if (precedingErrVar.detail != null && errVar.detail != null) {
-                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+                // If preceding detail binding list contains all the details in current list,
+                // even though preceding contains more bindings, since a binding can bind to (),
+                // current is shadowed from preceding.
+                // Error details are a map<anydata|error>
+                Map<String, BLangVariable> preDetails = precedingErrVar.detail.stream()
+                        .collect(Collectors.toMap(entry -> entry.key.value, entry -> entry.valueBindingPattern));
+
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errVar.detail) {
+                    BLangVariable correspondingCurDetail = preDetails.get(detailEntry.key.value);
+                    if (correspondingCurDetail == null) {
+                        // Current binding pattern have more details to bind to
+                        return false;
+                    }
+                    boolean similar =
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                    if (!similar) {
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -1895,11 +1926,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
     }
 
@@ -1926,6 +1952,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
                        typeTestExpr.typeNode.type);
         }
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        analyzeExpr(annotAccessExpr.expr);
     }
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {

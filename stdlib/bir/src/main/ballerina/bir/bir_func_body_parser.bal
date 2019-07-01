@@ -595,6 +595,8 @@ public type FuncBodyParser object {
             kind = BINARY_CLOSED_RANGE;
         } else if (kindTag == INS_HALF_OPEN_RANGE) {
             kind = BINARY_HALF_OPEN_RANGE;
+        } else if (kindTag == INS_ANNOT_ACCESS){
+            kind = BINARY_ANNOT_ACCESS;
         } else if (kindTag == INS_BITWISE_AND) {
             kind = BINARY_BITWISE_AND;
         } else if (kindTag == INS_BITWISE_OR) {
