@@ -135,3 +135,34 @@ function testOptionalFieldAccessOnOptionalRecordFieldInNillableRecordUnion2() re
 
     return id is () && name is ();
 }
+
+function testOptionalFieldAccessOnJson1() returns boolean {
+    json j = ();
+    json|error j2 = j?.a;
+    json|error j3 = j?.a?.b;
+    return j2 == () && j3 == ();
+}
+
+function testOptionalFieldAccessOnJson2() returns boolean {
+    json j = 1;
+    json|error j2 = j?.a;
+    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j?.a?.b);
+}
+
+function testOptionalFieldAccessOnJson3() returns boolean {
+    json x = { c: 3, d: () };
+    json j = { a: 1, b: x };
+    json|error j2 = j?.a;
+    json|error j3 = j?.b;
+    json|error j4 = j?.b?.c;
+    return j2 == 1 && j3 == x && j4 == 3 && j?.b?.d?.nonExistent == ();
+}
+
+function assertNonMappingJsonError(json|error je) returns boolean {
+    if (je is error) {
+        map<anydata|error> detailMap = je.detail();
+        return je.reason() == "{ballerina}JSONOperationError" && detailMap["message"] == "JSON value is not a mapping";
+    }
+    return false;
+}
+//mixed tests

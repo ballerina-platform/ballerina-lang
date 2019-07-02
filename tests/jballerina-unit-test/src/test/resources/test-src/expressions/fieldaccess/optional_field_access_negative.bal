@@ -52,3 +52,15 @@ function testInvalidOptionalFieldAccessOnRecordUnion() {
     Employee|Person ep = e;
     int id = ep?.id;
 }
+
+function testInvalidOptionalFieldAccessOnMap() {
+    map<int> m = { id: 100 };
+    int id = m?.id;
+
+    map<string>? m2 = {};
+    string? id2 = m2?.id2;
+
+    map<xml> m3 = {};
+    map<xml>|map<json> m4 = m3;
+    xml|json id3 = m4?.id;
+}
