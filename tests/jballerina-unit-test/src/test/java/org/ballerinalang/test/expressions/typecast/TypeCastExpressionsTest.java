@@ -87,8 +87,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(string,int\\|string,float\\)' cannot be cast" +
-                    " to '\\(string,int,float\\)'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,int\\|string,float\\]' cannot be cast" +
+                    " to '\\[string,int,float\\]'.*")
     public void testTupleCastNegative() {
         BRunUtil.invoke(result, "testTupleCastNegative");
     }
@@ -288,8 +288,9 @@ public class TypeCastExpressionsTest {
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
         validateError(resultNegative, errIndex++, "type cast not yet supported for type 'future<int>'", 25, 22);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int|foo'", 30, 16);
-        validateError(resultNegative, errIndex, "incompatible types: 'int|foo' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
+                30, 16);
+        validateError(resultNegative, errIndex, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
     }
 
     @DataProvider

@@ -852,17 +852,17 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 3, "operator '!=' not defined for 'int[2]' and 'string[2]'", 26, 33);
         validateError(resultNegative, 4, "operator '==' not defined for 'map<int>' and 'map<float>'", 38, 21);
         validateError(resultNegative, 5, "operator '!=' not defined for 'map<int>' and 'map<float>'", 38, 33);
-        validateError(resultNegative, 6, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
+        validateError(resultNegative, 6, "operator '==' not defined for 'map<(string|int)>' and 'map<float>'",
                       42, 21);
-        validateError(resultNegative, 7, "operator '!=' not defined for 'map<string|int>' and 'map<float>'",
+        validateError(resultNegative, 7, "operator '!=' not defined for 'map<(string|int)>' and 'map<float>'",
                       42, 33);
         validateError(resultNegative, 8, "operator '==' not defined for '[string,int]' and '[boolean,float]'",
                       50, 21);
         validateError(resultNegative, 9, "operator '!=' not defined for '[string,int]' and '[boolean,float]'",
                       50, 33);
-        validateError(resultNegative, 10, "operator '==' not defined for '[float|int,int]' and '[boolean,int]'",
+        validateError(resultNegative, 10, "operator '==' not defined for '[(float|int),int]' and '[boolean,int]'",
                       54, 21);
-        validateError(resultNegative, 11, "operator '!=' not defined for '[float|int,int]' and '[boolean,int]'",
+        validateError(resultNegative, 11, "operator '!=' not defined for '[(float|int),int]' and '[boolean,int]'",
                       54, 33);
         validateError(resultNegative, 12, "operator '==' not defined for 'Employee' and 'Person'", 62, 17);
         validateError(resultNegative, 13, "operator '!=' not defined for 'Employee' and 'Person'", 62, 29);
@@ -886,8 +886,8 @@ public class EqualAndNotEqualOperationsTest {
                       34);
         validateError(resultNegative, 28, "operator '==' not defined for 'any' and 'int'", 115, 14);
         validateError(resultNegative, 29, "operator '!=' not defined for 'int' and 'any'", 115, 26);
-        validateError(resultNegative, 30, "operator '==' not defined for 'map<int|string>' and 'map'", 119, 14);
-        validateError(resultNegative, 31, "operator '!=' not defined for 'map' and 'map<int|string>'", 119, 26);
+        validateError(resultNegative, 30, "operator '==' not defined for 'map<(int|string)>' and 'map'", 119, 14);
+        validateError(resultNegative, 31, "operator '!=' not defined for 'map' and 'map<(int|string)>'", 119, 26);
         validateError(resultNegative, 32, "equality not yet supported for type 'table'", 131, 17);
         validateError(resultNegative, 33, "equality not yet supported for type 'table'", 132, 9);
     }

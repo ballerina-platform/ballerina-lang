@@ -524,7 +524,7 @@ public class CloneOperationTest {
         Assert.assertNotSame(results[0], results[1]);
         Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).getDetails()).get("message").stringValue(),
-                "'clone()' not allowed on '(Employee,any)'");
+                "'clone()' not allowed on '[Employee,any]'");
     }
 
     @Test
