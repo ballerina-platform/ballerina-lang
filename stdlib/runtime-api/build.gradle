@@ -17,18 +17,33 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-builtin')
+    implementation project(':ballerina-utils')
     implementation 'org.slf4j:slf4j-api'
     testCompile project(':ballerina-launcher')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-utils')
+    testCompile project(':ballerina-jvm')
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
+    bir project(path: ':ballerina-builtin', configuration: 'bir')
+    birJar project(path: ':ballerina-utils', configuration: 'birJar')
 }
 
 createBalo {
@@ -36,3 +51,7 @@ createBalo {
 }
 
 description = 'Ballerina - Runtime API'
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

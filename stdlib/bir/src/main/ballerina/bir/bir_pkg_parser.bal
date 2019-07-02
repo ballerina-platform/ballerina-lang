@@ -18,9 +18,11 @@ public type PackageParser object {
     BirChannelReader reader;
     map<VariableDcl> globalVarMap;
     boolean addInterimBB = true;
+    boolean symbolsOnly;
 
-    public function __init(BirChannelReader reader) {
+    public function __init(BirChannelReader reader, boolean symbolsOnly) {
         self.reader = reader;
+        self.symbolsOnly = symbolsOnly;
         self.globalVarMap = {};
     }
 
@@ -50,7 +52,15 @@ public type PackageParser object {
     public function skipAnnotation() {
         _ = self.reader.readInt32();
         _ = self.reader.readInt32();
-        _ = self.reader.readInt32();
+
+        int attachPointCount = self.reader.readInt32();
+        int i = 0;
+        while (i < attachPointCount) {
+            _ = self.reader.readInt32();
+            _ = self.reader.readBoolean();
+            i += 1;
+        }
+
         _ = self.reader.readTypeCpRef();
     }
 
@@ -138,7 +148,27 @@ public type PackageParser object {
         int taintLength = self.reader.readInt64();
         _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
 
-        _ = self.reader.readInt64(); // read and ignore function body length
+        var bodyLength = self.reader.readInt64(); // read and ignore function body length
+        if (self.symbolsOnly) {
+            _ = self.reader.readByteArray(untaint bodyLength);
+            return {
+                pos: pos,
+                name: { value: name },
+                flags: flags,
+                localVars: [],
+                basicBlocks: [],
+                params: [],
+                paramDefaultBBs: [],
+                errorEntries: [],
+                argsCount: 0,
+                typeValue: sig,
+                workerChannels: [],
+                receiverType : receiverType,
+                restParamExist : restParamExist,
+                annotAttachments: annotAttachments
+            };
+        }
+
         var argsCount = self.reader.readInt32();
 
         VariableDcl?[] dcls = [];
@@ -416,7 +446,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {
-        value = reader.readStringCpRef();
+        Decimal d = {value : reader.readStringCpRef()};
+        value = d;
     } else if (bType is BTypeBoolean) {
         value = reader.readBoolean();
     } else if (bType is BTypeFloat) {

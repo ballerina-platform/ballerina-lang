@@ -19,11 +19,14 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the native register function implementation of the Counter object.
@@ -47,5 +50,17 @@ public class CounterRegister extends BlockingNativeCallableUnit {
         Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         Counter registeredCounter = counter.register();
         bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
+    }
+
+    public static Object register(Strand strand, ObjectValue counterObj) {
+        try {
+            Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
+            Counter registeredCounter = counter.register();
+            counterObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
+        } catch (Exception e) {
+            return BallerinaErrors.createError(e.getMessage());
+        }
+
+        return null;
     }
 }

@@ -57,7 +57,8 @@ public enum OperatorKind {
     CLOSED_RANGE("..."),
     HALF_OPEN_RANGE("..<"),
     REF_EQUAL("==="),
-    REF_NOT_EQUAL("!==");
+    REF_NOT_EQUAL("!=="),
+    ANNOT_ACCESS(".@");
 
     private final String opValue;
 

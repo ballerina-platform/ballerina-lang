@@ -15,10 +15,10 @@
  *
  */
  
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baloProject.gradle"
 
 configurations {
-    cliUtils
+    balSource
 }
 
 configurations.testRuntimeClasspath {
@@ -28,19 +28,8 @@ configurations.testRuntimeClasspath {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    balo project(path: ':ballerina-bootstrapper', configuration: 'pack1')
 
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-
-    // transitive
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-
-    baloCreat project(':lib-creator-milestone')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-builtin')
@@ -56,41 +45,10 @@ dependencies {
     testCompile 'io.netty:netty-transport'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-
-    cliUtils project(':ballerina-cli-utils')
 }
 
 description = 'Ballerina - BIR Model'
 
-task genBalx(type: JavaExec) {
-
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    dependsOn createBalo
-
-    classpath = configurations.cliUtils
-    main = 'org.ballerinalang.cli.utils.GenerateBalx'
-
-    def src = "src/test/ballerina/bir_test"
-    def fileName = "bir_test.bal"
-    def target = "$buildDir/bir_test.balx"
-    args("$src", "$fileName", "$target", "$buildDir")
-
-    def balFiles = file("src/main/ballerina/")
-    inputs.dir(balFiles)
-    inputs.files(new File(src, fileName))
-    inputs.files(configurations.baloImplementation)
-    outputs.files(target)
-    outputs.cacheIf { true }
+artifacts {
+    balSource file("src/main/ballerina/")
 }
-
-// test {
-//     dependsOn genBalx
-// 
-//     useTestNG() {
-//         suites 'src/test/resources/testng.xml'
-//     }

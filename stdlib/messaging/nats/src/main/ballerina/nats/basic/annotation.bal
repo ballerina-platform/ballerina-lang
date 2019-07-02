@@ -20,10 +20,10 @@
 # + queueName - Name of the queue group.
 public type SubscriptionConfigData record {|
    string subject;
-   string queueName;
+   string queueName?;
 |};
 
 
 # Basic Subscription config annotation.
-public annotation<service> SubscriptionConfig SubscriptionConfigData;
+public annotation SubscriptionConfigData SubscriptionConfig on service;
 

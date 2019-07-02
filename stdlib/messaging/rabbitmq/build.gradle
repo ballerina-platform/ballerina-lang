@@ -19,10 +19,9 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
@@ -44,6 +43,10 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - RabbitMQ'

@@ -38,9 +38,18 @@ public const string CONFIG_PREFIX_SHA384 = "@sha384:";
 # Prefix used to denote that the config value is a SHA-512 hash.
 public const string CONFIG_PREFIX_SHA512 = "@sha512:";
 
-# Extracts the username and password from credential value.
+# Basic Authentication scheme.
+public const string AUTH_SCHEME_BASIC = "Basic ";
+
+# Bearer Authentication scheme.
+public const string AUTH_SCHEME_BEARER = "Bearer ";
+
+# The table name of the config user section of the TOML file.
+const string CONFIG_USER_SECTION = "b7a.users";
+
+# Extracts the username and password from the credential values.
 #
-# + credential - Credential value
+# + credential - The credential values.
 # + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
@@ -59,6 +68,6 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
-    error preparedError = error(AUTH_ERROR_CODE, { message: message, reason: err.reason() });
+    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = err.reason());
     return preparedError;
 }

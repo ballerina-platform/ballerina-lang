@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "hasPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class HasPromise extends AbstractHTTPAction {
@@ -55,7 +55,7 @@ public class HasPromise extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+                .getNativeData(HttpConstants.CLIENT);
         clientConnector.hasPushPromise(responseHandle).
                 setPromiseAvailabilityListener(new BPromiseAvailabilityCheckListener(context, callback));
     }
@@ -65,7 +65,7 @@ public class HasPromise extends AbstractHTTPAction {
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         clientConnector.hasPushPromise(responseHandle).
                 setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(new NonBlockingCallback(strand)));
     }

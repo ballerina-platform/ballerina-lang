@@ -20,12 +20,11 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,7 +47,7 @@ import java.util.ArrayList;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Close implements NativeCallableUnit {
+public class Close extends BlockingNativeCallableUnit {
 
     private static final Logger LOG = LoggerFactory.getLogger(Close.class);
     private static PrintStream console = System.out;
@@ -57,12 +56,12 @@ public class Close implements NativeCallableUnit {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+    public void execute(Context context) {
     }
 
-    public static Object close(Strand strand, ObjectValue connectionObject, Object graceful) {
+    public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
         ArrayList connectedList = (ArrayList) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
-        if (connectedList == null || connectedList.isEmpty() || !TypeChecker.anyToBoolean(graceful)) {
+        if (connectedList == null || connectedList.isEmpty() || TypeChecker.anyToBoolean(forceful)) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             try {
                 if (natsConnection != null) {
@@ -76,7 +75,7 @@ public class Close implements NativeCallableUnit {
                         "with nats server. " + e.getMessage());
             }
         }
-        if (TypeChecker.anyToBoolean(graceful)) {
+        if (!TypeChecker.anyToBoolean(forceful)) {
             String message = "Connection is still used by " + connectedList.size() + "client(s). Close them before " +
                     "closing the connection.";
             LOG.warn(message);
@@ -84,10 +83,5 @@ public class Close implements NativeCallableUnit {
             connectionObject.addNativeData(Constants.CLOSING, true);
         }
         return null;
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

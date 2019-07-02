@@ -40,8 +40,11 @@ configurations {
     composerFonts {
         transitive false
     }
+    bootstrapper
     docerina
     bin
+    bir
+    birJar
     balSource
     zip
     balo
@@ -53,6 +56,8 @@ configurations {
 }
 
 dependencies {
+    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
@@ -68,12 +73,11 @@ dependencies {
     dist project(':ballerina-runtime')
 
     dist project(':testerina:testerina-core')
-    
+    dist project(':ballerina-formatter')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
-    // dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
@@ -97,8 +101,6 @@ dependencies {
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
@@ -106,7 +108,17 @@ dependencies {
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+}
+
+
+task configured {
+    configurations.distBal.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+    }
+
 }
 
 
@@ -117,10 +129,31 @@ def copyJarSpec = {
     }
 }
 
+def copyBootstrapperSpec = {
+    base -> copySpec {
+        from configurations.bootstrapper
+        into(base + 'bre/bootstrap')
+    }
+}
+
 def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+    }
+}
+
+def copyBirSpec = {
+    path -> copySpec {
+        from configurations.bir
+        into(path + 'bir-cache')
+    }
+}
+
+def copyBirJarSpec = {
+    path -> copySpec {
+        from configurations.birJar
+        into(path + 'bre/lib')
     }
 }
 
@@ -197,6 +230,8 @@ def copyComposerDistributionSpec = {
     path -> copySpec {
         from(configurations.composerDistribution)
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 
@@ -204,6 +239,8 @@ def copyComposerFontsSpec = {
     path -> copySpec {
         from configurations.composerFonts
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 
@@ -265,6 +302,9 @@ task createApiDocsZip(type: Zip) {
 task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
+    with copyBootstrapperSpec(basePath)
+    with copyBirSpec(basePath)
+    with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
@@ -284,6 +324,9 @@ task createZip(type: Zip) {
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
+    with copyBootstrapperSpec(installDir)
+    with copyBirSpec(installDir)
+    with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
@@ -306,6 +349,9 @@ task createDistribution(type: Copy) {
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
+    with copyBootstrapperSpec("")
+    with copyBirSpec("")
+    with copyBirJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")

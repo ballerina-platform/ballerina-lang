@@ -7,7 +7,7 @@ function beforeTest(){
 	io:println("Running Test setup in beforeTest function");
 }
 
-@test:Config
+@test:Config {}
 function testIntAddFunction () {	
     int answer = 0;
 	answer = intAdd(3, 5);
@@ -15,7 +15,7 @@ function testIntAddFunction () {
     test:assertEquals(answer, 8, msg = "testIntAdd fucntion failed");
 }
 
-@test:Config
+@test:Config {}
 function testIntSubtractFunction () {	
     int answer1 = intSubtract(8, 5);    
 	int answer2 = intSubtract(5, 8);          
@@ -24,7 +24,7 @@ function testIntSubtractFunction () {
     test:assertEquals(answer2, -3, msg = "intSubstract function failed for minus value");
 }
 
-@test:Config
+@test:Config {}
 function testfloatAdd(){
 	float float1 = 10.000;
 	float float2 = 20.050;
@@ -33,7 +33,7 @@ function testfloatAdd(){
     test:assertEquals(answer, 30.050, msg = "floatAdd fucntion failed");
 }
 
-@test:Config
+@test:Config {}
 function testfloatSubtract(){
 	float float1 = 10.000;
 	float float2 = 20.050;
@@ -45,7 +45,7 @@ function testfloatSubtract(){
 	test:assertEquals(answer2, 10.050, msg = "floatSubstract fucntion failed");
 }
 
-@test:Config
+@test:Config {}
 function testStringConcat(){
 	string name1 = "John";
 	string name2 = "Doe";
@@ -55,7 +55,7 @@ function testStringConcat(){
     test:assertEquals(concatenated, "JohnDoe", msg = "string concatenation failed");
 }
 
-@test:Config
+@test:Config {}
 function testStringAndIntConcat(){
 	string name = "John";
 	int number = 18;

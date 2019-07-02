@@ -16,8 +16,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "hasSuffix(${1:suffix})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasSuffix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "unescape()(string)",
@@ -30,8 +34,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "unescape()",
-      "insertTextFormat": "Snippet"
+      "insertText": "unescape(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "split(string regex)(string[])",
@@ -44,8 +52,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "split(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "split(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "matches(string regex)(boolean|error)",
@@ -58,8 +70,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "matches(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "matches(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "replace(string regex, string replaceWith)(string)",
@@ -72,8 +88,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "replace(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replace(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "indexOf(string substring)(int)",
@@ -86,8 +106,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "indexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hashCode()(int)",
@@ -100,8 +124,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "hashCode()",
-      "insertTextFormat": "Snippet"
+      "insertText": "hashCode(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasPrefix(string prefix)(boolean)",
@@ -114,8 +142,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "hasPrefix(${1:prefix})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasPrefix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "substring(int startIndex, int endIndex)(string)",
@@ -128,8 +160,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "substring(${1:startIndex}, ${2:endIndex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "contains(string substring)(boolean)",
@@ -142,8 +178,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "contains(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "contains(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "findAll(string regex)(string[]|error)",
@@ -156,8 +196,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "findAll(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "findAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "lastIndexOf(string substring)(int)",
@@ -170,8 +214,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "lastIndexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "lastIndexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "equalsIgnoreCase(string anotherString)(boolean)",
@@ -184,8 +232,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "equalsIgnoreCase(${1:anotherString})",
-      "insertTextFormat": "Snippet"
+      "insertText": "equalsIgnoreCase(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "trim()(string)",
@@ -198,8 +250,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "trim()",
-      "insertTextFormat": "Snippet"
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "replaceAll(string regex, string replaceWith)(string)",
@@ -212,8 +268,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "replaceAll(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replaceAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "replaceFirst(string regex, string replaceWith)(string)",
@@ -226,8 +286,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "replaceFirst(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replaceFirst(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "length()(int)",
@@ -240,8 +304,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toByteArray(string encoding)(byte[])",
@@ -254,8 +322,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "toByteArray(${1:encoding})",
-      "insertTextFormat": "Snippet"
+      "insertText": "toByteArray(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toLower()(string)",
@@ -268,8 +340,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "toLower()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toLower(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toUpper()(string)",
@@ -282,8 +358,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "toUpper()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toUpper(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "freeze()",
@@ -291,7 +371,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "freeze()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "isFrozen()",
@@ -299,7 +383,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "stamp(anydata a)",
@@ -307,7 +395,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "clone()",
@@ -315,7 +407,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "clone()",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "convert(anydata a)",
@@ -323,7 +419,11 @@
       "detail": "Function",
       "sortText": "121",
       "insertText": "convert(${1})",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

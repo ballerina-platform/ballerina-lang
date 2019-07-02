@@ -57,16 +57,6 @@ public class Constants {
     public static final String MSG_CONTENT_NAME = "content";
 
     /**
-     * Represents the service configuration.
-     */
-    public static final String NATS_SERVICE_CONFIG = "ConsumerConfig";
-
-    /**
-     * IO error record name.
-     */
-    static final String IO_ERROR = "IOError";
-
-    /**
      * Error code for i/o.
      */
     public static final String NATS_ERROR_CODE = "{ballerina/nats}NATSError";

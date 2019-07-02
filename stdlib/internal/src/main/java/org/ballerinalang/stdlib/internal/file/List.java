@@ -101,7 +101,7 @@ public class List extends BlockingNativeCallableUnit {
         try {
             Files.list(path).forEach(p -> {
                 ObjectValue pathObj = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH,
-                        Constants.PATH_STRUCT);
+                        Constants.PATH_STRUCT, "");
                 pathObj.call(strand, Constants.INIT_FUNCTION_NAME, p.toString(), true);
                 long index = filesList.size();
                 filesList.add((index), pathObj);

@@ -18,10 +18,13 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.PrintWriter;
@@ -46,7 +49,8 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     public ErrorValue(String reason, Object details) {
         super(reason);
-        this.type = BTypes.typeError;
+        this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                BTypes.typeString, TypeChecker.getType(details));
         this.reason = reason;
         this.details = details;
     }

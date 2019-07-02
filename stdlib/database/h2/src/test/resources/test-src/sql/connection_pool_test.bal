@@ -93,10 +93,10 @@ function drainGlobalPool(string dbName) returns (int|string?)[] {
     return returnArray;
 }
 
-function testGlobalConnectionPoolsMultipleDestinations() returns ((int|string?)[], (int|string?)[]) {
+function testGlobalConnectionPoolsMultipleDestinations() returns [(int|string?)[], (int|string?)[]] {
     var errorFromFristDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
     var errorFromSecondDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
-    return (errorFromFristDestination, errorFromSecondDestination);
+    return [errorFromFristDestination, errorFromSecondDestination];
 }
 
 function closeTable(table<record{}>|error? t) {
@@ -106,27 +106,27 @@ function closeTable(table<record{}>|error? t) {
 }
 
 function testGlobalConnectionPoolSingleDestinationConcurrent() returns (int|string?)[][] {
-    worker w1 returns (table<record{}>|error,table<record{}>|error) {
+    worker w1 returns [table<record{}>|error,table<record{}>|error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w2 returns (table<record{}>|error,table<record{}>|error) {
+    worker w2 returns [table<record{}>|error,table<record{}>|error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w3 returns (table<record{}>|error,table<record{}>|error) {
+    worker w3 returns [table<record{}>|error,table<record{}>|error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w4 returns (table<record{}>|error,table<record{}>|error) {
+    worker w4 returns [table<record{}>|error,table<record{}>|error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
     record {
-        (table<record{}>|error, table<record{}>|error) w1;
-        (table<record{}>|error, table<record{}>|error) w2;
-        (table<record{}>|error, table<record{}>|error) w3;
-        (table<record{}>|error, table<record{}>|error) w4;
+        [table<record{}>|error, table<record{}>|error] w1;
+        [table<record{}>|error, table<record{}>|error] w2;
+        [table<record{}>|error, table<record{}>|error] w3;
+        [table<record{}>|error, table<record{}>|error] w4;
     } results = wait {w1, w2, w3, w4};
 
     var t = testGlobalConnectionPoolConcurrentHelper2();
@@ -145,14 +145,14 @@ function testGlobalConnectionPoolSingleDestinationConcurrent() returns (int|stri
     return returnArray;
 }
 
-function closeTables((table<record{}>|error?, table<record{}>|error?) t) {
+function closeTables([table<record{}>|error?, table<record{}>|error?] t) {
     table<record{}>|error? x; table<record{}>|error? y;
-    (x, y) = t;
+    [x, y] = t;
     closeTable(x);
     closeTable(y);
 }
 
-function testGlobalConnectionPoolConcurrentHelper1() returns (table<record{}>|error,table<record{}>|error) {
+function testGlobalConnectionPoolConcurrentHelper1() returns [table<record{}>|error,table<record{}>|error] {
     h2:Client testDB1 = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
@@ -161,7 +161,7 @@ function testGlobalConnectionPoolConcurrentHelper1() returns (table<record{}>|er
         });
     var dt1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     var dt2 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
-    return (dt1, dt2);
+    return [dt1, dt2];
 }
 
 function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
@@ -338,7 +338,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int|string, int|string, int|string, int|string) {
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns [int|string, int|string, int|string, int|string] {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -388,7 +388,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns (int|s
 
     checkpanic testDB3.stop();
 
-    return (result1, result2, result3, result4);
+    return [result1, result2, result3, result4];
 }
 
 function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
@@ -437,7 +437,7 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions 
     return count;
 }
 
-function testShutDownUnsharedLocalConnectionPool() returns (int|string, int|string) {
+function testShutDownUnsharedLocalConnectionPool() returns [int|string, int|string] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
@@ -453,10 +453,10 @@ function testShutDownUnsharedLocalConnectionPool() returns (int|string, int|stri
     // This should result in an error return.
     var resultAfterPoolShutDown = testDB->select("select count(*) from Customers where registrationID = 1", Result);
     int|string retVal2 = getTableCountValColumn(resultAfterPoolShutDown);
-    return (retVal1, retVal2);
+    return [retVal1, retVal2];
 }
 
-function testShutDownSharedConnectionPool() returns (int|string, int|string, int|string, int|string, int|string) {
+function testShutDownSharedConnectionPool() returns [int|string, int|string, int|string, int|string, int|string] {
     h2:Client testDB1;
     h2:Client testDB2;
     h2:Client testDB3;
@@ -502,10 +502,10 @@ function testShutDownSharedConnectionPool() returns (int|string, int|string, int
     var result5 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
     int|string retVal5 = getTableCountValColumn(result4);
 
-    return (retVal1, retVal2, retVal3, retVal4, retVal5);
+    return [retVal1, retVal2, retVal3, retVal4, retVal5];
 }
 
-function testShutDownPoolCorrespondingToASharedPoolConfig() returns (int|string, int|string, int|string, int|string) {
+function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string, int|string, int|string, int|string] {
     h2:Client testDB1;
     h2:Client testDB2;
     sql:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
@@ -547,10 +547,10 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns (int|string,
 
     checkpanic testDB2.stop();
 
-    return (retVal1, retVal2, retVal3, retVal4);
+    return [retVal1, retVal2, retVal3, retVal4];
 }
 
-function testStopClientUsingGlobalPool() returns (int|string, int|string) {
+function testStopClientUsingGlobalPool() returns [int|string, int|string] {
     // This client doesn't have pool config specified therefore, global pool will be used.
     h2:Client testDB = new({
             path: "./target/tempdb/",
@@ -569,13 +569,13 @@ function testStopClientUsingGlobalPool() returns (int|string, int|string) {
     var result2 = testDB->select("select count(*) from Customers where registrationID = 1", Result);
     int|string retVal2 = getTableCountValColumn(result2);
 
-    return (retVal1, retVal2);
+    return [retVal1, retVal2];
 }
 
-function testLocalConnectionPoolShutDown() returns (int|string, int|string) {
+function testLocalConnectionPoolShutDown() returns [int|string, int|string] {
     int|string count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
     int|string count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
-    return (count1, count2);
+    return [count1, count2];
 }
 
 function getOpenConnectionCount(string dbName) returns int|string {
@@ -593,9 +593,9 @@ function getOpenConnectionCount(string dbName) returns int|string {
     return count;
 }
 
-function getTableCountValColumnOfTuple((table<record{}>|error, table<record{}>|error) t) returns (int|string?)[] {
+function getTableCountValColumnOfTuple([table<record{}>|error, table<record{}>|error] t) returns (int|string?)[] {
     table<record{}>|error x; table<record{}>|error y;
-    (x, y) = t;
+    [x, y] = t;
     (int|string?)[] returnArray = [];
     returnArray[0] = getTableCountValColumn(x);
     returnArray[1] = getTableCountValColumn(y);

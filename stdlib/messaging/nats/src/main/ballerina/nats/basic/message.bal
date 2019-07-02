@@ -16,17 +16,35 @@
 
 # Represents a message which will be pushed from the NATS server to the consumer.
 public type Message object {
-    private string content = "";
+    byte[] content;
+    string? replyTo;
+    string subject;
+
+
+    public function __init(string subject, byte[] content, string? replyTo = ()) {
+        self.content = content;
+        self.subject = subject;
+        self.replyTo = replyTo;
+    }
 
     # Get message content.
     #
-    # + return - message content as a 'string' liternal.
-    public function getData() returns string {
+    # + return - the data from the message as a 'byte[]'.
+    public function getData() returns byte[] {
         return self.content;
     }
 
-    # Acknowleges to a given message.
+    # Get message replyTo subject.
     #
-    # + return - an error if the acknowledgment fails.
-    public function ack() returns error? = external;
+    # + return - replyTo subject value.
+    public function getReplyTo() returns string? {
+        return self.replyTo;
+    }
+
+    # Get message subject.
+    #
+    # + return - the subject that this message was sent to.
+    public function getSubject() returns string {
+        return self.subject;
+    }
 };

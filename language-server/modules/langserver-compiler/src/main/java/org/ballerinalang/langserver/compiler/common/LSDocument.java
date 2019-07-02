@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Document class to hold the file path used in the LS.
@@ -32,12 +33,14 @@ public class LSDocument {
     private Path path;
     private String uri;
     private String sourceRoot;
+    private List<String> projectModules;
 
     public LSDocument(String uri) {
         try {
             this.uri = uri;
             this.path = Paths.get(new URL(uri).toURI());
             this.sourceRoot = LSCompilerUtil.getSourceRoot(this.path);
+            this.projectModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(sourceRoot));
         } catch (URISyntaxException | MalformedURLException e) {
             // Ignore
         }
@@ -121,6 +124,15 @@ public class LSDocument {
      */
     public boolean hasProjectRepo() {
         return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
+    }
+
+    /**
+     * Get the project modules list.
+     * 
+     * @return {@link List} list of project modules
+     */
+    public List<String> getProjectModules() {
+        return projectModules;
     }
 
     @Override

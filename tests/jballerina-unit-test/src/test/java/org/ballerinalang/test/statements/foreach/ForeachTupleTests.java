@@ -134,9 +134,9 @@ public class ForeachTupleTests {
     public void testNegativeTupleForeach() {
         Assert.assertEquals(negative.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'int|string', found 'string'", 20, 13);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'int|string', found 'int'", 23, 13);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'string'", 20, 13);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'int'", 23, 13);
         BAssertUtil.validateError(negative, i,
-                "incompatible types: expected 'int|string|boolean', found 'string|int'", 31, 13);
+                "incompatible types: expected '(int|string|boolean)', found '(string|int)'", 31, 13);
     }
 }
