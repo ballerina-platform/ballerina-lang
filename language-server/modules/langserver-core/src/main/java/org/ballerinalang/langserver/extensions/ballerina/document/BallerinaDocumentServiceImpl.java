@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
-import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;

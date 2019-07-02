@@ -6,7 +6,6 @@ import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
 import { TopMenu } from "./top-menu";
-// import { renderDiagramEditor } from "../helpers";
 
 const modes = [
     {

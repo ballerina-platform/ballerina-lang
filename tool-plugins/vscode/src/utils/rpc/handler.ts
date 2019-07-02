@@ -155,11 +155,9 @@ export class WebViewRPCHandler {
     }
 
     private _onRemoteMessage(msg: WebViewRPCMessage) {
-        console.log(msg);
         if (msg.id !== undefined) {
             // this is a request from remote
             const method = this._getMethod(msg.methodName);
-            console.log(msg.methodName)
             if (method) {
                 method.handler(msg.arguments || [], this.webViewPanel)
                     .then((response: Thenable<any>) => {
