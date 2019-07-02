@@ -59,7 +59,7 @@ public class Pong implements NativeCallableUnit {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
-            WebSocketUtil.handleWebSocketCallback(callback, future);
+            WebSocketUtil.handleWebSocketCallback(callback, future, connectionInfo);
         } catch (Exception e) {
             //TODO remove this call back
             callback.setReturnValues(HttpUtil.getError(e.getMessage()));

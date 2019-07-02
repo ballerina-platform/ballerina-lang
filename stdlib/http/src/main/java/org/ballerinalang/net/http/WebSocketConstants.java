@@ -32,6 +32,7 @@ public class WebSocketConstants {
     public static final String SEPARATOR = ":";
     public static final String WEBSOCKET_LISTENER = "WebSocketListener";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
+    public static final String FAILOVER_WEBSOCKET_CLIENT = "FailoverWebSocketClient";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
     public static final String WEBSOCKET_CLIENT = "WebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
@@ -78,6 +79,22 @@ public class WebSocketConstants {
     // WebSocketClient struct field names
     public static final String CLIENT_RESPONSE_FIELD = "response";
     public static final String CLIENT_CONNECTOR_FIELD = "conn";
+    public static final String TARGETS_URLS = "targetURLs";
+    public static final String RETRY_CONFIG = "retryConfig";
+    public static final String FAILOVER_CONFIG = "failoverConfig";
+    public static final String FAILOVER_CLIENTS = "failoverClientsArray";
+    public static final String RECONNECT_ATTEMPTS = "reconnectAttempts";
+    public static final String INDEX = "index";
+    public static final String MAX_RETRY_COUNT = "maxRetryCount";
+    public static final String RECONNECT_INTERVAL = "retryInterval";
+    public static final String RETRY_DECAY = "retryDecay";
+    public static final String MAX_RETRY_INTERVAL = "maxretryInterval";
+    public static final String FAILOVER_INTEVAL = "failoverInterval";
+    public static final String ONE = "1";
+    public static final String ZERO = "0";
+    public static final String RECONNECTING = "reconnecting .........";
+    public static final String COUNT_DOWN_LATCH = "countDownLatch";
+    public static final String CLIENT_CONNECTOR = "clientConnector";
 
     // WebSocketConnector
     public static final String CONNECTOR_IS_READY_FIELD = "isReady";

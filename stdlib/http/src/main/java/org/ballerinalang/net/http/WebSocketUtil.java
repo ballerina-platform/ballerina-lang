@@ -31,18 +31,37 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
+import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.WebSocketConstants.COUNT_DOWN_LATCH;
+import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_COUNT;
+import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_INTERVAL;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECTING;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_INTERVAL;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_DECAY;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
 
 /**
  * Utility class for WebSocket.
@@ -50,6 +69,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+    private static final PrintStream console = System.out;
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
         return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
@@ -149,13 +169,45 @@ public class WebSocketUtil {
     }
 
     public static void handleWebSocketCallback(NonBlockingCallback callback,
-                                               ChannelFuture webSocketChannelFuture) {
+                                               ChannelFuture webSocketChannelFuture,
+                                               WebSocketOpenConnectionInfo connectionInfo) {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                //TODO Temp fix to get return values. Remove
-                callback.setReturnValues(HttpUtil.getError(cause));
-
+                ObjectValue clientEndpointConfig = connectionInfo.getWebSocketEndpoint();
+                ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+                if (webSocketClient.getType().getName().equalsIgnoreCase(WEBSOCKET_CLIENT)) {
+                    MapValue<String, Object> reconnectConfig = (MapValue<String, Object>) clientEndpointConfig
+                            .getMapValue(RETRY_CONFIG);
+                    int reconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(RECONNECT_INTERVAL));
+                    Double reconnectDecay = reconnectConfig.getFloatValue(RETRY_DECAY);
+                    int maxReconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_INTERVAL));
+                    int maxReconnectAttempts = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_COUNT));
+                    int reconnectAttempts = Integer.valueOf(reconnectConfig.get(RECONNECT_ATTEMPTS).toString());
+                    int timeout = (int) (reconnectInterval * Math.pow(reconnectDecay, reconnectAttempts));
+                    WebSocketClientConnector clientConnector = (WebSocketClientConnector) clientEndpointConfig
+                            .get(CLIENT_CONNECTOR);
+                    WebSocketService wsService = connectionInfo.getService();
+                    if (timeout > maxReconnectInterval) {
+                        maxReconnectInterval = timeout;
+                    }
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        console.println(RECONNECTING);
+                        ((MapValue<String, Object>) clientEndpointConfig.getMapValue(
+                                HttpConstants.CLIENT_ENDPOINT_CONFIG)).getMapValue(RETRY_CONFIG).
+                                addNativeData(RECONNECT_ATTEMPTS, new BString(String.valueOf(reconnectAttempts + 1)));
+                        reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
+                    } else if (reconnectAttempts == 0 && maxReconnectAttempts == 0) {
+                        console.println(RECONNECTING);
+                        reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
+                    } else {
+                        //TODO Temp fix to get return values. Remove
+                        callback.setReturnValues(HttpUtil.getError(cause));
+                    }
+                } else {
+                    //TODO Temp fix to get return values. Remove
+                    callback.setReturnValues(HttpUtil.getError(cause));
+                }
             } else {
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(null);
@@ -222,6 +274,94 @@ public class WebSocketUtil {
         }
         return Arrays.stream(subProtocolsInAnnotation).map(Object::toString)
                 .toArray(String[]::new);
+    }
+
+    public static void setWebSocketConnection(String remoteUrl, ObjectValue webSocketClient,
+                                                 WebSocketService wsService) {
+        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
+                HttpConstants.CLIENT_ENDPOINT_CONFIG);
+        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
+        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
+
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
+                clientConnectorConfig);
+        if (webSocketClient.getType().getName().equalsIgnoreCase(WEBSOCKET_CLIENT)) {
+            clientEndpointConfig.put(CLIENT_CONNECTOR, clientConnector);
+        }
+        createWebSocketConnection(clientConnector, webSocketClient, wsService);
+    }
+
+    public static void createWebSocketConnection(WebSocketClientConnector clientConnector, ObjectValue webSocketClient,
+                                                 WebSocketService wsService) {
+        WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
+        boolean readyOnConnect = ((MapValue<String, Object>) webSocketClient.getMapValue(
+                HttpConstants.CLIENT_ENDPOINT_CONFIG)).getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ((MapValue<String, Object>) webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG))
+                .put(COUNT_DOWN_LATCH, countDownLatch);
+        ClientHandshakeFuture handshakeFuture = clientConnector.connect();
+        handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
+        handshakeFuture.setClientHandshakeListener(
+                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
+                        readyOnConnect, countDownLatch));
+        try {
+            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
+                throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
+        }
+    }
+
+    private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
+                                                      WebSocketClientConnectorConfig clientConnectorConfig) {
+        clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
+        clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
+                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
+        if (headerValues != null) {
+            clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
+        }
+
+        long idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(clientEndpointConfig);
+        if (idleTimeoutInSeconds > 0) {
+            clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
+        }
+
+        clientConnectorConfig.setMaxFrameSize(WebSocketUtil.findMaxFrameSize(clientEndpointConfig));
+
+        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        if (secureSocket != null) {
+            HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
+        } else {
+            HttpUtil.setDefaultTrustStore(clientConnectorConfig);
+        }
+    }
+
+    public static void reconnect(WebSocketClientConnector clientConnector, ObjectValue webSocketClient,
+                                 int maxReconnectInterval, WebSocketService wsService) {
+        CountDownLatch countDownLatch = (CountDownLatch) ((MapValue<String, Object>) webSocketClient
+                .getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG)).get(COUNT_DOWN_LATCH);
+        try {
+            countDownLatch.await(maxReconnectInterval, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+        }
+        createWebSocketConnection(clientConnector, webSocketClient, wsService);
+        countDownLatch.countDown();
+    }
+
+    private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
+        Map<String, String> customHeaders = new HashMap<>();
+        headers.keySet().forEach(
+                key -> customHeaders.put(key, headers.get(key).toString())
+        );
+        return customHeaders;
     }
 
     private WebSocketUtil() {
