@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -2679,9 +2678,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BErrorType lhsErrorType = (BErrorType) expType;
-        BConstructorSymbol ctorSymbol = (BConstructorSymbol) symResolver.lookupSymbol(env, lhsErrorType.tsymbol.name,
-                SymTag.CONSTRUCTOR);
-        BErrorType ctorType = (BErrorType) ctorSymbol.type;
+        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
             return;
@@ -2716,8 +2713,7 @@ public class TypeChecker extends BLangNodeVisitor {
         setErrorDetailArgsToNamedArgsList(iExpr);
 
         resultType = expType;
-        iExpr.symbol = ctorSymbol;
-        return;
+        iExpr.symbol = lhsErrorType.ctorSymbol;
     }
 
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
