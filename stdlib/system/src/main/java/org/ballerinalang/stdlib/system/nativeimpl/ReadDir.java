@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -37,9 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
-
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
 
 /**
  * Extern function ballerina.system:readDir.
@@ -58,6 +54,8 @@ public class ReadDir extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
+    private static BType fileInfoType;
+
     public static Object readDir(Strand strand, String path) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
@@ -72,12 +70,13 @@ public class ReadDir extends BlockingNativeCallableUnit {
         try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
             results = walk.map(x -> {
                 try {
-                    return SystemUtils.getFileInfo(x.toFile());
+                    ObjectValue objectValue = SystemUtils.getFileInfo(x.toFile());
+                    fileInfoType = objectValue.getType();
+                    return objectValue;
                 } catch (IOException e) {
                     throw new BallerinaException("Error while accessing file info", e);
                 }
             }).toArray(ObjectValue[]::new);
-            BType fileInfoType = BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE).getType();
             return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
             return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
