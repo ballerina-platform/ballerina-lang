@@ -142,7 +142,6 @@ public class SendingEntityBody implements ListenerState {
         try {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY));
-            // Error is notified to server connector. Debug log is to make transport layer aware
             LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
         } catch (ServerConnectorException e) {
             LOG.error("Error while notifying error state to server-connector listener");

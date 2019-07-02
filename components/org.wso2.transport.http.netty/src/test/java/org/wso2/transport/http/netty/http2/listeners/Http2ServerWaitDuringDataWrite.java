@@ -44,8 +44,7 @@ public class Http2ServerWaitDuringDataWrite implements HttpConnectorListener {
                 ByteBuffer byteBuff1 = ByteBuffer.wrap(data1);
                 httpResponse.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(byteBuff1)));
                 HttpResponseFuture responseFuture = httpRequest.respond(httpResponse);
-                //Wait a considerable about of time before sending the last http content. This simulate the server
-                //timeout during 'SendingEntityBody' state.
+                //Wait a considerable about of time to simulate server timeout during 'SendingEntityBody' state.
                 Thread.sleep(waitTimeInMillis);
                 responseFuture.sync();
             } catch (ServerConnectorException e) {

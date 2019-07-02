@@ -106,6 +106,9 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
     public void onStreamClose(int streamId) {
         ScheduledFuture timerTask = timerTasks.get(streamId);
         if (timerTask != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Server timer is removed for the stream : {}", streamId);
+            }
             timerTask.cancel(false);
             timerTasks.remove(streamId);
         }
@@ -151,8 +154,10 @@ public class Http2ServerTimeoutHandler implements Http2DataEventListener {
 
         private void handleTimeout(InboundMessageHolder msgHolder) {
             if (msgHolder.getInboundMsg() != null) {
-                LOG.debug("Timeout Occurred during {} state",
-                          msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState().toString());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Timeout Occurred during {} state",
+                              msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState().toString());
+                }
                 msgHolder.getInboundMsg().getHttp2MessageStateContext().getListenerState()
                         .handleStreamTimeout(serverConnectorFuture, ctx, msgHolder.getHttp2OutboundRespListener(),
                                              streamId);

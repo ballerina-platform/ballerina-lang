@@ -18,7 +18,10 @@
 
 package org.wso2.transport.http.netty.http2.servertimeout;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -36,24 +39,23 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.wso2.transport.http.netty.contract.Constants.SERVER_TIMEOUT_ERROR_MESSAGE;
 
 /**
- * {@code TimeoutAfterRequestReceived} tests server timeout once the request has been received but before
- * sending the outbound response.
+ * Test server timeout during request receive.
  */
-public class TimeoutAfterRequestReceived {
-    private static final Logger LOG = LoggerFactory.getLogger(TimeoutAfterRequestReceived.class);
+public class TimeoutDuringRequestReceive {
+    private static final Logger LOG = LoggerFactory.getLogger(TimeoutDuringRequestReceive.class);
 
     private HttpClientConnector h2ClientWithPriorKnowledge;
-    private HttpClientConnector h2ClientWithoutPriorKnowledge;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory connectorFactory;
 
@@ -64,7 +66,7 @@ public class TimeoutAfterRequestReceived {
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
         listenerConfiguration.setVersion(Constants.HTTP_2_0);
-        listenerConfiguration.setSocketIdleTimeout(100);
+        listenerConfiguration.setSocketIdleTimeout(1000);
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
@@ -76,11 +78,6 @@ public class TimeoutAfterRequestReceived {
         senderConfiguration1.setForceHttp2(true);
         h2ClientWithPriorKnowledge = connectorFactory.createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration1);
-
-        SenderConfiguration senderConfiguration2 = getSenderConfiguration();
-        senderConfiguration2.setForceHttp2(false);
-        h2ClientWithoutPriorKnowledge = connectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration2);
     }
 
     private SenderConfiguration getSenderConfiguration() {
@@ -94,24 +91,23 @@ public class TimeoutAfterRequestReceived {
 
     @Test
     public void testServerTimeout() {
-        String testValue = "Test Http2 Message";
-        HttpCarbonMessage httpMsg1 = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        HttpCarbonMessage httpMsg2 = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        verifyResult(httpMsg1, h2ClientWithoutPriorKnowledge);
-        verifyResult(httpMsg2, h2ClientWithPriorKnowledge);
+        HttpCarbonMessage httpMsg1 = MessageGenerator.generateDelayedRequest(HttpMethod.POST);
+        verifyResult(httpMsg1, h2ClientWithPriorKnowledge);
     }
 
     private void verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector) {
+        byte[] data1 = "Content data part1".getBytes(StandardCharsets.UTF_8);
+        ByteBuffer byteBuff1 = ByteBuffer.wrap(data1);
+        httpCarbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(byteBuff1)));
         HttpCarbonMessage response = new MessageSender(http2ClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
-        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, SERVER_TIMEOUT_ERROR_MESSAGE, "Expected response not received");
+        assertEquals(response.getHttpStatusCode().intValue(), HttpResponseStatus.REQUEST_TIMEOUT.code(),
+                     "Expected response not received");
     }
 
     @AfterClass
     public void cleanUp() {
         h2ClientWithPriorKnowledge.close();
-        h2ClientWithoutPriorKnowledge.close();
         serverConnector.stop();
         try {
             connectorFactory.shutdown();

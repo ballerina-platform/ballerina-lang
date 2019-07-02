@@ -41,23 +41,30 @@ import java.nio.charset.StandardCharsets;
  * A utility class which generates HTTP/2.0 requests.
  */
 public class MessageGenerator {
-
     public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
-            new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-            "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
-        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT);
+                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT, true);
     }
 
     public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload, int port, String scheme) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
-            new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-            scheme + TestUtil.TEST_HOST + ":" + port));
-        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, port);
+                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+                scheme + TestUtil.TEST_HOST + ":" + port));
+        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, port, true);
+    }
+
+    public static HttpCarbonMessage generateDelayedRequest(HttpMethod httpMethod) {
+        HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
+                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+        return getHttpCarbonMessage(httpMethod, null, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT, false);
     }
 
     private static HttpCarbonMessage getHttpCarbonMessage(HttpMethod httpMethod, String payload,
-                                                          HttpCarbonMessage httpCarbonMessage, int port) {
+                                                          HttpCarbonMessage httpCarbonMessage, int port,
+                                                          boolean addLastHTTPContent) {
         httpCarbonMessage.setHttpMethod(httpMethod.toString());
         httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
@@ -66,7 +73,9 @@ public class MessageGenerator {
             ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
             httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
         } else {
-            httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
+            if (addLastHTTPContent) {
+                httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
+            }
         }
         return httpCarbonMessage;
     }
