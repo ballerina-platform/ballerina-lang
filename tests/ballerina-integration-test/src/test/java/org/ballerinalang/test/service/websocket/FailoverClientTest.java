@@ -50,8 +50,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
         client.handshake();
     }
 
-    @Test(description = "Tests retry to Ballerina WebSocket server")
-    public void testRetryToBallerinaServer() throws InterruptedException {
+    @Test(description = "Tests failover for webSocket client")
+    public void testFailoverClient() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendPing(SENDING_BYTE_BUFFER);

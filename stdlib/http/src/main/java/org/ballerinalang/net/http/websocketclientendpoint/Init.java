@@ -40,7 +40,6 @@ import static org.ballerinalang.net.http.WebSocketUtil.setWebSocketConnection;
 /**
  * Initialize the failover WebSocket Client.
  *
- * @since 0.966
  */
 
 @BallerinaFunction(

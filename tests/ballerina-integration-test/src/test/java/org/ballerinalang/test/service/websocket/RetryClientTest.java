@@ -51,8 +51,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         client.handshake();
     }
 
-    @Test(description = "Tests retry function for client to Ballerina WebSocket server")
-    public void testRetryToBallerinaServer() throws InterruptedException, BallerinaTestException {
+    @Test(description = "Tests retry function for client")
+    public void testRetryClient() throws InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer.stop();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
