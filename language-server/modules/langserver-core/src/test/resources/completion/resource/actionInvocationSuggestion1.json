@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "redirect(http:Response response, 300|301|302|303|304|305|307|308 code, string[] locations)(error?)",
+      "label": "redirect(http:Response response, (300|301|302|303|304|305|307|308) code, string[] locations)(error?)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "ok(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(error?)",
+      "label": "ok((ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)(error?)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "label": "respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(error?)",
+      "label": "respond((ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)(error?)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

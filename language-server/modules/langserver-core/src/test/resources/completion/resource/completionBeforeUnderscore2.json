@@ -210,13 +210,13 @@
       }
     },
     {
-      "label": "getJsonPayload()(json|error)",
+      "label": "getJsonPayload()((json|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `json` payload from the request. If the content type is not JSON, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \njson|error"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `json` payload from the request. If the content type is not JSON, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
         }
       },
       "insertText": "getJsonPayload(${1})",
@@ -227,13 +227,13 @@
       }
     },
     {
-      "label": "getXmlPayload()(xml|error)",
+      "label": "getXmlPayload()((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the request. If the content type is not XML, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml|error"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the request. If the content type is not XML, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|error)"
         }
       },
       "insertText": "getXmlPayload(${1})",
@@ -244,13 +244,13 @@
       }
     },
     {
-      "label": "getTextPayload()(string|error)",
+      "label": "getTextPayload()((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the request. If the content type is not of type text, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the request. If the content type is not of type text, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
         }
       },
       "insertText": "getTextPayload(${1})",
@@ -261,13 +261,13 @@
       }
     },
     {
-      "label": "getBinaryPayload()(byte[]|error)",
+      "label": "getBinaryPayload()((byte[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nbyte[]|error"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|error)"
         }
       },
       "insertText": "getBinaryPayload(${1})",
@@ -278,13 +278,13 @@
       }
     },
     {
-      "label": "getByteChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getByteChannel()((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "insertText": "getByteChannel(${1})",
@@ -295,13 +295,13 @@
       }
     },
     {
-      "label": "getBodyParts()(ballerina/mime:Entity[]|error)",
+      "label": "getBodyParts()((ballerina/mime:Entity[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity[]|error"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|error)"
         }
       },
       "insertText": "getBodyParts(${1})",
@@ -312,13 +312,13 @@
       }
     },
     {
-      "label": "getFormParams()(map\u003cstring\u003e|error)",
+      "label": "getFormParams()((map\u003cstring\u003e|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nmap\u003cstring\u003e|error"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(map\u003cstring\u003e|error)"
         }
       },
       "insertText": "getFormParams(${1})",
@@ -448,7 +448,7 @@
       }
     },
     {
-      "label": "setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
+      "label": "setPayload((string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) payload)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -533,13 +533,13 @@
       }
     },
     {
-      "label": "getEntity()(ballerina/mime:Entity|error)",
+      "label": "getEntity()((ballerina/mime:Entity|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the request.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity|error"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the request.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|error)"
         }
       },
       "insertText": "getEntity(${1})",
