@@ -87,7 +87,7 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         String message = result.getDiagnostics()[0].getMessage();
-        Assert.assertTrue(message.contains("expected 'int', found 'error|int'"), message);
+        Assert.assertTrue(message.contains("expected 'int', found '(error|int)'"), message);
     }
 
     @Test

@@ -11,7 +11,7 @@
                 <h3>Records</h3>
                 <ul>
                     {{#each module.records}}
-                        <li>
+                        <li {{#equals record.name name}}class="active"{{/equals}}>
                             <a href="{{name}}.html">{{name}}</a>
                         </li>
                     {{/each}}
@@ -31,7 +31,7 @@
                     <h3>Records</h3>
                     <ul>
                         {{#each module.records}}
-                            <li>
+                            <li {{#equals record.name name}}class="active"{{/equals}}>
                                 <a href="{{name}}.html">{{name}}</a>
                             </li>
                         {{/each}}
@@ -47,8 +47,12 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Record : <span class="records">{{ record.name }}</span></h1>
-
+            <h1> 
+                {{> breadcrumb }}
+                <span class="title-type">Record - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+                 : <span class="records">{{ record.name }}</span>
+            </h1>
             <p>{{{ record.description }}}</p>
             <div class="constants">
                 {{#if record.fields}}

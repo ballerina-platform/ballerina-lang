@@ -32,7 +32,7 @@ public class TestErrorNegative {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/errors/error-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(compileResult, 0, "cannot infer type of the error from 'error|string'", 2, 22);
-        BAssertUtil.validateError(compileResult, 1, "cannot infer type of the error from 'string|error'", 3, 12);
+        BAssertUtil.validateError(compileResult, 0, "cannot infer type of the error from '(error|string)'", 2, 22);
+        BAssertUtil.validateError(compileResult, 1, "cannot infer type of the error from '(string|error)'", 3, 12);
     }
 }

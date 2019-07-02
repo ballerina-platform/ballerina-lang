@@ -11,7 +11,7 @@
                 <h3>Objects</h3>
                 <ul>
                     {{#each module.objects}}
-                        <li>
+                        <li {{#equals object.name name}}class="active"{{/equals}}>
                             <a href="{{name}}.html">{{name}}</a>
                         </li>
                     {{/each}}
@@ -31,7 +31,7 @@
                     <h3>Objects</h3>
                     <ul>
                         {{#each module.objects}}
-                            <li>
+                            <li {{#equals object.name name}}class="active"{{/equals}}></li>>
                                 <a href="{{name}}.html">{{name}}</a>
                             </li>
                         {{/each}}
@@ -48,34 +48,41 @@
         {{> mobMenu }}
 
         <div class="main-wrapper">
-            <h1>Object : <span class="objects">{{ object.name }}</span> </h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Object - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> : 
+                <span class="objects">{{ object.name }}</span>
+            </h1>
             <p>{{{ object.description }}}</p>
 
             <div class="constants">
-                {{#if object.initMethod}}
-                    {{#object.initMethod}}
-                       {{> initMethod }}
-                    {{/object.initMethod}}
-                {{/if}}
+                <div class="method-sum">
+                    {{#if object.initMethod}}
+                        {{#object.initMethod}}
+                        {{> initMethod }}
+                        {{/object.initMethod}}
+                    {{/if}}
 
-                {{#if object.otherMethods}}
-                    <h2>Methods</h2>
-                    <div class="method-list">
-                        {{#each object.otherMethods}}
-                            {{> methodSignature }}
-                        {{/each}}
-                    </div>
-                {{/if}}
+                
+                    {{#if object.otherMethods}}
+                        <h2>Methods</h2>
+                        <div class="method-list">
+                            {{#each object.otherMethods}}
+                                {{> methodSignature }}
+                            {{/each}}
+                        </div>
+                    {{/if}}
 
-                {{#if object.fields}}
-                    {{#object}}
-                        <h2>Fields</h2>
-                            {{> fields }}
-                    {{/object}}
-                {{/if}}
+                    {{#if object.fields}}
+                        {{#object}}
+                            <h2>Fields</h2>
+                                {{> fields }}
+                        {{/object}}
+                    {{/if}}
+                </div>
 
                 {{#if object.otherMethods }}
-                    <h2>Methods</h2>
                     {{#each object.otherMethods }}
                         {{> method }}
                     {{/each}}

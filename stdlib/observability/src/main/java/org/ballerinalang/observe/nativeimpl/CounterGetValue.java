@@ -19,13 +19,15 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the getValue function native implementation of the Counter object.
@@ -48,5 +50,10 @@ public class CounterGetValue extends BlockingNativeCallableUnit {
         BMap bStruct = (BMap) context.getRefArgument(0);
         Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         context.setReturnValues(new BInteger(counter.getValue()));
+    }
+
+    public static long getValue(Strand strand, ObjectValue counterObj) {
+        Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
+        return counter.getValue();
     }
 }

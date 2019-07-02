@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -243,5 +245,41 @@ public class CompletionVisitorUtil {
         nodes.sort(Comparator.comparing(node -> node.getPosition().getStartLine()));
 
         return nodes;
+    }
+
+    /**
+     * Check whether the cursor is within the invocation arguments.
+     *
+     * @param node BLang node to evaluate
+     * @param lsContext Language server operation context
+     */
+    public static boolean withinInvocationArguments(BLangNode node, LSContext lsContext) {
+        Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = position.getLine();
+        int cursorCol = position.getCharacter();
+        /*
+        When the expression statement is a function invocation or invocation is as an argument for a function invocation
+        this gets hit and hence the OR condition has been added.
+        Eg: exampleFunction(a<cursor>)
+            exampleFunction(a, func2(a<cursor>))
+         */
+        if (!(((node instanceof BLangExpressionStmt) && ((BLangExpressionStmt) node).expr instanceof BLangInvocation)
+                || node instanceof BLangInvocation)) {
+            return false;
+        }
+
+        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.pos);
+        int sLine = nodePos.sLine;
+        int eLine = nodePos.eLine;
+        int sCol = nodePos.sCol;
+        int eCol = nodePos.eCol;
+
+        if ((cursorLine > sLine && cursorLine < eLine)
+                || (cursorLine == sLine && sCol < cursorCol && eCol > cursorCol)) {
+            lsContext.put(CompletionKeys.IN_INVOCATION_PARAM_CONTEXT_KEY, true);
+            return true;
+        }
+        
+        return false;
     }
 }
