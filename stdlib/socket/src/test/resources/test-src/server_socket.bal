@@ -134,7 +134,7 @@ service errorServer on new socket:Listener(59155) {
             var [content, length] = result;
             if (length > 0) {
                 error e = error("Error while on read");
-                return e;
+                panic e;
             } else {
                 log:printInfo("Client close: " + caller.remotePort);
             }

@@ -22,7 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
@@ -59,6 +59,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -141,30 +142,49 @@ public class BCompileUtil {
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        runOnSchedule(initClazz, bLangPackage.initFunction.name);
-        runOnSchedule(initClazz, bLangPackage.startFunction.name);
+        final Scheduler scheduler = new Scheduler(4, false);
+        runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
+        runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
+        scheduler.immortal = true;
+        new Thread(scheduler::start).start();
+
     }
 
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            Scheduler scheduler = new Scheduler(4, false);
+            Scheduler scheduler = scheduler1;
             //TODO fix following method invoke to scheduler.schedule()
-            method.invoke(null, new Strand(scheduler));
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getTargetException();
-            if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            Function<Object[], Object> func = objects -> {
+                try {
+                    return method.invoke(null, objects[0]);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            };
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            scheduler.start();
+            if (out.panic != null) {
+                throw new RuntimeException("Error in init/start", out.panic);
             }
-            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-            }
-            if (t instanceof ErrorValue) {
-                throw new org.ballerinalang.util.exceptions
-                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
-            }
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+            //method.invoke(null, new Strand(scheduler));
+            //        } catch (InvocationTargetException e) {
+            //            Throwable t = e.getTargetException();
+            //            if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+            //                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            //            }
+            //            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+            //                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+            //            }
+            //            if (t instanceof ErrorValue) {
+            //                throw new org.ballerinalang.util.exceptions
+            //                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+            //            }
+            //            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }

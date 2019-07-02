@@ -64,7 +64,7 @@ public class SelectorDispatcher {
     static void invokeOnError(SocketService socketService, TCPSocketCallback callback, ErrorValue error) {
         try {
             final ObjectValue caller = SocketUtils.createClient(socketService);
-            Object[] params = new Object[] { caller, error };
+            Object[] params = new Object[] { caller, true, error, true };
             Executor.submit(socketService.getScheduler(), socketService.getService(), RESOURCE_ON_ERROR, callback, null,
                     params);
         } catch (Throwable e) {
@@ -95,8 +95,9 @@ public class SelectorDispatcher {
     static void invokeOnConnect(SocketService socketService) {
         try {
             final ObjectValue clientObj = SocketUtils.createClient(socketService);
+            Object[] params = new Object[] { clientObj, true };
             Executor.submit(socketService.getScheduler(), socketService.getService(), RESOURCE_ON_CONNECT,
-                    new TCPSocketCallback(socketService), null, clientObj);
+                    new TCPSocketCallback(socketService), null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
         }
@@ -105,11 +106,11 @@ public class SelectorDispatcher {
     private static Object[] getOnErrorResourceSignature(SocketService socketService, String msg) {
         ObjectValue caller = SocketUtils.createClient(socketService);
         ErrorValue error = SocketUtils.createSocketError(msg);
-        return new Object[] { caller, error };
+        return new Object[] { caller, true, error, true };
     }
 
     private static Object[] getReadReadyResourceSignature(SocketService socketService) {
         ObjectValue caller = SocketUtils.createClient(socketService);
-        return new Object[] { caller };
+        return new Object[] { caller, true };
     }
 }
