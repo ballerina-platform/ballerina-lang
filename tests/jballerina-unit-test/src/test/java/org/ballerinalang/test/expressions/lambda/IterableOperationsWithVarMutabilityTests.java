@@ -163,10 +163,10 @@ public class IterableOperationsWithVarMutabilityTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexXML");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].stringValue(), "(0, \"Everyday Italian\")");
-        Assert.assertEquals(returns[1].stringValue(), "(1, \"Harry Potter\")");
-        Assert.assertEquals(returns[2].stringValue(), "(2, \"XQuery Kick Start\")");
-        Assert.assertEquals(returns[3].stringValue(), "(3, \"Learning XML\")");
+        Assert.assertEquals(returns[0].stringValue(), "[0, \"Everyday Italian\"]");
+        Assert.assertEquals(returns[1].stringValue(), "[1, \"Harry Potter\"]");
+        Assert.assertEquals(returns[2].stringValue(), "[2, \"XQuery Kick Start\"]");
+        Assert.assertEquals(returns[3].stringValue(), "[3, \"Learning XML\"]");
     }
 
     @Test

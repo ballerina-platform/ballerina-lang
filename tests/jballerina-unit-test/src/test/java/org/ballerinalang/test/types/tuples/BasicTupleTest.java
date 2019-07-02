@@ -51,10 +51,9 @@ public class BasicTupleTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), " test1 expr \n" +
                 " test2 \n" +
-                " test3 foo test3 \n" +
+                " test3 3 \n" +
                 " test4 4 \n" +
-                " test5 5 \n" +
-                " test6 foo test6 \n ");
+                " test5 foo test5 \n ");
     }
 
     @Test(description = "Test Function invocation using tuples")
@@ -131,9 +130,9 @@ public class BasicTupleTest {
         BAssertUtil.validateError(
                 resultNegative, 1, "tuple and expression size does not match", 19, 33);
         BAssertUtil.validateError(
-                resultNegative, 2, "ambiguous type '[int,boolean,string]|[any,boolean,string]?'", 34, 63);
+                resultNegative, 2, "ambiguous type '([int,boolean,string]|[any,boolean,string])?'", 34, 63);
         BAssertUtil.validateError(
-                resultNegative, 3, "ambiguous type '[Person,int]|[Employee,int]?'", 38, 47);
+                resultNegative, 3, "ambiguous type '([Person,int]|[Employee,int])?'", 38, 47);
     }
 
     @Test(description = "Test negatives of index based access of tuple type")
@@ -144,11 +143,11 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'int', found 'string'", 57, 16);
         BAssertUtil.validateError(resultNegative, 8, "incompatible types: expected 'int', found 'string'", 63, 24);
         BAssertUtil.validateError(resultNegative, 9,
-                "incompatible types: expected 'string|boolean|int', found 'float'", 69, 20);
+                "incompatible types: expected '(string|boolean|int)', found 'float'", 69, 20);
         BAssertUtil.validateError(resultNegative, 10,
-                "incompatible types: expected 'string', found 'string|boolean|int'", 70, 16);
+                "incompatible types: expected 'string', found '(string|boolean|int)'", 70, 16);
         BAssertUtil.validateError(resultNegative, 11,
-                "incompatible types: expected 'string|boolean', found 'string|boolean|int'", 71, 24);
+                "incompatible types: expected '(string|boolean)', found '(string|boolean|int)'", 71, 24);
         BAssertUtil.validateError(resultNegative, 12,
                 "incompatible types: expected 'int', found 'S1|S2'", 89, 19);
         BAssertUtil.validateError(resultNegative, 13,
@@ -156,7 +155,7 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, 14,
                 "incompatible types: expected 'int', found '0|1|2|S1'", 91, 19);
         BAssertUtil.validateError(resultNegative, 15,
-                                  "incompatible types: expected 'int', found '0|1|2|S1|S2'", 92, 19);
+                                  "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 92, 19);
         BAssertUtil.validateError(resultNegative, 16,
                                   "invalid tuple index expression: value space '3|4|5|6' out of range", 93, 19);
     }

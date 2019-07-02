@@ -636,6 +636,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
+
+        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
     }
 
     @Override
