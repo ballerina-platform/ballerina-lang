@@ -18,14 +18,13 @@
 package org.ballerinalang.langserver.common.utils.completion;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility operations on the BLangRecordLiterals.
@@ -36,41 +35,18 @@ public class BLangRecordLiteralUtil {
     }
 
     /**
-     * Find all the record fields for the matching record literal.
+     * Get the record field completion itmes.
      * 
-     * When there are inner record fields, those are analyzed as well and matching innermost record's
-     * fields are extracted
      * @param recordLiteral             Record Literal
-     * @param context                   Completion Context
      * @return {@link CompletionItem}   List of Completion Items
      */
-    public static ArrayList<CompletionItem> getFieldsForMatchingRecord(BLangRecordLiteral recordLiteral,
-                                                                       LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(recordLiteral.getPosition());
-        int line = context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int nodeStartLine = nodePos.getStartLine();
-        int nodeEndLine = nodePos.getEndLine();
-
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.valueExpr.type instanceof BRecordType) {
-                DiagnosticPos exprPos = CommonUtil.toZeroBasedPosition(keyValuePair.valueExpr.getPosition());
-                int exprStartLine = exprPos.getStartLine();
-                int exprEndLine = exprPos.getEndLine();
-
-                if (exprStartLine < line && exprEndLine > line
-                        && keyValuePair.valueExpr instanceof BLangRecordLiteral) {
-                    return getFieldsForMatchingRecord((BLangRecordLiteral) keyValuePair.valueExpr, context);
-                }
-            }
+    public static ArrayList<CompletionItem> getFieldsForMatchingRecord(BLangRecordLiteral recordLiteral) {
+        if (!(recordLiteral.type instanceof BRecordType)) {
+            return new ArrayList<>();
         }
-
-        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
-            completionItems.addAll(
-                    CommonUtil.getRecordFieldCompletionItems(((BRecordType) recordLiteral.type).fields)
-            );
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) recordLiteral.type).fields));
-        }
+        List<BField> fields = ((BRecordType) recordLiteral.type).fields;
+        ArrayList<CompletionItem> completionItems = new ArrayList<>(CommonUtil.getRecordFieldCompletionItems(fields));
+        completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
 
         return completionItems;
     }

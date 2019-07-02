@@ -49,9 +49,9 @@ public class OpenRecordNegativeTest {
         String expectedErrMsg = "incompatible types: expected 'string', ";
         validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
         validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
-        validateError(result, 2, "invalid literal for type 'anydata|error'", 17, 36);
+        validateError(result, 2, "invalid literal for type '(anydata|error)'", 17, 36);
         validateError(result, 3, "unknown type 'Animal'", 21, 5);
-        validateError(result, 4, "incompatible types: expected 'anydata|error', found 'Bar'", 30, 18);
+        validateError(result, 4, "incompatible types: expected '(anydata|error)', found 'Bar'", 30, 18);
         validateError(result, 5, "incompatible types: expected 'anydata', found 'error'", 44, 14);
         validateError(result, 6, "incompatible types: expected 'anydata', found 'error'", 45, 14);
     }
@@ -87,16 +87,16 @@ public class OpenRecordNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/open_record_ambiguity.bal");
         assertEquals(result.getErrorCount(), 8);
         int index = 0;
-        validateError(result, index++, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'", 36,
+        validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 36,
                       22);
-        validateError(result, index++, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'", 37,
+        validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
                       22);
-        validateError(result, index++, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'", 38,
+        validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
                       22);
-        validateError(result, index++, "ambiguous type 'A|B|C'", 70, 25);
-        validateError(result, index++, "ambiguous type 'A|B|C'", 71, 25);
-        validateError(result, index++, "ambiguous type 'A|B|C'", 72, 25);
-        validateError(result, index++, "ambiguous type 'A|B|C'", 73, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 70, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 71, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
         validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
     }
 

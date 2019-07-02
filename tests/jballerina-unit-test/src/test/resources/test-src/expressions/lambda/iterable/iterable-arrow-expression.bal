@@ -27,8 +27,8 @@ function testFilterIterable() returns float {
 
     index = 0;
 
-    float avg = numberArray.map(function (int num) returns (int, int) {
-        (int, int) value = (index, num);
+    float avg = numberArray.map(function (int num) returns [int, int] {
+        [int, int] value = [index, num];
         index += 1;
         return value;
     }).filter(num => num[0] >= 3).map(num => num[1]).average();
@@ -37,24 +37,24 @@ function testFilterIterable() returns float {
 
 function testTwoLevelMapIterable () returns string[] {
     map<string> words = { a: "ant", b: "bear"};
-    string[] animals = words.map(entry => (entry[1], entry[1].toUpper())).map(entry => entry[1].toUpper());
+    string[] animals = words.map(entry => [entry[1], entry[1].toUpper()]).map(entry => entry[1].toUpper());
     return animals;
 }
 
 function testTwoLevelMapIterableWithFilter () returns string[] {
     map<string> words = { a: "ant", b: "bear"};
     string[] animals = words
-        .map(entry => (entry[1], entry[1].toUpper()))
+        .map(entry => [entry[1], entry[1].toUpper()])
         .filter(entry => entry[0] == "bear")
         .map(entry => entry[1]);
     return animals;
 }
 
-function testFilterThenMap () returns (string[], int) {
+function testFilterThenMap () returns [string[], int] {
     map<string> words = { a: "ant", b: "bear"};
     string[] str = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN");
     int count = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN").count();
-    return (str, count);
+    return [str, count];
 }
 
 function testFilterWithArityOne () returns string[] {
@@ -68,7 +68,7 @@ function testFilterWithArityOne () returns string[] {
 
 function testIterableReturnLambda () returns (function (int) returns boolean)?[] {
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
-    (function (int) returns boolean)?[] lambdas = words.map(function ((string, string) input) returns (function (int) returns boolean) {
+    (function (int) returns boolean)?[] lambdas = words.map(function ([string, string] input) returns (function (int) returns boolean) {
             return param => true;
     });
     return lambdas;

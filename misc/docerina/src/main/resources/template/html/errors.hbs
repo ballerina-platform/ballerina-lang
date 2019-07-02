@@ -10,7 +10,7 @@
                 <h3>Errors</h3>
                 <ul>
                     {{#each module.errors}}
-                        <li>
+                        <li {{#equals errors.name name}}class="active"{{/equals}}></li>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
                     {{/each}}
@@ -30,7 +30,7 @@
                     <h3>Errors</h3>
                     <ul>
                         {{#each module.errors}}
-                            <li>
+                            <li {{#equals errors.name name}}class="active"{{/equals}}>
                                 <a href="#{{name}}">{{name}}</a>
                             </li>
                         {{/each}}
@@ -46,9 +46,12 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Errors</h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Errors - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+                </h1>
             <div class="errors">
-
                 <div class="data-wrapper">
                     {{#each errors}}
                         <div class="params-listing">

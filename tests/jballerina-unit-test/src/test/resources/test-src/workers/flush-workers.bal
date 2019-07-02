@@ -65,7 +65,7 @@ function flushAll() returns string {
 
         worker w2 returns error?{
             if(false){
-                 error err = error("err", { message: "err msg" });
+                 error err = error("err", message = "err msg");
                  return err;
             }
             runtime:sleep(5);
@@ -107,7 +107,7 @@ function errorTest() returns error? {
 
         worker w2 returns error?{
             if(false){
-                 error err = error("err", { message: "err msg" });
+                 error err = error("err", message = "err msg");
                  return err;
             }
             runtime:sleep(5);
@@ -129,8 +129,7 @@ function errorTest() returns error? {
             }
             if(k>3) {
                 map<string> reason = { k1: "error3" };
-                map<string> details = { message: "msg3" };
-                    error er3 = error(reason.k1, details);
+                    error er3 = error(reason.k1,  message = "msg3");
                     return er3;
                 }
 
@@ -159,7 +158,7 @@ function panicTest() returns error? {
 
         worker w2 returns error?{
             if(false){
-                 error err = error("err", { message: "err msg" });
+                 error err = error("err", message = "err msg");
                  return err;
             }
             runtime:sleep(5);
@@ -181,8 +180,7 @@ function panicTest() returns error? {
             }
             if(k>3) {
                 map<string> reason = { k1: "error3" };
-                map<string> details = { message: "msg3" };
-                    error er3 = error(reason.k1, details);
+                    error er3 = error(reason.k1, message = "msg3");
                     panic er3;
                 }
 
@@ -200,7 +198,7 @@ function flushInDefaultError() returns error? {
      int a = 0;
      int b = 15;
      if (true) {
-       error err = error("err", { message: "err msg" });
+       error err = error("err", message = "err msg");
               return err;
      }
      a = <- default;

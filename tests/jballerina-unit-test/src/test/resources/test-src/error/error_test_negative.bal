@@ -28,7 +28,7 @@ function testInvalidErrorReasonWithUserDefinedReasonType() returns error {
 }
 
 function testInvalidErrorReasonWithConstantAsReason() returns error {
-    UserDefErrorTwo e = error(ERROR_REASON_TWO, { message: "error detail message" });
+    UserDefErrorTwo e = error(ERROR_REASON_TWO, message = "error detail message");
     return e;
 }
 
@@ -41,7 +41,7 @@ type InvalidErrorOne error<int, map<any>>;
 type InvalidErrorTwo error<string, boolean>;
 
 const FLOAT = 1.0;
-error<FLOAT, Foo> e1 = error(1.0, { message: "string val", one: 1 });
+error<FLOAT, Foo> e1 = error(1.0, message = "string val", one = 1);
 
 function testInvalidErrorTypeInFunc() {
     error<boolean> e = error(true);
@@ -50,6 +50,6 @@ function testInvalidErrorTypeInFunc() {
 type MyError error<string, map<MyError>>;
 
 function testSelfReferencingErrorConstructor() {
-    error e3 = error(e3.reason(), { err: e3 });
-    MyError e4 = error("reason", { err: e4 });
+    error e3 = error(e3.reason(), err = e3);
+    MyError e4 = error("reason", err = e4);
 }

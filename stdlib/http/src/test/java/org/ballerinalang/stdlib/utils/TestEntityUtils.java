@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.utils;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -44,7 +45,20 @@ public class TestEntityUtils {
      * @param contentType content-type header value.
      * @param payload     mime entity payload.
      */
+    @Deprecated
     public static void enrichTestEntity(BMap<String, BValue> entity, String contentType, String payload) {
+        enrichTestEntityHeaders(entity, contentType);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
+    }
+
+    /**
+     * Enriches the mime entity with the provided data.
+     *
+     * @param entity      mime entity to be enriched.
+     * @param contentType content-type header value.
+     * @param payload     mime entity payload.
+     */
+    public static void enrichTestEntity(ObjectValue entity, String contentType, String payload) {
         enrichTestEntityHeaders(entity, contentType);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
     }
@@ -55,7 +69,20 @@ public class TestEntityUtils {
      * @param entity      mime entity to be enriched.
      * @param contentType content-type header value.
      */
+    @Deprecated
     public static void enrichTestEntityHeaders(BMap<String, BValue> entity, String contentType) {
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add(CONTENT_TYPE, contentType);
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
+    }
+
+    /**
+     * Enriches entity with provided header.
+     *
+     * @param entity      mime entity to be enriched.
+     * @param contentType content-type header value.
+     */
+    public static void enrichTestEntityHeaders(ObjectValue entity, String contentType) {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add(CONTENT_TYPE, contentType);
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
@@ -67,7 +94,21 @@ public class TestEntityUtils {
      * @param entity      mime entity to be enriched.
      * @param payload     mime entity payload.
      */
+    @Deprecated
     public static void enrichEntityWithDefaultMsg(BMap<String, BValue> entity, String payload) {
+        HTTPTestRequest inRequestMsg =
+                MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_POST, payload);
+        inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
+        entity.addNativeData(TRANSPORT_MESSAGE, inRequestMsg);
+    }
+
+    /**
+     * Enriches entity with default transport message.
+     *
+     * @param entity      mime entity to be enriched.
+     * @param payload     mime entity payload.
+     */
+    public static void enrichEntityWithDefaultMsg(ObjectValue entity, String payload) {
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_POST, payload);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));

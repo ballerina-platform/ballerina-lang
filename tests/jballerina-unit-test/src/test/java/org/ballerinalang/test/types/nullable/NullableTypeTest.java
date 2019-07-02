@@ -74,6 +74,6 @@ public class NullableTypeTest {
     public void testNilableTypeArrayIteration() {
         CompileResult result = BCompileUtil.compile("test-src/types/nullable/nilable_types_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected '()|any', found '()|any?'", 33, 19);
+        validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
     }
 }

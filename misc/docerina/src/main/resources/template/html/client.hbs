@@ -11,8 +11,8 @@
                 <h3>Clients</h3>
                 <ul>
                     {{#each module.clients}}
-                        <li>
-                            <a href="{{name}}.html">{{name}}</a>
+                        <li {{#equals client.name name}}class="active active-item"{{/equals}}>
+                            <a href="{{name}}.html">{{name}}</a> 
                         </li>
                     {{/each}}
                 </ul>
@@ -31,7 +31,7 @@
                     <h3>Clients</h3>
                     <ul>
                         {{#each module.clients}}
-                            <li>
+                            <li {{#equals client.name name}}class="active active-item"{{/equals}}>
                                 <a href="{{name}}.html">{{name}}</a>
                             </li>
                         {{/each}}
@@ -47,40 +47,46 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Clients : <span class="clients">{{ client.name }}</span> </h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Clients - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> : 
+                <span class="clients">{{ client.name }}</span> </h1>
             <p>{{{ client.description }}}</p>
 
             <div class="constants">
-                {{#if client.initMethod}}
-                    {{#client.initMethod}}
-                        {{> initMethod }}
-                    {{/client.initMethod}}
-                {{/if}}
+                <div class="method-sum">
+                    {{#if client.initMethod}}
+                        {{#client.initMethod}}
+                            {{> initMethod }}
+                        {{/client.initMethod}}
+                    {{/if}}
 
-                {{#if client.remoteMethods }}
-                    <h2>Remote Methods</h2>
-                    <div class="method-list">
-                        {{#each client.remoteMethods}}
-                            {{> methodSignature }}
-                        {{/each}}
-                    </div>
-                {{/if}}
+                    {{#if client.remoteMethods }}
+                        <h2>Remote Methods</h2>
+                        <div class="method-list">
+                            {{#each client.remoteMethods}}
+                                {{> methodSignature }}
+                            {{/each}}
+                        </div>
+                    {{/if}}
 
-                {{#if client.otherMethods}}
-                    <h2>Methods</h2>
-                    <div class="method-list">
-                        {{#each client.otherMethods}}
-                            {{> methodSignature }}
-                        {{/each}}
-                    </div>
-                {{/if}}
+                    {{#if client.otherMethods}}
+                        <h2>Methods</h2>
+                        <div class="method-list">
+                            {{#each client.otherMethods}}
+                                {{> methodSignature }}
+                            {{/each}}
+                        </div>
+                    {{/if}}
                 
-                {{#if client.fields}}
-                    <h2>Fields</h2>
-                        {{#client}}    
-                            {{> fields }}
-                        {{/client}}
-                {{/if}}
+                    {{#if client.fields}}
+                        <h2>Fields</h2>
+                            {{#client}}    
+                                {{> fields }}
+                            {{/client}}
+                    {{/if}}
+                </div>
 
                 {{#if client.remoteMethods }}
                     {{#each client.remoteMethods }}

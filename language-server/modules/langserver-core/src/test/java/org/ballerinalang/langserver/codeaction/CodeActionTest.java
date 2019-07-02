@@ -266,6 +266,8 @@ public class CodeActionTest {
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"},
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
     }
 

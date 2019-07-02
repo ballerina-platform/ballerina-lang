@@ -18,10 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -58,31 +55,15 @@ public class BallerinaValues {
      */
     public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
-        ObjectValue objectValue = valueCreator.createObjectValue(objectTypeName);
-        int valCount = 0;
-        BObjectType objectType = objectValue.getType();
-        for (BField field : objectType.getFields().values()) {
-            Object value;
-            if (fieldValues.length >= valCount + 1) {
-                value = fieldValues[valCount];
-            } else {
-                BType fieldType = field.getFieldType();
-                if (fieldType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                    // This is a hack to avoid self references. This should be fixed properly.
-                    if (objectTypeName.equals(fieldType.getName())) {
-                        continue;
-                    }
-                    value = createObjectValue(fieldType.getPackage().toString(), fieldType.getName());
-                } else if (fieldType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    value = createRecordValue(fieldType.getPackage().toString(), fieldType.getName());
-                } else {
-                    value = fieldType.getEmptyValue();
-                }
-            }
-            objectValue.set(field.name, value);
-            valCount++;
+        Object[] fields = new Object[fieldValues.length * 2];
+
+        // Adding boolean values for each arg
+        for (int i = 0, j = 0; i < fieldValues.length; i++) {
+            fields[j++] = fieldValues[i];
+            fields[j++] = true;
         }
-        return objectValue;
+        //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
+        return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
     }
 
     /**

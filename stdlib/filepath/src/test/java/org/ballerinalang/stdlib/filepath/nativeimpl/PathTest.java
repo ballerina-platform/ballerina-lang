@@ -318,7 +318,7 @@ public class PathTest {
         assertEquals(extension.stringValue(), expected);
     }
 
-    @Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests", enabled = false)
+    @Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests")
     public void testRelativePath(String basePath, String targetPath, String posixOutput, String windowsOutput) {
         if (IS_WINDOWS) {
             validateRelativePath(basePath, targetPath, windowsOutput);

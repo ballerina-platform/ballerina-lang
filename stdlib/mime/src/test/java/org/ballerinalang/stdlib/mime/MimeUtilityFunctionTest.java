@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.mime;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -740,7 +741,7 @@ public class MimeUtilityFunctionTest {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; " +
                     "boundary=e3a0b9ad7b4e7cdt", channel.getInputStream());
             Assert.assertEquals(mimeParts.size(), 4);
-            BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResultOnBVM);
+            ObjectValue bodyPart = Util.createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
