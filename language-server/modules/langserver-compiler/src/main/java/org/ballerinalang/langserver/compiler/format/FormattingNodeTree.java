@@ -3973,6 +3973,8 @@ public class FormattingNodeTree {
                                     + indentation);
 
                             currentWS.addProperty(FormattingConstants.WS, whiteSpace);
+                        } else if (text.equals(Tokens.COMMA)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         } else {
                             // Update service identifier whitespaces and on keyword.
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -4011,11 +4013,13 @@ public class FormattingNodeTree {
                 // Update whitespaces of the annotation attachments.
                 modifyAnnotationAttachments(node, formatConfig, indentation);
 
+                // Handles formatting for attached expressions.
                 if (node.has("attachedExprs")) {
-                    JsonArray boundEndpoints = node.getAsJsonArray("boundEndpoints");
-                    for (JsonElement boundEndpoint : boundEndpoints) {
-                        // TODO: fix formatting for bound endpoint in service.
-                        this.skipFormatting(boundEndpoint.getAsJsonObject(), true);
+                    JsonArray attachedExprs = node.getAsJsonArray("attachedExprs");
+                    for (JsonElement attachedExpr : attachedExprs) {
+                        JsonObject memberFormatConfig = this.getFormattingConfig(0, 1,
+                                0, false, this.getWhiteSpaceCount(indentation), true);
+                        attachedExpr.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG, memberFormatConfig);
                     }
                 }
             }
