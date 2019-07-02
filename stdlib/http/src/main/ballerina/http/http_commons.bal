@@ -246,7 +246,7 @@ function buildResponse(ResponseMessage message) returns Response {
 # + path - Resource path
 # + outRequest - A Request struct
 # + requestAction - `HttpOperation` related to the request
-# + httpClient - HTTP client which uses to call the relavant functions
+# + httpClient - HTTP client which uses to call the relevant functions
 # + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,

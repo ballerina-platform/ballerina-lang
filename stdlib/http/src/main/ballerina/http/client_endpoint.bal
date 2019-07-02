@@ -270,7 +270,7 @@ public type Http2Settings record {|
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
-# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + backOffFactor - Multiplier, which increases the retry interval exponentially.
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {|
@@ -364,7 +364,7 @@ public type OAuth2AuthConfig record {|
     ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
 |};
 
-# The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
+# The `ClientCredentialsGrantConfig` record can be used to configure the OAuth2 client credentials grant type.
 #
 # + tokenUrl - Token URL for the authorization server
 # + clientId - Client ID for the client credentials grant authentication
@@ -383,7 +383,7 @@ public type ClientCredentialsGrantConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
+# The `PasswordGrantConfig` record can be used to configure the OAuth2 password grant type.
 #
 # + tokenUrl - Token URL for the authorization server
 # + username - Username for password grant authentication

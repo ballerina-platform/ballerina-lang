@@ -23,7 +23,7 @@ import ballerina/runtime;
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
-# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + backOffFactor - Multiplier of the retry interval to exponentially increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryInferredConfig record {|
@@ -144,7 +144,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `patch()` function wraps the undeline underlying HTTP remote function in a way to provide
+    # The `patch()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
