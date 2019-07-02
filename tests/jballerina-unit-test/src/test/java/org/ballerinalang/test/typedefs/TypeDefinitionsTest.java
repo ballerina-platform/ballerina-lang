@@ -91,7 +91,7 @@ public class TypeDefinitionsTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexTuple");
         Assert.assertEquals(returns[0].stringValue(), "[1, 2]");
         Assert.assertEquals(returns[1].stringValue(), "[3, 4]");
-        Assert.assertEquals(returns[2].stringValue(), "(2, \"Two\")");
+        Assert.assertEquals(returns[2].stringValue(), "[2, \"Two\"]");
         Assert.assertEquals(returns[3].stringValue(), "{\"k\":\"v\"}");
         Assert.assertEquals(returns[4].stringValue(), "{\"k\":1}");
         Assert.assertEquals(returns[5].stringValue(), "Ballerina");
@@ -114,7 +114,7 @@ public class TypeDefinitionsTest {
     public void testUnionInTuple() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInTuple");
         Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
-        Assert.assertEquals(returns[1].stringValue(), "(10, 20)");
+        Assert.assertEquals(returns[1].stringValue(), "[10, 20]");
     }
 
     @Test

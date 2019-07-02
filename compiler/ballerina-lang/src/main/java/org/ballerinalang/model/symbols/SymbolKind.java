@@ -50,5 +50,7 @@ public enum SymbolKind {
 
     XMLNS,
     SCOPE,
-    OTHER
+    OTHER,
+
+    ERROR_CONSTRUCTOR
 }

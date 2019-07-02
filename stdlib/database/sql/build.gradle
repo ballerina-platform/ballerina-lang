@@ -34,6 +34,9 @@ dependencies {
     implementation 'com.zaxxer:HikariCP'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
 
 description = 'Ballerina - sql'
 

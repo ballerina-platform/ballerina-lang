@@ -404,7 +404,7 @@ function testTypeGuardsWithRecords_2() returns string {
 public type CustomError error<string, record { int status = 500; }>;
 
 function testTypeGuardsWithError() returns string {
-    CustomError err = error("some error", {});
+    CustomError err = error("some error");
     any|error e = err;
     if (e is error) {
         if (e is CustomError) {
@@ -874,7 +874,7 @@ map<anydata> detail = { code: 11, detail: "detail message" };
 
 function testTypeGuardForErrorPositive() returns boolean {
     any|error a1 = <error> error(reason);
-    any|error a2 = <error> error(reason, detail);
+    any|error a2 = <error> error(reason, code = 11, detail = "detail message");
     return errorGuardHelper(a1, a2);
 }
 
@@ -905,8 +905,8 @@ type MyErrorTwo error<ERR_REASON_TWO, Details>;
 
 function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     Details d = { message: "detail message" };
-    MyError e3 = error(ERR_REASON, d);
-    MyErrorTwo e4 = error(ERR_REASON_TWO, d);
+    MyError e3 = error(ERR_REASON, message = d.message);
+    MyErrorTwo e4 = error(ERR_REASON_TWO, message = "detail message");
 
     any|error a1 = e3;
     any|error a2 = e4;
@@ -928,7 +928,7 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
     error e3 = error(ERR_REASON);
-    error e4 = error("error reason x", { message: "detail message" });
+    error e4 = error("error reason x", message = "detail message");
 
     any|error a1 = e3;
     any|error a2 = e4;

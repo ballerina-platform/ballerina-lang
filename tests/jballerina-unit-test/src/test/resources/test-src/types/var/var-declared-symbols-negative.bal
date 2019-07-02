@@ -17,6 +17,6 @@ function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () returns [int, erro
 
 function returnTupleForVarAssignment() returns [int, error] {
     int a = 10;
-    error er = error("", {});
+    error er = error("");
     return [a, er];
 }

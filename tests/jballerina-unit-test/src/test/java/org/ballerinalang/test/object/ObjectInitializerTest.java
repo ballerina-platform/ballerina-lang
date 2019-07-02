@@ -81,8 +81,8 @@ public class ObjectInitializerTest {
         validateError(result, 0, "redeclared symbol 'Foo.__init'", 23, 14);
         validateError(result, 1,
                       "object initializer function can not be declared as private", 27, 4);
-        validateError(result, 2, "incompatible types: expected 'Person', found 'Person|error'", 47, 17);
-        validateError(result, 3, "incompatible types: expected 'Person', found 'Person|error'", 48, 17);
+        validateError(result, 2, "incompatible types: expected 'Person', found '(Person|error)'", 47, 17);
+        validateError(result, 3, "incompatible types: expected 'Person', found '(Person|error)'", 48, 17);
         validateError(result, 4,
                       "invalid object constructor for 'Person2': expected sub-type of 'error?', but found 'string?'",
                       54, 5);
@@ -91,7 +91,7 @@ public class ObjectInitializerTest {
                       63, 5);
         validateError(result, 6,
                       "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
-                              "'error|error'",
+                              "'(error|error)'",
                       85, 5);
     }
 

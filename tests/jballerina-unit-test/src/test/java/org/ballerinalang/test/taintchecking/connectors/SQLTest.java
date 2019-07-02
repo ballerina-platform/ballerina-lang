@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.965.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class SQLTest {
 
     @Test

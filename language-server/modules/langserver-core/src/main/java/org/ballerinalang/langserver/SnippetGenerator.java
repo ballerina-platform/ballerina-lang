@@ -494,9 +494,8 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getWebSubResourceOnNotificationSnippet() {
         return SnippetGenerator.getResourceDefinitionSnippet("onNotification",
-                                                             Arrays.asList("websub:Notification ${#:notification}"),
-                                                             new ImmutablePair<>("ballerina",
-                                                                                 "websub"));
+                Collections.singletonList("websub:Notification ${#:notification}"),
+                new ImmutablePair<>("ballerina", "websub"));
     }
 
     /**
@@ -641,7 +640,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries ${1:0} {" + CommonUtil.LINE_SEPARATOR
+        String snippet = "transaction with retries = ${1:0} {" + CommonUtil.LINE_SEPARATOR
                 + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.statements.comment;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -37,7 +38,8 @@ public class CommentStmtTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/comment/comments.bal");
-        compiledPackage = BCompileUtil.compileAndGetPackage("test-src/statements/comment/comments.bal");
+        compiledPackage = BCompileUtil.compileAndGetPackage("test-src/statements/comment/comments.bal",
+                                                            CompilerPhase.BIR_GEN);
     }
 
     @Test

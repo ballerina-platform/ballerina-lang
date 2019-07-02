@@ -49,11 +49,7 @@ public class BObjectType extends BStructureType {
 
     @Override
     public String getAnnotationKey() {
-        int serviceIndex = this.typeName.lastIndexOf("$$service$");
-        if (serviceIndex < 0) {
-            return this.typeName;
-        }
-        return this.typeName.substring(0, serviceIndex); //TODO Fix - rajith
+        return this.typeName;
     }
 
     @Override

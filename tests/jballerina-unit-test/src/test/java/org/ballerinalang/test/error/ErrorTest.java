@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -40,7 +41,7 @@ import org.testng.annotations.Test;
  */
 public class ErrorTest {
 
-    private CompileResult compileResult;
+    private CompileResult errorTestResult;
     private CompileResult negativeCompileResult;
 
     private static final String ERROR1 = "error1";
@@ -51,13 +52,13 @@ public class ErrorTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/error/error_test.bal");
+        errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
     }
 
     @Test
     public void errorConstructReasonTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructReasonTest");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
 
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
@@ -75,7 +76,7 @@ public class ErrorTest {
 
     @Test
     public void errorConstructDetailTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructDetailTest");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
         String detail1 = "{\"message\":\"msg1\"}";
         String detail2 = "{\"message\":\"msg2\"}";
         String detail3 = "{\"message\":\"msg3\"}";
@@ -97,41 +98,43 @@ public class ErrorTest {
     public void errorPanicTest() {
         // Case without panic
         BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorPanicTest", args);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
         // Now panic
         args = new BValue[] { new BInteger(15) };
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(compileResult, "errorPanicTest", args);
+            BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         } catch (Exception e) {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: largeNumber {\"message\":\"large number\"}\n" +
-                "\tat errorPanicCallee(error_test.bal:36)\n" +
-                "\t   errorPanicTest(error_test.bal:30)";
-        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+        String message = ((BLangRuntimeException) expectedException).getMessage();
+
+        Assert.assertEquals(message,
+                "error: largeNumber {\"message\":\"large number\"}\n\t" +
+                        "at errorPanicCallee(error_test.bal:37)\n\t" +
+                        "   errorPanicTest(error_test.bal:31)");
     }
 
     @Test
     public void errorTrapTest() {
         // Case without panic
         BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "errorTrapTest", args);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
         Assert.assertEquals(returns[0].stringValue(), "done");
 
         // Now panic
         args = new BValue[] { new BInteger(15) };
-        returns = BRunUtil.invoke(compileResult, "errorTrapTest", args);
+        returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
         String result = "largeNumber {\"message\":\"large number\"}";
         Assert.assertEquals(returns[0].stringValue(), result.trim());
     }
 
     @Test
     public void customErrorDetailsTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
@@ -139,33 +142,33 @@ public class ErrorTest {
 
     @Test
     public void testCustomErrorDetails2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails2");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
     @Test
     public void testErrorWithErrorConstructor() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorWithErrorConstructor");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
     @Test
     public void testGetCallStack() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\"," 
-                + " fileName:\"error_test.bal\", lineNumber:73}");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
+                + " fileName:\"error_test.bal\", lineNumber:74}");
     }
 
     @Test
     public void testConsecutiveTraps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConsecutiveTraps");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
         Assert.assertEquals(returns[0].stringValue(), "Error");
         Assert.assertEquals(returns[1].stringValue(), "Error");
     }
 
     @Test
     public void testOneLinePanic() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testOneLinePanic");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOneLinePanic");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray array = (BValueArray) returns[0];
         Assert.assertEquals(array.getString(0), "Error1");
@@ -178,44 +181,37 @@ public class ErrorTest {
 
     @Test
     public void testGenericErrorWithDetailRecord() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGenericErrorWithDetailRecord");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
+        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "error detail message");
     }
 
-    @Test
-    public void testCustomErrorWithMappingOfSelf() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
+//    @Test
+//    public void testCustomErrorWithMappingOfSelf() {
+//        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorWithMappingOfSelf");
+//        Assert.assertTrue(returns[0] instanceof BBoolean);
+//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//    }
 
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testErrorDetailCloneAndFreeze() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorDetailCloneAndFreeze");
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -238,8 +234,8 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 6,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
-        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 42);
-        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 41);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 41);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 40);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")
@@ -256,5 +252,23 @@ public class ErrorTest {
                 { "testErrorConstrWithConstForConstReason" },
                 { "testErrorConstrWithConstLiteralForConstReason" }
         };
+    }
+
+    @Test()
+    public void errorReasonInferenceTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonInference");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
+                "{\"arg1\":\"arg1-1\", \"arg2\":\"arg2-2\"}");
+    }
+
+    @Test()
+    public void errorReasonSubtypeTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonSubType");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[1]).getReason(), "ErrorNo-2");
+        Assert.assertEquals(((BError) returns[2]).getReason(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns[3]).getReason(), "ErrorNo-2");
     }
 }

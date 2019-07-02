@@ -23,9 +23,11 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
@@ -127,6 +129,7 @@ public class Convert extends BlockingNativeCallableUnit {
         } else {
             targetType = convertType;
         }
+
         if (inputValue == null) {
             if (targetType.getTag() == TypeTags.JSON_TAG) {
                 return null;
@@ -137,18 +140,36 @@ public class Convert extends BlockingNativeCallableUnit {
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
                                                                   .CANNOT_CONVERT_NULL, convertType));
         }
-        if (!TypeChecker.checkIsLikeType(inputValue, targetType)) {
-            return BallerinaErrors.createConversionError(inputValue, targetType);
+
+        org.ballerinalang.jvm.types.BType inputValType = TypeChecker.getType(inputValue);
+        if (TypeChecker.checkIsLikeType(inputValue, targetType)) {
+
+            // if input value is a value-type, return as is.
+            if (inputValType.getTag() <= TypeTags.BOOLEAN_TAG) {
+                return inputValue;
+            }
+
+            try {
+                RefValue refValue = (RefValue) inputValue;
+                convertedValue = (RefValue) refValue.copy(new HashMap<>());
+                convertedValue.stamp(targetType, new ArrayList<>());
+                return convertedValue;
+            } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+                throw BallerinaErrors.createError(
+                        org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+            }
         }
-        try {
-            RefValue refValue = (RefValue) inputValue;
-            convertedValue = (RefValue) refValue.copy(new HashMap<>());
-            convertedValue.stamp(targetType, new ArrayList<>());
-            return convertedValue;
-        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            throw  BallerinaErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
-                                 e.getDetail());
+
+        if (inputValType.getTag() == TypeTags.TABLE_TAG) {
+            switch (targetType.getTag()) {
+                case TypeTags.JSON_TAG:
+                    return JSONUtils.toJSON((TableValue) inputValue);
+                case TypeTags.XML_TAG:
+                    // TODO:
+                default:
+                    break;
+            }
         }
+        return BallerinaErrors.createConversionError(inputValue, targetType);
     }
 }
