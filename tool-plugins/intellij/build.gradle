@@ -92,26 +92,5 @@ checkstyle {
     }
 }
 
-//createJavadoc {
-//    source = fileTree("src/main/java")
-//    failOnError false
-//    options.addStringOption('-quiet')
-//    exclude 'src/main/gen/**'
-//}
-//
-//spotbugsMain {
-//    it.effort "min"
-//    it.reportLevel "low"
-//    it.reports {
-//        xml.enabled false
-//        html.enabled true
-//    }
-//    def excludeFile = file('spotbugs-exclude.xml')
-//    if (excludeFile.exists()) {
-//        it.excludeFilter = excludeFile
-//    }
-//    ignoreFailures = true
-//}
-
 runIde.dependsOn check
 buildPlugin.dependsOn check
