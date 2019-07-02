@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.observe;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class CounterTest extends MetricTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
-        compileResult = BCompileUtil.compileAndSetup(testResourceRoot.resolve("counter_test.bal").toString());
+        compileResult = BCompileUtil.compile(testResourceRoot.resolve("counter_test.bal").toString());
     }
 
     @Test

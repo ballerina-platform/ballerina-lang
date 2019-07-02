@@ -2,7 +2,7 @@ import ballerina/http;
 
 xmlns "http://ballerina.com/aa" as ns0;
 
-annotation<service, resource> customAnnotation;
+annotation customAnnotation on service, resource function;
 
 http:Listener ep = new(9090);
 

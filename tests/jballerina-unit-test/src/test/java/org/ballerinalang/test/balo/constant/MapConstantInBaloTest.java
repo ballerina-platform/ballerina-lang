@@ -260,11 +260,10 @@ public class MapConstantInBaloTest {
 
     // Annotation tests
 
-    @Test(groups = { "brokenOnJBallerina" })
+    @Test
     public void testConstInAnnotations() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"testorg/foo\", " +
-                "moduleVersion:\"v1\", value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}");
     }
 }

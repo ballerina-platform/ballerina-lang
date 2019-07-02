@@ -18,14 +18,20 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -34,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -41,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -56,11 +64,15 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
 /**
@@ -91,18 +103,25 @@ public class HttpFiltersDesugar {
     private static final String HTTP_FILTER_VAR = "filter";
     private static final String HTTP_FILTERCONTEXT_VAR = "filterContext";
     private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
+    private static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
+    private static final String ANN_RESOURCE_ATTR_PATH = "path";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE = "webSocketUpgrade";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE_PATH = "upgradePath";
+    private static final String ANN_RESOURCE_PARAM_ORDER_CONFIG = "ParamOrderConfig";
+    private static final String ANN_RECORD_PARAM_ORDER_CONFIG = "HttpParamOrderConfig";
+    private static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
     private static final String CALLER_TYPE_NAME = "Caller";
-    private static final String ORG_SEPARATOR = "/";
 
+    private static final String ORG_SEPARATOR = "/";
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
     private static final int FILTER_CONTEXT_FIELD_INDEX = 1;
     private static final int ENDPOINT_CONFIG_INDEX = 0;
+
     private static final int FILTERS_CONFIG_INDEX = 5;
-    
     private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
@@ -129,15 +148,18 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment
      */
     void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
-        BLangSimpleVariable endpoint;
-        if (resourceNode.requiredParams.size() >= 2) {
-            endpoint = resourceNode.requiredParams.get(0);
-            if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
-                    endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
-                    endpoint.type.tsymbol.name.value)) {
-                addFilterStatements(resourceNode, env);
-            }
+        if (isHttpResource(resourceNode)) {
+            addFilterStatements(resourceNode, env);
         }
+    }
+
+    private boolean isHttpResource(BLangFunction resourceNode) {
+        if (resourceNode.requiredParams.size() < 2) {
+            return false;
+        }
+        BTypeSymbol tsymbol = resourceNode.requiredParams.get(0).type.tsymbol;
+        return ORG_NAME.equals(tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(tsymbol.pkgID.name.value) &&
+                CALLER_TYPE_NAME.equals(tsymbol.name.value);
     }
 
     private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
@@ -369,5 +391,182 @@ public class HttpFiltersDesugar {
         return ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.stream().filter(func -> {
             return FILTER_REQUEST_FUNCTION.equals(func.funcName.value);
         }).findFirst().get().symbol;
+    }
+
+    /**
+     * Check if the resource is an http resource and inject ParamOrderConfig annotation.
+     *
+     * @param resourceNode The resource to inject annotation
+     * @param env          the symbol environment
+     */
+    void addCustomAnnotationToResource(BLangFunction resourceNode, SymbolEnv env) {
+        if (isHttpResource(resourceNode)) {
+            addOrderParamConfig(resourceNode, env);
+        }
+    }
+
+    private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = null;
+        for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
+            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue()) &&
+                    annotationAttachment.getExpression() != null) {
+                annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                break;
+            }
+        }
+        if (annotationValues == null) {
+            return;
+        }
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+            switch (getAnnotationFieldKey(keyValue)) {
+                case ANN_RESOURCE_ATTR_WS_UPGRADE:
+                    for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
+                            ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
+                        if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                            break;
+                        }
+                    }
+                    break;
+                case ANN_RESOURCE_ATTR_PATH:
+                    addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                    break;
+            }
+        }
+    }
+
+    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
+    }
+
+    private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
+        return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
+    }
+
+    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
+        if (!checkForPathParam(resourceNode.getParameters(), value)) {
+            return;
+        }
+        DiagnosticPos pos = resourceNode.pos;
+        BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        resourceNode.addAnnotationAttachment(annoAttachment);
+        BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
+
+        if (annSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+        if (annSymbol instanceof BAnnotationSymbol) {
+            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        }
+        annoAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
+        annoAttachment.pos = pos;
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annoAttachment.expr = literalNode;
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(PACKAGE_NAME);
+        annoAttachment.pkgAlias = pkgAlias;
+        annoAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
+        literalNode.pos = pos;
+        BStructureTypeSymbol bStructSymbol;
+        BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
+        if (annTypeSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+        if (annTypeSymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
+            literalNode.type = bStructSymbol.type;
+        }
+
+        // Create pathParamOrder record literal
+        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+                TreeBuilder.createRecordKeyValue();
+        literalNode.keyValuePairs.add(pathParamOrderKeyValue);
+
+        BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        keyLiteral.value = ANN_FIELD_PATH_PARAM_ORDER;
+        keyLiteral.type = symTable.stringType;
+
+        BLangRecordLiteral paramOrderLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        paramOrderLiteralNode.type = new BMapType(TypeTags.MAP, symTable.intType, symTable.mapType.tsymbol);
+
+        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
+
+        getParamMapper(resourceNode.getParameters(), value.toString()).forEach((paramName, paramIndex) -> {
+            // Create a new literal for the key.
+            BLangLiteral paramKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            paramKeyLiteral.value = paramName;
+            paramKeyLiteral.type = symTable.stringType;
+
+            // Create a new literal for the value.
+            BLangLiteral paramValueLiteral = new BLangLiteral();
+            paramValueLiteral.value = Long.valueOf(paramIndex);
+            paramValueLiteral.type = symTable.intType;
+
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
+            pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
+            pathParamOrderEntry.valueExpr = paramValueLiteral;
+            paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
+        });
+    }
+
+    private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
+        HashMap<String, Integer> mapper = new HashMap<>();
+        int startIndex = 0;
+        int pointerIndex = 0;
+        while (pointerIndex < path.length()) {
+            char ch = path.charAt(pointerIndex);
+            switch (ch) {
+                case '{':
+                    startIndex = pointerIndex + 1;
+                    break;
+                case '}':
+                    String token = path.substring(startIndex, pointerIndex);
+                    IntStream.range(2, parameters.size()).filter(i -> parameters.get(i).getName().getValue()
+                            .equals(token)).findFirst().ifPresent(i -> mapper.put(token, i));
+                    break;
+            }
+            pointerIndex++;
+        }
+        return mapper;
+    }
+
+    /**
+     * Return the symbol associated with the given name in the give package regardless of its package visibility.
+     *
+     * @param symResolver symbol resolver
+     * @param pos         symbol position
+     * @param env         current symbol environment
+     * @param pkgAlias    package alias
+     * @param name        symbol name
+     * @param expSymTag   expected symbol type/tag
+     * @return resolved symbol
+     */
+    private BSymbol lookupSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
+                                          Name pkgAlias, Name name, int expSymTag) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return symResolver.lookupSymbol(env, name, expSymTag);
+        }
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope without considering the access modifier.
+        Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+        return symTable.notFoundSymbol;
     }
 }

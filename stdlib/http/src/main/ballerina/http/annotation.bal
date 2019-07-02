@@ -91,10 +91,10 @@ public type WSServiceConfig record {|
 //public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 # The annotation which is used to configure an HTTP service.
-public annotation <service> ServiceConfig HttpServiceConfig;
+public annotation HttpServiceConfig ServiceConfig on service;
 
 # The annotation which is used to configure a WebSocket service.
-public annotation <service> WebSocketServiceConfig WSServiceConfig;
+public annotation WSServiceConfig WebSocketServiceConfig on service;
 
 ////////////////////////////
 /// Resource Annotations ///
@@ -148,4 +148,14 @@ public type ServiceResourceAuth record {|
 |};
 
 # The annotation which is used to configure an HTTP resource.
-public annotation <resource> ResourceConfig HttpResourceConfig;
+public annotation HttpResourceConfig ResourceConfig on resource function;
+
+# Path param order config keep the signature path param index against the variable names for runtime path param processing.
+#
+# + pathParamOrder - Specifies index of signature path param against the param variable name
+type HttpParamOrderConfig record {|
+    map<int> pathParamOrder = {};
+|};
+
+# The annotation which is used to configure an path param order.
+annotation HttpParamOrderConfig ParamOrderConfig on resource function;

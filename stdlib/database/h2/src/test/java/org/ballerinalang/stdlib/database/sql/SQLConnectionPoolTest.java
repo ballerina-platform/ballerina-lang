@@ -145,7 +145,7 @@ public class SQLConnectionPoolTest {
     public void testShutDownUnsharedLocalConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -153,28 +153,28 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(),
-                "(1, 1, 1, \"Client has been stopped\", \"Client has been stopped\")");
+                "[1, 1, 1, \"Client has been stopped\", \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownPoolCorrespondingToASharedPoolConfig() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, 1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, 1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, \"Client has been stopped\", 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, \"Client has been stopped\", 1]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testStopClientUsingGlobalPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -188,6 +188,6 @@ public class SQLConnectionPoolTest {
     public void testLocalConnectionPoolShutDown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1]");
     }
 }
