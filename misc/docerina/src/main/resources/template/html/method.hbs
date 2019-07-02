@@ -1,7 +1,15 @@
 <div class="method-content">
-    <div class="main-method-title">
-        <h2 id="{{name}}">{{name}}</h2>
-        <p class="method-types">({{{ paramSummary parameters }}})</p>
+    <div class="main-method-title here" id="{{name}}">
+             <a class="url-link" href="#{{name}}">
+                <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+            </a>
+            <h2> {{name}} </h2>
+        {{#if returnParameters }}
+        <span class="method-types">
+            <p>({{{ paramSummary parameters }}})</p>
+            <b> returns </b>{{{returnParamSummary returnParameters}}}
+        </span>
+        {{/if}}
     </div>
     <p>{{{ description }}}</p>
      {{#if parameters}}
@@ -20,14 +28,14 @@
         </div>
     {{/if}}
 
-        {{#if returnParameters}}
-            {{#each returnParameters}}
-            <div class="returns-listing">
-                <ul>
-                    <li> <h3 class="type">Return Type</h3> (<span class="type">{{{ typeName type }}}</span>)</li>
-                    <li>{{{ description }}}</li>
-                </ul>
-            </div>
-            {{/each}}
-        {{/if}}
+    {{#if returnParameters}}
+        {{#each returnParameters}}
+        <div class="returns-listing">
+            <ul>
+                <li> <h3 class="type">Return Type</h3> (<span class="type">{{{ typeName type }}}</span>)</li>
+                <li>{{{ description }}}</li>
+            </ul>
+        </div>
+        {{/each}}
+    {{/if}}
 </div>

@@ -203,7 +203,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.size(), 3);
 
         Assert.assertEquals(parameters.get(0).getSymbol().getType().tag, TypeTags.UNION);
-        Assert.assertEquals(parameters.get(0).getSymbol().getType().toString(), "string|int|float");
+        Assert.assertEquals(parameters.get(0).getSymbol().getType().toString(), "(string|int|float)");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "value of param1");
 
         Assert.assertEquals(parameters.get(1).getSymbol().getType().tag, TypeTags.INT);
@@ -222,7 +222,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(returnParameter);
 
         Assert.assertEquals(returnParameter.getReturnType().tag, TypeTags.UNION);
-        Assert.assertEquals(returnParameter.getReturnType().toString(), "string|error");
+        Assert.assertEquals(returnParameter.getReturnType().toString(), "(string|error)");
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "`string` value of the X will be " +
                 "returned if found, else an `error` will be returned");
     }

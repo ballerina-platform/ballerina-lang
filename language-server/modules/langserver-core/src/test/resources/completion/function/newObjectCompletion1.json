@@ -541,29 +541,6 @@
       ]
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
@@ -794,6 +771,29 @@
       ]
     },
     {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/mysql",
       "kind": "Module",
       "detail": "Package",
@@ -836,6 +836,29 @@
             }
           },
           "newText": "import ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/cache.balx;\n"
         }
       ]
     },
@@ -905,29 +928,6 @@
             }
           },
           "newText": "import ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/socket;\n"
         }
       ]
     },

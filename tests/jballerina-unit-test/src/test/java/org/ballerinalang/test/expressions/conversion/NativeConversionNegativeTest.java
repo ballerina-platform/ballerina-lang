@@ -94,8 +94,8 @@ public class NativeConversionNegativeTest {
     public void testTupleConversionFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'(T1,T1)' value cannot be converted to '(T1," 
-                + "T2)'");
+        Assert.assertEquals(errorMsg, "'[T1,T1]' value cannot be converted to '[T1,"
+                + "T2]'");
     }
 
     @Test(description = "Test converting an unsupported array to json")

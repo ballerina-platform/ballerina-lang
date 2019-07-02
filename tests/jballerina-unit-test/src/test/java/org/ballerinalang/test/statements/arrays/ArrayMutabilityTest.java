@@ -183,6 +183,6 @@ public class ArrayMutabilityTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'Animal[]', found 'Cat[]'", 80, 28);
         BAssertUtil.validateError(resultNegative, i,
-                "incompatible types: expected 'int[]|boolean[]', found 'int|boolean?[]'", 90, 10);
+                "incompatible types: expected '(int[]|boolean[])', found '(int|boolean)?[]'", 90, 10);
     }
 }

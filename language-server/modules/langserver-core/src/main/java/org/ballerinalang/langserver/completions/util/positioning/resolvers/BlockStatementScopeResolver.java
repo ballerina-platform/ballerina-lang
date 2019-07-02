@@ -65,10 +65,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         boolean isLastStatement = this.isNodeLastStatement(bLangBlockStmt, blockOwner, node);
         boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
-                nodeELine, nodeECol, line, col, node);
-
-        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild
-                || withinInvocationArguments(node, line, col, completionContext)) {
+                nodeELine, nodeECol, line, col);
+        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
@@ -80,8 +78,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         return false;
     }
 
-    private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
-                                                    int nodeELine, int nodeECol, int line, int col, Node node) {
+    private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild, int nodeELine,
+                                                    int nodeECol, int line, int col) {
         if (!lastChild) {
             return false;
         } else {
@@ -89,10 +87,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
             int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
             int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
-            boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
-                    (line > nodeELine || (line == nodeELine && col > nodeECol));
 
-            return isWithinScope;
+            return (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
+                    (line > nodeELine || (line == nodeELine && col > nodeECol));
         }
     }
 

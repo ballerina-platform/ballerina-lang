@@ -36,7 +36,7 @@ public class StructEquivalencyNegativeTest {
         BAssertUtil.validateError(compileResult, 1,
                                   "incompatible types: 'employee02' cannot be converted to 'person02'", 36, 18);
         BAssertUtil.validateError(compileResult, 2,
-                                  "incompatible types: expected 'person03', found 'person03|error'", 54, 18);
+                                  "incompatible types: expected 'person03', found '(person03|error)'", 54, 18);
         BAssertUtil.validateError(compileResult, 3,
                                   "incompatible types: 'employee06' cannot be converted to 'person06'", 76, 18);
     }

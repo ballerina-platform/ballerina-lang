@@ -853,4 +853,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
         throw new AssertionError();
     }
+
+    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        throw new AssertionError();
+    }
 }
