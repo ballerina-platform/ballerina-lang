@@ -218,7 +218,7 @@ function testRecordInsideTupleInsideRecordWithVar() returns [string[], string, m
 function testRecordInsideTupleInsideRecord2WithVar() returns [string, int, int, string] {
     [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
     [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
-    [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
+    [int, Age] yearAndAge3 = [1998, {age: 20, format: "A"}];
     Child ch1 = {name: "A", yearAndAge: yearAndAge1};
     Child ch2 = {name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "D", yearAndAge: yearAndAge3};

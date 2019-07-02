@@ -96,7 +96,7 @@ function testRecordInsideTuple() returns [string, int, boolean] {
 }
 
 function testTupleVarDef1() returns [string, int, boolean] {
-    var [a, [b, c]] = ["Ballerina", [123, true]];
+    [string, [int, boolean]] [a, [b, c]] = ["Ballerina", [123, true]];
 
     return [a, b, c];
 }
@@ -106,7 +106,7 @@ function testTupleVarDef2() returns [string, int, int, boolean, string, float, b
     Bar bar = {id:34, flag:true};
     FooObj fooObj = new ("Fooo", 3.7, 23);
     BarObj barObj = new (true, 56);
-    var [[f, [bo, fo]], b] = [[foo, [barObj, fooObj]], bar];
+    [[Foo, [BarObj, FooObj]], Bar] [[f, [bo, fo]], b] = [[foo, [barObj, fooObj]], bar];
     return [f.name, f.age, b.id, b.flag, fo.s, fo.f, fo.b, bo.b, bo.i];
 }
 
@@ -129,38 +129,38 @@ function testTupleVarDefWithArray3() returns [string[][], int[][], float[]] {
 }
 
 function testTupleVarDefWithArray4() returns [string[][], int[][], float[]] {
-    var [a, [b, c]] = [[["A", "B"], ["C", "D"]], [[[123, 345], [12, 34, 56]], [2.3, 4.5]]];
+    [string[][], [int[][], float[]]] [a, [b, c]] = [[["A", "B"], ["C", "D"]], [[[123, 345], [12, 34, 56]], [2.3, 4.5]]];
 
     return [a, b, c];
 }
 
 function testRecursiveExpressionWithVar1() returns [string, int, boolean, int, float, int] {
-    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
-    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = a;
+//    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = [["Bal", [3, [true, 34]]], [5.6, 45]];
     return [s, i1, b, y, f, i2];
 }
 
 function testRecursiveExpressionWithVar2() returns [string, int, boolean, int, float, int] {
-    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
-    [[string, [int, [boolean, int]]], [float, int]] t = a;
-    var [[s, [i1, [b, y]]], [f, i2]] = t;
+//    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
+    [[string, [int, [boolean, int]]], [float, int]] t = [["Bal", [3, [true, 34]]], [5.6, 45]];
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = t;
     return [s, i1, b, y, f, i2];
 }
 
 function fn1([[string, [int, [boolean, int]]], [float, int]] t) returns [string, int, boolean, int, float, int] {
-    var [[s, [i1, [b, y]]], [f, i2]] = t;
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = t;
     return [s, i1, b, y, f, i2];
 }
 
 function testRecursiveExpressionWithVar3() returns [string, int, boolean, int, float, int] {
-    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
-    return fn1(a);
+//    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
+    return fn1([["Bal", [3, [true, 34]]], [5.6, 45]]);
 }
 
 function testRecursiveExpressionWithVar4() returns [string, int, boolean, int, float, int] {
-    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
-    var b = a;
-    return fn1(b);
+//    var a = [["Bal", [3, [true, 34]]], [5.6, 45]];
+//    var b = a;
+    return fn1([["Bal", [3, [true, 34]]], [5.6, 45]]);
 }
 
 function testVarDefWithUnionType1() returns [string|int|float, string|float, string] {

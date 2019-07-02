@@ -88,7 +88,7 @@ type BarObj object {
 function testInvalidTupleVarDef1() {
     [[string, [int, [boolean, int]]], [float, int]] t = [["Bal", [3, [true, 34]]], [5.6, 45]];
     any a = t;
-    var [[s, [i1, [b, y]]], [f, i2]] = a;
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = a;
 }
 
 function testInvalidTupleVarDef2() returns [string, int, boolean, int, float, int] {
