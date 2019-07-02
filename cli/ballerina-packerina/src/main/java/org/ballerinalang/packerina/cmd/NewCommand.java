@@ -120,9 +120,6 @@ public class NewCommand implements BLauncherCmd {
         errStream.println("    Use `ballerina create` to create a ballerina module inside the project.");
     }
 
-
-
-
     @Override
     public String getName() {
         return NEW_COMMAND;

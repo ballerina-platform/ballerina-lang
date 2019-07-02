@@ -31,18 +31,16 @@ import java.util.Locale;
 /**
  * Packerina command util.
  *
- * @since 0.992.0
+ * @since 1.0.0
  */
 public class CommandUtil {
-
-    private static final Path homePath = RepoUtils.createAndGetHomeReposPath();
 
     /**
      * Guess organization name based on user name in system.
      *
      * @return organization name
      */
-    public static String guessOrgName() {
+    private static String guessOrgName() {
         String guessOrgName = System.getProperty("user.name");
         if (guessOrgName == null) {
             guessOrgName = "my_org";
@@ -140,7 +138,6 @@ public class CommandUtil {
 
             Files.write(manifest, defaultManifest.getBytes("UTF-8"));
             Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
-
 
     }
 
