@@ -32,8 +32,6 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
-
-    runtime project(':ballerina-backend-jvm')
 }
 
 configurations {
@@ -83,6 +81,9 @@ shadowJar {
         exclude(dependency('com.beust:jcommander'))
         exclude(dependency('io.netty:netty-codec-http'))
         exclude(dependency('io.netty:netty-transport-native-unix-common'))
+        exclude(project(':ballerina-core'))
+        exclude(project(':ballerina-lang'))
+        exclude(project(':ballerina-runtime'))
         exclude('META-INF/*.SF')
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')

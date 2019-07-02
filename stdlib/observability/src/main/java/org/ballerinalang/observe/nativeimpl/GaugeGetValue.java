@@ -19,13 +19,15 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Gauge;
 
 /**
  * This is the native getValue function implementation of the Gauge object.
@@ -49,5 +51,10 @@ public class GaugeGetValue extends BlockingNativeCallableUnit {
         BMap bStruct = (BMap) context.getRefArgument(0);
         Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         context.setReturnValues(new BFloat(gauge.getValue()));
+    }
+
+    public static double getValue(Strand strand, ObjectValue guage) {
+        Gauge counter = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
+        return counter.getValue();
     }
 }

@@ -22,13 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -39,26 +33,13 @@ import java.nio.charset.StandardCharsets;
  * @since 0.980
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding", functionName = "byteArrayToString",
-        args = {
-                @Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "encoding", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "byteArrayToString", isPublic = true
 )
 public class ByteArrayToString extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        byte[] bytes = ((BValueArray) context.getRefArgument(0)).getBytes();
-        String encoding = context.getStringArgument(0);
-        try {
-            String value = new String(bytes, encoding);
-            context.setReturnValues(new BString(value));
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("unsupported encoding: " + encoding , e);
-        }
     }
 
     public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {

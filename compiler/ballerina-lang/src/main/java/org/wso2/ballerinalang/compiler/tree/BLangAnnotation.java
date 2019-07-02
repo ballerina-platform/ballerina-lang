@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,21 +43,21 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public BSymbol symbol;
-    public Set<AttachPoint> attachPoints;
     public BLangType typeNode;
+    private Set<AttachPoint> attachPoints;
 
     public BLangAnnotation() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
-        this.attachPoints = EnumSet.noneOf(AttachPoint.class);
+        this.attachPoints = new HashSet<>();
     }
 
     public void addAttachPoint(AttachPoint attachmentPoint) {
         attachPoints.add(attachmentPoint);
     }
 
-    public List<AttachPoint> getAttachPoints() {
-        return new ArrayList<>(attachPoints);
+    public Set<AttachPoint> getAttachPoints() {
+        return attachPoints;
     }
 
     @Override
@@ -108,7 +109,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
     }
-    
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

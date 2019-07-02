@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.eclipse.lsp4j.Position;
@@ -77,7 +76,7 @@ public class SourcePruneTest {
 
         this.documentManager.openFile(compilationPath, documentContent);
         try {
-            CompletionUtil.getPrunedSource(lsContext);
+            SourcePruner.pruneSource(lsContext);
             String prunedSource = documentManager.getFileContent(compilationPath);
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath));
@@ -150,6 +149,8 @@ public class SourcePruneTest {
                 // Annotation Definition
                 {"src_prune_config25.json"},
                 {"src_prune_config26.json"},
+                {"src_prune_config78.json"},
+                {"src_prune_config79.json"},
                 // Global variable Definition
                 {"src_prune_config27.json"},
                 {"src_prune_config28.json"},
@@ -217,6 +218,8 @@ public class SourcePruneTest {
                 {"src_prune_config74.json"},
                 {"src_prune_config75.json"},
                 {"src_prune_config76.json"},
+                // Iterable Operators
+                {"src_prune_config77.json"},
         };
     }
 }

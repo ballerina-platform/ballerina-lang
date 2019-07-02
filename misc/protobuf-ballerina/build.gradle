@@ -18,7 +18,6 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     implementation 'org.apache.maven:maven-plugin-api'
     implementation 'org.slf4j:slf4j-simple'
     implementation project(':ballerina-launcher')
@@ -28,7 +27,7 @@ dependencies {
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-core')
     implementation project(':ballerina-builtin')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
 }

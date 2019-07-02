@@ -112,7 +112,6 @@ public class SimpleStringExpression<DataType, InboundMsgType> extends Expression
             }
             if (var.checkModifier(finalValue)) {
                 variables.getMap().put(name, finalValue);
-                variables.getList().add(finalValue);
             } else {
                 return false;
             }

@@ -39,13 +39,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class LogWarn extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        logMessage(ctx, BLogLevel.WARN, (pkg, message) -> {
-            getLogger(pkg).warn(message);
-        });
     }
 
-    public static void printDebug(Strand strand, Object msg) {
-        logMessage(msg, BLogLevel.WARN, (pkg, message) -> {
+    public static void printWarn(Strand strand, Object msg) {
+        String packagePath = getPackagePath();
+        logMessage(strand, msg, BLogLevel.WARN, packagePath, (pkg, message) -> {
             getLogger(pkg).warn(message);
         });
     }

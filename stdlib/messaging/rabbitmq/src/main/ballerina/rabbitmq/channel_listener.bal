@@ -92,4 +92,4 @@ public type RabbitMQServiceConfig record {|
 |};
 
 # Service descriptor data generated at compile time.
-public annotation<service> ServiceConfig RabbitMQServiceConfig;
+public annotation RabbitMQServiceConfig ServiceConfig on service;

@@ -30,7 +30,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
@@ -1007,38 +1009,17 @@ public class HttpUtil {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
-    //TODO remove if unnecessary
-//
-//    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-//        List<Annotation> annotationList = service
-//                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-//
-//        if (annotationList == null) {
-//            return null;
-//        }
-//
-//        if (annotationList.size() > 1) {
-//            throw new BallerinaException(
-//                    "multiple service configuration annotations found in service: " + service.getName());
-//        }
-//
-//        return annotationList.isEmpty() ? null : annotationList.get(0);
-//    }
-//
-//    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
-//        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
-//
-//        if (annotationList == null) {
-//            return null;
-//        }
-//
-//        if (annotationList.size() > 1) {
-//            throw new BallerinaException(
-//                    "multiple service configuration annotations found in service: " + service.getName());
-//        }
-//
-//        return annotationList.isEmpty() ? null : annotationList.get(0);
-//    }
+
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
+    }
+
+    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
+        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
+    }
 
 //    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
 //        if (annotation == null) {
@@ -1057,34 +1038,12 @@ public class HttpUtil {
 //    }
 
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        ArrayValue annotations = resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
-
-        if (annotations == null) {
-            return null;
-        }
-
-        if (annotations.size() > 1) {
-            throw new BallerinaException(
-                    "multiple resource configuration annotations found in resource: " +
-                            resource.parent.getName() + "." + resource.getName());
-        }
-
-        return annotations.isEmpty() ? null : (MapValue) annotations.get(0);
+        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
     }
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
-        ArrayValue annotation = resource.getAnnotation(transactionPackagePath,
-                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
-
-        if (annotation == null || annotation.isEmpty()) {
-            return null;
-        }
-        if (annotation.size() > 1) {
-            throw new BallerinaException(
-                    "multiple transaction configuration annotations found in resource: " +
-                            resource.parent.getName() + "." + resource.getName());
-        }
-        return (MapValue) annotation.get(0);
+        return (MapValue) resource.getAnnotation(transactionPackagePath,
+                                                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }
 
     private static int getIntValue(long val) {

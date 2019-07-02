@@ -14,7 +14,7 @@
                 <h3>Functions</h3>
                 <ul>
                     {{#each module.functions}}
-                        <li>
+                        <li {{#equals functions.name name}}class="active"{{/equals}}>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
                     {{/each}}
@@ -34,7 +34,7 @@
                     <h3>Functions</h3>
                     <ul>
                         {{#each module.functions}}
-                            <li>
+                            <li {{#equals functions.name name}}class="active"{{/equals}}>
                                 <a href="#{{name}}">{{name}}</a>
                             </li>
                         {{/each}}
@@ -50,15 +50,19 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Functions</h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Functions - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+            </h1>
             <div class="constants">
                 <table class="ui table details-table">
                     {{#each functions}}
                         <tbody>
-                        <tr>
-                            <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
-                            <td width="70%">{{{ description }}}</td>
-                        </tr>
+                            <tr>
+                                <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
+                                <td width="70%">{{{ description }}}</td>
+                            </tr>
                         </tbody>
                     {{/each}}
                 </table>

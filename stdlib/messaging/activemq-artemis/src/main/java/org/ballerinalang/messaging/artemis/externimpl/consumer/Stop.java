@@ -23,11 +23,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -53,9 +53,10 @@ public class Stop extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object stop(Strand strand, ObjectValue listenerObj) {
         try {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> listenerObj = (BMap<String, BValue>) context.getRefArgument(0);
             ClientConsumer consumer = (ClientConsumer) listenerObj.getNativeData(ArtemisConstants.ARTEMIS_CONSUMER);
             consumer.close();
             ArtemisUtils.closeIfAnonymousSession(listenerObj);
@@ -65,7 +66,9 @@ public class Stop extends BlockingNativeCallableUnit {
                 countDownLatch.countDown();
             }
         } catch (ActiveMQException e) {
-            context.setReturnValues(ArtemisUtils.getError(context, "Error when closing the consumer"));
+            return ArtemisUtils.getError(e);
         }
+        return null;
     }
+
 }

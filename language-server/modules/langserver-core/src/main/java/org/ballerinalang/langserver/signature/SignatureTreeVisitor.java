@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -84,7 +85,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        final SymbolEnv pkgEnv;
+        if (pkgNode.symbol == null) {
+            Optional<SymbolEnv> first = symTable.pkgEnvMap.entrySet().stream().filter(
+                    s -> s.getKey().pkgID.equals(pkgNode.packageID)).map(Map.Entry::getValue).findFirst();
+            pkgEnv = first.orElse(null);
+        } else {
+            pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        }
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(pkgNode, lsContext);
 
         topLevelNodes.stream()

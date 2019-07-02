@@ -21,49 +21,34 @@ package org.ballerinalang.messaging.artemis;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
-
-import java.util.Objects;
-import java.util.UUID;
 
 import javax.transaction.xa.XAResource;
+
+//Todo: fix this class when transaction supported
 
 /**
  * Session wrapper class with Ballerina transaction logic.
  */
 public class ArtemisTransactionContext implements BallerinaTransactionContext {
-    private final String connectorId;
+//    private final String connectorId;
     private ClientSession session;
-    private BMap<String, BValue> sessionObj;
+    private ObjectValue sessionObj;
 
-    public ArtemisTransactionContext(BMap<String, BValue> sessionObj) {
+    public ArtemisTransactionContext(ObjectValue sessionObj) {
         this.sessionObj = sessionObj;
         session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
-        connectorId = UUID.randomUUID().toString();
+//        connectorId = UUID.randomUUID().toString();
     }
 
     @Override
     public void commit() {
-        try {
-            session.commit();
-        } catch (ActiveMQException e) {
-            throw new BallerinaException("Transaction commit failed: " + e.getMessage(), e);
-        }
+
     }
 
     @Override
     public void rollback() {
-        try {
-            session.rollback();
-        } catch (ActiveMQException e) {
-            throw new BallerinaException("Transaction rollback failed: " + e.getMessage(), e);
-        }
     }
 
     @Override
@@ -77,30 +62,30 @@ public class ArtemisTransactionContext implements BallerinaTransactionContext {
         return null;
     }
 
-    public void handleTransactionBlock(Context context, String objectType) {
-        if (!context.isInTransaction()) {
+    public void handleTransactionBlock(String objectType) {
+//        if (!context.isInTransaction()) {
             if (ArtemisUtils.isAnonymousSession(sessionObj)) {
                 try {
                     session.commit();
                     return;
                 } catch (ActiveMQException e) {
-                    throw new ArtemisConnectorException("Session commit failed: " + e.getMessage(), e, context);
+                    throw new ArtemisConnectorException("Session commit failed: " + e.getMessage(), e);
                 }
-            } else {
+          /*  } else {
                 throw new ArtemisConnectorException("The Session used by the Artemis " + objectType +
                         " object is transacted. Hence " + objectType +
-                        " transacted actions cannot be used outside a transaction" +
-                        " block", context);
-            }
+                        " transacted actions cannot be used outside a transaction block");
+            }*/
         }
-        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        //Todo: fix after transaction becomes available
+        /*TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
         BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (Objects.isNull(txContext)) {
             transactionLocalContext.registerTransactionContext(connectorId, this);
             String globalTxId = transactionLocalContext.getGlobalTransactionId();
             String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
             TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
-        }
+        }*/
     }
 
 }

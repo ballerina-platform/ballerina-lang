@@ -19,8 +19,6 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BServiceUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
@@ -33,13 +31,10 @@ import java.io.File;
  */
 public class UriTemplateDispatcherNegativeTest {
 
-    private CompileResult compileResult;
-
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Two resources have the same addressable URI, echo2 and echo1.*")
+          expectedExceptionsMessageRegExp = ".*Two resources have the same addressable URI, echo1 and echo2.*")
     public void testTwoResourcesWithSamePathWithPathParam() {
-        compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+        BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/dispatching/uri-template-matching-negative-1.bal").getPath()).getAbsolutePath());
-        BServiceUtil.runService(compileResult);
     }
 }

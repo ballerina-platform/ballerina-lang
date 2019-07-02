@@ -36,7 +36,7 @@ public type GrpcServiceConfig record {|
 |};
 
 # Service configuration. Sets only for client and bidirectional streaming service.
-public annotation<service> ServiceConfig GrpcServiceConfig;
+public annotation GrpcServiceConfig ServiceConfig on service;
 
 # Service resource configuration. Sets only for server streaming service.
 #
@@ -53,7 +53,7 @@ public type GrpcResourceConfig record {|
 |};
 
 # Service resource configuration. Sets only for server streaming service.
-public annotation<resource> ResourceConfig GrpcResourceConfig;
+public annotation GrpcResourceConfig ResourceConfig on resource function;
 
 # Service descriptor data. This is for internal use.
 #
@@ -65,4 +65,4 @@ public type ServiceDescriptorData record {|
 |};
 
 # Service descriptor data generated at compile time. This is for internal use.
-public annotation <service> ServiceDescriptor ServiceDescriptorData;
+public annotation ServiceDescriptorData ServiceDescriptor on service;

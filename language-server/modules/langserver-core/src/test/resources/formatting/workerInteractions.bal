@@ -12,11 +12,34 @@ public function main() {
         };
           j = <- w2;
 
-            () send = i ->> w2;k->w3 ;
+            () send1 =i    ->>w2   ;k->w3 ;
       k -> w3;
                k -> w3;
 
-            error? flushResult = flush w3;
+               () send2 =
+                                  i
+    ->>
+                                      w2
+            ;
+
+            () send3 =
+                                     i
+       ->>
+                            default
+       ;
+
+                    () send4 =i    ->>default    ;
+
+    error? flushResult1 =flush    w3 ;
+                    error? flushResult2    =    flush ;
+
+                    error? flushResult3 =
+                                   flush
+                     w2
+                                       ;
+                            error? flushResult4 =
+           flush
+                                        ;
     }
 
     worker w2 {

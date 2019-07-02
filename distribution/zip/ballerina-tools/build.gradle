@@ -61,9 +61,9 @@ dependencies {
     dist 'org.ow2.asm:asm:6.2.1'
 
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-jvm')
+//    dist project(':ballerina-jvm')
     dist project(':ballerina-encoding')
-    dist project(':ballerina-bir')
+//    dist project(':ballerina-bir')
     dist project(':ballerina-utils')
     dist project(':ballerina-runtime')
 
@@ -72,6 +72,7 @@ dependencies {
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
+    dist project(':ballerina-formatter')
     dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
@@ -97,16 +98,16 @@ dependencies {
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
-    balSource project(path: ':ballerina-bir', configuration: 'balSource')
-    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
+//    balSource project(path: ':ballerina-bir', configuration: 'balSource')
+//    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
 
 

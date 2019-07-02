@@ -23,25 +23,24 @@ const string ANN_MODULE = "ballerina/http";
 const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
 const string SERVICE_ANN_NAME = "ServiceConfig";
-# Authentication header name.
+
+# Authorization header name.
 public const string AUTH_HEADER = "Authorization";
-# Basic authentication scheme.
-public const string AUTH_SCHEME_BASIC = "Basic";
-# Bearer authentication scheme.
-public const string AUTH_SCHEME_BEARER = "Bearer";
 
-# Inbound authentication schemes.
-public type InboundAuthScheme BASIC_AUTH|JWT_AUTH;
+# Specifies how to send the authentication credentials when exchanging tokens.
+public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER|NO_BEARER;
 
-# Outbound authentication schemes.
-public type OutboundAuthScheme BASIC_AUTH|OAUTH2|JWT_AUTH;
+# Indicates that the authentication credentials should be sent via the Authentication Header
+public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 
-# Basic authentication scheme.
-public const BASIC_AUTH = "BASIC_AUTH";
-# OAuth2 authentication scheme.
-public const OAUTH2 = "OAUTH2";
-# JWT authentication scheme.
-public const JWT_AUTH = "JWT_AUTH";
+# Indicates that the Authentication credentials should be sent via the body of the POST request.
+public const POST_BODY_BEARER = "POST_BODY_BEARER";
+
+# Indicates that the authentication credentials should not be sent
+public const NO_BEARER = "NO_BEARER";
+
+# Indicates the status code.
+public const STATUS_CODE = "STATUS_CODE";
 
 # Extracts the Authorization header value from the request.
 #
@@ -52,12 +51,12 @@ public function extractAuthorizationHeaderValue(Request req) returns string {
     return req.getHeader(AUTH_HEADER);
 }
 
-# Tries to retrieve the authentication handlers hierarchically - first from the resource level and then
-# from the service level, if it is not there in the resource level.
+# Tries to retrieve the inbound authentication handlers based on their hierarchy (i.e., first from the resource level and then
+# from the service level, if it is not there at the resource level).
 #
-# + context - `FilterContext` instance
-# + return - Authentication handlers or whether it is needed to engage listener level handlers or not
-function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHandler[][]|boolean {
+# + context - The `FilterContext` instance.
+# + return - Returns the authentication handlers or whether it is needed to engage listener-level handlers or not.
+function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|InboundAuthHandler[][]|boolean {
     ServiceResourceAuth? resourceLevelAuthAnn;
     ServiceResourceAuth? serviceLevelAuthAnn;
     [resourceLevelAuthAnn, serviceLevelAuthAnn] = getServiceResourceAuthConfig(context);
@@ -71,14 +70,14 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHan
         log:printWarn("Resource is not secured. `enabled: false`.");
         return false;
     }
-    // check if auth providers are given at resource level
+    // Checks if Auth providers are given at the resource level.
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        var resourceAuthHandlers = resourceLevelAuthAnn["authnHandlers"];
-        if (resourceAuthHandlers is AuthnHandler[]) {
+        var resourceAuthHandlers = resourceLevelAuthAnn["authHandlers"];
+        if (resourceAuthHandlers is InboundAuthHandler[]) {
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
             }
-        } else if (resourceAuthHandlers is AuthnHandler[][]) {
+        } else if (resourceAuthHandlers is InboundAuthHandler[][]) {
             if (resourceAuthHandlers[0].length() > 0) {
                 return resourceAuthHandlers;
             }
@@ -90,14 +89,14 @@ function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|AuthnHan
         log:printWarn("Service is not secured. `enabled: false`.");
         return true;
     }
-    // no auth providers found in resource level, try in service level
+    // No Auth providers found at the resource level. Thus, try at the service level.
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
-        var serviceAuthHandlers = serviceLevelAuthAnn["authnHandlers"];
-        if (serviceAuthHandlers is AuthnHandler[]) {
+        var serviceAuthHandlers = serviceLevelAuthAnn["authHandlers"];
+        if (serviceAuthHandlers is InboundAuthHandler[]) {
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
             }
-        } else if (serviceAuthHandlers is AuthnHandler[][]) {
+        } else if (serviceAuthHandlers is InboundAuthHandler[][]) {
             if (serviceAuthHandlers[0].length() > 0) {
                 return serviceAuthHandlers;
             }
@@ -160,44 +159,30 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 
 # Retrieve the authentication annotation value for resource level and service level.
 #
-# + context - `FilterContext` instance
-# + return - Resource level and service level authentication annotations
+# + context - The `FilterContext` instance.
+# + return - Returns the resource-level and service-level authentication annotations.
 function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
-    ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
-    ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-        reflect:getServiceAnnotations(context.serviceRef));
-    return [resourceLevelAuthAnn, serviceLevelAuthAnn];
-}
+    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, moduleName = ANN_MODULE,
+                                                 RESOURCE_ANN_NAME);
+    ServiceResourceAuth? resourceLevelAuthAnn = ();
+    if !(annData is ()) {
+        HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
+        resourceLevelAuthAnn = resourceConfig["auth"];
+    }
 
-# Retrieves and return the auth annotation with the given module name, annotation name and annotation data.
-#
-# + annotationModule - Annotation module name
-# + annotationName - Annotation name
-# + annData - Array of annotationData instances
-# + return - `ServiceResourceAuth` instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
-        returns ServiceResourceAuth? {
-    if (annData.length() == 0) {
-        return ();
+    //typedesc serviceTypedesc = typeof context.serviceRef;
+    //HttpServiceConfig? serviceConfig = serviceTypedesc.@ballerina/http:ServiceConfig;
+    //ServiceResourceAuth? serviceLevelAuthAnn = serviceConfig is () ? () : serviceConfig["auth"];
+
+    annData = reflect:getServiceAnnotations(context.serviceRef, moduleName = ANN_MODULE, SERVICE_ANN_NAME);
+    ServiceResourceAuth? serviceLevelAuthAnn = ();
+    if !(annData is ()) {
+        HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
+        serviceLevelAuthAnn = serviceConfig["auth"];
     }
-    reflect:annotationData? authAnn = ();
-    foreach var ann in annData {
-        if (ann.name == annotationName && ann.moduleName == annotationModule) {
-            authAnn = ann;
-            break;
-        }
-    }
-    if (authAnn is reflect:annotationData) {
-        if (annotationName == RESOURCE_ANN_NAME) {
-            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
-            return resourceConfig["auth"];
-        } else if (annotationName == SERVICE_ANN_NAME) {
-            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
-            return serviceConfig["auth"];
-        }
-    }
+
+    return [resourceLevelAuthAnn, serviceLevelAuthAnn];
 }
 
 # Check for the service or the resource is secured by evaluating the enabled flag configured by the user.
@@ -210,4 +195,29 @@ function isServiceResourceSecured(ServiceResourceAuth? serviceResourceAuth) retu
         secured = serviceResourceAuth.enabled;
     }
     return secured;
+}
+
+# Creates a map out of the headers of the HTTP response.
+#
+# + resp - The `Response` instance.
+# + return - Returns the map of the response headers.
+function createResponseHeaderMap(Response resp) returns map<anydata> {
+    map<anydata> headerMap = { STATUS_CODE: resp.statusCode };
+    string[] headerNames = resp.getHeaderNames();
+    foreach string header in headerNames {
+        string[] headerValues = resp.getHeaders(untaint header);
+        headerMap[header] = headerValues;
+    }
+    return headerMap;
+}
+
+# Logs, prepares, and returns the `error`.
+#
+# + message -The error message.
+# + err - The `error` instance.
+# + return - Returns the prepared `error` instance.
+function prepareError(string message, error? err = ()) returns error {
+    log:printDebug(function () returns string { return message; });
+    error preparedError = error(HTTP_ERROR_CODE, message = message, reason = err.reason());
+    return preparedError;
 }

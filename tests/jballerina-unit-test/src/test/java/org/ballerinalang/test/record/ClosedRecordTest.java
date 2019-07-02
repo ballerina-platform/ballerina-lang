@@ -277,8 +277,8 @@ public class ClosedRecordTest {
     @Test(description = "Test ambiguous type resolution negative cases")
     public void testAmbiguityResolutionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_ambiguous_types_negative.bal");
-        BAssertUtil.validateError(result, 0, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'",
-                                  36, 22);
+        BAssertUtil.validateError(result, 0, "ambiguous type '(InMemoryModeConfig|ServerModeConfig" +
+                        "|EmbeddedModeConfig)'", 36, 22);
     }
 
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")

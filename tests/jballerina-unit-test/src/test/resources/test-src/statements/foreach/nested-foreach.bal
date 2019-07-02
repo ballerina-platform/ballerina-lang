@@ -59,3 +59,65 @@ function test3LevelNestedForeachWithType() returns string {
     }
     return output;
 }
+
+function testNestedForeachWithBreak1() returns string {
+    string result = "";
+
+    string[] sdata1 = ["ballerina", "ballerinaSamples"];
+    string[] sdata2 = ["ballerinaSamples"];
+
+    boolean status = false;
+    foreach var s1 in sdata1 {
+        foreach var s2 in sdata2 {
+            if (s1 == s2) {
+                status = true;
+                result = result + "inner";
+                break;
+            }
+        }
+        if (status) {
+            result = result + "outer";
+            break;
+        }
+    }
+
+    return result;
+}
+
+function testNestedForeachWithBreak2() returns string {
+    string result = "";
+
+    string[] sdata1 = ["A", "B", "C"];
+    string[] sdata2 = ["D", "E", "F"];
+    string[] sdata3 = ["ballerina", "ballerinaSamples"];
+    string[] sdata4 = ["ballerinaSamples"];
+
+    boolean status = false;
+    foreach var s1 in sdata1 {
+        foreach var s2 in sdata2 {
+            foreach var s3 in sdata3 {
+                foreach var s4 in sdata4 {
+                    if (s3 == s4) {
+                        status = true;
+                        result = result + "level4";
+                        break;
+                    }
+                }
+                if (status) {
+                    result = result + "level3";
+                    break;
+                }
+            }
+            if (status) {
+                result = result + "level2";
+                break;
+            }
+        }
+        if (status) {
+            result = result + "level1";
+            break;
+        }
+    }
+
+    return result;
+}

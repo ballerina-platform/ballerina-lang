@@ -708,7 +708,11 @@ function println(any... vals) {
 }
 
 function print(any... vals) {
-    io:print(...vals);
+    error? e = trap io:print(...vals);
+    if (e is error) {
+        io:print("Warning: Print failed:", e.reason());
+    }
+    
 }
 
 public function getVisibility(int flags) returns string {

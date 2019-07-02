@@ -32,16 +32,25 @@ import java.util.Optional;
  * @since 0.995.0
  */
 abstract class AbstractTokenTraverser {
-    int lastAlteredToken = -1;
-    List<CommonToken> removedTokens = new ArrayList<>();
+    int lastProcessedToken = -1;
+    private boolean pruneTokens;
+    List<CommonToken> processedTokens = new ArrayList<>();
 
-    void alterTokenText(Token token) {
-        this.removedTokens.add(new CommonToken(token));
+    AbstractTokenTraverser(boolean pruneTokens) {
+        this.pruneTokens = pruneTokens;
+    }
+
+    void processToken(Token token) {
+        this.processedTokens.add(new CommonToken(token));
         if (token.getType() == BallerinaParser.NEW_LINE || token.getChannel() != Token.DEFAULT_CHANNEL) {
             return;
         }
-        ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
-        this.lastAlteredToken = token.getType();
+        if (pruneTokens) {
+            // If the pruneTokens flag is true, replace the token text with empty spaces
+            ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
+        }
+        // Otherwise only capture the processed tokens
+        this.lastProcessedToken = token.getType();
     }
 
     private static String getNCharLengthEmptyLine(int n) {

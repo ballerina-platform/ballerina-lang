@@ -123,12 +123,12 @@ public type CircuitBreakerInferredConfig record {|
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + circuitHealth - The circuit health monitor
 # + currentCircuitState - The current state the cicuit is in
-public type CircuitBreakerClient object {
+public type CircuitBreakerClient client object {
 
     public string url;
     public ClientEndpointConfig config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
     public CircuitHealth circuitHealth;
     public CircuitState currentCircuitState = CB_CLOSED_STATE;
 
@@ -140,7 +140,7 @@ public type CircuitBreakerClient object {
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
     public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
-                                        circuitBreakerInferredConfig, Client httpClient, CircuitHealth circuitHealth) {
+                                        circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         self.url = url;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
@@ -568,8 +568,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    map<anydata|error> errorDetail = { message : errorMessage };
-    error httpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
+    error httpConnectorErr = error(HTTP_ERROR_CODE, message = errorMessage);
     return httpConnectorErr;
 }
 
@@ -579,8 +578,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        map<anydata|error> errorDetail = { message : errorMessage };
-        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, errorDetail);
+        error circuitBreakerConfigError = error(HTTP_ERROR_CODE, message = errorMessage);
         panic circuitBreakerConfigError;
     }
 }

@@ -45,7 +45,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getNextPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class GetNextPromise extends AbstractHTTPAction {
@@ -61,13 +61,13 @@ public class GetNextPromise extends AbstractHTTPAction {
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+                .getNativeData(HttpConstants.CLIENT);
         clientConnector.getNextPushPromise(responseHandle).
                 setPushPromiseListener(new BPromiseListener(dataContext));
     }
 
     public static void getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
                                                   null);
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
