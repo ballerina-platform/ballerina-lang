@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -150,24 +149,18 @@ public class ServicesBuilderUtils {
     @SuppressWarnings("unchecked")
     private static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(Object annotationData)
             throws GrpcServerException {
-        ArrayValue annotationArray = null;
-        if (annotationData instanceof ArrayValue) {
-            annotationArray = (ArrayValue) annotationData;
-        }
-        try {
-            if (annotationArray != null && annotationArray.size() > 0) {
-                Object annotationValue = annotationArray.getRefValue(0);
-                if (annotationValue instanceof MapValue) {
-                    MapValue<String, Object> annotationMap = (MapValue) annotationValue;
-                    String descriptorData = annotationMap.getStringValue("descriptor");
-                    MapValue<String, String> descMap = (MapValue<String, String>) annotationMap.getMapValue("descMap");
-                    return getFileDescriptor(descriptorData, descMap);
-                }
-            }
+        if (annotationData == null) {
             return null;
+        }
+
+        try {
+            MapValue<String, Object> annotationMap = (MapValue) annotationData;
+            String descriptorData = annotationMap.getStringValue("descriptor");
+            MapValue<String, String> descMap = (MapValue<String, String>) annotationMap.getMapValue("descMap");
+            return getFileDescriptor(descriptorData, descMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
-                    "implementation. ", e);
+                                                  "implementation. ", e);
         }
     }
 

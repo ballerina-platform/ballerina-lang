@@ -9,21 +9,21 @@
       "label": "foreach(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "foreach(function((string, anydata) entry) {\n\t${1}\n});",
+      "insertText": "foreach(function((string, string) entry) {\n\t${1}\n});",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "map(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "map(function ((string, anydata) entry) returns any {\n\t${1}\n})",
+      "insertText": "map(function ((string, string) entry) returns any {\n\t${1}\n})",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "filter(\u003c@lambda:function\u003e)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "filter(function((string, anydata) entry) returns (boolean) {\n\t${1}\n})",
+      "insertText": "filter(function((string, string) entry) returns (boolean) {\n\t${1}\n})",
       "insertTextFormat": "Snippet"
     },
     {

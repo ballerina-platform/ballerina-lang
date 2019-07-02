@@ -20,10 +20,12 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -40,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -57,6 +60,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -122,10 +127,13 @@ public class SymbolTable {
 
     public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
+    public final BConstructorSymbol errorConstructor;
 
     public BErrorType errorType;
     public BRecordType detailType;
     public BUnionType pureType;
+    public BMapType pureTypeConstrainedMap;
+    public BFiniteType trueType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -203,7 +211,23 @@ public class SymbolTable {
 
         initializeErrorType();
 
+        // Initialize constructor symbol for ballerina built-in error type
+        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR,
+                errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
+        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        rootScope.define(errorConstructor.name, this.errorConstructor);
+        this.errorType.ctorSymbol = this.errorConstructor;
+
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
+
+        BLangLiteral trueLiteral = new BLangLiteral();
+        trueLiteral.type = this.booleanType;
+        trueLiteral.value = Boolean.TRUE;
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                                                                names.fromString("$anonType$TRUE"),
+                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();

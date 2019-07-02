@@ -50,7 +50,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
-            <package name="org.ballerinalang.test.main.function.*"/>
+            <!-- <package name="org.ballerinalang.test.main.function.*"/> -->
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>
@@ -95,7 +95,7 @@
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
-            <package name="org.ballerinalang.test.expressions.lambda"/>
+            <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
@@ -111,6 +111,9 @@
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
+            <package name="org.ballerinalang.test.annotations"/>
+            <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.taintchecking.*"/>
         </packages>
 
         <classes>
@@ -120,55 +123,7 @@
                 </methods>
             </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-            <class name="org.ballerinalang.test.worker.BasicForkTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAnyActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
-                <methods>
-                    <exclude name="waitTest15"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerInActionTest">
-                <methods>
-                    <exclude name="testConnectorAction1"/>
-                    <exclude name="testConnectorAction2"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.WorkerInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFlushTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerFailTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCallingFunction"/>
-            <class name="org.ballerinalang.test.worker.WaitForOneActionsTest"/>
-            <class name="org.ballerinalang.test.worker.WaitActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.StackOverflowTest">
-                <methods>
-                    <!--TODO:Need to improve error detail transformation, java errors get returned-->
-                    <exclude name="recursiveFunction"/>
-                    <exclude name="testStackOverflowInFunction"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">
-                <methods>
-                    <!--TODO:convert within while returns empty-->
-                    <exclude name="largeForkCreationTest"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.worker.ForkReturnAnyTest"/>
-            <class name="org.ballerinalang.test.worker.ForkInFunctionTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicWorkerActionsNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.BasicForkNegativeTest"/>
-            <class name="org.ballerinalang.test.worker.WorkerCancelledTest"/>
-            <!--<class name="org.ballerinalang.test.io.IOTest"/>-->
-            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest" >
-                <methods>
-                    <exclude name="testFunctionPointerNative"/>
-                </methods>
-            </class>
+            <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
                     <include name="simpleLock"/>
@@ -177,6 +132,21 @@
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
+            <class name="org.ballerinalang.test.error.ErrorTest" />
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest"/>
+            <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
+            <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest">
+                <methods>
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                    <exclude name="testErrorInRecordWithDestructure2"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.variabledef.ErrorVariableDefinitionTest">
+                <methods>
+                    <!-- fails at record destructure -->
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

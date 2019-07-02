@@ -225,8 +225,8 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map<int>', found 'map<anydata|error>'", 161, 16);
+                                  "incompatible types: expected 'map<int>', found 'map<(anydata|error)>'", 161, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map<anydata>', found 'map<any|error>'", 164, 16);
+                                  "incompatible types: expected 'map<anydata>', found 'map<(any|error)>'", 164, 16);
     }
 }

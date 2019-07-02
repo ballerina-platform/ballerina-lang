@@ -41,16 +41,16 @@ function testNestedCallsWithSomeTraps(int y) returns int|error {
 
 public function foo(int|error x) returns int|error {
     if (x is error) {
-        panic error("reason foo 1", {"message":"foo"});
+        panic error("reason foo 1", message = "foo");
     } else {
-        panic error("reason foo 2", {"message":"int value"});
+        panic error("reason foo 2", message = "int value");
     }
 }
 
 public function bar(int|error x) returns int|error {
     if (x is int) {
         if (x == 0) {
-            panic error("reason bar 1", {"message":"bar"});
+            panic error("reason bar 1", message = "bar");
         }
         return x;
     }
@@ -58,8 +58,8 @@ public function bar(int|error x) returns int|error {
 }
 
 public function testSelfReferencingError() returns error {
-    MyError cause = error("root cause", {msg: "root cause msg"});
-    MyError e = error("actual error", {msg: "actual error msg", cause: cause});
+    MyError cause = error("root cause", msg = "root cause msg");
+    MyError e = error("actual error", msg = "actual error msg", cause = cause);
     return e;
 }
 

@@ -312,5 +312,7 @@ public interface InstructionCodes {
     int TEQ = TYPELOAD + 1;
     int TNE = TEQ + 1;
 
+    int ANNOT_ACCESS = TNE + 1;
+
     int INSTRUCTION_CODE_COUNT = 255;
 }

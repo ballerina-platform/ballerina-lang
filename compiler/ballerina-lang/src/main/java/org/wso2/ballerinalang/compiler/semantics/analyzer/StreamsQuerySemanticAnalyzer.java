@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -384,6 +385,15 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             typeTestExpr.expr.accept(this);
         } else {
             typeChecker.checkExpr(typeTestExpr, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        if (isSiddhiRuntimeEnabled) {
+            annotAccessExpr.expr.accept(this);
+        } else {
+            typeChecker.checkExpr(annotAccessExpr, env);
         }
     }
 
