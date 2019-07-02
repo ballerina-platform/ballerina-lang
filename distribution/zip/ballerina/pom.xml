@@ -129,10 +129,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-reflect</artifactId>
         </dependency>
         <dependency>
@@ -505,12 +501,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observability</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -736,12 +726,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observability</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -897,7 +881,6 @@
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
-                                ballerina-mysql,
                                 ballerina-nats,
                                 ballerina-observability,
                                 ballerina-openapi,
@@ -1036,11 +1019,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-mime-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-mysql-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

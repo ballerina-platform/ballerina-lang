@@ -787,10 +787,6 @@
                 "url": "h2-client"
             },
             {
-                "name": "MySQL Client",
-                "url": "mysql-client"
-            },
-            {
                 "name": "JDBC Client CRUD Operations",
                 "url": "jdbc-client-crud-operations"
             },

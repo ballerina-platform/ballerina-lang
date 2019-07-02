@@ -46,7 +46,6 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-h2')
-    implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
@@ -77,7 +76,6 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')

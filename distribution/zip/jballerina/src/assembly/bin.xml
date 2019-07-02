@@ -118,7 +118,6 @@
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
-                <include>org.ballerinalang:ballerina-mysql:jar</include>
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
                 <include>org.ballerinalang:ballerina-runtime-api:jar</include>

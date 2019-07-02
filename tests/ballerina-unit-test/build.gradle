@@ -44,11 +44,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
-    testCompile 'org.testcontainers:testcontainers'
-    testCompile 'org.testcontainers:postgresql'
-    testCompile 'org.testcontainers:mysql'
-    testCompile 'mysql:mysql-connector-java'
-    testCompile 'org.postgresql:postgresql'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
@@ -69,7 +64,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
