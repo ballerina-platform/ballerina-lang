@@ -65,12 +65,12 @@ public class ShutdownWrite extends BlockingNativeCallableUnit {
                 socketChannel.shutdownOutput();
             }
         } catch (ClosedChannelException e) {
-            return SocketUtils.createSocketError("Socket already closed");
+            return SocketUtils.createSocketError("Socket is already closed");
         } catch (IOException e) {
             log.error("Unable to shutdown the write", e);
             return SocketUtils.createSocketError("Unable to shutdown the write");
         } catch (NotYetConnectedException e) {
-            return SocketUtils.createSocketError("Socket not yet connected");
+            return SocketUtils.createSocketError("Socket is not yet connected");
         }
         return null;
     }
