@@ -45,11 +45,10 @@ subprojects {
     }
 
     release {
+        failOnCommitNeeded = false
         git {
             //To release from any branch
             requireBranch = null
-            failOnCommitNeeded = false
-
         }
     }
 }
