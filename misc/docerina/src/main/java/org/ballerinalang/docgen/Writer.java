@@ -128,10 +128,10 @@ public class Writer {
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(" | "));
         } else if (type.isTuple) {
-            label = "<span>(</span>" + type.memberTypes.stream()
+            label = "<span>[</span>" + type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(", "))
-                    + "<span>)</span>";
+                    + "<span>]</span>";
         } else if (type.isLambda) {
             label = "<code> <span>function(</span>" + type.paramTypes.stream()
                     .map(type1 -> getTypeLabel(type1, options))
