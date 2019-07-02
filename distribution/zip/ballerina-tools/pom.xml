@@ -232,12 +232,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-privacy</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jvm</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -470,7 +464,6 @@
                                 ballerina-nats,
                                 ballerina-observability,
                                 ballerina-openapi,
-                                ballerina-privacy,
                                 ballerina-rabbitmq,
                                 ballerina-reflect,
                                 ballerina-runtime-api,
@@ -640,11 +633,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

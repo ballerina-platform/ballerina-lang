@@ -63,7 +63,6 @@ under the License.
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
-            <package name="org.ballerinalang.test.privacy.*" />
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />

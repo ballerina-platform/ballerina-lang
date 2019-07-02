@@ -170,10 +170,6 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-privacy</artifactId>
-        </dependency>
         <!-- This dependency is required for WebSocket Compression -->
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -586,12 +582,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-privacy</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-nats</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -823,12 +813,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-privacy</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jwt</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -916,7 +900,6 @@
                                 ballerina-nats,
                                 ballerina-observability,
                                 ballerina-openapi,
-                                ballerina-privacy,
                                 ballerina-rabbitmq,
                                 ballerina-reflect,
                                 ballerina-runtime-api,
@@ -1072,11 +1055,6 @@
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
                                 <!--<resource>-->

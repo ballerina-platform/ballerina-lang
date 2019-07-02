@@ -63,7 +63,7 @@ public class IndexGenerator {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
         List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "h2", "mysql",
                 "sql", "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
-                "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi", "privacy",
+                "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
                 "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"/*, "websub"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
