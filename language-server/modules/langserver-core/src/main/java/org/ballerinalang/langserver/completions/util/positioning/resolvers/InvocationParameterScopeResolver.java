@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Invocation parameter scope position resolver.
+ * 
+ * @since 1.0
  */
 public class InvocationParameterScopeResolver extends CursorPositionResolver {
 
@@ -43,49 +34,6 @@ public class InvocationParameterScopeResolver extends CursorPositionResolver {
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
-        Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int line = position.getLine();
-        int col = position.getCharacter();
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        int nodeEndLine = zeroBasedPos.eLine;
-        int nodeEndCol = zeroBasedPos.eCol;
-
-        if (this.isWithinScopeAfterLastParameterNode(node, treeVisitor, line, col, nodeEndLine, nodeEndCol)
-                || withinInvocationArguments(node, line, col, completionContext)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
-                    treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
-            treeVisitor.setNextNode(bSymbol);
-            treeVisitor.forceTerminateVisitor();
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check whether the given node is within the scope and located after the last child node.
-     *
-     * @param node          Current Node to evaluate
-     * @param treeVisitor   Operation Tree Visitor
-     * @param curLine       line of the cursor
-     * @param curCol        column of the cursor
-     * @param nodeEndLine   end line of the node
-     * @param nodeEndCol  @return {@link Boolean} whether the last child node or not
-     */
-    private boolean isWithinScopeAfterLastParameterNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol,
-                                                        int nodeEndLine, int nodeEndCol) {
-        BLangInvocation bLangInvocation = (BLangInvocation) treeVisitor.getBlockOwnerStack().peek();
-        List<? extends ExpressionNode> argumentExpressions = bLangInvocation.getArgumentExpressions();
-        int invocationEndLine = bLangInvocation.pos.getEndLine();
-        int invocationEndCol = bLangInvocation.pos.getEndColumn();
-
-        boolean isLastChildNode = argumentExpressions.indexOf(node) == (argumentExpressions.size() - 1);
-
-        boolean isWithinScope = (isLastChildNode &&
-                (curLine < invocationEndLine || (curLine == invocationEndLine && curCol <= invocationEndCol)) &&
-                (curLine > nodeEndLine || (curLine == nodeEndLine && curCol > nodeEndCol)));
-
-        return isWithinScope;
+        return super.isCursorBeforeNode(nodePosition, treeVisitor, completionContext, node, bSymbol);
     }
 }

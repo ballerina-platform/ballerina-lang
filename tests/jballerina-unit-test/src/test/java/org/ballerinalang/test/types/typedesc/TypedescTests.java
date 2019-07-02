@@ -91,14 +91,14 @@ public class TypedescTests {
     public void testTupleUnionTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleUnionTypes");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "(string,Person)");
+        Assert.assertEquals(returns[0].stringValue(), "[string,Person]");
         Assert.assertEquals(returns[1].stringValue(), "int|string");
     }
 
     @Test(description = "Test tuples with expressions")
     public void testTuplesWithExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
-        Assert.assertEquals(returns[0].stringValue(), "(string,int,string[],string,int)");
+        Assert.assertEquals(returns[0].stringValue(), "[string,int,string[],string,int]");
     }
 
     @Test(description = "Test Record types")
