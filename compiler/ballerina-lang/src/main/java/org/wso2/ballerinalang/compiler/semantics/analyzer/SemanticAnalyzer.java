@@ -1918,7 +1918,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(whileNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
-        analyzeStmt(whileNode.body, env);
+        SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
+        analyzeStmt(whileNode.body, whileEnv);
     }
 
     @Override
