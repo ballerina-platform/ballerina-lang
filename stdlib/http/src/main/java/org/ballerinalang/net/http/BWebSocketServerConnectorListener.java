@@ -20,15 +20,12 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -37,8 +34,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -75,16 +70,16 @@ public class BWebSocketServerConnectorListener implements WebSocketConnectorList
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
             // TODO: Need to revisit this code of observation.
-            ObserverContext observerContext = null;
-            if (ObserveUtils.isObservabilityEnabled()) {
-                observerContext = new ObserverContext();
-                observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
-                observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
-                observerContext.setResourceName(balResource.getName());
-            }
-
-            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
-                            null, observerContext, signatureParams);
+//            ObserverContext observerContext = null;
+//            if (ObserveUtils.isObservabilityEnabled()) {
+//                observerContext = new ObserverContext();
+//                observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+//                observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
+//                observerContext.setResourceName(balResource.getName());
+//            }
+//
+//            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
+//                            null, observerContext, signatureParams);
 
         } else {
             BWebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);

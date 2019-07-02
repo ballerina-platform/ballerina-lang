@@ -12,7 +12,7 @@
                 <h3>Types</h3>
                 <ul>
                     {{#each module.unionTypes}}
-                        <li>
+                        <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
                     {{/each}}
@@ -32,7 +32,7 @@
                     <h3>Types</h3>
                     <ul>
                         {{#each module.unionTypes}}
-                            <li>
+                            <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
                                 <a href="#{{name}}">{{name}}</a>
                             </li>
                         {{/each}}
@@ -48,7 +48,11 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Types</h1>
+             <h1>
+                 {{> breadcrumb }}
+                 <span class="title-type">Types - </span> 
+                 <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+            </h1>
             <div class="types">
                 <div class="data-wrapper">
                     {{#each types}}

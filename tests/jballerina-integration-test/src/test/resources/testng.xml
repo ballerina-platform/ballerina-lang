@@ -79,7 +79,7 @@
             </run>
         </groups>
         <classes>
-<!--            <class name="org.ballerinalang.test.service.HelloServiceTest"/>-->
+            <class name="org.ballerinalang.test.service.HelloServiceTest"/>
         </classes>
     </test>
 

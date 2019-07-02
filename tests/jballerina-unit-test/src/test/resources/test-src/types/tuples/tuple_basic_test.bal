@@ -11,30 +11,23 @@ function basicTupleTest () returns (string) {
     endTest();
 
     // Test 3
-    FooStruct foo = {x:"foo test3"};
-    var [a, b] = ["test3",foo];
-    addValue(a);
-    addValue(b.x);
-    endTest();
-
-    // Test 4
     string c;
     int d;
-    [c, d] = ["test4", 4];
+    [c, d] = ["test3", 3];
     addValue(c);
     addValue(string.convert(d));
     endTest();
 
-    // Test 5
-    [string,int] f = ["test5",5];
+    // Test 4
+    [string,int] f = ["test4", 4];
     var [g, h] = f;
     addValue(g);
     addValue(string.convert(h));
     endTest();
 
-    // Test 6
-    FooStruct foo6 = {x:"foo test6"};
-    [string, FooStruct] i = ["test6",foo6];
+    // Test 5
+    FooStruct foo5 = {x:"foo test5"};
+    [string, FooStruct] i = ["test5",foo5];
     var [j, k] = i;
     addValue(j);
     addValue(k.x);

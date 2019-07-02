@@ -19,25 +19,27 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.Metric;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.PolledGauge;
+import org.ballerinalang.jvm.observability.metrics.Tag;
+import org.ballerinalang.jvm.observability.metrics.Tags;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.DefaultMetricRegistry;
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.Metric;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.PolledGauge;
-import org.ballerinalang.util.metrics.Tag;
-import org.ballerinalang.util.metrics.Tags;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -64,44 +66,77 @@ public class LookupMetric extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String metricName = context.getStringArgument(0);
-        BMap tags = (BMap) context.getNullableRefArgument(0);
-        Map<String, String> tagMap = Utils.toStringMap(tags);
+//        String metricName = context.getStringArgument(0);
+//        BMap tags = (BMap) context.getNullableRefArgument(0);
+//        Map<String, String> tagMap = Utils.toStringMap(tags);
+//        Set<Tag> tagSet = new HashSet<>();
+//        Tags.tags(tagSet, tagMap);
+//        Metric metric = DefaultMetricRegistry.getInstance().lookup(new MetricId(metricName, "", tagSet));
+//
+//        if (metric != null) {
+//            PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
+//            MetricId metricId = metric.getId();
+//            if (metric instanceof Counter) {
+//                StructureTypeInfo counterStructInfo = observePackage.getStructInfo(COUNTER);
+//                BMap counter = BLangVMStructs.createBStruct(counterStructInfo,
+//                        metricId.getName(), metricId.getDescription(), getTags(metricId));
+//                counter.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
+//                context.setReturnValues(counter);
+//            } else if (metric instanceof Gauge) {
+//                Gauge gauge = (Gauge) metric;
+//                StructureTypeInfo gaugeStructInfo = observePackage.getStructInfo(GAUGE);
+//                BMap bGauge = BLangVMStructs.createBStruct(gaugeStructInfo,
+//                        metricId.getName(), metricId.getDescription(), getTags(metricId),
+//                        Utils.createBStatisticConfig(gauge.getStatisticsConfig(), context));
+//                bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
+//                context.setReturnValues(bGauge);
+//            } else if (metric instanceof PolledGauge) {
+//                StructureTypeInfo gaugeStructInfo = observePackage.getStructInfo(GAUGE);
+//                BMap bGauge = BLangVMStructs.createBStruct(gaugeStructInfo,
+//                        metricId.getName(), metricId.getDescription(), getTags(metricId),
+//                        Utils.createBStatisticConfig(null, context));
+//                bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
+//            }
+//        } else {
+//            context.setReturnValues();
+//        }
+    }
+
+    public static Object lookupMetric(Strand strand, String metricName, Object tags) {
+
+        Map<String, String> tagMap = Utils.toStringMap((MapValue<?, ?>) tags);
         Set<Tag> tagSet = new HashSet<>();
         Tags.tags(tagSet, tagMap);
         Metric metric = DefaultMetricRegistry.getInstance().lookup(new MetricId(metricName, "", tagSet));
 
         if (metric != null) {
-            PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
             MetricId metricId = metric.getId();
             if (metric instanceof Counter) {
-                StructureTypeInfo counterStructInfo = observePackage.getStructInfo(COUNTER);
-                BMap counter = BLangVMStructs.createBStruct(counterStructInfo,
+                ObjectValue counter = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, COUNTER,
                         metricId.getName(), metricId.getDescription(), getTags(metricId));
                 counter.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
-                context.setReturnValues(counter);
+                return counter;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
-                StructureTypeInfo gaugeStructInfo = observePackage.getStructInfo(GAUGE);
-                BMap bGauge = BLangVMStructs.createBStruct(gaugeStructInfo,
-                        metricId.getName(), metricId.getDescription(), getTags(metricId),
-                        Utils.createBStatisticConfig(gauge.getStatisticsConfig(), context));
+                ArrayValue statisticConfigs = Utils.createBStatisticConfig(gauge.getStatisticsConfig());
+                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, GAUGE, metricId.getName(),
+                        metricId.getDescription(), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
-                context.setReturnValues(bGauge);
+                return bGauge;
             } else if (metric instanceof PolledGauge) {
-                StructureTypeInfo gaugeStructInfo = observePackage.getStructInfo(GAUGE);
-                BMap bGauge = BLangVMStructs.createBStruct(gaugeStructInfo,
-                        metricId.getName(), metricId.getDescription(), getTags(metricId),
-                        Utils.createBStatisticConfig(null, context));
+                ArrayValue statisticConfigs = Utils.createBStatisticConfig(null);
+                ObjectValue bGauge = BallerinaValues.createObjectValue(OBSERVE_PACKAGE_PATH, GAUGE, metricId.getName(),
+                        metricId.getDescription(), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
+                return bGauge;
             }
-        } else {
-            context.setReturnValues();
         }
+
+        return null;
     }
 
-    private BMap<String, BString> getTags(MetricId metricId) {
-        BMap<String, BString> bTags = new BMap<>(new BMapType(BTypes.typeString));
+    private static MapValue<String, Object> getTags(MetricId metricId) {
+        MapValue<String, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(tag.getKey(), new BString(tag.getValue()));
