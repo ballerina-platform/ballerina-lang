@@ -3613,7 +3613,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                Name fieldName) {
         BType actualType = symTable.semanticError;
 
-        boolean nillable = false;
+        boolean nillableExprType = false;
         BType effectiveType = varRefType;
 
         if (varRefType.tag == TypeTags.UNION) {
@@ -3625,7 +3625,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (bType != symTable.nilType) {
                         nilRemovedSet.add(bType);
                     } else {
-                        nillable = true;
+                        nillableExprType = true;
                     }
                 }
 
@@ -3641,33 +3641,31 @@ public class TypeChecker extends BLangNodeVisitor {
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD,
                            varRefType, fieldName);
             }
-
-            fieldAccessExpr.optionalFieldAccess = nillable;
+            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.optionalFieldAccess = nillableExprType;
         } else if (types.isLax(effectiveType)) {
-            actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
-            fieldAccessExpr.originalType = symTable.jsonType;
-            nillable = false;
+            BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                isSafeNavigable((BLangAccessExpression) fieldAccessExpr.expr, effectiveType)) {
-            effectiveType = getSafeType(effectiveType, (BLangAccessExpression) fieldAccessExpr.expr);
-            if (types.isLax(effectiveType)) {
-                actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
-                fieldAccessExpr.safeNavigate = true;
-                fieldAccessExpr.originalType = symTable.jsonType;
-                nillable = false;
-            }
+                hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
+            BType laxFieldAccessType =
+                    getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            fieldAccessExpr.safeNavigate = true;
+            fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
+            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
             actualType = symTable.xmlType;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS,
                        varRefType);
         }
 
-        if (nillable) {
-            fieldAccessExpr.originalType = actualType;
+        if (nillableExprType && !actualType.isNullable()) {
             actualType = BUnionType.create(null, actualType, symTable.nilType);
         }
 

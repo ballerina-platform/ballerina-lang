@@ -5027,7 +5027,7 @@ public class Desugar extends BLangNodeVisitor {
             handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 
-        if (!accessExpr.safeNavigate && !accessExpr.expr.type.isNullable()) {
+        if (!accessExpr.safeNavigate && !accessExpr.optionalFieldAccess) {
             accessExpr.type = accessExpr.originalType;
             if (this.safeNavigationAssignment != null) {
                 this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type);
