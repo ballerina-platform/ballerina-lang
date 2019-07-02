@@ -1769,20 +1769,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol matchingObjFuncSym = symResolver.lookupSymbol(objEnv, funcName, SymTag.VARIABLE);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
-            if (Symbols.isFlagOn(typeRef.type.tsymbol.flags, Flags.ABSTRACT)) {
-                BLangFunction matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
-                        .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst().get();
+            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
+                    referencedFunc.symbol)) {
+                Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
+                        .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
+                DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                dlog.error(pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
+                           referencedFunc.funcName, typeRef);
+            }
 
-                if (Symbols.isFunctionDeclaration(matchingObjFuncSym)) {
-                    dlog.error(matchingFunc.pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
-                               referencedFunc.funcName, typeRef);
-                }
-
-                if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
-                    dlog.error(matchingFunc.pos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
-                               getCompleteFunctionSignature(referencedFunc.symbol),
-                               getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
-                }
+            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
+                Optional<BLangFunction> matchingFunc = ((BLangObjectTypeNode) typeDef.typeNode)
+                        .functions.stream().filter(fn -> fn.symbol == matchingObjFuncSym).findFirst();
+                DiagnosticPos pos = matchingFunc.isPresent() ? matchingFunc.get().pos : typeRef.pos;
+                dlog.error(pos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
+                           getCompleteFunctionSignature(referencedFunc.symbol),
+                           getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
             }
             return;
         }
@@ -1856,12 +1858,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         String visibilityModifier = "";
         if (Symbols.isPublic(funcSymbol)) {
-            visibilityModifier = "public";
+            visibilityModifier = "public ";
         } else if (Symbols.isPrivate(funcSymbol)) {
-            visibilityModifier = "private";
+            visibilityModifier = "private ";
         }
 
-        signatureBuilder.append(visibilityModifier).append(' ').append("function ")
+        signatureBuilder.append(visibilityModifier).append("function ")
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
         funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString() + " " + param.name.value));
