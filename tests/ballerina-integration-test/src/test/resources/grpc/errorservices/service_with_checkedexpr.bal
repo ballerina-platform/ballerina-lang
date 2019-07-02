@@ -15,11 +15,6 @@
 // under the License.
 
 import ballerina/grpc;
-import ballerina/time;
-
-type Time record {
-    string now;
-};
 
 service hello on new grpc:Listener(9092) {
     resource function greet(grpc:Caller caller) returns error? {
