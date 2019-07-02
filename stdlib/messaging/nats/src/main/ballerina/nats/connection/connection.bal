@@ -34,8 +34,8 @@ public type Connection object {
 
     # Close a given connection.
     #
-    # + graceful - Graceful shutdown flag. If `true`, it wait till all producers to close.
-    # Default is set to true.
+    # + forceful - Graceful shutdown flag. If `true`, Connection close immediately.
+    # Default is set to false.
     # + return - () or error if unable to complete close operation.
-    public function close(boolean graceful = true) returns error? = external;
+    public function close(boolean? forceful = ()) returns error? = external;
 };

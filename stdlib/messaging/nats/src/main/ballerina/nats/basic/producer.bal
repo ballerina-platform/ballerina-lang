@@ -35,7 +35,7 @@ public type Producer client object {
     # + replyTo - Subject for the receiver to reply. Optional parameter. Set only if reply is needed.
     # + message - Message could be byte[] representation.
     # + return -  A specific error, if there is a problem when publishing the message. () otherwise.
-    public remote function publish(string subject, string? replyTo = (), byte[] message) returns error? = external;
+    public remote function publish(string subject, byte[] message, string? replyTo = ()) returns error? = external;
 
     # Produces a message and would wait for a response.
     #

@@ -40,7 +40,7 @@ import org.ballerinalang.nats.Constants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "nats",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DefaultMessageHandler",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
                 structPackage = "ballerina/nats"),
         isPublic = true
 )

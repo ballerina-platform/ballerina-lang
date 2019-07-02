@@ -59,9 +59,9 @@ public class Close extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
-    public static Object close(Strand strand, ObjectValue connectionObject, Object graceful) {
+    public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
         ArrayList connectedList = (ArrayList) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
-        if (connectedList == null || connectedList.isEmpty() || !TypeChecker.anyToBoolean(graceful)) {
+        if (connectedList == null || connectedList.isEmpty() || TypeChecker.anyToBoolean(forceful)) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             try {
                 if (natsConnection != null) {
@@ -75,7 +75,7 @@ public class Close extends BlockingNativeCallableUnit {
                         "with nats server. " + e.getMessage());
             }
         }
-        if (TypeChecker.anyToBoolean(graceful)) {
+        if (!TypeChecker.anyToBoolean(forceful)) {
             String message = "Connection is still used by " + connectedList.size() + "client(s). Close them before " +
                     "closing the connection.";
             LOG.warn(message);

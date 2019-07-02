@@ -52,8 +52,8 @@ public class Publish extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
-    public static Object publish(Strand strand, ObjectValue producerObject, String subject, Object replyTo,
-                                 ArrayValue message) {
+    public static Object publish(Strand strand, ObjectValue producerObject, String subject, ArrayValue message,
+                                 Object replyTo) {
         Object connection = producerObject.get("connection");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
