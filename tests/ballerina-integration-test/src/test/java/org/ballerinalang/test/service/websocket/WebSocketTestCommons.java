@@ -45,7 +45,7 @@ public class WebSocketTestCommons extends BaseTest {
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{
                 9076, 9077, 9078, 9079, 9080, 9081, 9082, 9083, 9084, 9085, 9086, 9087, 9088, 9089, 9090, 9091, 9092,
-                9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9200};
+                9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9200, 9201, 9202};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
