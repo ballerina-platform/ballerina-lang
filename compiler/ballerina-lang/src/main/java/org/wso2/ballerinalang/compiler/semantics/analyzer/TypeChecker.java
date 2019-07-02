@@ -3641,9 +3641,10 @@ public class TypeChecker extends BLangNodeVisitor {
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD,
                            varRefType, fieldName);
             }
+
+            fieldAccessExpr.optionalFieldAccess = nillable;
         } else if (types.isLax(effectiveType)) {
             actualType = BUnionType.create(null, symTable.jsonType, symTable.errorType);
-            fieldAccessExpr.safeNavigate = true;
             fieldAccessExpr.originalType = symTable.jsonType;
             nillable = false;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -3661,10 +3662,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS,
+                       varRefType);
         }
 
         if (nillable) {
+            fieldAccessExpr.originalType = actualType;
             actualType = BUnionType.create(null, actualType, symTable.nilType);
         }
 

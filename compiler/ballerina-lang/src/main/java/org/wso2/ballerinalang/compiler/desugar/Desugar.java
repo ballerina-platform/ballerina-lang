@@ -2459,7 +2459,7 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                        (BVarSymbol) fieldAccessExpr.symbol, true);
+                        (BVarSymbol) fieldAccessExpr.symbol, false);
                 addToLocks(fieldAccessExpr, targetVarRef);
             }
         } else if (types.isLax(varRefType)) {
@@ -4971,14 +4971,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate) {
-            return true;
-        }
-
-        if (safeNavigateType(accessExpr.expr.type)) {
-            if (accessExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) accessExpr).builtinMethodInvocation) {
-                return isSafeNavigationAllowedBuiltinInvocation((BLangInvocation) accessExpr);
-            }
+        if (accessExpr.safeNavigate || accessExpr.optionalFieldAccess) {
             return true;
         }
 
@@ -4990,26 +4983,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return false;
-    }
-
-    private boolean safeNavigateType(BType type) {
-        // Do not add safe navigation checks for JSON. Because null is a valid value for json,
-        // we handle it at runtime. This is also required to make function on json such as
-        // j.toString(), j.keys() to work.
-        if (type.tag == TypeTags.JSON || types.isAssignable(type, symTable.jsonType)) {
-            return false;
-        }
-
-        if (type.isNullable()) {
-            return true;
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return false;
-        }
-
-        // TODO: 2/26/19 Should be able to use type.isNullable() here
-        return ((BUnionType) type).getMemberTypes().contains(symTable.nilType);
     }
 
     private BLangExpression rewriteSafeNavigationExpr(BLangAccessExpression accessExpr) {
@@ -5194,6 +5167,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create x.foo, by replacing the varRef expr of the current expression, with the new temp var ref
         accessExpr.expr = ASTBuilderUtil.createVariableRef(accessExpr.pos, successPatternVar.symbol);
         accessExpr.safeNavigate = false;
+        accessExpr.optionalFieldAccess = false;
 
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
@@ -5380,6 +5354,7 @@ public class Desugar extends BLangNodeVisitor {
         accessExpr.lhsVar = originalAccessExpr.lhsVar;
         accessExpr.symbol = originalAccessExpr.symbol;
         accessExpr.safeNavigate = false;
+        accessExpr.optionalFieldAccess = false;
 
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
