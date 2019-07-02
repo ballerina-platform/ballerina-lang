@@ -5,10 +5,10 @@ SYNOPSIS
     ballerina create <module-name> [-t|--template <template-name>]
 
 DESCRIPTION
-     Ballerina create will initialize a new module in a ballerina 
-     project. The command should be run inside a ballerina project.
+     Ballerina create will initialize a new module in a Ballerina
+     project. The command should be run inside a Ballerina project.
 
-     You can also select diffrent templates for the module.
+     You can also select different templates for the module.
 
 OPTIONS
      -t
