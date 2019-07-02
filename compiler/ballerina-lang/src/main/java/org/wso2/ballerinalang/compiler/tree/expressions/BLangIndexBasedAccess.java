@@ -80,20 +80,10 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangMapAccessExpr extends BLangIndexBasedAccess {
 
-        public boolean except = true;
-
         public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr) {
             this.pos = pos;
             this.expr = varExpr;
             this.indexExpr = keyExpr;
-        }
-
-        public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr,
-                boolean except) {
-            this.pos = pos;
-            this.expr = varExpr;
-            this.indexExpr = keyExpr;
-            this.except = except;
         }
 
         @Override

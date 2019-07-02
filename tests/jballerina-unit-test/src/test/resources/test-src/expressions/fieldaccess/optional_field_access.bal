@@ -158,6 +158,15 @@ function testOptionalFieldAccessOnJson3() returns boolean {
     return j2 == 1 && j3 == x && j4 == 3 && j?.b?.d?.nonExistent == ();
 }
 
+function testOptionalFieldAccessOnJson4() returns boolean {
+    json j = { a: 1, b: { c: "foo" } };
+
+    json|error j2 = j?.x;
+    json|error j3 = j?.y?.z;
+    json|error j4 = j?.b?.d;
+    return j2 == () && j3 == () && j4 == ();
+}
+
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         map<anydata|error> detailMap = je.detail();
@@ -165,4 +174,14 @@ function assertNonMappingJsonError(json|error je) returns boolean {
     }
     return false;
 }
+
+function assertKeyNotFoundError(json|error je, string key) returns boolean {
+    if (je is error) {
+        map<anydata|error> detailMap = je.detail();
+        return je.reason() == "{ballerina}KeyNotFound" &&
+                                detailMap["message"] == "Key '" + key + "' not found in JSON mapping";
+    }
+    return false;
+}
+
 //mixed tests

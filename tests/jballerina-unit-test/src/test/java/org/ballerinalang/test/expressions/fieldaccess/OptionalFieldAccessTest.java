@@ -99,6 +99,7 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessOnJson1" },
                 { "testOptionalFieldAccessOnJson2" },
                 { "testOptionalFieldAccessOnJson3" },
+                { "testOptionalFieldAccessOnJson4" },
         };
     }
 }

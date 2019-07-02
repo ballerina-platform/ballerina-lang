@@ -1355,7 +1355,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkConstantAccess(fieldAccessExpr, varRefType);
 
         // error lifting on lhs is not supported
-        if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
+        if (fieldAccessExpr.lhsVar && fieldAccessExpr.errorSafeNavigation) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ERROR_LIFTING_ON_LHS);
             resultType = symTable.semanticError;
             return;
@@ -3387,7 +3387,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType parentType = accessExpr.expr.type;
-        if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
+        if (accessExpr.errorSafeNavigation
+                && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
                 && ((BUnionType) parentType).getMemberTypes().contains(symTable.errorType)))) {
             unionType.add(symTable.errorType);
         }
@@ -3576,7 +3577,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
-            fieldAccessExpr.safeNavigate = true;
+            fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (fieldAccessExpr.lhsVar) {
@@ -3642,24 +3643,20 @@ public class TypeChecker extends BLangNodeVisitor {
                            varRefType, fieldName);
             }
             fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
-            fieldAccessExpr.optionalFieldAccess = nillableExprType;
+            fieldAccessExpr.nilSafeNavigation = nillableExprType;
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.originalType = laxFieldAccessType;
+            fieldAccessExpr.nilSafeNavigation = true;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
-            fieldAccessExpr.safeNavigate = true;
+            fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
-        } else if (varRefType.tag == TypeTags.XML) {
-            if (fieldAccessExpr.lhsVar) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
-            }
-            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
-            actualType = symTable.xmlType;
+            fieldAccessExpr.nilSafeNavigation = true;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS,
                        varRefType);
@@ -3980,7 +3977,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Extract the types without the error and null, and revisit access expression
         List<BType> lhsTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
 
-        if (accessExpr.safeNavigate) {
+        if (accessExpr.errorSafeNavigation) {
             if (!lhsTypes.contains(symTable.errorType)) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.semanticError;
@@ -3996,7 +3993,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (accessExpr.optionalFieldAccess) {
+        if (accessExpr.nilSafeNavigation) {
             lhsTypes = lhsTypes.stream()
                     .filter(memberType -> memberType != symTable.nilType)
                     .collect(Collectors.toList());
@@ -4137,7 +4134,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
         // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
         // required.
-        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
+        if (fieldAccessExpr.errorSafeNavigation && varRefType.tag != TypeTags.UNION
+                && varRefType != symTable.semanticError) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
             return false;
         }

@@ -2428,7 +2428,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        BLangVariableReference targetVarRef = fieldAccessExpr;
+        BLangAccessExpression targetVarRef = fieldAccessExpr;
 
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
@@ -2476,6 +2476,7 @@ public class Desugar extends BLangNodeVisitor {
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
         targetVarRef.type = fieldAccessExpr.type;
+        targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
     }
 
@@ -2516,8 +2517,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
@@ -4971,7 +4971,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate || accessExpr.optionalFieldAccess) {
+        if (accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation) {
             return true;
         }
 
@@ -5027,7 +5027,7 @@ public class Desugar extends BLangNodeVisitor {
             handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 
-        if (!accessExpr.safeNavigate && !accessExpr.optionalFieldAccess) {
+        if (!accessExpr.errorSafeNavigation && !accessExpr.nilSafeNavigation) {
             accessExpr.type = accessExpr.originalType;
             if (this.safeNavigationAssignment != null) {
                 this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type);
@@ -5052,13 +5052,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(accessExpr.pos, accessExpr.expr, new ArrayList<>());
 
         // Add pattern to lift nil
-        if (accessExpr.optionalFieldAccess) {
+        if (accessExpr.nilSafeNavigation) {
             matchStmt.patternClauses.add(getMatchNullPattern(accessExpr, tempResultVar));
             matchStmt.type = type;
         }
 
         // Add pattern to lift error, only if the safe navigation is used
-        if (accessExpr.safeNavigate) {
+        if (accessExpr.errorSafeNavigation) {
             matchStmt.patternClauses.add(getMatchErrorPattern(accessExpr, tempResultVar));
             matchStmt.type = type;
             matchStmt.pos = accessExpr.pos;
@@ -5067,7 +5067,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern for success scenario. i.e: not null and not error (if applicable).
         BLangMatchTypedBindingPatternClause successPattern =
-                getSuccessPattern(accessExpr, tempResultVar, accessExpr.safeNavigate);
+                getSuccessPattern(accessExpr, tempResultVar, accessExpr.errorSafeNavigation);
         matchStmt.patternClauses.add(successPattern);
         this.matchStmtStack.push(matchStmt);
         if (this.successPattern != null) {
@@ -5166,8 +5166,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create x.foo, by replacing the varRef expr of the current expression, with the new temp var ref
         accessExpr.expr = ASTBuilderUtil.createVariableRef(accessExpr.pos, successPatternVar.symbol);
-        accessExpr.safeNavigate = false;
-        accessExpr.optionalFieldAccess = false;
+        accessExpr.errorSafeNavigation = false;
+        accessExpr.nilSafeNavigation = false;
 
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
@@ -5353,8 +5353,8 @@ public class Desugar extends BLangNodeVisitor {
         accessExpr.pos = originalAccessExpr.pos;
         accessExpr.lhsVar = originalAccessExpr.lhsVar;
         accessExpr.symbol = originalAccessExpr.symbol;
-        accessExpr.safeNavigate = false;
-        accessExpr.optionalFieldAccess = false;
+        accessExpr.errorSafeNavigation = false;
+        accessExpr.nilSafeNavigation = false;
 
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
