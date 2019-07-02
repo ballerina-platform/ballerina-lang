@@ -27,7 +27,11 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Constants</h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Constants - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+            </h1>
             <div class="constants">
                 <div class="data-wrapper">
                     {{#each constants}}

@@ -639,18 +639,9 @@ public type SubscriptionDetails record {|
 |};
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
-    reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
-    foreach var annData in annotationDataArray {
-        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
-            var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
-            if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
-                return subscriberServiceAnnotation;
-            } else {
-                return;
-            }
-        }
-    }
-    return;
+    any annotData = reflect:getServiceAnnots(serviceType, moduleName = WEBSUB_MODULE_NAME,
+                                             ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+    return <SubscriberServiceConfiguration?> annotData;
 }
 
 # Record to represent a WebSub content delivery.

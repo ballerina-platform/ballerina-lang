@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
@@ -58,7 +59,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             for (HttpResource previousResource : this.resource) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
-                    throw new BallerinaException("Two resources have the same addressable URI, "
+                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
                                                      + previousResource.getName() + " and " + newResource.getName());
                 }
             }
@@ -69,7 +70,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
-                    throw new BallerinaException("Two resources have the same addressable URI, "
+                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
                                                          + r.getName() + " and " + newResource.getName());
                 }
             }

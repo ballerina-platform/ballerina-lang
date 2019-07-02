@@ -19,8 +19,10 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -36,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -83,11 +86,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -417,6 +422,19 @@ public class BIRPackageSymbolEnter {
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
+        if (type.tag == TypeTags.ERROR) {
+            defineErrorConstructor(this.env.pkgSymbol.scope, symbol);
+        }
+    }
+
+    private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
+                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        symbol.scope = new Scope(symbol);
+        scope.define(symbol.name, symbol);
+
+        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
     }
 
     private BType readBType(DataInputStream dataInStream) throws IOException {
@@ -441,7 +459,14 @@ public class BIRPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
 
-        int attachPoints = dataInStream.readInt();
+        int attachPointCount = dataInStream.readInt();
+        Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
+
+        for (int i = 0; i < attachPointCount; i++) {
+            attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
+                                                            dataInStream.readBoolean()));
+        }
+
         BType annotationType = readBType(dataInStream);
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),

@@ -52,13 +52,13 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 37, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'int' will not be matched to 'string|float'", 46, 9);
+                "incompatible types: 'int' will not be matched to '(string|float)'", 46, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 55, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 64, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'int|string' will not be matched to 'boolean|float'", 73, 9);
+                "incompatible types: '(int|string)' will not be matched to '(boolean|float)'", 73, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
         BAssertUtil.validateError(negativeResult, i++,
@@ -119,7 +119,8 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
         BAssertUtil.validateError(negativeResult, i,
-                                  "incompatible types: 'string|int' will not be matched to 'float|boolean'", 262, 9);
+                                  "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
+                262, 9);
     }
 
     @Test

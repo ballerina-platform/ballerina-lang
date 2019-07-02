@@ -1,22 +1,9 @@
-{{!-- <p>
-    <a href="#{{name}}"><b>{{name}} </b></a>
-    ({{{paramSummary parameters}}}) 
-    {{#if returnParameters }}
-        <span class="return-class">
-            <b> returns </b>{{{returnParamSummary returnParameters}}}
-        </span>
-    {{/if}}<br>
-</p> --}}
 
-<p>
-    <span class="param-name">
-        <a href="#{{name}}"><b>{{name}} </b></a>
-    </span>
-    <span class="param-details">
-        ({{{paramSummary parameters}}}) 
-        {{#if returnParameters }}
-        <b> returns </b>{{{returnParamSummary returnParameters}}}
-        {{/if}}
-    </span>
-    
-</p>
+<a href="#{{name}}">
+    <div class="param-sum">
+        <div class="param-name">
+        {{name}} 
+        </div>
+        <div class="param-details"> {{{ description }}} </div>
+    </div>
+</a>

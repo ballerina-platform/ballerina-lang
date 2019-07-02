@@ -14,23 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type anyStruct record {|
-    any...;
-|};
+const COLON = ":";
 
-public type annotationData record {
-    string name;
-    string moduleName;
-    string moduleVersion;
-    record {| any...; |} value;
-};
+public function getServiceAnnotations(service serviceType, string? moduleName = (), string annotName) returns any {
+    return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
+}
 
-public function getServiceAnnotations(service serviceType) returns annotationData[] = external;
+public function getResourceAnnotations(service serviceType, string resourceName, string? moduleName = (),
+                                       string annotName) returns any {
+    return getResourceAnnotationsExternal(serviceType, resourceName,
+                                          getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
+}
 
-public function getResourceAnnotations(service serviceType, string resourceName) returns annotationData[] = external;
+function getServiceAnnotationsExternal(service serviceType, string annot) returns any = external;
 
-public function getStructAnnotations(typedesc structType) returns annotationData[] = external;
+function getResourceAnnotationsExternal(service serviceType, string resourceName, string annot)
+    returns any = external;
 
-public function getStructFieldAnnotations(typedesc structType, string fieldName) returns annotationData[] = external;
-
-public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;
+function getAnnotQualifiedIdentifier(string? moduleName = (), string annotName) returns string {
+    if (moduleName is string) {
+        return moduleName + COLON + annotName;
+    }
+    return annotName;
+}
