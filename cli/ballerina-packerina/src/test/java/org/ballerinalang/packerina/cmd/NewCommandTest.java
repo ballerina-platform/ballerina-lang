@@ -133,7 +133,6 @@ public class NewCommandTest extends CommandTest {
 
         Assert.assertTrue(Files.isDirectory(tmpDir.resolve("parent")));
 
-
         String[] args2 = {"subdir"};
         newCommand = new NewCommand(tmpDir.resolve("parent").resolve("src"), printStream);
         new CommandLine(newCommand).parse(args2);
