@@ -11,12 +11,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+
 /**
- * Class to implement "openapi gen-contract" command for ballerina.
- * Ex: ballerina openapi gen-contract [module:]serviceName
- * [-i ballerinaFile]
- * [-o contractFile]
- * [-s|--skip-bind]
+ * This class will implement the "openapi" sub-command "gen-contract" for Ballerina OpenApi tool.
+ *
+ * Ex: ballerina openapi gen-contract [moduleName]:serviceName [-i: ballerinaFile] [-o: contractFile] [-s: skip-bind]
  */
 @CommandLine.Command(name = "gen-contract")
 public class OpenApiGenContractCmd implements BLauncherCmd {
@@ -48,7 +47,6 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
     @Override
     public void execute() {
 
-        //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);

@@ -10,8 +10,9 @@ import java.io.PrintStream;
 import java.util.List;
 
 /**
- * Class to implement "openapi gen-client" command for ballerina.
- * Ex: ballerina openapi (gen-client) [module]:clientName  -o(output directory name)
+ * This class will implement the "openapi" sub-command "gen-client" for Ballerina OpenApi tool.
+ *
+ * Ex: ballerina openapi (gen-client) [moduleName]:clientName -o[output directory name]
  */
 @CommandLine.Command(name = "gen-client")
 public class OpenApiGenClientCmd implements BLauncherCmd {
