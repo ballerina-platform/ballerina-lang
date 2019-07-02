@@ -19,11 +19,11 @@ package org.ballerinalang.observe.metrics.prometheus;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
+import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.metrics.spi.MetricReporter;
-import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
 import java.nio.file.Path;

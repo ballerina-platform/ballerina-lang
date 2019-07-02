@@ -158,13 +158,11 @@ public class CommandUtil {
 
         if (isService) {
             CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_SERVICE_TITLE);
-            action.setKind(CodeActionKind.Source);
             action.setCommand(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
                                           CreateTestExecutor.COMMAND, args));
             actions.add(action);
         } else if (isFunction) {
             CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_FUNC_TITLE);
-            action.setKind(CodeActionKind.Source);
             action.setCommand(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE,
                                           CreateTestExecutor.COMMAND, args));
             actions.add(action);
@@ -712,7 +710,6 @@ public class CommandUtil {
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
         action.setCommand(new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
                                       AddDocumentationExecutor.COMMAND, args));
-        action.setKind(CodeActionKind.Source);
         return action;
     }
 
@@ -721,7 +718,6 @@ public class CommandUtil {
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
         CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
         action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
-        action.setKind(CodeActionKind.Source);
         return action;
     }
 
@@ -732,7 +728,6 @@ public class CommandUtil {
         CodeAction codeAction = new CodeAction(CommandConstants.CREATE_INITIALIZER_TITLE);
         codeAction.setCommand(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
                                           CreateObjectInitializerExecutor.COMMAND, args));
-        codeAction.setKind(CodeActionKind.Source);
         return codeAction;
     }
 
