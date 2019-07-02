@@ -20,7 +20,7 @@
 //
 //jwt:JWTAuthProvider jwtAuthProvider12_1 = new({
 //    issuer: "example1",
-//    audience: ["ballerina"],
+//    audience: "ballerina",
 //    certificateAlias: "ballerina",
 //    trustStore: {
 //        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -71,7 +71,7 @@
 //
 //jwt:JWTAuthProvider jwtAuthProvider12_2 = new({
 //    issuer: "example1",
-//    audience: ["ballerina"],
+//    audience: "ballerina",
 //    certificateAlias: "ballerina",
 //    trustStore: {
 //        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

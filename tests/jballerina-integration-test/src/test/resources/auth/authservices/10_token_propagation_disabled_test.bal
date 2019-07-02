@@ -60,7 +60,7 @@ service passthroughService10 on listener10_1 {
 
 jwt:JWTAuthProvider jwtAuthProvider10 = new({
     issuer: "ballerina",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

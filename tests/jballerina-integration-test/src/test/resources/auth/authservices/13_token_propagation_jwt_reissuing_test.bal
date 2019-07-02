@@ -20,7 +20,7 @@
 //
 //jwt:JWTAuthProvider jwtAuthProvider13_1 = new({
 //    issuer: "example1",
-//    audience: ["ballerina"],
+//    audience: "ballerina",
 //    certificateAlias: "ballerina",
 //    trustStore: {
 //        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -48,7 +48,7 @@
 //        config: {
 //            inferredJwtIssuerConfig: {
 //                issuer: "example2",
-//                audience: ["ballerina"],
+//                audience: "ballerina",
 //                keyAlias: "ballerina",
 //                keyPassword: "ballerina",
 //                keyStore: {
@@ -83,7 +83,7 @@
 //
 //jwt:JWTAuthProvider jwtAuthProvider13_2 = new({
 //    issuer: "example2",
-//    audience: ["ballerina"],
+//    audience: "ballerina",
 //    certificateAlias: "ballerina",
 //    trustStore: {
 //        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

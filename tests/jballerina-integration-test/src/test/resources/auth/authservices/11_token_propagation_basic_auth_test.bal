@@ -40,7 +40,7 @@
 //        config: {
 //            inferredJwtIssuerConfig: {
 //                issuer: "ballerina",
-//                audience: ["ballerina"],
+//                audience: "ballerina",
 //                keyAlias: "ballerina",
 //                keyPassword: "ballerina",
 //                keyStore: {
@@ -75,7 +75,7 @@
 //
 //jwt:JWTAuthProvider jwtAuthProvider11 = new({
 //    issuer: "ballerina",
-//    audience: ["ballerina"],
+//    audience: "ballerina",
 //    certificateAlias: "ballerina",
 //    trustStore: {
 //        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
