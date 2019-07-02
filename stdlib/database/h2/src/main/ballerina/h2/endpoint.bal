@@ -167,7 +167,7 @@ public type Client client object {
     }
 
     function handleStoppedClientInvocation() returns sql:JdbcClientError {
-        sql:ApplicationError e = error("{ballerina/sql}ApplicationError", { message: "Client has been stopped"});
+        sql:ApplicationError e = error(message = "Client has been stopped");
         return e;
     }
 };

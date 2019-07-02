@@ -423,17 +423,19 @@ public class SQLActionsTest {
     @Test(groups = { CONNECTOR_TEST }, description = "Test error type for application level errors")
     public void testCheckApplicationErrorType() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckApplicationErrorType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test error type for database errors")
     public void testCheckDatabaseErrorType() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckDatabaseErrorType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(groups = { CONNECTOR_TEST, "broken" },
