@@ -108,7 +108,6 @@ public class CreateCommand implements BLauncherCmd {
             return;
         }
 
-        // If help flag is given print the help message.
         if (list) {
             errStream.println("Available templates:");
             for (String template: getTemplates()) {
@@ -157,6 +156,7 @@ public class CreateCommand implements BLauncherCmd {
                     false);
             return;
         }
+
         // Check if the module already exists
         if (CommandUtil.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
@@ -166,6 +166,7 @@ public class CreateCommand implements BLauncherCmd {
                     false);
             return;
         }
+
         // Check if the template exists
         if (!getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
@@ -230,10 +231,7 @@ public class CreateCommand implements BLauncherCmd {
 
         } catch (AccessDeniedException e) {
             throw new ModuleCreateException("Insufficient Permission");
-        } catch (IOException e) {
-            throw new ModuleCreateException(e.getMessage());
-        } catch (TemplateException e) {
-            // todo decide if we need to delete the module directory.
+        } catch (IOException | TemplateException e) {
             throw new ModuleCreateException(e.getMessage());
         }
     }
@@ -258,10 +256,8 @@ public class CreateCommand implements BLauncherCmd {
                 return templates;
             }
 
-        } catch (IOException e) {
+        } catch (IOException | TemplateException e) {
             // we will return an empty list if error.
-            return new ArrayList<String>();
-        } catch (TemplateException e) {
             return new ArrayList<String>();
         }
     }
