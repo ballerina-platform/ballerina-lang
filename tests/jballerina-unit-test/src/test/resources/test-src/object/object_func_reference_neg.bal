@@ -38,7 +38,7 @@ public type Foo abstract object {
 
     function test5(Status... status) returns Bar;
 
-    function test6((string, Status)... tup);
+    function test6([string, Status]... tup);
 
     function test7() returns Status;
 
@@ -71,7 +71,7 @@ public type FooImpl1 object {
     }
 
     // param name mismatch
-    function test6((string, Status)... tupl) {}
+    function test6([string, Status]... tupl) {}
 
     // param count mismatch
     function test7(int x = 0) returns Status {
