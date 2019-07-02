@@ -51,6 +51,8 @@ subprojects {
             requireBranch = null
         }
     }
+
+    afterReleaseBuild.dependsOn publish
 }
 
 buildScan {
@@ -63,5 +65,3 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
-
-afterReleaseBuild.dependsOn publish
