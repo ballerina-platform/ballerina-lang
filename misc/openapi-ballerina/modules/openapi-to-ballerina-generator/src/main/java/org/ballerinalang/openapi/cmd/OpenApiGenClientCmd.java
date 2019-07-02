@@ -3,6 +3,7 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import picocli.CommandLine;
 
@@ -45,15 +46,12 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         }
 
         if (moduleArgs == null) {
-            throw LauncherUtils.createLauncherException("Client name is mandatory to generate the ballerina client." +
-                    " \nE.g. ballerina openapi gen-client [<module>]:<servicename> <openapicontract>");
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CLIENT_MANDATORY);
         }
 
         //Check if relevant arguments are present
         if (argList == null) {
-            throw LauncherUtils.createLauncherException("An OpenApi definition file is required to " +
-                    "generate the client. \nE.g: ballerina openapi gen-client " + moduleArgs.get(0) + ":"
-                    + moduleArgs.get(1) + " <OpenApiContract>");
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_FILE_MANDATORY);
         }
 
         if (moduleArgs.size() > 2) {
@@ -63,9 +61,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         try {
             generator.generate(GeneratorConstants.GenType.valueOf("GEN_CLIENT"), argList.get(0), output);
         } catch (Exception e) {
-            throw LauncherUtils.createLauncherException(
-                    "Error occurred when generating service for openapi contract at " + argList.get(0)
-                            + ". " + e.getMessage() + ".");
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
         }
 
 

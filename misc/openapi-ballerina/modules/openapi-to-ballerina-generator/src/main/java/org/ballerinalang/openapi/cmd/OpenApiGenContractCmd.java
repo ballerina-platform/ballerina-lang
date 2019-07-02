@@ -3,6 +3,7 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -54,10 +55,9 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
         }
 
         if (moduleArgs == null) {
-            throw LauncherUtils.createLauncherException("A service name is mandatory to generate an OpenApi contract");
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_SERVICE_MANDATORY);
         } else if (moduleArgs.size() == 1 && balFile == null) {
-            throw LauncherUtils.createLauncherException("Please specify a ballerina document path in order " +
-                    "generate an OpenApi contract for the service " + moduleArgs.get(0));
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_BALLERINA_DOC_MANDATORY);
         }
 
         //When module and service name is available
