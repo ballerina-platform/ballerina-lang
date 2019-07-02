@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -77,6 +78,7 @@ public class CompilerDriver {
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
     private final SymbolEnter symbolEnter;
+    private final SymbolResolver symResolver;
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
     private final TaintAnalyzer taintAnalyzer;
@@ -107,6 +109,7 @@ public class CompilerDriver {
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
@@ -153,6 +156,8 @@ public class CompilerDriver {
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+
+        symResolver.reloadErrorType();
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);

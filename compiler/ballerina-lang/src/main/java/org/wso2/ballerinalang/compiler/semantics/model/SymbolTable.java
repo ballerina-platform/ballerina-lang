@@ -127,10 +127,10 @@ public class SymbolTable {
 
     public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
-    public final BConstructorSymbol errorConstructor;
 
     public BErrorType errorType;
     public BRecordType detailType;
+    public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
     public BFiniteType trueType;
 
@@ -210,14 +210,6 @@ public class SymbolTable {
 
         initializeErrorType();
 
-        // Initialize constructor symbol for ballerina built-in error type
-        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR, this.errorType.tsymbol.flags,
-                                                       this.errorType.tsymbol.name, this.errorType.tsymbol.pkgID,
-                                                       this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
-        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        rootScope.define(errorConstructor.name, this.errorConstructor);
-        this.errorType.ctorSymbol = this.errorConstructor;
-
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
 
         BLangLiteral trueLiteral = new BLangLiteral();
@@ -288,7 +280,6 @@ public class SymbolTable {
                 null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
         errorSymbol.type = this.errorType;
-        defineType(this.errorType, errorType.tsymbol);
 
         int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
         BField messageField = new BField(Names.DETAIL_MESSAGE, this.rootPkgNode.pos,
@@ -302,6 +293,13 @@ public class SymbolTable {
         detailSymbol.scope.define(Names.DETAIL_CAUSE, causeField.symbol);
 
         this.detailType.restFieldType = BUnionType.create(null, this.anydataType, this.errorType);
+
+        // Initialize constructor symbol for ballerina built-in error type
+        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR, this.errorType.tsymbol.flags,
+                this.errorType.tsymbol.name, this.errorType.tsymbol.pkgID,
+                this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
+        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        this.errorType.ctorSymbol = this.errorConstructor;
 
         // TODO : Remove this. Had to add this due to BIR codegen requires this.
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);
