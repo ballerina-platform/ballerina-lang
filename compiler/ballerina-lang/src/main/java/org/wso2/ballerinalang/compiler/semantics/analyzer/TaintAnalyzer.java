@@ -2275,38 +2275,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // and also consider parameters (non self params) can taint the self param, which is illegal as well.
 
                 TaintRecord receiverTaintRecord = taintTable.get(0);
-                if (receiverSymbol.tainted) {
-                    if (receiverTaintRecord == null) {
-                        // there is a taint error when receiver is tainted.
-                        // indicating that at this point receiver/self being tainted cause tainted value
-                        // (via receiver/self) passing to a sensitive parameter down the call.
-                        addTaintError(invocationExpr.pos, receiverSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
-                    }
-
-                    // does this taint other params and return?
-                    if (receiverTaintRecord != null
-                            && receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
-                        returnTaintedStatus = TaintedStatus.TAINTED;
-                    }
-                    if (receiverTaintRecord != null
-                            && receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
-                        for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
-                            if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
-                                addTaintError(receiverTaintRecord.taintError);
-                            } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
-                                addTaintError(invocationExpr.pos,
-                                        getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
-                            } else {
-                                // todo: we need a better error message here.
-                                // indicating that at this point receiver/self being tainted cause tainted value
-                                // (via receiver/self) passing to a sensitive parameter down the call.
-                                addTaintError(invocationExpr.pos, receiverSymbol.name.value,
-                                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
-                            }
-                        }
-                    }
-                }
+                returnTaintedStatus = checkTaintErrorsInObjectMethods(invocationExpr, returnTaintedStatus, receiverSymbol, receiverTaintRecord);
 
                 TaintRecord allUntaintedEntry = taintTable.get(-1); // when everything is untainted
                 if (allUntaintedEntry != null
@@ -2429,8 +2398,47 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
     }
 
+    private TaintedStatus checkTaintErrorsInObjectMethods(BLangInvocation invocationExpr, TaintedStatus returnTaintedStatus, BVarSymbol receiverSymbol, TaintRecord receiverTaintRecord) {
+        if (receiverSymbol != null && receiverSymbol.tainted) {
+            if (receiverTaintRecord == null) {
+                // there is a taint error when receiver is tainted.
+                // indicating that at this point receiver/self being tainted cause tainted value
+                // (via receiver/self) passing to a sensitive parameter down the call.
+                addTaintError(invocationExpr.pos, receiverSymbol.name.value,
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+            }
+
+            // does this taint other params and return?
+            if (receiverTaintRecord != null
+                    && receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
+                returnTaintedStatus = TaintedStatus.TAINTED;
+            }
+            if (receiverTaintRecord != null
+                    && receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
+                for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
+                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
+                        addTaintError(receiverTaintRecord.taintError);
+                    } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
+                        addTaintError(invocationExpr.pos,
+                                getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
+                    } else {
+                        // todo: we need a better error message here.
+                        // indicating that at this point receiver/self being tainted cause tainted value
+                        // (via receiver/self) passing to a sensitive parameter down the call.
+                        addTaintError(invocationExpr.pos, receiverSymbol.name.value,
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+                    }
+                }
+            }
+        }
+        return returnTaintedStatus;
+    }
+
     private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr,
                                                       Map<Integer, TaintRecord> taintTable) {
+        if (invocationExpr.builtinMethodInvocation) {
+            return false;
+        }
         TaintRecord allUntaintedTaintRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
 
         int totalParamCount = invocationExpr.requiredArgs.size() + invocationExpr.namedArgs.size()
@@ -2461,7 +2469,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case INVOCATION:
                 return (BVarSymbol) ((BLangInvocation) expr).symbol;
             default:
-                throw new UnsupportedOperationException();
+                return null;
         }
     }
 
