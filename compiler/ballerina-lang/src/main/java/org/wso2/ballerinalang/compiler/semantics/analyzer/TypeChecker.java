@@ -31,7 +31,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -1278,7 +1277,7 @@ public class TypeChecker extends BLangNodeVisitor {
             errorRefRestFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
         } else {
             dlog.error(varRefExpr.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                    varRefExpr.restVar.type, symTable.pureTypeConstrainedMap);
+                    varRefExpr.restVar.type, symTable.detailType);
             resultType = symTable.semanticError;
             return;
         }

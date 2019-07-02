@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -1162,7 +1163,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
             // todo: need to support string subtypes as reason type.
-            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.stringType, symTable.pureTypeConstrainedMap);
+            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.stringType, symTable.detailType);
             return validateErrorVariable(errorVariable);
         }
 
@@ -1174,7 +1175,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 tsymbol.type = restType;
                 errorVariable.restDetail.type = restType;
             } else {
-                errorVariable.restDetail.type = symTable.pureTypeConstrainedMap;
+                errorVariable.restDetail.type = symTable.detailType;
             }
             errorVariable.restDetail.accept(this);
         }

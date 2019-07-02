@@ -42,8 +42,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -132,7 +132,6 @@ public class SymbolTable {
     public BErrorType errorType;
     public BRecordType detailType;
     public BUnionType pureType;
-    public BMapType pureTypeConstrainedMap;
     public BFiniteType trueType;
 
     public BPackageSymbol langInternalModuleSymbol;
@@ -212,8 +211,9 @@ public class SymbolTable {
         initializeErrorType();
 
         // Initialize constructor symbol for ballerina built-in error type
-        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
+        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR, this.errorType.tsymbol.flags,
+                                                       this.errorType.tsymbol.name, this.errorType.tsymbol.pkgID,
+                                                       this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
         this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
         rootScope.define(errorConstructor.name, this.errorConstructor);
         this.errorType.ctorSymbol = this.errorConstructor;

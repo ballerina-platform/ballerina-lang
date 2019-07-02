@@ -986,7 +986,7 @@ public class Desugar extends BLangNodeVisitor {
         if (detailType.tag == TypeTags.MAP) {
             detailMapType = detailType;
         } else {
-            detailMapType = symTable.pureTypeConstrainedMap;
+            detailMapType = symTable.detailType;
         }
 
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
@@ -1063,7 +1063,7 @@ public class Desugar extends BLangNodeVisitor {
 
         filterIterator.iContext = iterableContext;
 
-        iterableContext.resultType = symTable.pureTypeConstrainedMap;
+        iterableContext.resultType = symTable.detailType;
         Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
         filterOperation.pos = pos;
         filterOperation.collectionType = filterOperation.expectedType = iterableContext.resultType;
@@ -1723,8 +1723,9 @@ public class Desugar extends BLangNodeVisitor {
                 parentIndexAccessExpr);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail$" + errorCount++,
-                symTable.pureTypeConstrainedMap, errorDetailBuiltinFunction, parentErrorVarRef.pos);
-        detailTempVarDef.type = symTable.pureTypeConstrainedMap;
+                                                               symTable.detailType, errorDetailBuiltinFunction,
+                                                               parentErrorVarRef.pos);
+        detailTempVarDef.type = symTable.detailType;
         parentBlockStmt.addStatement(detailTempVarDef);
         this.env.scope.define(names.fromIdNode(detailTempVarDef.var.name), detailTempVarDef.var.symbol);
 
@@ -4680,7 +4681,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                     null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
-                detailType = symTable.pureTypeConstrainedMap;
+                detailType = symTable.detailType;
             } else {
                 detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
 
