@@ -20,7 +20,7 @@ service {{cut serviceName " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{
         path:"{{pathName}}"{{#requestBody}},
         body:"_{{operationId}}Body"{{/requestBody}}
     }
-    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req {{#parameters}}{{#isPathParam}}{{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}, {{/isPathParam}}{{/parameters}} ) returns error? {{=<% %>=}}{<%={{ }}=%>
+    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#if parameters}},{{/if}} {{#parameters}}{{#isPathParam}}{{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}, {{/isPathParam}}{{/parameters}} ) returns error? {{=<% %>=}}{<%={{ }}=%>
 
     }
 {{/operations}}{{/paths}}

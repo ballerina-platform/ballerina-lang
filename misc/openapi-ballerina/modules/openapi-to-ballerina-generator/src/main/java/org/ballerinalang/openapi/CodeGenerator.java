@@ -355,6 +355,11 @@ public class CodeGenerator {
                 "serviceMock");
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
+        String schemaContent = getContent(api, GeneratorConstants.DEFAULT_TEMPLATE_DIR + "/service",
+                "schema");
+        sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
+                schemaContent));
+
         return sourceFiles;
     }
 

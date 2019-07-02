@@ -3,6 +3,7 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -11,12 +12,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+
 /**
- * Class to implement "openapi gen-contract" command for ballerina.
- * Ex: ballerina openapi gen-contract [module:]serviceName
- * [-i ballerinaFile]
- * [-o contractFile]
- * [-s|--skip-bind]
+ * This class will implement the "openapi" sub-command "gen-contract" for Ballerina OpenApi tool.
+ *
+ * Ex: ballerina openapi gen-contract [moduleName]:serviceName [-i: ballerinaFile] [-o: contractFile] [-s: skip-bind]
  */
 @CommandLine.Command(name = "gen-contract")
 public class OpenApiGenContractCmd implements BLauncherCmd {
@@ -48,7 +48,6 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
     @Override
     public void execute() {
 
-        //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
@@ -56,10 +55,9 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
         }
 
         if (moduleArgs == null) {
-            throw LauncherUtils.createLauncherException("A service name is mandatory to generate an OpenApi contract");
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_SERVICE_MANDATORY);
         } else if (moduleArgs.size() == 1 && balFile == null) {
-            throw LauncherUtils.createLauncherException("Please specify a ballerina document path in order " +
-                    "generate an OpenApi contract for the service " + moduleArgs.get(0));
+            throw LauncherUtils.createLauncherException(OpenApiMesseges.CONTRACT_BALLERINA_DOC_MANDATORY);
         }
 
         //When module and service name is available

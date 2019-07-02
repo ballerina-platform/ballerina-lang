@@ -140,9 +140,7 @@ public class TypeMatchingUtil {
             String schemaTypeClassName = schemaTypeClass.getName();
             String[] schemaMethodName = schemaTypeClassName.split("\\.");
             try {
-                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length-1],
-                        Object.class, OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(),
-                        ((Map.Entry) propertyObject).getValue(), propertyType);
+                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length-1], OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(), propertyType);
             } catch (IllegalAccessException | InvocationTargetException
                     | NoSuchMethodException | InstantiationException e) {
                 e.printStackTrace();

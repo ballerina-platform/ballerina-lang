@@ -20,6 +20,12 @@ import java.util.List;
  * Class to implement "openapi gen-service" command for ballerina.
  * Ex: ballerina openapi gen-service module:serviceName contract
  */
+
+/**
+ * This class will implement the "openapi" sub-command "gen-service" for Ballerina OpenApi tool.
+ *
+ * Ex: ballerina openapi gen-service moduleName:serivceName [-c: copy-contract] [-o: outputFile]
+ */
 @CommandLine.Command(name = "gen-service")
 public class OpenApiGenServiceCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
