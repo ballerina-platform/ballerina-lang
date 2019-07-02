@@ -92,9 +92,7 @@ public class CreateCommand implements BLauncherCmd {
                     jarFs = FileSystems.newFileSystem(URI.create(array[0]), env);
                 }
             }
-        } catch (URISyntaxException e) {
-            throw new AssertionError();
-        } catch (IOException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new AssertionError();
         }
     }
