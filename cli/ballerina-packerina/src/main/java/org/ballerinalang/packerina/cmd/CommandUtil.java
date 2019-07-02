@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
