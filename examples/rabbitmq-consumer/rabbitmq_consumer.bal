@@ -7,7 +7,7 @@ rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
 listener rabbitmq:Listener channelListener= new(connection);
 
 // The consumer service listens to the "MyQueue" queue.
-// ackMode is by default rabbitmq:AUTO_ACK where messages are acknowledged
+// The `ackMode` is by default rabbitmq:AUTO_ACK where messages are acknowledged
 // immediately after consuming.
 @rabbitmq:ServiceConfig {
     queueConfig: {

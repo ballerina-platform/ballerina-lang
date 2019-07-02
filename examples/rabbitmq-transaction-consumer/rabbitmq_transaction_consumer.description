@@ -4,4 +4,4 @@
 // Upon successful execution of the transaction block,
 // the acknowledgement will commit or rollback in the case of any error.
 // Messages will not be re-queued in the case of a rollback
-// automatically, unless negatively acknowledged by the user.
+// automatically unless negatively acknowledged by the user.

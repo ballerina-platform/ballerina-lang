@@ -19,7 +19,7 @@ service transactionConsumer on new rabbitmq:Listener({ host: "localhost", port: 
             } else {
                 log:printError("Error occurred while retrieving the message content.");
             }
-            // Positively acknowledges a single message.
+            // Acknowledges a single message positively.
             // The acknowledgement gets committed upon successful execution of the transaction,
             // or will rollback otherwise.
             var result = message->basicAck();

@@ -29,7 +29,7 @@ service dataBindingConsumer on channelListener {
         // of the resource function.
         log:printInfo("The message received from data binding: " + stringMessage);
 
-         // Positively acknowledges a single message.
+        // Acknowledges a single message positively.
         var result = message->basicAck();
         if (result is error) {
             log:printError("Error occurred while acknowledging the message.");

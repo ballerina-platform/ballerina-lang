@@ -26,7 +26,7 @@ public type Listener object {
     private Channel? amqpChannel;
 
     # Initializes a Ballerina ChannelListener object with the given Connection object or connection parameters.
-    # Creates a Connection object if only the connection configuration is given. Sets global QoS settings
+    # Creates a Connection object if only the connection configuration is given. Sets global QoS settings,
     # which will be applied to the entire channel.
     #
     # + connectionOrConnectionConfig - Holds a Ballerina RabbitMQ Connection object or the connection parameters.

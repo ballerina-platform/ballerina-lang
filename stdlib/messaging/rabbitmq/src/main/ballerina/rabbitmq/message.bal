@@ -37,7 +37,7 @@ public type Message client object {
    # + return - int containing the delivery tag of the message.
    public function getDeliveryTag() returns @tainted int = external;
 
-   # Retrieves the properties of the message - routing headers etc.
+   # Retrieves the properties of the message (i.e., routing headers etc.).
    #
    # + return - Properties of the message or error if an error is encountered.
    public function getProperties() returns BasicProperties | error = external;

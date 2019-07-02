@@ -959,11 +959,11 @@
         "category": "Working over the network",
         "samples": [
             {
-                "name": "RabbitMQ Producer",
+                "name": "Producer",
                 "url": "rabbitmq-producer"
             },
             {
-                "name": "RabbitMQ Consumer",
+                "name": "Consumer",
                 "url": "rabbitmq-consumer"
             },
             {

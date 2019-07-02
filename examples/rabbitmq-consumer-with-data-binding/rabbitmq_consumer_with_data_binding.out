@@ -1,7 +1,7 @@
 # Make sure to have the RabbitMQ broker running.
 #
 # Navigate to the directory that contains the
-# 'rabbitmq_consumer_with_data_binding.bal' file, and issue the 'ballerina run' command as follows..
+# 'rabbitmq_consumer_with_data_binding.bal' file, and issue the 'ballerina run' command as follows.
 
 $ ballerina run rabbitmq_consumer_with_data_binding.bal
 
