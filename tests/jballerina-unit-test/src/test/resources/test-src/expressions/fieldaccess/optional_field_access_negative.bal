@@ -64,3 +64,9 @@ function testInvalidOptionalFieldAccessOnMap() {
     map<xml>|map<json> m4 = m3;
     xml|json id3 = m4?.id;
 }
+
+function testInvalidOptionalFieldAccessTypeForLaxType() {
+    json j = { a: 1, b: { c: "foo" } };
+    map<json>|json j1 = j;
+    json j2 = j1?.a;
+}

@@ -218,6 +218,65 @@ function testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap() returns boolean
     return j2 == () && j3 == () && j4 == ();
 }
 
+function testOptionalFieldAccessOnLaxUnionPositive() returns boolean {
+    map<json> w = { c: 3, d: () };
+    map<json>|json x = w;
+    json|error j = x?.c;
+
+    map<map<json>> y = { a: { b: 1, c: "hello" }, d: { e: 2.0 } };
+    map<json>|map<map<json>> z = y;
+
+    json j2 = z?.a;
+    json|error j3 = z?.a?.b;
+    json j4 = z?.d;
+    json|error j5 = z?.d?.e;
+
+    map<json> m1 = { b: 1, c: "hello" };
+    map<json> m2 = { e: 2.0 };
+
+    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2 && j5 == 2.0;
+}
+
+function testOptionalFieldAccessNilReturnOnLaxUnion() returns boolean {
+    json j = { a: 1, b: { c: "foo" } };
+    map<json>|json j1 = j;
+
+    json|error j2 = j1?.d;
+    json|error j3 = j1?.b?.e;
+
+    return j2 is () && j3 is ();
+}
+
+function testOptionalFieldAccessNilLiftingOnLaxUnion() returns boolean {
+    map<json> j = { a: 1, b: { c: () } };
+    map<json>|map<map<json>> j1 = j;
+
+    json|error j2 = j1?.d?.e;
+    json|error j3 = j1?.b?.c?.e;
+
+    return j2 is () && j3 is ();
+}
+
+function testOptionalFieldAccessErrorReturnOnLaxUnion() returns boolean {
+    json j = { a: 1, b: { c: "foo" } };
+    map<json>|json j1 = j;
+
+    json|error j2 = j1?.a?.b;
+    json|error j3 = j1?.b?.c?.d;
+
+    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
+}
+
+function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
+    map<json> j = { a: 1, b: { c: 44.4 } };
+    map<json>|map<map<json>> j1 = j;
+
+    json|error j2 = j1?.a?.e?.f;
+    json|error j3 = j1?.b?.c?.e;
+
+    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
+}
+
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         map<anydata|error> detailMap = je.detail();
@@ -235,4 +294,31 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
     return false;
 }
 
-//mixed tests
+type Baz record {
+    Qux q;
+};
+
+type Qux record {
+    string name;
+    int id?;
+};
+
+function testFieldAccessWithOptionalFieldAccess1() returns boolean {
+    Baz b = { q: { name: "John" } };
+    string name = b.q?.name;
+    int? id = b.q?.id;
+    return name == "John" && id is ();
+}
+
+function testFieldAccessWithOptionalFieldAccess2() returns boolean {
+    json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
+    json|error j2 = j1?.b.c;
+    return j2 == "qwer";
+}
+
+function testFieldAccessWithOptionalFieldAccess3() returns boolean {
+    json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
+    json|error j2 = j1?.a.b;
+    json|error j3 = j1?.d.b;
+    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
+}

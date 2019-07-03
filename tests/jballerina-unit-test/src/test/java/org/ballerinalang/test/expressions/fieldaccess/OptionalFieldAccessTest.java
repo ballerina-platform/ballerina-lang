@@ -47,7 +47,7 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Foo' does not support optional field access",
                       23, 19);
@@ -62,8 +62,9 @@ public class OptionalFieldAccessTest {
                 "access", 58, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>?' does not support optional field " +
                 "access", 61, 19);
-        validateError(negativeResult, i, "invalid operation: type 'map<xml>|map<json>' does not support optional " +
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>|map<json>' does not support optional " +
                 "field access", 65, 20);
+        validateError(negativeResult, i, "incompatible types: expected 'json', found 'json|error'", 71, 15);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
@@ -87,14 +88,14 @@ public class OptionalFieldAccessTest {
         };
     }
 
-    @Test(dataProvider = "jsonOptionalFieldAccessFunctions")
-    public void testJsonOptionalFieldAccess(String function) {
+    @Test(dataProvider = "laxOptionalFieldAccessFunctions")
+    public void testLaxOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @DataProvider(name = "jsonOptionalFieldAccessFunctions")
-    public Object[][] jsonOptionalFieldAccessFunctions() {
+    @DataProvider(name = "laxOptionalFieldAccessFunctions")
+    public Object[][] laxOptionalFieldAccessFunctions() {
         return new Object[][] {
                 { "testOptionalFieldAccessNilLiftingOnJson1" },
                 { "testOptionalFieldAccessNilLiftingOnJson2" },
@@ -105,7 +106,27 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessOnJsonMappingPositive" },
                 { "testOptionalFieldAccessOnMapJsonPositive" },
                 { "testOptionalFieldAccessNilReturnOnMissingKey" },
-                { "testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap" }
+                { "testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap" },
+                { "testOptionalFieldAccessOnLaxUnionPositive" },
+                { "testOptionalFieldAccessNilReturnOnLaxUnion" },
+                { "testOptionalFieldAccessNilLiftingOnLaxUnion" },
+                { "testOptionalFieldAccessErrorReturnOnLaxUnion" },
+                { "testOptionalFieldAccessErrorLiftingOnLaxUnion" }
+        };
+    }
+
+    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
+    public void testFieldAndOptionalFieldAccess(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "fieldAndOptionalFieldAccessFunctions")
+    public Object[][] fieldAndOptionalFieldAccessFunctions() {
+        return new Object[][] {
+                { "testFieldAccessWithOptionalFieldAccess1" },
+                { "testFieldAccessWithOptionalFieldAccess2" },
+                { "testFieldAccessWithOptionalFieldAccess3" }
         };
     }
 }
