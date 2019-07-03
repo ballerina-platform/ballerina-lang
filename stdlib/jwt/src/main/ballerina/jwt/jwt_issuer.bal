@@ -95,7 +95,7 @@ function buildHeaderString(JwtHeader header) returns (string|error) {
         return prepareError("Unsupported JWS algorithm.");
     }
     headerJson[TYP] = "JWT";
-    if (header.kid is string) {
+    if (header["kid"] is string) {
         headerJson[KID] = header.kid;
     }
     string headerValInString = headerJson.toString();
