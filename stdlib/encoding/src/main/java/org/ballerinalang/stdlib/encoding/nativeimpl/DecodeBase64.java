@@ -47,7 +47,7 @@ public class DecodeBase64 extends BlockingNativeCallableUnit {
             byte[] output = Base64.getDecoder().decode(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("input is not a valid Base64 value");
+            return EncodingUtil.createEncodingError("Input is not a valid Base64 value");
         }
     }
 }
