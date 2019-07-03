@@ -50,7 +50,10 @@ export class EditableDiagram extends React.Component<EditableDiagramProps, Edita
         // create props for the diagram
         const diagramProps = {
             ast,
+            docUri: "",
+            fitToWidthOrHeight: true,
             height,
+            langClient: this.props.langClient,
             mode,
             width,
             zoom,
@@ -160,11 +163,6 @@ export class EditableDiagram extends React.Component<EditableDiagramProps, Edita
             editingEnabled: this.state.editingEnabled,
             hasSyntaxErrors: this.state.hasSyntaxErrors,
             langClient: this.props.langClient,
-            toggleEditing: () => {
-                this.setState({
-                    editingEnabled: !this.state.editingEnabled,
-                });
-            }
         };
 
         // merge with parent (if any) or with default context

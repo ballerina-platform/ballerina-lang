@@ -213,8 +213,11 @@ public final class Constants {
     public static final String SQL_FILE_DB_POSTFIX = "_FILE";
     public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
 
+    public static final String APPLICATION_ERROR_DATA_RECORD_NAME = "ApplicationErrorData";
     public static final String DATABASE_ERROR_DATA_RECORD_NAME = "DatabaseErrorData";
-    public static final String DATABASE_ERROR_MESSAGE = "SQL Error Occurred";
+    public static final String APPLICATION_ERROR_MESSAGE = "Application Error Occurred";
+    public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
+    public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
     public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
 
     public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";

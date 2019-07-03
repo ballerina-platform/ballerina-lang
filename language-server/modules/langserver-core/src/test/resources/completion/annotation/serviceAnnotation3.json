@@ -6,67 +6,27 @@
   "source": "annotation/source/serviceAnnotation3.bal",
   "items": [
     {
-      "label": "endpoints",
+      "label": "autoAck",
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "endpoints: [${1}]",
+      "insertText": "autoAck: ${1:false}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "host",
+      "label": "queueConfig",
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "host: \"${1}\"",
+      "insertText": "queueConfig: {\n\tqueueName: \"${1}\"\n}\n",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "basePath",
+      "label": "filter",
       "kind": "Field",
       "detail": "Field",
       "sortText": "120",
-      "insertText": "basePath: \"${1}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "compression",
-      "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
-      "insertText": "compression: {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "chunking",
-      "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
-      "insertText": "chunking: ${1:\"AUTO\"} // Values allowed: AUTO|ALWAYS|NEVER",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cors",
-      "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
-      "insertText": "cors: {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "versioning",
-      "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
-      "insertText": "versioning: {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "auth",
-      "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
-      "insertText": "auth: {${1}}",
+      "insertText": "filter: ${1:\"\"} // Values allowed: string|()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -74,7 +34,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "endpoints: [],\nhost: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauth: {}",
+      "insertText": "autoAck: false,\nqueueConfig: {},\nfilter: \"\" // Values allowed: string|()",
       "insertTextFormat": "Snippet"
     }
   ]

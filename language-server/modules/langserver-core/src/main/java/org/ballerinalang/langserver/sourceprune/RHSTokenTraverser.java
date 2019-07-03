@@ -31,6 +31,7 @@ import java.util.Optional;
  */
 class RHSTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
+    private int leftBracketCount;
     private int leftParenthesisCount;
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
@@ -40,6 +41,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         super(pruneTokens);
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
         this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
+        this.leftBracketCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
         this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
@@ -61,6 +63,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
                 if (terminateRHSTraverse) {
                     break;
                 }
+            } else if (BallerinaParser.LEFT_BRACKET == type) {
+                leftBracketCount++;
             }
             this.processToken(token.get());
             tokenIndex = token.get().getTokenIndex() + 1;
@@ -87,13 +91,24 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             return false;
         }
+        if (type == BallerinaParser.RIGHT_BRACKET && this.leftBracketCount > 0) {
+            this.leftBracketCount--;
+            this.processToken(token);
+            return false;
+        }
         /*
-        If the last altered token is => and the current token is Left Brace then the following match pattern clause
-        will be addressed and remove the whole pattern clause
+        If the last altered token is => or :, and the current token is Left Brace then the following match pattern
+        clause and the annotation cases will be addressed and remove the whole block within the braces
         Eg: 
         match expr {
             12 => 
             // this whole clause will remove var (a, b) => {printMessage();}
+        }
+        @hello:ServiceConfig {
+            basePath: mod2:<cursor>
+            cors: {
+            
+            }
         }
         otherwise the pruned source will be
         match expr {
@@ -101,7 +116,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             {printMessage();}
         }
          */
-        if (type == BallerinaParser.LEFT_BRACE && this.lastProcessedToken == BallerinaParser.EQUAL_GT) {
+        if (type == BallerinaParser.LEFT_BRACE && (this.lastProcessedToken == BallerinaParser.EQUAL_GT
+                || this.lastProcessedToken == BallerinaParser.COLON)) {
             this.leftBraceCount++;
             this.processToken(token);
             return false;
