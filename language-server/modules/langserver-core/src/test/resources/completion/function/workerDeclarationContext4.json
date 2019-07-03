@@ -76,6 +76,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "HttpParamOrderConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Path param order config keep the signature path param index against the variable names for runtime path param processing.\n"
+      },
+      "insertText": "HttpParamOrderConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "AuthnFilter",
       "kind": "Class",
       "detail": "Object",

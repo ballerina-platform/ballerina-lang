@@ -403,7 +403,7 @@ public class SelectorManager {
     private ArrayValue createTcpSocketReturnValue(ReadPendingCallback callback, byte[] bytes) {
         ArrayValue contentTuple = new ArrayValue(tcpReadResultTuple);
         contentTuple.add(0, new ArrayValue(bytes));
-        contentTuple.add(1, new Long(callback.getCurrentLength()));
+        contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         return contentTuple;
     }
 
@@ -414,7 +414,7 @@ public class SelectorManager {
         address.put("host", remoteAddress.getHostName());
         ArrayValue contentTuple = new ArrayValue(receiveFromResultTuple);
         contentTuple.add(0, new ArrayValue(bytes));
-        contentTuple.add(1, new Long(callback.getCurrentLength()));
+        contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         contentTuple.add(2, address);
         return contentTuple;
     }
