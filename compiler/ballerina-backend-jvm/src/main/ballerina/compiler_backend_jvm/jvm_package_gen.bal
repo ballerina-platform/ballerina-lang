@@ -501,11 +501,19 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
                                     modName : {value:"utils"},
                                     modVersion : {value:""}};
 
+    bir:ImportModule langMapModule = {modOrg : {value:"ballerina"},
+                                    modName : {value:"lang.map"},
+                                    modVersion : {value:""}};
+
     if (isSameModule(moduleId, annotationsModule)) {
         return;
     }
 
     if (isSameModule(moduleId, langStringModule)) {
+        return;
+    }
+
+    if (isSameModule(moduleId, langMapModule)) {
         return;
     }
 
@@ -516,6 +524,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     }
 
     module.importModules[module.importModules.length()] = utilsModule;
+    module.importModules[module.importModules.length()] = langMapModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {
@@ -532,5 +541,5 @@ function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) retu
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    return externalMapCache[pkgName + "/" + functionName];
+    return externalMapCache[cleanupName(pkgName + "/" + functionName)];
 }

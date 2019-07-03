@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -208,6 +209,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -229,9 +231,9 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1777,7 +1779,7 @@ public class Desugar extends BLangNodeVisitor {
         //
         // int[] $data$ = data;
         //
-        // any $iterator$ = $data$.iterate();
+        // any $iterator$ = $data$.iterator();
         // map<T>? $result$ = $iterator$.next();
         //
         // while $result$ != () {
@@ -1790,13 +1792,11 @@ public class Desugar extends BLangNodeVisitor {
 
         // Note - any $iterator$ = $data$.iterate(); -------------------------------------------------------------------
 
-        // Create a new symbol for the $size$.
-        BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
-                symTable.anyType, this.env.scope.owner);
-
-        // Note - $data$.iterate();
+        // Note - $data$.iterator();
         BLangSimpleVariableDef iteratorVariableDefinition =
-                getIteratorVariableDefinition(foreach, collectionSymbol, iteratorSymbol);
+                getIteratorVariableDefinition(foreach, collectionSymbol);
+
+        BVarSymbol iteratorSymbol = iteratorVariableDefinition.var.symbol;
 
         // Create a new symbol for the $result$.
         BVarSymbol resultSymbol = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
@@ -1804,36 +1804,31 @@ public class Desugar extends BLangNodeVisitor {
 
         // Note - map<T>? $result$ = $iterator$.next();
         BLangSimpleVariableDef resultVariableDefinition =
-                getIteratorNextVariableDefinition(foreach, collectionSymbol, iteratorSymbol, resultSymbol);
+                getIteratorNextVariableDefinition(foreach, iteratorSymbol, resultSymbol);
 
         // Note - $result$ != ()
         BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(foreach.pos, symTable.nilType, Names.NIL_VALUE);
-        BOperatorSymbol operatorSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.NOT_EQUAL,
-                symTable.anyType, nilLiteral.type);
-        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(foreach.pos, resultReferenceInWhile, nilLiteral,
-                symTable.booleanType, OperatorKind.NOT_EQUAL, operatorSymbol);
-
+        BLangTypeTestExpr typeTestExpr = ASTBuilderUtil
+                .createTypeTestExpr(foreach.pos, resultReferenceInWhile, getUserDefineTypeNode(foreach.resultType));
         // create while loop: while ($result$ != ())
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
         whileNode.pos = foreach.pos;
-        whileNode.expr = binaryExpr;
+        whileNode.expr = typeTestExpr;
         whileNode.body = foreach.body;
 
         // Generate $result$.value
         // However, we are within the while loop. hence the $result$ can never be nil. Therefore
         // cast $result$ to non-nilable  type.
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
-        valueAccessExpr.expr =
-                addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type, false));
 
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
-        variableDefinitionNode.getVariable().setInitialExpression(valueAccessExpr);
+        variableDefinitionNode.getVariable()
+                .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
         whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
         // Note - $result$ = $iterator$.next();
         BLangAssignment resultAssignment =
-                getIteratorNextAssignment(foreach, collectionSymbol, iteratorSymbol, resultSymbol);
+                getIteratorNextAssignment(foreach, iteratorSymbol, resultSymbol);
         whileNode.body.stmts.add(1, resultAssignment);
 
         // Create a new block statement node.
@@ -1848,6 +1843,22 @@ public class Desugar extends BLangNodeVisitor {
         // Add the while node to the block.
         blockNode.addStatement(whileNode);
         return blockNode;
+    }
+
+    private BLangType getUserDefineTypeNode(BType type) {
+        BLangUserDefinedType recordType =
+                new BLangUserDefinedType(ASTBuilderUtil.createIdentifier(null, ""),
+                                         ASTBuilderUtil.createIdentifier(null, ""));
+        recordType.type = type;
+        return recordType;
+    }
+
+    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
+                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
+                .findFirst();
+        return nextFunc.orElse(null);
     }
 
     @Override
@@ -3218,46 +3229,48 @@ public class Desugar extends BLangNodeVisitor {
     // private functions
 
     // Foreach desugar helper method.
-    private BLangSimpleVariableDef getIteratorVariableDefinition(BLangForeach foreach, BVarSymbol collectionSymbol,
-                                                                 BVarSymbol iteratorSymbol) {
-        BLangIdentifier iterateIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "iterate");
+    private BLangSimpleVariableDef getIteratorVariableDefinition(BLangForeach foreach, BVarSymbol collectionSymbol) {
+
+        BLangIdentifier iterateIdentifier =
+                ASTBuilderUtil.createIdentifier(foreach.pos, BLangBuiltInMethod.ITERATE.getName());
         BLangSimpleVarRef dataReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
         BLangInvocation iteratorInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         iteratorInvocation.pos = foreach.pos;
         iteratorInvocation.name = iterateIdentifier;
-        iteratorInvocation.builtinMethodInvocation = true;
-        iteratorInvocation.builtInMethod = BLangBuiltInMethod.ITERATE;
         iteratorInvocation.expr = dataReference;
-        LinkedList<BType> paramTypes = new LinkedList<>();
-        paramTypes.add(collectionSymbol.type);
-        iteratorInvocation.symbol = symTable.createOperator(names.fromIdNode(iterateIdentifier), paramTypes,
-                symTable.anyType, InstructionCodes.NOP);
-        iteratorInvocation.type = symTable.intType;
+        BInvokableSymbol langLibMethodSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
+                                                                                names.fromIdNode(iterateIdentifier));
+        iteratorInvocation.symbol = langLibMethodSymbol;
+        iteratorInvocation.type = langLibMethodSymbol.retType;
+        iteratorInvocation.argExprs = Lists.of(dataReference);
+        iteratorInvocation.requiredArgs = iteratorInvocation.argExprs;
+        BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
+                langLibMethodSymbol.retType, this.env.scope.owner);
 
-        // Note - any $iterator$ = $data$.iterate();
+        // Note - any $iterator$ = $data$.iterator();
         BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(foreach.pos, "$iterator$",
-                symTable.anyType, iteratorInvocation, iteratorSymbol);
+                langLibMethodSymbol.retType, iteratorInvocation, iteratorSymbol);
         return ASTBuilderUtil.createVariableDef(foreach.pos, iteratorVariable);
     }
 
     // Foreach desugar helper method.
-    private BLangSimpleVariableDef getIteratorNextVariableDefinition(BLangForeach foreach, BVarSymbol collectionSymbol,
+    private BLangSimpleVariableDef getIteratorNextVariableDefinition(BLangForeach foreach,
                                                                      BVarSymbol iteratorSymbol,
                                                                      BVarSymbol resultSymbol) {
-        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, collectionSymbol, iteratorSymbol);
+        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, iteratorSymbol);
         BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(foreach.pos, "$result$",
                 foreach.nillableResultType, nextInvocation, resultSymbol);
         return ASTBuilderUtil.createVariableDef(foreach.pos, resultVariable);
     }
 
     // Foreach desugar helper method.
-    private BLangAssignment getIteratorNextAssignment(BLangForeach foreach, BVarSymbol collectionSymbol,
+    private BLangAssignment getIteratorNextAssignment(BLangForeach foreach,
                                                       BVarSymbol iteratorSymbol, BVarSymbol resultSymbol) {
         BLangSimpleVarRef resultReferenceInAssignment = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
 
         // Note - $iterator$.next();
-        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, collectionSymbol, iteratorSymbol);
+        BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, iteratorSymbol);
 
         // we are inside the while loop. hence the iterator cannot be nil. hence remove nil from iterator's type
         nextInvocation.expr.type = types.getSafeType(nextInvocation.expr.type, false);
@@ -3265,25 +3278,17 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createAssignmentStmt(foreach.pos, resultReferenceInAssignment, nextInvocation, false);
     }
 
-    private BLangInvocation createIteratorNextInvocation(BLangForeach foreach, BVarSymbol collectionSymbol,
-                                                         BVarSymbol iteratorSymbol) {
-        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "next");
+    private BLangInvocation createIteratorNextInvocation(BLangForeach foreach, BVarSymbol iteratorSymbol) {
+        BLangIdentifier nextIdentifier =
+                ASTBuilderUtil.createIdentifier(foreach.pos, BLangBuiltInMethod.NEXT.getName());
         BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
-
+        BInvokableSymbol nextFuncSymbol = getNextFunc((BObjectType) iteratorSymbol.type).symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         nextInvocation.pos = foreach.pos;
         nextInvocation.name = nextIdentifier;
-        nextInvocation.builtinMethodInvocation = true;
-        nextInvocation.builtInMethod = BLangBuiltInMethod.NEXT;
         nextInvocation.expr = iteratorReferenceInNext;
-
-        LinkedList<BType> paramTypes = new LinkedList<>();
-        paramTypes.add(collectionSymbol.type);
-
-        nextInvocation.symbol = symTable.createOperator(names.fromIdNode(nextIdentifier), paramTypes, symTable.anyType,
-                InstructionCodes.ITR_NEXT);
-
-        nextInvocation.type = foreach.nillableResultType;
+        nextInvocation.symbol = nextFuncSymbol;
+        nextInvocation.type = nextFuncSymbol.retType;
         return nextInvocation;
     }
 
@@ -3323,8 +3328,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangFieldBasedAccess fieldBasedAccessExpression =
                 ASTBuilderUtil.createFieldAccessExpr(resultReferenceInVariableDef, valueIdentifier);
         fieldBasedAccessExpression.pos = foreach.pos;
-        fieldBasedAccessExpression.type = foreach.varType;
-        fieldBasedAccessExpression.originalType = foreach.varType;
+        fieldBasedAccessExpression.type = foreach.resultType;
+        fieldBasedAccessExpression.originalType = fieldBasedAccessExpression.type;
         return fieldBasedAccessExpression;
     }
 

@@ -22,14 +22,17 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -59,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -80,6 +84,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -831,45 +836,46 @@ public class Types {
 
     public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
-        BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);
+        BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
+        BUnionType nextMethodReturnType =
+                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        BType varType;
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;
-                mapType.constraint = arrayType.eType;
+                varType = arrayType.eType;
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
-                mapType.constraint = tupleTypes.size() == 1 ?
+                varType = tupleTypes.size() == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
-                mapType.constraint = new BTupleType(new LinkedList<BType>() {{
-                    add(symTable.stringType);
-                    add(bMapType.constraint);
-                }});
+                varType = bMapType.constraint;
+
                 break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
-                mapType.constraint = new BTupleType(new LinkedList<BType>() {{
+                varType = new BTupleType(new LinkedList<BType>() {{
                     add(symTable.stringType);
                     add(inferRecordFieldType(recordType));
                 }});
                 break;
             case TypeTags.XML:
-                mapType.constraint = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (tableType.constraint.tag == TypeTags.NONE) {
-                    mapType.constraint = symTable.anydataType;
-                    foreachNode.varType = mapType.constraint;
-                    foreachNode.nillableResultType = unionType;
+                    varType = symTable.anydataType;
+                    foreachNode.varType = varType;
+                    foreachNode.nillableResultType = nextMethodReturnType;
                     return;
                 }
-                mapType.constraint = tableType.constraint;
+                varType = tableType.constraint;
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -884,9 +890,27 @@ public class Types {
                         collectionType);
                 return;
         }
-        foreachNode.varType = mapType.constraint;
-        foreachNode.resultType = mapType;
-        foreachNode.nillableResultType = unionType;
+
+        foreachNode.varType = varType;
+        foreachNode.resultType = getRecordType(nextMethodReturnType);
+        foreachNode.nillableResultType = nextMethodReturnType;
+    }
+
+    private BRecordType getRecordType(BUnionType type) {
+        return (BRecordType) type.getMemberTypes()
+                .stream().filter(member -> member.tag == TypeTags.RECORD).findFirst().orElse(null);
+    }
+
+    private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
+        BAttachedFunction nextFunc = getNextFunc(iteratorType);
+        return Objects.requireNonNull(nextFunc).type.retType;
+    }
+
+    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
+                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals("next")).findFirst();
+        return nextFunc.orElse(null);
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {

@@ -54,7 +54,7 @@ public enum BLangBuiltInMethod {
     
     CALL("call", true),
 
-    ITERATE("iterate", false),
+    ITERATE("iterator", false),
 
     NEXT("next", false),
 
