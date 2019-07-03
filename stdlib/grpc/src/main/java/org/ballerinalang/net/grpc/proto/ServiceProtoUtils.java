@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
@@ -594,6 +596,17 @@ public class ServiceProtoUtils {
                 BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) statementNode;
                 BLangSimpleVariable variable = variableDef.getVariable();
                 expression = variable.getInitialExpression();
+            }
+
+            // Expression statement.
+            if (statementNode instanceof BLangExpressionStmt) {
+                BLangExpressionStmt expressionStmt = (BLangExpressionStmt) statementNode;
+                BLangExpression langExpression = expressionStmt.getExpression();
+                // checked expression
+                if (langExpression instanceof BLangCheckedExpr) {
+                    BLangCheckedExpr checkedExpr = (BLangCheckedExpr) langExpression;
+                    expression = checkedExpr.getExpression();
+                }
             }
             
             if (expression instanceof BLangInvocation) {

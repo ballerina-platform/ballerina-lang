@@ -65,10 +65,8 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
                 count++;
             }
         }
-        if (count > 1) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "There cannot be more than one Artemis service annotations");
-        } else if (count == 0) {
+
+        if (count == 0) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                "There has to be an artemis:ServiceConfig annotation declared for service");
         }

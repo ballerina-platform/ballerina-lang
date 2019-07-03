@@ -24,14 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
@@ -47,41 +45,31 @@ import org.slf4j.LoggerFactory;
         orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
         functionName = "createConnection",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONNECTION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
-        args = {
-                @Argument(name = "url", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfiguration")
-        }
+                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS)
 )
 public class CreateConnection extends BlockingNativeCallableUnit {
     private static final Logger logger = LoggerFactory.getLogger(CreateConnection.class);
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static void createConnection(Strand strand, ObjectValue connection, String url, MapValue config) {
         try {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> connection = (BMap<String, BValue>) context.getRefArgument(0);
-
-            String url = context.getStringArgument(0);
-
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> configObj = (BMap<String, BValue>) context.getRefArgument(1);
-            long connectionTTL = ((BInteger) configObj.get(ArtemisConstants.TIME_TO_LIVE)).intValue();
-            long callTimeout = ((BInteger) configObj.get(ArtemisConstants.CALL_TIMEOUT)).intValue();
+            long connectionTTL = config.getIntValue(ArtemisConstants.TIME_TO_LIVE);
+            long callTimeout = config.getIntValue(ArtemisConstants.CALL_TIMEOUT);
             int consumerWindowSize = ArtemisUtils.getIntFromConfig(
-                    configObj, ArtemisConstants.CONSUMER_WINDOW_SIZE, logger);
-            int consumerMaxRate = ArtemisUtils.getIntFromConfig(configObj, ArtemisConstants.CONSUMER_MAX_RATE, logger);
+                    config, ArtemisConstants.CONSUMER_WINDOW_SIZE, logger);
+            int consumerMaxRate = ArtemisUtils.getIntFromConfig(config, ArtemisConstants.CONSUMER_MAX_RATE, logger);
             int producerWindowSize = ArtemisUtils.getIntFromConfig(
-                    configObj, ArtemisConstants.PRODUCER_WINDOW_SIZE, logger);
-            int producerMaxRate = ArtemisUtils.getIntFromConfig(configObj, ArtemisConstants.PRODUCER_MAX_RATE, logger);
-            long retryInterval = ((BInteger) configObj.get(ArtemisConstants.RETRY_INTERVAL)).intValue();
-            double retryIntervalMultiplier = ((BFloat) configObj.get(
-                    ArtemisConstants.RETRY_INTERVAL_MULTIPLIER)).floatValue();
-            long maxRetryInterval = ((BInteger) configObj.get(ArtemisConstants.MAX_RETRY_INTERVAL)).intValue();
-            int reconnectAttempts = ArtemisUtils.getIntFromConfig(
-                    configObj, ArtemisConstants.RECONNECT_ATTEMPTS, logger);
+                    config, ArtemisConstants.PRODUCER_WINDOW_SIZE, logger);
+            int producerMaxRate = ArtemisUtils.getIntFromConfig(config, ArtemisConstants.PRODUCER_MAX_RATE, logger);
+            long retryInterval = config.getIntValue(ArtemisConstants.RETRY_INTERVAL);
+            double retryIntervalMultiplier = config.getFloatValue(ArtemisConstants.RETRY_INTERVAL_MULTIPLIER);
+            long maxRetryInterval = config.getIntValue(ArtemisConstants.MAX_RETRY_INTERVAL);
+            int reconnectAttempts = ArtemisUtils.getIntFromConfig(config, ArtemisConstants.RECONNECT_ATTEMPTS, logger);
             int initialConnectAttempts = ArtemisUtils.getIntFromConfig(
-                    configObj, ArtemisConstants.INITIAL_CONNECT_ATTEMPTS, logger);
+                    config, ArtemisConstants.INITIAL_CONNECT_ATTEMPTS, logger);
 
             ServerLocator connectionPool = ActiveMQClient.createServerLocator(url);
 
@@ -105,7 +93,8 @@ public class CreateConnection extends BlockingNativeCallableUnit {
             connection.addNativeData(ArtemisConstants.ARTEMIS_SESSION_FACTORY, factory);
 
         } catch (Exception e) { //catching Exception as it is thrown by the createSessionFactory method
-            ArtemisUtils.throwException("Error occurred while starting connection.", context, e, logger);
+            ArtemisUtils.throwException("Error occurred while starting connection.", e, logger);
         }
     }
+
 }

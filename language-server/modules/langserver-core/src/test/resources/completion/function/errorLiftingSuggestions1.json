@@ -16,8 +16,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "hasHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeader(string headerName)(string)",
@@ -30,8 +34,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "addHeader(string headerName, string headerValue)",
@@ -44,8 +52,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "addHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
+      "insertText": "addHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeaders(string headerName)(string[])",
@@ -58,8 +70,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeaders(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeaders(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setHeader(string headerName, string headerValue)",
@@ -72,8 +88,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeHeader(string key)",
@@ -86,8 +106,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "removeHeader(${1:key});",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeAllHeaders()",
@@ -100,8 +124,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "removeAllHeaders();",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeAllHeaders(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeaderNames()(string[])",
@@ -114,8 +142,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeaderNames()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeaderNames(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setContentType(string contentType)",
@@ -128,8 +160,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setContentType(${1:contentType});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setContentType(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getContentType()(string)",
@@ -142,8 +178,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getContentType()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getContentType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getJsonPayload()(json|error)",
@@ -156,8 +196,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getJsonPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getJsonPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getXmlPayload()(xml|error)",
@@ -170,8 +214,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getXmlPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getXmlPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getTextPayload()(string|error)",
@@ -184,8 +232,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getTextPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getTextPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getBinaryPayload()(byte[]|error)",
@@ -198,8 +250,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getBinaryPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getBinaryPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getByteChannel()(ballerina/io:ReadableByteChannel|error)",
@@ -212,8 +268,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getByteChannel()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getByteChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getBodyParts()(ballerina/mime:Entity[]|error)",
@@ -226,8 +286,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getBodyParts()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getBodyParts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setETag(json|xml|string|byte[] payload)",
@@ -240,8 +304,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setETag(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setETag(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setLastModified()",
@@ -254,8 +322,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setLastModified();",
-      "insertTextFormat": "Snippet"
+      "insertText": "setLastModified(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setJsonPayload(json payload)",
@@ -268,8 +340,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setJsonPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setJsonPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setXmlPayload(xml payload)",
@@ -282,8 +358,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setXmlPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setXmlPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setTextPayload(string payload)",
@@ -296,8 +376,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setTextPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setTextPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setBinaryPayload(byte[] payload)",
@@ -310,8 +394,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setBinaryPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setBinaryPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setBodyParts(mime:Entity[] bodyParts)",
@@ -324,8 +412,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setBodyParts(${1:bodyParts});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setBodyParts(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setFileAsPayload(string filePath)",
@@ -338,8 +430,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setFileAsPayload(${1:filePath});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setFileAsPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setByteChannel(io:ReadableByteChannel payload)",
@@ -352,8 +448,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setByteChannel(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setByteChannel(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
@@ -366,8 +466,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "createNewEntity()(ballerina/mime:Entity)",
@@ -380,8 +484,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "createNewEntity()",
-      "insertTextFormat": "Snippet"
+      "insertText": "createNewEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getEntity()(ballerina/mime:Entity|error)",
@@ -394,8 +502,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getEntity()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getEntityWithoutBody()(ballerina/mime:Entity)",
@@ -408,8 +520,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getEntityWithoutBody()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getEntityWithoutBody(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setEntity(mime:Entity e)",
@@ -422,8 +538,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setEntity(${1:e});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setEntity(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "new()",
@@ -436,8 +556,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "new();",
-      "insertTextFormat": "Snippet"
+      "insertText": "new(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "statusCode",

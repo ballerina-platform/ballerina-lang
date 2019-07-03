@@ -50,6 +50,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
+import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -148,7 +149,8 @@ public class HttpDispatcher {
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   MapValue endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        ObjectValue listenerEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
+        ObjectValue listenerEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
+                9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
         ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
         ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -166,28 +168,45 @@ public class HttpDispatcher {
         paramValues[paramIndex++] = httpCaller;
         paramValues[paramIndex++] = true;
         paramValues[paramIndex++] = inRequest;
-        paramValues[paramIndex++] = true;
-        if (signatureParams.getParamCount() == 2) {
+        paramValues[paramIndex] = true;
+        if (signatureParams.getParamCount() == COMPULSORY_PARAM_COUNT) {
             return paramValues;
         }
 
         HttpResourceArguments resourceArgumentValues =
                 (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
-        for (int i = 0; i < signatureParams.getPathParams().size(); i++) {
-            //No need for validation as validation already happened at deployment time,
-            //only string parameters can be found here.
-            //TODO : fix argumentValue order issue
-            String argumentValue = resourceArgumentValues.getList().get(i);
-            if (argumentValue != null) {
-                try {
-                    argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // we can simply ignore and send the value to application and let the
-                    // application deal with the value.
-                }
+        MapValue pathParamOrder = HttpResource.getPathParamOrderMap(httpResource.getBalResource());
+
+        for (Object paramName : pathParamOrder.getKeys()) {
+            String argumentValue = resourceArgumentValues.getMap().get(paramName.toString());
+            try {
+                argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // we can simply ignore and send the value to application and let the
+                // application deal with the value.
             }
-            paramValues[paramIndex++] = argumentValue;
-            paramValues[paramIndex++] = true;
+            int actualSignatureParamIndex = ((Long) pathParamOrder.get(paramName)).intValue();
+            paramIndex = actualSignatureParamIndex * 2;
+            BType signatureParamType = signatureParams.getPathParamTypes().get(
+                    actualSignatureParamIndex - COMPULSORY_PARAM_COUNT);
+            try {
+                switch (signatureParamType.getTag()) {
+                    case TypeTags.INT_TAG:
+                        paramValues[paramIndex++] = Long.parseLong(argumentValue);
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        paramValues[paramIndex++] = Double.parseDouble(argumentValue);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        paramValues[paramIndex++] = Boolean.parseBoolean(argumentValue);
+                        break;
+                    default:
+                        paramValues[paramIndex++] = argumentValue;
+                }
+                paramValues[paramIndex] = true;
+            } catch (Exception ex) {
+                throw new BallerinaConnectorException("Error in casting path param : " + ex.getMessage());
+            }
         }
 
         if (signatureParams.getEntityBody() == null) {

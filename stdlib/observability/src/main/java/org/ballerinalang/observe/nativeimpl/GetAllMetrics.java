@@ -19,34 +19,30 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.Metric;
+import org.ballerinalang.jvm.observability.metrics.MetricConstants;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.PolledGauge;
+import org.ballerinalang.jvm.observability.metrics.Tag;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.DefaultMetricRegistry;
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.Metric;
-import org.ballerinalang.util.metrics.MetricConstants;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.PolledGauge;
-import org.ballerinalang.util.metrics.Tag;
 
 import java.util.Set;
-
-import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.METRIC;
-import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH;
 
 /**
  * This is the getAllMetrics function native implementation for the registered metrics.
@@ -63,49 +59,94 @@ import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OB
 )
 public class GetAllMetrics extends BlockingNativeCallableUnit {
 
+    private static final BType METRIC_TYPE = BallerinaValues
+            .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.METRIC)
+            .getType();
+    
     @Override
     public void execute(Context context) {
-        Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
-        PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
-        StructureTypeInfo metricStructInfo = observePackage.getStructInfo(METRIC);
+//        Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
+//        PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
+//        StructureTypeInfo metricStructInfo = observePackage.getStructInfo(METRIC);
+//
+//        BValueArray bMetrics = new BValueArray(observePackage.getTypeInfo(METRIC).getType());
+//        int metricIndex = 0;
+//        for (Metric metric : metrics) {
+//            MetricId metricId = metric.getId();
+//            BValue metricValue = null;
+//            String metricType = null;
+//            BValueArray summary = null;
+//            if (metric instanceof Counter) {
+//                metricValue = new BInteger(((Counter) metric).getValue());
+//                metricType = MetricConstants.COUNTER;
+//            } else if (metric instanceof Gauge) {
+//                Gauge gauge = (Gauge) metric;
+//                metricValue = new BFloat(gauge.getValue());
+//                metricType = MetricConstants.GAUGE;
+//                summary = Utils.createBSnapshots(gauge.getSnapshots(), context);
+//            } else if (metric instanceof PolledGauge) {
+//                PolledGauge gauge = (PolledGauge) metric;
+//                metricValue = new BFloat(gauge.getValue());
+//                metricType = MetricConstants.GAUGE;
+//            }
+//            if (metricValue != null) {
+//                BMap metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
+//                        metricId.getName(), metricId.getDescription(), getTags(metricId), metricType,
+//                        metricValue, summary);
+//                bMetrics.add(metricIndex, metricStruct);
+//                metricIndex++;
+//            }
+//        }
+//        context.setReturnValues(bMetrics);
+    }
 
-        BValueArray bMetrics = new BValueArray(observePackage.getTypeInfo(METRIC).getType());
+    public static ArrayValue getAllMetrics(Strand strand) {
+        Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
+
+        ArrayValue bMetrics = new ArrayValue(new BArrayType(METRIC_TYPE));
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();
-            BValue metricValue = null;
+            Object metricValue = null;
             String metricType = null;
-            BValueArray summary = null;
+            ArrayValue summary = null;
             if (metric instanceof Counter) {
-                metricValue = new BInteger(((Counter) metric).getValue());
+                metricValue = ((Counter) metric).getValue();
                 metricType = MetricConstants.COUNTER;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
-                metricValue = new BFloat(gauge.getValue());
+                metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
-                summary = Utils.createBSnapshots(gauge.getSnapshots(), context);
+                summary = Utils.createBSnapshots(gauge.getSnapshots(), strand);
             } else if (metric instanceof PolledGauge) {
                 PolledGauge gauge = (PolledGauge) metric;
-                metricValue = new BFloat(gauge.getValue());
+                metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
-                BMap metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
-                        metricId.getName(), metricId.getDescription(), getTags(metricId), metricType,
-                        metricValue, summary);
+                MapValue<String, Object> metricStruct = BallerinaValues.createRecordValue(
+                        ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.METRIC);
+                metricStruct.put("name", metricId.getName());
+                metricStruct.put("desc", metricId.getDescription());
+                metricStruct.put("tags", getTags(metricId));
+                metricStruct.put("metricType", metricType);
+                metricStruct.put("value", metricValue);
+                metricStruct.put("summary", summary);
                 bMetrics.add(metricIndex, metricStruct);
                 metricIndex++;
             }
         }
-        context.setReturnValues(bMetrics);
+
+        return bMetrics;
     }
 
-    private BMap<String, BString> getTags(MetricId metricId) {
-        BMap<String, BString> bTags = new BMap<>(new BMapType(BTypes.typeString));
+    private static MapValue<String, Object> getTags(MetricId metricId) {
+        MapValue<String, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(tag.getKey(), new BString(tag.getValue()));
         }
         return bTags;
     }
+
 }

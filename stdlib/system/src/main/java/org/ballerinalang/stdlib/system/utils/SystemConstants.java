@@ -37,15 +37,11 @@ public class SystemConstants {
     public static final String PACKAGE_NAME = "system";
 
     /**
-     * Package path to path package.
+     * Package path.
      */
-    static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
+    public static final String SYSTEM_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "system";
 
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 
-    static final String FILE_INFO_TYPE = "FileInfo";
-    static final String FILE_INFO_NAME_FIELD = "name";
-    static final String FILE_INFO_SIZE_FIELD = "size";
-    static final String FILE_INFO_MODIFIED_TIME_FIELD = "modifiedTime";
-    static final String FILE_INFO_IS_DIR_FIELD = "isDir";
+    public static final String FILE_INFO_TYPE = "FileInfo";
 }

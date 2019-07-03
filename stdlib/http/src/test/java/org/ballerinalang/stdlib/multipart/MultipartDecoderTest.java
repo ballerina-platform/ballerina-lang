@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.internal.StringUtil;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.StringUtils;
@@ -217,15 +218,14 @@ public class MultipartDecoderTest {
     @Test
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(bvmResult);
+        ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
-        BValue[] args = new BValue[]{byteChannelStruct};
-        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64DecodeByteChannel", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
+        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64DecodeByteChannel",
+                                                new Object[]{ byteChannelStruct });
+        Assert.assertFalse(returnValues.length == 0 || returnValues[0] == null, "Invalid return value");
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);

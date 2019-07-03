@@ -1,0 +1,59 @@
+configurations {
+    birJar
+    bir
+    birJarCompile { transitive false }
+}
+
+dependencies {
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+}
+
+
+task configured {
+    configurations.baloImplementation.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        // TODO: remove if check when transactions stdlib is migrated
+        if (path != 'ballerina-transactions') {
+            dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+            dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+        }
+    }
+
+    configurations.baloTestImplementation.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        if (path != 'ballerina-transactions') {
+            dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+            dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+        }
+    }
+}
+
+
+task createBirCache {
+    dependsOn configurations.bir
+
+    doLast {
+        configurations.bir.each { artifact ->
+            copy {
+                from artifact
+                into "$buildDir/bir-cache/"
+            }
+        }
+    }
+
+    inputs.files configurations.bir
+    outputs.dir "$buildDir/bir-cache"
+    outputs.cacheIf { false }
+}
+
+test {
+    dependsOn createBirCache
+    dependsOn configurations.birJar
+    dependsOn configurations.birJarCompile
+
+    classpath += configurations.birJar
+    doFirst {
+        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
+    }
+}
+

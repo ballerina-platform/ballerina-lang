@@ -19,15 +19,15 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.time.Duration;
 
@@ -46,22 +46,49 @@ import java.time.Duration;
 public class GaugeInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        BValueArray summaryConfigs = (BValueArray) bStruct.
-                get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
-        Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
-                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
-                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)));
+//        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
+//        BValueArray summaryConfigs = (BValueArray) bStruct.
+//                get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
+//        Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
+//                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
+//                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)));
+//        if (summaryConfigs != null && summaryConfigs.size() > 0) {
+//            for (int i = 0; i < summaryConfigs.size(); i++) {
+//                BMap summaryConfigStruct = (BMap) summaryConfigs.getBValue(i);
+//                StatisticConfig.Builder statisticBuilder = StatisticConfig.builder()
+//                        .expiry(Duration.ofMillis(((BInteger) summaryConfigStruct
+//                                .get(ObserveNativeImplConstants.EXPIRY_FIELD)).intValue()))
+//                        .buckets(((BInteger) summaryConfigStruct
+//                                .get(ObserveNativeImplConstants.BUCKETS_FIELD)).intValue());
+//                BValueArray bFloatArray = (BValueArray) summaryConfigStruct.
+//                        get(ObserveNativeImplConstants.PERCENTILES_FIELD);
+//                double[] percentiles = new double[(int) bFloatArray.size()];
+//                for (int j = 0; j < bFloatArray.size(); j++) {
+//                    percentiles[j] = bFloatArray.getFloat(j);
+//                }
+//                statisticBuilder.percentiles(percentiles);
+//                StatisticConfig config = statisticBuilder.build();
+//                gaugeBuilder.summarize(config);
+//            }
+//        }
+//        Gauge gauge = gaugeBuilder.build();
+//        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, gauge);
+    }
+
+    public static void initialize(Strand strand, ObjectValue guage) {
+        ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
+        Gauge.Builder gaugeBuilder = Gauge.builder((String) guage.get(ObserveNativeImplConstants.NAME_FIELD))
+                .description((String) guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD))
+                .tags(Utils.toStringMap((MapValue<?, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
         if (summaryConfigs != null && summaryConfigs.size() > 0) {
             for (int i = 0; i < summaryConfigs.size(); i++) {
-                BMap summaryConfigStruct = (BMap) summaryConfigs.getBValue(i);
+                MapValue<String, Object> summaryConfigStruct = (MapValue<String, Object>) summaryConfigs.get(i);
                 StatisticConfig.Builder statisticBuilder = StatisticConfig.builder()
-                        .expiry(Duration.ofMillis(((BInteger) summaryConfigStruct
-                                .get(ObserveNativeImplConstants.EXPIRY_FIELD)).intValue()))
-                        .buckets(((BInteger) summaryConfigStruct
-                                .get(ObserveNativeImplConstants.BUCKETS_FIELD)).intValue());
-                BValueArray bFloatArray = (BValueArray) summaryConfigStruct.
-                        get(ObserveNativeImplConstants.PERCENTILES_FIELD);
+                        .expiry(Duration
+                                .ofMillis(((long) summaryConfigStruct.get(ObserveNativeImplConstants.EXPIRY_FIELD))))
+                        .buckets(((long) summaryConfigStruct.get(ObserveNativeImplConstants.BUCKETS_FIELD)));
+                ArrayValue bFloatArray =
+                        (ArrayValue) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);
                 double[] percentiles = new double[(int) bFloatArray.size()];
                 for (int j = 0; j < bFloatArray.size(); j++) {
                     percentiles[j] = bFloatArray.getFloat(j);
@@ -72,6 +99,6 @@ public class GaugeInitialize extends BlockingNativeCallableUnit {
             }
         }
         Gauge gauge = gaugeBuilder.build();
-        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, gauge);
+        guage.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, gauge);
     }
 }

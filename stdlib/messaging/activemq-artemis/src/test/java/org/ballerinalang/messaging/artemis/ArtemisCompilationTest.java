@@ -18,9 +18,9 @@
 
 package org.ballerinalang.messaging.artemis;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 public class ArtemisCompilationTest {
     private static final Path TEST_PATH = Paths.get("src", "test", "resources", "test-src");
 
-    @Test(description = "Successfully compiling Artemis service")
+    @Test(description = "Successfully compiling Artemis service", enabled = false)
     public void testValidService() {
         CompileResult compileResult = getCompileResult("artemis_success.bal");
 
@@ -50,12 +50,13 @@ public class ArtemisCompilationTest {
         BAssertUtil.validateError(compileResult, 0, "Only one resource is allowed in the service", 24, 1);
     }
 
-    @Test(description = "More than expected number of annotations for the service")
+    @Test(description = "More than expected number of annotations for the service", enabled = false)
     public void testMoreServiceAnnotationsForService() {
         CompileResult compileResult = getCompileResult("artemis_multiple_service_annotation.bal");
 
         assertExpectedDiagnosticsLength(compileResult);
-        BAssertUtil.validateError(compileResult, 0, "There cannot be more than one Artemis service annotations", 29, 1);
+        BAssertUtil.validateError(compileResult, 0, "cannot specify more than one annotation value for annotation " +
+                "'ServiceConfig'", 29, 1);
     }
 
     @Test(description = "One service annotation is mandatory")

@@ -24,15 +24,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
@@ -52,44 +50,27 @@ import org.slf4j.LoggerFactory;
                 type = TypeKind.OBJECT,
                 structType = ArtemisConstants.PRODUCER_OBJ,
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
-        ),
-        args = {
-                @Argument(
-                        name = "addressName",
-                        type = TypeKind.STRING
-                ),
-                @Argument(
-                        name = "config",
-                        type = TypeKind.RECORD,
-                        structType = "AddressConfiguration"
-                ),
-                @Argument(
-                        name = "rate",
-                        type = TypeKind.INT
-                )
-        }
+        )
 )
-public class CreateProducer implements NativeCallableUnit {
+public class CreateProducer extends BlockingNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateProducer.class);
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
+
+    public static void createProducer(Strand strand, ObjectValue producerObj, String addressStr,
+                                      MapValue<String, Object> configObj, long rateArg) {
         try {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> producerObj = (BMap<String, BValue>) context.getRefArgument(0);
 
-            SimpleString addressName = new SimpleString(context.getStringArgument(0));
+            SimpleString addressName = new SimpleString(addressStr);
 
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> configObj = (BMap<String, BValue>) context.getRefArgument(1);
+            String routingType = configObj.getStringValue(ArtemisConstants.ROUTING_TYPE);
+            boolean autoCreated = configObj.getBooleanValue(ArtemisConstants.AUTO_CREATED);
 
-            String routingType = configObj.get(ArtemisConstants.ROUTING_TYPE).stringValue();
-            boolean autoCreated = ((BBoolean) configObj.get(ArtemisConstants.AUTO_CREATED)).booleanValue();
-
-            int rate = ArtemisUtils.getIntFromLong(context.getIntArgument(0), ArtemisConstants.RATE, logger);
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> sessionObj = (BMap<String, BValue>) producerObj.get(ArtemisConstants.SESSION);
+            int rate = ArtemisUtils.getIntFromLong(rateArg, ArtemisConstants.RATE, logger);
+            ObjectValue sessionObj = producerObj.getObjectValue(ArtemisConstants.SESSION);
             ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
 
             if (autoCreated) {
@@ -106,12 +87,7 @@ public class CreateProducer implements NativeCallableUnit {
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
-            ArtemisUtils.throwException("Error occurred while creating the producer.", context, ex, logger);
+            ArtemisUtils.throwException("Error occurred while creating the producer.", ex, logger);
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

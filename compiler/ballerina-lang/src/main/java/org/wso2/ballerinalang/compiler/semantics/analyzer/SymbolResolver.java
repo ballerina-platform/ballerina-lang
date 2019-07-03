@@ -200,6 +200,11 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+            return true;
+        }
+
         //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
@@ -945,19 +950,23 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.noType;
             return;
         }
+
+        BType constrainedType = null;
         if (type.tag == TypeTags.TABLE) {
             if (constraintType.tag == TypeTags.OBJECT) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
                 resultType = symTable.semanticError;
                 return;
             }
+            // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
+            return;
         } else if (type.tag == TypeTags.STREAM) {
-            resultType = new BStreamType(TypeTags.STREAM, constraintType, type.tsymbol);
+            constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {
-            resultType = new BFutureType(TypeTags.FUTURE, constraintType, type.tsymbol);
+            constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
-            resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
+            constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.CHANNEL) {
             // only the simpleTypes, json and xml are allowed as channel data type.
             if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
@@ -965,8 +974,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
-            resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
+            constrainedType = new BChannelType(TypeTags.CHANNEL, constraintType, null);
         }
+        BTypeSymbol typeSymbol = type.tsymbol;
+        constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner);
+        resultType = constrainedType;
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {

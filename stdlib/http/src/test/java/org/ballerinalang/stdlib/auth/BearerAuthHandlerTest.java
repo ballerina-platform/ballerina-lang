@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.auth;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,8 +41,7 @@ public class BearerAuthHandlerTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        compileResult = BCompileUtil.compile(
-                sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
     }
 
     @Test(description = "Test case for bearer auth header interceptor canHandle method, without the bearer auth header")

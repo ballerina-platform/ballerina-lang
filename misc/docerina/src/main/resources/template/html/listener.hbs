@@ -11,7 +11,7 @@
                 <h3>Listeners</h3>
                 <ul>
                     {{#each module.listeners}}
-                        <li>
+                        <li {{#equals listener.name name}}class="active"{{/equals}}>
                             <a href="{{name}}.html">{{name}}</a>
                         </li>
                     {{/each}}
@@ -31,7 +31,7 @@
                     <h3>Listeners</h3>
                     <ul>
                         {{#each module.listeners}}
-                            <li>
+                            <li {{#equals listener.name name}}class="active"{{/equals}}>
                                 <a href="{{name}}.html">{{name}}</a>
                             </li>
                         {{/each}}
@@ -47,10 +47,16 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Listeners : <span class="listeners">{{ listener.name }}</span> </h1>
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Listener - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+                 : <span class="listeners">{{ listener.name }}</span> 
+            </h1>
             <p>{{{ listener.description }}}</p>
 
             <div class="constants">
+                <div class="method-sum">
                 {{#if listener.initMethod}}
                     {{#listener.initMethod}}
                         {{> initMethod }}
@@ -74,6 +80,7 @@
                         {{/each}}
                     </div>
                 {{/if}}
+                </div>
 
                 {{#if listener.fields}}
                     {{#listener}}

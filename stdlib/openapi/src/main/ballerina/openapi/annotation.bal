@@ -32,10 +32,11 @@ public type ClientInformation record {|
 |};
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation <listener> ClientEndpoint;
+public const annotation ClientEndpoint on source listener;
 
 # Annotation to configure client code generation.
-public annotation <service> ClientConfig ClientInformation;
+public annotation ClientInformation ClientConfig on service;
 
 # Annotation for additional OpenAPI information of a Ballerina service.
-public annotation <service> Service ServiceInformation;
+public annotation ServiceInformation ServiceInfo on service;
+
