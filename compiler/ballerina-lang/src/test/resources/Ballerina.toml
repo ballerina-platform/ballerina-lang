@@ -1,6 +1,6 @@
 [project]
 # Name of the module
-orgName = "foo"
+org-name = "foo"
 
 #The current version, obeying semver
 version = "1.0.0"

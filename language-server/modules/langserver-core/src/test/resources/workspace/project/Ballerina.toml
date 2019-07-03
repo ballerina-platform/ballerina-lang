@@ -1,4 +1,4 @@
 [project]
-orgName = "foo"
+org-name = "foo"
 version = "0.0.1"
 
