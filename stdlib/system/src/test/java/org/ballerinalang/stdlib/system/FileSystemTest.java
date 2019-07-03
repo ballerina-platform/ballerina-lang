@@ -18,9 +18,6 @@
 package org.ballerinalang.stdlib.system;
 
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -28,6 +25,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -173,7 +173,7 @@ public class FileSystemTest {
         BMap<String, BValue> bvalue = (BMap) returns[0];
         assertEquals(bvalue.get("name").stringValue(), "src-file.txt");
         assertTrue(((BInteger) bvalue.get("size")).intValue() > 0);
-        assertEquals(bvalue.get("isDir").stringValue(), "false");
+        assertEquals(bvalue.get("dir").stringValue(), "false");
     }
 
     @Test(description = "Test for retrieving file info from non existence file")

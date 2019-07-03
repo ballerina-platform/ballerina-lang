@@ -229,7 +229,17 @@
             },
             {
                 "command": "ballerina.showTraces",
-                "title": "Ballerina: Show Network logs"
+                "title": "Show Network logs",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.showProjectOverview",
+                "title": "Show Project Overview",
+                "icon": {
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
+                    "light": "./resources/images/icons/design-view.svg"
+                },
+                "category": "Ballerina"
             }
         ],
         "menus": {

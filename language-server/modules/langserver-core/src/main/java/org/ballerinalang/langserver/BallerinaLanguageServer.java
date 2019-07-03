@@ -32,6 +32,8 @@ import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampl
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectService;
+import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
@@ -69,6 +71,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
+    private BallerinaProjectService ballerinaProjectService;
     private BallerinaExampleService ballerinaExampleService;
     private BallerinaTraceService ballerinaTraceService;
     private Listener ballerinaTraceListener;
@@ -92,6 +95,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
         this.ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
@@ -181,6 +185,11 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public BallerinaExampleService getBallerinaExampleService() {
         return this.ballerinaExampleService;
+    }
+
+    @Override
+    public BallerinaProjectService getBallerinaProjectService() {
+        return this.ballerinaProjectService;
     }
 
     @Override

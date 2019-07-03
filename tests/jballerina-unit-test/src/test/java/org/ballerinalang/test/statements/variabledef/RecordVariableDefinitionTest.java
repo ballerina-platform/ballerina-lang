@@ -276,7 +276,7 @@ public class RecordVariableDefinitionTest {
                 "year:1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
-    @Test(description = "Test record variables rest param types")
+    @Test(description = "Test record variables rest param types", groups = "brokenOnJBallerina")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
         Assert.assertEquals(returns.length, 7);
@@ -315,11 +315,11 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 98, 15);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 141, 66);
+                "incompatible types: expected '(UnionOne|UnionTwo)', found 'UnionRec1'", 141, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 142, 25);
+                "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 142, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int|float', found 'int|float?'", 142, 31);
+                "incompatible types: expected '(int|float)', found '(int|float)?'", 142, 31);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
