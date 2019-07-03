@@ -48,6 +48,7 @@ dependencies {
     testRuntime project(':ballerina-lang:table')
     testRuntime project(':ballerina-lang:value')
     testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-utils')
     testRuntime 'org.slf4j:slf4j-jdk14'
 
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
