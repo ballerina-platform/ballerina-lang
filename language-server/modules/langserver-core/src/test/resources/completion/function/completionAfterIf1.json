@@ -106,7 +106,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "200",
-      "insertText": "transaction with retries ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertText": "transaction with retries \u003d ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -152,8 +152,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "TableConfig",
@@ -185,8 +189,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithoutJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
@@ -199,8 +207,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers});",
-      "insertTextFormat": "Snippet"
+      "insertText": "startForever(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "stream",
@@ -301,8 +313,12 @@
         }
       },
       "sortText": "120",
-      "insertText": "testElseAndElseIf();",
-      "insertTextFormat": "Snippet"
+      "insertText": "testElseAndElseIf(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "error",
@@ -790,29 +806,6 @@
       ]
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
@@ -1043,6 +1036,29 @@
       ]
     },
     {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
@@ -1112,6 +1128,29 @@
       ]
     },
     {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/cache.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Package",
@@ -1177,29 +1216,6 @@
             }
           },
           "newText": "import ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/socket;\n"
         }
       ]
     },

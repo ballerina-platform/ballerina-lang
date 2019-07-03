@@ -22,8 +22,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \nint|error"
         }
       },
-      "insertText": "remove(${1:func})",
-      "insertTextFormat": "Snippet"
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "channel",
@@ -42,8 +46,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCheck whether the XML sequence contains only a single element.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "isSingleton()",
-      "insertTextFormat": "Snippet"
+      "insertText": "isSingleton(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "values()(any[])",
@@ -55,8 +63,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns an array of values contained in the specified map.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany[]"
         }
       },
-      "insertText": "values()",
-      "insertTextFormat": "Snippet"
+      "insertText": "values(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "isEmpty()(boolean)",
@@ -68,8 +80,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCheck whether the XML sequence is empty.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "isEmpty()",
-      "insertTextFormat": "Snippet"
+      "insertText": "isEmpty(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "xml",
@@ -88,8 +104,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$8\u003e"
         }
       },
-      "insertText": "queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "TableConfig",
@@ -111,8 +131,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nPublishes data to the stream.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    Data to be published to the stream  \n"
         }
       },
-      "insertText": "publish(${1:data});",
-      "insertTextFormat": "Snippet"
+      "insertText": "publish(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toUpper()(string)",
@@ -124,8 +148,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to uppercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "toUpper()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toUpper(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasSuffix(string suffix)(boolean)",
@@ -137,8 +165,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string ends with specified suffix.\n  \n  \n---    \n**Parameters**  \n- _suffix_  \n    The suffix to be compared  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasSuffix(${1:suffix})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasSuffix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "byte",
@@ -157,8 +189,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the first occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
         }
       },
-      "insertText": "indexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "substring(int startIndex, int endIndex)(string)",
@@ -170,8 +206,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a new string that is the substring of the specified string.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    The starting index  \n  \n- _endIndex_  \n    The ending index  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "substring(${1:startIndex}, ${2:endIndex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasKey(string key)(boolean)",
@@ -183,8 +223,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCheck whether specific key exists from the given map.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The key to be find existence  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasKey(${1:key})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasKey(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "remove(string key)(boolean)",
@@ -196,8 +240,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemoves the specified element from the map.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The key to be removed  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "remove(${1:key})",
-      "insertTextFormat": "Snippet"
+      "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "replaceAll(string regex, string replaceWith)(string)",
@@ -209,8 +257,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReplaces each substring of the string that matches the given regular expression with the given replacement.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regular expression to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "replaceAll(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replaceAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
@@ -222,8 +274,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$10\u003e"
         }
       },
-      "insertText": "queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "queryTableWithoutJoinClause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
@@ -235,8 +291,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCreates the forever runtime.\n  \n  \n---    \n**Parameters**  \n- _streamQuery_  \n    The siddhi query by which the siddhi app runtime is created  \n  \n- _inStreamRefs_  \n    References of the input streams in the forever  \n  \n- _inTableRefs_  \n    References of the input tables in the forever  \n  \n- _outStreamRefs_  \n    References of the output streams in the forever  \n  \n- _outTableRefs_  \n    References of the output tables in the forever  \n  \n- _funcPointers_  \n    References of the functions to invoke as the streaming action  \n"
         }
       },
-      "insertText": "startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers});",
-      "insertTextFormat": "Snippet"
+      "insertText": "startForever(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "equalsIgnoreCase(string anotherString)(boolean)",
@@ -248,8 +308,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCompares two strings, ignoring the case of the strings.\n  \n  \n---    \n**Parameters**  \n- _anotherString_  \n    The string to be compared  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "equalsIgnoreCase(${1:anotherString})",
-      "insertTextFormat": "Snippet"
+      "insertText": "equalsIgnoreCase(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "stream",
@@ -275,8 +339,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReplaces the first instance of the replacePattern with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "replaceFirst(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replaceFirst(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "map",
@@ -302,8 +370,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nGet all the items that are of element type, and matches the given qualified name, in an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the element  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "select(${1:qname})",
-      "insertTextFormat": "Snippet"
+      "insertText": "select(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "anydata",
@@ -322,8 +394,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSplits the string with the given regular expression to produce a string array.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regex to split the string  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "insertText": "split(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "split(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "replace(string regex, string replaceWith)(string)",
@@ -335,8 +411,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReplaces all instances of the replacePattern string with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "replace(${1:regex}, ${2:replaceWith})",
-      "insertTextFormat": "Snippet"
+      "insertText": "replace(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getNext()(any)",
@@ -348,8 +428,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany"
         }
       },
-      "insertText": "getNext()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getNext(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "clear()",
@@ -361,8 +445,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nClear the items from given map.  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "clear();",
-      "insertTextFormat": "Snippet"
+      "insertText": "clear(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hashCode()(int)",
@@ -374,8 +462,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a hash code for this string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
         }
       },
-      "insertText": "hashCode()",
-      "insertTextFormat": "Snippet"
+      "insertText": "hashCode(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "future",
@@ -394,8 +486,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "close();",
-      "insertTextFormat": "Snippet"
+      "insertText": "close(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "copy()(xml)",
@@ -407,8 +503,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nMake a deep copy of an XML.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "copy()",
-      "insertTextFormat": "Snippet"
+      "insertText": "copy(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setAttributes(map attributes)",
@@ -420,8 +520,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSets the attributes to the provided attributes map.\n  \n  \n---    \n**Parameters**  \n- _attributes_  \n    Attributes map  \n"
         }
       },
-      "insertText": "setAttributes(${1:attributes});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setAttributes(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "typedesc",
@@ -440,8 +544,12 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "testConditionFunction();",
-      "insertTextFormat": "Snippet"
+      "insertText": "testConditionFunction(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "elements()(xml)",
@@ -453,8 +561,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nGet all the items that are of element type in an XML sequence.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "elements()",
-      "insertTextFormat": "Snippet"
+      "insertText": "elements(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "unescape()(string)",
@@ -466,8 +578,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns an unescaped string by omitting the escape characters of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "unescape()",
-      "insertTextFormat": "Snippet"
+      "insertText": "unescape(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getElementName()(string)",
@@ -479,8 +595,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nGet the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "getElementName()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getElementName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toJSON($anonType$builtin$11 options)(json)",
@@ -492,8 +612,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nConverts a XML object to a JSON representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    xmlOptions struct for XML to JSON conversion properties  \n  \n  \n**Return**  \njson"
         }
       },
-      "insertText": "toJSON(${1:options})",
-      "insertTextFormat": "Snippet"
+      "insertText": "toJSON(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getItemType()(string)",
@@ -505,8 +629,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nGet the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "getItemType()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getItemType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "float",
@@ -525,8 +653,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemoves each element that matches the given key.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    Key of the field to remove  \n"
         }
       },
-      "insertText": "remove(${1:key});",
-      "insertTextFormat": "Snippet"
+      "insertText": "remove(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "trim()(string)",
@@ -538,8 +670,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "trim()",
-      "insertTextFormat": "Snippet"
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toString()(string)",
@@ -551,8 +687,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a string representation.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "toString()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "strip()(xml)",
@@ -564,8 +704,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nStrips any text items from an XML sequence that are all whitespace.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "strip()",
-      "insertTextFormat": "Snippet"
+      "insertText": "strip(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "test",
@@ -584,8 +728,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSubscribes to data from the stream.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for the subscription, which will be invoked with data published to the stream  \n"
         }
       },
-      "insertText": "subscribe(${1:func});",
-      "insertTextFormat": "Snippet"
+      "insertText": "subscribe(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasPrefix(string prefix)(boolean)",
@@ -597,8 +745,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string starts with the specified prefix.\n  \n  \n---    \n**Parameters**  \n- _prefix_  \n    The prefix to be compared  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasPrefix(${1:prefix})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasPrefix(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "keys()(string[])",
@@ -610,8 +762,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns an array of keys contained in the specified map.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "insertText": "keys()",
-      "insertTextFormat": "Snippet"
+      "insertText": "keys(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "null",
@@ -630,8 +786,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasNext()",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasNext(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "cancel()",
@@ -643,8 +803,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCancels the given future.\n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "cancel();",
-      "insertTextFormat": "Snippet"
+      "insertText": "cancel(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "decimal",
@@ -663,8 +827,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nboolean|error"
         }
       },
-      "insertText": "matches(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "matches(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "string",
@@ -690,8 +858,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string contains the specified substring.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to be compared  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "contains(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "contains(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "findAll(string regex)(string[]|error)",
@@ -703,8 +875,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nstring[]|error"
         }
       },
-      "insertText": "findAll(${1:regex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "findAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setChildren(xml children)",
@@ -716,8 +892,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSet the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.\n  \n  \n---    \n**Parameters**  \n- _children_  \n    children  \n"
         }
       },
-      "insertText": "setChildren(${1:children});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setChildren(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeChildren(string qname)",
@@ -729,8 +909,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Namespace qualified name of the children to be removed  \n"
         }
       },
-      "insertText": "removeChildren(${1:qname});",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeChildren(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "json",
@@ -749,8 +933,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns the length of the specified string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
         }
       },
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toXML($anonType$builtin$0 options)(xml|error)",
@@ -762,8 +950,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \nxml|error"
         }
       },
-      "insertText": "toXML(${1:options})",
-      "insertTextFormat": "Snippet"
+      "insertText": "toXML(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeAttribute(string qname)",
@@ -775,8 +967,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nRemove an attribute from an XML.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the attribute  \n"
         }
       },
-      "insertText": "removeAttribute(${1:qname});",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeAttribute(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "slice(int startIndex, int endIndex)(xml)",
@@ -788,8 +984,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSlice and return a subsequence of the an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    Start index, inclusive  \n  \n- _endIndex_  \n    End index, exclusive  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "slice(${1:startIndex}, ${2:endIndex})",
-      "insertTextFormat": "Snippet"
+      "insertText": "slice(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getKeys()(string[])",
@@ -801,8 +1001,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns an array of keys contained in the specified JSON.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "insertText": "getKeys()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getKeys(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "add(any data)(error?)",
@@ -814,8 +1018,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n  \n  \n**Return**  \nerror?"
         }
       },
-      "insertText": "add(${1:data})",
-      "insertTextFormat": "Snippet"
+      "insertText": "add(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "selectDescendants(string qname)(xml)",
@@ -827,8 +1035,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nSearches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the element  \n  \n  \n**Return**  \nxml"
         }
       },
-      "insertText": "selectDescendants(${1:qname})",
-      "insertTextFormat": "Snippet"
+      "insertText": "selectDescendants(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "any",
@@ -861,8 +1073,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the last occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
         }
       },
-      "insertText": "lastIndexOf(${1:substring})",
-      "insertTextFormat": "Snippet"
+      "insertText": "lastIndexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "boolean",
@@ -881,8 +1097,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nGet the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "getTextValue()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getTextValue(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "service",
@@ -901,8 +1121,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nAppend children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n  \n  \n---    \n**Parameters**  \n- _children_  \n    children  \n"
         }
       },
-      "insertText": "appendChildren(${1:children});",
-      "insertTextFormat": "Snippet"
+      "insertText": "appendChildren(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toLower()(string)",
@@ -914,8 +1138,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to lowercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "toLower()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toLower(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toByteArray(string encoding)(byte[])",
@@ -927,8 +1155,12 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nConverts string to a byte array.\n  \n  \n---    \n**Parameters**  \n- _encoding_  \n    Encoding to be used in the conversion  \n  \n  \n**Return**  \nbyte[]"
         }
       },
-      "insertText": "toByteArray(${1:encoding})",
-      "insertTextFormat": "Snippet"
+      "insertText": "toByteArray(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "ballerina/jwt",
@@ -1349,28 +1581,6 @@
       ]
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
@@ -1591,6 +1801,28 @@
       ]
     },
     {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
@@ -1657,6 +1889,28 @@
       ]
     },
     {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/cache.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Package",
@@ -1719,28 +1973,6 @@
             }
           },
           "newText": "import ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/socket;\n"
         }
       ]
     },

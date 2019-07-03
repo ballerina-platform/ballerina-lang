@@ -45,3 +45,11 @@
 # Note that `toString` may produce the same string for two Ballerina values
 # that are not equal (in the sense of the `==` operator).
 public function toString (any|error value) returns string = external;
+
+
+@typeParam
+type Foo anydata;
+
+public function clone(Foo f) returns Foo {
+    return f;
+}

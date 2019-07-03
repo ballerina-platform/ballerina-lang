@@ -108,7 +108,7 @@ public type TestConfig record {|
     map<string> m;
 |};
 
-public annotation<function> testAnnotation TestConfig;
+public annotation TestConfig testAnnotation on type;
 
 map<map<string>> m5 = { "m5k": m6 };
 public const map<string> m6 = { "m6k": "m6v" };

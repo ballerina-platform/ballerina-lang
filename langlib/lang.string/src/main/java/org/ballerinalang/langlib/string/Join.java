@@ -19,12 +19,22 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:join(string, string...).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "join",
+        args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
+        isPublic = true
+)
 public class Join {
 
     public static String join(Strand strand, String separator, String[] strs) {

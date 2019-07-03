@@ -53,17 +53,17 @@ function freeze(any|error value) returns anydata|error = external;
 # + return - True for a frozen value
 function isFrozen(any|error value) returns boolean = external;
 
-# Get the reason phrase of an error value.
-#
-# + value - Error value
-# + return - Reason phrase
-function reason(error value) returns string = external;
-
-# Get error details of an error value.
-#
-# + value - Error value
-# + return - Error detail
-function detail(error value) returns anydata = external;
+//# Get the reason phrase of an error value.
+//#
+//# + value - Error value
+//# + return - Reason phrase
+//function reason(error value) returns string = external;
+//
+//# Get error details of an error value.
+//#
+//# + value - Error value
+//# + return - Error detail
+//function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #

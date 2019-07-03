@@ -23,14 +23,25 @@
         </div>
     </div>
 
+
+
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper module-wrapper">
-                <h1>Module : <span class="modules">{{ project.organization }}{{ module.id }}</span></h1>
-            {{{ module.description }}}
+                <h1>
+                    {{> breadcrumb }}
+                    Module : <span class="modules">{{ module.id }}</span></h1>
+                    {{{ module.description }}}
 
             {{#if module.records}}
-                <h2><a name="records">Records</a></h2>
+
+            <section class="method-content" id="records">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#records">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Records </h2>
+                </div>
                 <table>
                     {{#each module.records}}
                         <tr>
@@ -41,10 +52,17 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
 
             {{#if module.objects}}
-                <h2><a name="objects">Objects</a></h2>
+            <section class="method-content" id="objects">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#objects">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Objects </h2>
+                </div>
                 <table>
                     {{#each module.objects}}
                         <tr>
@@ -58,10 +76,17 @@
                         </tr>
                     {{/each}}
                 </table>
+             </section>  
             {{/if}}
 
             {{#if module.clients}}
-                <h2><a name="clients">Clients</a></h2>
+             <section class="method-content" id="clients">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#clients">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Clients </h2>
+                </div>
                 <table>
                     {{#each module.clients}}
                         <tr>
@@ -72,10 +97,17 @@
                         </tr>
                     {{/each}}
                 </table>
+             </section>
             {{/if}}
 
             {{#if module.listeners}}
-                <h2><a name="listeners">Listeners</a></h2>
+             <section class="method-content" id="listeners">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#listeners">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Listeners </h2>
+                </div>
                 <table>
                     {{#each module.listeners}}
                         <tr>
@@ -86,10 +118,18 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
+           
 
             {{#if module.functions}}
-                <h2><a name="functions">Functions</a></h2>
+            <section class="method-content" id="functions">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#functions">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                    <h2> Functions </h2>
+                </div>
                 <table>
                     {{#each module.functions}}
                         <tr>
@@ -99,11 +139,18 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
 
 
             {{#if module.constants}}
-                <h2><a name="constants">Constants</a></h2>
+            <section class="method-content" id="constants">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#constants">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Constants </h2>
+                </div>
                 <table>
                     {{#each module.constants}}
                         <tr>
@@ -113,11 +160,18 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
 
 
             {{#if module.annotations}}
-                <h2><a name="annotations">Annotations</a></h2>
+            <section class="method-content" id="annotations">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#annotations">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Annotations </h2>
+                </div>
                 <table>
                     {{#each module.annotations}}
                         <tr>
@@ -127,10 +181,17 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
 
             {{#if module.unionTypes}}
-                <h2><a name="types">Types</a></h2>
+            <section class="method-content" id="types">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#types">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Types </h2>
+                </div>
                 <table>
                     {{#each module.unionTypes}}
                         <tr>
@@ -141,10 +202,17 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
 
             {{#if module.errors}}
-                <h2><a name="errors">Errors</a></h2>
+             <section class="method-content" id="errors">
+                <div class="main-method-title here">
+                    <a class="url-link" href="#errors">
+                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                    </a>
+                <h2> Errors </h2>
+                </div>
                 <table>
                     {{#each module.errors}}
                         <tr>
@@ -155,6 +223,7 @@
                         </tr>
                     {{/each}}
                 </table>
+            </section>
             {{/if}}
         </div>
     </div>

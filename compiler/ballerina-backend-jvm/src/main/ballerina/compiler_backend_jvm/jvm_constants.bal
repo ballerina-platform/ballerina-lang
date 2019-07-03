@@ -219,7 +219,6 @@ const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string DECIMAL_VALUE = "org/ballerinalang/jvm/values/DecimalValue";
-const string BYTE_VALUE = "java/lang/Byte";
 const string INT_VALUE = "java/lang/Integer";
 const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
@@ -227,6 +226,7 @@ const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 
 const string OBJECT = "java/lang/Object";
+const string MATH = "java/lang/Math";
 const string MAP = "java/util/Map";
 const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
 const string ARRAY_LIST = "java/util/ArrayList";
@@ -280,6 +280,7 @@ const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
+const string ANNOTATION_MAP_NAME = "$annotation_data";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";
@@ -299,7 +300,7 @@ const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
 const string BALLERINA = "ballerina";
-const string BUILT_IN_PACKAGE_NAME = "builtin";
+const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 
 // scheduler related constants

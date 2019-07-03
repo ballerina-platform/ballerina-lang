@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.future",
-        functionName = "future.cancel",
+        functionName = "cancel",
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
         isPublic = true
 )

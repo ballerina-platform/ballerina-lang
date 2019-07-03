@@ -25,25 +25,18 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Extern function to create an async Artemis consumer.
@@ -67,33 +60,30 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object createConsumer(Strand strand, ObjectValue listenerObj, ObjectValue service) {
         try {
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> listenerObj = (BMap<String, BValue>) context.getRefArgument(0);
-            @SuppressWarnings(ArtemisConstants.UNCHECKED)
-            BMap<String, BValue> sessionObj = (BMap<String, BValue>) listenerObj.get(ArtemisConstants.SESSION);
+            ObjectValue sessionObj = (ObjectValue) listenerObj.get(ArtemisConstants.SESSION);
             ClientSession session = (ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION);
 
-            Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+            MapValue serviceAnnotation = getServiceConfigAnnotation(service);
+            boolean autoAck = serviceAnnotation.getBooleanValue(ArtemisConstants.AUTO_ACK);
+            String consumerFilter = ArtemisUtils.getStringFromObjOrNull(serviceAnnotation.get(ArtemisConstants.FILTER));
 
-            Annotation serviceAnnotation = getServiceConfigAnnotation(service);
-            Struct annotationValue = serviceAnnotation.getValue();
-            boolean autoAck = annotationValue.getBooleanField(ArtemisConstants.AUTO_ACK);
-            String consumerFilter = getStringFromValueOrNull(annotationValue.getRefField(ArtemisConstants.FILTER));
-
-            Map<String, Value> queueConfig = annotationValue.getMapField(ArtemisConstants.QUEUE_CONFIG);
-            String queueName = queueConfig.get(ArtemisConstants.QUEUE_NAME).getStringValue();
-            SimpleString addressName = new SimpleString(getAddressName(queueConfig, queueName));
-            boolean autoCreated = queueConfig.get(ArtemisConstants.AUTO_CREATED).getBooleanValue();
-            String routingType = queueConfig.get(ArtemisConstants.ROUTING_TYPE).getStringValue();
-            boolean temporary = queueConfig.get(ArtemisConstants.TEMPORARY).getBooleanValue();
-            String queueFilter = getStringFromValueOrNull(queueConfig.get(ArtemisConstants.FILTER));
-            boolean durable = queueConfig.get(ArtemisConstants.DURABLE).getBooleanValue();
-            int maxConsumers = ArtemisUtils.getIntFromLong(queueConfig.
-                    get(ArtemisConstants.MAX_CONSUMERS).getIntValue(), ArtemisConstants.MAX_CONSUMERS, logger);
-            boolean purgeOnNoConsumers = queueConfig.get(ArtemisConstants.PURGE_ON_NO_CONSUMERS).getBooleanValue();
-            boolean exclusive = queueConfig.get(ArtemisConstants.EXCLUSIVE).getBooleanValue();
-            boolean lastValue = queueConfig.get(ArtemisConstants.LAST_VALUE).getBooleanValue();
+            MapValue queueConfig = serviceAnnotation.getMapValue(ArtemisConstants.QUEUE_CONFIG);
+            String queueName = queueConfig.getStringValue(ArtemisConstants.QUEUE_NAME);
+            SimpleString addressName = new SimpleString(ArtemisUtils.getAddressName(queueConfig, queueName));
+            boolean autoCreated = queueConfig.getBooleanValue(ArtemisConstants.AUTO_CREATED);
+            String routingType = queueConfig.getStringValue(ArtemisConstants.ROUTING_TYPE);
+            boolean temporary = queueConfig.getBooleanValue(ArtemisConstants.TEMPORARY);
+            String queueFilter = ArtemisUtils.getStringFromObjOrNull(queueConfig.get(ArtemisConstants.FILTER));
+            boolean durable = queueConfig.getBooleanValue(ArtemisConstants.DURABLE);
+            int maxConsumers = ArtemisUtils.getIntFromLong(queueConfig.getIntValue(ArtemisConstants.MAX_CONSUMERS),
+                                                           ArtemisConstants.MAX_CONSUMERS, logger);
+            boolean purgeOnNoConsumers = queueConfig.getBooleanValue(ArtemisConstants.PURGE_ON_NO_CONSUMERS);
+            boolean exclusive = queueConfig.getBooleanValue(ArtemisConstants.EXCLUSIVE);
+            boolean lastValue = queueConfig.getBooleanValue(ArtemisConstants.LAST_VALUE);
 
             ClientConsumer consumer = ArtemisUtils.getClientConsumer(listenerObj, session, consumerFilter, queueName,
                                                                      addressName, autoCreated, routingType, temporary,
@@ -101,33 +91,16 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
                                                                      purgeOnNoConsumers, exclusive, lastValue, logger);
             console.println("[" + ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS + "] Client Consumer created for queue " +
                                     queueName);
-
-            Resource onMessageResource = service.getResources()[0];
-            if (onMessageResource != null) {
-                consumer.setMessageHandler(new ArtemisMessageHandler(onMessageResource, sessionObj, autoAck));
-            }
+            //Todo: Validate onMessage resource is not null at compiler level
+            consumer.setMessageHandler(new ArtemisMessageHandler(strand.scheduler, service, sessionObj, autoAck));
         } catch (ActiveMQException e) {
-            context.setReturnValues(ArtemisUtils.getError(context, e));
+            return ArtemisUtils.getError(e);
         }
+        return null;
     }
 
-    private String getAddressName(Map<String, Value> queueConfig, String queueName) {
-        Value addressName = queueConfig.get(ArtemisConstants.ADDRESS_NAME);
-        return addressName != null ? addressName.getStringValue() : queueName;
-    }
 
-    private String getStringFromValueOrNull(Value value) {
-        return value != null ? value.getStringValue() : null;
-    }
-
-    private Annotation getServiceConfigAnnotation(Service service) {
-        List<Annotation> annotationList = service
-                .getAnnotationList(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                                   "ServiceConfig");
-
-        if (annotationList == null) {
-            return null;
-        }
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+    private static MapValue getServiceConfigAnnotation(ObjectValue service) {
+        return (MapValue) service.getType().getAnnotation(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, "ServiceConfig");
     }
 }

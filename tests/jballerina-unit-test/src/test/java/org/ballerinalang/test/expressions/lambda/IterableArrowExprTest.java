@@ -116,7 +116,7 @@ public class IterableArrowExprTest {
         int i = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, i++,
-                "function invocation on type '(string,string)' is not supported", 22, 42);
+                "function invocation on type '[string,string]' is not supported", 22, 42);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int[]', found 'string[]'", 23, 31);
         BAssertUtil.validateError(resultNegative, i++,
@@ -130,7 +130,7 @@ public class IterableArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found '(string) collection'", 29, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "function invocation on type '(string,string)' is not supported", 37, 75);
+                "function invocation on type '[string,string]' is not supported", 37, 75);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string[]', found 'int'", 39, 20);
         BAssertUtil.validateError(resultNegative, i++,

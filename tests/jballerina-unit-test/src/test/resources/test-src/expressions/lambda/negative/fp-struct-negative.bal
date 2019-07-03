@@ -8,7 +8,7 @@ function getFullName (string f, string l) returns (string){
     return l + ", " + f;
 }
 
-function test1() returns (string, string){
+function test1() returns [string, string]{
     Person bob = {fname:"bob", lname:"white", getName: function (string fname, string lname) returns (string) {
                                                               return fname + " " + lname;
                                                           }};
@@ -16,5 +16,5 @@ function test1() returns (string, string){
 
     string x = bob.getFullName.call(bob.fname, bob.lname );
     string y = tom.getName.call(tom.fname, tom.lname );
-    return (x, y);
+    return [x, y];
 }

@@ -15,8 +15,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "post(${1:path}, ${2:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "post(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "head(string path)(ballerina/http:Response|error)",
@@ -28,8 +32,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "head(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "head(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "put(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(ballerina/http:Response|error)",
@@ -41,8 +49,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `put()` function can be used to send HTTP PUT requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "put(${1:path}, ${2:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "put(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "execute(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(ballerina/http:Response|error)",
@@ -54,8 +66,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nInvokes an HTTP call with the specified HTTP verb.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    HTTP verb value  \n  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "execute(${1:httpVerb}, ${2:path}, ${3:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "execute(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "patch(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(ballerina/http:Response|error)",
@@ -67,8 +83,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "patch(${1:path}, ${2:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "patch(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "delete(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(ballerina/http:Response|error)",
@@ -80,8 +100,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "delete(${1:path}, ${2:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "delete(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "get(string path)(ballerina/http:Response|error)",
@@ -93,8 +117,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `get()` function can be used to send HTTP GET requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "get(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "get(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "options(string path)(ballerina/http:Response|error)",
@@ -106,8 +134,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "options(${1:path})",
-      "insertTextFormat": "Snippet"
+      "insertText": "options(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "forward(string path, http:Request request)(ballerina/http:Response|error)",
@@ -119,8 +151,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe `forward()` function can be used to invoke an HTTP call with inbound request\u0027s HTTP verb\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _request_  \n    An HTTP inbound request message  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "forward(${1:path}, ${2:request})",
-      "insertTextFormat": "Snippet"
+      "insertText": "forward(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "submit(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)(ballerina/http:HttpFuture|error)",
@@ -132,8 +168,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSubmits an HTTP request to a service with the specified HTTP verb.\nThe `submit()` function does not give out a `Response` as the result,\nrather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    The HTTP verb value  \n  \n- _path_  \n    The resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \nballerina/http:HttpFuture|error"
         }
       },
-      "insertText": "submit(${1:httpVerb}, ${2:path}, ${3:message})",
-      "insertTextFormat": "Snippet"
+      "insertText": "submit(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getResponse(http:HttpFuture httpFuture)(ballerina/http:Response|error)",
@@ -145,8 +185,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "getResponse(${1:httpFuture})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getResponse(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasPromise(http:HttpFuture httpFuture)(boolean)",
@@ -158,8 +202,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "hasPromise(${1:httpFuture})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasPromise(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getNextPromise(http:HttpFuture httpFuture)(ballerina/http:PushPromise|error)",
@@ -171,8 +219,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \nballerina/http:PushPromise|error"
         }
       },
-      "insertText": "getNextPromise(${1:httpFuture})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getNextPromise(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getPromisedResponse(http:PushPromise promise)(ballerina/http:Response|error)",
@@ -184,8 +236,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    The related `PushPromise`  \n  \n  \n**Return**  \nballerina/http:Response|error"
         }
       },
-      "insertText": "getPromisedResponse(${1:promise})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getPromisedResponse(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "rejectPromise(http:PushPromise promise)",
@@ -197,8 +253,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    The Push Promise to be rejected  \n"
         }
       },
-      "insertText": "rejectPromise(${1:promise});",
-      "insertTextFormat": "Snippet"
+      "insertText": "rejectPromise(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

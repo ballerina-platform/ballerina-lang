@@ -27,4 +27,9 @@ dependencies {
     implementation project(':ballerina-streaming:siddhi-query-api')
     implementation project(':ballerina-streaming:siddhi-query-compiler')
     implementation project(':ballerina-streaming:siddhi-annotations')
+    implementation project(':ballerina-config')
+    
+    implementation 'io.opentracing:opentracing-api'
+    implementation 'io.opentracing:opentracing-util'
+    implementation 'org.awaitility:awaitility'
 }

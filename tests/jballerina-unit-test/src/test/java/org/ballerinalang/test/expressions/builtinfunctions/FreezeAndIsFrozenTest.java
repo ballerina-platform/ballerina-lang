@@ -567,24 +567,24 @@ public class FreezeAndIsFrozenTest {
         // todo: (obj|obj|()).freeze() should be invalid.
 //        validateError(negativeResult, index++, "function invocation on type 'PersonObjTwo|PersonObj[]' is not " +
 //                "supported", 46, 9);
-        validateError(negativeResult, index++, "function invocation on type '[PersonObj|PersonObjTwo,PersonObjTwo]' " +
-                "is not supported", 53, 9);
+        validateError(negativeResult, index++, "function invocation on type '[(PersonObj|PersonObjTwo),PersonObjTwo]'" +
+                " is not supported", 53, 9);
         validateError(negativeResult, index++, "undefined function 'Department.freeze'", 58, 9);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<string|PersonObj>', found " +
-                "'map<string|PersonObj>|error'", 63, 32);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<[any,any]>', found 'map<" +
-                "[string|PersonObj,FreezeAllowedDepartment|float]>|error'", 66, 26);
-        validateError(negativeResult, index++, "incompatible types: expected 'boolean|PersonObj|float?[]', found " +
-                "'boolean|PersonObj|float?[]|error'", 69, 39);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<(string|PersonObj)>', found " +
+                "'(map<(string|PersonObj)>|error)'", 63, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<[any,any]>', found '(map<" +
+                "[(string|PersonObj),(FreezeAllowedDepartment|float)]>|error)'", 66, 26);
+        validateError(negativeResult, index++, "incompatible types: expected '(boolean|PersonObj|float)?[]', found " +
+                "'((boolean|PersonObj|float)?[]|error)'", 69, 39);
         validateError(negativeResult, index++, "incompatible types: expected 'any[]', found " +
-                "'boolean|PersonObj|float?[]|error'", 71, 16);
-        validateError(negativeResult, index++, "incompatible types: expected '[string|PersonObj," +
-                "FreezeAllowedDepartment|float]', found '[string|PersonObj,FreezeAllowedDepartment|float]" +
-                "|error'", 74, 60);
+                "'((boolean|PersonObj|float)?[]|error)'", 71, 16);
+        validateError(negativeResult, index++, "incompatible types: expected '[(string|PersonObj)," +
+                "(FreezeAllowedDepartment|float)]', found '([(string|PersonObj),(FreezeAllowedDepartment|float)]" +
+                "|error)'", 74, 60);
         validateError(negativeResult, index++, "incompatible types: expected 'FreezeAllowedDepartment', found " +
-                "'FreezeAllowedDepartment|error'", 77, 35);
-        validateError(negativeResult, index++, "incompatible types: expected 'string|PersonObj', found " +
-                "'string|PersonObj|error'", 80, 27);
+                "'(FreezeAllowedDepartment|error)'", 77, 35);
+        validateError(negativeResult, index++, "incompatible types: expected '(string|PersonObj)', found " +
+                "'(string|PersonObj|error)'", 80, 27);
         validateError(negativeResult, index, "function invocation on type 'error' is not supported", 85, 9);
     }
 

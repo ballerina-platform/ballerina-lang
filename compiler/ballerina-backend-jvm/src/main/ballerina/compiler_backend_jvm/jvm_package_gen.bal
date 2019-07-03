@@ -29,9 +29,11 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<[bir:AsyncCall|bir:FPLoad,string]> lambdas = {};
+map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
+
+map<string> externalMapCache = {};
 
 string currentClass = "";
 
@@ -104,7 +106,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     string moduleName = moduleId.name;
     string pkgName = getPackageName(orgName, moduleName);
 
-    var [module, isFromCache] = lookupModule(moduleId);
+    var (module, isFromCache) = lookupModule(moduleId);
 
     if (!isEntry && isFromCache) {
         return;
@@ -123,11 +125,15 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
+    if (!isEntry) {
+        return;
+    }
+
     // generate object value classes
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
-    foreach var [moduleClass, v] in jvmClassMap {
+    foreach var (moduleClass, v) in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = untaint moduleClass;
         if (moduleClass == typeOwnerClass) {
@@ -170,7 +176,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
             generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
-        foreach var [name, call] in lambdas {
+        foreach var (name, call) in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -237,17 +243,49 @@ function computeLockNameFromString(string varName) returns string {
     return "$lock" + varName;
 }
 
-function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
-    string orgName = modId.org;
-    string moduleName = modId.name;
+function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
+        string orgName = modId.org;
+        string moduleName = modId.name;
+        string versionName = modId.modVersion;
 
-    var pkgFromCache = compiledPkgCache[orgName + moduleName];
-    if (pkgFromCache is bir:Package) {
-        return [pkgFromCache, true];
+        var pkgFromCache = compiledPkgCache[orgName + moduleName];
+        if (pkgFromCache is bir:Package) {
+            return (pkgFromCache, true);
+        }
+
+        var cacheDir = findCacheDirFor(modId);
+        var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
+        var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
+        internal:Path mappingPath = new(mappingFile);
+        if (mappingPath.exists()) {
+            var externalMap = readMap(mappingFile);
+            foreach var (key,val) in externalMap {
+                externalMapCache[cleanupName(key)] = val;
+            }
+        }
+        compiledPkgCache[orgName + moduleName] = parsedPkg;
+        return (parsedPkg, false);
+
+}
+
+function findCacheDirFor(bir:ModuleID modId) returns string {
+    foreach var birCacheDir in birCacheDirs {
+        internal:Path birPath = new(calculateBirCachePath(birCacheDir, modId, ".bir"));
+        if (birPath.exists()) {
+            return birCacheDir;
+        }
     }
-    var parsedPkg = currentBIRContext.lookupBIRModule(modId);
-    compiledPkgCache[orgName + moduleName] = parsedPkg;
-    return [parsedPkg, false];
+    error e = error(io:sprintf("%s not found in %s", calculateBirCachePath("", modId, ".bir"), birCacheDirs));
+    panic e;
+}
+
+function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ext) returns string {
+    string nonEmptyVersion = modId.modVersion;
+    if (nonEmptyVersion == "") {
+        nonEmptyVersion = "0.0.0";
+    }
+
+    return birCacheDir + "/" + modId.org + "/" + modId.name + "/" + nonEmptyVersion + "/" + modId.name + ext;
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
@@ -276,11 +314,11 @@ function getPackageName(string orgName, string moduleName) returns string {
     return packageName;
 }
 
-function splitPkgName(string key) returns [string, string] {
+function splitPkgName(string key) returns (string, string) {
     int index = key.lastIndexOf("/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
-    return [pkgName, functionName];
+    return (pkgName, functionName);
 }
 
 function cleanupName(string name) returns string {
@@ -305,7 +343,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<[bir:AsyncCall|bir:FPLoad,string]> lambdaCalls) returns map<JavaClass> {
+                                   map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -350,7 +388,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             bir:Function currentFunc = getFunction(func);
             functionName = getFunction(func).name.value;
             if (isExternFunc(getFunction(func))) { // if this function is an extern
-                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), functionName);
+                var result = lookupExternClassName(cleanupPackageName(pkgName), functionName);
                 if (result is string) {
                     moduleClass = result;
                 } else {
@@ -402,7 +440,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                     continue;
                 }
 
-                var result = jvm:lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                var result = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (result is string) {
                     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
                     bir:BType? attachedType = currentFunc.receiverType;
@@ -437,6 +475,11 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     };
 }
 
+// TODO: remove name/org form Package and replace with ModuleID
+function packageToModuleId(bir:Package module) returns bir:ModuleID {
+    return {org : module.org.value, name : module.name.value, modVersion : module.versionValue.value};
+}
+
 // TODO: remove ImportModule type replace with ModuleID
 function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
      return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
@@ -445,24 +488,94 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
 function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
 
     // Add the builtin and utils modules to the imported list of modules
-    bir:ImportModule builtinModule = {modOrg : {value:"ballerina"}, 
-                                      modName : {value:"builtin"}, 
-                                      modVersion : {value:""}};
+    bir:ImportModule annotationsModule = {modOrg : {value:"ballerina"},
+                                          modName : {value:"lang.annotations"},
+                                          modVersion : {value:""}};
 
-    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"}, 
-                                      modName : {value:"utils"}, 
-                                      modVersion : {value:""}};
-
-    if (isSameModule(moduleId, builtinModule)) {
+    if (isSameModule(moduleId, annotationsModule)) {
         return;
     }
 
+    module.importModules[module.importModules.length()] = annotationsModule;
+
+    if (isLangModule(moduleId)) {
+        return;
+    }
+
+    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
+                                        modName : {value:"utils"},
+                                        modVersion : {value:""}};
+
     if (isSameModule(moduleId, utilsModule)) {
-        module.importModules[module.importModules.length()] = builtinModule;
         return;
     }
 
     module.importModules[module.importModules.length()] = utilsModule;
+
+    bir:ImportModule langArrayModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.array"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langDecimalModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.decimal"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langErrorModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.error"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langFloatModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.float"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langFutureModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.future"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langIntModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.int"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langMapModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.map"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langObjectModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.object"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langStreamModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.stream"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langStringModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.string"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langTableModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.table"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langValueModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.value"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langXmlModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.xml"},
+                                         modVersion : {value:""}};
+    module.importModules[module.importModules.length()] = langArrayModule;
+    module.importModules[module.importModules.length()] = langDecimalModule;
+    module.importModules[module.importModules.length()] = langErrorModule;
+    module.importModules[module.importModules.length()] = langFloatModule;
+    module.importModules[module.importModules.length()] = langFutureModule;
+    module.importModules[module.importModules.length()] = langIntModule;
+    module.importModules[module.importModules.length()] = langMapModule;
+    module.importModules[module.importModules.length()] = langObjectModule;
+    module.importModules[module.importModules.length()] = langStreamModule;
+    module.importModules[module.importModules.length()] = langStringModule;
+    module.importModules[module.importModules.length()] = langTableModule;
+    module.importModules[module.importModules.length()] = langValueModule;
+    module.importModules[module.importModules.length()] = langXmlModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {
@@ -473,4 +586,18 @@ function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) retu
     } else {
         return moduleId.modVersion == importModule.modVersion.value;
     }
+}
+
+function isLangModule(bir:ModuleID moduleId) returns boolean{
+    if (moduleId.org != "ballerina") {
+        return false;
+    }
+    return moduleId.name.indexOf("lang.") == 0;
+}
+
+// TODO: this only works for 1000000 byte or less files, get a proper method in stdlib
+function readFileFully(string path) returns byte[]  = external;
+
+public function lookupExternClassName(string pkgName, string functionName) returns string? {
+    return externalMapCache[pkgName + "/" + functionName];
 }

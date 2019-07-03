@@ -24,11 +24,9 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
-//    implementation project(':lib-creator')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
