@@ -26,7 +26,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.MessageDispatcher;
@@ -72,10 +71,8 @@ public class Start extends BlockingNativeCallableUnit {
         ArrayList<ObjectValue> services =
                 (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
         for (ObjectValue service : services) {
-            ArrayValue annotation = service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+            MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
                     RabbitMQConstants.SERVICE_CONFIG);
-            @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-            MapValue<String, Object> serviceConfig = (MapValue) annotation.getRefValue(0);
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
             MapValue<String, Object> queueConfig =
                     (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
@@ -100,7 +97,8 @@ public class Start extends BlockingNativeCallableUnit {
                             + exception.getDetail());
                 }
             }
-            messageDispatcher = new MessageDispatcher(rabbitMQTransactionContext, service, channel, autoAck);
+            messageDispatcher = new MessageDispatcher(rabbitMQTransactionContext, service, channel, autoAck,
+                    strand.scheduler);
             receiveMessages(channel, queueName, autoAck);
         }
         return null;

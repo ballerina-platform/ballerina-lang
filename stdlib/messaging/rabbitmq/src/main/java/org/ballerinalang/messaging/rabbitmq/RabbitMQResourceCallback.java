@@ -45,6 +45,5 @@ public class RabbitMQResourceCallback implements CallableUnitCallback {
     public void notifyFailure(ErrorValue error) {
         countDownLatch.countDown();
         ErrorHandlerUtils.printError("RabbitMQ Error: " + error.getPrintableStackTrace());
-
     }
 }

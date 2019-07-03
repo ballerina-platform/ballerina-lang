@@ -74,6 +74,8 @@ public class RabbitMQConstants {
     public static final int DEFAULT_PREFETCH = 10;
     public static final String MULTIPLE_ACK_ERROR = "Trying to acknowledge the same message multiple times";
     public static final String ACK_MODE_ERROR = "Trying to acknowledge messages in auto-ack mode";
+    static final String THREAD_INTERRUPTED = "Error occurred in RabbitMQ service. " +
+            "The current thread got interrupted";
     public static final String ACK_ERROR = "Error occurred while positively acknowledging the message: ";
     public static final String NACK_ERROR = "Error occurred while negatively acknowledging the message: ";
     static final String FUNC_ON_MESSAGE = "onMessage";

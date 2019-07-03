@@ -22,7 +22,6 @@ import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -56,10 +55,8 @@ public class RegisterListener extends BlockingNativeCallableUnit {
     public static void registerListener(Strand strand, ObjectValue listenerObjectValue, ObjectValue service) {
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        ArrayValue annotations = service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
                 RabbitMQConstants.SERVICE_CONFIG);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        MapValue<String, Object> serviceConfig = (MapValue) annotations.getRefValue(0);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
                 (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);

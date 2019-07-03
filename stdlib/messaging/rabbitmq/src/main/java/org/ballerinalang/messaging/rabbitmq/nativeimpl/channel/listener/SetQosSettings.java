@@ -80,4 +80,3 @@ public class SetQosSettings extends BlockingNativeCallableUnit {
         return null;
     }
 }
-
