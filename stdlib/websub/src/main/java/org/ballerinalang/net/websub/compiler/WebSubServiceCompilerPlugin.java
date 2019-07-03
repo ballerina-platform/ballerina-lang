@@ -75,10 +75,10 @@ public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin
             }
         }
 
-        if (webSubAnnotationConfigCount > 1) {
+        if (webSubAnnotationConfigCount == 0) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "cannot have more than one '" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG
-                                       + "' annotation");
+                               "'" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG + "' annotation is compulsory");
+            return;
         }
 
         BType listenerType = ((BLangService) serviceNode).listenerType;

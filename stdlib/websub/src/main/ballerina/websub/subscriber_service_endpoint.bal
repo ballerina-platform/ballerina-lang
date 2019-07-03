@@ -232,9 +232,8 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
         }
     } else {
         string errCause = <string> discoveryResponse.detail().message;
-        map<anydata> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
-                                resourceUrl + "]: " + errCause };
-        websubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        websubError = error(WEBSUB_ERROR_CODE, message = "Error occurred with WebSub discovery for Resource URL [" +
+                                resourceUrl + "]: " + errCause );
     }
     return websubError;
 }

@@ -21,7 +21,9 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
@@ -40,11 +42,11 @@ public class HubSubscriber extends Consumer {
     private final String topic;
     private final String callback;
     private final MapValue<String, Object> subscriptionDetails;
-    private final Strand strand;
+    private final Scheduler scheduler;
 
     HubSubscriber(Strand strand, String queue, String topic, String callback,
                   MapValue<String, Object> subscriptionDetails) {
-        this.strand = strand;
+        this.scheduler = strand.scheduler;
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
@@ -58,7 +60,12 @@ public class HubSubscriber extends Consumer {
                 (MapValue<String, Object>) ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf())
                         .unwrap()).getValue();
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
-        WebSubUtils.executeFunction(strand, this.getClass().getClassLoader(), "hub_service", "distributeContent", args);
+        try {
+            WebSubUtils.executeFunction(scheduler, this.getClass().getClassLoader(), "hub_service",
+                                        "distributeContent", args);
+        } catch (BallerinaException e) {
+            throw new BallerinaException("send failed: " + e.getMessage());
+        }
     }
 
     @Override

@@ -87,7 +87,7 @@ public class Hub {
             topics.add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 Object[] args = {"register", topic};
-                executeFunction(strand, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
+                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
             }
         }
     }
@@ -99,7 +99,7 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 Object[] args = {"unregister", topic};
-                executeFunction(strand, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
+                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
             }
         }
     }
@@ -209,14 +209,14 @@ public class Hub {
                 hubTopicRegistrationRequired = topicRegistrationRequired;
                 String hubUrl = populateHubUrl(publicUrl, hubListener);
                 //TODO: change once made public and available as a param
-                Object returnValue = executeFunction(strand, classLoader, "hub_configuration",
+                Object returnValue = executeFunction(strand.scheduler, classLoader, "hub_configuration",
                                                      "isHubPersistenceEnabled");
                 hubPersistenceEnabled = Boolean.parseBoolean(returnValue.toString());
 
                 PrintStream console = System.err;
                 console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
                 started = true;
-                executeFunction(strand, classLoader, HUB_SERVICE, "setupOnStartup");
+                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "setupOnStartup");
                 setHubUrl(hubUrl);
                 setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE, STRUCT_WEBSUB_BALLERINA_HUB, hubUrl,
                                                                hubListener));

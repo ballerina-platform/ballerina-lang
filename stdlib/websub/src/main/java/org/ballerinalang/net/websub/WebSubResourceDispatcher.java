@@ -89,7 +89,7 @@ class WebSubResourceDispatcher {
                 //if the request is a GET request indicating an intent verification request, and the user has not
                 //specified an onIntentVerification resource, assume auto intent verification
                 String annotatedTopic = ((MapValue) service.getBalService().getType()
-                        .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG).get(0))
+                        .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG))
                         .getStringValue(ANN_WEBSUB_ATTR_TOPIC);
                 if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {
                     annotatedTopic = ((WebSubHttpService) service).getTopic();
