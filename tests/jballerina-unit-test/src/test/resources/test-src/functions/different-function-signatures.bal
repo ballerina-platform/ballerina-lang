@@ -175,7 +175,11 @@ function testDefaultableParamOuterFunc () returns [int, string] {
 type Person object {
     public int age = 0;
 
-    function test1(int a = 77, string n = "inner default") returns [int, string];
+    function test1(int a = 77, string n = "inner default") returns [int, string] {
+        string val = n + " world";
+        int intVal = a + 10;
+        return [intVal, val];
+    }
 
     function test2(int a = 89, string n = "hello") returns [int, string] {
         string val = n + " world";
@@ -183,9 +187,3 @@ type Person object {
         return [intVal, val];
     }
 };
-
-function Person.test1(int a = 77, string n = "hello") returns [int, string] {
-    string val = n + " world";
-    int intVal = a + 10;
-    return [intVal, val];
-}

@@ -107,7 +107,16 @@ public type HttpCachingClient client object {
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(string path, RequestMessage message) returns Response|error;
+    public remote function post(string path, RequestMessage message) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+
+        var inboundResponse = self.httpClient->post(path, req);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
     # suitable response cannot be found will the request be directed to the origin server.
@@ -116,7 +125,11 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(string path, RequestMessage message = ()) returns Response|error;
+    public remote function head(string path, RequestMessage message = ()) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+        return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
+    }
 
     # Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
     # origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
@@ -125,7 +138,16 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(string path, RequestMessage message) returns Response|error;
+    public remote function put(string path, RequestMessage message) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+
+        var inboundResponse = self.httpClient->put(path, req);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method
     # used is GET or HEAD.
@@ -135,7 +157,21 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(string httpMethod, string path, RequestMessage message) returns Response|error;
+    public remote function execute(string httpMethod, string path, RequestMessage message) returns Response|error {
+        Request request = <Request>message;
+        setRequestCacheControlHeader(request);
+
+        if (httpMethod == GET || httpMethod == HEAD) {
+            return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path,
+                                     self.cacheConfig.isShared, false);
+        }
+
+        var inboundResponse = self.httpClient->execute(httpMethod, path, request);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to
     # the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
@@ -144,7 +180,16 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(string path, RequestMessage message) returns Response|error;
+    public remote function patch(string path, RequestMessage message) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+
+        var inboundResponse = self.httpClient->patch(path, req);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the
     # origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
@@ -153,7 +198,16 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(string path, RequestMessage message) returns Response|error;
+    public remote function delete(string path, RequestMessage message) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+
+        var inboundResponse = self.httpClient->delete(path, req);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable
     # response cannot be found will the request be directed to the origin server.
@@ -162,7 +216,11 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(string path, RequestMessage message = ()) returns Response|error;
+    public remote function get(string path, RequestMessage message = ()) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+        return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
+    }
 
     # Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
     # origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
@@ -171,7 +229,16 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(string path, RequestMessage message = ()) returns Response|error;
+    public remote function options(string path, RequestMessage message = ()) returns Response|error {
+        Request req = <Request>message;
+        setRequestCacheControlHeader(req);
+
+        var inboundResponse = self.httpClient->options(path, message = req);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Forward remote function can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
     # GET and HEAD HTTP method types are cacheable.
@@ -179,7 +246,18 @@ public type HttpCachingClient client object {
     # + path - Request path
     # + request - The HTTP request to be forwarded
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(string path, Request request) returns Response|error;
+    public remote function forward(string path, Request request) returns Response|error {
+        if (request.method == GET || request.method == HEAD) {
+            return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
+                                     self.cacheConfig.isShared, true);
+        }
+
+        var inboundResponse = self.httpClient->forward(path, request);
+        if (inboundResponse is Response) {
+            invalidateResponses(self.cache, inboundResponse, path);
+        }
+        return inboundResponse;
+    }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
     #
@@ -188,37 +266,49 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error;
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+        return self.httpClient->submit(httpVerb, path, <Request>message);
+    }
 
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|error;
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+        return self.httpClient->getResponse(httpFuture);
+    }
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote function hasPromise(HttpFuture httpFuture) returns boolean;
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
+        return self.httpClient->hasPromise(httpFuture);
+    }
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+        return self.httpClient->getNextPromise(httpFuture);
+    }
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|error;
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
+        return self.httpClient->getPromisedResponse(promise);
+    }
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public remote function rejectPromise(PushPromise promise);
+    public remote function rejectPromise(PushPromise promise) {
+        self.httpClient->rejectPromise(promise);
+    }
 };
 
 # Creates an HTTP client capable of caching HTTP responses.
@@ -236,127 +326,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public remote function HttpCachingClient.post(string path, RequestMessage message) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-
-    var inboundResponse = self.httpClient->post(path, req);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.head(string path, RequestMessage message = ()) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
-}
-
-public remote function HttpCachingClient.put(string path, RequestMessage message) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-
-    var inboundResponse = self.httpClient->put(path, req);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.execute(string httpMethod, string path, RequestMessage message) returns Response|error {
-    Request request = <Request>message;
-    setRequestCacheControlHeader(request);
-
-    if (httpMethod == GET || httpMethod == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path,
-                                 self.cacheConfig.isShared, false);
-    }
-
-    var inboundResponse = self.httpClient->execute(httpMethod, path, request);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.patch(string path, RequestMessage message) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-
-    var inboundResponse = self.httpClient->patch(path, req);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.delete(string path, RequestMessage message) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-
-    var inboundResponse = self.httpClient->delete(path, req);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.get(string path, RequestMessage message = ()) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
-}
-
-public remote function HttpCachingClient.options(string path, RequestMessage message = ()) returns Response|error {
-    Request req = <Request>message;
-    setRequestCacheControlHeader(req);
-
-    var inboundResponse = self.httpClient->options(path, message = req);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.forward(string path, Request request) returns Response|error {
-    if (request.method == GET || request.method == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
-                                 self.cacheConfig.isShared, true);
-    }
-
-    var inboundResponse = self.httpClient->forward(path, request);
-    if (inboundResponse is Response) {
-        invalidateResponses(self.cache, inboundResponse, path);
-    }
-    return inboundResponse;
-}
-
-public remote function HttpCachingClient.submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
-    return self.httpClient->submit(httpVerb, path, <Request>message);
-}
-
-public remote function HttpCachingClient.getResponse(HttpFuture httpFuture) returns Response|error {
-    return self.httpClient->getResponse(httpFuture);
-}
-
-public remote function HttpCachingClient.hasPromise(HttpFuture httpFuture) returns boolean {
-    return self.httpClient->hasPromise(httpFuture);
-}
-
-public remote function HttpCachingClient.getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    return self.httpClient->getNextPromise(httpFuture);
-}
-
-public remote function HttpCachingClient.getPromisedResponse(PushPromise promise) returns Response|error {
-    return self.httpClient->getPromisedResponse(promise);
-}
-
-public remote function HttpCachingClient.rejectPromise(PushPromise promise) {
-    self.httpClient->rejectPromise(promise);
-}
-
-function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
+function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
                            boolean isShared, boolean forwardRequest) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();

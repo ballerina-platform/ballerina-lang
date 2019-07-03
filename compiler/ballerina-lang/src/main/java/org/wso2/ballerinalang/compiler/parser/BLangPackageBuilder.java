@@ -718,7 +718,8 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier,
+                          DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
@@ -726,7 +727,7 @@ public class BLangPackageBuilder {
                 generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, pos, false);
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, pos, false);
+                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, restParamPos, false);
         }
     }
 
