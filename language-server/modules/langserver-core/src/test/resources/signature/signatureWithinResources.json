@@ -7,7 +7,7 @@
     "result": {
       "signatures": [
         {
-          "label": "Caller.respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] message)",
+          "label": "Caller.respond((ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)",
           "documentation": {
             "right": {
               "kind": "markdown",

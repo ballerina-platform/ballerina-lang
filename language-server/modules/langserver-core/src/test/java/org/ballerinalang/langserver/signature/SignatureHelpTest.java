@@ -54,7 +54,7 @@ public class SignatureHelpTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help", enabled = false)
+    @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help")
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
 

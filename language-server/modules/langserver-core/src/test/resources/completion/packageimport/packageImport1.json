@@ -23,13 +23,13 @@
       }
     },
     {
-      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:HttpClient|error)",
+      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)((ballerina/http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:HttpClient|error"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|error)"
         }
       },
       "insertText": "createHttpCachingClient(${1})",
@@ -40,13 +40,13 @@
       }
     },
     {
-      "label": "parseHeader(string headerValue)([string,map]|error)",
+      "label": "parseHeader(string headerValue)(([string,map]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n[string,map]|error"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n([string,map]|error)"
         }
       },
       "insertText": "parseHeader(${1})",
@@ -57,13 +57,13 @@
       }
     },
     {
-      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE requestAction, http:HttpClient httpClient)(ballerina/http:Response|ballerina/http:HttpFuture|error)",
+      "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient)((ballerina/http:Response|ballerina/http:HttpFuture|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:HttpFuture|error)"
         }
       },
       "insertText": "invokeEndpoint(${1})",
@@ -74,13 +74,13 @@
       }
     },
     {
-      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:HttpClient|error)",
+      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)((ballerina/http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:HttpClient|error"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|error)"
         }
       },
       "insertText": "createHttpSecureClient(${1})",
@@ -91,13 +91,13 @@
       }
     },
     {
-      "label": "encode(string url, string charset)(string|error)",
+      "label": "encode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \n(string|error)"
         }
       },
       "insertText": "encode(${1})",
@@ -108,13 +108,13 @@
       }
     },
     {
-      "label": "decode(string url, string charset)(string|error)",
+      "label": "decode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \n(string|error)"
         }
       },
       "insertText": "decode(${1})",
