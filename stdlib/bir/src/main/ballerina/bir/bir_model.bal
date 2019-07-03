@@ -608,6 +608,8 @@ public type AsyncCall record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
+    boolean isAsync = true;
     BasicBlock thenBB;
 |};
 
