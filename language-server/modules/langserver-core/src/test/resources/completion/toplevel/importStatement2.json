@@ -38,14 +38,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/privacy",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
@@ -259,14 +251,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/mysql",
       "insertTextFormat": "Snippet"
     },
     {

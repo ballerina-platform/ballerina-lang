@@ -387,28 +387,6 @@
       ]
     },
     {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/privacy;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/cache",
       "kind": "Module",
       "detail": "Package",
@@ -977,28 +955,6 @@
             }
           },
           "newText": "import ballerina/nats;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
         }
       ]
     },

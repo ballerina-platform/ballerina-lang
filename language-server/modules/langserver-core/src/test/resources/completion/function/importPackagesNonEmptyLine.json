@@ -644,29 +644,6 @@
       ]
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",

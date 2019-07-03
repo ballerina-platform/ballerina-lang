@@ -27,13 +27,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cache",
       "kind": "Module",
       "detail": "Package",
@@ -220,13 +213,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
       "insertTextFormat": "Snippet"
     },
     {
