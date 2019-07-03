@@ -97,14 +97,14 @@ public class StreamValue implements RefValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
      * {@inheritDoc}
      */
     public Object frozenCopy(Map<Object, Object> refs) {
-        return null;
+            throw new UnsupportedOperationException();
     }
 
     public BType getConstraintType() {

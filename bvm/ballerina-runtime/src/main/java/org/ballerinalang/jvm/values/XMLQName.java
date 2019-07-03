@@ -102,7 +102,9 @@ public final class XMLQName implements RefValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         XMLQName copy = (XMLQName) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 

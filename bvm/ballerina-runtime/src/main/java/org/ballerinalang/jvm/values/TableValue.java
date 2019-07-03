@@ -324,7 +324,9 @@ public class TableValue implements RefValue, CollectionValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         TableValue copy = (TableValue) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 

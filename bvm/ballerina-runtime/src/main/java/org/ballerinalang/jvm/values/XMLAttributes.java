@@ -85,7 +85,9 @@ public final class XMLAttributes implements RefValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         XMLAttributes copy = (XMLAttributes) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 }

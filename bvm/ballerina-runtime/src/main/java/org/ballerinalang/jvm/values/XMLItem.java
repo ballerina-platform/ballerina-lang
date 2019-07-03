@@ -675,7 +675,9 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         XMLItem copy = (XMLItem) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 

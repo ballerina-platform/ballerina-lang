@@ -457,7 +457,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         XMLSequence copy = (XMLSequence) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 

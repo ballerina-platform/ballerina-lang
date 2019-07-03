@@ -353,7 +353,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         MapValueImpl<K, V> copy = (MapValueImpl<K, V>) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
 

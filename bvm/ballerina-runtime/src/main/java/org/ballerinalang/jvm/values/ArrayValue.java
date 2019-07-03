@@ -521,7 +521,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         ArrayValue copy = (ArrayValue) copy(refs);
-        copy.freezeDirect();
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
         return copy;
     }
     
