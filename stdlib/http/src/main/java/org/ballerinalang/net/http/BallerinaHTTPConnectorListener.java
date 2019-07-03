@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
@@ -24,8 +26,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -34,11 +34,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * HTTP connector listener for Ballerina.

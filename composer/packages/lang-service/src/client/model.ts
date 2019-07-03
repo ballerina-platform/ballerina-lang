@@ -3,6 +3,28 @@ import { InitializeParams, InitializeResult, Location, Position,
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment } from "./ast-models";
 
+export interface GetProjectASTParams {
+    sourceRoot: string;
+}
+
+export interface GetProjectASTResponse {
+    modules: ProjectAST;
+    parseSuccess: boolean;
+}
+
+export interface ProjectAST {
+    [moduleName: string]: {
+        name: string,
+        compilationUnits: {
+            [compilationUnitName: string]: {
+                name: string,
+                ast: BallerinaAST,
+                uri: string,
+            }
+        }
+    };
+}
+
 export interface GetASTParams {
     documentIdentifier: {
         uri: string;
@@ -75,6 +97,8 @@ export interface IBallerinaLangClient {
     isInitialized: boolean;
 
     init: (params?: InitializeParams) => Thenable<InitializeResult>;
+
+    getProjectAST: (params: GetProjectASTParams) => Thenable<GetProjectASTResponse>;
 
     getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
 

@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -40,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,17 +92,6 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                     function x.y
                  */
                 return this.getObjectAttachedFunctions(context, lhsDefaultTokens);
-            }
-            if (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.ASSIGN
-                    || (lhsDefaultTokens.size() > 3
-                    && lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() == BallerinaParser.ASSIGN)) {
-                /*
-                Consider the following case
-                Eg: function x =
-                    function x = ex
-                    Suggest the external keyword
-                 */
-                return Collections.singletonList(Snippet.KW_EXTERNAL.get().build(context));
             }
             /*
             Consider the following cases

@@ -689,7 +689,7 @@ public abstract class LSCompletionProvider {
      * @param context Completion context
      * @return {@link List}     List of resolved completion items
      */
-    private List<CompletionItem> getVarDefCompletions(LSContext context) {
+    public List<CompletionItem> getVarDefCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions

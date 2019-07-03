@@ -337,12 +337,12 @@ public class StampInbuiltFunctionNegativeTest {
         Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 2);
 
         BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'int|float|xml' cannot be stamped as type 'Employee'",
+                "incompatible stamp type: type '(int|float|xml)' cannot be stamped as type 'Employee'",
                 28, 30);
 
         BAssertUtil.validateError(unionNegativeTestCompileResult, 1,
                 "incompatible stamp type: type " +
-                        "'int|float|[string,string]' cannot be stamped as type 'int|float|[string,int]'",
+                        "'(int|float|[string,string])' cannot be stamped as type '(int|float|[string,int])'",
                 34, 49);
     }
 

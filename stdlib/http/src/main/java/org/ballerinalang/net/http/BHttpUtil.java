@@ -58,8 +58,6 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +88,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -159,12 +156,6 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -1163,23 +1154,6 @@ public class BHttpUtil {
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
         return new DefaultHttpWsConnectorFactory();
-    }
-
-    public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> {
-            injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            ctx.addTag(TAG_KEY_PEER_ADDRESS,
-                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
-            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-            // some value to HTTP Status Code to make sure that tags will not change depending on various
-            // circumstances.
-            // HTTP Status code must be a number.
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
-        });
     }
 
     public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {

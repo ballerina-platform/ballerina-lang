@@ -722,12 +722,12 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!isSameType(source.paramTypes[i], targetType.paramTypes[i])) {
+            if (!checkIsType(targetType.paramTypes[i], source.paramTypes[i], new ArrayList<>())) {
                 return false;
             }
         }
 
-        return isSameType(source.retType, targetType.retType);
+        return checkIsType(source.retType, targetType.retType, new ArrayList<>());
     }
 
     private static boolean checkIsServiceType(BType sourceType) {
