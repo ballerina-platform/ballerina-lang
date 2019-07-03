@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -27,6 +28,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -38,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -97,25 +101,64 @@ public class TypeParamAnalyzer {
         if (!foundAnyTypeParam) {
             return;
         }
-        // Now construct matching type and type check with that.
+        // Now construct matching Bound Type and type-check with that.
         types.checkType(env.node.pos, getMatchingBoundType(expType, env), actualType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
     BType getReturnTypeParams(SymbolEnv env, BType expType) {
 
-        if (env.typeParamsEntries == null) {
+        if (env.typeParamsEntries == null || env.typeParamsEntries.isEmpty()) {
             return expType;
         }
         return getMatchingBoundType(expType, env);
     }
 
+    public BType getNominalType(BType type, Name name, int flag) {
+        // Only type params has nominal behaviour for now.
+        if (name == Names.EMPTY) {
+            return type;
+        }
+        return createBuiltInType(type, name, flag);
+    }
+
+    BType createTypeParam(BType type, Name name) {
+
+        int flag = type.flags | Flags.TYPE_PARAM;
+        return createBuiltInType(type, name, flag);
+    }
+
     // Private methods.
+
+    private BType createBuiltInType(BType type, Name name, int flag) {
+        // Handle built-in types.
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+                return new BType(type.tag, null, name, flag);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, null, name, flag);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, null, name, flag);
+        }
+        // For others, we will use TSymbol.
+        return type;
+    }
+
+    private boolean isTypeParam(BType expType) {
+
+        return Symbols.isFlagOn(expType.flags, Flags.TYPE_PARAM)
+                || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
+    }
 
     private boolean findTypeParam(BType expType, BType actualType, SymbolEnv env) {
 
         // Finding TypePram and its bound type require, both has to be same structure.
-        if (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM)) {
+        if (isTypeParam(expType)) {
             updateTypeParamAndBoundType(env, expType, actualType);
             return true;
         }
@@ -264,7 +307,7 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env) {
 
-        if (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM)) {
+        if (isTypeParam(expType)) {
             return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
                     .findFirst()
                     .map(typeParamEntry -> typeParamEntry.boundType)
@@ -280,6 +323,7 @@ public class TypeParamAnalyzer {
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env);
             case TypeTags.RECORD:
+                // TODO : Avoid self recursion.
                 return getMatchingRecordBoundType((BRecordType) expType, env);
             case TypeTags.INVOKABLE:
                 return getMatchingFunctionBoundType((BInvokableType) expType, env);
@@ -379,9 +423,11 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env) {
 
+        if (expType == symTable.errorType) {
+            return expType;
+        }
         BType reasonType = getMatchingBoundType(expType.reasonType, env);
-        BType detailType = Symbols.isFlagOn(expType.detailType.tsymbol.flags, Flags.TYPE_PARAM) ?
-                getMatchingBoundType(expType.detailType, env) : expType.detailType;
+        BType detailType = getMatchingBoundType(expType.detailType, env);
         return new BErrorType(null, reasonType, detailType);
     }
 

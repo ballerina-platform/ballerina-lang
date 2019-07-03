@@ -151,7 +151,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2873,6 +2872,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         iExpr.argExprs.add(0, iExpr.expr);
+        iExpr.expr.typeChecked = false;
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
     }
