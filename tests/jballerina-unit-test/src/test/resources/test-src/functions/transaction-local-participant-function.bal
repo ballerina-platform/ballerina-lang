@@ -56,6 +56,9 @@ boolean thrown1 = false;
 boolean thrown2 = false;
 
 function initiatorFunc(boolean error1, boolean error2) returns string {
+    thrown1 = false;
+    thrown2 = false;
+    S = "";
     transaction with retries=2 {
         S = S + " in-trx-block";
         participantFoo();
