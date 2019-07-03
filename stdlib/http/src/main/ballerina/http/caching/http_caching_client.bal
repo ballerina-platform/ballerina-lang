@@ -326,7 +326,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
+function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
                            boolean isShared, boolean forwardRequest) returns Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
