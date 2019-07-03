@@ -42,7 +42,8 @@ abstract class AbstractTokenTraverser {
 
     void processToken(Token token) {
         this.processedTokens.add(new CommonToken(token));
-        if (token.getType() == BallerinaParser.NEW_LINE || token.getChannel() != Token.DEFAULT_CHANNEL) {
+        if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
+                token.getChannel() != Token.DEFAULT_CHANNEL) {
             return;
         }
         if (pruneTokens) {
