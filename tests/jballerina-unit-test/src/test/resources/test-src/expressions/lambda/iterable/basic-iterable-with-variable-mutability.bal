@@ -350,7 +350,8 @@ function testWithComplexXML() returns ([int, string][]) {
             }
     });
 
-    return titles;
+    // todo: remove <@untainted> when issue #16175 is fixed.
+    return <@untainted> titles;
 }
 
 type Balance record {

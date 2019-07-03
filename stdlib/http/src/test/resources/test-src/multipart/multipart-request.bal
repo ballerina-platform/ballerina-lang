@@ -150,7 +150,7 @@ service test on mockEP {
     }
 }
 
-function handleNestedParts(mime:Entity parentPart) returns (string) {
+function handleNestedParts(mime:Entity parentPart) returns @tainted (string) {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
@@ -169,7 +169,7 @@ function handleNestedParts(mime:Entity parentPart) returns (string) {
     return content;
 }
 
-function handleContent(mime:Entity bodyPart) returns (string) {
+function handleContent(mime:Entity bodyPart) returns @tainted (string) {
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();

@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-@untainted listener http:Listener helloWorldEP = new (9090);
+@untainted listener http:Listener helloWorldEP = new (19293);
 
 // Arguments to resource functions are provided by the listener and if the listener is statically verified to be
 // untainted we consider the arguments provided by the listener to be untainted as well.

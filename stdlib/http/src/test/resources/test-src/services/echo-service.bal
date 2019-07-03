@@ -62,7 +62,7 @@ service echo on echoEP {
     }
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStr);
+        res.setTextPayload(<@untainted> self.serviceLevelStr);
         checkpanic caller->respond(res);
     }
 
@@ -84,7 +84,7 @@ service echo on echoEP {
     }
     resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStringVar);
+        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
         checkpanic caller->respond(res);
     }
 

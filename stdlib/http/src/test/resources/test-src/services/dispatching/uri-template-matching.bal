@@ -388,7 +388,7 @@ service WildcardService on testEP {
     resource function twistedPathParams(http:Caller caller, http:Request req, string name, string age) {
         http:Response res = new;
         json responseJson = { Name:name, Age:age };
-        checkpanic caller->respond(untaint responseJson);
+        checkpanic caller->respond(<@untainted> responseJson);
     }
 
     @http:ResourceConfig {
@@ -404,6 +404,6 @@ service WildcardService on testEP {
             balName = name;
         }
         json responseJson = { Name:name, Age:balAge, Weight:balWeight, Status:status, Lang: balName};
-        checkpanic caller->respond(untaint responseJson);
+        checkpanic caller->respond(<@untainted> responseJson);
     }
 }

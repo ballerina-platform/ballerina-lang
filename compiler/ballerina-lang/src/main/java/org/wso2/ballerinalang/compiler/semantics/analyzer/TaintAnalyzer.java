@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -185,6 +186,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
@@ -289,15 +291,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         currPkgEnv = pkgEnv;
         env = pkgEnv;
 
-        // Skip all lambda functions and analyzing them as part of the enclosing function.
-        pkgNode.topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
-                || !((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
-                .forEach(node -> {
-                    AnalysisState analysisState = new AnalysisState();
-                    analysisStateStack.push(analysisState);
-                    ((BLangNode) node).accept(this);
-                    analysisStateStack.pop();
-                });
+        Map<Boolean, List<TopLevelNode>> topLevelNodeGroups = pkgNode.topLevelNodes.stream()
+                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE));
+
+        // Analyze top level variable nodes.
+        analyzeNode(topLevelNodeGroups.get(true));
+        // Analyze top level nodes other than variable nodes.
+        analyzeNode(topLevelNodeGroups.get(false));
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable(blockedNodeList);
@@ -308,6 +308,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
+    }
+
+    private void analyzeNode(List<TopLevelNode> topLevelNodes) {
+        // Skip all lambda functions and analyzing them as part of the enclosing function.
+        topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
+                || !((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
+                .forEach(node -> {
+                    AnalysisState analysisState = new AnalysisState();
+                    analysisStateStack.push(analysisState);
+                    ((BLangNode) node).accept(this);
+                    analysisStateStack.pop();
+                });
     }
 
     @Override
@@ -2213,8 +2225,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangVariable param = paramList.get(paramIndex);
                 TaintedStatus taintedStateBasedOnAnnotations = getTaintedStatusBasedOnAnnotations(param.annAttachments);
                 if (taintedStateBasedOnAnnotations == TaintedStatus.TAINTED || param.symbol.tainted) {
-                    getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
-                            TaintedStatus.TAINTED);
+                    if (types.isValueType(param.type)) {
+                        // As we can't push values out of a value typed parameter, function body can't taint
+                        // value typed parameter.
+                        getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
+                                TaintedStatus.UNTAINTED);
+                    } else {
+                        getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
+                                TaintedStatus.TAINTED);
+                    }
                 }
                 // Ignore if param is untainted. Where there are multiple return statements in a function, it is
                 // required to get the combined tainted status of parameters. This condition is skipped to make sure we
@@ -2316,6 +2335,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 invokableSymbol.taintTable = duplicateTaintTableSkippingReceiverEntry(taintTable);
+                argTaintedStatusList.remove(0); // remove self params tainted status from list.
             }
 
             for (int reqArgIndex = 0; reqArgIndex < requiredArgsCount; reqArgIndex++) {
@@ -2449,9 +2469,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 + invocationExpr.restArgs.size();
 
         return (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED
-                && invocationExpr.expr != null
+                && invocationExpr.expr != null;
                 // taint table generated in bootstraping compiler. Can not perform receiver taint analysis for this.
-                && (totalParamCount + 1) == allUntaintedTaintRecord.parameterTaintedStatusList.size();
+                //&& (totalParamCount + 1) == allUntaintedTaintRecord.parameterTaintedStatusList.size();
     }
 
     private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,
@@ -2484,13 +2504,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         for (Map.Entry<Integer, TaintRecord> entry : taintTable.entrySet()) {
             if (entry.getKey() > 0) {
-                taintTableWithoutReceiver.put(entry.getKey() - 1, entry.getValue());
+                taintTableWithoutReceiver.put(entry.getKey() - 1, skipTaintRecSelfParam(entry.getValue()));
             }
         }
         return taintTableWithoutReceiver;
     }
 
     private TaintRecord skipTaintRecSelfParam(TaintRecord taintRecord) {
+        if (taintRecord.parameterTaintedStatusList == null) {
+            return taintRecord;
+        }
         TaintRecord newRec = new TaintRecord(taintRecord.taintError);
         newRec.returnTaintedStatus = taintRecord.returnTaintedStatus;
         newRec.parameterTaintedStatusList =
