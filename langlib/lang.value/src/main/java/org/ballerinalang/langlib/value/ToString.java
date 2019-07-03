@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Returns a simple, human-readable representation of the given value as a String.
  *
- * @since 0.89
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.value",
