@@ -38,8 +38,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants.SERVER_TIMEOUT_ERROR_MESSAGE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
@@ -108,6 +108,6 @@ public class EntityBodyReceived implements ListenerState {
         //Write server timeout error to caller
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
                                                   HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(
-                        SERVER_TIMEOUT_ERROR_MESSAGE, CharsetUtil.UTF_8), false, false);
+                        HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE, CharsetUtil.UTF_8), false, false);
     }
 }

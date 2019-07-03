@@ -403,7 +403,7 @@ public final class Constants {
     public static final int ZERO_READABLE_BYTES = 0;
     public static final int STREAM_ID_ONE = 1;
 
-    public static final String SERVER_TIMEOUT_ERROR_MESSAGE = "Server time out";
+    public static final String HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE = "Stream timed out";
 
     private Constants() {
     }

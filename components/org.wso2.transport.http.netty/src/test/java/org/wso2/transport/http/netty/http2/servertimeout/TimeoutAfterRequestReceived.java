@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.wso2.transport.http.netty.contract.Constants.SERVER_TIMEOUT_ERROR_MESSAGE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
 
 /**
  * {@code TimeoutAfterRequestReceived} tests server timeout once the request has been received but before
@@ -105,7 +105,7 @@ public class TimeoutAfterRequestReceived {
         HttpCarbonMessage response = new MessageSender(http2ClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, SERVER_TIMEOUT_ERROR_MESSAGE, "Expected response not received");
+        assertEquals(result, HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE, "Expected response not received");
     }
 
     @AfterClass
