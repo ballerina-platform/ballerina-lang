@@ -181,12 +181,14 @@ public class BallerinaDAPClientConnector {
         }
     }
 
-    boolean isConnected() {
-        return debugClient != null && isActive();
+    public boolean isConnected() {
+        return debugClient != null && launcherFuture != null && !launcherFuture.isDone()
+                && !launcherFuture.isCancelled() && myConnectionState == ConnectionState.CONNECTED;
     }
 
     void close() {
-        // Todo
+        streamConnectionProvider.stop();
+        myConnectionState = ConnectionState.NOT_CONNECTED;
     }
 
     String getState() {
@@ -211,22 +213,23 @@ public class BallerinaDAPClientConnector {
         String debugLauncherPath = "";
         String os = OperatingSystemUtils.getOperatingSystem();
         if (os != null) {
+            String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
+            if (balSdkPath == null) {
+                LOG.warn(String.format("Couldn't find ballerina SDK for the project%sto start debug server.",
+                        project.getName()));
+                return null;
+            }
             if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
-                debugLauncherPath = Paths.get(BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath()
-                        + BALLERINA_DEBUG_LAUNCHER_PATH + BALLERINA_DEBUG_LAUNCHER_NAME + ".sh").toString();
+                debugLauncherPath = Paths.get(balSdkPath, BALLERINA_DEBUG_LAUNCHER_PATH,
+                        BALLERINA_DEBUG_LAUNCHER_NAME + ".sh").toString();
             } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
-                debugLauncherPath = Paths.get(BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath()
-                        + BALLERINA_DEBUG_LAUNCHER_PATH + BALLERINA_DEBUG_LAUNCHER_NAME + ".bat").toString();
+                debugLauncherPath = Paths.get(balSdkPath, BALLERINA_DEBUG_LAUNCHER_PATH,
+                        BALLERINA_DEBUG_LAUNCHER_NAME + ".bat").toString();
             }
         }
 
         return !debugLauncherPath.isEmpty() ? new BallerinaSocketStreamConnectionProvider(
                 new ArrayList<>(Collections.singleton(debugLauncherPath)), project.getBasePath(), host,
                 DEBUG_ADAPTOR_PORT) : null;
-    }
-
-    public boolean isActive() {
-        return launcherFuture != null && !launcherFuture.isDone() && !launcherFuture.isCancelled()
-                && myConnectionState == ConnectionState.CONNECTED;
     }
 }

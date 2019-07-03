@@ -38,12 +38,9 @@ import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
-import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
-import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
-import io.ballerina.plugins.idea.debugger.dto.Variable;
-import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
+import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,42 +55,43 @@ import javax.swing.Icon;
 public class BallerinaXValue extends XNamedValue {
 
     @NotNull
-    private final BallerinaDebugProcess myProcess;
+    private final BallerinaDebugProcess process;
     @NotNull
-    private final Variable myVariable;
+    private final Variable variable;
     @NotNull
-    private final String myFrameName;
+    private final String frameName;
     @Nullable
-    private final Icon myIcon;
+    private final Icon icon;
 
     BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull String frameName,
                     @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
-        myProcess = process;
-        myFrameName = frameName;
-        myVariable = variable;
-        myIcon = icon;
+        this.process = process;
+        this.frameName = frameName;
+        this.variable = variable;
+        this.icon = icon;
     }
 
     @Override
     public void computePresentation(@NotNull XValueNode node, @NotNull XValuePlace place) {
         XValuePresentation presentation = getPresentation();
         boolean hasChildren = false;
-        if (myVariable.getValue() == null && myVariable.getChildren() != null) {
+        if (variable.getValue() == null && variable.getNamedVariables() > 0) {
             hasChildren = true;
         }
-        node.setPresentation(myIcon, presentation, hasChildren);
+        node.setPresentation(icon, presentation, hasChildren);
     }
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        List<Variable> children = myVariable.getChildren();
+        // Todo - Add child variable fetching
+        List<Variable> children = null;
         if (children == null) {
             super.computeChildren(node);
         } else {
             XValueChildrenList list = new XValueChildrenList();
             for (Variable child : children) {
-                list.add(child.getName(), new BallerinaXValue(myProcess, myFrameName, child, AllIcons.Nodes.Field));
+                list.add(child.getName(), new BallerinaXValue(process, frameName, child, AllIcons.Nodes.Field));
             }
             node.addChildren(list, true);
         }
@@ -107,27 +105,28 @@ public class BallerinaXValue extends XNamedValue {
 
     @NotNull
     private XValuePresentation getPresentation() {
-        String value = myVariable.getValue();
-        if (value == null) {
-            return new XRegularValuePresentation(myFrameName, "Scope");
-        }
-        if (myVariable.isNumber()) {
-            return new XNumericValuePresentation(value);
-        }
-        if (myVariable.isString()) {
-            return new XStringValuePresentation(value);
-        }
-        if (myVariable.isBoolean()) {
-            return new XValuePresentation() {
-                @Override
-                public void renderValue(@NotNull XValueTextRenderer renderer) {
-                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
-                }
-            };
-        }
-
-        String type = myVariable.getType();
-        String prefix = myVariable.getType() + " ";
+        String value = variable.getValue();
+        // Todo - Enable
+//        if (variable.isString()) {
+//            return new XStringValuePresentation(value);
+//        }
+//        if (variable.getType()) {
+//            return new XNumericValuePresentation(value);
+//        }
+//
+//        if (variable.isBoolean()) {
+//            return new XValuePresentation() {
+//                @Override
+//                public void renderValue(@NotNull XValueTextRenderer renderer) {
+//                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+//                }
+//            };
+//        }
+//        if (value == null) {
+//            return new XRegularValuePresentation(frameName, "Scope");
+//        }
+        String type = variable.getType();
+        String prefix = variable.getType() + " ";
         return new XRegularValuePresentation(StringUtil.startsWith(value, prefix) ? value.replaceFirst(Pattern.quote
                 (prefix), "") : value, type);
     }
@@ -150,7 +149,7 @@ public class BallerinaXValue extends XNamedValue {
 
             @Nullable
             private XSourcePosition findPosition() {
-                XDebugSession debugSession = myProcess.getSession();
+                XDebugSession debugSession = process.getSession();
                 if (debugSession == null) {
                     return null;
                 }

@@ -19,12 +19,15 @@ import io.ballerina.plugins.idea.debugger.BallerinaDAPClientConnector;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
+import org.eclipse.lsp4j.debug.ScopesArguments;
+import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -43,9 +46,11 @@ public class DAPRequestManager {
     private final Capabilities serverCapabilities;
 
     private static final int TIMEOUT_SET_BREAKPOINTS = 1000;
-    private static final int TIMEOUT_STACK_FRAME = 2000;
     private static final int TIMEOUT_CONFIG_DONE = 1000;
     private static final int TIMEOUT_THREADS = 2000;
+    private static final int TIMEOUT_STACK_TRACE = 2000;
+    private static final int TIMEOUT_SCOPES = 2000;
+    private static final int TIMEOUT_VARIABLES = 2000;
     private static final int TIMEOUT_DISCONNECT = 5000;
 
     public DAPRequestManager(BallerinaDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
@@ -105,7 +110,19 @@ public class DAPRequestManager {
 
         if (checkStatus()) {
             CompletableFuture<StackTraceResponse> resp = server.stackTrace(args);
-            return resp.get(TIMEOUT_STACK_FRAME, TimeUnit.MILLISECONDS);
+            return resp.get(TIMEOUT_STACK_TRACE, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    @JsonRequest
+    public ScopesResponse scopes(ScopesArguments args) throws InterruptedException, ExecutionException,
+            TimeoutException {
+
+        if (checkStatus()) {
+            CompletableFuture<ScopesResponse> resp = server.scopes(args);
+            return resp.get(TIMEOUT_SCOPES, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -122,7 +139,7 @@ public class DAPRequestManager {
     }
 
     private boolean checkStatus() {
-        return clientConnector != null && clientConnector.isActive();
+        return clientConnector != null && clientConnector.isConnected();
     }
 
 }

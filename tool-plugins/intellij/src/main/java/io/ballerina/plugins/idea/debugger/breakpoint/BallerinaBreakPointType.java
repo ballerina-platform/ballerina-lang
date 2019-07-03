@@ -72,6 +72,11 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         return canPutAtChecker.isLineBreakpointAvailable();
     }
 
+//    @Override
+//    public XSourcePosition getSourcePosition(@NotNull XBreakpoint<BallerinaBreakpointProperties> breakpoint) {
+//
+//    }
+
     private static final class Checker implements Processor<PsiElement> {
 
         private boolean myIsLineBreakpointAvailable;
