@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
@@ -47,5 +48,10 @@ public class CommitResourceManagers extends BlockingNativeCallableUnit {
         boolean commitSuccessful =
                 TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
         ctx.setReturnValues(new BBoolean(commitSuccessful));
+    }
+
+    public static boolean commitResourceManagers(Strand strand, String transactionId, String transactionBlockId) {
+        return org.ballerinalang.jvm.transactions.TransactionResourceManager
+                .getInstance().notifyCommit(strand, transactionId, transactionBlockId);
     }
 }

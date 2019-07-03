@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,5 +46,12 @@ public class NotifyResourceManagerOnAbort extends BlockingNativeCallableUnit {
         String transactionBlockId = ctx.getStringArgument(0);
         TransactionResourceManager.getInstance().notifyAbort(transactionLocalContext.getGlobalTransactionId(), 
                                                              transactionBlockId);
+    }
+
+    public static void notifyResourceManagerOnAbort(Strand strand, String transactionBlockId) {
+        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+                strand.getLocalTransactionContext();
+        TransactionResourceManager.getInstance()
+                                  .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 }

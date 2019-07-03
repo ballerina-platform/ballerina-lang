@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,6 +40,15 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
 public class NotifyLocalParticipantOnFailure extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
+        if (transactionLocalContext == null) {
+            return;
+        }
+        transactionLocalContext.notifyLocalParticipantFailure();
+    }
+
+    public static void notifyLocalParticipantOnFailure(Strand strand) {
+        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+                strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
             return;
         }

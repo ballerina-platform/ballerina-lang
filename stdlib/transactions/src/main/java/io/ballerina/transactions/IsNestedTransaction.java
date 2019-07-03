@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,5 +39,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IsNestedTransaction extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         ctx.setReturnValues(new BBoolean(ctx.getStrand().getLocalTransactionContext() != null));
+    }
+
+    public static boolean isNestedTransaction(Strand strand) {
+        return strand.getLocalTransactionContext() != null;
     }
 }

@@ -18,21 +18,19 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.transactions.TransactionConstants;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionConstants;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
+
+import static org.ballerinalang.util.BLangConstants.BALLERINA_TRANSACTION_PKG;
 
 /**
  * Checks whether transactions is a nested transaction.
@@ -50,29 +48,29 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         },
         returnType = { @ReturnType(type = TypeKind.MAP) }
 )
-public class RegisterLocalParticipant extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
+public class RegisterLocalParticipant {
+    
+    static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
 
-        TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
+    public static Object registerLocalParticipant(Strand strand, String transactionBlockId, FPValue fpCommitted,
+                                                    FPValue fpAborted) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
             // No transaction available to participate,
             // We have no business here. This is a no-op.
-            return;
+            return null;
         }
-        String transactionBlockId = ctx.getStringArgument(0);
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        BFunctionPointer fpCommitted = (BFunctionPointer) ctx.getNullableRefArgument(0);
-        BFunctionPointer fpAborted = (BFunctionPointer) ctx.getNullableRefArgument(1);
+
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
-                                                         transactionBlockId, fpCommitted, fpAborted, ctx.getStrand());
-        BMap<String, BValue> txDataStruct = new BMap<>();
-        txDataStruct.put(TransactionConstants.TRANSACTION_ID,
-                         new BString(transactionLocalContext.getGlobalTransactionId()));
-        txDataStruct.put(TransactionConstants.REGISTER_AT_URL, new BString(transactionLocalContext.getURL()));
-        txDataStruct.put(TransactionConstants.CORDINATION_TYPE, new BString(transactionLocalContext.getProtocol()));
-        // This call frame is a transaction participant.
-        ctx.getStrand().currentFrame.trxParticipant = StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT;
-        ctx.setReturnValues(txDataStruct);
+                                                         transactionBlockId, fpCommitted, fpAborted, strand);
+        MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(BALLERINA_TRANSACTION_PKG,
+                                                                                STRUCT_TYPE_TRANSACTION_CONTEXT);
+        Object[] trxContextData = new Object[] {
+                TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
+                transactionBlockId, transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
+        };
+        return BallerinaValues.createRecord(trxContext, trxContextData);
     }
 }

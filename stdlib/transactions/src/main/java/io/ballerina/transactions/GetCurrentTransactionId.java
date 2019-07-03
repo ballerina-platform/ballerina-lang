@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,5 +47,16 @@ public class GetCurrentTransactionId extends BlockingNativeCallableUnit {
                     .getCurrentTransactionBlockId();
         }
         ctx.setReturnValues(new BString(currentTransactionId));
+    }
+
+    public static String getCurrentTransactionId(Strand strand) {
+        String currentTransactionId = "";
+        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext
+                = strand.getLocalTransactionContext();
+        if (transactionLocalContext != null) {
+            currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
+                    .getCurrentTransactionBlockId();
+        }
+        return currentTransactionId;
     }
 }

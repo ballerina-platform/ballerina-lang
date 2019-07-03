@@ -20,6 +20,7 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,5 +45,12 @@ public class CleanupTransactionContext extends BlockingNativeCallableUnit {
         String transactionBlockId = ctx.getStringArgument(0);
         transactionLocalContext.onTransactionEnd(transactionBlockId);
         ctx.getStrand().removeLocalTransactionContext();
+    }
+
+    public static void cleanupTransactionContext(Strand strand, String transactionBlockId) {
+        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+                strand.getLocalTransactionContext();
+        transactionLocalContext.onTransactionEnd(transactionBlockId);
+        strand.removeLocalTransactionContext();
     }
 }

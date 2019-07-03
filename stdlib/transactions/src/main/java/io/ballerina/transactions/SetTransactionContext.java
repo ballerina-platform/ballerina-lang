@@ -20,19 +20,23 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.transactions.TransactionConstants;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionConstants;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
+
 
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.991.0
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
@@ -40,13 +44,13 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
         args = {@Argument(name = "transactionContext", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.VOID)}
 )
-public class SetTransactionContext extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        BMap<String, BValue> txDataStruct = (BMap<String, BValue>) ctx.getRefArgument(0);
-        String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
-        String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
-        String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
-        ctx.getStrand().setLocalTransactionContext(TransactionLocalContext.createTransactionParticipantLocalCtx
+public class SetTransactionContext {
+
+    public static void setTransactionContext(Strand strand, MapValue txDataStruct) {
+        String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
+        String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
+        String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
+        strand.setLocalTransactionContext(TransactionLocalContext.createTransactionParticipantLocalCtx
                 (globalTransactionId, url, protocol));
     }
 }

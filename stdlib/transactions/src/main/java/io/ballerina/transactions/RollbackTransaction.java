@@ -18,13 +18,12 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
  * Checks whether transactions is a nested transaction.
@@ -38,10 +37,10 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
         args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class RollbackTransaction extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
-        String transactionBlockId = ctx.getStringArgument(0);
+public class RollbackTransaction {
+
+    public static void rollbackTransaction(Strand strand, String transactionBlockId) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         transactionLocalContext.rollbackTransaction(transactionBlockId);
     }
 }
