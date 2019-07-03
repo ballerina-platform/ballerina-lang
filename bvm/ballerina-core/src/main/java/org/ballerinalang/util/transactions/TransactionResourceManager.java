@@ -95,10 +95,8 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the committed function
      */
-    private void registerCommittedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
-        if (bFunctionPointer != null) {
-            committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
-        }
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
+        committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
     /**
@@ -107,10 +105,8 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the aborted function
      */
-    private void registerAbortedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
-        if (bFunctionPointer != null) {
-            abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
-        }
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
+        abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
     /**
@@ -217,7 +213,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(String transactionId, String transactionBlockId) {
+    public boolean notifyAbort(String transactionId, String transactionBlockId, boolean isRetryAttempt) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -305,7 +301,7 @@ public class TransactionResourceManager {
 
     void rollbackTransaction(String transactionId, String transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(transactionId, transactionBlockId);
+        notifyAbort(transactionId, transactionBlockId, true);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {

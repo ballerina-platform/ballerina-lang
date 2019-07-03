@@ -21,7 +21,6 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
                                    function () retryFunc, function () committedFunc,
                                    function () abortedFunc) {
     boolean isTrxSuccess = false;
-    io:println("********started TRX********* with rMax :" + rMax);
     int rCnt = 1;
     if (rMax < 0) {
         error err = error("TransactionError", message = "invalid retry count");
@@ -51,37 +50,26 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             transactionId = txnContext.transactionId;
             setTransactionContext(txnContext);
         }
-        io:println("********calling trxFunc*******");
         trxResult = trap trxFunc.call();
         if (trxResult is int) {
-            io:println("********trxResult*******" + trxResult);
             // If transaction result == 0, means it is successful.
             if (trxResult == 0) { 
-                io:println("********Trx success********");
                 var endSuccess = trap endTransaction(transactionId, transactionBlockId);
                 if (endSuccess is string) {
-                    io:println("********End Trx success********" + endSuccess);
                     if (endSuccess == OUTCOME_COMMITTED) {
                         isTrxSuccess = true;
                         break;
                     }
                 }
             }
-            // If transaction result == 0, means it was retried.
-            if (trxResult == 1) { 
-                io:println("********Trx retry*******");
-                
-            }
             // If transaction result == -1, means it was aborted.
             if (trxResult == -1) { // abort
-                io:println("********Trx aborted*******");
                 abortResult = trap abortTransaction(transactionId, transactionBlockId);
                 break;
             }
         } else {
             log:printDebug(trxResult.reason());
         }
-        io:println("********check retry*********: " + rCnt);
         rCnt = rCnt + 1;
         // retry
         if (rCnt <= rMax) {
@@ -89,7 +77,6 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             if (rollbackResult is error) {
                 log:printDebug(rollbackResult.reason());
             }
-            io:println("***********RETRY ******");
             retryResult = trap retryFunc.call();
             if (retryResult is error) {
                 log:printDebug(retryResult.reason());
@@ -98,15 +85,12 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             break;
         }
     }
-    io:println("************isTrxSuccess**********" + isTrxSuccess);
     if (isTrxSuccess) {
-        io:println("************committedFunc**********");
         committedResult = trap committedFunc.call();
         if (committedResult is error) {
             log:printDebug(committedResult.reason());
         }
     } else {
-        io:println("************abortResult**********");
         abortResult = trap handleAbortTransaction(transactionId, transactionBlockId, abortedFunc);
         if (abortResult is error) {
             log:printDebug(abortResult.reason());
@@ -121,10 +105,8 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
 function beginLocalParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
                                function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
                                any|error|() {
-    io:println("************Paritcipant  begin local**********");
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
-        io:println("************Paritcipant  no trxr**********");
         return <any|error|()>trxFunc.call();
     } else {
         TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
@@ -133,16 +115,12 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
             notifyLocalParticipantOnFailure();
             panic returnContext;
         }
-        io:println("********call*********");
         var result = trap <any|error|()>trxFunc.call();
-        io:println("********calldone*********");
         if (result is error) {
-                 io:println("************ERRROR**********");
             notifyLocalParticipantOnFailure();
             panic result;
         }
         if (result is string) {
-            io:println("************Paritcipant  string*********"+ result);
         }
         return result;
     }
@@ -153,9 +131,7 @@ function beginRemoteParticipant(string transactionBlockId, function () returns a
                                 function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
                                 any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
-    io:println("************Paritcipant  begin remote**********");
     if (txnContext is ()) {
-        io:println("************No trx*********");
         return trxFunc.call();
     } else {
         TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
@@ -204,11 +180,9 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
 # + return - Newly created/existing TransactionContext for this transaction.
 function beginTransaction(string? transactionId, string transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
-           io:println("**********begin transaction********");
     if (transactionId is string) {
         if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
             // we don't need to do a network call and can simply do a local function call
-             io:println("**********registerLocalParticipantWithInitiator********");
             return registerLocalParticipantWithInitiator(transactionId, transactionBlockId, registerAtUrl);
         } else {
             //TODO: set the proper protocol
@@ -216,7 +190,6 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             RemoteProtocol[] protocols = [{
             name:protocolName, url:getParticipantProtocolAt(protocolName, untaint transactionBlockId)
             }];
-             io:println("**********registerParticipantWithRemoteInitiator********");
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
     } else {

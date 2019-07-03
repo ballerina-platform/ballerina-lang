@@ -35,7 +35,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_TRANSACTION_PKG;
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.991.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

@@ -140,12 +140,6 @@ public class TransactionLocalContext {
         }
     }
 
-
-    public void rollbackTransaction(String transactionBlockId) {
-        transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
-    }
-
     public void notifyLocalParticipantFailure() {
         String bockId = transactionBlockIdStack.peek();
         transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
@@ -157,7 +151,7 @@ public class TransactionLocalContext {
 
     public boolean onTransactionEnd(String transactionBlockId) {
         boolean isOuterTx = false;
-  //      transactionBlockIdStack.pop();
+        transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
             transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);

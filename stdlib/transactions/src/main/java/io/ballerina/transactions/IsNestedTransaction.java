@@ -18,28 +18,22 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.991.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
         functionName = "isNestedTransaction",
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class IsNestedTransaction extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        ctx.setReturnValues(new BBoolean(ctx.getStrand().getLocalTransactionContext() != null));
-    }
+public class IsNestedTransaction {
 
     public static boolean isNestedTransaction(Strand strand) {
         return strand.getLocalTransactionContext() != null;

@@ -18,18 +18,15 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.991.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -37,14 +34,7 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
         functionName = "notifyLocalParticipantOnFailure",
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class NotifyLocalParticipantOnFailure extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
-        if (transactionLocalContext == null) {
-            return;
-        }
-        transactionLocalContext.notifyLocalParticipantFailure();
-    }
+public class NotifyLocalParticipantOnFailure {
 
     public static void notifyLocalParticipantOnFailure(Strand strand) {
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =

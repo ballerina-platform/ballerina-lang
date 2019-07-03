@@ -46,11 +46,12 @@ public class AbortResourceManagers extends BlockingNativeCallableUnit {
         String transactionId = ctx.getStringArgument(0);
         String transactionBlockId = ctx.getStringArgument(1);
         boolean abortSuccessful =
-                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
         ctx.setReturnValues(new BBoolean(abortSuccessful));
     }
 
     public static boolean abortResourceManagers(Strand strand, String transactionId, String transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+        return org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance().notifyAbort(transactionId,
+                                                                                                       transactionBlockId);
     }
 }

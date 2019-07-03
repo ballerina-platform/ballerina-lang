@@ -36,6 +36,7 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-jvm')
+    implementation project(':ballerina-transactions')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'

@@ -39,7 +39,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
  *
- * @since 0.964.0
+ * @since 1.0
  */
 public class TransactionResourceManager {
 

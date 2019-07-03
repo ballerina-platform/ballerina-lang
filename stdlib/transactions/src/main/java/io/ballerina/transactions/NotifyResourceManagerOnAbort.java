@@ -18,20 +18,16 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.991.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -40,18 +36,12 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
         args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class NotifyResourceManagerOnAbort extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        TransactionLocalContext transactionLocalContext = ctx.getStrand().getLocalTransactionContext();
-        String transactionBlockId = ctx.getStringArgument(0);
-        TransactionResourceManager.getInstance().notifyAbort(transactionLocalContext.getGlobalTransactionId(), 
-                                                             transactionBlockId);
-    }
+public class NotifyResourceManagerOnAbort {
 
     public static void notifyResourceManagerOnAbort(Strand strand, String transactionBlockId) {
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.getLocalTransactionContext();
-        TransactionResourceManager.getInstance()
+        org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
                                   .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 }

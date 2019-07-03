@@ -22,7 +22,7 @@ import javax.transaction.xa.XAResource;
 /**
  * {@code BallerinaTransactionContext} represent the connection context associated with a transaction.
  *
- * @since 0.8.7
+ * @since 1.0
  */
 public interface BallerinaTransactionContext {
     void commit();

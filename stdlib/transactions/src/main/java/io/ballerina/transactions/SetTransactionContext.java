@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Checks whether transactions is a nested transaction.
  *
- * @since 0.995.0
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",

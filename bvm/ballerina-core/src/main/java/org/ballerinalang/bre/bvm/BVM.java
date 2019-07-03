@@ -3148,6 +3148,7 @@ public class BVM {
         if (committedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[committedFuncIndex];
             fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerCommittedFunction(transactionBlockId, fpCommitted);
         }
 
         // Register aborted function handler if exists.
@@ -3155,6 +3156,7 @@ public class BVM {
         if (abortedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
         }
 
         transactionLocalContext.beginTransactionBlock(transactionBlockId, 1);
@@ -3327,7 +3329,7 @@ public class BVM {
         TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId);
         TransactionResourceManager.getInstance()
-                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
+                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
     }
 
     private static void transactionFailedEnd(Strand strand, String transactionBlockId,

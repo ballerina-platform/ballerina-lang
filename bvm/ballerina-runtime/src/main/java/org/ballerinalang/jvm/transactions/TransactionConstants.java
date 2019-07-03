@@ -22,7 +22,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 /**
  * {@code TransactionConstants} Define transaction related constants.
  *
- * @since 0.964.0
+ * @since 1.0
  */
 public class TransactionConstants {
     //Co-ordinator functions

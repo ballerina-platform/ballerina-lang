@@ -23,7 +23,6 @@ configurations.testCompileClasspath {
     }
 }
 
-
 configurations.testRuntimeClasspath {
     resolutionStrategy {
         preferProjectModules()
@@ -70,10 +69,6 @@ dependencies {
     implementation project(':ballerina-encoding')
 }
 
-createBalo {
-    jvmTarget = 'true'
-}
-
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
@@ -88,8 +83,4 @@ createBalo {
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
-}
-
-createBirJar {
-   onlyIf { false }
 }
