@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,9 +17,4 @@
  *
  */
 
-& { @import "./views/diagram.less"; }
-& { @import "./views/documentation.less"; }
-& { @import "./views/examples.less"; }
-& { @import "./views/api-designer.less"; }
-& { @import "./views/network-logs.less"; }
-& { @import "./views/overview.less"; }
+export * from './activator';
