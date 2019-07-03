@@ -24,31 +24,21 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.rabbitmq.MessageDispatcher;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Starting the channel listener.
@@ -60,34 +50,34 @@ import java.util.concurrent.CountDownLatch;
         packageName = RabbitMQConstants.RABBITMQ,
         functionName = "start",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_LISTENER_OBJECT,
+                structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class Start extends BlockingNativeCallableUnit {
-    private boolean autoAck;
-    private RabbitMQTransactionContext rabbitMQTransactionContext;
+    private static MessageDispatcher messageDispatcher;
+
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelObj =
-                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObj.
+    }
+
+    public static Object start(Strand strand, ObjectValue listenerObjectValue) {
+        boolean autoAck;
+        RabbitMQTransactionContext rabbitMQTransactionContext;
+        ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        rabbitMQTransactionContext = (RabbitMQTransactionContext) channelObject.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        ArrayList<Service> services =
-                (ArrayList<Service>) channelListObject.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-        for (Service service : services) {
-            List<Annotation> annotationList = service.getAnnotationList(RabbitMQConstants.PACKAGE_RABBITMQ,
+        ArrayList<ObjectValue> services =
+                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
+        for (ObjectValue service : services) {
+            MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
                     RabbitMQConstants.SERVICE_CONFIG);
-            Annotation annotation = annotationList.get(0);
-            Struct value = annotation.getValue();
-            Map<String, Value> queueConfig = value.getMapField(RabbitMQConstants.QUEUE_CONFIG);
-            String queueName = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_NAME).getStringValue();
-            Resource onMessageResource = service.getResources()[0];
-            String ackMode = value.getStringField(RabbitMQConstants.ACK_MODE);
+            @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+            MapValue<String, Object> queueConfig =
+                    (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+            String queueName = queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
+            String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);
             switch (ackMode) {
                 case RabbitMQConstants.AUTO_ACKMODE:
                     autoAck = true;
@@ -98,44 +88,29 @@ public class Start extends BlockingNativeCallableUnit {
                 default:
                     throw new BallerinaException("Unsupported acknowledgement mode");
             }
-            boolean isQosSet = channelObj.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+            boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
             if (!isQosSet) {
                 try {
-                    handleBasicQos(channel, value);
+                    handleBasicQos(channel, queueConfig);
                 } catch (RabbitMQConnectorException exception) {
-                    RabbitMQUtils.returnError("Error occurred while setting the QoS settings", context,
-                            exception);
+                    return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
+                            + exception.getDetail());
                 }
             }
-            receiveMessages(onMessageResource, channel, queueName);
+            messageDispatcher = new MessageDispatcher(rabbitMQTransactionContext, service, channel, autoAck,
+                    strand.scheduler);
+            receiveMessages(channel, queueName, autoAck);
         }
-    }
-
-    /**
-     * Dispatch messages in String format.
-     *
-     * @param resource Ballerina resource function.
-     * @param message  Message content to be dispatched to the resource function.
-     */
-    private void dispatchMessage(Resource resource, byte[] message, Channel channel, long deliveryTag) {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        Executor.submit(resource, new RabbitMQResourceCallback(countDownLatch), null, null,
-                getMessageBMap(resource, message, channel, deliveryTag));
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        return null;
     }
 
     /**
      * Receive messages from the RabbitMQ server.
      *
-     * @param resource  Ballerina resource function.
      * @param channel   RabbitMQ Channel object.
      * @param queueName Name of the queue messages are consumed from.
      */
-    private void receiveMessages(Resource resource, Channel channel, String queueName) {
+    private static void receiveMessages(Channel channel, String queueName, boolean autoAck) {
         try {
             channel.basicConsume(queueName, autoAck,
                     new DefaultConsumer(channel) {
@@ -144,60 +119,38 @@ public class Start extends BlockingNativeCallableUnit {
                                                    Envelope envelope,
                                                    AMQP.BasicProperties properties,
                                                    byte[] body) throws IOException {
-                            dispatchMessage(resource, body, channel, envelope.getDeliveryTag());
+                            messageDispatcher.handleDispatch(body, envelope.getDeliveryTag(), properties);
                         }
                     });
         } catch (IOException exception) {
-            throw new BallerinaException(exception);
+            throw new BallerinaException("Error occurred while consuming messages; " + exception.getMessage(),
+                    exception);
         }
-    }
-
-    /**
-     * Create and get message BMap.
-     *
-     * @param resource Ballerina resource function.
-     * @param message  Message content received from the RabbitMQ server.
-     * @param channel  RabbitMQ Channel object.
-     * @return Ballerina RabbitMQ message BValue.
-     */
-    private BValue getMessageBMap(Resource resource, byte[] message, Channel channel, long deliveryTag) {
-        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> messageObj = BLangConnectorSPIUtil.createBStruct(
-                programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.MESSAGE_OBJECT);
-        messageObj.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
-        messageObj.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
-        messageObj.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
-        messageObj.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
-        if (!Objects.isNull(rabbitMQTransactionContext)) {
-            messageObj.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT, rabbitMQTransactionContext);
-        }
-        messageObj.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
-        return messageObj;
     }
 
     /**
      * Request specific "quality of service" settings.
      *
-     * @param channel         RabbitMQ Channel object.
-     * @param annotationValue Struct value of the Annotation.
+     * @param channel       RabbitMQ Channel object.
+     * @param serviceConfig Service config.
      */
-    private static void handleBasicQos(Channel channel, Struct annotationValue) {
+    private static void handleBasicQos(Channel channel, MapValue<String, Object> serviceConfig) {
         long prefetchCount = RabbitMQConstants.DEFAULT_PREFETCH;
-        if (annotationValue.getRefField(RabbitMQConstants.PREFETCH_COUNT) != null) {
-            prefetchCount = annotationValue.getIntField(RabbitMQConstants.PREFETCH_COUNT);
+
+        if (serviceConfig.getIntValue(RabbitMQConstants.ALIAS_PREFETCH_COUNT) != null) {
+            prefetchCount = serviceConfig.getIntValue(RabbitMQConstants.ALIAS_PREFETCH_COUNT);
         }
-        boolean isValidPrefetchSize = annotationValue.getRefField(RabbitMQConstants.PREFETCH_SIZE) != null;
+        boolean isValidPrefetchSize = serviceConfig.getIntValue(RabbitMQConstants.ALIAS_PREFETCH_SIZE) != null;
         try {
             if (isValidPrefetchSize) {
-                channel.basicQos(Math.toIntExact(annotationValue.getIntField(RabbitMQConstants.PREFETCH_SIZE)),
-                        Math.toIntExact(prefetchCount),
-                        annotationValue.getBooleanField(RabbitMQConstants.PREFETCH_GLOBAL));
+                channel.basicQos(Math.toIntExact(serviceConfig.getIntValue(RabbitMQConstants.ALIAS_PREFETCH_SIZE)),
+                        Math.toIntExact(prefetchCount), false);
             } else {
                 channel.basicQos(Math.toIntExact(prefetchCount));
             }
         } catch (IOException | ArithmeticException exception) {
-            String errorMessage = "An error occurred while setting the basic quality of service settings ";
-            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
+            throw new RabbitMQConnectorException("An error occurred while setting the basic QoS settings; "
+                    + exception.getMessage(), exception);
         }
     }
 }
