@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/jvm",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
@@ -246,6 +238,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
@@ -259,6 +259,14 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/cache.balx",
       "insertTextFormat": "Snippet"
     },
     {
@@ -283,14 +291,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/socket",
       "insertTextFormat": "Snippet"
     },
     {

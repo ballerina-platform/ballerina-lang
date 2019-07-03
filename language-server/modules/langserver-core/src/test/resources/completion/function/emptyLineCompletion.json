@@ -394,14 +394,6 @@
       }
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "sortText": "110",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
