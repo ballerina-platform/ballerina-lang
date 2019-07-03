@@ -59,19 +59,15 @@ dependencies {
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')}
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 
-createBalo {
-    jvmTarget = 'true'
-}
-
-configurations.all {
-    resolutionStrategy.preferProjectModules()
+    bir project(path: ':ballerina-time', configuration: 'bir')
 }
 
 createBalo {
     jvmTarget = 'true'
 }
+
 
 description = 'Ballerina - ActiveMQ Artemis'
 

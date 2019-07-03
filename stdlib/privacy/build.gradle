@@ -34,6 +34,13 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-system')
     implementation project(':ballerina-lang')
+
+    bir project(path: ':ballerina-time', configuration: 'bir')
 }
+
+createBalo {
+    jvmTarget = 'true'
+}
+
 
 description = 'Ballerina - Privacy'

@@ -182,8 +182,8 @@ public class TesterinaUtils {
      */
     public static void setManifestConfigs(Path sourceRoot) {
         Manifest manifest = TomlParserUtils.getManifest(sourceRoot);
-        String orgName = manifest.getName();
-        String version = manifest.getVersion();
+        String orgName = manifest.getProject().getOrgName();
+        String version = manifest.getProject().getVersion();
         TesterinaRegistry.getInstance().setOrgName(orgName);
         TesterinaRegistry.getInstance().setVersion(version);
     }

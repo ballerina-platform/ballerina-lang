@@ -95,7 +95,8 @@ public class ZipConverter extends PathConverter {
                 pathList = Files.list(path)
                                 .map(SortablePath::new)
                                 .filter(SortablePath::valid)
-                                .filter(sortablePath -> validBaloPath(pkgName, sortablePath))
+                                // todo need to remove the following line.
+                                // .filter(sortablePath -> validBaloPath(pkgName, sortablePath))
                                 .sorted(Comparator.reverseOrder())
                                 .limit(1)
                                 .map(SortablePath::getPath)
