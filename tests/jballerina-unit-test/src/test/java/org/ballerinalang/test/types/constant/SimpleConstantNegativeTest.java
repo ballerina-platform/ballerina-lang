@@ -59,7 +59,7 @@ public class SimpleConstantNegativeTest {
                 offset += 17, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 9, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(E|F)', found '(D|E)'",
                 offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);

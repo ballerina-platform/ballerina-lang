@@ -17,10 +17,6 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
-configurations {
-    localDependency
-}
-
 dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
@@ -38,6 +34,22 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-jvm')
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 createBalo {

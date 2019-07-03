@@ -42,7 +42,7 @@ public class EncodingTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/encoding/encoding-test.bal");
+        compileResult = BCompileUtil.compile("test-src/encoding-test.bal");
     }
 
     @Test(description = "Check byte array to hex encoding.")

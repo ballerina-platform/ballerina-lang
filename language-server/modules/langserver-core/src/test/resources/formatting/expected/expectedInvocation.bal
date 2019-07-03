@@ -18,7 +18,7 @@ type Person1 object {
 };
 
 function invocationObj() returns string {
-    Person1 p = new();
+    Person1 p = new ();
     string name = p.getName();
     return p.getName();
 }

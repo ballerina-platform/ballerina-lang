@@ -60,7 +60,7 @@ public class NativeConversionNegativeTest {
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'json' value cannot be converted as 'Person'");
+        Assert.assertEquals(errorMsg, "'json' value cannot be converted to 'Person'");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'json' value cannot be converted as "
+        Assert.assertEquals(errorMsg, "'json' value cannot be converted to "
                 + "'StructWithoutDefaults'");
     }
 
@@ -77,7 +77,7 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'map' value cannot be converted as "
+        Assert.assertEquals(errorMsg, "'map' value cannot be converted to "
                 + "'StructWithDefaults'");
     }
 
@@ -86,7 +86,7 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'map' value cannot be converted as "
+        Assert.assertEquals(errorMsg, "'map' value cannot be converted to "
                 + "'StructWithoutDefaults'");
     }
 
@@ -94,8 +94,8 @@ public class NativeConversionNegativeTest {
     public void testTupleConversionFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: '(T1,T1)' value cannot be converted as '(T1," 
-                + "T2)'");
+        Assert.assertEquals(errorMsg, "'[T1,T1]' value cannot be converted to '[T1,"
+                + "T2]'");
     }
 
     @Test(description = "Test converting an unsupported array to json")
@@ -103,7 +103,7 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'TX[]' value cannot be converted as 'json'");
+        Assert.assertEquals(errorMsg, "'TX[]' value cannot be converted to 'json'");
     }
 
     @Test(description = "Test passing tainted value with convert")
@@ -140,7 +140,7 @@ public class NativeConversionNegativeTest {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testIncompatibleImplicitConversion");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'string' value 'abjd' cannot be converted as "
+        Assert.assertEquals(errorMsg, "'string' value 'abjd' cannot be converted to "
                 + "'int'");
     }
 

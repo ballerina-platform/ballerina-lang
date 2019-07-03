@@ -227,21 +227,21 @@ function testArrayCastNegative() {
 }
 
 function testTupleCastPositive() returns boolean {
-    (string, int, float) s = ("this is an array", 1, 3.0);
+    [string, int, float] s = ["this is an array", 1, 3.0];
     any a = s;
-    (string, int, float) s2 = <(string, int, float)> a;
+    [string, int, float] s2 = <[string, int, float]> a;
 
-    (string, int|string, float) s3 = ("this is an array", 1, 3.0);
+    [string, int|string, float] s3 = ["this is an array", 1, 3.0];
     anydata a2 = s3;
-    (string, int|string, float) s4 = <(string, int|string, float)> a2;
+    [string, int|string, float] s4 = <[string, int|string, float]> a2;
 
     return s === s2 && s3 === s4;
 }
 
 function testTupleCastNegative() {
-    (string, int|string, float) s = ("this is an array", 1, 3.0);
+    [string, int|string, float] s = ["this is an array", 1, 3.0];
     any a = s;
-    (string, int|string, float) s2 = <(string, int, float)> a;
+    [string, int|string, float] s2 = <[string, int, float]> a;
 }
 
 function testJsonCastPositive() returns boolean {
@@ -343,7 +343,7 @@ function testErrorCastPositive() returns boolean {
     any|error a2 = e3;
     error e4 = <MyError> a2;
 
-    MyErrorTwo e5 = error(ERR_REASON, { message: "error message" });
+    MyErrorTwo e5 = error(ERR_REASON, message = "error message");
     a2 = e5;
     MyErrorTwo e6 = <MyErrorTwo> a2;
     error e7 = <error> a2;
@@ -477,7 +477,7 @@ function testListElementCastPositive() returns boolean {
     string sVal = "Hello from Ballerina";
     any[] anyArr = [iValTwo, sVal, bVal];
 
-    (Employee, int, any[]) t1 = (e1, iVal, anyArr);
+    [Employee, int, any[]] t1 = [e1, iVal, anyArr];
 
     any a = t1[2];
     any[] anyArrTwo = <any[]> a;
@@ -493,7 +493,7 @@ function testListElementCastNegative() {
     string sVal = "Hello from Ballerina";
     any[] anyArr = [sVal, bVal];
 
-    (Employee, int, any[]) t1 = (e1, iVal, anyArr);
+    [Employee, int, any[]] t1 = [e1, iVal, anyArr];
 
     any a = t1[2];
     any[] anyArrTwo = <any[]> a;
@@ -584,7 +584,7 @@ function testStringInUnionAsString(string s1) returns boolean {
 
 //////////////////////// from boolean ////////////////////////
 
-function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
+function testBooleanAsBoolean() returns [boolean, boolean, boolean, boolean] {
     boolean b1 = true;
     boolean s1 = <boolean> b1;
     anydata a = <boolean> getBoolean(b1);
@@ -597,10 +597,10 @@ function testBooleanAsBoolean() returns (boolean, boolean, boolean, boolean) {
     boolean s3 = <boolean> b1;
     boolean s4 = <boolean> getBoolean(b1);
 
-    return (s1, s2, s3, s4);
+    return [s1, s2, s3, s4];
 }
 
-function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
+function testBooleanInUnionAsBoolean() returns [boolean, boolean] {
     boolean f1 = true;
     Employee|string|int|boolean f2 = f1;
     json f3 = true;
@@ -627,7 +627,7 @@ function testBooleanInUnionAsBoolean() returns (boolean, boolean) {
 
     boolean ft2 = (s7 == s6 && s7 == s8 && s9 == s8) ? s6 : true;
 
-    return(ft1, ft2);
+    return [ft1, ft2];
 }
 
 function testSimpleTypeToUnionCastPositive() returns boolean {
@@ -666,11 +666,11 @@ function testDirectlyUnmatchedUnionToUnionCastNegative_2() {
     Lead|int v4 = <Lead|int> v3;
 }
 
-function testTypeCastOnRecordLiterals() returns (string, string, string) {
+function testTypeCastOnRecordLiterals() returns [string, string, string] {
     string s1 = init(<ServerModeConfig>{});
     string s2 = init(<EmbeddedModeConfig>{});
     string s3 = init(<InMemoryModeConfig>{});
-    return (s1, s2, s3);
+    return [s1, s2, s3];
 }
 
 function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {

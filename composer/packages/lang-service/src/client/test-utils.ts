@@ -2,8 +2,9 @@ import { InitializeParams, InitializeResult,
     Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
-    BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
+    BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse, GetBallerinaProjectParams,
+    GetProjectASTParams, GetProjectASTResponse, GoToSourceParams, IBallerinaLangClient,
+    RevealRangeParams } from "./model";
 
 // tslint:disable:no-object-literal-type-assertion
 export class EmptyLanguageClient implements IBallerinaLangClient {
@@ -11,6 +12,10 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
     public isInitialized: boolean = false;
 
     public init(params?: InitializeParams): Thenable<InitializeResult> {
+        return Promise.reject();
+    }
+
+    public getProjectAST(params: GetProjectASTParams): Thenable<GetProjectASTResponse> {
         return Promise.reject();
     }
 

@@ -53,12 +53,12 @@ public class SafeNavigationTest {
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 19);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found '(string|error)'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'Info|error' does not support field access", 34, 25);
+                "invalid operation: type '(Info|error)' does not support field access", 34, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string|error?', found 'other|error'", 34, 25);
+                "incompatible types: expected '(string|error)?', found '(other|error)'", 34, 25);
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
@@ -66,12 +66,13 @@ public class SafeNavigationTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++, "variable 'p' is not initialized", 40, 5);
-        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person?[]|error'", 44, 25);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from '(Person?[]|error)'",
+                44, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'Person?[]|error' does not support indexing", 45, 12);
+                "invalid operation: type '(Person?[]|error)' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
                 12);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other|error?'",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '(other|error)?'",
                 50, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error'", 55,
                 12);
@@ -83,7 +84,7 @@ public class SafeNavigationTest {
                 9);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'", 72,
                 9);
-        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json|string'",
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type '(json|string)'",
                 80, 9);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'",
                 88, 12);
@@ -233,7 +234,7 @@ public class SafeNavigationTest {
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: failed to get element from json: " +
-                    "\\{\"message\":\"array index out of range: index: 2, size: 0\"\\}.*")
+                    "array index out of range: index: 2, size: 0.*")
     public void testJSONNilLiftingOnLHS_2() {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }

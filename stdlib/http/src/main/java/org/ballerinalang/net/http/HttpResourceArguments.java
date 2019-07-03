@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,19 +29,12 @@ import java.util.Map;
 public class HttpResourceArguments {
 
     private Map<String, String> resourceArgumentValues = new HashMap<>();
-    private List<String> pathParamList = new ArrayList<>();
 
     public HttpResourceArguments() {
         resourceArgumentValues = new HashMap<>();
-        pathParamList = new ArrayList<>();
-
     }
 
     public Map<String, String> getMap() {
         return resourceArgumentValues;
-    }
-
-    public List<String> getList() {
-        return pathParamList;
     }
 }

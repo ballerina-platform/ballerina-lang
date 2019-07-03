@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
@@ -51,5 +53,6 @@ public abstract class ValueCreator {
 
     public abstract MapValue<String, Object> createRecordValue(String recordTypeName);
 
-    public abstract ObjectValue createObjectValue(String objectTypeName);
+    public abstract ObjectValue createObjectValue(String objectTypeName, Scheduler scheduler, Strand parent,
+                                                  Map<String, Object> properties, Object[] args);
 }

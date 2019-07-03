@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -53,6 +54,7 @@ public class Strand {
     public Set<ChannelDetails> channelDetails;
     private Map<String, Object> globalProps;
     public boolean cancel;
+    public ObserverContext observerContext;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;

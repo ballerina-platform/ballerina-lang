@@ -61,13 +61,12 @@ dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
 
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     implementation project(':ballerina-core')
     implementation project(':ballerina-system')
     implementation project(':ballerina-config')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-builtin')
-//    implementation project(':ballerina-lang')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
     implementation project(':lib-creator')
     implementation project(':ballerina-http')
@@ -88,6 +87,7 @@ dependencies {
     implementation project(':ballerina-auth')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
+    implementation project(':ballerina-runtime')
 
     cliUtils project(':ballerina-cli-utils')
 }

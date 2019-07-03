@@ -31,18 +31,21 @@ import java.util.Optional;
  */
 class RHSTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
+    private int leftBracketCount;
     private int leftParenthesisCount;
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
     private int ltTokenCount;
 
-    RHSTokenTraverser(SourcePruneContext sourcePruneContext) {
+    RHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
+        super(pruneTokens);
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
         this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
+        this.leftBracketCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
         this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
-        this.removedTokens = new ArrayList<>();
+        this.processedTokens = new ArrayList<>();
     }
 
     List<CommonToken>  traverseRHS(TokenStream tokenStream, int tokenIndex) {
@@ -60,13 +63,15 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
                 if (terminateRHSTraverse) {
                     break;
                 }
+            } else if (BallerinaParser.LEFT_BRACKET == type) {
+                leftBracketCount++;
             }
-            this.alterTokenText(token.get());
+            this.processToken(token.get());
             tokenIndex = token.get().getTokenIndex() + 1;
             token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
         
-        return this.removedTokens;
+        return this.processedTokens;
     }
 
     private boolean terminateRHSTraverse(Token token) {
@@ -78,21 +83,32 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
          */
         if (type == BallerinaParser.GT && this.ltTokenCount > 0) {
             this.ltTokenCount--;
-            this.alterTokenText(token);
+            this.processToken(token);
             return false;
         }
         if (type == BallerinaParser.RIGHT_PARENTHESIS && this.leftParenthesisCount > 0) {
             this.leftParenthesisCount--;
-            this.alterTokenText(token);
+            this.processToken(token);
+            return false;
+        }
+        if (type == BallerinaParser.RIGHT_BRACKET && this.leftBracketCount > 0) {
+            this.leftBracketCount--;
+            this.processToken(token);
             return false;
         }
         /*
-        If the last altered token is => and the current token is Left Brace then the following match pattern clause
-        will be addressed and remove the whole pattern clause
+        If the last altered token is => or :, and the current token is Left Brace then the following match pattern
+        clause and the annotation cases will be addressed and remove the whole block within the braces
         Eg: 
         match expr {
             12 => 
             // this whole clause will remove var (a, b) => {printMessage();}
+        }
+        @hello:ServiceConfig {
+            basePath: mod2:<cursor>
+            cors: {
+            
+            }
         }
         otherwise the pruned source will be
         match expr {
@@ -100,22 +116,23 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             {printMessage();}
         }
          */
-        if (type == BallerinaParser.LEFT_BRACE && this.lastAlteredToken == BallerinaParser.EQUAL_GT) {
+        if (type == BallerinaParser.LEFT_BRACE && (this.lastProcessedToken == BallerinaParser.EQUAL_GT
+                || this.lastProcessedToken == BallerinaParser.COLON)) {
             this.leftBraceCount++;
-            this.alterTokenText(token);
+            this.processToken(token);
             return false;
         }
         if (type == BallerinaParser.RIGHT_BRACE && this.leftBraceCount > 0) {
             this.leftBraceCount--;
-            this.alterTokenText(token);
+            this.processToken(token);
             return false;
         }
         if (this.leftBraceCount > 0 || this.leftParenthesisCount > 0) {
-            this.alterTokenText(token);
+            this.processToken(token);
             return false;
         }
         if (type == BallerinaParser.SEMICOLON || type == BallerinaParser.COMMA) {
-            this.alterTokenText(token);
+            this.processToken(token);
         }
         
         return true;

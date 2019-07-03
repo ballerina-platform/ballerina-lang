@@ -41,6 +41,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
@@ -98,8 +99,46 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             return;
         }
         this.generateNativeEntityProviderSource(nativeDefs);
+        this.generateNativeMap(nativeDefs);
     }
-    
+
+    private void generateNativeMap(List<NativeElementCodeDef> nativeDefs) {
+        Writer writer = null;
+        try {
+            Filer filer = this.processingEnv.getFiler();
+            String mappingPathInJar = "META-INF/this.map.json";
+            FileObject javaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", mappingPathInJar);
+            writer = javaFile.openWriter();
+            this.writeNativeMapJson(writer, nativeDefs);
+        } catch (IOException e) {
+            throw new RuntimeException("Error processing native functions: " + e.getMessage(), e);
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException ignore) {
+            }
+        }
+    }
+
+    private void writeNativeMapJson(Writer writer, List<NativeElementCodeDef> nativeDefs) throws IOException {
+        writer.append("{");
+        for (int i = 0; i < nativeDefs.size(); i++) {
+            NativeElementCodeDef nativeDef = nativeDefs.get(i);
+            if (i != 0) {
+                writer.append(" ,");
+            }
+            writer.append("\n\"");
+            NativeFunctionCodeDef funcDef = (NativeFunctionCodeDef) nativeDef;
+            writer.append(funcDef.org + "/" + funcDef.pkg + "/" + funcDef.name);
+            writer.append("\" : \"");
+            writer.append(funcDef.className.replace('.', '/'));
+            writer.append("\"");
+        }
+        writer.append("\n}");
+    }
+
     private void generateNativeEntityProviderSource(List<NativeElementCodeDef> nativeDefs) {
         Map<String, String> options = this.processingEnv.getOptions();
         String targetPackageName = options.get(NATIVE_ENTITY_PROVIDER_PACKAGE_NAME);

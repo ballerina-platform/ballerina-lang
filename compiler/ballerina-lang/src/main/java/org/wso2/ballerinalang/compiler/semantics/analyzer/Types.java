@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -75,11 +74,11 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -626,6 +625,10 @@ public class Types {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.INVOKABLE && target.tag == TypeTags.INVOKABLE) {
+            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new ArrayList<>());
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
@@ -704,20 +707,26 @@ public class Types {
         return target.tag == TypeTags.ANY && !isValueType(source);
     }
 
-    public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        return checkFunctionTypeEquality(source, target, new ArrayList<>());
+    private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
+                                             List<TypePair> unresolvedTypes) {
+        // Source param types should be contravariant with target param types. Hence s and t switched when checking
+        // assignability.
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
     }
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
-                                              List<TypePair> unresolvedTypes) {
+                                              List<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            // Source param types should be contravariant with target param types
             if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(target.paramTypes.get(i), source.paramTypes.get(i), unresolvedTypes)) {
+                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -1411,7 +1420,8 @@ public class Types {
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionTypeEquality((BInvokableType) s, t)) {
+            } else if (s.tag == TypeTags.INVOKABLE && isFunctionTypeAssignable((BInvokableType) s, t,
+                                                                               new ArrayList<>())) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
@@ -1559,8 +1569,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE &&
-                    checkFunctionTypeEquality((BInvokableType) s, t);
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new ArrayList<>());
         }
 
         @Override
@@ -1613,7 +1622,7 @@ public class Types {
 
         @Override
         public Boolean visit(BServiceType t, BType s) {
-            return t == s;
+            return t == s || t.tag == s.tag;
         }
 
         @Override
@@ -1652,7 +1661,7 @@ public class Types {
                                                        List<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type, unresolvedTypes))
+                .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
     }
@@ -2319,133 +2328,6 @@ public class Types {
         return memberTypes;
     }
 
-    public boolean hasImplicitInitialValue(BType type) {
-        return hasImplicitInitialValue(type, new ArrayList<>());
-    }
-
-    public boolean hasImplicitInitialValue(BType type, List<BType> unanalyzedTypes) {
-        if (type.tag < TypeTags.RECORD) {
-            return true;
-        }
-        switch (type.tag) {
-            case TypeTags.TYPEDESC:
-            case TypeTags.STREAM:
-            case TypeTags.MAP:
-            case TypeTags.ANY:
-                return true;
-            case TypeTags.ARRAY:
-                return hasImplicitInitialValue(((BArrayType) type).eType);
-            case TypeTags.FINITE:
-                return analyzeFiniteType((BFiniteType) type);
-            case TypeTags.OBJECT:
-                return analyzeObjectType((BObjectType) type);
-            case TypeTags.RECORD:
-                return analyzeRecordType((BRecordType) type, unanalyzedTypes);
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) type;
-                return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
-            case TypeTags.UNION:
-                return analyzeUnionType((BUnionType) type);
-            default:
-                return false;
-        }
-    }
-
-    public boolean includesErrorType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
-        }
-
-        return type.tag == TypeTags.ERROR;
-    }
-
-    private boolean analyzeUnionType(BUnionType type) {
-        // NIL is a member.
-        if (type.isNullable()) {
-            return true;
-        }
-
-        // All members are of same type.
-        Iterator<BType> iterator = type.iterator();
-        BType firstMember;
-        for (firstMember = iterator.next(); iterator.hasNext(); ) {
-            if (!isSameType(firstMember, iterator.next())) {
-                return false;
-            }
-        }
-        // Control reaching this point means there is only one type in the union.
-        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
-    }
-
-    private boolean analyzeRecordType(BRecordType type, List<BType> unanalyzedTypes) {
-        if (unanalyzedTypes.contains(type)) {
-            return true;
-        }
-        unanalyzedTypes.add(type);
-        return type.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
-    }
-
-    private boolean analyzeObjectType(BObjectType type) {
-        if (type.getKind() == TypeKind.SERVICE) {
-            return false;
-        }
-        if (type.tsymbol.kind == SymbolKind.OBJECT) {
-            BAttachedFunction initializerFunc = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
-            if (initializerFunc == null) {
-                // No __init function found.
-                return true;
-            }
-            BInvokableType initFuncType = initializerFunc.type;
-            boolean noParams = initFuncType.paramTypes.isEmpty();
-            boolean nilReturn = initFuncType.retType.tag == TypeTags.NIL;
-
-            return noParams && nilReturn;
-        }
-        return false;
-    }
-
-    private boolean analyzeFiniteType(BFiniteType type) {
-        // Has NIL element as a member.
-        if (type.valueSpace.stream().anyMatch(value -> value.type.tag == TypeTags.NIL)) {
-            return true;
-        }
-        // All of the element are from same type. And elements contains implicit initial value.
-        if (type.valueSpace.isEmpty()) {
-            return false;
-        }
-
-        BLangExpression firstElement = type.valueSpace.iterator().next();
-
-        // For singleton types, that value is the implicit initial value
-        if (type.valueSpace.size() == 1) {
-            return true;
-        }
-
-        boolean sameType = type.valueSpace.stream()
-                .allMatch(value -> value.type.tag == firstElement.type.tag);
-        if (!sameType) {
-            return false;
-        }
-        switch (firstElement.type.tag) {
-            case TypeTags.STRING:
-                return containsElement(type.valueSpace, "\"\"");
-            case TypeTags.INT:
-                return containsElement(type.valueSpace, "0");
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-                return containsElement(type.valueSpace, "0.0") ||
-                        containsElement(type.valueSpace, "0");
-            case TypeTags.BOOLEAN:
-                return containsElement(type.valueSpace, "false");
-            default:
-                return false;
-        }
-    }
-
-    private boolean containsElement(Set<BLangExpression> valueSpace, String element) {
-        return valueSpace.stream().map(v -> (BLangLiteral) v).anyMatch(lit -> lit.originalValue.equals(element));
-    }
-
     public boolean isAllowedConstantType(BType type) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
@@ -2507,5 +2389,20 @@ public class Types {
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sourceType, targetType);
+        }
+    }
+
+    /**
+     * A functional interface for parameterizing the type of type checking that needs to be done on the source and
+     * target types.
+     *
+     * @since 0.995.0
+     */
+    private interface TypeEqualityPredicate {
+        boolean test(BType source, BType target, List<TypePair> unresolvedTypes);
     }
 }

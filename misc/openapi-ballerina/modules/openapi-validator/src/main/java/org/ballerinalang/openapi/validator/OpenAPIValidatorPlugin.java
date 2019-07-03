@@ -197,6 +197,11 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 }
             }
 
+            // Extract and add the resource parameters
+            if (resource.getParameters().size() > 0) {
+                resourceSummary.setParameters(resource.getParameters());
+            }
+
             // Add the resource summary to the resource summary list.
             this.resourceSummaryList.add(resourceSummary);
         }
@@ -227,7 +232,28 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         if (noMatch) {
                             unmatchedMethods.add(resourceMethod);
                         }
-                    }
+
+                        List<OpenAPIParameter> operationParamNames = openAPIPathSummary
+                                .getParamNamesForOperation(resourceMethod);
+                        List<ResourceParameter> resourceParamNames = resourceSummary.getParamNames();
+                        for (ResourceParameter parameter : resourceParamNames) {
+                            boolean isExist = false;
+                            for (OpenAPIParameter openAPIParameter : operationParamNames) {
+                                if (openAPIParameter.getName().equals(parameter.getName())
+                                        && openAPIParameter.getType().equals(parameter.getType())) {
+                                    isExist = true;
+                                }
+                            }
+
+                            if (!isExist) {
+                                dLog.logDiagnostic(Diagnostic.Kind.ERROR, parameter.getParameter().getPosition(),
+                                        "mismatch with OpenAPI contract. Couldn't " +
+                                                "find documentation for the parameter "
+                                                + parameter.getName() + " for the method " + resourceMethod
+                                                + " of the Path: " + resourceSummary.getPath());
+                            }
+                        }
+                    } 
 
                     String methods = getUnmatchedMethodList(unmatchedMethods);
                     if (!openAPIPathSummary.getAvailableOperations().containsAll(resourceSummary.getMethods())) {
@@ -298,6 +324,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 if (noMatch) {
                                     unmatchedMethods.add(method);
                                 }
+
+                                // Check for parameter mismatch.
+                                checkForParameterMismatch(openApiSummary, resourceSummaries, method, serviceNode);
                             }
                         }
 
@@ -322,6 +351,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 if (noMatch) {
                                     unmatchedMethods.add(method);
                                 }
+
+                                // Check for parameter mismatch.
+                                checkForParameterMismatch(openApiSummary, resourceSummaries, method, serviceNode);
                             }
                         }
 
@@ -350,6 +382,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 if (noMatch) {
                                     unmatchedMethods.add(method);
                                 }
+
+                                // Check for parameter mismatch.
+                                checkForParameterMismatch(openApiSummary, resourceSummaries, method, serviceNode);
                             }
                         }
 
@@ -373,6 +408,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                             if (noMatch) {
                                 unmatchedMethods.add(method);
                             }
+
+                            // Check for parameter mismatch.
+                            checkForParameterMismatch(openApiSummary, resourceSummaries, method, serviceNode);
                         }
 
                         String methods = getUnmatchedMethodList(unmatchedMethods);
@@ -386,6 +424,44 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                 }
             }
         }
+    }
+
+    private void checkForParameterMismatch(OpenAPIPathSummary openApiSummary, List<ResourceSummary> resourceSummaries,
+                                           String method, ServiceNode serviceNode) {
+        List<OpenAPIParameter> operationParamNames = openApiSummary
+                .getParamNamesForOperation(method);
+        ResourceSummary resourceSummaryForMethod = getResourceSummaryByMethod(resourceSummaries, method);
+        if (resourceSummaryForMethod != null) {
+            List<ResourceParameter> resourceParamNames = resourceSummaryForMethod.getParamNames();
+            for (OpenAPIParameter openAPIParameter : operationParamNames) {
+                boolean isExist = false;
+                for (ResourceParameter parameter : resourceParamNames) {
+                    if (openAPIParameter.getName().equals(parameter.getName())
+                            && openAPIParameter.getType().equals(parameter.getType())) {
+                        isExist = true;
+                    }
+                }
+
+                if (!isExist) {
+                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                            "mismatch with OpenAPI contract. Implementation " +
+                                    "is missing for parameter " + openAPIParameter.getName() +
+                                    " for the method " + method + " of the Path: " +
+                                    resourceSummaryForMethod.getPath());
+                }
+            }
+        }
+    }
+
+    private ResourceSummary getResourceSummaryByMethod(List<ResourceSummary> resourceSummaries, String method) {
+        ResourceSummary matchingResource = null;
+        for (ResourceSummary resourceSummary : resourceSummaries) {
+            if (resourceSummary.isMethodAvailable(method)) {
+                matchingResource = resourceSummary;
+                break;
+            }
+        }
+        return matchingResource;
     }
 
     private List<String> getAllMethodsInResourceSummaries(List<ResourceSummary> resourceSummaries) {

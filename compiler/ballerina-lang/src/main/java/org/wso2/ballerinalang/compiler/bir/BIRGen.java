@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
@@ -83,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -172,6 +172,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
+
+import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 
 /**
  * Lower the AST to BIR.
@@ -383,7 +385,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.retType,
+        birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
 
         //add closure vars
@@ -500,10 +502,9 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
-        //TODO is it good to send nill type? fix
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags,
-                                                 annSymbol.attachPoints, annSymbol.attachedType == null ?
-                                                         symTable.noType : annSymbol.attachedType.type);
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags, annSymbol.points,
+                annSymbol.attachedType == null ? symTable.trueType : annSymbol.attachedType.type);
+
         this.env.enclPkg.annotations.add(birAnn);
     }
 
@@ -671,8 +672,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        Name name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? new Name(ANNOTATION_DATA) :
+                this.env.nextGlobalVarId(names);
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
-                                                                  varNode.symbol.type, this.env.nextGlobalVarId(names),
+                                                                  varNode.symbol.type, name,
                                                                   VarScope.GLOBAL, VarKind.GLOBAL);
         this.env.enclPkg.globalVars.add(birVarDcl);
 
@@ -696,6 +699,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            createErrorConstructorInvocation(invocationExpr);
+            return;
+        }
         createCall(invocationExpr, false);
     }
 
@@ -819,6 +826,28 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
+    }
+
+    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
+        // Create a temporary variable to store the error.
+        BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarError);
+        BIROperand lhsOp = new BIROperand(tempVarError);
+
+        // visit reason and detail expressions
+        this.env.targetOperand = lhsOp;
+        invocationExpr.requiredArgs.get(0).accept(this);
+        BIROperand reasonOp = this.env.targetOperand;
+
+        invocationExpr.requiredArgs.get(1).accept(this);
+        BIROperand detailsOp = this.env.targetOperand;
+
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
+                lhsOp, reasonOp, detailsOp);
+        emit(newError);
+        this.env.targetOperand = lhsOp;
     }
 
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
@@ -978,6 +1007,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile astWhileStmt) {
+        BIRBasicBlock currentEnclLoopBB = this.env.enclLoopBB;
+        BIRBasicBlock currentEnclLoopEndBB = this.env.enclLoopEndBB;
+
         // Create a basic block for the while expression.
         BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclBasicBlocks.add(whileExprBB);
@@ -1012,6 +1044,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(whileEndBB);
         this.env.enclBB = whileEndBB;
+
+        this.env.enclLoopBB = currentEnclLoopBB;
+        this.env.enclLoopEndBB = currentEnclLoopEndBB;
     }
 
 
@@ -1344,25 +1379,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         UnaryOP unaryIns = new UnaryOP(unaryExpr.pos, getUnaryInstructionKind(unaryExpr.operator), lhsOp, rhsOp);
         emit(unaryIns);
-        this.env.targetOperand = lhsOp;
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errorExpr) {
-        // Create a temporary variable to store the error.
-        BIRVariableDcl tempVarError = new BIRVariableDcl(errorExpr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarError);
-        BIROperand lhsOp = new BIROperand(tempVarError);
-        // visit reason and detail expressions
-        this.env.targetOperand = lhsOp;
-        errorExpr.reasonExpr.accept(this);
-        BIROperand reasonOp = this.env.targetOperand;
-        errorExpr.detailsExpr.accept(this);
-        BIROperand detailsOp = this.env.targetOperand;
-        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorExpr.pos, errorExpr.type, lhsOp,
-                                                                           reasonOp, detailsOp);
-        emit(newError);
         this.env.targetOperand = lhsOp;
     }
 
@@ -1739,6 +1755,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.CLOSED_RANGE;
             case HALF_OPEN_RANGE:
                 return InstructionKind.HALF_OPEN_RANGE;
+            case ANNOT_ACCESS:
+                return InstructionKind.ANNOT_ACCESS;
             case BITWISE_AND:
                 return InstructionKind.BITWISE_AND;
             case BITWISE_OR:

@@ -137,7 +137,7 @@ function testUpdateTableData() returns int {
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() returns (int, int) {
+function testGeneratedKeyOnInsert() returns [int, int] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -154,7 +154,7 @@ function testGeneratedKeyOnInsert() returns (int, int) {
         generatedKey = <int>x.generatedKeys.CUSTOMERID;
     }
     checkpanic testDB.stop();
-    return (count, generatedKey);
+    return [count, generatedKey];
 }
 
 function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
@@ -174,7 +174,8 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
     if (x is sql:UpdateResult) {
         returnVal = x.generatedKeys.length();
     } else {
-        returnVal = x.reason();
+        error e = x;
+        returnVal = e.reason();
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -219,7 +220,7 @@ function testSelectData() returns string {
     return firstName;
 }
 
-function testSelectIntFloatData() returns (int, int, float, float, decimal) {
+function testSelectIntFloatData() returns [int, int, float, float, decimal] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -248,7 +249,7 @@ function testSelectIntFloatData() returns (int, int, float, float, decimal) {
         }
     }
     checkpanic testDB.stop();
-    return (int_type, long_type, float_type, double_type, decimal_type);
+    return [int_type, long_type, float_type, double_type, decimal_type];
 }
 
 function testQueryParameters() returns string {
@@ -482,7 +483,7 @@ function testINParameters() returns int {
     return insertCount;
 }
 
-function testBlobInParameter() returns (int, byte[]) {
+function testBlobInParameter() returns [int, byte[]] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -512,10 +513,10 @@ function testBlobInParameter() returns (int, byte[]) {
         }
     }
     checkpanic testDB.stop();
-    return (insertCount, blobVal);
+    return [insertCount, blobVal];
 }
 
-function testINParametersWithDirectValues() returns (int, int, float, float, boolean, string, decimal, decimal, float) {
+function testINParametersWithDirectValues() returns [int, int, float, float, boolean, string, decimal, decimal, float] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -560,11 +561,11 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
         }
     }
     checkpanic testDB.stop();
-    return (i, l, f, d, b, s, n, dec, real);
+    return [i, l, f, d, b, s, n, dec, real];
 }
 
-function testINParametersWithDirectVariables() returns (int, int, float,
-        float, boolean, string, decimal, decimal, float) {
+function testINParametersWithDirectVariables() returns [int, int, float,
+        float, boolean, string, decimal, decimal, float] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -622,7 +623,7 @@ function testINParametersWithDirectVariables() returns (int, int, float,
         }
     }
     checkpanic testDB.stop();
-    return (i, l, f, d, b, s, n, dec, real);
+    return [i, l, f, d, b, s, n, dec, real];
 }
 
 function testNullINParameterValues() returns int {
@@ -806,7 +807,7 @@ function testBatchUpdateWithVariables() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithFailure() returns (int[], int) {
+function testBatchUpdateWithFailure() returns [int[], int] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -858,7 +859,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
         ResultCount);
     int count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (updateCount, count);
+    return [updateCount, count];
 }
 
 function testBatchUpdateWithNullParam() returns int[] {
@@ -962,7 +963,7 @@ function testDateTimeNullInValues() returns string {
     return data;
 }
 
-function testComplexTypeRetrieval() returns (string, string, string, string) {
+function testComplexTypeRetrieval() returns [string, string, string, string] {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -993,78 +994,79 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     s4 = io:sprintf("%s", j);
 
     checkpanic testDB.stop();
-    return (s1, s2, s3, s4);
+    return [s1, s2, s3, s4];
 }
 
-function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[], CustomerFullName[]) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
+// TODO: #16033
+//function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[], CustomerFullName[]) {
+//    h2:Client testDB = new({
+//            path: "./target/tempdb/",
+//            name: "TEST_SQL_CONNECTOR_H2",
+//            username: "SA",
+//            password: "",
+//            poolOptions: { maximumPoolSize: 1 }
+//        });
+//
+//    var dt = testDB->select(
+//        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName , loadToMemory = true);
+//
+//    CustomerFullName[] fullNameArray1 = [];
+//    CustomerFullName[] fullNameArray2 = [];
+//    CustomerFullName[] fullNameArray3 = [];
+//
+//    if (dt is table<CustomerFullName>) {
+//        int i = 0;
+//        foreach var x in dt {
+//            fullNameArray1[i] = x;
+//            i += 1;
+//        }
+//        i = 0;
+//        foreach var x in dt {
+//            fullNameArray2[i] = x;
+//            i += 1;
+//        }
+//        i = 0;
+//        foreach var x in dt {
+//            fullNameArray3[i] = x;
+//            i += 1;
+//        }
+//    }
+//    checkpanic testDB.stop();
+//    return (fullNameArray1, fullNameArray2, fullNameArray3);
+//}
 
-    var dt = testDB->select(
-        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName , loadToMemory = true);
-
-    CustomerFullName[] fullNameArray1 = [];
-    CustomerFullName[] fullNameArray2 = [];
-    CustomerFullName[] fullNameArray3 = [];
-
-    if (dt is table<CustomerFullName>) {
-        int i = 0;
-        foreach var x in dt {
-            fullNameArray1[i] = x;
-            i += 1;
-        }
-        i = 0;
-        foreach var x in dt {
-            fullNameArray2[i] = x;
-            i += 1;
-        }
-        i = 0;
-        foreach var x in dt {
-            fullNameArray3[i] = x;
-            i += 1;
-        }
-    }
-    checkpanic testDB.stop();
-    return (fullNameArray1, fullNameArray2, fullNameArray3);
-}
-
-function testLoadToMemorySelectAfterTableClose() returns (CustomerFullName[], CustomerFullName[], error?) {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
-    var dt = testDB->select(
-        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName, loadToMemory = true);
-
-    CustomerFullName[] fullNameArray1 = [];
-    CustomerFullName[] fullNameArray2 = [];
-    error? e = ();
-    if (dt is table<CustomerFullName>) {
-        fullNameArray1 = iterateTableAndReturnResultArray(dt);
-        fullNameArray2 = iterateTableAndReturnResultArray(dt);
-        CustomerFullName[] fullNameArray3 = [];
-        dt.close();
-
-        var ret = trap iterateTableAndReturnResultArray(dt);
-
-        if (ret is CustomerFullName[]) {
-            fullNameArray3 = ret;
-        } else {
-            e = ret;
-        }
-    }
-    checkpanic testDB.stop();
-    return (fullNameArray1, fullNameArray2, e);
-}
+//function testLoadToMemorySelectAfterTableClose() returns (CustomerFullName[], CustomerFullName[], error?) {
+//    h2:Client testDB = new({
+//            path: "./target/tempdb/",
+//            name: "TEST_SQL_CONNECTOR_H2",
+//            username: "SA",
+//            password: "",
+//            poolOptions: { maximumPoolSize: 1 }
+//        });
+//
+//    var dt = testDB->select(
+//        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName, loadToMemory = true);
+//
+//    CustomerFullName[] fullNameArray1 = [];
+//    CustomerFullName[] fullNameArray2 = [];
+//    error? e = ();
+//    if (dt is table<CustomerFullName>) {
+//        fullNameArray1 = iterateTableAndReturnResultArray(dt);
+//        fullNameArray2 = iterateTableAndReturnResultArray(dt);
+//        CustomerFullName[] fullNameArray3 = [];
+//        dt.close();
+//
+//        var ret = trap iterateTableAndReturnResultArray(dt);
+//
+//        if (ret is CustomerFullName[]) {
+//            fullNameArray3 = ret;
+//        } else {
+//            e = ret;
+//        }
+//    }
+//    checkpanic testDB.stop();
+//    return (fullNameArray1, fullNameArray2, e);
+//}
 
 function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns CustomerFullName[] {
     CustomerFullName[] fullNameArray = [];

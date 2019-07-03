@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -186,8 +187,7 @@ public class NumericConversionTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
+        Assert.assertEquals(((BValueType) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
                 "representation as byte");
     }
 
@@ -219,8 +219,7 @@ public class NumericConversionTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
+        Assert.assertEquals(((BValueType) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
                 "representation as int");
     }
 
@@ -271,10 +270,10 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'decimal' cannot be cast to '(byte\\|Employee)'\"}.*")
     public void testInvalidDecimalAsByteInUnions(int i) {
-        BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[]{new BDecimal(new BigDecimal(i))});
+        BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[] { new BDecimal(new BigDecimal(i)) });
     }
 
     @Test(dataProvider = "naNFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
@@ -306,15 +305,15 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"out of " +
-                    "range 'float' value '.*' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
+                    "'float' value '.*' cannot be converted to 'int'\"\\}.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"out of " +
-                    "range 'decimal' value '.*' cannot be converted to 'int'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
+                    "'decimal' value '.*' cannot be converted to 'int'\"}.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
@@ -444,7 +443,7 @@ public class NumericConversionTest {
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'decimal'", 61, 19);
         validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be cast to " +
-                              "'int|decimal'", 66, 24);
+                              "'(int|decimal)'", 66, 24);
     }
 
     @DataProvider
