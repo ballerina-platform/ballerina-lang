@@ -101,9 +101,11 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessNilLiftingOnMapJson" },
                 { "testOptionalFieldAccessErrorOnNonMappingJson" },
                 { "testOptionalFieldAccessErrorLiftingOnNonMappingJson" },
+                { "testOptionalFieldAccessErrorLiftingOnMapJson" },
                 { "testOptionalFieldAccessOnJsonMappingPositive" },
                 { "testOptionalFieldAccessOnMapJsonPositive" },
-                { "testOptionalFieldAccessNilReturnOnMissingKey" }
+                { "testOptionalFieldAccessNilReturnOnMissingKey" },
+                { "testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap" }
         };
     }
 }
