@@ -142,6 +142,8 @@ public type BirEmitter object {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
+                print(" ");
+                print(varDecl.metaVarName);
             }
             println("\t// ", varDecl.kind);
         }
