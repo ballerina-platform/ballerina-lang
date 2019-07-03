@@ -131,11 +131,11 @@ public class TransactionResourceManager {
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId, 1);
-//
-//        BValue[] bValues = TransactionUtils.notifyTransactionBegin(strand,
-//                transactionLocalContext.getGlobalTransactionId(),
-//                transactionLocalContext.getURL(), transactionBlockId, transactionLocalContext.getProtocol());
-//        log.info("participant registered: " + bValues[0]);
+
+        BValue[] bValues = TransactionUtils.notifyTransactionBegin(strand,
+                transactionLocalContext.getGlobalTransactionId(),
+                transactionLocalContext.getURL(), transactionBlockId, transactionLocalContext.getProtocol());
+        log.info("participant registered: " + bValues[0]);
     }
 
     /**
