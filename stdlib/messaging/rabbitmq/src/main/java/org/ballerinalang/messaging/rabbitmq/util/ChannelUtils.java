@@ -282,36 +282,6 @@ public class ChannelUtils {
     }
 
     /**
-     * Deletes an exchange.
-     *
-     * @param channel      RabbitMQ Channel object.
-     * @param exchangeName Name of the exchange.
-     */
-    public static void exchangeDelete(Channel channel, String exchangeName) {
-        try {
-            channel.exchangeDelete(exchangeName);
-        } catch (Exception e) {
-            String errorMessage = "An error occurred while deleting the exchange ";
-            throw new BallerinaException(errorMessage + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Purges a queue.
-     *
-     * @param channel   RabbitMQ Channel object.
-     * @param queueName Name of the queue.
-     */
-    public static void queuePurge(Channel channel, String queueName) {
-        try {
-            channel.queuePurge(queueName);
-        } catch (IOException exception) {
-            String errorMessage = "An error occurred while purging the queue ";
-            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
-        }
-    }
-
-    /**
      * Validates whether the message has been acknowledged.
      *
      * @param messageObject Message object.

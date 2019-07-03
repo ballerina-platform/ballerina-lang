@@ -27,10 +27,11 @@ import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+
+import java.io.IOException;
 
 /**
  * Purges a queue.
@@ -57,13 +58,16 @@ public class QueuePurge extends BlockingNativeCallableUnit {
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
-            ChannelUtils.queuePurge(channel, queueName);
+            channel.queuePurge(queueName);
             if (transactionContext != null) {
                 transactionContext.handleTransactionBlock();
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
                     + exception.getDetail());
+        } catch (IOException exception) {
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
+                    + exception.getMessage());
         }
         return null;
     }
