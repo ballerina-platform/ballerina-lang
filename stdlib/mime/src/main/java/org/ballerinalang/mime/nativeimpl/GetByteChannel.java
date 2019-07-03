@@ -20,7 +20,6 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -40,9 +39,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -62,33 +61,33 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> byteChannelStruct;
-        try {
-            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_IO,
-                                                                    READABLE_BYTE_CHANNEL_STRUCT);
-            populateEntityWithByteChannel(entityObj);
-            Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
-            if (byteChannel != null) {
-                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-                context.setReturnValues(byteChannelStruct);
-            } else {
-                if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-                    context.setReturnValues(MimeUtil.createError(context, "Byte channel is not available but " +
-                            "payload can be obtain either as xml, json, string or byte[] type"));
-                } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
-                        getBodyPartArray(entityObj).size() != 0) {
-                    context.setReturnValues(MimeUtil.createError(context,
-                            "Byte channel is not available since payload contains a set of body parts"));
-                } else {
-                    context.setReturnValues(MimeUtil.createError(context,
-                            "Byte channel is not available as payload"));
-                }
-            }
-        } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
-        }
+//        BMap<String, BValue> byteChannelStruct;
+//        try {
+//            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+//            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_IO,
+//                                                                    READABLE_BYTE_CHANNEL_STRUCT);
+//            populateEntityWithByteChannel(entityObj);
+//            Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
+//            if (byteChannel != null) {
+//                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+//                context.setReturnValues(byteChannelStruct);
+//            } else {
+//                if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
+//                    context.setReturnValues(MimeUtil.createError(context, "Byte channel is not available but " +
+//                            "payload can be obtain either as xml, json, string or byte[] type"));
+//                } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
+//                        getBodyPartArray(entityObj).size() != 0) {
+//                    context.setReturnValues(MimeUtil.createError(context,
+//                            "Byte channel is not available since payload contains a set of body parts"));
+//                } else {
+//                    context.setReturnValues(MimeUtil.createError(context,
+//                            "Byte channel is not available as payload"));
+//                }
+//            }
+//        } catch (Throwable e) {
+//            context.setReturnValues(MimeUtil.createError(context,
+//                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
+//        }
     }
 
     public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
@@ -102,19 +101,19 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 return byteChannelObj;
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-                    return MimeUtil.createError("Byte channel is not available but " +
+                    return MimeUtil.createError(READING_ENTITY_FAILED, "Byte channel is not available but " +
                                                         "payload can be obtain either as xml, json, string or byte[] " +
                                                         "type");
                 } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
                         getBodyPartArray(entityObj).size() != 0) {
-                    return MimeUtil.createError(
+                    return MimeUtil.createError(READING_ENTITY_FAILED,
                             "Byte channel is not available since payload contains a set of body parts");
                 } else {
-                    return MimeUtil.createError("Byte channel is not available as payload");
+                    return MimeUtil.createError(READING_ENTITY_FAILED, "Byte channel is not available as payload");
                 }
             }
         } catch (Throwable e) {
-            return MimeUtil.createError(
+            return MimeUtil.createError(READING_ENTITY_FAILED,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage());
         }
     }

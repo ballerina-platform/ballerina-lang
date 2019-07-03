@@ -320,8 +320,36 @@ public function Request.getByteChannel() returns io:ReadableByteChannel|error {
     return self.getEntity()!getByteChannel();
 }
 
-public function Request.getBodyParts() returns mime:Entity[]|error {
-    return self.getEntity()!getBodyParts();
+public function Request.getBodyParts() returns mime:Entity[]|mime:ReadingEntityError {
+    var result = self.getEntity();
+    if (result is error) {
+        // TODO: Confirm whether this is actually a ClientError or not.
+        return prepareReadingEntityError("Read entity error occurred while retrieving body parts from the request");
+        //return result;
+    } else {
+        var bodyParts = result.getBodyParts();
+        if (bodyParts is error) {
+            string detail = "MimeError occurred while retrieving body parts from the request";
+            return prepareReadingEntityError(detail);
+            //return getGenericClientError(message, bodyParts);
+        } else {
+            return bodyParts;
+        }
+    }
+    //return self.getEntity()!getBodyParts();
+}
+
+public type Detail record {
+    string message;
+    error cause?;
+};
+
+public const READING_ENTITY_FAILED = "{ballerina/mime}ReadingEntityFailed";
+public type HttpError error<READING_ENTITY_FAILED, Detail>;
+
+public function prepareReadingEntityError(string detail) returns mime:ReadingEntityError {
+    HttpError err = error("{ballerina/mime}ReadingEntityFailed", message = detail);
+    return err;
 }
 
 public function Request.getFormParams() returns map<string>|error {
@@ -329,12 +357,12 @@ public function Request.getFormParams() returns map<string>|error {
     if (mimeEntity is mime:Entity) {
         if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
             string errorMessage = "Content type header is not available";
-            error typeError = error(mime:MIME_ERROR_CODE, message = errorMessage);
+            error typeError = error(mime:READING_ENTITY_FAILED, message = errorMessage);
             return typeError;
         }
         if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
             string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
-            error typeError = error(mime:MIME_ERROR_CODE, message = errorMessage);
+            error typeError = error(mime:READING_ENTITY_FAILED, message = errorMessage);
             return typeError;
         }
     } else {

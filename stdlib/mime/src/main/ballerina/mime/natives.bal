@@ -47,11 +47,11 @@ public const string CONTENT_TYPE = "content-type";
 public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents MIME error code.
-public const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+//public const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
 
-type MIMEError record {
-    string message = "";
-};
+//type MIMEError record {
+//    string message = "";
+//};
 
 # Represents values in `Content-Disposition` header.
 #
@@ -244,9 +244,9 @@ public type Entity object {
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
-    # + return - `json` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `json` data extracted from the the entity body. An `ReadingEntityError` record is returned in case of
     #            errors.
-    public function getJson() returns @tainted json|error = external;
+    public function getJson() returns @tainted json|ReadingEntityError = external;
 
     # Sets the entity body with the given XML content. This method overrides any existing content-type headers
     # with the default content-type `application/xml`. The default value `application/xml` can be overridden
@@ -259,9 +259,9 @@ public type Entity object {
 
     # Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
     #
-    # + return - `xml` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `xml` data extracted from the the entity body. An `ReadingEntityError` record is returned in case of
     #            errors.
-    public function getXml() returns @tainted xml|error = external;
+    public function getXml() returns @tainted xml|ReadingEntityError = external;
 
     # Sets the entity body with the given text content. This method overrides any existing content-type headers
     # with the default content-type `text/plain`. The default value `text/plain` can be overridden
@@ -274,8 +274,8 @@ public type Entity object {
 
     # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
     #
-    # + return - `string` data extracted from the the entity body or `error` in case of errors.
-    public function getText() returns @tainted string|error = external;
+    # + return - `string` data extracted from the the entity body or `ReadingEntityError` in case of errors.
+    public function getText() returns @tainted string|ReadingEntityError = external;
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
     # with the default content type `application/octet-stream`. The default value `application/octet-stream`
@@ -289,9 +289,9 @@ public type Entity object {
     # Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
     # using getByteChannel() method instead.
     #
-    # + return - `byte[]` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `byte[]` data extracted from the the entity body. An `ReadingEntityError` record is returned in case of
     #            errors.
-    public function getByteArray() returns @tainted byte[]|error = external;
+    public function getByteArray() returns @tainted byte[]|ReadingEntityError = external;
 
     # Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
     # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
@@ -304,19 +304,19 @@ public type Entity object {
 
     # Given an entity, gets the entity body as a byte channel.
     #
-    # + return - An `io:ReadableByteChannel`. An `error` record will be returned in case of errors
-    public function getByteChannel() returns @tainted io:ReadableByteChannel|error = external;
+    # + return - An `io:ReadableByteChannel`. An `ReadingEntityError` record will be returned in case of errors
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|ReadingEntityError = external;
 
     # Given an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.
     #
-    # + return - An array of body parts(`Entity[]`) extracted from the entity body. An `error` record will be
+    # + return - An array of body parts(`Entity[]`) extracted from the entity body. An `ReadingEntityError` record will be
     #            returned in case of errors.
-    public function getBodyParts() returns Entity[]|error = external;
+    public function getBodyParts() returns Entity[]|ReadingEntityError = external;
 
     # Given an entity, gets the body parts as a byte channel.
     #
     # + return - Body parts as a byte channel
-    public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|error = external;
+    public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|ReadingEntityError = external;
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
     # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden
@@ -404,8 +404,8 @@ public function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByt
 # + return - If the given input is of type string, an encoded `string` is returned.
 #            If the given input is of type byte[], an encoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `error` record is returned.
-function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
+#            In case of errors, an `EncodingError` record is returned.
+public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|EncodingError) = external;
 
 # Decodes a given input with MIME specific Base64 encoding scheme.
@@ -415,106 +415,105 @@ function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded,
 # + return - If the given input is of type string, a decoded `string` is returned.
 #            If the given input is of type byte[], a decoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `error` record is returned.
-function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
+#            In case of errors, an `DecodingError` record is returned.
+public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|DecodingError) = external;
 
 # Encodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeEncoded - Content that needs to be encoded
-# + return - An encoded byte[]. In case of errors, an `error` record is returned
+# + return - An encoded byte[]. In case of errors, an `EncodingError` record is returned
 public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodingError {
     var result = base64Encode(valueToBeEncoded);
-    if (result is byte[]|error) {
+    if (result is byte[]|EncodingError) {
         return result;
     } else {
         //createErrorDetail("Error occurred while encoding byte[]");
-        return prepareEncodingErrorWithDetail(createErrorDetail("Error occurred while encoding byte[]"));
+        return prepareEncodingErrorWithDetail("Error occurred while encoding byte[]");
         //
         //error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
         //return encodeErr;
     }
 }
 
-# Encodes a given string with Base64 encoding scheme.
-#
-# + valueToBeEncoded - Content that needs to be encoded
-# + charset - Charset to be used
-# + return - An encoded `string`. In case of errors, an `error` record is returned
-public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|EncodingError {
-    var result = base64Encode(valueToBeEncoded);
-    if (result is string|error) {
-        return result;
-    } else {
-        return prepareEncodingErrorWithDetail(createErrorDetail("Error occurred while encoding string"));
-        //error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
-        //return encodeErr;
-    }
-}
+//# Encodes a given string with Base64 encoding scheme.
+//#
+//# + valueToBeEncoded - Content that needs to be encoded
+//# + charset - Charset to be used
+//# + return - An encoded `string`. In case of errors, an `error` record is returned
+//public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|EncodingError {
+//    var result = base64Encode(valueToBeEncoded);
+//    if (result is string|error) {
+//        return result;
+//    } else {
+//        return prepareEncodingErrorWithDetail("Error occurred while encoding string");
+//        //error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
+//        //return encodeErr;
+//    }
+//}
 
-# Encodes a given ByteChannel with Base64 encoding scheme.
-#
-# + valueToBeEncoded - Content that needs to be encoded
-# + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
-                        returns io:ReadableByteChannel|EncodingError {
-    var result = base64Encode(valueToBeEncoded);
-    if (result is io:ReadableByteChannel|error) {
-        return result;
-    } else {
-        return prepareEncodingErrorWithDetail(createErrorDetail
-                                    ("Error occurred while encoding ReadableByteChannel content"));
-        //error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
-        //return customErr;
-    }
-}
+//# Encodes a given ByteChannel with Base64 encoding scheme.
+//#
+//# + valueToBeEncoded - Content that needs to be encoded
+//# + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
+//public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
+//                        returns io:ReadableByteChannel|EncodingError {
+//    var result = base64Encode(valueToBeEncoded);
+//    if (result is io:ReadableByteChannel|error) {
+//        return result;
+//    } else {
+//        return prepareEncodingErrorWithDetail("Error occurred while encoding ReadableByteChannel content");
+//        //error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
+//        //return customErr;
+//    }
+//}
 
 # Decodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeDecoded - Content that needs to be decoded
-# + return - A decoded `byte[]`. In case of errors, an `error` record is returned
+# + return - A decoded `byte[]`. In case of errors, an `DecodingError` record is returned
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodingError {
     var result = base64Decode(valueToBeDecoded);
-    if (result is byte[]|error) {
+    if (result is byte[]|DecodingError) {
         return result;
     } else {
-        return prepareDecodingErrorWithDetail(createErrorDetail("Error occurred while decoding byte[]"));
+        return prepareDecodingErrorWithDetail("Error occurred while decoding byte[]");
         //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
         //return decodeErr;
     }
 }
 
-# Decodes a given string with Base64 encoding scheme.
-#
-# + valueToBeDecoded - Content that needs to be decoded
-# + charset - Charset to be used
-# + return - A decoded `string`. In case of errors, an `error` record is returned
-public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|DecodingError {
-    var result = base64Decode(valueToBeDecoded);
-    if (result is string|error) {
-        return result;
-    } else {
-        return prepareDecodingErrorWithDetail(createErrorDetail("Error occurred while decoding string"));
-        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
-        //return decodeErr;
-    }
-}
+//# Decodes a given string with Base64 encoding scheme.
+//#
+//# + valueToBeDecoded - Content that needs to be decoded
+//# + charset - Charset to be used
+//# + return - A decoded `string`. In case of errors, an `error` record is returned
+//public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|DecodingError {
+//    var result = base64Decode(valueToBeDecoded);
+//    if (result is string|error) {
+//        return result;
+//    } else {
+//        return prepareDecodingErrorWithDetail("Error occurred while decoding string");
+//        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
+//        //return decodeErr;
+//    }
+//}
 
-# Decodes a given ByteChannel with Base64 encoding scheme.
-#
-# + valueToBeDecoded - Content that needs to be decoded
-# + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded)
-                        returns io:ReadableByteChannel|DecodingError {
-    var result = base64Decode(valueToBeDecoded);
-    if (result is io:ReadableByteChannel|error) {
-        return result;
-    } else {
-        return prepareDecodingErrorWithDetail(createErrorDetail("Error occurred while decoding ReadableByteChannel content"));
-        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
-        //return decodeErr;
-    }
-}
+//# Decodes a given ByteChannel with Base64 encoding scheme.
+//#
+//# + valueToBeDecoded - Content that needs to be decoded
+//# + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
+//public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded)
+//                        returns io:ReadableByteChannel|DecodingError {
+//    var result = base64Decode(valueToBeDecoded);
+//    if (result is io:ReadableByteChannel|error) {
+//        return result;
+//    } else {
+//        return prepareDecodingErrorWithDetail("Error occurred while decoding ReadableByteChannel content");
+//        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
+//        //return decodeErr;
+//    }
+//}
 
 # Gets the encoding value from a given MediaType.
 #
@@ -542,12 +541,12 @@ public function getContentDispositionObject(string contentDisposition) returns C
 # + return - String representation of the given byte[]
 public function byteArrayToString(byte[] b, string encoding) returns string = external;
 
-# Encode a given byte[] with Base64 encoding scheme.
-#
-# + return - Return an encoded byte[]
-public function base64EncodeByteArray(byte[] b) returns byte[] = external;
+//# Encode a given byte[] with Base64 encoding scheme.
+//#
+//# + return - Return an encoded byte[]
+//public function base64EncodeByteArray(byte[] b) returns byte[] = external;
 
-# Decode a given byte[] with Base64 encoding scheme.
-#
-# + return - Return a decoded byte[]
-public function base64DecodeByteArray(byte[] b) returns byte[] = external;
+//# Decode a given byte[] with Base64 encoding scheme.
+//#
+//# + return - Return a decoded byte[]
+//public function base64DecodeByteArray(byte[] b) returns byte[] = external;

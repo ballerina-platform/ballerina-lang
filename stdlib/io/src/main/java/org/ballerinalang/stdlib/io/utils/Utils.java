@@ -68,6 +68,7 @@ public class Utils {
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_UTIL = "ballerina/util";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
+    public static final String MIME_ERROR_MESSAGE = "message";
     public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ReadableByteChannel";
@@ -167,20 +168,21 @@ public class Utils {
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
-    private static ErrorValue createBase64Error(String msg, boolean isMimeSpecific) {
+    private static ErrorValue createBase64Error(String reason, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BallerinaErrors.createError("{ballerina/mime}EncodeFailed", createMimeErrorRecord(msg));
+            return BallerinaErrors.createError(reason, populateMimeErrorRecord(msg));
 //            return BallerinaErrors.createError(MIME_ERROR_CODE, msg);
         }
         return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, msg);
     }
 
 
-    private static MapValue createMimeErrorRecord(String msg) {
+    public static MapValue populateMimeErrorRecord(String msg) {
         Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("message", msg);
-        MapValue<String, Object> mimeErrorRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_MIME, "Detail", valueMap);
-//        BallerinaValues.createRecord(mimeErrorRecord, msg, "no cause");
+        valueMap.put(MIME_ERROR_MESSAGE, msg);
+        MapValue<String, Object> mimeErrorRecord = BallerinaValues
+                .createRecordValue(PROTOCOL_PACKAGE_MIME, "Detail", valueMap);
+        //        BallerinaValues.createRecord(mimeErrorRecord, msg, "no cause");
         return mimeErrorRecord;
     }
 
@@ -251,11 +253,11 @@ public class Utils {
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
                     return encodeByteChannel(byteChannel, isMimeSpecific);
                 }
-                return Utils.createBase64Error("incompatible object", isMimeSpecific);
+                return Utils.createBase64Error("{ballerina/mime}EncodingFailed", "incompatible object", isMimeSpecific);
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
                 return encodeString(input.toString(), charset, isMimeSpecific);
             default:
-                return Utils.createBase64Error("incompatible input", isMimeSpecific);
+                return Utils.createBase64Error("{ballerina/mime}EncodingFailed", "incompatible input", isMimeSpecific);
         }
     }
 
@@ -304,7 +306,7 @@ public class Utils {
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
                 return decodeString(encodedInput, charset, isMimeSpecific);
             default:
-                return Utils.createBase64Error("incompatible input", isMimeSpecific);
+                return Utils.createBase64Error("{ballerina/mime}DecodingFailed", "incompatible input", isMimeSpecific);
         }
     }
 
@@ -349,7 +351,7 @@ public class Utils {
             }
             return new String(encodedValue, StandardCharsets.ISO_8859_1);
         } catch (UnsupportedEncodingException e) {
-            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+            return Utils.createBase64Error("{ballerina/mime}EncodingFailed", e.getMessage(), isMimeSpecific);
         }
     }
 
@@ -398,7 +400,7 @@ public class Utils {
             }
            return new String(decodedValue, charset);
         } catch (UnsupportedEncodingException e) {
-            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+            return Utils.createBase64Error("{ballerina/mime}DecodingFailed", e.getMessage(), isMimeSpecific);
         }
     }
 
@@ -479,7 +481,7 @@ public class Utils {
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
-            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+            return Utils.createBase64Error("{ballerina/mime}EncodingFailed", e.getMessage(), isMimeSpecific);
         }
     }
 
@@ -541,7 +543,7 @@ public class Utils {
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
-            return Utils.createBase64Error(e.getMessage(), isMimeSpecific);
+            return Utils.createBase64Error("{ballerina/mime}DecodingFailed", e.getMessage(), isMimeSpecific);
         }
     }
 

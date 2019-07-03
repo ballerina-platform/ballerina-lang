@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
@@ -36,12 +35,12 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.InputStream;
 
-import static org.ballerinalang.mime.util.EntityBodyHandler.constructBlobBDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructBlobDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -60,36 +59,36 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
     //TODO Remove after migration : implemented using bvm values/types
     void constructNonBlockingDataSource(Context context, CallableUnitCallback callback, BMap<String, BValue> entity,
                                         SourceType sourceType) {
-        HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
-        inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-            @Override
-            public void onComplete(HttpCarbonMessage inboundMessage) {
-                BValue dataSource = null;
-                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
-                InputStream inputStream = dataStreamer.getInputStream();
-                switch (sourceType) {
-                    case JSON:
-                        dataSource = constructJsonDataSource(entity, inputStream);
-                        break;
-                    case TEXT:
-                        dataSource = constructStringDataSource(entity, inputStream);
-                        break;
-                    case XML:
-                        dataSource = constructXmlDataSource(entity, inputStream);
-                        break;
-                    case BLOB:
-                        dataSource = constructBlobBDataSource(inputStream);
-                        break;
-                }
-                updateDataSourceAndNotify(context, callback, entity, dataSource);
-            }
-
-            @Override
-            public void onError(Exception ex) {
-                createErrorAndNotify(context, callback,
-                                     "Error occurred while extracting content from message : " + ex.getMessage());
-            }
-        });
+//        HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
+//        inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+//            @Override
+//            public void onComplete(HttpCarbonMessage inboundMessage) {
+//                BValue dataSource = null;
+//                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
+//                InputStream inputStream = dataStreamer.getInputStream();
+//                switch (sourceType) {
+//                    case JSON:
+//                        dataSource = constructJsonDataSource(entity, inputStream);
+//                        break;
+//                    case TEXT:
+//                        dataSource = constructStringDataSource(entity, inputStream);
+//                        break;
+//                    case XML:
+//                        dataSource = constructXmlDataSource(entity, inputStream);
+//                        break;
+//                    case BLOB:
+//                        dataSource = constructBlobBDataSource(inputStream);
+//                        break;
+//                }
+//                updateDataSourceAndNotify(context, callback, entity, dataSource);
+//            }
+//
+//            @Override
+//            public void onError(Exception ex) {
+//                createErrorAndNotify(context, callback,
+//                                     "Error occurred while extracting content from message : " + ex.getMessage());
+//            }
+//        });
     }
 
     static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
@@ -120,7 +119,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(callback,
+                createErrorAndNotify(READING_ENTITY_FAILED, callback,
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
@@ -140,14 +139,14 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         callback.notifySuccess();
     }
 
-    //TODO Remove after migration : implemented using bvm values/types
-    void createErrorAndNotify(Context context, CallableUnitCallback callback, String errMsg) {
-        BError error = MimeUtil.createError(context, errMsg);
-        setReturnValuesAndNotify(context, callback, error);
-    }
+//    //TODO Remove after migration : implemented using bvm values/types
+//    void createErrorAndNotify(Context context, CallableUnitCallback callback, String errMsg) {
+//        BError error = MimeUtil.createError(context, errMsg);
+//        setReturnValuesAndNotify(context, callback, error);
+//    }
 
-    static Object createErrorAndNotify(NonBlockingCallback callback, String errMsg) {
-        ErrorValue error = MimeUtil.createError(errMsg);
+    static Object createErrorAndNotify(String reason, NonBlockingCallback callback, String errMsg) {
+        ErrorValue error = MimeUtil.createError(reason, errMsg);
         if (callback != null) {
             setReturnValuesAndNotify(callback, error);
             return null;
