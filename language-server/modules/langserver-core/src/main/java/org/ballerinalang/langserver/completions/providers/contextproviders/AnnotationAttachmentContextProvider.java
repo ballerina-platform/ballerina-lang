@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
@@ -26,6 +27,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +57,29 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
      */
     private ArrayList<CompletionItem> filterAnnotations(AnnotationNodeKind attachmentPoint, LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        CommonToken pkgAlias = null;
+        if (lhsTokenTypes == null) {
+            return completionItems;
+        }
+        int atTokenIndex = lhsTokenTypes.indexOf(BallerinaParser.AT);
+        int colonTokenIndex = lhsTokenTypes.indexOf(BallerinaParser.COLON);
+        if (atTokenIndex == -1) {
+            return completionItems;
+        }
+        if (colonTokenIndex > 0) {
+            pkgAlias = lhsDefaultTokens.get(colonTokenIndex - 1);
+        }
+
+        CommonToken finalAlias = pkgAlias;
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint, ctx)
-                .forEach((key, value) -> value.forEach(bLangAnnotation -> {
-                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, bLangAnnotation, ctx));
+                .forEach((key, value) -> value.forEach(annotation -> {
+                    String annotationPkgAlias = annotation.pkgID.nameComps
+                            .get(annotation.pkgID.nameComps.size() - 1).value;
+                    if (finalAlias == null || finalAlias.getText().equals(annotationPkgAlias)) {
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, ctx, finalAlias));
+                    }
                 }));
         
         return completionItems;

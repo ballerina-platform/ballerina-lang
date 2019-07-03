@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -380,15 +381,17 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID        Package Id
+     * @param packageID Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
-     * @param ctx                       LS Service operation context, in this case completion context
-     * @return {@link CompletionItem}   Completion item for the annotation
+     * @param ctx LS Service operation context, in this case completion context
+     * @param pkgAlias LS Service operation context, in this case completion context
+     * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx) {
-        String label = getAnnotationLabel(packageID, annotationSymbol);
-        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
+                                                             LSContext ctx, CommonToken pkgAlias) {
+        boolean withAlias = pkgAlias == null;
+        String label = getAnnotationLabel(packageID, annotationSymbol, withAlias);
+        String insertText = getAnnotationInsertText(packageID, annotationSymbol, withAlias);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -500,14 +503,16 @@ public class CommonUtil {
     /**
      * Get the annotation Insert text.
      *
-     * @param packageID        Package ID
+     * @param packageID Package ID
      * @param annotationSymbol Annotation to get the insert text
-     * @return {@link String}   Insert text
+     * @param withAlias insert text with alias
+     * @return {@link String} Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
-        String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol,
+                                                  boolean withAlias) {
         StringBuilder annotationStart = new StringBuilder();
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
+        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue()) && withAlias) {
+            String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
             annotationStart.append(pkgAlias).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
@@ -537,13 +542,14 @@ public class CommonUtil {
     /**
      * Get the completion Label for the annotation.
      *
-     * @param packageID  Package ID
+     * @param packageID Package ID
      * @param annotation BLang annotation
-     * @return {@link String}          Label string
+     * @param withAlias label with alias
+     * @return {@link String} Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
+    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation, boolean withAlias) {
         String pkgComponent = "";
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
+        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue()) && withAlias) {
             pkgComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue()
                     + CommonKeys.PKG_DELIMITER_KEYWORD;
         }
