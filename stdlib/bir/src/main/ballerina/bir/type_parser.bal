@@ -104,6 +104,9 @@ public type TypeParser object {
 
     function parseType() returns BType {
         var typeTag = self.readInt8();
+        // Ignoring name and flags
+        _ = self.readInt32();
+        _ = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){

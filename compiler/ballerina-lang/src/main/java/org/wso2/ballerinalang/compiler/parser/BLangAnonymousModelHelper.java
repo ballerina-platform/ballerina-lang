@@ -64,6 +64,9 @@ public class BLangAnonymousModelHelper {
     String getNextAnonymousTypeKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonTypeCount.get(packageID)).orElse(0);
         anonTypeCount.put(packageID, nextValue + 1);
+        if (PackageID.ANNOTATIONS.equals(packageID)) {
+            return BUILTIN_ANON_TYPE + nextValue;
+        }
         return ANON_TYPE + nextValue;
     }
 

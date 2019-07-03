@@ -1448,7 +1448,26 @@ public class Types {
 //    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
-            return t == s;
+
+            if (t == s) {
+                return true;
+            }
+            switch (t.tag) {
+                case TypeTags.INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
+                case TypeTags.STRING:
+                case TypeTags.BOOLEAN:
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                    return t.tag == s.tag
+                            && (Symbols.isFlagOn(t.flags, Flags.TYPE_PARAM) || Symbols.isFlagOn(s.flags,
+                            Flags.TYPE_PARAM));
+                default:
+                    break;
+            }
+            return false;
 
         }
 

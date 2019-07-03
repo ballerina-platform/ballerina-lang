@@ -17,3 +17,11 @@
 public function toString (any|error value) returns string {
     return "I am toString";
 }
+
+
+@typeParam
+type Foo anydata;
+
+public function clone(Foo f) returns Foo {
+    return f;
+}

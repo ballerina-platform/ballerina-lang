@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -34,6 +35,12 @@ public class BAnydataType extends BBuiltInRefType {
         super(tag, tsymbol);
     }
 
+    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flag) {
+
+        super(tag, tsymbol);
+        this.name = name;
+        this.flags = flag;
+    }
     public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
         this.nullable = nullable;

@@ -202,7 +202,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return true;
         }
 
@@ -863,6 +863,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, BXMLNSSymbol> namespaces = new LinkedHashMap<Name, BXMLNSSymbol>();
         addNamespacesInScope(namespaces, env);
         return namespaces;
+    }
+
+    public void reloadErrorType() {
+
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.errorType = (BErrorType) entry.symbol.type;
+            symTable.detailType = (BRecordType) symTable.errorType.detailType;
+            symTable.errorConstructor = symTable.errorType.ctorSymbol;
+            return;
+        }
+        throw new IllegalStateException("built-in error not found ?");
     }
 
     // visit type nodes

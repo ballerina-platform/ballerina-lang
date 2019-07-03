@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -108,6 +109,7 @@ public class BIRPackageSymbolEnter {
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
     private final Names names;
+    private final TypeParamAnalyzer typeParamAnalyzer;
     private final BLangDiagnosticLog dlog;
     private BIRTypeReader typeReader;
 
@@ -135,6 +137,7 @@ public class BIRPackageSymbolEnter {
         this.symbolResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -711,19 +714,21 @@ public class BIRPackageSymbolEnter {
 
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
+            Name name = names.fromString(getStringCPEntryValue(inputStream));
+            int typeFlag = inputStream.readInt();
             switch (tag) {
                 case TypeTags.INT:
-                    return symTable.intType;
+                    return typeParamAnalyzer.getNominalType(symTable.intType, name, typeFlag);
                 case TypeTags.BYTE:
-                    return symTable.byteType;
+                    return typeParamAnalyzer.getNominalType(symTable.byteType, name, typeFlag);
                 case TypeTags.FLOAT:
-                    return symTable.floatType;
+                    return typeParamAnalyzer.getNominalType(symTable.floatType, name, typeFlag);
                 case TypeTags.DECIMAL:
-                    return symTable.decimalType;
+                    return typeParamAnalyzer.getNominalType(symTable.decimalType, name, typeFlag);
                 case TypeTags.STRING:
-                    return symTable.stringType;
+                    return typeParamAnalyzer.getNominalType(symTable.stringType, name, typeFlag);
                 case TypeTags.BOOLEAN:
-                    return symTable.booleanType;
+                    return typeParamAnalyzer.getNominalType(symTable.booleanType, name, typeFlag);
                 // All the above types are values type
                 case TypeTags.JSON:
                     return symTable.jsonType;
@@ -736,7 +741,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:
-                    return symTable.anydataType;
+                    return typeParamAnalyzer.getNominalType(symTable.anydataType, name, typeFlag);
                 case TypeTags.RECORD:
                     int pkgCpIndex = inputStream.readInt();
                     PackageID pkgId = getPackageId(pkgCpIndex);
@@ -823,7 +828,7 @@ public class BIRPackageSymbolEnter {
                     return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:
-                    return symTable.anyType;
+                    return typeParamAnalyzer.getNominalType(symTable.anyType, name, typeFlag);
                 case TypeTags.ENDPOINT:
                     // TODO fix
                     break;

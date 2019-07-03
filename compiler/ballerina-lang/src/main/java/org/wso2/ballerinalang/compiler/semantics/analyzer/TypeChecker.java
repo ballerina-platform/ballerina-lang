@@ -151,7 +151,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2873,6 +2872,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         iExpr.argExprs.add(0, iExpr.expr);
+        iExpr.expr.typeChecked = false;
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
     }
@@ -2961,7 +2961,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (int i = 0; i < requiredArgExprs.size(); i++) {
             BType expectedType = requiredParamTypes.get(i);
             checkExpr(requiredArgExprs.get(i), this.env, expectedType);
-            typeParamAnalyzer.checkForTypeParams(requiredArgExprs.get(i).type, env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(requiredArgExprs.get(i).type, env, expectedType);
         }
     }
 
@@ -2978,7 +2978,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             checkExpr(expr, this.env, varSym.type);
-            typeParamAnalyzer.checkForTypeParams(expr.type, env, varSym.type);
+            typeParamAnalyzer.checkForTypeParamsInArg(expr.type, env, varSym.type);
         }
     }
 
@@ -2997,7 +2997,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangExpression arg : restArgExprs) {
             BType restType = ((BArrayType) restParam.type).eType;
             checkExpr(arg, this.env, restType);
-            typeParamAnalyzer.checkForTypeParams(arg.type, env, restType);
+            typeParamAnalyzer.checkForTypeParamsInArg(arg.type, env, restType);
         }
     }
 

@@ -86,6 +86,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     public void visitType(BType type) {
         buff.writeByte(type.tag);
+        buff.writeInt(addStringCPEntry(type.name.getValue()));
+        buff.writeInt(type.flags);
         type.accept(this);
     }
 

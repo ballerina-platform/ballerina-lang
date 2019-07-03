@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
@@ -41,9 +43,27 @@ public class BType implements ValueType {
     public int tag;
     public BTypeSymbol tsymbol;
 
+    // Add name, flag fields to hold typeparam data.
+    // TypeParam is a part of the TSymbol, but not part of the type. We have to add this because,
+    // Current compiler use both types (for built-in types) and TSymbols for semantic analysis. Because of this,
+    // sometimes we loose type param information down the line. which is a problem.
+    // TODO: Refactor this after JBallerina 1.0.
+    public Name name;
+    public int flags;
+
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
         this.tsymbol = tsymbol;
+        this.name = Names.EMPTY;
+        this.flags = 0;
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, Name name, int flags) {
+
+        this.tag = tag;
+        this.tsymbol = tsymbol;
+        this.name = name;
+        this.flags = flags;
     }
 
     public String getDesc() {
