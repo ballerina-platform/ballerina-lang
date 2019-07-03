@@ -20,7 +20,7 @@ io:ReadableTextRecordChannel? rch = ();
 io:WritableTextRecordChannel? wch = ();
 
 function initReadableChannel(string filePath, string encoding, string recordSeparator,
-                                    string fieldSeparator) returns error? {
+                                    string fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is error) {
         return byteChannel;
@@ -38,7 +38,7 @@ function initWritableChannel(string filePath, string encoding, string recordSepa
 }
 
 
-function nextRecord() returns (string[]|error) {
+function nextRecord() returns @tainted (string[]|error) {
     var result = rch.getNext();
     if (result is string[]) {
         return result;

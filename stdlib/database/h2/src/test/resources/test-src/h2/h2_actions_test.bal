@@ -28,7 +28,7 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns int[] {
+function testSelect() returns @tainted int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -74,7 +74,7 @@ function testUpdate() returns int {
     return insertCount;
 }
 
-function testCall() returns string {
+function testCall() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -165,7 +165,7 @@ function testBatchUpdate() returns int[] {
     return ret;
 }
 
-function testUpdateInMemory() returns [int, string] {
+function testUpdateInMemory() returns @tainted [int, string] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -235,7 +235,7 @@ function testInitWithInvalidDbOptions() returns int[] {
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns int {
+             returns @tainted int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",

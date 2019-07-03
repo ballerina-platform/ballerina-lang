@@ -71,7 +71,8 @@ function testForeachOpWithClosedRecords() returns map<any> {
             rec[field] = value;
         });
 
-    return rec;
+    // todo: remove <@untainted> when issue #16175 is fixed.
+    return <@untainted> rec;
 }
 
 function testMapOpWithClosedRecords() returns map<any> {

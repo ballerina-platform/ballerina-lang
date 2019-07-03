@@ -2275,7 +2275,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // and also consider parameters (non self params) can taint the self param, which is illegal as well.
 
                 TaintRecord receiverTaintRecord = taintTable.get(0);
-                returnTaintedStatus = checkTaintErrorsInObjectMethods(invocationExpr, returnTaintedStatus, receiverSymbol, receiverTaintRecord);
+                returnTaintedStatus = checkTaintErrorsInObjectMethods(
+                        invocationExpr, returnTaintedStatus, receiverSymbol, receiverTaintRecord);
 
                 TaintRecord allUntaintedEntry = taintTable.get(-1); // when everything is untainted
                 if (allUntaintedEntry != null
@@ -2398,7 +2399,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
     }
 
-    private TaintedStatus checkTaintErrorsInObjectMethods(BLangInvocation invocationExpr, TaintedStatus returnTaintedStatus, BVarSymbol receiverSymbol, TaintRecord receiverTaintRecord) {
+    private TaintedStatus checkTaintErrorsInObjectMethods(BLangInvocation invocationExpr,
+                                                          TaintedStatus returnTaintedStatus,
+                                                          BVarSymbol receiverSymbol,
+                                                          TaintRecord receiverTaintRecord) {
         if (receiverSymbol != null && receiverSymbol.tainted) {
             if (receiverTaintRecord == null) {
                 // there is a taint error when receiver is tainted.

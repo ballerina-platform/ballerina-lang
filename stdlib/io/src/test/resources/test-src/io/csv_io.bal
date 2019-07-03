@@ -27,7 +27,7 @@ io:WritableCSVChannel? wch = ();
 
 const string IO_ERROR_CODE = "{ballerina/io}IOError";
 
-function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
+function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel( <@untainted> byteChannel, encoding);
@@ -53,7 +53,7 @@ function initOpenCsvChannel(string filePath, string encoding, io:Separator field
     }
 }
 
-function nextRecord() returns (string[]|error) {
+function nextRecord() returns @tainted (string[]|error) {
     var result = rch.getNext();
     if (result is string[]) {
         return result;
@@ -78,7 +78,7 @@ function hasNextRecord() returns boolean? {
     return rch.hasNext();
 }
 
-function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns float|error {
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted (float|error) {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);

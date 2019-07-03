@@ -3,7 +3,7 @@ public function main (string... args) {
 }
 
 int i = 10;
-function f2 (string inputData) returns string {
+function f2 (string inputData) returns @tainted string {
     i -= 1;
     string ex = taintedReturn() + f1(inputData);
     return ex;

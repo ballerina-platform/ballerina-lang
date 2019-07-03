@@ -303,7 +303,8 @@ function testWithComplexJson() returns json[] {
             index += 1;
         });
 
-    return filteredResults;
+    // todo: remove <@untainted> when issue #16175 is fixed.
+    return <@untainted> filteredResults;
 }
 
 function testWithComplexXML() returns ([int, string][]) {
@@ -406,5 +407,6 @@ function multipleIterableOps() returns string[] {
         strArr[index] = currency;
     });
 
-    return strArr;
+    // todo: remove <@untainted> when issue #16175 is fixed.
+    return <@untained> strArr;
 }
