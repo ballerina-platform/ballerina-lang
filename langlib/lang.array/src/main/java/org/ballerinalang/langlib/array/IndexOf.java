@@ -40,10 +40,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IndexOf {
 
-    public static Object indexOf(Strand strand, ArrayValue arr, Object val, int startIndex) {
+    public static Object indexOf(Strand strand, ArrayValue arr, Object val, long startIndex) {
         int size = arr.size();
 
-        for (int i = startIndex; i < size; i++) {
+        for (long i = startIndex; i < size; i++) {
             if (TypeChecker.isEqual(val, arr.get(i))) {
                 return i;
             }

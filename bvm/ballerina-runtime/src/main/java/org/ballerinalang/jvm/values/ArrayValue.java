@@ -279,7 +279,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return intValues[(int) index];
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 return byteValues[(int) index];
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
@@ -367,7 +367,7 @@ public class ArrayValue implements RefValue, CollectionValue {
             case TypeTags.BOOLEAN_TAG:
                 addToBooleanArray(vals, (int) index);
                 break;
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 addToByteArray(vals, (int) index);
                 break;
             case TypeTags.FLOAT_TAG:
@@ -445,7 +445,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return intValues;
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues;
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 return byteValues;
             case TypeTags.FLOAT_TAG:
                 return floatValues;
@@ -462,7 +462,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return intValues.length;
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues.length;
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 return byteValues.length;
             case TypeTags.FLOAT_TAG:
                 return floatValues.length;

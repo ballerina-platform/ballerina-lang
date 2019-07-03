@@ -32,6 +32,7 @@
         <classes>
             <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
             <class name="org.ballerinalang.langlib.test.TypeParamTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
         </classes>
     </test>
 </suite>
