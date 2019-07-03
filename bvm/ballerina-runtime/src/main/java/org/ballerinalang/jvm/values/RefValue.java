@@ -44,7 +44,7 @@ public interface RefValue {
     void stamp(BType type, List<TypeValuePair> unresolvedValues);
 
     /**
-     * Method to performs a deep copy, recursively copying all structural values and their members.
+     * Method to perform a deep copy, recursively copying all structural values and their members.
      *
      * @param refs The map which keep track of the references of already cloned values in cycles
      *
