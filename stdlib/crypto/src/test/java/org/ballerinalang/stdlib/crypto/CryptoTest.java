@@ -298,7 +298,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     @Test(description = "Test RSA-SHA256 siging with an invalid private key")
@@ -308,7 +308,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     @Test(description = "Test RSA-SHA384 siging with an invalid private key")
@@ -318,7 +318,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     @Test(description = "Test RSA-SHA512 siging with an invalid private key")
@@ -328,7 +328,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     @Test(description = "Test RSA-MD5 siging with an invalid private key")
@@ -338,7 +338,7 @@ public class CryptoTest {
                 new BValue[]{new BValueArray(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     //
@@ -902,7 +902,7 @@ public class CryptoTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncryptRsaEcbWithInvalidKey", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "invalid uninitialized key");
+                "Invalid uninitialized key");
     }
 
     @Test(description = "Test encrypt and decrypt with RSA ECB PKCS1 with invalid padding",
