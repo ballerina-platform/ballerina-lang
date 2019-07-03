@@ -1,4 +1,4 @@
 [project]
 # Name of the package
-orgName = "testorg"
+org-name = "testorg"
 version = "v1"
