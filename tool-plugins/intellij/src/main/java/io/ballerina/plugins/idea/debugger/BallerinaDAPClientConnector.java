@@ -23,6 +23,8 @@ import io.ballerina.plugins.idea.debugger.client.DAPRequestManager;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaSocketStreamConnectionProvider;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaStreamConnectionProvider;
 import io.ballerina.plugins.idea.debugger.protocol.Command;
+import io.ballerina.plugins.idea.preloading.OperatingSystemUtils;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +48,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_DEBUG_LAUNCHER_NAME;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_DEBUG_LAUNCHER_PATH;
+
 /**
  * Used to communicate with debug server.
  */
@@ -52,6 +58,7 @@ public class BallerinaDAPClientConnector {
 
     private static final Logger LOG = Logger.getInstance(BallerinaDAPClientConnector.class);
 
+    private BallerinaDebugProcess context;
     private Project project;
     private String host;
     private int port;
@@ -89,10 +96,22 @@ public class BallerinaDAPClientConnector {
         return port;
     }
 
+    public BallerinaDebugProcess getContext() {
+        return context;
+    }
+
+    public void setContext(BallerinaDebugProcess context) {
+        this.context = context;
+    }
+
     void createConnection() {
         try {
             myConnectionState = ConnectionState.CONNECTING;
-            streamConnectionProvider = createConnectionProvider(project.getBasePath());
+            streamConnectionProvider = createConnectionProvider(project);
+            if (streamConnectionProvider == null) {
+                LOG.warn("Unable to establish the socket connection provider.");
+                return;
+            }
             streamConnectionProvider.start();
             Pair<InputStream, OutputStream> streams = new ImmutablePair<>(streamConnectionProvider.getInputStream(),
                     streamConnectionProvider.getOutputStream());
@@ -138,7 +157,7 @@ public class BallerinaDAPClientConnector {
             if (command == Command.ATTACH) {
                 Map<String, Object> requestArgs = new HashMap<>();
                 requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
-                requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
+                requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(5006));
                 try {
                     requestManager.attach(requestArgs);
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -162,28 +181,12 @@ public class BallerinaDAPClientConnector {
         }
     }
 
-    private String generateRequest(Command command) {
-        return "{\"command\":\"" + command + "\"}";
-    }
-
-    private String generateRequest(Command command, String threadId) {
-        return "{\"command\":\"" + command + "\", \"threadId\":\"" + threadId + "\"}";
-    }
-
-    void send(String json) {
-        if (isConnected()) {
-//            debugClient.sendText(json);
-        }
-    }
-
     boolean isConnected() {
         return debugClient != null && isActive();
     }
 
     void close() {
-        if (debugClient != null) {
-//            debugClient.shutDown();
-        }
+        // Todo
     }
 
     String getState() {
@@ -203,11 +206,23 @@ public class BallerinaDAPClientConnector {
         NOT_CONNECTED, CONNECTING, CONNECTED, DISCONNECTED
     }
 
-    public BallerinaStreamConnectionProvider createConnectionProvider(String workingDir) {
-        return new BallerinaSocketStreamConnectionProvider(new ArrayList<>(Collections.singleton(
-                "/home/nino/Desktop/ballerina/distribution/zip/jballerina-tools/build/extracted-distributions/" +
-                        "jballerina-tools-0.992.0-m2-SNAPSHOT/lib/tools/debug-adapter/launcher/" +
-                        "debug-adapter-launcher.sh")), workingDir, host, DEBUG_ADAPTOR_PORT);
+    private BallerinaStreamConnectionProvider createConnectionProvider(Project project) {
+
+        String debugLauncherPath = "";
+        String os = OperatingSystemUtils.getOperatingSystem();
+        if (os != null) {
+            if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
+                debugLauncherPath = Paths.get(BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath()
+                        + BALLERINA_DEBUG_LAUNCHER_PATH + BALLERINA_DEBUG_LAUNCHER_NAME + ".sh").toString();
+            } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
+                debugLauncherPath = Paths.get(BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath()
+                        + BALLERINA_DEBUG_LAUNCHER_PATH + BALLERINA_DEBUG_LAUNCHER_NAME + ".bat").toString();
+            }
+        }
+
+        return !debugLauncherPath.isEmpty() ? new BallerinaSocketStreamConnectionProvider(
+                new ArrayList<>(Collections.singleton(debugLauncherPath)), project.getBasePath(), host,
+                DEBUG_ADAPTOR_PORT) : null;
     }
 
     public boolean isActive() {

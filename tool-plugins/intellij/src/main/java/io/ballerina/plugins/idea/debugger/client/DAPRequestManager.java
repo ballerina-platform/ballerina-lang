@@ -15,7 +15,6 @@
  */
 package io.ballerina.plugins.idea.debugger.client;
 
-import com.intellij.openapi.diagnostic.Logger;
 import io.ballerina.plugins.idea.debugger.BallerinaDAPClientConnector;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -24,8 +23,8 @@ import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.wso2.lsp4intellij.client.languageserver.requestmanager.DefaultRequestManager;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -38,15 +37,15 @@ import java.util.concurrent.TimeoutException;
  */
 public class DAPRequestManager {
 
-    private static final Logger LOG = Logger.getInstance(DefaultRequestManager.class);
     private BallerinaDAPClientConnector clientConnector;
     private final DAPClient client;
     private final IDebugProtocolServer server;
     private final Capabilities serverCapabilities;
 
     private static final int TIMEOUT_SET_BREAKPOINTS = 1000;
-    private static final int TIMEOUT_STACK_FRAME = 1000;
+    private static final int TIMEOUT_STACK_FRAME = 2000;
     private static final int TIMEOUT_CONFIG_DONE = 1000;
+    private static final int TIMEOUT_THREADS = 2000;
     private static final int TIMEOUT_DISCONNECT = 5000;
 
     public DAPRequestManager(BallerinaDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
@@ -55,6 +54,10 @@ public class DAPRequestManager {
         this.client = client;
         this.server = server;
         this.serverCapabilities = serverCapabilities;
+    }
+
+    BallerinaDAPClientConnector getClientConnector() {
+        return clientConnector;
     }
 
     public SetBreakpointsResponse setBreakpoints(SetBreakpointsArguments args) throws InterruptedException,
@@ -88,6 +91,15 @@ public class DAPRequestManager {
         }
     }
 
+    public ThreadsResponse threads() throws InterruptedException, ExecutionException, TimeoutException {
+        if (checkStatus()) {
+            CompletableFuture<ThreadsResponse> resp = server.threads();
+            return resp.get(TIMEOUT_THREADS, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
     public StackTraceResponse stackTrace(StackTraceArguments args) throws InterruptedException,
             ExecutionException, TimeoutException {
 
@@ -109,7 +121,7 @@ public class DAPRequestManager {
         }
     }
 
-    public boolean checkStatus() {
+    private boolean checkStatus() {
         return clientConnector != null && clientConnector.isActive();
     }
 

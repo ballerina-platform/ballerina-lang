@@ -15,8 +15,6 @@
  */
 package io.ballerina.plugins.idea.debugger.client;
 
-import com.intellij.openapi.diagnostic.Logger;
-import io.ballerina.plugins.idea.debugger.dto.Message;
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.CapabilitiesEventArguments;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
@@ -25,15 +23,10 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArguments;
 import org.eclipse.lsp4j.debug.ModuleEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.ProcessEventArguments;
-import org.eclipse.lsp4j.debug.StackTraceArguments;
-import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.TerminatedEventArguments;
 import org.eclipse.lsp4j.debug.ThreadEventArguments;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import static org.eclipse.lsp4j.debug.StoppedEventArgumentsReason.BREAKPOINT;
 
@@ -42,7 +35,6 @@ import static org.eclipse.lsp4j.debug.StoppedEventArgumentsReason.BREAKPOINT;
  */
 public class DAPClient implements IDebugProtocolClient {
 
-    private static final Logger LOG = Logger.getInstance(DAPClient.class);
     private DAPRequestManager requestManager;
 
     @Override
@@ -53,17 +45,8 @@ public class DAPClient implements IDebugProtocolClient {
     @Override
     public void stopped(StoppedEventArguments args) {
         if (args.getReason().equals(BREAKPOINT)) {
-            if (requestManager.checkStatus()) {
-                StackTraceArguments stackTraceArgs = new StackTraceArguments();
-                stackTraceArgs.setThreadId(args.getThreadId());
-                try {
-                    StackTraceResponse stackTraceResponse = requestManager.stackTrace(stackTraceArgs);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    LOG.warn("Error occurred when fetching stack frames", e);
-                }
-            }
+            requestManager.getClientConnector().getContext().handleDebugHit(args);
         }
-        Message message = new Message();
     }
 
     @Override

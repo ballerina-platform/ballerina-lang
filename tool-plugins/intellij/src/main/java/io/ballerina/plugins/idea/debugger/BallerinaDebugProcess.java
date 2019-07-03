@@ -55,11 +55,17 @@ import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
+import org.eclipse.lsp4j.debug.StackFrame;
+import org.eclipse.lsp4j.debug.StackTraceArguments;
+import org.eclipse.lsp4j.debug.StackTraceResponse;
+import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -171,9 +177,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         if (isConnected) {
             initBreakpointHandlersAndSetBreakpoints();
             LOGGER.debug("Sending breakpoints.");
-            myBreakPointHandler.sendBreakpoints();
-            LOGGER.debug("Sending Attach command.");
-            myConnector.sendCommand(Command.ATTACH);
+            myBreakPointHandler.sendBreakpoints(true);
         }
     }
 
@@ -272,7 +276,44 @@ public class BallerinaDebugProcess extends XDebugProcess {
         return false;
     }
 
-    public void handleDebugHit() {
+    public void handleDebugHit(StoppedEventArguments args) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!isConnected) {
+                return;
+            }
+            StackTraceArguments stackTraceArgs = new StackTraceArguments();
+            stackTraceArgs.setThreadId(args.getThreadId());
+            try {
+                ThreadsResponse threadsResp = myConnector.getRequestManager().threads();
+                if (Arrays.stream(threadsResp.getThreads()).noneMatch(t -> t.getId().equals(args.getThreadId()))) {
+                    return;
+                }
+                StackTraceResponse stackTraceResp = myConnector.getRequestManager().
+                        stackTrace(stackTraceArgs);
+                StackFrame[] stackFrames = stackTraceResp.getStackFrames();
+                if (stackFrames.length > 0) {
+                    XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(stackFrames[0]);
+                    // Get the current suspend context from the session. If the context is null, we need to create a new
+                    // context. If the context is not null, we need to add a new execution stack to the current suspend
+                    // context.
+                    XSuspendContext context = getSession().getSuspendContext();
+//                    if (context == null) {
+//                        context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+//                    } else {
+//                        ((BallerinaSuspendContext) context).addToExecutionStack(BallerinaDebugProcess.this, message);
+//                    }
+                    XDebugSession session = getSession();
+                    if (breakpoint == null) {
+                        session.positionReached(context);
+                    } else {
+                        session.breakpointReached(breakpoint, null, context);
+                    }
+                }
+
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                LOGGER.warn("Error occurred when fetching stack frames", e);
+            }
+        });
     }
 
     private void debugHit(String response) {
@@ -373,6 +414,43 @@ public class BallerinaDebugProcess extends XDebugProcess {
         return null;
     }
 
+    private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull StackFrame stackFrame) {
+        String fileName = stackFrame.getSource().getName();
+        String packagePath = stackFrame.getSource().getPath().replace(fileName, "");
+
+        // If file is in the project level, package path will be empty and hence "." is used instead.
+        if (packagePath.isEmpty()) {
+            packagePath = ".";
+        }
+        String relativeFilePathInProject;
+        // If the package is ".", full path of the file will be sent as the filename.
+        if (".".equals(packagePath)) {
+            // Then we need to get the actual filename from the path.
+            int index = fileName.lastIndexOf(File.separator);
+            if (index <= -1) {
+                return null;
+            }
+            relativeFilePathInProject = fileName.substring(index);
+        } else {
+            // If the absolute path is not sent, we need to construct the relative file path in the project.
+            relativeFilePathInProject = packagePath.replaceAll("\\.", File.separator) + File.separator + fileName;
+        }
+        int lineNumber = stackFrame.getLine().intValue();
+        for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
+            XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
+            if (breakpointPosition == null) {
+                continue;
+            }
+            VirtualFile fileInBreakpoint = breakpointPosition.getFile();
+            int line = breakpointPosition.getLine() + 1;
+            if (fileInBreakpoint.getPath().endsWith(relativeFilePathInProject) && line == lineNumber) {
+                return breakpoint;
+            }
+        }
+        return null;
+    }
+
+
     @Nullable
     @Override
     public XValueMarkerProvider<?, ?> createValueMarkerProvider() {
@@ -412,7 +490,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 return;
             }
             breakpoints.add(breakpoint);
-            sendBreakpoints();
+            sendBreakpoints(false);
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
         }
 
@@ -424,38 +502,39 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 return;
             }
             breakpoints.remove(breakpoint);
-            sendBreakpoints();
+            sendBreakpoints(false);
         }
 
-        void sendBreakpoints() {
+        void sendBreakpoints(boolean attach) {
             if (!isConnected) {
                 return;
             }
             ApplicationManager.getApplication().invokeLater(() -> {
-                Map<String, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
+                Map<Source, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
                 if (getSession().areBreakpointsMuted()) {
                     return;
                 }
                 // Transforms IDEA breakpoint DAP breakpoints.
                 for (XBreakpoint<BallerinaBreakpointProperties> bp : breakpoints) {
                     if (bp.getType().getId().equals("BallerinaLineBreakpoint") && bp.getSourcePosition() != null) {
-                        String sourcePath = bp.getSourcePosition().getFile().getPath();
+                        Source source = new Source();
+                        source.setName(bp.getSourcePosition().getFile().getName());
+                        source.setPath(bp.getSourcePosition().getFile().getPath());
+
                         SourceBreakpoint dapBreakpoint = new SourceBreakpoint();
                         dapBreakpoint.setLine((long) bp.getSourcePosition().getLine());
-                        if (sourceBreakpoints.get(sourcePath) == null) {
-                            sourceBreakpoints.put(sourcePath, new ArrayList<>(Collections.singleton(dapBreakpoint)));
+                        if (sourceBreakpoints.get(source) == null) {
+                            sourceBreakpoints.put(source, new ArrayList<>(Collections.singleton(dapBreakpoint)));
                         } else {
-                            sourceBreakpoints.get(sourcePath).add(dapBreakpoint);
+                            sourceBreakpoints.get(source).add(dapBreakpoint);
                         }
                     }
                 }
 
                 // Sends "setBreakpoints()" requests per source file.
-                for (Map.Entry<String, List<SourceBreakpoint>> entry : sourceBreakpoints.entrySet()) {
+                for (Map.Entry<Source, List<SourceBreakpoint>> entry : sourceBreakpoints.entrySet()) {
                     SetBreakpointsArguments breakpointRequestArgs = new SetBreakpointsArguments();
-                    Source fileSource = new Source();
-                    fileSource.setPath(entry.getKey());
-                    breakpointRequestArgs.setSource(fileSource);
+                    breakpointRequestArgs.setSource(entry.getKey());
                     breakpointRequestArgs.setBreakpoints(entry.getValue().toArray(new SourceBreakpoint[0]));
                     try {
                         myConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
@@ -464,11 +543,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     }
                 }
 
-                // Sends configuration done.
-                try {
-                    myConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    LOGGER.warn("Configuration done request failed.", e);
+                if (attach) {
+                    try {
+                        // Sends "configuration done" notification to the debug server.
+                        myConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                        LOGGER.warn("Configuration done request failed.", e);
+                    }
+                    // Sends attach request to the debug server.
+                    LOGGER.debug("Sending Attach command.");
+                    myConnector.sendCommand(Command.ATTACH);
                 }
             });
         }

@@ -88,7 +88,10 @@ public class BallerinaDebugger extends GenericProgramRunner {
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
                             env.getProject(), host, port);
-                    return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
+                    BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession,
+                            getExecutionResults(state, env));
+                    ballerinaDebugSession.setContext(process);
+                    return process;
                 }
             }).getRunContentDescriptor();
         } else if (state instanceof BallerinaTestRunningState) {
@@ -111,7 +114,10 @@ public class BallerinaDebugger extends GenericProgramRunner {
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
                             env.getProject(), host, port);
-                    return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
+                    BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession,
+                            getExecutionResults(state, env));
+                    ballerinaDebugSession.setContext(process);
+                    return process;
                 }
             }).getRunContentDescriptor();
         } else if (state instanceof BallerinaRemoteRunningState) {
@@ -129,7 +135,9 @@ public class BallerinaDebugger extends GenericProgramRunner {
                     // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaDAPClientConnector ballerinaDebugSession = new BallerinaDAPClientConnector(
                             env.getProject(), address.getLeft(), address.getRight());
-                    return new BallerinaDebugProcess(session, ballerinaDebugSession, null);
+                    BallerinaDebugProcess process = new BallerinaDebugProcess(session, ballerinaDebugSession, null);
+                    ballerinaDebugSession.setContext(process);
+                    return process;
                 }
             }).getRunContentDescriptor();
         }
