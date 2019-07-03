@@ -9,8 +9,8 @@ public function returnIntArray(int n1, int n2, int n3) returns int[] {
     return [20];
 }
 
-public function returnTuple(int n1, int n2, int n3) returns (int, float) {
-    return (300, 4.0);
+public function returnTuple(int n1, int n2, int n3) returns [int, float] {
+    return [300, 4.0];
 }
 
 public function returnUnion(int n1, int n2, int n3) returns (int|string) {

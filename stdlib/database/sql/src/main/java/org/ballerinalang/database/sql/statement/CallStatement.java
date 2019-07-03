@@ -20,6 +20,8 @@ package org.ballerinalang.database.sql.statement;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
@@ -33,6 +35,7 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -85,6 +88,7 @@ public class CallStatement extends AbstractSQLStatement {
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = false;
+        String errorMessagePrefix = "execute stored procedure failed: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(client, datasource, false);
@@ -116,28 +120,38 @@ public class CallStatement extends AbstractSQLStatement {
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 cleanupResources(resultSets, stmt, conn, !isInTransaction);
             }
-        } catch (Throwable e) {
+        } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLConnectorError(e, "execute stored procedure failed: ");
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+        } catch (DatabaseException e) {
+            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+        } catch (ApplicationException e) {
+            cleanupResources(resultSets, stmt, conn, !isInTransaction);
+            // handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
     }
 
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
-            throws SQLException {
+            throws SQLException, ApplicationException {
         ArrayValue bTables = new ArrayValue(BTypes.typeTable);
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
                 && (structTypes != null && structTypes.size() > 1)) {
-            throw new BallerinaException(
+            throw new ApplicationException(
                     "Retrieving result sets from stored procedures returning more than one result set, "
                             + "is not supported");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
-            throw new BallerinaException(
+            throw new ApplicationException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
@@ -190,7 +204,8 @@ public class CallStatement extends AbstractSQLStatement {
         return resultSets;
     }
 
-    private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm) {
+    private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm)
+            throws DatabaseException, ApplicationException {
         if (params == null) {
             return;
         }
@@ -209,13 +224,14 @@ public class CallStatement extends AbstractSQLStatement {
                     setOutParameterValue(stmt, sqlType, index, paramValue, rm);
                 }
             } else {
-                throw new BallerinaException("out value cannot set for null parameter with index: " + index);
+                throw new ApplicationException("out value cannot set for null parameter with index: " + index);
             }
         }
     }
 
     private void setOutParameterValue(CallableStatement stmt, String sqlType, int index,
-            MapValue<String, Object> paramValue, TableResourceManager resourceManager) {
+            MapValue<String, Object> paramValue, TableResourceManager resourceManager)
+            throws DatabaseException, ApplicationException {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
@@ -331,17 +347,19 @@ public class CallStatement extends AbstractSQLStatement {
                                 constructTable(resourceManager, rs, getStructType(paramValue),
                                         datasource.getDatabaseProductName()));
                     } else {
-                        throw new BallerinaException(
+                        throw new ApplicationException(
                                 "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
                     }
                     break;
                 }
                 default:
-                    throw new BallerinaException(
+                    throw new ApplicationException(
                             "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in getting out parameter value: " + e.getMessage(), e);
+            throw new DatabaseException("error in getting out parameter value: ", e);
+        } catch (IOException e) {
+            throw new ApplicationException("error in getting out parameter value: ", e.getMessage());
         }
     }
 
@@ -416,7 +434,7 @@ public class CallStatement extends AbstractSQLStatement {
      * of externally.
      */
     private void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
-            boolean connectionClosable) {
+                                  boolean connectionClosable) {
         try {
             if (resultSets != null) {
                 for (ResultSet rs : resultSets) {

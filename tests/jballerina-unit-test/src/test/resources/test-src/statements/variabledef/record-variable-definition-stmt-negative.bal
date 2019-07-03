@@ -135,21 +135,21 @@ type UnionRec2 record {|
     float...;
 |};
 
-function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean, int|float) { // incompatible types
+function testUnionRecordVariable() returns [string|boolean, string|boolean, string|boolean, int|float] { // incompatible types
     UnionRec1 rec = {var1: "A", var2: "B"};
     UnionRec1|UnionRec2 {var1, var2, var3, var4} = rec;
     UnionOne|UnionTwo {var1: v1, var2: v2, var3: v3, var4: v4} = rec; // incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'
-    return (var1, var2, var3, var4);
+    return [var1, var2, var3, var4];
 }
 
-function testMapRecordVar() returns (string, anydata, any, string) { // incompatible types
+function testMapRecordVar() returns [string, anydata, any, string] { // incompatible types
     map<anydata> m = {var1: "A", var2: true};
     map<string> m2 = {var10: "B", var11: "C"};
 
     var {var1, var2, var3} = m;
     var {var10, var11, var12} = m2;
 
-    return (var1, var2, var3, var10);
+    return [var1, var2, var3, var10];
 }
 
 function ignoreVariables() {
