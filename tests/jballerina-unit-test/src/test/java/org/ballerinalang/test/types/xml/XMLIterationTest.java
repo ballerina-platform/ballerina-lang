@@ -53,7 +53,7 @@ public class XMLIterationTest {
         Assert.assertEquals(negative.getErrorCount(), 2);
         int index = 0;
         BAssertUtil.validateError(negative, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'xml|string' in type definition", 11, 17);
+                "'(xml|string)' in type definition", 11, 17);
         BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'xml'", 16, 19);
     }
 

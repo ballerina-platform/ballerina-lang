@@ -108,7 +108,7 @@ public class Start implements NativeCallableUnit {
             callback.notifyFailure(SocketUtils.createSocketError("Server socket service is already bound to a port"));
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            callback.notifyFailure(SocketUtils.createSocketError("Provided address not supported"));
+            callback.notifyFailure(SocketUtils.createSocketError("Provided address is not supported"));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             callback.notifyFailure(

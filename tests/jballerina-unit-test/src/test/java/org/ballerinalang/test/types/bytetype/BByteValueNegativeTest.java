@@ -46,7 +46,7 @@ public class BByteValueNegativeTest {
         String msg1 = "incompatible types: expected 'byte', found 'int'";
         String msg2 = "incompatible types: expected 'byte', found 'float'";
         String msg3 = "incompatible types: expected 'byte', found 'string'";
-        String msg4 = "incompatible types: expected 'byte', found 'byte|error'";
+        String msg4 = "incompatible types: expected 'byte', found '(byte|error)'";
         String msg5 = "unnecessary condition: expression will always evaluate to 'true'";
         String msg6 = "invalid usage of the 'check' expression operator: no error type return in enclosing invokable";
         BAssertUtil.validateError(result, 0, msg1 , 2, 15);

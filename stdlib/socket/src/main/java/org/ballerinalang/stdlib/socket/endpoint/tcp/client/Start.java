@@ -101,7 +101,7 @@ public class Start implements NativeCallableUnit {
             error = SocketUtils.createSocketError("Client socket is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            error = SocketUtils.createSocketError("Provided address not supported");
+            error = SocketUtils.createSocketError("Provided address is not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             error = SocketUtils.createSocketError("Unable to start the client socket: " + e.getMessage());
