@@ -26,9 +26,7 @@ import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,11 +142,11 @@ public class StreamValue implements RefValue {
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 
-    public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
-        }
-        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
-    }
+//    public void subscribe(InputHandler inputHandler) {
+//        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
+//            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+//            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
+//        }
+//        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
+//    }
 }

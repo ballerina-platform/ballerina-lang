@@ -15,7 +15,11 @@
 // under the License.
 
 @typeParam
-type RecordType record {};
+type RecordType record {|
+    string message?;
+    error cause?;
+    (anydata|error)...;
+|};
 
 @typeParam
 type StringType string;
@@ -29,8 +33,9 @@ public function detail(error<string,RecordType> e) returns RecordType = external
 // Returns an object representing the stack trace of the error
 public function stackTrace(error e) returns object { } = external;
 
+
 public type Detail record {|
-                      string message?;
-                      error cause?;
-                      (anydata|error)...;
-                   |};
+    string message?;
+    error cause?;
+    (anydata|error)...;
+|};

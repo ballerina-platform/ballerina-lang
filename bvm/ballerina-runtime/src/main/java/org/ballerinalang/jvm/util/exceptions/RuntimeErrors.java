@@ -63,7 +63,8 @@ public enum RuntimeErrors {
     CANNOT_CONVERT_NULL("cannot.convert.null", "RUNTIME_0038"),
     INCOMPATIBLE_CONVERT_OPERATION("incompatible.convert.operation", "RUNTIME_0039"),
     INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0040"),
-    TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0038");
+    TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0038"),
+    ILLEGAL_ARRAY_INSERTION("illegal.array.insertion", "RUNTIME_0041");
 
     private String errorMsgKey;
     private String errorCode;

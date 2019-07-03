@@ -104,6 +104,9 @@ public type TypeParser object {
 
     function parseType() returns BType {
         var typeTag = self.readInt8();
+        // Ignoring name and flags
+        _ = self.readInt32();
+        _ = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
@@ -216,7 +219,10 @@ public type TypeParser object {
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
-        obj.initFunction = self.parseRecordInitFunction();
+        boolean isInitFuncAvailable = self.readInt8() == 1;
+        if (isInitFuncAvailable) {
+            obj.initFunction = self.parseRecordInitFunction();
+        }
         return obj;
     }
 
@@ -365,13 +371,15 @@ public type TypeParser object {
         return finiteType;
     }
 
-    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| () | Decimal) {
         if (valueType is BTypeInt) {
             return self.readIntCpRef();
         } else if (valueType is BTypeByte) {
             return self.readByteCpRef();
-        } else if (valueType is BTypeString || valueType is BTypeDecimal) {
+        } else if (valueType is BTypeString) {
             return self.readStringCpRef();
+        } else if (valueType is BTypeDecimal) {
+            return {value: self.readStringCpRef()};
         } else if (valueType is BTypeBoolean) {
             return self.readInt8() == 1;
         } else if (valueType is BTypeFloat) {

@@ -1,0 +1,26 @@
+{
+    "range": {
+        "start": {
+            "line": 5,
+            "character": 20
+        },
+        "end": {
+            "line": 5,
+            "character": 20
+        }
+    },
+    "expected": {
+        "title": "Make 'Orange' an Abstract Object",
+        "command": "CHANGE_ABSTRACT_TYPE_OBJ",
+        "arguments": [
+            {
+                "argumentK": "node.line",
+                "argumentV": "5"
+            },
+            {
+                "argumentK": "node.column",
+                "argumentV": "4"
+            }
+        ]
+    }
+}

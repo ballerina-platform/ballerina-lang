@@ -38,6 +38,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     @Override
     public String toString() {
         if (this.pkgID == PackageID.DEFAULT ||
+                this.pkgID.equals(PackageID.ANNOTATIONS) ||
                 this.pkgID.name == Names.DEFAULT_PACKAGE) {
             return this.name.value;
         }

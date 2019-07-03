@@ -30,7 +30,6 @@ configurations.testRuntimeClasspath {
 }
 
 dependencies {
-//    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')

@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
@@ -35,16 +35,17 @@ public class BIRModuleUtils {
 
     static final String COMPILER_MODULE_CACHE = "compiler.module.cache";
     static final String COMPILER_NAMES = "compiler.names";
+    static final String COMPILER_PACKAGE_LOADER = "compiler.package.loader";
 
     static final String BIR_MODULE_NAME = "ballerina/bir";
     static final String BIR_CONTEXT_RECORD_NAME = "BIRContext";
     static final String BIR_MODULE_ID_RECORD_NAME = "ModuleID";
 
 
-    public static BMap<String, BValue> createBIRContext(ProgramFile programFile, PackageCache modCache, Names names) {
+    public static BMap<String, BValue> createBIRContext(ProgramFile programFile, PackageLoader modCache, Names names) {
         BMap<String, BValue> birContextObj = BLangConnectorSPIUtil.createBStruct(programFile,
                 BIR_MODULE_NAME, BIR_CONTEXT_RECORD_NAME);
-        birContextObj.addNativeData(COMPILER_MODULE_CACHE, modCache);
+        birContextObj.addNativeData(COMPILER_PACKAGE_LOADER, modCache);
         birContextObj.addNativeData(COMPILER_NAMES, names);
         return birContextObj;
     }

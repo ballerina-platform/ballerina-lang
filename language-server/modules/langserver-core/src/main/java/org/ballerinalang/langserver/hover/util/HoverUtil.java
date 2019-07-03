@@ -17,33 +17,18 @@ package org.ballerinalang.langserver.hover.util;
 
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
-import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -58,87 +43,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
  */
 public class HoverUtil {
-
-    /**
-     * Get the hover information for the given hover context.
-     *
-     * @param bPackageSymbol    resolved BPackageSymbol for the hover context.
-     * @param hoverContext      context of the hover.
-     * @return {@link Hover}    hover content.
-     */
-    private static Hover getHoverInformation(BPackageSymbol bPackageSymbol, LSServiceOperationContext hoverContext) {
-        BSymbol filteredBSymbol;
-        switch (hoverContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY)) {
-            case ContextConstants.FUNCTION: {
-                BInvokableSymbol bInvokableSymbol = bPackageSymbol.scope.entries.values()
-                        .stream()
-                        .filter(scopeEntry -> {
-                            String[] symbolNameComponents = scopeEntry.symbol.getName().getValue().split("\\.");
-                            return scopeEntry.symbol instanceof BInvokableSymbol
-                                    && symbolNameComponents.length > 0
-                                    && symbolNameComponents[symbolNameComponents.length - 1]
-                                    .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY));
-                        })
-                        .map(scopeEntry -> (BInvokableSymbol) scopeEntry.symbol).findFirst().orElse(null);
-
-                if (bInvokableSymbol == null) {
-                    // Check within the attached functions of the objects
-                    List<BObjectTypeSymbol> objectTypeSymbols = bPackageSymbol.scope.entries.values().stream()
-                            .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol)
-                            .map(scopeEntry -> (BObjectTypeSymbol) scopeEntry.symbol)
-                            .collect(Collectors.toList());
-                    bInvokableSymbol = getMatchingObjectFunction(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY),
-                            objectTypeSymbols, hoverContext);
-                }
-
-                filteredBSymbol = bInvokableSymbol;
-                break;
-            }
-            case ContextConstants.OBJECT:
-            case ContextConstants.RECORD:
-            case ContextConstants.TYPE_DEF: {
-                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
-                        .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
-                                && scopeEntry.symbol.getName().getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(scopeEntry -> (BTypeSymbol) scopeEntry.symbol)
-                        .findFirst().orElse(null);
-                break;
-            }
-            case ContextConstants.ENDPOINT: {
-                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
-                        .filter(scopeEntry -> scopeEntry.symbol instanceof BEndpointVarSymbol
-                                && scopeEntry.symbol.getName().getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(scopeEntry -> (BEndpointVarSymbol) scopeEntry.symbol)
-                        .findFirst().orElse(null);
-                break;
-            }
-            case ContextConstants.VARIABLE: {
-                filteredBSymbol = bPackageSymbol.scope.entries.values().stream()
-                        .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                                && scopeEntry.symbol.getName().getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .map(scopeEntry -> (BVarSymbol) scopeEntry.symbol)
-                        .findFirst().orElse(null);
-                break;
-            }
-            default:
-                filteredBSymbol = null;
-                break;
-        }
-
-        return filteredBSymbol != null
-                ? getHoverFromDocAttachment(filteredBSymbol.getMarkdownDocAttachment(), hoverContext)
-                : getDefaultHoverObject();
-    }
-
     /**
      * check whether given position matches the given node's position.
      *
@@ -158,73 +67,18 @@ public class HoverUtil {
     }
 
     /**
-     * get current hover content.
-     *
-     * @param hoverContext        text document context for the hover provider.
-     * @param currentBLangPackage package which currently user working on.
-     * @return {@link Hover} return Hover object.
-     */
-    public static Hover getHoverContent(LSServiceOperationContext hoverContext, BLangPackage currentBLangPackage) {
-        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
-        currentBLangPackage.accept(positionTreeVisitor);
-        Hover hover;
-
-        // If the cursor is on a node of the current package go inside, else check builtin and native packages.
-        if (hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null) {
-            BPackageSymbol packageSymbol = LSPackageLoader
-                    .getPackageSymbolById(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY));
-            hover = getHoverInformation(packageSymbol, hoverContext);
-        } else {
-            hover = getDefaultHoverObject();
-        }
-        return hover;
-    }
-
-    /**
-     * Get the doc annotation attributes.
-     *
-     * @param parameters        parameters to be extracted
-     * @return {@link String }  extracted content of annotation
-     */
-    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
-        StringBuilder value = new StringBuilder();
-        for (MarkdownDocAttachment.Parameter parameter : parameters) {
-            value.append("- ")
-                    .append(parameter.name.trim())
-                    .append(":")
-                    .append(parameter.description.trim()).append("\r\n");
-        }
-
-        return value.toString();
-    }
-    
-    private static String getReturnValueDescription(String returnVal) {
-        return "- " + returnVal.trim() + "\r\n";
-    }
-
-    /**
-     * get the formatted string with markdowns.
-     *
-     * @param header header.
-     * @return {@link String} formatted string using markdown.
-     */
-    private static String getFormattedHoverDocContent(String header, String content) {
-        return "**" + header + "**\r\n" + content + "\r\n";
-    }
-
-    /**
      * Get Hover from documentation attachment.
      *
      * @param docAttachment     Documentation attachment
+     * @param symbol hovered symbol                         
      * @return {@link Hover}    hover object.
      */
-    private static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, LSContext context) {
+    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol) {
         MarkupContent hoverMarkupContent = new MarkupContent();
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         StringBuilder content = new StringBuilder();
         Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
-                filterDocumentationAttributes(docAttachment, context);
+                filterDocumentationAttributes(docAttachment, symbol);
 
         if (!docAttachment.description.isEmpty()) {
             String description = "\r\n" + docAttachment.description.trim() + "\r\n";
@@ -252,46 +106,11 @@ public class HoverUtil {
     }
 
     /**
-     * Filter documentation attributes to each tags.
-     *
-     * @param docAttachment     documentation node
-     * @return {@link Map}      filtered content map
-     */
-    private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
-            MarkdownDocAttachment docAttachment, LSContext context) {
-        Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
-        String paramType = "";
-        switch (context.get((NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY))) {
-            case ContextConstants.FUNCTION:
-                paramType = ContextConstants.DOC_PARAM;
-                break;
-            case ContextConstants.OBJECT:
-            case ContextConstants.RECORD:
-            case ContextConstants.TYPE_DEF:
-                paramType = ContextConstants.DOC_FIELD;
-                break;
-            default:
-                break;
-        }
-
-        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
-            if (filteredAttributes.get(paramType) == null) {
-                filteredAttributes.put(paramType, new ArrayList<>());
-                filteredAttributes.get(paramType).add(parameter);
-            } else {
-                filteredAttributes.get(paramType).add(parameter);
-            }
-        }
-
-        return filteredAttributes;
-    }
-
-    /**
      * Get the default hover object.
      *
      * @return {@link Hover} hover default hover object.
      */
-    private static Hover getDefaultHoverObject() {
+    public static Hover getDefaultHoverObject() {
         Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
@@ -299,62 +118,6 @@ public class HoverUtil {
         hover.setContents(hoverMarkupContent);
 
         return hover;
-    }
-
-    /**
-     * Get the matching function in the object for given name.
-     *
-     * @param name                          name of the function
-     * @param objects                       objects to be searched
-     * @return {@link BInvokableSymbol}     matching function | null
-     */
-    private static BInvokableSymbol getMatchingObjectFunction(String name, List<BObjectTypeSymbol> objects,
-                                                              LSContext ctx) {
-        BInvokableSymbol bInvokableSymbol = null;
-        outOfLoop:
-        for (BObjectTypeSymbol objectTypeSymbol : objects) {
-            for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
-                if (attachedFunc.funcName.getValue().equals(name)
-                        && objectTypeSymbol.getName().getValue().equals(ctx.get(NodeContextKeys.NODE_OWNER_KEY))) {
-                    bInvokableSymbol = attachedFunc.symbol;
-                    break outOfLoop;
-                }
-            }
-        }
-        return bInvokableSymbol;
-    }
-
-    /**
-     * Calculate and returns identifier position of this BLangEndpoint.
-     *
-     * @param endpointNode {@link BLangEndpoint}
-     * @return position
-     */
-    public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
-        DiagnosticPos epPosition = endpointNode.getPosition();
-        DiagnosticPos position = new DiagnosticPos(epPosition.src, epPosition.sLine, epPosition.eLine, epPosition.sCol,
-                                                   epPosition.eCol);
-        Set<Whitespace> wsSet = endpointNode.getWS();
-        if (wsSet != null && wsSet.size() > 1) {
-            Whitespace[] wsArray = new Whitespace[wsSet.size()];
-            wsSet.toArray(wsArray);
-            Arrays.sort(wsArray);
-            int endpointKeywordLength = wsArray[0].getPrevious().length();
-            int beforeIdentifierWSLength = wsArray[1].getWs().length();
-            if (endpointNode.symbol.type != null && endpointNode.symbol.type.tsymbol != null) {
-                BTypeSymbol bTypeSymbol = endpointNode.symbol.type.tsymbol;
-                PackageID pkgID = bTypeSymbol.pkgID;
-                int packagePrefixLen = (pkgID != PackageID.DEFAULT
-                        && pkgID.name != Names.BUILTIN_PACKAGE
-                        && pkgID.name != Names.DEFAULT_PACKAGE)
-                        ? (pkgID.name.value + ":").length()
-                        : 0;
-                position.sCol += (beforeIdentifierWSLength + packagePrefixLen + bTypeSymbol.name.value.length() +
-                        endpointKeywordLength);
-            }
-            position.eCol += position.sCol + endpointNode.symbol.name.value.length();
-        }
-        return position;
     }
 
     /**
@@ -421,27 +184,6 @@ public class HoverUtil {
     }
 
     /**
-     * Calculate and returns identifier position of this BLangResource.
-     *
-     * @param resource {@link BLangResource}
-     * @return position
-     */
-    public static DiagnosticPos getIdentifierPosition(BLangResource resource) {
-        DiagnosticPos resPosition = resource.getPosition();
-        DiagnosticPos position = new DiagnosticPos(resPosition.src, resPosition.sLine, resPosition.eLine,
-                                                   resPosition.sCol,
-                                                   resPosition.eCol);
-        int maxELine = 0;
-        List<BLangAnnotationAttachment> annotations = resource.getAnnotationAttachments();
-        for (BLangAnnotationAttachment annotation : annotations) {
-            maxELine = Math.max(annotation.pos.eLine, maxELine);
-        }
-        position.sLine = Math.max(maxELine + 1, position.sLine);
-        position.eCol += resource.symbol.name.value.length();
-        return position;
-    }
-
-    /**
      * Calculate and returns identifier position of this BlangVariable.
      *
      * @param varNode BLangSimpleVariable
@@ -482,6 +224,32 @@ public class HoverUtil {
         return position;
     }
 
+    /**
+     * Get the markdown doc attachment for the symbol. 
+     * For the variable symbol direct markdown content is empty, hence consider the type symbol.
+     * 
+     * @param bSymbol BSymbol to evaluate
+     * @return {@link MarkdownDocAttachment} Doc Attachment
+     */
+    public static MarkdownDocAttachment getMarkdownDocForSymbol(BSymbol bSymbol) {
+        SymbolKind symbolKind = bSymbol.kind == null ? bSymbol.type.tsymbol.kind : bSymbol.kind;
+        MarkdownDocAttachment markdownDocAttachment = null;
+        
+        switch (symbolKind) {
+            case FUNCTION:
+                markdownDocAttachment = bSymbol.markdownDocumentation;
+                break;
+            case RECORD:
+            case OBJECT:
+                markdownDocAttachment = bSymbol.type.tsymbol.markdownDocumentation;
+                break;
+            default:
+                break;
+        }
+        
+        return markdownDocAttachment;
+    }
+
     private static int getTotalWhitespaceLen(Set<Whitespace> wsSet) {
         Whitespace[] ws = new Whitespace[wsSet.size()];
         wsSet.toArray(ws);
@@ -504,5 +272,73 @@ public class HoverUtil {
             }
         }
         return sWhitespace;
+    }
+
+    /**
+     * Filter documentation attributes to each tags.
+     *
+     * @param docAttachment     documentation node
+     * @return {@link Map}      filtered content map
+     */
+    private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
+            MarkdownDocAttachment docAttachment, BSymbol symbol) {
+        Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
+        String paramType = "";
+        SymbolKind symbolKind = symbol.kind == null ? symbol.type.tsymbol.kind : symbol.kind;
+        switch (symbolKind) {
+            case FUNCTION:
+                paramType = ContextConstants.DOC_PARAM;
+                break;
+            case OBJECT:
+            case RECORD:
+            case TYPE_DEF:
+                paramType = ContextConstants.DOC_FIELD;
+                break;
+            default:
+                break;
+        }
+
+        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
+            if (filteredAttributes.get(paramType) == null) {
+                filteredAttributes.put(paramType, new ArrayList<>());
+                filteredAttributes.get(paramType).add(parameter);
+            } else {
+                filteredAttributes.get(paramType).add(parameter);
+            }
+        }
+
+        return filteredAttributes;
+    }
+
+    /**
+     * Get the doc annotation attributes.
+     *
+     * @param parameters        parameters to be extracted
+     * @return {@link String }  extracted content of annotation
+     */
+    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
+        StringBuilder value = new StringBuilder();
+        for (MarkdownDocAttachment.Parameter parameter : parameters) {
+            value.append("- ")
+                    .append(parameter.name.trim())
+                    .append(":")
+                    .append(parameter.description.trim()).append("\r\n");
+        }
+
+        return value.toString();
+    }
+
+    private static String getReturnValueDescription(String returnVal) {
+        return "- " + returnVal.trim() + "\r\n";
+    }
+
+    /**
+     * get the formatted string with markdowns.
+     *
+     * @param header header.
+     * @return {@link String} formatted string using markdown.
+     */
+    private static String getFormattedHoverDocContent(String header, String content) {
+        return "**" + header + "**\r\n" + content + "\r\n";
     }
 }

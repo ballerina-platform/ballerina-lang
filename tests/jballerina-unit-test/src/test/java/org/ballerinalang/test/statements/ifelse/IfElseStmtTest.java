@@ -253,7 +253,7 @@ public class IfElseStmtTest {
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'boolean', found 'string'", 28, 9);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'boolean', found 'string'", 35, 8);
         BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'boolean', found 'int'", 37, 15);
-        BAssertUtil.validateError(negativeResult, 6, "incompatible types: expected 'boolean', found 'int|string[]'",
+        BAssertUtil.validateError(negativeResult, 6, "incompatible types: expected 'boolean', found '(int|string)[]'",
                 41, 8);
     }
 }

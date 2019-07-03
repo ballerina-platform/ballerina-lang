@@ -19,20 +19,22 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_FIELD_PATH_PARAM_ORDER;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
+import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_PARAM_ORDER_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
@@ -226,22 +228,17 @@ public class HttpResource {
     }
 
     protected static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
-        ArrayValue annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
+        return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
+    }
 
-        if (annotation == null) {
-            return null;
-        }
-
-        if (annotation.size() > 1) {
-            throw new BallerinaException("multiple resource configuration annotations found in resource: " +
-                            resource.parent.getName() + "." + resource.getName());
-        }
-        return annotation.isEmpty() ? null : (MapValue) annotation.get(0);
+    protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
+        Object annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
+        return annotation == null ? new MapValueImpl() :
+                (MapValue) ((MapValue) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
-        ArrayValue annotation = resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
-        return annotation != null && !annotation.isEmpty();
+        return resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 
     private static List<String> getAsStringList(Object[] values) {
@@ -284,15 +281,8 @@ public class HttpResource {
     }
 
     public List<BType> getParamTypes() {
-        // TODO remove paramDetail class
-        List<BType> paramDetails = new ArrayList<>();
-        for (BType paramType : this.balResource.getParameterType()) {
-            //TODO:Get this clarified
-            if (paramType.getName().equals("self")) {
-                continue;
-            }
-            paramDetails.add(paramType);
-        }
-        return paramDetails;
+        List<BType> paramTypes = new ArrayList<>();
+        paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
+        return paramTypes;
     }
 }

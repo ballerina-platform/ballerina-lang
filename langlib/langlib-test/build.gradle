@@ -16,38 +16,85 @@
  * under the License.
  *
  */
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+description = 'Lang Library Unit Test Module'
+
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/birTestableProject.gradle"
+
+configurations {
+    balRuntime
+}
 
 dependencies {
     implementation project(':ballerina-core')
-    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    baloCreat project(':lib-creator')
+    implementation project(':ballerina-logging')
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:float', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:int', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile 'org.testng:testng'
 
+    testRuntime project(':ballerina-lang:annotations')
+    testRuntime project(':ballerina-lang:array')
+    testRuntime project(':ballerina-lang:decimal')
+    testRuntime project(':ballerina-lang:error')
+    testRuntime project(':ballerina-lang:floatingpoint')
+    testRuntime project(':ballerina-lang:future')
+    testRuntime project(':ballerina-lang:integer')
+    testRuntime project(':ballerina-lang:map')
+    testRuntime project(':ballerina-lang:object')
+    testRuntime project(':ballerina-lang:stream')
+    testRuntime project(':ballerina-lang:string')
+    testRuntime project(':ballerina-lang:table')
+    testRuntime project(':ballerina-lang:value')
+    testRuntime project(':ballerina-lang:xml')
+    testRuntime project(':ballerina-utils')
+    testRuntime 'org.slf4j:slf4j-jdk14'
+
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
-description = 'Ballerina - Lang.* Modules unit tests.'
-
-createBalo {
-    isBuiltin = 'false'
-    jvmTarget = 'true'
+task createBre(type: org.gradle.api.tasks.Copy) {
+    from configurations.balRuntime
+    into "$buildDir/bre/lib"
 }
 
-description = 'ballerina/lang.* test cases'
+test {
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "enableJBallerinaTests", "true"
 
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    dependsOn createBre
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

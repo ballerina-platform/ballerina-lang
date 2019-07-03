@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -53,12 +52,8 @@ public class WebSocketUtil {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
-        ArrayValue annotation = service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
-        if (annotation == null || annotation.isEmpty()) {
-            return null;
-        }
-        return (MapValue) annotation.get(0);
+        return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                          WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
     }
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,

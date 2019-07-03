@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +78,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     private byte[] byteValues;
     private double[] floatValues;
     private String[] stringValues;
+    private BigDecimal[] decimalValues;
 
     public BType elementType;
 
@@ -116,6 +118,12 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.stringValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeString);
+    }
+
+    public ArrayValue(BigDecimal[] values) {
+        this.decimalValues = values;
+        this.size = values.length;
+        setArrayElementType(BTypes.typeDecimal);
     }
 
     public ArrayValue(BType type) {
@@ -259,6 +267,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         return stringValues[(int) index];
     }
 
+    public BigDecimal getDecimal(long index) {
+        rangeCheckForGet(index, size);
+        return decimalValues[(int) index];
+    }
+
     public Object get(long index) {
         rangeCheckForGet(index, size);
         switch (this.elementType.getTag()) {
@@ -266,7 +279,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return intValues[(int) index];
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 return byteValues[(int) index];
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
@@ -324,6 +337,140 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public void append(Object value) {
         add(size, value);
+    }
+
+    public Object shift(long index) {
+        handleFrozenArrayValue();
+        Object val = get(index);
+        shiftArray((int) index, getArrayFromType(elementType.getTag()));
+        return val;
+    }
+
+    private void shiftArray(int index, Object arr) {
+        int nElemsToBeMoved = this.size - 1 - index;
+        if (nElemsToBeMoved >= 0) {
+            System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
+        }
+        this.size--;
+    }
+
+    public void unshift(long index, ArrayValue vals) {
+        handleFrozenArrayValue();
+
+        Object valArr = getArrayFromType(elementType.getTag());
+        unshiftArray(index, vals.size, valArr, getCurrentArrayLength());
+
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                addToIntArray(vals, (int) index);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                addToBooleanArray(vals, (int) index);
+                break;
+            case TypeTags.BYTE_TAG:
+                addToByteArray(vals, (int) index);
+                break;
+            case TypeTags.FLOAT_TAG:
+                addToFloatArray(vals, (int) index);
+                break;
+            case TypeTags.STRING_TAG:
+                addToStringArray(vals, (int) index);
+                break;
+            default:
+                addToRefArray(vals, (int) index);
+        }
+    }
+
+    private void addToIntArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getInt(j));
+        }
+    }
+
+    private void addToFloatArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getFloat(j));
+        }
+    }
+
+    private void addToStringArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getString(j));
+        }
+    }
+
+    private void addToByteArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        byte[] bytes = vals.getBytes();
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            this.byteValues[i] = bytes[j];
+        }
+    }
+
+    private void addToBooleanArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getBoolean(j));
+        }
+    }
+
+    private void addToRefArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getRefValue(j));
+        }
+    }
+
+    private void unshiftArray(long index, int unshiftByN, Object arr, int arrLength) {
+        int lastIndex = arrLength + unshiftByN - 1;
+        prepareForAdd(lastIndex, arrLength);
+
+        if (index > lastIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+
+        int i = (int) index;
+        System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
+
+        this.size += unshiftByN;
+    }
+
+    private Object getArrayFromType(int typeTag) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                return intValues;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues;
+            case TypeTags.BYTE_TAG:
+                return byteValues;
+            case TypeTags.FLOAT_TAG:
+                return floatValues;
+            case TypeTags.STRING_TAG:
+                return stringValues;
+            default:
+                return refValues;
+        }
+    }
+
+    private int getCurrentArrayLength() {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                return intValues.length;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues.length;
+            case TypeTags.BYTE_TAG:
+                return byteValues.length;
+            case TypeTags.FLOAT_TAG:
+                return floatValues.length;
+            case TypeTags.STRING_TAG:
+                return stringValues.length;
+            default:
+                return refValues.length;
+        }
     }
 
     @Override
@@ -671,6 +818,15 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    private void fillerValueCheck(int index, int size) {
+        // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
+        // to the array, then an exception will be thrown.
+        if (!TypeChecker.hasFillerValue(elementType) && (index > size)) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_ARRAY_INSERTION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+        }
+    }
+
     Object newArrayInstance(Class<?> componentType) {
         return (size > 0) ?
                 Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
@@ -719,6 +875,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
+        fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }

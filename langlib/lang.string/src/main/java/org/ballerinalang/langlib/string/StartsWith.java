@@ -19,12 +19,22 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function lang.string:startsWith(string, string).
  *
  * @since 1.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.string", functionName = "startsWith",
+        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        isPublic = true
+)
 public class StartsWith {
 
     public static boolean startsWith(Strand strand, String str, String substr) {

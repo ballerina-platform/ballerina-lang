@@ -29,6 +29,8 @@ configurations {
         transitive false
     }
     jar
+    bir
+    birJar
     balo
     bin
     balSource
@@ -103,8 +105,8 @@ dependencies {
     dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
     dist 'com.rabbitmq:amqp-client:5.6.0'
     dist 'com.jcraft:jzlib:1.1.3'
-    dist 'org.apache.activemq:artemis-core-client:2.6.3'
-    dist 'org.apache.activemq:artemis-commons:2.6.3'
+    dist 'org.apache.activemq:artemis-core-client:2.7.0'
+    dist 'org.apache.activemq:artemis-commons:2.7.0'
     dist 'io.nats:java-nats-streaming:2.1.0'
     dist 'io.nats:jnats:2.1.0'
     dist 'commons-beanutils:commons-beanutils:1.9.3'
@@ -234,7 +236,7 @@ dependencies {
     // dist project(':ballerina-websub')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
+//    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':strip-bouncycastle')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
@@ -245,9 +247,17 @@ dependencies {
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
+}
+
+task configured {
+    configurations.distBal.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+    }
 }
 
 def basePath = '/' + project.name + '-' + project.version

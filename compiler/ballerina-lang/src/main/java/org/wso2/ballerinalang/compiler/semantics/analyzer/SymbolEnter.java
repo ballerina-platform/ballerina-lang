@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -109,7 +111,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -142,6 +143,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<TypeDefinition> unresolvedTypes;
     private List<PackageID> importedPackages;
     private int typePrecedence;
+    private final TypeParamAnalyzer typeParamAnalyzer;
 
     private SymbolEnv env;
 
@@ -163,6 +165,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.importedPackages = new ArrayList<>();
     }
 
@@ -270,20 +273,34 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
-                AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                                                                            annotationNode.getAttachPoints(),
+                                                                            names.fromIdNode(annotationNode.name),
+                                                                            env.enclPkg.symbol.pkgID, null,
+                                                                            env.scope.owner);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
-        if (annotationNode.typeNode != null) {
-            BType recordType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
-            annotationSymbol.attachedType = recordType.tsymbol;
-            if (recordType != symTable.semanticError && recordType.tag != TypeTags.RECORD) {
-                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_REQUIRE_RECORD, recordType);
+        BLangType annotTypeNode = annotationNode.typeNode;
+        if (annotTypeNode != null) {
+            BType type = this.symResolver.resolveTypeNode(annotTypeNode, annotationEnv);
+            annotationSymbol.attachedType = type.tsymbol;
+            if (!isValidAnnotationType(type)) {
+                dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
+
+            if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
+                if (!types.isAllowedConstantType(type.tag == TypeTags.ARRAY ? ((BArrayType) type).eType : type)) {
+                    dlog.error(annotTypeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
+                }
+            }
+        }
+
+        if (!annotationNode.flagSet.contains(Flag.CONSTANT) &&
+                annotationNode.getAttachPoints().stream().anyMatch(attachPoint -> attachPoint.source)) {
+            dlog.error(annotationNode.pos, DiagnosticCode.ANNOTATION_REQUIRES_CONST);
         }
     }
 
@@ -614,6 +631,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
@@ -621,6 +639,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
+
+        if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            // constructors are only defined for named types.
+            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
+    }
+
+    private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
+                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
+
+        ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
     }
 
     @Override
@@ -932,7 +967,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (types.isValidLiteral((BLangLiteral) constant.expr, staticType)) {
                     // A literal type constant is defined with correct type.
                     // Update the type of the finiteType node to the static type.
-                    // This is done to make the type inferring work. 
+                    // This is done to make the type inferring work.
                     // eg: const decimal d = 5.0;
                     BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
                     BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
@@ -957,7 +992,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
-        } 
+        }
 
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
@@ -1096,6 +1131,27 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     // Private methods
+    private boolean isValidAnnotationType(BType type) {
+        if (type == symTable.semanticError) {
+            return false;
+        }
+
+        switch (type.tag) {
+            case TypeTags.RECORD:
+//                BRecordType recordType = (BRecordType) type;
+//                return recordType.fields.stream().allMatch(field -> types.isAnydata(field.type)) &&
+//                        (recordType.sealed || types.isAnydata(recordType.restFieldType));
+            case TypeTags.MAP:
+//                return types.isAnydata(((BMapType) type).constraint);
+                return true;
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return (elementType.tag == TypeTags.MAP || elementType.tag == TypeTags.RECORD) &&
+                        isValidAnnotationType(elementType);
+        }
+
+        return types.isAssignable(type, symTable.trueType);
+    }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
         return annotationAttachmentList.stream()

@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code BRecordType} represents record type in Ballerina.
@@ -74,11 +76,29 @@ public class BRecordType extends BStructureType implements RecordType {
     public String toString() {
 
         if (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR)) {
+            // Try to print possible shape. But this may fail with self reference hence avoid .
+            int count = 0;
+            Map<BType, String> typeNames = new HashMap<>();
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE);
             sb.append(CLOSE_LEFT);
-            fields.forEach(field -> sb.append(SPACE).append(field.type).append(SPACE)
-                    .append(field.name).append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI));
+            for (BField field : fields) {
+                sb.append(SPACE);
+                int tag = field.type.tag;
+                if (tag < TypeTags.XML || tag == TypeTags.NIL || tag == TypeTags.ANY || tag == TypeTags.ANYDATA) {
+                    sb.append(field.type);
+                } else {
+                    if (typeNames.containsKey(field.type)) {
+                        sb.append(typeNames.get(field.type));
+                    } else {
+                        String typeName = DOLLAR + field.type.getKind().typeName() + count++;
+                        sb.append(typeName);
+                        typeNames.put(field.type, typeName);
+                    }
+                }
+                sb.append(SPACE).append(field.name)
+                        .append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI);
+            }
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
                 return sb.toString();
