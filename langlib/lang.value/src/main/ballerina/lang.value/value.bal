@@ -20,7 +20,7 @@
 # - if `value` is boolean, then the string `true` or `false`
 # - if `value` is an int, then return `value` represented as a decimal string
 # - if `value` is a float or decimal, then return `value` represented as a decimal string,
-#   with a decimal point only if necessary, but without any suffix indicating the type of `value`;
+#   with a decimal point only if necessary, but without any suffix indicating the type of `value`
 #   return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity
 # - if `value` is a list, then returns the results toString on each member of the list
 #   separated by a space character
