@@ -53,6 +53,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -399,8 +400,10 @@ public class TableTest {
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
         Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
-        Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
+        Assert.assertEquals(((BInteger) returns[4]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[5]).intValue());
+        Assert.assertEquals(((BInteger) returns[6]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[7]).intValue());
     }
 
     @Test(groups = TABLE_TEST, description = "Check date time operation")
@@ -759,8 +762,10 @@ public class TableTest {
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
         Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
-        Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
+        Assert.assertEquals(((BInteger) returns[4]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[5]).intValue());
+        Assert.assertEquals(((BInteger) returns[6]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[7]).intValue());
     }
 
     @Test(groups = TABLE_TEST,
@@ -1135,11 +1140,11 @@ public class TableTest {
             DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             String timestampReturned = returns[2].stringValue();
             long timestampReturnedEpoch = dfTimestamp.parse(timestampReturned).getTime();
-            Assert.assertEquals(timestampReturnedEpoch, timestampInserted);
+            Assert.assertEquals(timestampReturnedEpoch, timestampInserted - getTimezoneOffSet());
 
             String datetimeReturned = returns[3].stringValue();
             long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
-            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
+            Assert.assertEquals(datetimeReturnedEpoch, timestampInserted - getTimezoneOffSet());
         } catch (ParseException e) {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
@@ -1153,10 +1158,10 @@ public class TableTest {
         Assert.assertEquals(timeReturnedEpoch, timeInserted);
 
         long timestampReturnedEpoch = ((BInteger) returns[2]).intValue();
-        Assert.assertEquals(timestampReturnedEpoch, timestampInserted);
+        Assert.assertEquals(timestampReturnedEpoch, timestampInserted - getTimezoneOffSet());
 
         long datetimeReturnedEpoch = ((BInteger) returns[3]).intValue();
-        Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
+        Assert.assertEquals(datetimeReturnedEpoch, timestampInserted - getTimezoneOffSet());
     }
 
     private void assertNonNullArray(BValue[] returns) {
@@ -1425,6 +1430,12 @@ public class TableTest {
     public void testRemoveOp() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
         Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
+    }
+
+    private int getTimezoneOffSet() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getDefault());
+        return TimeZone.getDefault().getRawOffset();
     }
 
     @AfterClass(alwaysRun = true)

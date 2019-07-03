@@ -179,7 +179,7 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.TIMESTAMP:
                         case Types.TIMESTAMP_WITH_TIMEZONE:
-                            Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                            Timestamp timestamp = rs.getTimestamp(index);
                             handleDateValue(bStruct, fieldName, timestamp, fieldType);
                             break;
                         case Types.ROWID:
