@@ -300,9 +300,9 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
         BAssertUtil.validateError(
-                resultNegative, i++, "ambiguous type 'int|int[]|int[4]'", 63, 30);
+                resultNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
         BAssertUtil.validateError(
-                resultNegative, i++, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
+                resultNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in sealed array. expected '4', but found '2'", 79, 18);
         BAssertUtil.validateError(
@@ -322,7 +322,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1'", 109, 20);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1|S3'", 110, 20);
+                resultNegative, i++, "incompatible types: expected 'int', found '(0|1|2|S1|S3)'", 110, 20);
         BAssertUtil.validateError(
                 resultNegative, i, "invalid array index expression: value space '3|4|5|7' out of range", 111, 23);
     }

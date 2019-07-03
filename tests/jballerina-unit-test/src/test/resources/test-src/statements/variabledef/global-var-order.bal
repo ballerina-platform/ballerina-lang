@@ -18,8 +18,8 @@ int j = incI();
 int k = incI();
 int i = 0;
 
-function getIJK() returns (int, int, int) {
-    return (i, j, k);
+function getIJK() returns [int, int, int] {
+    return [i, j, k];
 }
 
 function incI() returns int {

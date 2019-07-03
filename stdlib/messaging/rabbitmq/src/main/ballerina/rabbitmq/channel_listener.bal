@@ -53,11 +53,11 @@ public type ChannelListener object {
 
     # Binds the ChannelListener to a service.
     #
-    # + serviceType - Type descriptor of the service to bind to.
+    # + s - Type descriptor of the service to bind to.
     # + name - Name of the service.
     # + return - () or error upon failure to register listener.
-    public function __attach(service serviceType, string? name = ()) returns error? {
-       self.registerListener(serviceType);
+    public function __attach(service s, string? name = ()) returns error? {
+       self.registerListener(s);
     }
 
     # Retrieve the Channel which initializes this listener.
@@ -95,4 +95,4 @@ public type RabbitMQServiceConfig record {|
 |};
 
 # Service descriptor data generated at compile time.
-public annotation<service> ServiceConfig RabbitMQServiceConfig;
+public annotation RabbitMQServiceConfig ServiceConfig on service;

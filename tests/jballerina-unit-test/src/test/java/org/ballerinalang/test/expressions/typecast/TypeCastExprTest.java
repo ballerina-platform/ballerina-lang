@@ -320,8 +320,7 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'string' value 'hello' cannot be converted as " 
-                + "'int'");
+        Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'int'");
     }
 
     @Test
@@ -330,8 +329,7 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'string' value 'hello' cannot be converted as " 
-                + "'float'");
+        Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'float'");
     }
 
     @Test
@@ -562,7 +560,7 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap<String, BString>) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "incompatible convert operation: 'B' value cannot be converted as 'A'");
+        Assert.assertEquals(errorMsg, "'B' value cannot be converted to 'A'");
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
@@ -597,8 +595,7 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToString");
 
         // null to string should return string null
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert " 
-                + "'null' value to type 'string'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "()");
     }
 
     @Test

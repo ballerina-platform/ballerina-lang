@@ -38,7 +38,7 @@ public class TableSqlQueryTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_sql.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
+//        resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple select all")

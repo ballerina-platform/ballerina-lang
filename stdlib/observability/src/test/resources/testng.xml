@@ -23,11 +23,11 @@
     <listeners>
         <listener class-name="org.ballerinalang.stdlib.common.BLogInitializer"/>
     </listeners>
+
     <test name="ballerina-observe-test-suite" preserve-order="true" parallel="false">
-        <classes >
-            <class name="org.ballerinalang.observe.SummaryTest"/>
-            <class name="org.ballerinalang.observe.RegistryTest"/>
-            <class name="org.ballerinalang.observe.CounterTest"/>
-        </classes>
+        <parameter name="enableJBallerinaTests" value="true" />
+        <packages>
+            <package name="org.ballerinalang.observe" />
+        </packages>
     </test>
 </suite>

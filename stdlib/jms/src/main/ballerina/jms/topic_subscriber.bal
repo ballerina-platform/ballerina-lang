@@ -59,11 +59,11 @@ public type TopicListener object {
 
     # Registers the TopicListener.
     #
-    # + serviceType - The service instance.
+    # + s - The service instance.
     # + name - The name of the service.
     # + return - Returns nil or an error upon failure to register the listener.
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, name);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.registerListener(s, self.consumerActions, name);
     }
 
     function registerListener(service serviceType, TopicSubscriberCaller actions, string? name) returns error? = external;
@@ -139,17 +139,11 @@ public type TopicSubscriberCaller client object {
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<anydata> errorDetail = {
-            message: errorMessage
-        };
-        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        map<anydata> errorDetail = {
-            message: errorMessage
-        };
-        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic topicSubscriberConfigError;
     }
 }

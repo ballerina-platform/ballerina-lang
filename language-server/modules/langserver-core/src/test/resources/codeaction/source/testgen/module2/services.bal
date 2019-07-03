@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/io;
-import ballerina/websub;
+//import ballerina/websub;
 
 service httpService on new http:Listener(9090) {
     resource function sayHello(http:Caller caller, http:Request request) {
@@ -32,12 +32,13 @@ service wssService on securedListener2 {
     }
 }
 
-service websubSubscriber on new websub:Listener(8282) {
-    resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {
-    }
-    resource function onNotification(websub:Notification notification) {
-    }
-}
+//TODO: Enable once websub module is available for jBallerina
+//service websubSubscriber on new websub:Listener(8282) {
+//    resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {
+//    }
+//    resource function onNotification(websub:Notification notification) {
+//    }
+//}
 
 listener http:Listener securedListener = new (9092, config = {
         secureSocket: {

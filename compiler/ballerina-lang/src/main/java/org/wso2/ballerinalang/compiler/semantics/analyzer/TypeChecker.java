@@ -26,13 +26,16 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -74,12 +77,12 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -143,10 +146,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -757,33 +760,66 @@ public class TypeChecker extends BLangNodeVisitor {
                         BArrayState.UNSEALED);
                 listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
             } else if (type.tag == TypeTags.TUPLE) {
-                List<BType> results = new ArrayList<>();
-                for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-                    results.add(checkExpr(listConstructorExpr.exprs.get(i), env));
+                BTupleType tupleType = (BTupleType) type;
+                if (checkTupleType(listConstructorExpr, tupleType)) {
+                    listCompatibleTypes.add(tupleType);
                 }
-                actualType = new BTupleType(results);
-                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
             }
         }
 
         if (listCompatibleTypes.isEmpty()) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.size() > 1) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ANY) {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+            actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ARRAY) {
             checkExprs(listConstructorExpr.exprs, this.env, ((BArrayType) listCompatibleTypes.get(0)).eType);
         } else if (listCompatibleTypes.get(0).tag == TypeTags.TUPLE) {
-            List<BType> results = new ArrayList<>();
-            for (int i = 0; i < listConstructorExpr.exprs.size(); i++) {
-                BType expType = ((BTupleType) listCompatibleTypes.get(0)).tupleTypes.get(i);
-                BType actType = checkExpr(listConstructorExpr.exprs.get(i), env, expType);
-                results.add(expType.tag != TypeTags.NONE ? expType : actType);
-            }
-            actualType = new BTupleType(results);
+            actualType = listCompatibleTypes.get(0);
+            setTupleType(listConstructorExpr, actualType);
         }
         return actualType;
+    }
+
+    private boolean checkTupleType(BLangExpression expression, BType type) {
+        if (type.tag == TypeTags.TUPLE && expression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
+                || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
+            BTupleType tupleType = (BTupleType) type;
+            BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
+            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
+                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                    BLangExpression expr = tupleExpr.exprs.get(i);
+                    if (!checkTupleType(expr, tupleType.tupleTypes.get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return types.isAssignable(checkExpr(expression, env), type);
+        }
+    }
+
+    private void setTupleType(BLangExpression expression, BType type) {
+        if (type.tag == TypeTags.TUPLE && expression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
+                || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
+            BTupleType tupleType = (BTupleType) type;
+            BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
+            tupleExpr.type = type;
+            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
+                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                    setTupleType(tupleExpr.exprs.get(i), tupleType.tupleTypes.get(i));
+                }
+            }
+        } else {
+            checkExpr(expression, env);
+        }
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1173,10 +1209,122 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        BType reasonType = checkExpr(varRefExpr.reason, env);
-        BType detailType = checkExpr(varRefExpr.detail, env);
-        BErrorType actualType = new BErrorType(null, reasonType, detailType);
-        resultType = types.checkType(varRefExpr, actualType, expType);
+        if (varRefExpr.reason != null) {
+            varRefExpr.reason.lhsVar = true;
+            checkExpr(varRefExpr.reason, env);
+        }
+
+        BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+        boolean unresolvedReference = false;
+
+        for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
+            BLangVariableReference refItem = (BLangVariableReference) detailItem.expr;
+            refItem.lhsVar = true;
+            checkExpr(refItem, env);
+
+            if (!isValidVariableReference(refItem)) {
+                unresolvedReference = true;
+                continue;
+            }
+
+            if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                if (checkIndexBasedAccessExpr(detailItem, (BLangFieldBasedAccess) refItem)) {
+                    unresolvedReference = true;
+                }
+                continue;
+            } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                if (checkIndexBasedAccessExpr(detailItem, (BLangIndexBasedAccess) refItem)) {
+                    unresolvedReference = true;
+                }
+                continue;
+            }
+
+            if (refItem.symbol == null) {
+                unresolvedReference = true;
+                continue;
+            }
+        }
+
+        if (varRefExpr.restVar != null) {
+            varRefExpr.restVar.lhsVar = true;
+            if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                checkExpr(varRefExpr.restVar, env);
+                unresolvedReference = unresolvedReference
+                        || varRefExpr.restVar.symbol == null
+                        || !isValidVariableReference(varRefExpr.restVar);
+
+            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
+            }
+        }
+
+        if (unresolvedReference) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BType errorRefRestFieldType;
+        if (varRefExpr.restVar == null) {
+            errorRefRestFieldType = symTable.pureType;
+        } else if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) varRefExpr.restVar).variableName.value.equals(Names.IGNORE.value)) {
+            errorRefRestFieldType = symTable.pureType;
+        } else if (varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+            || varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            errorRefRestFieldType = varRefExpr.restVar.type;
+        } else if (varRefExpr.restVar.type.tag == TypeTags.MAP) {
+            errorRefRestFieldType = ((BMapType) varRefExpr.restVar.type).constraint;
+        } else {
+            dlog.error(varRefExpr.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    varRefExpr.restVar.type, symTable.pureTypeConstrainedMap);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BType errorDetailType = new BMapType(TypeTags.MAP, errorRefRestFieldType, null);
+        resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+    }
+
+    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
+        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
+        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
+        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
+        if (fSym != null) {
+            if (fSym.type.getKind() == TypeKind.MAP) {
+                BType constraint = ((BMapType) fSym.type).constraint;
+                if (types.isAssignable(constraint, symTable.pureType)) {
+                    varRefExpr.restVar.type = constraint;
+                } else {
+                    varRefExpr.restVar.type = symTable.pureType;
+                }
+            } else {
+                throw new UnsupportedOperationException("rec field base access");
+            }
+        } else {
+            unresolvedReference = true;
+        }
+        return unresolvedReference;
+    }
+
+    private boolean checkIndexBasedAccessExpr(BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
+        Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
+        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
+        if (fSym != null) {
+            if (fSym.type.getKind() == TypeKind.MAP) {
+                BType constraint = ((BMapType) fSym.type).constraint;
+                checkExpr(detailItem, this.env, constraint);
+                return false;
+            } else {
+                if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, fSym.type);
+                } else {
+                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING, fSym.type);
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -1452,8 +1600,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
-
                     cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
+                    actualType = matchedType;
+                    break;
                 }
                 types.checkType(cIExpr, matchedType, expType);
                 cIExpr.type = matchedType;
@@ -2186,7 +2335,11 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexExpr, env, symTable.stringType);
 
         if (indexExpr.type.tag == TypeTags.STRING) {
-            actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
+            if (xmlAttributeAccessExpr.lhsVar) {
+                actualType = symTable.stringType;
+            } else {
+                actualType = BUnionType.create(null, symTable.stringType, symTable.nilType);
+            }
         }
 
         xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));
@@ -2411,41 +2564,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        if (expType.tag == TypeTags.NONE) {
-            expType = symTable.errorType;
-        } else if (expType.tag != TypeTags.ERROR) {
-            dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        // No matter what, message expression has to exist and its type should be string for the built-in error type
-        // or the type specified when defining the error, for user defined error types.
-        Optional.ofNullable(errorConstructorExpr.reasonExpr)
-                .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
-                .orElseThrow(AssertionError::new);
-
-        if (errorConstructorExpr.detailsExpr == null) {
-            resultType = expType;
-            return;
-        }
-
-        BType errConstDetailExprType = errorConstructorExpr.detailsExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ?
-                ((BErrorType) expType).detailType : checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
-
-        if (types.isValidErrorDetailType(errConstDetailExprType) &&
-                types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
-            checkExpr(errorConstructorExpr.detailsExpr, env, errConstDetailExprType);
-        } else {
-            checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
-        }
-
-        checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
-        resultType = expType;
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         resultType = serviceConstructorExpr.serviceNode.symbol.type;
     }
@@ -2456,6 +2574,27 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(typeTestExpr.expr, env);
 
         resultType = types.checkType(typeTestExpr, symTable.booleanType, expType);
+    }
+
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        checkExpr(annotAccessExpr.expr, this.env, symTable.typeDesc);
+
+        BType actualType = symTable.semanticError;
+        BSymbol symbol =
+                this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
+                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+        if (symbol == this.symTable.notFoundSymbol) {
+            this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                            annotAccessExpr.annotationName.getValue());
+        } else {
+            annotAccessExpr.annotationSymbol = (BAnnotationSymbol) symbol;
+            BType annotType = ((BAnnotationSymbol) symbol).attachedType == null ? symTable.trueType :
+                    ((BAnnotationSymbol) symbol).attachedType.type;
+            actualType = BUnionType.create(null, annotType, symTable.nilType);
+        }
+
+        this.resultType = this.types.checkType(annotAccessExpr, actualType, this.expType);
     }
 
     // Private methods
@@ -2537,7 +2676,10 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
+        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
+            checkErrorConstructorInvocation(iExpr);
+            return;
+        } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
@@ -2553,6 +2695,175 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
+        if (!types.isAssignable(expType, symTable.errorType)) {
+            if (expType != symTable.noType) {
+                // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
+                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
+                resultType = symTable.semanticError;
+                return;
+            } else {
+                // var e = <error> error("r");
+                expType = symTable.errorType;
+            }
+        }
+
+        BErrorType lhsErrorType = (BErrorType) expType;
+        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
+
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+            return;
+        }
+
+        boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
+
+        if (ctorType.detailType.tag == TypeTags.RECORD) {
+            BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+            BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
+            if (resultType == symTable.semanticError) {
+                return;
+            }
+
+            if (!types.isAssignable(recordType, targetErrorDetailRec)) {
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ERROR_CONSTRUCTOR_DETAIL, iExpr);
+                resultType = symTable.semanticError;
+                return;
+            }
+        } else {
+            BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
+            List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
+            if (providedErrorDetails == null) {
+                // error in provided error details
+                return;
+            }
+            for (BLangNamedArgsExpression errorDetailArg : providedErrorDetails) {
+                checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
+            }
+        }
+        setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
+        setErrorDetailArgsToNamedArgsList(iExpr);
+
+        resultType = expType;
+        iExpr.symbol = lhsErrorType.ctorSymbol;
+    }
+
+    private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
+        if (iExpr.argExprs.isEmpty()) {
+            return false;
+        }
+
+        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
+        // if present, error reason should be the first and only positional argument to error constructor.
+        if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+            checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
+        if (errorType.reasonType.getKind() == TypeKind.FINITE) {
+            BFiniteType finiteType = (BFiniteType) errorType.reasonType;
+            if (finiteType.valueSpace.size() != 1) {
+                dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                resultType = symTable.semanticError;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
+        List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
+        for (int i = 0; i < iExpr.argExprs.size(); i++) {
+            BLangExpression argExpr = iExpr.argExprs.get(i);
+            checkExpr(argExpr, env, symTable.pureType);
+            if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                iExpr.namedArgs.add(argExpr);
+                namedArgPositions.add(argExpr);
+            } else {
+                dlog.error(argExpr.pos, DiagnosticCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
+                resultType = symTable.semanticError;
+            }
+        }
+
+        for (BLangExpression expr : namedArgPositions) {
+            // This check is to filter out additional field assignments when Error detail type is a open record.
+            iExpr.argExprs.remove(expr);
+        }
+    }
+
+    private void setErrorReasonParam(BLangInvocation iExpr, boolean reasonArgGiven, BErrorType ctorType) {
+        if (!reasonArgGiven && ctorType.reasonType.getKind() == TypeKind.FINITE) {
+            BFiniteType finiteType = (BFiniteType) ctorType.reasonType;
+            BLangExpression reasonExpr = (BLangExpression) finiteType.valueSpace.toArray()[0];
+            iExpr.requiredArgs.add(reasonExpr);
+            return;
+        }
+        iExpr.requiredArgs.add(iExpr.argExprs.get(0));
+        iExpr.argExprs.remove(0);
+    }
+
+    /**
+     * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
+     * from {@code iExpr} expression.
+     *
+     * @param iExpr error constructor invocation
+     * @param reasonArgGiven error reason is provided as first argument
+     * @param targetErrorDetailsType target error details type to extract metadata such as pkgId from
+     * @return error detail record
+     */
+    // todo: try to re-use recrod literal checking
+    private BRecordType createErrorDetailRecordType(BLangInvocation iExpr, boolean reasonArgGiven,
+                                                    BRecordType targetErrorDetailsType) {
+        List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(iExpr, reasonArgGiven);
+        if (namedArgs == null) {
+            // error in provided error details
+            return null;
+        }
+        BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
+                SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, null, targetErrorDetailsType.tsymbol.pkgID,
+                symTable.recordType, null);
+        BRecordType recordType = new BRecordType(recordTypeSymbol);
+        recordType.sealed = targetErrorDetailsType.sealed;
+        recordType.restFieldType = targetErrorDetailsType.restFieldType;
+
+        Set<Name> availableErrorDetailFields = new HashSet<>();
+        for (BLangNamedArgsExpression arg : namedArgs) {
+            Name fieldName = names.fromIdNode(arg.name);
+            BField field = new BField(fieldName, arg.pos, new BVarSymbol(0, fieldName, null, arg.type, null));
+            recordType.fields.add(field);
+            availableErrorDetailFields.add(fieldName);
+        }
+
+        for (BField field : targetErrorDetailsType.fields) {
+            boolean notRequired = (field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
+            if (notRequired && !availableErrorDetailFields.contains(field.name)) {
+                BField defaultableField = new BField(field.name, iExpr.pos,
+                        new BVarSymbol(0, field.name, null, field.type, null));
+                recordType.fields.add(defaultableField);
+            }
+        }
+
+        return recordType;
+    }
+
+    private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr, boolean reasonArgGiven) {
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        for (int i = reasonArgGiven ? 1 : 0; i < iExpr.argExprs.size(); i++) {
+            BLangExpression argExpr = iExpr.argExprs.get(i);
+            checkExpr(argExpr, env);
+            if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                dlog.error(argExpr.pos, DiagnosticCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
+                resultType = symTable.semanticError;
+                return null;
+            }
+
+            namedArgs.add((BLangNamedArgsExpression) argExpr);
+        }
+        return namedArgs;
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {

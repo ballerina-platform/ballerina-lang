@@ -81,7 +81,8 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes.stream()
                 .filter(memberType -> memberType.tag != TypeTags.NIL)
                 .forEach(memberType -> joiner.add(memberType.toString()));
-        String typeStr = joiner.toString();
+        String typeStr = this.memberTypes.stream().filter(memberType -> memberType.tag != TypeTags.NIL).count() > 1
+                ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }

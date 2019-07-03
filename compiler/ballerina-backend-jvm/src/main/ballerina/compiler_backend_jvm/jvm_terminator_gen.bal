@@ -310,7 +310,7 @@ type TerminatorGenerator object {
     }
 
     private function genFuncCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
-        string methodName = cleanupName(callIns.name.value);
+        string methodName = callIns.name.value;
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodName);
     }
 
@@ -339,7 +339,7 @@ type TerminatorGenerator object {
 
         string methodDesc = lookupJavaMethodDescription(lookupKey);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
-        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
+        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
     }
 
     private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {

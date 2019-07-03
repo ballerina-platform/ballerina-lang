@@ -132,6 +132,8 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
+    public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
+    public static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
 
     public static final String VALUE_ATTRIBUTE = "value";
 
@@ -154,8 +156,8 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String HTTP_CLIENT = "Client";
-    public static final String HTTP_CALLER = "HttpCaller";
+    public static final String CLIENT = "Client";
+    public static final String HTTP_CLIENT = "HttpClient";
 
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";

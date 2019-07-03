@@ -482,7 +482,7 @@ function testSameTypeCast() returns int {
     return b;
 }
 
-function testJSONValueCasting() returns (string|error, int|error, float|error, boolean|error) {
+function testJSONValueCasting() returns [string|error, int|error, float|error, boolean|error] {
 
     // json to string
     json j1 = "hello";
@@ -500,7 +500,7 @@ function testJSONValueCasting() returns (string|error, int|error, float|error, b
     json j4 = true;
     var b = <boolean> j4;
 
-    return (s, i, f, b);
+    return [s, i, f, b];
 }
 
 function testAnyToTable() returns table<Employee>|error {

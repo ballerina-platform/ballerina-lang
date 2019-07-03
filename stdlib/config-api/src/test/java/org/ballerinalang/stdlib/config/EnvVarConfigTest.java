@@ -171,16 +171,14 @@ public class EnvVarConfigTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'int'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'int'.*")
     public void testInvalidIntEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsInt", new BValue[]{key});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'float'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'float'.*")
     public void testInvalidFloatEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsFloat", new BValue[]{key});

@@ -257,8 +257,8 @@ public class ArgumentParser {
                                       + " type: " + type + ": " + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
-                if (!value.startsWith("(") || !value.endsWith(")")) {
-                    throw new BLangUsageException("invalid argument '" + value + "', expected tuple notation (\"()\") "
+                if (!value.startsWith("[") || !value.endsWith("]")) {
+                    throw new BLangUsageException("invalid argument '" + value + "', expected tuple notation [\"[]\"] "
                                                           + "with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
@@ -387,7 +387,7 @@ public class ArgumentParser {
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw new BLangUsageException("invalid argument '(" + tupleArg + ")', element count mismatch for tuple "
+            throw new BLangUsageException("invalid argument '[" + tupleArg + "]', element count mismatch for tuple "
                                                   + "type: '" + type + "'");
         }
 

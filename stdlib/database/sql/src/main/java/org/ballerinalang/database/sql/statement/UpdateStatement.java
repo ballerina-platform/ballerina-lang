@@ -17,23 +17,19 @@
  */
 package org.ballerinalang.database.sql.statement;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.freeze.State;
+import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -50,15 +46,15 @@ import java.sql.Types;
  * @since 1.0.0
  */
 public class UpdateStatement extends AbstractSQLStatement {
-    private final Context context;
+    private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final BValueArray keyColumns;
-    private final BValueArray parameters;
+    private final ArrayValue keyColumns;
+    private final ArrayValue parameters;
 
-    public UpdateStatement(Context context, SQLDatasource datasource, String query,
-                           BValueArray keyColumns, BValueArray parameters) {
-        this.context = context;
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
+                           ArrayValue keyColumns, ArrayValue parameters) {
+        this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.keyColumns = keyColumns;
@@ -66,19 +62,22 @@ public class UpdateStatement extends AbstractSQLStatement {
     }
 
     @Override
-    public void execute() {
-        checkAndObserveSQLAction(context, datasource, query);
+    public Object execute() {
+        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: #16033
+        //checkAndObserveSQLAction(context, datasource, query)
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        boolean isInTransaction = context.isInTransaction();
+        boolean isInTransaction = false;
+        String errorMessagePrefix = "execute update failed: ";
         try {
-            BValueArray generatedParams = constructParameters(context, parameters);
-            conn = getDatabaseConnection(context, datasource, false);
+            ArrayValue generatedParams = constructParameters(parameters);
+            conn = getDatabaseConnection(client, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
             if (keyColumns != null) {
-                keyColumnCount = (int) keyColumns.size();
+                keyColumnCount = keyColumns.size();
             }
             if (keyColumnCount > 0) {
                 String[] columnArray = new String[keyColumnCount];
@@ -94,28 +93,36 @@ public class UpdateStatement extends AbstractSQLStatement {
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
-            BMap generatedKeys;
+            MapValue<String, Object> generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             } else {
-                generatedKeys = new BMap();
+                generatedKeys = new MapValueImpl<>();
             }
-            context.setReturnValues(createResultRecord(context, count, generatedKeys));
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e, "execute update failed: "));
-            handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
+            return createFrozenUpdateResultRecord(count, generatedKeys);
+        } catch (SQLException e) {
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            //handleErrorOnTransaction(context);
+           // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
+        }  catch (DatabaseException e) {
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
+        }  catch (ApplicationException e) {
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
+            //handleErrorOnTransaction(context);
+           // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);
         }
     }
 
-    private BMap getGeneratedKeys(ResultSet rs) throws SQLException {
-        BMap<String, BValue> generatedKeys = new BMap<>(BTypes.typeAnydata);
+    private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
+        MapValue<String, Object> generatedKeys = new MapValueImpl<>(BTypes.typeAnydata);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
-        BValue value;
+        Object value;
         String columnName;
         BigDecimal bigDecimal;
         for (int i = 1; i <= columnCount; i++) {
@@ -125,32 +132,28 @@ public class UpdateStatement extends AbstractSQLStatement {
                 case Types.INTEGER:
                 case Types.TINYINT:
                 case Types.SMALLINT:
-                    value = new BInteger(rs.getInt(i));
+                    value = rs.getInt(i);
                     break;
                 case Types.DOUBLE:
-                    value = new BFloat(rs.getDouble(i));
+                    value = rs.getDouble(i);
                     break;
                 case Types.FLOAT:
-                    value = new BFloat(rs.getFloat(i));
+                    value = rs.getFloat(i);
                     break;
                 case Types.BOOLEAN:
                 case Types.BIT:
-                    value = new BBoolean(rs.getBoolean(i));
+                    value = rs.getBoolean(i);
                     break;
                 case Types.DECIMAL:
                 case Types.NUMERIC:
                     bigDecimal = rs.getBigDecimal(i);
-                    if (bigDecimal != null) {
-                        value = new BDecimal(bigDecimal);
-                    } else {
-                        value = null;
-                    }
+                    value = bigDecimal;
                     break;
                 case Types.BIGINT:
-                    value = new BInteger(rs.getLong(i));
+                    value = rs.getLong(i);
                     break;
                 default:
-                    value = new BString(rs.getString(i));
+                    value = rs.getString(i);
                     break;
             }
             generatedKeys.put(columnName, value);
@@ -158,11 +161,12 @@ public class UpdateStatement extends AbstractSQLStatement {
         return generatedKeys;
     }
 
-    private static BMap<String, BValue> createResultRecord(Context context, int count, BMap keyValues) {
-        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
-        StructureTypeInfo resultRecordInfo = sqlPackageInfo.getStructInfo(Constants.SQL_UPDATE_RESULT);
-        BMap<String, BValue> resultRecord = BLangVMStructs.createBStruct(resultRecordInfo, count, keyValues);
-        resultRecord.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
-        return resultRecord;
+    private MapValue<String, Object> createFrozenUpdateResultRecord(int count, MapValue<String, Object> generatedKeys) {
+        MapValue<String, Object> updateResultRecord = BallerinaValues
+                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
+        MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
+                .createRecord(updateResultRecord, count, generatedKeys);
+        populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));
+        return populatedUpdateResultRecord;
     }
 }

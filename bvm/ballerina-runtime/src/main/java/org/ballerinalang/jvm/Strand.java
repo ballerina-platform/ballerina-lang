@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -55,6 +56,7 @@ public class Strand {
     private Map<String, Object> globalProps;
     public boolean cancel;
     private TransactionLocalContext transactionStrandContext;
+    public ObserverContext observerContext;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;

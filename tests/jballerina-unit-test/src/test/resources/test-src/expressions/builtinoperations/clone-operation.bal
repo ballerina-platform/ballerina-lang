@@ -384,9 +384,9 @@ map<string> m1 = { one: "first" };
 map<string> m2 = { one: "first", two: "second" };
 
 error err1 = error(reason1);
-error err2 = error(reason2, { one: 1, two: "2" });
-MyError err3 = error(reason3, { m1: m1 });
-MyError err4 = error(reason4, { m1: m1, m2: m2 });
+error err2 = error(reason2, one = 1, two = "2");
+MyError err3 = error(reason3, m1 = m1);
+MyError err4 = error(reason4, m1 = m1, m2 = m2);
 
 public function testCloneArrayWithError() returns boolean {
     error[*] errArray = [err1, err2, err3, err4];

@@ -24,15 +24,14 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     io:println("********started TRX********* with rMax :" + rMax);
     int rCnt = 1;
     if (rMax < 0) {
-        error err = error("TransactionError", { message: "invalid retry count" });
+        error err = error("TransactionError", message = "invalid retry count");
         panic err;
     }
     // If global tx enabled, it is managed via transaction coordinator.Otherwise it is managed locally
     // without any interaction with the transaction coordinator.
     if (isNestedTransaction()) {
         // Starting a transaction within already infected transaction.
-        error err = error("{ballerina}TransactionError",
-        { message: "dynamically nested transactions are not allowed" });
+        error err = error("{ballerina}TransactionError", message =  "dynamically nested transactions are not allowed");
         panic err;
     }
     TransactionContext|error txnContext;
@@ -215,7 +214,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             //TODO: set the proper protocol
             string protocolName = PROTOCOL_DURABLE;
             RemoteProtocol[] protocols = [{
-            name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
+            name:protocolName, url:getParticipantProtocolAt(protocolName, untaint transactionBlockId)
             }];
              io:println("**********registerParticipantWithRemoteInitiator********");
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);

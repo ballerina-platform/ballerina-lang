@@ -38,7 +38,7 @@ Employee employee = {
     empNo: 100
 };
 
-(Employee, Person) pp = (employee, person);
+[Employee, Person] pp = [employee, person];
 
 public function getEmployee() returns Employee {
     return employee;

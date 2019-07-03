@@ -56,9 +56,9 @@ public type Client client object {
     # + recordType - Array of record types of the returned tables if there is any
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
-    #            `error` will be returned if there is any error
+    #            `sql:JdbcClientError` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
-                               returns @tainted table<record {}>[]|()|error {
+                               returns @tainted table<record {}>[]|()|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -69,15 +69,19 @@ public type Client client object {
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    # + loadToMemory - Indicates whether to load the retrieved data to memory or not
+    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
-    # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
-    public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  sql:Param... parameters) returns @tainted table<record {}>|error {
+    # + return - A `table` returned by the sql query statement else `sql:JdbcClientError` will be returned if
+    # there is any error
+    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    //                              sql:Param... parameters) returns @tainted table<record {}>|error {
+    public remote function select(@sensitive string sqlQuery, typedesc? recordType,
+                                      sql:Param... parameters) returns @tainted table<record {}>|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        //return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+        return self.sqlClient->select(sqlQuery, recordType, ...parameters);
     }
 
 
@@ -87,9 +91,9 @@ public type Client client object {
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - A `sql:UpdateResult` with the updated row count and key column values,
-    #            else `error` will be returned if there is any error
+    #            else `sql:JdbcClientError` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
-                               returns sql:UpdateResult|error {
+                               returns sql:UpdateResult|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -102,14 +106,15 @@ public type Client client object {
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
     #                individual update
     # + return - An `int[]` - The elements in the array returned by the operation may be one of the following  or else
-    #            an`error` will be returned if there is any error.
+    #            an `sql:JdbcClientError` will be returned if there is any error.
     #            A number greater than or equal to zero - indicates that the command was processed successfully
     #                                                     and is an update count giving the number of rows
     #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
     #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
+    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters)
+                                    returns int[]|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -123,8 +128,9 @@ public type Client client object {
         return sql:close(self.sqlClient);
     }
 
-    function handleStoppedClientInvocation() returns error {
-        return error("{ballerina/sql}DatabaseError", { message: "Client has been stopped"});
+    function handleStoppedClientInvocation() returns sql:JdbcClientError {
+        sql:ApplicationError e = error(message = "Client has been stopped");
+        return e;
     }
 };
 

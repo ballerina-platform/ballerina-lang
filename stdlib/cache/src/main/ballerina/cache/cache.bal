@@ -79,12 +79,12 @@ public type Cache object {
 
         var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
         if (attachCacheCleanerResult is error) {
-            error e = error("Failed to create the cache cleanup task.", { message : attachCacheCleanerResult.detail().message });
+            error e = error("Failed to create the cache cleanup task.", message = attachCacheCleanerResult.detail().message);
             panic e;
         }
         var timerStartResult = cacheCleanupTimer.start();
         if (timerStartResult is error) {
-            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
+            error e = error("Failed to start the cache cleanup task.", message = timerStartResult.detail().message);
             panic e;
         }
     }

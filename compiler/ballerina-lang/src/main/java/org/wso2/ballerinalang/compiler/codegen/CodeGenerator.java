@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1182,12 +1181,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(arrayIndexAccessExpr.indexExpr, this.env);
         Operand indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
 
-        BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
+        BType arrayType = arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
@@ -1221,15 +1220,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(assignableExpr);
         Operand typeCPIndex = getTypeCPIndex(assignableExpr.targetType);
         emit(assignableExpr.opSymbol.opcode, assignableExpr.lhsExpr.regIndex, typeCPIndex, regIndex);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errExpr) {
-        genNode(errExpr.reasonExpr, env);
-        genNode(errExpr.detailsExpr, env);
-        RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
-        emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
-                errExpr.detailsExpr.regIndex, regIndex);
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
@@ -1293,8 +1283,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
+        if (iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            generateErrorConstructorInvocation(iExpr);
+            return;
+        }
+
         Operand[] operands = getFuncOperands(iExpr);
         emit(InstructionCodes.CALL, operands);
+    }
+
+    private void generateErrorConstructorInvocation(BLangInvocation iExpr) {
+        // error reason expr
+        BLangExpression reasonExpr = iExpr.requiredArgs.get(0);
+        genNode(reasonExpr, env);
+
+        // error detail record
+        BLangExpression detailsExpr = iExpr.requiredArgs.get(1);
+        genNode(detailsExpr, env);
+
+        RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
+        emit(InstructionCodes.ERROR, getTypeCPIndex(iExpr.symbol.type), reasonExpr.regIndex,
+                detailsExpr.regIndex, regIndex);
     }
 
     public void visit(BLangActionInvocation aIExpr) {
@@ -2300,7 +2309,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).maskedPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 

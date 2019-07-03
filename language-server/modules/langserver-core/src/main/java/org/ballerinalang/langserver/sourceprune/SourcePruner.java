@@ -52,7 +52,7 @@ public class SourcePruner {
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
                 BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION,
-                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER
+                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER, BallerinaParser.LEFT_BRACKET
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,
@@ -125,28 +125,26 @@ public class SourcePruner {
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
                                                             cursorPosition.getCharacter());
-        if (!tokenAtCursor.isPresent()) {
-            throw new SourcePruneException("Could not find token at cursor");
-        }
 
-        lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(tokenAtCursor.get()));
+        tokenAtCursor.ifPresent(token -> 
+                lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(token)));
         lsContext.put(SourcePruneKeys.TOKEN_LIST_KEY, tokenList);
 
         // Validate cursor position
-        int tokenIndex = tokenAtCursor.get().getTokenIndex();
+        int tokenIndex = tokenAtCursor.map(Token::getTokenIndex).orElse(-1);
         if (tokenIndex < 0 || tokenIndex >= tokenStream.size()) {
             return;
         }
 
-        // Skip source pruning, when there's no syntax errors
-        if (parser.getNumberOfSyntaxErrors() == 0) {
-            return;
-        }
+        // If the number of errors are zero, then traverse the tokens without pruning the erroneous tokens with spaces
+        boolean pruneTokens = parser.getNumberOfSyntaxErrors() > 0;
 
         // Execute source pruning
         SourcePruneContext sourcePruneCtx = getContext();
-        List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx).traverseLHS(tokenStream, tokenIndex);
-        List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx).traverseRHS(tokenStream, tokenIndex + 1);
+        List<CommonToken> lhsTokens = new LHSTokenTraverser(sourcePruneCtx, pruneTokens)
+                .traverseLHS(tokenStream, tokenIndex);
+        List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx, pruneTokens)
+                .traverseRHS(tokenStream, tokenIndex + 1);
         lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
 
@@ -182,6 +180,8 @@ public class SourcePruner {
         context.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, 0);
         context.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.RIGHT_BRACKET_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, LHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, RHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, BLOCK_REMOVE_KW_TERMINALS);
