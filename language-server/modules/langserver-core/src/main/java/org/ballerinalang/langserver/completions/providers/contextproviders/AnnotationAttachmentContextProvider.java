@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.antlr.v4.runtime.CommonToken;
@@ -23,14 +22,18 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
@@ -59,6 +62,9 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<Integer> lhsTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
+                .collect(Collectors.toMap(pkg -> pkg.alias.value, pkg -> pkg.symbol.pkgID.toString()));
         CommonToken pkgAlias = null;
         if (lhsTokenTypes == null) {
             return completionItems;
@@ -77,7 +83,10 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
                 .forEach((key, value) -> value.forEach(annotation -> {
                     String annotationPkgAlias = annotation.pkgID.nameComps
                             .get(annotation.pkgID.nameComps.size() - 1).value;
-                    if (finalAlias == null || finalAlias.getText().equals(annotationPkgAlias)) {
+                    String annotationPkg = annotation.pkgID.toString();
+                    // compare with the import statements' package alias
+                    if (finalAlias == null || finalAlias.getText().equals(annotationPkgAlias)
+                            || annotationPkg.equals(pkgAliasMap.get(finalAlias.getText()))) {
                         completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, ctx, finalAlias));
                     }
                 }));
