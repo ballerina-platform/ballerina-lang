@@ -700,42 +700,15 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     if (ins is bir:AsyncCall) {
         bir:VarRef?[] paramTypes = ins.args;
         if (isVirtual) {
-            mv.visitInsn(POP);
-            mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitInsn(ICONST_1);
-            bir:VarRef ref = getVarRef(ins.args[0]);
-            mv.visitInsn(AALOAD);
-            addUnboxInsn(mv, ref.typeValue);
-            mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitInsn(ICONST_0);
-            mv.visitInsn(AALOAD);
-            mv.visitTypeInsn(CHECKCAST, STRAND);
+            genLoadDataForObjectAttachedLambdas(ins, mv, closureMapsCount, paramTypes , isExternFunction);
             int paramTypeIndex = 1;
-            mv.visitLdcInsn(cleanupObjectTypeName(ins.name.value));
-            int objectArrayLength = paramTypes.length() - 1;
-            if (!isExternFunction) {
-                mv.visitIntInsn(BIPUSH, objectArrayLength * 2);
-            } else {
-                mv.visitIntInsn(BIPUSH, objectArrayLength);
-            }
-            mv.visitTypeInsn(ANEWARRAY, OBJECT);
             paramIndex = 2;
             while ( paramTypeIndex < paramTypes.length()) {
-                mv.visitInsn(DUP);
-                mv.visitIntInsn(BIPUSH, paramIndex - 2);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitIntInsn(BIPUSH, paramIndex + 1);
-                mv.visitInsn(AALOAD);
-                mv.visitInsn(AASTORE);
+                generateObjectArgs(mv, paramIndex);
                 paramTypeIndex += 1;
                 paramIndex += 1;
                 if (!isExternFunction) {
-                    mv.visitInsn(DUP);
-                    mv.visitIntInsn(BIPUSH, paramIndex - 2);
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitIntInsn(BIPUSH, paramIndex + 1);
-                    mv.visitInsn(AALOAD);
-                    mv.visitInsn(AASTORE);
+                    generateObjectArgs(mv, paramIndex);
                     paramIndex += 1;
                 }
             }
@@ -804,6 +777,38 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
     mv.visitMaxs(0,0);
     mv.visitEnd();
+}
+
+function genLoadDataForObjectAttachedLambdas(bir:AsyncCall ins, jvm:MethodVisitor mv, int closureMapsCount,
+                    bir:VarRef?[] paramTypes , boolean isExternFunction) {
+    mv.visitInsn(POP);
+    mv.visitVarInsn(ALOAD, closureMapsCount);
+    mv.visitInsn(ICONST_1);
+    bir:VarRef ref = getVarRef(ins.args[0]);
+    mv.visitInsn(AALOAD);
+    addUnboxInsn(mv, ref.typeValue);
+    mv.visitVarInsn(ALOAD, closureMapsCount);
+    mv.visitInsn(ICONST_0);
+    mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, STRAND);
+  
+    mv.visitLdcInsn(cleanupObjectTypeName(ins.name.value));
+    int objectArrayLength = paramTypes.length() - 1;
+    if (!isExternFunction) {
+        mv.visitIntInsn(BIPUSH, objectArrayLength * 2);
+    } else {
+        mv.visitIntInsn(BIPUSH, objectArrayLength);
+    }
+    mv.visitTypeInsn(ANEWARRAY, OBJECT);
+}
+
+function generateObjectArgs(jvm:MethodVisitor mv, int paramIndex) {
+    mv.visitInsn(DUP);
+    mv.visitIntInsn(BIPUSH, paramIndex - 2);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitIntInsn(BIPUSH, paramIndex + 1);
+    mv.visitInsn(AALOAD);
+    mv.visitInsn(AASTORE);
 }
 
 function addBooleanTypeToLambdaParamTypes(jvm:MethodVisitor mv, int arrayIndex, int paramIndex) {
