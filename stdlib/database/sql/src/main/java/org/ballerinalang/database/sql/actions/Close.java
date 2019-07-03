@@ -70,7 +70,7 @@ public class Close extends AbstractSQLAction {
             try {
                 datasource.decrementClientCounterAndAttemptPoolShutdown();
             } catch (InterruptedException e) {
-                return  SQLDatasourceUtils.getSQLConnectorError("Error while stopping the database client");
+                return  SQLDatasourceUtils.getSQLApplicationError("Error while stopping the database client");
             }
         }
         return null;

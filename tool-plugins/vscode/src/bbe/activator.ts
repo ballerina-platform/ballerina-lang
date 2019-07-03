@@ -56,7 +56,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
             }
         }
     ];
-    WebViewRPCHandler.create(examplesPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(examplesPanel, langClient, remoteMethods);
     const html = render(context, langClient);
     if (examplesPanel && html) {
         examplesPanel.webview.html = html;

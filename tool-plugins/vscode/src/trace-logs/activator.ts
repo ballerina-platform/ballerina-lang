@@ -97,7 +97,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         
     ];
 
-    WebViewRPCHandler.create(traceLogsPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(traceLogsPanel, langClient, remoteMethods);
 
     traceLogsPanel.onDidDispose(() => {
         traceDetailsPanel!.dispose();

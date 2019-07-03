@@ -99,7 +99,6 @@ include(':jballerina-integration-test')
 // and 'mustRunAfter' of vs-code-pluggin
 
 include(':plugin-vscode')
-include(':ballerina-intellij-idea-plugin')
 include(':benchmarks')
 include(':ballerina-activemq-artemis')
 include(':ballerina-rabbitmq')
@@ -202,7 +201,6 @@ project(':jballerina-integration-test').projectDir = file('tests/jballerina-inte
 // project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
 // project(':examples-test').projectDir = file('tests/ballerina-examples-test')
 project(':plugin-vscode').projectDir = file('tool-plugins/vscode')
-project(':ballerina-intellij-idea-plugin').projectDir = file('tool-plugins/intellij')
 project(':ballerina-activemq-artemis').projectDir = file('stdlib/messaging/activemq-artemis')
 project(':ballerina-rabbitmq').projectDir = file('stdlib/messaging/rabbitmq')
 project(':ballerina-nats').projectDir = file('stdlib/nats')

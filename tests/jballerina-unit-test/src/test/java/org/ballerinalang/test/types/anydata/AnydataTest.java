@@ -182,22 +182,22 @@ public class AnydataTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[1].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[2].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].stringValue(), "(123, 23.45, true, \"hello world!\", 255)");
-        assertEquals(returns[1].stringValue(), "({\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>)");
-        assertEquals(returns[2].stringValue(), "([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>], \"hello world!\")");
+        assertEquals(returns[0].stringValue(), "[123, 23.45, true, \"hello world!\", 255]");
+        assertEquals(returns[1].stringValue(), "[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
+                "Lost World</book>]");
+        assertEquals(returns[2].stringValue(), "[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
+                "Lost World</book>], \"hello world!\"]");
 
         // Verifying nested tuple
         BValueArray tuple = (BValueArray) returns[3];
         assertEquals(tuple.getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(tuple.stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The Lost " +
-                "World</book>], \"hello world!\"), 123, 23.45)");
+        assertEquals(tuple.stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The Lost " +
+                "World</book>], \"hello world!\"], 123, 23.45]");
 
         BValueArray nestedTuple = (BValueArray) tuple.getRefValue(0);
         assertEquals(nestedTuple.getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(nestedTuple.stringValue(), "([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>], \"hello world!\")");
+        assertEquals(nestedTuple.stringValue(), "[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
+                "Lost World</book>], \"hello world!\"]");
     }
 
     @Test(description = "Test nil assignment")
@@ -311,17 +311,17 @@ public class AnydataTest {
     public void testAnydataToTuple() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "(int,float,boolean,string,byte)");
-        assertEquals(returns[0].stringValue(), "(123, 23.45, true, \"hello world!\", 255)");
+        assertEquals(returns[0].getType().toString(), "[int,float,boolean,string,byte]");
+        assertEquals(returns[0].stringValue(), "[123, 23.45, true, \"hello world!\", 255]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple2() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple2");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
-        assertEquals(returns[0].getType().toString(), "(json,xml)");
-        assertEquals(returns[0].stringValue(), "({\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>)");
+        assertEquals(returns[0].getType().toString(), "[json,xml]");
+        assertEquals(returns[0].stringValue(), "[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
+                "Lost World</book>]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
@@ -329,10 +329,10 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                     "((int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
-                             "[][],string),int,float)");
-        assertEquals(returns[0].stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
-                "Lost World</book>], \"hello world!\"), 123, 23.45)");
+                     "[[int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
+                             "[][],string],int,float]");
+        assertEquals(returns[0].stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
+                "Lost World</book>], \"hello world!\"], 123, 23.45]");
     }
 
     @Test(description = "Test anydata to nil conversion")

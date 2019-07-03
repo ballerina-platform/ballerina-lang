@@ -66,6 +66,21 @@ public class HtmlDocTest {
         Assert.assertTrue(module.records.isEmpty());
     }
 
+    @Test(description = "Optional Array Type args should be captured correctly")
+    public void testOptionalArrayTypes() {
+        BLangPackage bLangPackage = createPackage("public function find(string[]? names, string name)" +
+                " returns (boolean) { return true; }");
+        Module module = generateModule(bLangPackage);
+        Assert.assertEquals(module.functions.size(), 1);
+        Assert.assertEquals(module.functions.get(0).name, "find");
+        Function function = module.functions.get(0);
+        Assert.assertEquals(function.parameters.get(0).type.name, "string", "Invalid parameter type");
+        Assert.assertTrue(function.parameters.get(0).type.isArrayType, "Invalid parameter type");
+        Assert.assertTrue(function.parameters.get(0).type.isNullable, "Invalid parameter type");
+        Assert.assertEquals(function.parameters.get(0).name, "names", "Invalid parameter name");
+        Assert.assertEquals(function.returnParameters.get(0).type.name, "boolean", "Invalid return type");
+    }
+
     @Test(description = "Functions in a module should be shown in the constructs")
     public void testFunctions() {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns (string)" +

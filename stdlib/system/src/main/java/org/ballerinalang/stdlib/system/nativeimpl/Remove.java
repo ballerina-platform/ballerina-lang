@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -46,27 +46,27 @@ import java.nio.file.attribute.BasicFileAttributes;
         isPublic = true
 )
 public class Remove extends BlockingNativeCallableUnit {
+
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
 
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
-        boolean recursive = context.getBooleanArgument(0);
-        File removeFile = Paths.get(inputPath).toAbsolutePath().toFile();
-        BValue wdBValue = SystemUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
-        File wd = Paths.get(wdBValue.stringValue()).toAbsolutePath().toFile();
+    }
+
+    public static Object remove(Strand strand, String path, boolean recursive) {
+        File removeFile = Paths.get(path).toAbsolutePath().toFile();
+        String wdBValue = SystemUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
+        File wd = Paths.get(wdBValue).toAbsolutePath().toFile();
 
         try {
             if (wd.getCanonicalPath().equals(removeFile.getCanonicalPath())) {
-                context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION", "Cannot delete the current" +
-                            " working directory " + wd.getCanonicalPath()));
-                return;
+                return SystemUtils.getBallerinaError("INVALID_OPERATION", "Cannot delete the current" +
+                        " working directory " + wd.getCanonicalPath());
             }
 
             if (!removeFile.exists()) {
-                context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
-                        "File doesn't exist in path " + removeFile.getCanonicalPath()));
-                return;
+                return SystemUtils.getBallerinaError("INVALID_OPERATION",
+                        "File doesn't exist in path " + removeFile.getCanonicalPath());
             }
 
             if (recursive) {
@@ -74,16 +74,15 @@ public class Remove extends BlockingNativeCallableUnit {
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
                 if (!removeFile.delete()) {
-                    context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED",
-                            "Error while deleting " + removeFile.getCanonicalPath()));
-                    return;
+                    return SystemUtils.getBallerinaError("OPERATION_FAILED",
+                            "Error while deleting " + removeFile.getCanonicalPath());
                 }
             }
-            context.setReturnValues();
+            return null;
         } catch (IOException ex) {
-            context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", ex));
+            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
         } catch (SecurityException ex) {
-            context.setReturnValues(SystemUtils.getBallerinaError("PERMISSION_ERROR", ex));
+            return SystemUtils.getBallerinaError("PERMISSION_ERROR", ex);
         }
     }
 

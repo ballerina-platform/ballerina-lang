@@ -12,12 +12,16 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring|int|boolean"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|int|boolean)"
         }
       },
       "sortText": "120",
       "insertText": "bar(i) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType)",
@@ -31,7 +35,11 @@
       },
       "sortText": "120",
       "insertText": "queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "io",
@@ -53,7 +61,11 @@
       },
       "sortText": "120",
       "insertText": "queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers)",
@@ -67,7 +79,11 @@
       },
       "sortText": "120",
       "insertText": "startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "i",
@@ -80,7 +96,7 @@
     {
       "label": "i",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "(string|int|boolean)",
       "sortText": "130",
       "insertText": "i",
       "insertTextFormat": "Snippet"
@@ -168,7 +184,7 @@
     {
       "label": "var1",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "(string|int|boolean)",
       "sortText": "130",
       "insertText": "var1",
       "insertTextFormat": "Snippet"
