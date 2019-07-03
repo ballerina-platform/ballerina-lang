@@ -19,9 +19,9 @@ import ballerina/log;
 
 function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
                                    function () retryFunc, function () committedFunc,
-                                   function () abortedFunc) returns error? {
+                                   function () abortedFunc) {
     boolean isTrxSuccess = false;
-    io:println("********started TRX*********");
+    io:println("********started TRX********* with rMax :" + rMax);
     int rCnt = 1;
     if (rMax < 0) {
         error err = error("TransactionError", { message: "invalid retry count" });
@@ -35,19 +35,27 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         { message: "dynamically nested transactions are not allowed" });
         panic err;
     }
-    TransactionContext txnContext;
+    TransactionContext|error txnContext;
     string transactionId = "";
     int|error trxResult = -1;
     error? abortResult = ();
     error? committedResult = ();
     error? retryResult = ();
-    error? rollbackResult = ();
+    error
+    ? rollbackResult = ();
+    
     while (true) {
-        txnContext = check beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
-        transactionId = txnContext.transactionId;
-        setTransactionContext(txnContext);
+        txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
+        if (txnContext is error) {
+            panic txnContext;
+        } else {
+            transactionId = txnContext.transactionId;
+            setTransactionContext(txnContext);
+        }
+        io:println("********calling trxFunc*******");
         trxResult = trap trxFunc.call();
         if (trxResult is int) {
+            io:println("********trxResult*******" + trxResult);
             // If transaction result == 0, means it is successful.
             if (trxResult == 0) { 
                 io:println("********Trx success********");
@@ -63,16 +71,18 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             // If transaction result == 0, means it was retried.
             if (trxResult == 1) { 
                 io:println("********Trx retry*******");
-                abortResult = trap abortTransaction(transactionId, transactionBlockId);
+                
             }
             // If transaction result == -1, means it was aborted.
             if (trxResult == -1) { // abort
                 io:println("********Trx aborted*******");
+                abortResult = trap abortTransaction(transactionId, transactionBlockId);
                 break;
             }
         } else {
             log:printDebug(trxResult.reason());
         }
+        io:println("********check retry*********: " + rCnt);
         rCnt = rCnt + 1;
         // retry
         if (rCnt <= rMax) {
@@ -91,11 +101,13 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     }
     io:println("************isTrxSuccess**********" + isTrxSuccess);
     if (isTrxSuccess) {
+        io:println("************committedFunc**********");
         committedResult = trap committedFunc.call();
         if (committedResult is error) {
             log:printDebug(committedResult.reason());
         }
     } else {
+        io:println("************abortResult**********");
         abortResult = trap handleAbortTransaction(transactionId, transactionBlockId, abortedFunc);
         if (abortResult is error) {
             log:printDebug(abortResult.reason());
@@ -108,7 +120,8 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
 }
 
 function beginLocalParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
-                               function () committedFunc,function () abortedFunc) returns any|error|() {
+                               function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
+                               any|error|() {
     io:println("************Paritcipant  begin local**********");
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
@@ -125,6 +138,7 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
         var result = trap <any|error|()>trxFunc.call();
         io:println("********calldone*********");
         if (result is error) {
+                 io:println("************ERRROR**********");
             notifyLocalParticipantOnFailure();
             panic result;
         }
@@ -136,8 +150,9 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
 }
 
 
-function beginRemoteParticipant(string transactionBlockId, function () returns string|any|error|() trxFunc,
-                                function () committedFunc,function () abortedFunc) returns string|any|error|() {
+function beginRemoteParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
+                                function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
+                                any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
     io:println("************Paritcipant  begin remote**********");
     if (txnContext is ()) {
@@ -150,22 +165,24 @@ function beginRemoteParticipant(string transactionBlockId, function () returns s
             notifyRemoteParticipantOnFailure();
             panic returnContext;
         }
-        string|any|error|() result = trap trxFunc.call();
+        any|error|() result = trap trxFunc.call();
         if (result is error) {
             notifyRemoteParticipantOnFailure();
+            panic result;
         }
         return result;
     }
 }
 
 function handleAbortTransaction(string transactionId, string transactionBlockId,
-                                function () returns error? abortedFunc) returns error? {
+                                function () abortedFunc) {
     var result = trap abortTransaction(transactionId, transactionBlockId);
     notifyResourceManagerOnAbort(transactionBlockId);
     var abortResult = trap abortedFunc.call();
     if (result is error) {
         panic result;
     }
+    
     if (abortResult is error) {
         panic abortResult;
     }
@@ -188,9 +205,11 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
 # + return - Newly created/existing TransactionContext for this transaction.
 function beginTransaction(string? transactionId, string transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
+           io:println("**********begin transaction********");
     if (transactionId is string) {
         if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
             // we don't need to do a network call and can simply do a local function call
+             io:println("**********registerLocalParticipantWithInitiator********");
             return registerLocalParticipantWithInitiator(transactionId, transactionBlockId, registerAtUrl);
         } else {
             //TODO: set the proper protocol
@@ -198,6 +217,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             RemoteProtocol[] protocols = [{
             name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
             }];
+             io:println("**********registerParticipantWithRemoteInitiator********");
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
     } else {
@@ -304,16 +324,33 @@ function abortResourceManagers(string transactionId, string transactionBlockId) 
 # + return - A string representing the ID of the current transaction.
 public function getCurrentTransactionId() returns string = external;
 
+# Checks whether the transaction is nested.
+#
+# + return - true or false representing whether the transaction is nested.
 function isNestedTransaction() returns boolean = external;
 
+# Set the transactionContext.
+#
+# + transactionContext - Transaction context.
 function setTransactionContext(TransactionContext transactionContext) = external;
-                
-function registerLocalParticipant(string transactionBlockId, function () committedFunc,
-                                        function () abortedFunc) = external;
+ 
+# Register local participant. Functions with participant annotations will be desugered to below functions.
+#
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
+# + committedFunc - Function pointer for commit function for participant.
+# + abortedFunc -  Function pointer for abort function for participant.
+# + return - Transaction context.
+function registerLocalParticipant(string transactionBlockId, function (string trxId) committedFunc,
+                                        function (string trxId) abortedFunc) returns  TransactionContext? = external;
 
-
-function registerRemoteParticipant(string transactionBlockId, function () committedFunc,
-                                        function () abortedFunc) = external;
+# Register remote participant. Functions with participant annotations will be desugered to below functions.
+#
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
+# + committedFunc - Function pointer for commit function for participant.
+# + abortedFunc -  Function pointer for abort function for participant.
+# + return - Transaction context.
+function registerRemoteParticipant(string transactionBlockId, function (string trxId) committedFunc,
+                                        function (string trxId) abortedFunc) returns  TransactionContext? = external;
 
 function notifyLocalParticipantOnFailure() = external;
 
@@ -321,7 +358,7 @@ function notifyRemoteParticipantOnFailure() = external;
 
 function notifyResourceManagerOnAbort(string transactionBlockId) = external;
 
-function rollbackTransaction(string transactionBlockId) returns error? = external;
+function rollbackTransaction(string transactionBlockId) = external;
 
 function cleanupTransactionContext(string transactionBlockId) = external;
 

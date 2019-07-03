@@ -38,7 +38,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
-    public Set<ClosureVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
 
     public BLangTransaction() {
     }

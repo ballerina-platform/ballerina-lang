@@ -228,6 +228,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
         int pkgIndex = addPkgCPEntry(calleePkg);
+        buf.writeBoolean(birAsyncCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
         buf.writeInt(birAsyncCall.args.size());
