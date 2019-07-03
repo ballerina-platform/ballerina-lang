@@ -1702,8 +1702,10 @@ public class BLangPackageBuilder {
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         if (!this.forkJoinNodesStack.empty()) {
+            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
             List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
             BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
+            lamdaWrkr.isInFork = true;
             this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
         }
 

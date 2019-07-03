@@ -554,6 +554,13 @@ public class FormattingSourceGen {
                 node.getAsJsonObject("variable").addProperty("endpoint", true);
                 node.addProperty("endpoint", true);
             }
+
+            // If variable def(worker) is in a fork but this is the node added to expand the scope
+            // Skip generating the source from this node.
+            if (node.has("isInFork") && node.get("isInFork").getAsBoolean()
+                    && !parentKind.equals("ForkJoin")) {
+                node.addProperty("skip", true);
+            }
         }
 
         if ("Variable".equals(kind)) {

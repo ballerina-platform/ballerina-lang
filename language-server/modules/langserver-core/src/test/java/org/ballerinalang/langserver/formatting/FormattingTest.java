@@ -154,6 +154,7 @@ public class FormattingTest {
                 {"expectedUnaryExpr.bal", "unaryExpr.bal"},
                 {"expectedTypeInitExpr.bal", "typeInitExpr.bal"},
                 {"expectedServiceConstruct.bal", "serviceConstruct.bal"},
+                {"expectedForkJoin.bal", "forkJoin.bal"},
         };
     }
 
