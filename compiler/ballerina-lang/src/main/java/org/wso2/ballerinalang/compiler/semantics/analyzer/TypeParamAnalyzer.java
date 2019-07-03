@@ -313,7 +313,7 @@ public class TypeParamAnalyzer {
             return;
         }
         findTypeParam(expType.detailType, actualType.detailType, env, resolvedTypes, result);
-        findTypeParam(expType.reasonType, expType.reasonType, env, resolvedTypes, result);
+        findTypeParam(expType.reasonType, actualType.reasonType, env, resolvedTypes, result);
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, List<BType> resolvedTypes) {
