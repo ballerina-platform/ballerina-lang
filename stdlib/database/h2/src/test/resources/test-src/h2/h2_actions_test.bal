@@ -28,7 +28,7 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns (int[]) {
+function testSelect() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -55,7 +55,7 @@ function testSelect() returns (int[]) {
     return customerIds;
 }
 
-function testUpdate() returns (int) {
+function testUpdate() returns int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -74,7 +74,7 @@ function testUpdate() returns (int) {
     return insertCount;
 }
 
-function testCall() returns (string) {
+function testCall() returns string {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -91,7 +91,8 @@ function testCall() returns (string) {
     } else if (ret is ()) {
         return "nil";
     } else {
-        return <string>ret.detail().message;
+        error e = ret;
+        return <string>e.detail().message;
     }
 
     string name = "";
@@ -121,14 +122,15 @@ function testGeneratedKeyOnInsert() returns string|int {
     if (x is sql:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
-        returnVal = <string>x.detail().message;
+        error e = x;
+        returnVal = <string>e.detail().message;
     }
 
     checkpanic testDB.stop();
     return returnVal;
 }
 
-function testBatchUpdate() returns (int[]) {
+function testBatchUpdate() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -165,7 +167,7 @@ function testBatchUpdate() returns (int[]) {
     return ret;
 }
 
-function testUpdateInMemory() returns (int, string) {
+function testUpdateInMemory() returns [int, string] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -194,10 +196,10 @@ function testUpdateInMemory() returns (int, string) {
     }
 
     checkpanic testDB.stop();
-    return (insertCount, s);
+    return [insertCount, s];
 }
 
-function testInitWithNilDbOptions() returns (int[]) {
+function testInitWithNilDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -208,7 +210,7 @@ function testInitWithNilDbOptions() returns (int[]) {
     return selectFunction(testDB);
 }
 
-function testInitWithDbOptions() returns (int[]) {
+function testInitWithDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -221,7 +223,7 @@ function testInitWithDbOptions() returns (int[]) {
     return selectFunction(testDB);
 }
 
-function testInitWithInvalidDbOptions() returns (int[]) {
+function testInitWithInvalidDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -235,7 +237,7 @@ function testInitWithInvalidDbOptions() returns (int[]) {
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns (int) {
+             returns int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -257,7 +259,7 @@ function testCloseConnectionPool(string connectionCountQuery)
     return count;
 }
 
-function selectFunction(h2:Client testDB) returns (int[]) {
+function selectFunction(h2:Client testDB) returns int[] {
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds = [];
@@ -277,7 +279,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     return customerIds;
 }
 
-function testH2MemDBUpdate() returns (int, string) {
+function testH2MemDBUpdate() returns [int, string] {
     h2:Client testDB = new(<h2:InMemoryConfig>{
             name: "TestMEMDB",
             username: "SA",
@@ -301,5 +303,5 @@ function testH2MemDBUpdate() returns (int, string) {
         insertCount = insertCountRet.updatedRowCount;
     }
     checkpanic testDB.stop();
-    return (insertCount, data);
+    return [insertCount, data];
 }

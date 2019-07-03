@@ -19,7 +19,6 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,7 +34,6 @@ public class NanoTime extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(new BInteger(System.nanoTime()));
     }
 
     public static long nanoTime(Strand strand) {

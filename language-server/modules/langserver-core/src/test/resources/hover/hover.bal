@@ -44,13 +44,13 @@ public function main (string... args) {
     io:println(s);
     var df = s.contains("mar");
     var x = test1("s",0);
-    Person p = {
+    Person testPerson = {
                    id:1,
                    age: 21,
                    name:"mike"
                };
-    string name = p.name;
-    if(p.name == "mike"){
+    string name = testPerson.name;
+    if(testPerson.name == "mike"){
 
     }
 }

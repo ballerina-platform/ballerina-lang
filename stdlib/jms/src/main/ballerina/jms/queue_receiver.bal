@@ -61,11 +61,11 @@ public type QueueListener object {
 
     # Binds the queue receiver endpoint to a service.
     #
-    # + serviceType - The service instance.
+    # + s - The service instance.
     # + name - Name of the service.
     # + return - Returns nil or an error upon failure to register the listener.
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, name);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.registerListener(s, self.consumerActions, name);
     }
 
     function registerListener(service serviceType, QueueReceiverCaller actions, string? name) returns error? = external;
@@ -142,17 +142,11 @@ public type QueueReceiverCaller client object {
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<anydata> errorDetail = {
-            message: errorMessage
-        };
-        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        map<anydata> errorDetail = {
-            message: errorMessage
-        };
-        error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
+        error queueReceiverConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic queueReceiverConfigError;
     }
 }

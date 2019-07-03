@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -25,7 +26,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -737,8 +737,8 @@ public class ObjectTest {
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
-        } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("native function not available: Person.printName"));
+        } catch (BLangCompilerException e) {
+            Assert.assertTrue(e.getMessage().contains("jvm code gen phase failed"));
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
@@ -756,9 +756,9 @@ public class ObjectTest {
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 48, 25);
-        BAssertUtil.validateError(resultNegative, 1, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 49, 25);
-        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
+        BAssertUtil.validateError(resultNegative, 0, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
+        BAssertUtil.validateError(resultNegative, 1, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
+        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
                                   50, 46);
         BAssertUtil.validateError(resultNegative, 3, "cannot infer type of the object from 'Bar?'", 71, 20);
     }

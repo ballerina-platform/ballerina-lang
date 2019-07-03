@@ -343,7 +343,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 18, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 23, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 39, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'int|error'", 45, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int|error)'", 45, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 51, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 57, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'string'", 63, 10);

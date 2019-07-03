@@ -38,13 +38,13 @@ function testFloat1() returns float {
 
 function testBasicArray1(string[] values) returns string {
     string str1 = "";
-    values.map(function (string x) returns (string, string) {
+    values.map(function (string x) returns [string, string] {
                    string up = x.toUpper();
                    string lower = x.toLower();
-                   return (up, lower);
+                   return [up, lower];
                })
-           .foreach(function ((string, string) value) {
-                    var (up, lower) = value;
+           .foreach(function ([string, string] value) {
+                    var [up, lower] = value;
                     str1 = str1 + " " + up + ":" + lower;
            });
     return str1.trim();
@@ -66,12 +66,12 @@ function testBasicArray2(string[] values) returns string {
 
 // MAPS WITH NESTED ITERABLE OPERATIONS
 
-function testBasicMap1() returns (int, string[]) {
+function testBasicMap1() returns [int, string[]] {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     int count = 0;
-    string[] values = m.map(function ((string, string) value) returns string {
+    string[] values = m.map(function ([string, string] value) returns string {
                                 count = count + 10;
-                                var (k, v) = value;
+                                var [k, v] = value;
                                 return k.toLower();
                             })
                       .filter(function (string v) returns boolean {
@@ -81,40 +81,40 @@ function testBasicMap1() returns (int, string[]) {
                                   }
                                   return false;
                             });
-    return (count, values);
+    return [count, values];
 }
 
-function testBasicMap2() returns (int, string, string[]) {
+function testBasicMap2() returns [int, string, string[]] {
     int count = 0;
     string str = "start";
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-    string[] values = m.map(function ((string, string) tuple) returns (string, string) {
-                                var (key, value) = tuple;
+    string[] values = m.map(function ([string, string] tuple) returns [string, string] {
+                                var [key, value] = tuple;
                                 str = str + "-"  + key + " : " + value;
                                 count = count + 10;
-                                return (key, value);
+                                return [key, value];
                             })
-                      .filter(function ((string, string) v) returns boolean {
-                                  var (k, t) = v;
+                      .filter(function ([string, string] v) returns boolean {
+                                  var [k, t] = v;
                                   if (k == "a" || k == "e") {
                                       count = count + 10;
                                       return true;
                                   }
                                   return false;
                               })
-                      .map(function ((string, string) v) returns string {
-                               var (v1, v2) = v;
+                      .map(function ([string, string] v) returns string {
+                               var [v1, v2] = v;
                                count = count + 10;
                                return v1 + v2;
                            });
     str = str + "-end";
     count = count + 1;
-    return (count, str, values);
+    return [count, str, values];
 }
 
 // XML WITH NESTED ITERABLE OPERATIONS
 
-function xmlTest() returns (string, map<any>) {
+function xmlTest() returns [string, map<any>] {
     string str = "start";
     xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
@@ -127,16 +127,16 @@ function xmlTest() returns (string, map<any>) {
 
     int index = 0;
     map<xml> m = xdata.*.elements()[1].*.elements()
-                 .map(function (xml|string x) returns (string, xml) {
+                 .map(function (xml|string x) returns [string, xml] {
                             index += 1;
                             if x is xml {
                                 str = str + "-" + string.convert(index);
-                                return (string.convert(index), x);
+                                return [string.convert(index), x];
                             }
-                            return ("", xml ` `);
+                            return ["", xml ` `];
                       });
     str = str + "-end";
-    return (str, m);
+    return [str, m];
 }
 
 // RECORD WITH NESTED ITERABLE OPERATIONS
@@ -146,7 +146,7 @@ type Student record {
     int age;
 };
 
-function recordTest() returns (int, string[]) {
+function recordTest() returns [int, string[]] {
     boolean status = true;
     int randomNum = 0;
 
@@ -163,7 +163,7 @@ function recordTest() returns (int, string[]) {
                                return stu.fname;
                            });
     randomNum = randomNum + 10;
-    return (randomNum, names);
+    return [randomNum, names];
 }
 
 function testIgnoredValue() returns (string) {
@@ -182,7 +182,7 @@ function testIgnoredValue() returns (string) {
 
 // TEST IN EXPRESSION
 
-function testInExpression() returns (string, int) {
+function testInExpression() returns [string, int] {
     string str = "";
     string[] strArr = ["abc", "cde", "pqr", "xyz"];
     float[] floatArr = [1.1, -2.2, 3.3, 4.4];
@@ -202,7 +202,7 @@ function testInExpression() returns (string, int) {
                                   .count());
 
     int i = strArr.count() + floatArr.count();
-    return (str, i);
+    return [str, i];
 }
 
 // TEST IN STATEMENT
@@ -210,9 +210,9 @@ function testInExpression() returns (string, int) {
 function testInStatement() returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
     int count = 2;
-    if (5 > m.filter(function ((string, string) value) returns boolean {
+    if (5 > m.filter(function ([string, string] value) returns boolean {
                          count = count * 2;
-                         var (k, v) = value;
+                         var [k, v] = value;
                          return v.length() == 3 && count % 2 == 0;
                      })
               .count()) {
@@ -306,7 +306,7 @@ function testWithComplexJson() returns json[] {
     return filteredResults;
 }
 
-function testWithComplexXML() returns ((int, string)[]) {
+function testWithComplexXML() returns ([int, string][]) {
     xml bookstore = xml `<bookstore>
                         <book category="cooking">
                             <title lang="en">Everyday Italian</title>
@@ -338,13 +338,13 @@ function testWithComplexXML() returns ((int, string)[]) {
                         </book>
                     </bookstore>`;
 
-    (int, string)[] titles = [];
+    [int, string][] titles = [];
     int count = 0;
 
     bookstore["book"].foreach(function (xml|string ent) {
             // If the element is an xml.
             if (ent is xml) {
-                titles[count] = (count, ent["title"].getTextValue());
+                titles[count] = [count, ent["title"].getTextValue()];
                 count += 1;
             }
     });
@@ -396,13 +396,13 @@ function multipleIterableOps() returns string[] {
         strArr[index] = key;
         index += 1;
     });
-    currencies.foreach(function ((string, int) pair) {
-         var (x, y) = pair;
+    currencies.foreach(function ([string, int] pair) {
+         var [x, y] = pair;
          strArr[index] = x;
          index += 1;
     });
 
-    currencies.foreach(function ((string, int) pair) {
+    currencies.foreach(function ([string, int] pair) {
         strArr[index] = currency;
     });
 
