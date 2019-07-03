@@ -756,9 +756,9 @@ public class ObjectTest {
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 48, 25);
-        BAssertUtil.validateError(resultNegative, 1, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 49, 25);
-        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
+        BAssertUtil.validateError(resultNegative, 0, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 48, 25);
+        BAssertUtil.validateError(resultNegative, 1, "ambiguous type '(Obj|Obj2|Obj3|Obj4)'", 49, 25);
+        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from '(Obj|Obj2|Obj3|Obj4)'",
                                   50, 46);
         BAssertUtil.validateError(resultNegative, 3, "cannot infer type of the object from 'Bar?'", 71, 20);
     }

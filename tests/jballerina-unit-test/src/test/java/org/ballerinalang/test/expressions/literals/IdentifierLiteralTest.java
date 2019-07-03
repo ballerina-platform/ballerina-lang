@@ -218,7 +218,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 1, "invalid token '\" = \"'", 3, 26);
         BAssertUtil.validateError(resultNeg, 2, "mismatched input 'dfs'. expecting {'is', ';', '?', '+', '-', '*', " +
                 "'/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', " +
-                "'->>', '..<'}", 3, 31);
+                "'->>', '..<', '.@'}", 3, 31);
         BAssertUtil.validateError(resultNeg, 3, "token recognition error at: '\";\\n}\\n\\n\\n'", 4, 25);
     }
 

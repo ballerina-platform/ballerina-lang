@@ -17,11 +17,17 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.AttachPoints;
+
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
 
@@ -31,11 +37,21 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
     public BTypeSymbol attachedType;
-    public int attachPoints;
+    public Set<AttachPoint> points;
+    public int maskedPoints;
 
-    public BAnnotationSymbol(Name name, int flags, int attachPoints, PackageID pkgID, BType type, BSymbol owner) {
+    @Deprecated
+    public BAnnotationSymbol(Name name, int flags, int maskedPoints, PackageID pkgID, BType type,
+                             BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);
-        this.attachPoints = attachPoints;
+        this.maskedPoints = maskedPoints;
+    }
+
+    public BAnnotationSymbol(Name name, int flags, Set<AttachPoint> points, PackageID pkgID,
+                             BType type, BSymbol owner) {
+        super(ANNOTATION, flags, name, pkgID, type, owner);
+        this.points = points;
+        this.maskedPoints = getMaskedPoints(points);
     }
 
     @Override
@@ -51,9 +67,21 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
     @Override
     public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, attachPoints, Names.EMPTY, pkgID, type, owner);
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, pkgID, type, owner);
         copy.attachedType = attachedType;
         copy.isLabel = true;
         return copy;
+    }
+
+    private int getMaskedPoints(Set<AttachPoint> attachPoints) {
+        Set<AttachPoint.Point> points = new HashSet<>();
+        if (!attachPoints.isEmpty()) {
+            for (AttachPoint attachPoint : attachPoints) {
+                points.add(attachPoint.point);
+            }
+        } else {
+            points = EnumSet.noneOf(AttachPoint.Point.class);
+        }
+        return AttachPoints.asMask(points);
     }
 }

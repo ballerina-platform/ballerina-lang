@@ -86,6 +86,26 @@ public class Writer {
                             .collect(Collectors.joining(" | "))
             );
             handlebars.registerHelper("typeName", Writer::getTypeLabel);
+
+            handlebars.registerHelper("equals", (arg1, options) -> {
+                CharSequence result;
+                Object param0 = options.param(0);
+                
+                if (param0 == null) {
+                    throw new IllegalArgumentException("found 'null', expected 'string'");
+                }
+                if (arg1 != null) {
+                    if (arg1.toString().equals(param0.toString())) {
+                        result = options.fn(options.context);
+                    } else {
+                        result = options.inverse();
+                    }
+                } else {
+                    result = null;
+                }
+                
+                return result;
+            });
             Template template = handlebars.compile(packageTemplateName);
 
             writer = new PrintWriter(filePath, "UTF-8");
@@ -108,10 +128,10 @@ public class Writer {
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(" | "));
         } else if (type.isTuple) {
-            label = "<span>(</span>" + type.memberTypes.stream()
+            label = "<span>[</span>" + type.memberTypes.stream()
                     .map(type1 -> getTypeLabel(type1, options))
                     .collect(Collectors.joining(", "))
-                    + "<span>)</span>";
+                    + "<span>]</span>";
         } else if (type.isLambda) {
             label = "<code> <span>function(</span>" + type.paramTypes.stream()
                     .map(type1 -> getTypeLabel(type1, options))

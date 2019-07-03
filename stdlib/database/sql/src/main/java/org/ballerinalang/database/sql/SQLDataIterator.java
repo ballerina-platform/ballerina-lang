@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.values.TableIterator;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -235,7 +236,7 @@ public class SQLDataIterator extends TableIterator {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (IOException | SQLException e) {
             throw new BallerinaException(
                     "error in retrieving next value for column: " + columnName + ": of SQL Type: " + sqlType + ": "
                             + "at " + "index:" + index + ":" + e.getMessage());
@@ -701,8 +702,8 @@ public class SQLDataIterator extends TableIterator {
             return name;
         }
 
-        public int getType() {
-            return mappedType;
+        public int getTypeTag() {
+            return mappedTypeTag;
         }
 
         public int getSqlType() {

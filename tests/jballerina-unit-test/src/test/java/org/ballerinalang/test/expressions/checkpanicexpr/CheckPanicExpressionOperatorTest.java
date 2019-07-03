@@ -98,7 +98,7 @@ public class CheckPanicExpressionOperatorTest {
                 "operator: all expression types are equivalent to error type", 16, 30);
         BAssertUtil.validateError(negative, 2, "invalid usage of the 'checkpanic' expression " +
                 "operator: all expression types are equivalent to error type", 29, 30);
-        BAssertUtil.validateError(negative, 3, "incompatible types: expected 'string|error'" +
-                ", found 'string|int'", 37, 30);
+        BAssertUtil.validateError(negative, 3, "incompatible types: expected '(string|error)'" +
+                ", found '(string|int)'", 37, 30);
     }
 }

@@ -52,7 +52,15 @@ public type PackageParser object {
     public function skipAnnotation() {
         _ = self.reader.readInt32();
         _ = self.reader.readInt32();
-        _ = self.reader.readInt32();
+
+        int attachPointCount = self.reader.readInt32();
+        int i = 0;
+        while (i < attachPointCount) {
+            _ = self.reader.readInt32();
+            _ = self.reader.readBoolean();
+            i += 1;
+        }
+
         _ = self.reader.readTypeCpRef();
     }
 

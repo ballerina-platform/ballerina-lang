@@ -18,77 +18,103 @@
 package org.ballerinalang.model.elements;
 
 /**
- * {@code AttachPoint} represents annotation attach point enum in ballerina.
+ * {@code AttachPoint} represents annotation attach point in ballerina.
  *
- * @since 0.974.0
+ * @since 1.0
  */
-public enum AttachPoint {
+public class AttachPoint {
 
-    //TODO check with composer team and remove string representations.
-    /**
-     * Indicates Service Attach point.
-     */
-    SERVICE("service"),
-    /**
-     * Indicates Resource Attach point.
-     */
-    RESOURCE("resource"),
-    /**
-     * Indicates REMOTE Attach point.
-     */
-    REMOTE("remote"),
-    /**
-     * Indicates Function Attach point.
-     */
-    FUNCTION("function"),
-    /**
-     * Indicates Object Attach point.
-     */
-    OBJECT("object"),
-    /**
-     * Indicates client Attach point.
-     */
-    CLIENT("client"),
-    /**
-     * Indicates Type Attach point.
-     */
-    TYPE("type"),
-    /**
-     * Indicates listener Attach point.
-     */
-    LISTENER("listener"),
-    /**
-     * Indicates Parameter Attach point.
-     */
-    PARAMETER("parameter"),
-    /**
-     * Indicates Annotation Attach point.
-     */
-    ANNOTATION("annotation"),
-    /**
-     * Indicate Channel Attach point.
-     */
-    CHANNEL("channel");
+    public Point point;
+    public boolean source;
 
-    private String value;
+    /**
+     * {@code Point} represents annotation attach point enum in ballerina.
+     *
+     * @since 0.974.0
+     */
+    public enum Point {
+        /**
+         * Indicates Type Attach point.
+         */
+        TYPE("type"),
+        /**
+         * Indicates Object Type Attach point.
+         */
+        OBJECT("objecttype"),
+        /**
+         * Indicates Function Attach point.
+         */
+        FUNCTION("function"),
+        /**
+         * Indicates Object Method Attach point.
+         */
+        OBJECT_METHOD("objectfunction"),
+        /**
+         * Indicates Resource Attach point.
+         */
+        RESOURCE("resourcefunction"),
+        /**
+         * Indicates Parameter Attach point.
+         */
+        PARAMETER("parameter"),
+        /**
+         * Indicates Return Attach point.
+         */
+        RETURN("return"),
+        /**
+         * Indicates Service Attach point.
+         */
+        SERVICE("service"),
+        /**
+         * Indicates Object Attach point.
+         */
+        LISTENER("listener"),
+        /**
+         * Indicates listener Attach point.
+         */
+        ANNOTATION("annotation"),
+        /**
+         * Indicates external Attach point.
+         */
+        EXTERNAL("external"),
+        /**
+         * Indicates var Attach point.
+         */
+        VAR("var"),
+        /**
+         * Indicates const Attach point.
+         */
+        CONST("const"),
+        /**
+         * Indicate Channel Attach point.
+         */
+        CHANNEL("channel");
 
-    AttachPoint(String value) {
-        this.value = value;
+        private String value;
+
+        Point(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
-    public String getValue() {
-        return value;
+    private AttachPoint(Point point, boolean source) {
+        this.point = point;
+        this.source = source;
     }
 
-    @Override
-    public String toString() {
-        return value;
-    }
-
-    public static AttachPoint getAttachmentPoint(String value) {
-        for (AttachPoint attachmentPoint : AttachPoint.values()) {
-            if (attachmentPoint.value.equals(value)) {
-                return attachmentPoint;
+    public static AttachPoint getAttachmentPoint(String value, boolean source) {
+        for (Point point : Point.values()) {
+            if (point.value.equals(value)) {
+                return new AttachPoint(point, source);
             }
         }
         return null;
