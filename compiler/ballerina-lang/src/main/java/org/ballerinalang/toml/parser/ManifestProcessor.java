@@ -98,7 +98,9 @@ public class ManifestProcessor {
      */
     public static Manifest parseTomlContentAsStream(InputStream inputStream) {
         try {
-            Manifest manifest = new Toml().read(inputStream).to(Manifest.class);
+            Toml toml = new Toml().read(inputStream);
+            Manifest manifest = toml.to(Manifest.class);
+            manifest.getProject().setOrgName(toml.getString("project.org-name"));
             validateManifestDependencies(manifest);
             return manifest;
         } catch (IllegalStateException ise) {
