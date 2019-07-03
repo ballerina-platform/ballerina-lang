@@ -3646,17 +3646,21 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
-            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            actualType = couldHoldNonMappingJson(effectiveType) ?
+                    BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;
+            nillableExprType = true;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
             BType laxFieldAccessType =
                     getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
-            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            actualType = couldHoldNonMappingJson(effectiveType) ?
+                    BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
             fieldAccessExpr.nilSafeNavigation = true;
+            nillableExprType = true;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS,
                        varRefType);
@@ -3667,6 +3671,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return actualType;
+    }
+
+    private boolean couldHoldNonMappingJson(BType type) {
+        if (type.tag == TypeTags.JSON) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP) {
+            return false;
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::couldHoldNonMappingJson);
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType) {

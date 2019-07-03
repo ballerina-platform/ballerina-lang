@@ -96,10 +96,14 @@ public class OptionalFieldAccessTest {
     @DataProvider(name = "jsonOptionalFieldAccessFunctions")
     public Object[][] jsonOptionalFieldAccessFunctions() {
         return new Object[][] {
-                { "testOptionalFieldAccessOnJson1" },
-                { "testOptionalFieldAccessOnJson2" },
-                { "testOptionalFieldAccessOnJson3" },
-                { "testOptionalFieldAccessOnJson4" },
+                { "testOptionalFieldAccessNilLiftingOnJson1" },
+                { "testOptionalFieldAccessNilLiftingOnJson2" },
+                { "testOptionalFieldAccessNilLiftingOnMapJson" },
+                { "testOptionalFieldAccessErrorOnNonMappingJson" },
+                { "testOptionalFieldAccessErrorLiftingOnNonMappingJson" },
+                { "testOptionalFieldAccessOnJsonMappingPositive" },
+                { "testOptionalFieldAccessOnMapJsonPositive" },
+                { "testOptionalFieldAccessNilReturnOnMissingKey" }
         };
     }
 }

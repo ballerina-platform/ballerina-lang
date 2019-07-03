@@ -136,29 +136,65 @@ function testOptionalFieldAccessOnOptionalRecordFieldInNillableRecordUnion2() re
     return id is () && name is ();
 }
 
-function testOptionalFieldAccessOnJson1() returns boolean {
+function testOptionalFieldAccessNilLiftingOnJson1() returns boolean {
     json j = ();
     json|error j2 = j?.a;
     json|error j3 = j?.a?.b;
     return j2 == () && j3 == ();
 }
 
-function testOptionalFieldAccessOnJson2() returns boolean {
-    json j = 1;
-    json|error j2 = j?.a;
-    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j?.a?.b);
+function testOptionalFieldAccessNilLiftingOnJson2() returns boolean {
+    json x = { c: 3, d: () };
+    json j = { a: 1, b: x };
+    return j?.b?.d?.onNil == ();
 }
 
-function testOptionalFieldAccessOnJson3() returns boolean {
+function testOptionalFieldAccessNilLiftingOnMapJson() returns boolean {
+    map<json> j = { a: (), b: { c: 3, d: () } };
+    json j1 = j?.a;
+    json|error j2 = j?.a?.b;
+    json|error j3 = j?.b?.d;
+    json|error j4 = j?.b?.d?.x;
+
+    return j1 is () && j2 is () && j3 is () && j4 is ();
+}
+
+function testOptionalFieldAccessErrorOnNonMappingJson() returns boolean {
+    json j = 1;
+    json|error j2 = j?.a;
+    return assertNonMappingJsonError(j2);
+}
+
+function testOptionalFieldAccessErrorLiftingOnNonMappingJson() returns boolean {
+    json j = 1;
+    return assertNonMappingJsonError(j?.a?.b);
+}
+
+function testOptionalFieldAccessOnJsonMappingPositive() returns boolean {
     json x = { c: 3, d: () };
     json j = { a: 1, b: x };
     json|error j2 = j?.a;
     json|error j3 = j?.b;
     json|error j4 = j?.b?.c;
-    return j2 == 1 && j3 == x && j4 == 3 && j?.b?.d?.nonExistent == ();
+    return j2 == 1 && j3 == x && j4 == 3;
 }
 
-function testOptionalFieldAccessOnJson4() returns boolean {
+function testOptionalFieldAccessOnMapJsonPositive() returns boolean {
+    map<json> x = { c: 3, d: () };
+    json j = x?.c;
+
+    map<map<json>> y = { a: { b: 1, c: "hello" }, d: { e: 2.0 } };
+    json j2 = y?.a;
+    json j3 = y?.a?.b;
+    json j4 = y?.d;
+
+    map<json> m1 = { b: 1, c: "hello" };
+    map<json> m2 = { e: 2.0 };
+
+    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2;
+}
+
+function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
     json j = { a: 1, b: { c: "foo" } };
 
     json|error j2 = j?.x;
@@ -166,6 +202,37 @@ function testOptionalFieldAccessOnJson4() returns boolean {
     json|error j4 = j?.b?.d;
     return j2 == () && j3 == () && j4 == ();
 }
+
+//function testOptionalFieldAccessErrorOnNonMappingJson() returns boolean {
+//    json j = 1;
+//    json|error j2 = j?.a;
+//    return assertNonMappingJsonError(j2);
+//}
+//
+//function testOptionalFieldAccessErrorLiftingOnNonMappingJson() returns boolean {
+//    json j = 1;
+//    return assertNonMappingJsonError(j?.a?.b);
+//}
+//
+//function testOptionalFieldAccessOnJsonMappingPositive() returns boolean {
+//    json x = { c: 3, d: () };
+//    json j = { a: 1, b: x };
+//    json|error j2 = j?.a;
+//    json|error j3 = j?.b;
+//    json|error j4 = j?.b?.c;
+//    return j2 == 1 && j3 == x && j4 == 3;
+//}
+//
+//function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
+//    json j = { a: 1, b: { c: "foo" } };
+//
+//    json|error j2 = j?.x;
+//    json|error j3 = j?.y?.z;
+//    json|error j4 = j?.b?.d;
+//    return j2 == () && j3 == () && j4 == ();
+//}
+//
+
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
