@@ -6,13 +6,13 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openReadableFile(string path)(ballerina/io:ReadableByteChannel|error)",
+      "label": "openReadableFile(string path)((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "insertText": "openReadableFile(${1})",
@@ -57,13 +57,13 @@
       }
     },
     {
-      "label": "openReadableCsvFile(string path)(ballerina/io:ReadableCSVChannel|error)",
+      "label": "openReadableCsvFile(string path)((ballerina/io:ReadableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:ReadableCSVChannel|error"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \n(ballerina/io:ReadableCSVChannel|error)"
         }
       },
       "insertText": "openReadableCsvFile(${1})",

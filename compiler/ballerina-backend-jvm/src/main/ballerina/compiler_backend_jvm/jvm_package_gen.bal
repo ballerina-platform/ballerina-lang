@@ -166,6 +166,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+            generateCreateTypesMethod(cw, module.typeDefs);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);

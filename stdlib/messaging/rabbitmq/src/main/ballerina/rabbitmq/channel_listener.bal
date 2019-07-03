@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 # Public Ballerina API - Ballerina RabbitMQ Message Listener.
 # To provide a listener to consume messages from RabbitMQ.
 #
@@ -58,11 +57,11 @@ public type Listener object {
 
     # Binds the ChannelListener to a service.
     #
-    # + serviceType - Type descriptor of the service to bind to.
+    # + s - Type descriptor of the service to bind to.
     # + name - Name of the service.
-    # + return - Nil or error upon failure to register listener.
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.registerListener(serviceType);
+    # + return - () or error upon failure to register listener.
+    public function __attach(service s, string? name = ()) returns error? {
+       self.registerListener(s);
     }
 
     # Retrieve the Channel which initializes this listener.
@@ -79,8 +78,7 @@ public type Listener object {
 # Represents the list of parameters required to create a subscription.
 #
 # + queueConfig - Specifies configuration details about the queue to be subscribed to.
-# + ackMode - Type of the acknowledgement mode. Default mode is rabbitmq:CLIENT_ACK
-#                    where manual acknowledgements are required.
+# + ackMode - Type of acknowledgement mode.
 # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
 #                      Unless explicitly given, this value is 10 by default.
 # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.

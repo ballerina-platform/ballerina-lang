@@ -11,6 +11,7 @@ bbeASTsArray.forEach((bbeASTPath) => {
     test(`Diagram for ${bbeAST.title} renders properly`, () => {
         const component = create(
             <EditableDiagram
+              fitToWidthOrHeight
               docUri={bbeAST.bbe}
               langClient={new MockLangClient(bbeAST.ast)}
               {...commonProps}

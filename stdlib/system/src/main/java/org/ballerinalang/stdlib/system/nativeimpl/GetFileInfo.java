@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -29,9 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-
-import static org.ballerinalang.stdlib.system.utils.SystemUtils.getBallerinaError;
-import static org.ballerinalang.stdlib.system.utils.SystemUtils.getFileInfo;
 
 /**
  * Extern function ballerina.system:getFileInfo.
@@ -45,21 +43,23 @@ import static org.ballerinalang.stdlib.system.utils.SystemUtils.getFileInfo;
         isPublic = true
 )
 public class GetFileInfo extends BlockingNativeCallableUnit {
+
     private static final Logger log = LoggerFactory.getLogger(GetFileInfo.class);
+
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
-        File inputFile = Paths.get(inputPath).toAbsolutePath().toFile();
+    }
+
+    public static Object getFileInfo(Strand strand, String path) {
+        File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
-                    "File doesn't exist in path " + inputPath));
-            return;
+            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + path);
         }
         try {
-            context.setReturnValues(getFileInfo(context, inputFile));
+            return SystemUtils.getFileInfo(inputFile);
         } catch (IOException e) {
-            log.error("IO error while creating the file " + inputPath, e);
-            context.setReturnValues(getBallerinaError("FILE_SYSTEM_ERROR", e));
+            log.error("IO error while creating the file " + path, e);
+            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
         }
     }
 }
