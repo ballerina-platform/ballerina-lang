@@ -19,6 +19,8 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -41,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Slice {
 
-    public static ArrayValue slice(Strand strand, ArrayValue arr, int startIndex, int endIndex) {
+    public static ArrayValue slice(Strand strand, ArrayValue arr, long startIndex, long endIndex) {
         int size = arr.size();
 
         if (startIndex < 0) {
@@ -54,15 +56,36 @@ public class Slice {
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
-        int sliceSize = endIndex - startIndex;
+        long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
             throw BLangExceptionHelper
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        ArrayValue slicedArr = new ArrayValue(arr.getType());
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            slicedArr.add(j, arr.get(i));
+        BArrayType arrType = (BArrayType) arr.getType();
+        ArrayValue slicedArr = new ArrayValue(arrType);
+        int elemTypeTag = arrType.getElementType().getTag();
+
+        for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
+            switch (elemTypeTag) {
+                case TypeTags.INT_TAG:
+                    slicedArr.add(j, arr.getInt(i));
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    slicedArr.add(j, arr.getBoolean(i));
+                    break;
+                case TypeTags.BYTE_TAG:
+                    slicedArr.add(j, arr.getByte(i));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    slicedArr.add(j, arr.getFloat(i));
+                    break;
+                case TypeTags.STRING_TAG:
+                    slicedArr.add(j, arr.getString(i));
+                    break;
+                default:
+                    slicedArr.add(j, arr.getRefValue(i));
+            }
         }
 
         return slicedArr;

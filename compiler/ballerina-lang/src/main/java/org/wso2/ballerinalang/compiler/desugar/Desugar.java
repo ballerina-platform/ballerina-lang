@@ -4510,6 +4510,25 @@ public class Desugar extends BLangNodeVisitor {
             return expr;
         }
 
+        if (expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
+
+            if (Symbols.isFlagOn(invocation.type.tsymbol.flags, Flags.TYPE_PARAM)) {
+                BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
+                                                                                    symTable.errorType, false, true,
+                                                                                    InstructionCodes.NOP, null, null);
+                BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                        TreeBuilder.createTypeConversionNode();
+                conversionExpr.expr = expr;
+                conversionExpr.targetType = lhsType;
+                conversionExpr.conversionSymbol = conversionSymbol;
+                conversionExpr.type = lhsType;
+                conversionExpr.pos = expr.pos;
+                return conversionExpr;
+            }
+        }
+
         BType rhsType = expr.type;
         if (types.isSameType(rhsType, lhsType)) {
             return expr;

@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class SetLength {
 
-    public static void setLength(Strand strand, ArrayValue arr, int i) {
+    public static void setLength(Strand strand, ArrayValue arr, long i) {
         throw BallerinaErrors.createError("Function 'setLength()' is not implemented");
     }
 }

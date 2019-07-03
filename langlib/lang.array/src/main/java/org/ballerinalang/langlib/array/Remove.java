@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Remove {
 
-    public static Object remove(Strand strand, ArrayValue arr, int i) {
+    public static Object remove(Strand strand, ArrayValue arr, long i) {
         return arr.shift(i);
     }
 }
