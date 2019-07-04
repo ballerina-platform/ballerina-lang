@@ -1,35 +1,35 @@
 import ballerina/io;
 
-function getHandle() returns ophandle? {
-    ophandle? h = ();
+function getHandle() returns handle? {
+    handle? h = ();
     return h;
 }
 
-function getHandleValueAsAParameter(ophandle h) returns ophandle {
+function getHandleValueAsAParameter(handle h) returns handle {
     return h;
 }
 
-function acceptHandleValueWithAny(any a) returns ophandle {
-    ophandle h = <ophandle> a;
+function acceptHandleValueWithAny(any a) returns handle {
+    handle h = <handle> a;
     return h;
 }
 
-function testHandleValueEquality(ophandle h1, ophandle h2) returns boolean {
+function testHandleValueEquality(handle h1, handle h2) returns boolean {
     return h1 === h2;
 }
 
-function testHandleValueInequality(ophandle h1, ophandle h2) returns boolean {
+function testHandleValueInequality(handle h1, handle h2) returns boolean {
     return h1 !== h2;
 }
 
-ophandle? modLevelH = ();
+handle? modLevelH = ();
 
-function setAndGetModuleLevelHandleValue(ophandle h) returns ophandle {
+function setAndGetModuleLevelHandleValue(handle h) returns handle {
     modLevelH = h;
-    return <ophandle> modLevelH;
+    return <handle> modLevelH;
 }
 
-function testUnionsWithHandleType(ophandle | string | int h) returns string {
+function testUnionsWithHandleType(handle | string | int h) returns string {
     if (h is int) {
         return "int";
     } else if (h is string) {
@@ -39,22 +39,22 @@ function testUnionsWithHandleType(ophandle | string | int h) returns string {
     }
 }
 
-function testArrayAccessOfHandleValues(ophandle[] hArray, int index) returns ophandle {
+function testArrayAccessOfHandleValues(handle[] hArray, int index) returns handle {
     return hArray[index];
 }
 
-function testArrayStoreOfHandleValues(ophandle[] hArray, int index, ophandle h) returns ophandle[] {
+function testArrayStoreOfHandleValues(handle[] hArray, int index, handle h) returns handle[] {
     hArray[index] = h;
     return hArray;
 }
 
-function testCreateArrayOfHandleValues(ophandle h1, ophandle h2, ophandle h3, ophandle h4, int index) returns ophandle {
-    ophandle[4] hArray = [h1, h2, h3, h4];
+function testCreateArrayOfHandleValues(handle h1, handle h2, handle h3, handle h4, int index) returns handle {
+    handle[4] hArray = [h1, h2, h3, h4];
     return hArray[index];
 }
 
-function testCreateMapOfHandleValues(ophandle h1, ophandle h2, ophandle h3, ophandle h4) returns ophandle {
-    map<ophandle> hMap = {};
+function testCreateMapOfHandleValues(handle h1, handle h2, handle h3, handle h4) returns handle {
+    map<handle> hMap = {};
     hMap["key1"] = h1;
     hMap["key2"] = h2;
     hMap["key3"] = h3;
@@ -65,24 +65,24 @@ function testCreateMapOfHandleValues(ophandle h1, ophandle h2, ophandle h3, opha
 type Material record {
     int id;
     string name;
-    ophandle h;
+    handle h;
 };
 
-function testCreateRecordWithHandleValues(ophandle h1, ophandle h2) returns ophandle {
+function testCreateRecordWithHandleValues(handle h1, handle h2) returns handle {
     Material m = {id:10, name:"plastic", h:h1};
     m.h = h2;
     return m.h;
 }
 
-type MyList [int, ophandle, ophandle, string];
+type MyList [int, handle, handle, string];
 
-function testCreateTuplesWithHandleValues(ophandle h1, ophandle h2) returns ophandle {
+function testCreateTuplesWithHandleValues(handle h1, handle h2) returns handle {
     MyList list = [5, h1, h2, "this is a tuple value"];
 
     int i;
     string s;
-    ophandle h3;
-    ophandle h4;
+    handle h3;
+    handle h4;
     [i, h3, h4, s] = list;
     return h3;
 }
@@ -92,9 +92,9 @@ type Person object {
     string name = "";
     string address = "";
     string zipcode = "95134";
-    ophandle data;
+    handle data;
 
-    function __init (ophandle data) {
+    function __init (handle data) {
         self.data = data;
     }
 
@@ -106,16 +106,16 @@ type Person object {
         return self.age;
     }
 
-    function getData () returns ophandle {
+    function getData () returns handle {
         return self.data;
     }
 
-    function setData(ophandle h) {
+    function setData(handle h) {
         self.data = h;
     }
 };
 
-function testCreateObjectWithHandleValues(ophandle h1, ophandle h2) returns ophandle {
+function testCreateObjectWithHandleValues(handle h1, handle h2) returns handle {
     Person person = new(h1);
     person.setData(h2);
     return person.getData();

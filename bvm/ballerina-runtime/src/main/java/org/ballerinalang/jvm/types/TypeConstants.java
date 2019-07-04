@@ -46,5 +46,5 @@ public class TypeConstants {
     public static final String CHANNEL = "channel";
     public static final String ERROR = "error";
     public static final String SERVICE = "service";
-    public static final String HANDLE_TNAME = "ophandle";
+    public static final String HANDLE_TNAME = "handle";
 }

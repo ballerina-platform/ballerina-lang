@@ -77,7 +77,7 @@ function checkForAuthHandlers(InboundAuthHandler?[] authHandlers, Request reques
         if (authHandler is InboundAuthHandler) {
             boolean canHandleResponse = authHandler.canHandle(request);
             if (canHandleResponse) {
-                var handleResponse = authHandler.handle(request);
+                var handleResponse = authHandler.process(request);
                 if (handleResponse is boolean) {
                     if (handleResponse) {
                         // If one of the authenticators from the chain could successfully authenticate the user,
