@@ -693,13 +693,61 @@ public class Types {
                                              List<TypePair> unresolvedTypes) {
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
-        if (Symbols.isFlagOn(source.tsymbol.flags, Flags.TYPE_PARAM)) {
-            return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isAssignable);
+        if (containsTypeParams(target)) {
+            // TODO: 7/4/19 See if the below code can be generalized to avoid code duplication
+            if (source.paramTypes.size() != target.paramTypes.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < source.paramTypes.size(); i++) {
+                BType sourceParam = source.paramTypes.get(i);
+                BType targetParam = target.paramTypes.get(i);
+                boolean isTypeParam = Symbols.isFlagOn(targetParam.tsymbol.flags, Flags.TYPE_PARAM);
+
+                if (isTypeParam) {
+                    if (!isAssignable(sourceParam, targetParam)) {
+                        return false;
+                    }
+                } else {
+                    if (!isAssignable(targetParam, sourceParam)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (source.retType == null && target.retType == null) {
+                return true;
+            } else if (source.retType == null || target.retType == null) {
+                return false;
+            }
+
+            // Source return type should be covariant with target return type
+            return isAssignable(source.retType, target.retType, unresolvedTypes);
         }
 
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean containsTypeParams(BInvokableType type) {
+        boolean hasParameterizedTypes = type.paramTypes.stream()
+                .anyMatch(t -> {
+                    if (t.tag == TypeTags.FUNCTION_POINTER) {
+                        return containsTypeParams((BInvokableType) t);
+                    }
+                    return Symbols.isFlagOn(t.tsymbol.flags, Flags.TYPE_PARAM);
+                });
+
+        if (hasParameterizedTypes) {
+            return hasParameterizedTypes;
+        }
+
+        if (type.retType.tag == TypeTags.FUNCTION_POINTER) {
+            return containsTypeParams((BInvokableType) type.retType);
+        }
+
+        return Symbols.isFlagOn(type.retType.tsymbol.flags, Flags.TYPE_PARAM);
     }
 
     private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
