@@ -26,11 +26,11 @@ import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class TransactionConstants {
     //Co-ordinator functions
-    public static final String COORDINATOR_BEGIN_TRANSACTION = "beginTransaction";
-    public static final String COORDINATOR_END_TRANSACTION = "endTransaction";
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
 
+    public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
     public static final String TRANSACTION_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "transactions";
+    public static final String TRANSACTION_BLOCK_CLASS_NAME = "transactions_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;
 
     public static final int DEFAULT_RETRY_COUNT = 3;
