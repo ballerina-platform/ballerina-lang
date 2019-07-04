@@ -33,7 +33,7 @@ public class MimeConstants {
     public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
 //    public static final String MIME_ERROR_RECORD = "MIMEError";
     public static final String MIME_ERROR_MESSAGE = "message";
-    public static final String READING_ENTITY_FAILED = "{ballerina/mime}ReadingEntityFailed";
+    public static final String PARSING_ENTITY_FAILED = "{ballerina/mime}ParsingEntityFailed";
     public static final String READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
     public static final String MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
 

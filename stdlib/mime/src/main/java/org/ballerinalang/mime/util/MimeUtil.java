@@ -731,7 +731,7 @@ public class MimeUtil {
      * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
      *
      *
-     * @param reason
+     * @param reason Error reason
      * @param errMsg  Actual error message
      * @return Ballerina error value
      */

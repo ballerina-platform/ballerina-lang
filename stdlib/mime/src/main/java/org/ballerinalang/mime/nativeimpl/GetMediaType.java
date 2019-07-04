@@ -30,8 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
 
 /**
  * Construct MediaType struct from Content-Type string.
@@ -65,7 +65,7 @@ public class GetMediaType extends BlockingNativeCallableUnit {
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
         } catch (Throwable e) {
-            return MimeUtil.createError(READING_ENTITY_FAILED, e.getMessage());
+            return MimeUtil.createError(PARSING_ENTITY_FAILED, e.getMessage());
         }
     }
 }

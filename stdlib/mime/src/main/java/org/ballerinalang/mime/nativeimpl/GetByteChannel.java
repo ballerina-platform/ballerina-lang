@@ -28,8 +28,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,9 +37,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -101,36 +99,36 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 return byteChannelObj;
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-                    return MimeUtil.createError(READING_ENTITY_FAILED, "Byte channel is not available but " +
+                    return MimeUtil.createError(PARSING_ENTITY_FAILED, "Byte channel is not available but " +
                                                         "payload can be obtain either as xml, json, string or byte[] " +
                                                         "type");
                 } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
                         getBodyPartArray(entityObj).size() != 0) {
-                    return MimeUtil.createError(READING_ENTITY_FAILED,
+                    return MimeUtil.createError(PARSING_ENTITY_FAILED,
                             "Byte channel is not available since payload contains a set of body parts");
                 } else {
-                    return MimeUtil.createError(READING_ENTITY_FAILED, "Byte channel is not available as payload");
+                    return MimeUtil.createError(PARSING_ENTITY_FAILED, "Byte channel is not available as payload");
                 }
             }
         } catch (Throwable e) {
-            return MimeUtil.createError(READING_ENTITY_FAILED,
+            return MimeUtil.createError(PARSING_ENTITY_FAILED,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage());
         }
     }
 
-    private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
-        if (httpCarbonMessage == null) {
-            return;
-        }
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-
-        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
-        if (contentLength > 0) {
-            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
-        }
-    }
+//    private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
+//        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
+//        if (httpCarbonMessage == null) {
+//            return;
+//        }
+//        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+//
+//        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
+//        if (contentLength > 0) {
+//            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+//                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+//        }
+//    }
 
     private static void populateEntityWithByteChannel(ObjectValue entity) {
         HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);

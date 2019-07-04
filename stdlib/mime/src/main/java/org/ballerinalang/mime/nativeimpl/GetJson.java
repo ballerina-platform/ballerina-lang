@@ -29,14 +29,13 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 
 /**
  * Get the entity body in JSON form.
@@ -109,17 +108,17 @@ public class GetJson extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            return createErrorAndNotify(READING_ENTITY_FAILED, callback,
+            return createErrorAndNotify(PARSING_ENTITY_FAILED, callback,
                                  "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
         return result;
     }
 
-    private boolean isJSON(BValue value) {
-        // If the value is string, it could represent any type of payload.
-        // Therefore it needs to be parsed as JSON.
-        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
-    }
+//    private boolean isJSON(BValue value) {
+//        // If the value is string, it could represent any type of payload.
+//        // Therefore it needs to be parsed as JSON.
+//        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
+//    }
 
     private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.

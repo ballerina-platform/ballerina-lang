@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSou
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -119,7 +119,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(READING_ENTITY_FAILED, callback,
+                createErrorAndNotify(PARSING_ENTITY_FAILED, callback,
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
@@ -176,14 +176,14 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
     }
 
     //TODO Remove after migration : implemented using bvm values/types
-    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityObj) {
-        HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
-        if (message != null) {
-            return message;
-        } else {
-            throw new BallerinaIOException("Empty content");
-        }
-    }
+//    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityObj) {
+//        HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
+//        if (message != null) {
+//            return message;
+//        } else {
+//            throw new BallerinaIOException("Empty content");
+//        }
+//    }
 
     private static HttpCarbonMessage extractTransportMessageFromEntity(ObjectValue entityObj) {
         HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);

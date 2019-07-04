@@ -22,8 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import static org.ballerinalang.mime.util.HeaderUtil.isMultipart;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.MimeConstants.READING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeUtil.getContentTypeWithParameters;
 import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
 
@@ -87,11 +87,11 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 return byteChannelObj;
             } else {
-                return MimeUtil.createError(READING_ENTITY_FAILED, "Entity doesn't contain body parts");
+                return MimeUtil.createError(PARSING_ENTITY_FAILED, "Entity doesn't contain body parts");
             }
         } catch (Throwable err) {
             log.error("Error occurred while constructing a byte channel out of body parts", err);
-            return MimeUtil.createError(READING_ENTITY_FAILED, "Error occurred while constructing a byte " +
+            return MimeUtil.createError(PARSING_ENTITY_FAILED, "Error occurred while constructing a byte " +
                     "channel out of body parts : " + err.getMessage());
         }
     }
