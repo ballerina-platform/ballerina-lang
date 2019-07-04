@@ -55,6 +55,7 @@ public class BTypes {
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
             null, null), typeString, typeMap);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
+    public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
 
     static {
         typeError.detailType = new BMapType(typePureType);

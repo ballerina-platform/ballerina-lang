@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -68,6 +69,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -496,6 +498,9 @@ public class BRunUtil {
                 case TypeTags.NULL_TAG:
                     typeClazz = Object.class;
                     break;
+                case TypeTags.HANDLE_TAG:
+                    typeClazz = HandleValue.class;
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -657,6 +662,9 @@ public class BRunUtil {
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+            case TypeTags.HANDLE_TAG:
+                BHandleValue handleValue = (BHandleValue) value;
+                return new HandleValue(handleValue.getValue());
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -759,6 +767,9 @@ public class BRunUtil {
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+            case TypeTags.HANDLE_TAG:
+                BHandleValue bHandleValue = (BHandleValue) value;
+                return new HandleValue(bHandleValue.getValue());
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -883,6 +894,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeAnydata;
             case TypeTags.JSON_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeJSON;
+            case TypeTags.HANDLE_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeHandle;
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
@@ -1039,6 +1052,9 @@ public class BRunUtil {
                 StreamValue streamValue = (StreamValue) value;
                 bvmValue = new BStream(getBVMType(streamValue.getType(), new Stack<>()), streamValue.getStreamId());
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+                bvmValue = new BHandleValue(((HandleValue) value).value);
+                break;
             case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
                 FPValue functionValue = (FPValue) value;
                 bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
@@ -1154,7 +1170,8 @@ public class BRunUtil {
                         jvmBFiniteType.getPackage() == null ? null : jvmType.getPackage().name);
                 jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
                 return bFiniteType;
-
+            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+                return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
                 org.ballerinalang.jvm.types.BFunctionType jvmBFunctionType =
                         (org.ballerinalang.jvm.types.BFunctionType) jvmType;
