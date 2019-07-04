@@ -21,21 +21,26 @@ public type Message client object {
    #
    # + multiple - `true` to acknowledge all messages up to and including the message called on,
    #                `false` to acknowledge just the message called on.
-   # + return - Returns an error if an I/O error is encountered or nil if successful.
-   public remote function basicAck(boolean multiple = false) returns error? = external;
+   # + return - An error if an I/O error is encountered or nil if successful.
+   public remote function basicAck(boolean? multiple = false) returns error? = external;
 
    # Reject one or several received messages.
    #
    # + multiple - `true` to reject all messages up to and including the message called on;
    #                `false` to reject just the message called on.
    # + requeue - `true` if the rejected message(s) should be requeued rather than discarded/dead-lettered.
-   # + return - Returns an error if an I/O error is encountered or nil if successful.
-   public remote function basicNack(boolean multiple = false, boolean requeue = true) returns error? = external;
+   # + return - An error if an I/O error is encountered or nil if successful.
+   public remote function basicNack(boolean? multiple = false, boolean? requeue = true) returns error? = external;
 
    # Retrieves the delivery tag of the message.
    #
    # + return - int containing the delivery tag of the message.
    public function getDeliveryTag() returns @tainted int = external;
+
+   # Retrieves the properties of the message (i.e., routing headers etc.).
+   #
+   # + return - Properties of the message or error if an error is encountered.
+   public function getProperties() returns BasicProperties | error = external;
 
    # Retrieves the text content of the RabbitMQ message.
    #

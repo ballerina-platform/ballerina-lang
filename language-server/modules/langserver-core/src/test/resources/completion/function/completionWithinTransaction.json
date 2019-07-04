@@ -337,13 +337,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "divideNumbers(int a, int b)(int|error)",
+      "label": "divideNumbers(int a, int b)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "sortText": "120",
@@ -379,14 +379,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "sortText": "110",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
@@ -415,7 +407,7 @@
     {
       "label": "resp",
       "kind": "Variable",
-      "detail": "ballerina/http:Response|error",
+      "detail": "(ballerina/http:Response|error)",
       "sortText": "110",
       "insertText": "resp",
       "insertTextFormat": "Snippet"

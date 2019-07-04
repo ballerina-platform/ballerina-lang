@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -59,8 +58,7 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             return this.getCompletionItemsAfterOnKeyword(ctx);
         }
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        if (lhsTokens != null && !lhsTokens.isEmpty()
-                && lhsTokens.get(lhsTokens.size() - 1).getType() == BallerinaParser.AT) {
+        if (this.isAnnotationAttachmentContext(ctx)) {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 

@@ -20,15 +20,10 @@ package org.ballerinalang.messaging.rabbitmq.util;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -41,53 +36,48 @@ import java.util.concurrent.TimeoutException;
  */
 public class ConnectionUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionUtils.class);
-
     /**
      * Creates a RabbitMQ Connection using the given connection parameters.
      *
      * @param connectionConfig Parameters used to initialize the connection.
      * @return RabbitMQ Connection object.
      */
-    public static Connection createConnection(BMap<String, BValue> connectionConfig) {
+    public static Connection createConnection(MapValue<String, Object> connectionConfig) {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
 
-            String host = RabbitMQUtils.getStringFromBValue(connectionConfig,
-                    RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
+            String host = connectionConfig.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
             connectionFactory.setHost(host);
 
-            int port = RabbitMQUtils.getIntFromBValue(connectionConfig,
-                    RabbitMQConstants.RABBITMQ_CONNECTION_PORT, LOGGER);
+            int port = Math.toIntExact(connectionConfig.getIntValue(RabbitMQConstants.RABBITMQ_CONNECTION_PORT));
             connectionFactory.setPort(port);
 
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_USER) != null) {
-                connectionFactory.setUsername(RabbitMQUtils.getStringFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_USER));
+            Object username = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_USER);
+            if (username != null) {
+                connectionFactory.setUsername(username.toString());
             }
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_PASS) != null) {
-                connectionFactory.setPassword(RabbitMQUtils.getStringFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_PASS));
+            Object pass = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_PASS);
+            if (pass != null) {
+                connectionFactory.setPassword(pass.toString());
             }
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT) != null) {
-                connectionFactory.setConnectionTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT, LOGGER));
+            Object timeout = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT);
+            if (timeout != null) {
+                connectionFactory.setConnectionTimeout(Integer.parseInt(timeout.toString()));
             }
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT) != null) {
-                connectionFactory.setHandshakeTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT, LOGGER));
+            Object handshakeTimeout = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT);
+            if (handshakeTimeout != null) {
+                connectionFactory.setHandshakeTimeout(Integer.parseInt(handshakeTimeout.toString()));
             }
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT) != null) {
-                connectionFactory.setShutdownTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT, LOGGER));
+            Object shutdownTimeout = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT);
+            if (shutdownTimeout != null) {
+                connectionFactory.setShutdownTimeout(Integer.parseInt(shutdownTimeout.toString()));
             }
-            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HEARTBEAT) != null) {
-                connectionFactory.setRequestedHeartbeat(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RabbitMQConstants.RABBITMQ_CONNECTION_HEARTBEAT, LOGGER));
+            Object connectionHeartBeat = connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HEARTBEAT);
+            if (connectionHeartBeat != null) {
+                connectionFactory.setRequestedHeartbeat(Integer.parseInt(connectionHeartBeat.toString()));
             }
             return connectionFactory.newConnection();
         } catch (IOException | TimeoutException exception) {
-            LOGGER.error(RabbitMQConstants.CREATE_CONNECTION_ERROR, exception);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_CONNECTION_ERROR
                     + exception.getMessage(), exception);
         }
@@ -102,23 +92,19 @@ public class ConnectionUtils {
      * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeMessage A message indicating the reason for closing the connection.
      */
-    public static void handleCloseConnection(Connection connection, BValue closeCode, BValue closeMessage,
-                                             BValue timeout) {
-        boolean validTimeout = timeout instanceof BInteger;
-        boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
+    public static void handleCloseConnection(Connection connection, Object closeCode, Object closeMessage,
+                                             Object timeout) {
+        boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
+        boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
+                (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
         try {
             if (validTimeout && validCloseCode) {
-                close(connection,
-                        Math.toIntExact(((BInteger) closeCode).intValue()),
-                        closeMessage.stringValue(),
-                        Math.toIntExact(((BInteger) timeout).intValue()));
+                close(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString(),
+                        Integer.parseInt(timeout.toString()));
             } else if (validTimeout) {
-                close(connection,
-                        Math.toIntExact(((BInteger) timeout).intValue()));
+                close(connection, Integer.parseInt(timeout.toString()));
             } else if (validCloseCode) {
-                close(connection,
-                        Math.toIntExact(((BInteger) closeCode).intValue()),
-                        closeMessage.stringValue());
+                close(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString());
             } else {
                 close(connection);
             }
@@ -137,22 +123,18 @@ public class ConnectionUtils {
      * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
      * @param closeMessage A message indicating the reason for closing the connection.
      */
-    public static void handleAbortConnection(Connection connection, BValue closeCode, BValue closeMessage,
-                                             BValue timeout) {
-        boolean validTimeout = timeout instanceof BInteger;
-        boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
+    public static void handleAbortConnection(Connection connection, Object closeCode, Object closeMessage,
+                                             Object timeout) {
+        boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
+        boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
+                (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
         if (validTimeout && validCloseCode) {
-            abortConnection(connection,
-                    Math.toIntExact(((BInteger) closeCode).intValue()),
-                    closeMessage.stringValue(),
-                    Math.toIntExact(((BInteger) timeout).intValue()));
+            abortConnection(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString(),
+                    Integer.parseInt(timeout.toString()));
         } else if (validTimeout) {
-            abortConnection(connection,
-                    Math.toIntExact(((BInteger) timeout).intValue()));
+            abortConnection(connection, Integer.parseInt(timeout.toString()));
         } else if (validCloseCode) {
-            abortConnection(connection,
-                    Math.toIntExact(((BInteger) closeCode).intValue()),
-                    closeMessage.stringValue());
+            abortConnection(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString());
         } else {
             abortConnection(connection);
         }
