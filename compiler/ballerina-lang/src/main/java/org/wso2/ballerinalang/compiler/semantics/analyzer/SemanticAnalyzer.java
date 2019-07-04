@@ -613,7 +613,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // match err1 { error(reason,....) => ... }
         // reason must be a const of subtype of string.
         // then we match the error with this specific reason.
-        if (!varNode.reasonVarPrefixAvailable) {
+        if (!varNode.reasonVarPrefixAvailable && varNode.type == null) {
             BErrorType errorType = new BErrorType(varNode.type.tsymbol, null, null);
 
             if (varNode.type.tag == TypeTags.UNION) {
