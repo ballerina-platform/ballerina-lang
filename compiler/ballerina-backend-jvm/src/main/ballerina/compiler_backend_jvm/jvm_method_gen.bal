@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap);
+        generateUserDefinedTypes(mv);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -1022,6 +1022,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
+    // start all listeners
+    startListeners(mv, serviceEPAvailable);
+
     BalToJVMIndexMap indexMap = new;
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
@@ -1035,7 +1038,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(ICONST_0);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
-if (hasInitFunction(pkg)) {
+    if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
@@ -1154,10 +1157,23 @@ if (hasInitFunction(pkg)) {
     }
 
     scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
-    
+
+    // stop all listeners
+    stopListeners(mv, serviceEPAvailable);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+    mv.visitLdcInsn(isServiceEPAvailable);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
+}
+
+function stopListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+    mv.visitLdcInsn(isServiceEPAvailable);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
 }
 
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable, 

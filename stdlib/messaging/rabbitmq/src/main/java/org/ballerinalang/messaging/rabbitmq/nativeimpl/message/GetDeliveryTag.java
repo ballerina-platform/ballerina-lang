@@ -20,12 +20,11 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -49,15 +48,16 @@ public class GetDeliveryTag extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        boolean isInTransaction = context.isInTransaction();
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+    }
+
+    public static int getDeliveryTag(Strand strand, ObjectValue messageObjectValue) {
+        boolean isInTransaction = false;
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        long deliveryTag = (long) messageObject.getNativeData(RabbitMQConstants.DELIVERY_TAG);
+        long deliveryTag = (long) messageObjectValue.getNativeData(RabbitMQConstants.DELIVERY_TAG);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock(context);
+            transactionContext.handleTransactionBlock();
         }
-        context.setReturnValues(new BInteger(deliveryTag));
+        return Math.toIntExact(deliveryTag);
     }
 }
