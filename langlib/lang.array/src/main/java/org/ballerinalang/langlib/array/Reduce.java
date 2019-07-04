@@ -45,7 +45,7 @@ public class Reduce {
         Object accum = initial;
 
         for (int i = 0; i < size; i++) {
-            accum = func.apply(new Object[]{strand, accum, arr.get(i)});
+            accum = func.apply(new Object[]{strand, accum, true, arr.get(i), true});
         }
 
         return accum;
