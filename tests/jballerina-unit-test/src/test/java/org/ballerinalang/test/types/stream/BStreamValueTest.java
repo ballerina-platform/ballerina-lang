@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
