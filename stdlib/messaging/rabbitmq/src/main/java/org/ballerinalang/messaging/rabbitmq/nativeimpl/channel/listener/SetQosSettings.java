@@ -21,12 +21,13 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -42,40 +43,40 @@ import java.io.IOException;
         packageName = RabbitMQConstants.RABBITMQ,
         functionName = "setQosSettings",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_LISTENER_OBJECT,
+                structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class SetQosSettings extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelObj =
-                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        Channel channel = (Channel) channelObj.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        BValue prefetchCount = context.getNullableRefArgument(1);
-        boolean isValidCount = prefetchCount instanceof BInteger;
+    }
+
+    public static Object setQosSettings(Strand strand, ObjectValue listenerObjectValue, Object prefetchCount,
+                                        Object prefetchSize) {
+        ObjectValue channelObject =
+                (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        boolean isValidCount = prefetchCount != null &&
+                RabbitMQUtils.checkIfInt(prefetchCount);
         try {
             if (isValidCount) {
-                BValue prefetchSize = context.getNullableRefArgument(2);
-                boolean isValidSize = prefetchSize instanceof BInteger;
+                boolean isValidSize = prefetchSize != null && RabbitMQUtils.checkIfInt(prefetchSize);
                 if (isValidSize) {
-                    channel.basicQos(Math.toIntExact(((BInteger) prefetchSize).intValue()),
-                            Math.toIntExact(((BInteger) prefetchCount).intValue()),
+                    channel.basicQos(Math.toIntExact(((Number) prefetchSize).longValue()),
+                            Math.toIntExact(((Number) prefetchCount).longValue()),
                             true);
-                    channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
+                    channelObject.addNativeData(RabbitMQConstants.QOS_STATUS, true);
                 } else {
                     channel.basicQos(Math.toIntExact(((BInteger) prefetchCount).intValue()),
                             true);
-                    channelObj.addNativeData(RabbitMQConstants.QOS_STATUS, true);
+                    channelObject.addNativeData(RabbitMQConstants.QOS_STATUS, true);
                 }
             }
         } catch (IOException exception) {
-            RabbitMQUtils.returnError("I/O error occurred while setting the global " +
-                    "quality of service settings for the listener", context, exception);
+            return BallerinaErrors.createError("An I/O error occurred while setting the global " +
+                    "quality of service settings for the listener");
         }
+        return null;
     }
 }
-
