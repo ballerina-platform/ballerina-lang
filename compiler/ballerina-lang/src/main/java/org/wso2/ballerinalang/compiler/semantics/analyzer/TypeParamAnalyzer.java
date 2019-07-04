@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -317,17 +318,18 @@ public class TypeParamAnalyzer {
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, List<BType> resolvedTypes) {
-
-        if (resolvedTypes.contains(expType)) {
-            return expType;
-        }
-        resolvedTypes.add(expType);
         if (isTypeParam(expType)) {
             return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
                     .findFirst()
                     .map(typeParamEntry -> typeParamEntry.boundType)
                     .orElse(expType);
         }
+
+        if (resolvedTypes.contains(expType)) {
+            return expType;
+        }
+        resolvedTypes.add(expType);
+
         switch (expType.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
@@ -395,6 +397,8 @@ public class TypeParamAnalyzer {
         List<BType> paramTypes = expType.paramTypes.stream()
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
+        // TODO: 7/4/19 Set a type symbol for the below type. Otherwise it'll cause problems for functions returning
+        //  a function pointer.
         return new BInvokableType(paramTypes, getMatchingBoundType(expType.retType, env, resolvedTypes), null);
     }
 
@@ -419,6 +423,9 @@ public class TypeParamAnalyzer {
             BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
                     expFunc.symbol.name, env.enclPkg.packageID, matchType, env.scope.owner);
+            matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
+                                                         env.enclPkg.symbol.pkgID, invokableSymbol.type,
+                                                         env.scope.owner);
             actObjectSymbol.attachedFuncs.add(new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType));
             actObjectSymbol.methodScope.define(expFunc.funcName, invokableSymbol);
         }

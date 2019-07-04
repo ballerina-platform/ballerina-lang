@@ -691,6 +691,12 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              List<TypePair> unresolvedTypes) {
+        // For invokable types with typeParam parameters, we have to check whether the source param types are
+        // covariant with the target param types.
+        if (Symbols.isFlagOn(source.tsymbol.flags, Flags.TYPE_PARAM)) {
+            return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isAssignable);
+        }
+
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));

@@ -123,6 +123,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -1400,6 +1401,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             paramTypes.add(invokableSymbol.restParam.type);
         }
         invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags,
+                                                                Names.EMPTY, env.enclPkg.symbol.pkgID,
+                                                                invokableSymbol.type, env.scope.owner);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
