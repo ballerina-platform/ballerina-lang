@@ -455,7 +455,7 @@ public class TypeParamAnalyzer {
     }
 
     /**
-     * Data holder for FindTypeParamResult;
+     * Data holder for FindTypeParamResult.
      *
      * @since jb 1.0.0
      */
