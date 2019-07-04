@@ -133,8 +133,11 @@ function testAcessILWithoutPipe() returns [string, string] {
      return j.foo.'int;
  }
 
-function testILConsistency() returns (string) {
-    map<string> nameMap = {};
-    nameMap.'\{http\:\/\/test\.com\}fname = "First Name";
-    return <string>nameMap["{http://test.com}fname"];
+type DOM record {
+    string '\{http\:\/\/test\.com\}fname;
+};
+
+function testILConsistency() returns DOM {
+    DOM d = {'\{http\:\/\/test\.com\}fname: "First Name Element"};
+    return d;
 }
