@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 type TestObject object {
     string? field;
 
@@ -55,7 +54,6 @@ public function main (string... args) {
     TestObject o3 = new();
     o3.setField(getTaintedString());
     secureFunction(<string> o3.field, "");
-
 
     var assig = o.testFunction("a");
     o.field = getTaintedString();

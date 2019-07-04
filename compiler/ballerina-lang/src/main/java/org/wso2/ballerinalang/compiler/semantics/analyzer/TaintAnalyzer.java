@@ -473,7 +473,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE) {
+        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE
+                || (varNode.symbol.owner.type != null && varNode.symbol.owner.type.tag == TypeTags.SERVICE)) {
             if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
                 ((BVarSymbol) varNode.symbol).isMarkTainted = true;
                 varNode.symbol.tainted = true;
