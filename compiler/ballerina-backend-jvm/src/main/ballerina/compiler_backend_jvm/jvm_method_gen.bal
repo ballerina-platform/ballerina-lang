@@ -16,18 +16,24 @@
 
 string[] generatedInitFuncs = [];
 
-function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
-
-    // skip code generation, if this is an extern function
-    if (isExternFunc(func)) {
-        return;
+function generateMethod(bir:Function birFunc,
+                            jvm:ClassWriter cw,
+                            bir:Package birModule,
+                            bir:BType? attachedType = ()) {
+    if (isExternFunc(birFunc)) {
+        genMethodForExternalFunction(birFunc, cw, birModule, attachedType = attachedType);
+    } else {
+        genMethodForBallerinaFunction(birFunc, cw, birModule, attachedType = attachedType);
     }
+}
 
+function genMethodForBallerinaFunction(bir:Function func,
+                                           jvm:ClassWriter cw,
+                                           bir:Package module,
+                                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
-
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
-
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -633,7 +639,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
     string lookupKey = getPackageName(orgName, moduleName) + funcName;
     string jvmClass = lookupFullQualifiedClassName(lookupKey);
-    boolean isExternFunction = isBIRFunctionExtern(lookupKey);
 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
@@ -712,7 +717,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramIndex += 1;
 
             argIndex += 1;
-            if (!isExternFunction) {
+            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
                 addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
@@ -743,7 +748,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             i += 1;
             argIndex += 1;
             
-            if (!isExternFunction) {
+            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
