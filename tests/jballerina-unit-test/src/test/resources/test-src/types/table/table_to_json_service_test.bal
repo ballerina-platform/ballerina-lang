@@ -50,7 +50,8 @@ service MyService on testEP {
                 result = { Error: ret.reason() };
             }
         } else {
-            result = { Error: selectRet.reason() };
+            error e = selectRet;
+            result = { Error: e.reason() };
         }
 
         http:Response res = new;
@@ -80,7 +81,8 @@ service MyService on testEP {
                 result = { Error: ret.reason() };
             }
         } else {
-            result = { Error: selectRet.reason() };
+            error e = selectRet;
+            result = { Error: e.reason() };
         }
         json j = { status: statusVal, resp: { value: result } };
 
