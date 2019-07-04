@@ -18,54 +18,58 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
+import com.rabbitmq.client.AMQP;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-
 /**
- * Retrieves the int content of the RabbitMQ message.
+ * Retrieves the basic properties of the message.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "getIntContent",
+        functionName = "getProperties",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = RabbitMQConstants.MESSAGE_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetIntContent extends BlockingNativeCallableUnit {
+public class GetProperties extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+
     }
 
-    public static Object getIntContent(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
-        byte[] messageContent = (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
-                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+    public static Object getProperties(Strand strand, ObjectValue messageObjectValue) {
+        AMQP.BasicProperties basicProperties =
+                (AMQP.BasicProperties) messageObjectValue.getNativeData(RabbitMQConstants.BASIC_PROPERTIES);
+        if (basicProperties == null) {
+            return RabbitMQUtils.returnErrorValue
+                    ("Failure in retrieving the basic properties for this message");
         }
-        try {
-            return Integer.parseInt(new String(messageContent, StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException exception) {
-            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.INT_CONTENT_ERROR
-                    + exception.getMessage());
-        }
+        String replyTo = basicProperties.getReplyTo();
+        String contentType = basicProperties.getContentType();
+        String contentEncoding = basicProperties.getContentEncoding();
+        String correlationId = basicProperties.getCorrelationId();
+        MapValue<String, Object> properties = BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+                RabbitMQConstants.RECORD_BASIC_PROPERTIES);
+        Object[] values = new Object[4];
+        values[0] = replyTo;
+        values[1] = contentType;
+        values[2] = contentEncoding;
+        values[3] = correlationId;
+        return BallerinaValues.createRecord(properties, values);
     }
 }
