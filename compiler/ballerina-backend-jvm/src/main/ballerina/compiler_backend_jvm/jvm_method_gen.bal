@@ -206,6 +206,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
+    jvm:Label methodStartLabel = new;
+    mv.visitLabel(methodStartLabel);
+
     k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -413,6 +416,20 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
+    jvm:Label methodEndLabel = new;
+    mv.visitLabel(methodEndLabel);
+
+    // Create Local Variable Table
+    k = localVarOffset;
+    int lVarIndex = 1;
+    while (k < localVars.length()) {
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
+        if (localVar.kind is bir:LocalVarKind && localVar.metaVarName != "") {
+            mv.visitLocalVariable(localVar.metaVarName, localVar.metaVarName, methodStartLabel, methodEndLabel, lVarIndex);
+            lVarIndex = lVarIndex + 1;
+        }
+        k = k + 1;
+    }
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
