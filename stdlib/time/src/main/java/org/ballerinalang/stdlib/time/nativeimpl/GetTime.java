@@ -19,14 +19,10 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Arrays;
@@ -44,25 +40,13 @@ public class GetTime extends AbstractTimeFunction {
 
     private static final BTupleType getTimeTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
-    private static final org.ballerinalang.jvm.types.BTupleType getTimeTupleJvmType = new org.ballerinalang.jvm.types
-            .BTupleType(Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeInt,
-                                      org.ballerinalang.jvm.types.BTypes.typeInt,
-                                      org.ballerinalang.jvm.types.BTypes.typeInt,
-                                      org.ballerinalang.jvm.types.BTypes.typeInt));
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        BValueArray time = new BValueArray(getTimeTupleType);
-        time.add(0, new BInteger(getHour(timeStruct)));
-        time.add(1, new BInteger(getMinute(timeStruct)));
-        time.add(2, new BInteger(getSecond(timeStruct)));
-        time.add(3, new BInteger(getMilliSecond(timeStruct)));
-        context.setReturnValues(time);
     }
 
     public static ArrayValue getTime(Strand strand, MapValue<String, Object> timeRecord) {
-        ArrayValue time = new ArrayValue(getTimeTupleJvmType);
+        ArrayValue time = new ArrayValue(getTimeTupleType);
         time.add(0, Long.valueOf(getHour(timeRecord)));
         time.add(1, Long.valueOf(getMinute(timeRecord)));
         time.add(2, Long.valueOf(getSecond(timeRecord)));

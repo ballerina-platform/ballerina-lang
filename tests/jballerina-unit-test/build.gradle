@@ -65,7 +65,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 //    baloTestImplementation project(path: ballerina-transactions configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

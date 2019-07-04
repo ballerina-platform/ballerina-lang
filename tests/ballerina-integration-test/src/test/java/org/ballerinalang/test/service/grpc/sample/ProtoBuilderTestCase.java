@@ -148,6 +148,21 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
                 "Person");
     }
 
+    @Test(description = "Test compiler plugin for service with checked expression.")
+    public void testServiceWithCheckedExpr() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
+                "service_with_checkedexpr.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        assertUnaryCompileResult(result);
+        Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
+                .getAnnotationAttachments().get(0).getExpression());
+        Assert.assertNotNull(fileDescriptor);
+        Assert.assertEquals(fileDescriptor.getServices().size(), 1);
+        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
+        Assert.assertEquals(serviceDescriptor.findMethodByName("greet").getOutputType().getName(),
+                "StringValue");
+    }
+
     @Test(description = "Test compiler plugin for streaming service with resource annotation.")
     public void testStreamingServiceWithResourceAnnotation() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
