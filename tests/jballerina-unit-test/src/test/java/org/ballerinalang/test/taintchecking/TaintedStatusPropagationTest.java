@@ -426,6 +426,20 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testGlobalObjectFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-object-functions.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testGlobalObjectFunctionNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/global-object-functions-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "method invocation taint global object 'G'", 20, 5);
+    }
+
+    @Test
     public void testTaintedAssignmentToUntaintedObjReference() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/object-tainted-assigment-to-untainted-objref.bal");
