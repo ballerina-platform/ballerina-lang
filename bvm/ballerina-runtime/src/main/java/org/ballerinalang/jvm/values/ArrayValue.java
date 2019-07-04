@@ -476,7 +476,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     @Override
     public String stringValue() {
         if (elementType != null) {
-            StringJoiner sj = new StringJoiner(", ", "[", "]");
+            StringJoiner sj = new StringJoiner(" ");
             if (elementType.getTag() == TypeTags.INT_TAG) {
                 for (int i = 0; i < size; i++) {
                     sj.add(Long.toString(intValues[i]));
@@ -499,7 +499,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add("\"" + stringValues[i] + "\"");
+                    sj.add(stringValues[i]);
                 }
                 return sj.toString();
             }
@@ -511,15 +511,15 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         StringJoiner sj;
         if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
+            sj = new StringJoiner(" ");
         } else {
-            sj = new StringJoiner(", ", "[", "]");
+            sj = new StringJoiner(" ");
         }
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
                 sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
-                        (refValues[i] instanceof String) ? ("\"" + refValues[i] + "\"") :  refValues[i].toString());
+                        (refValues[i] instanceof String) ? (String) refValues[i] :  refValues[i].toString());
             } else {
                 sj.add("()");
             }

@@ -49,7 +49,7 @@ public class TypedescValue implements RefValue {
 
     @Override
     public String stringValue() {
-        return null;
+        return "typedesc " + describingType.toString();
     }
 
     @Override

@@ -14,6 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
+# Returns a simple, human-readable representation of `value` as a string.
+# - if `value` is a string, then returns `value`
+# - if `value` is `()`, then returns an empty string
+# - if `value` is boolean, then the string `true` or `false`
+# - if `value` is an int, then return `value` represented as a decimal string
+# - if `value` is a float or decimal, then return `value` represented as a decimal string,
+#   with a decimal point only if necessary, but without any suffix indicating the type of `value`
+#   return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity
+# - if `value` is a list, then returns the results toString on each member of the list
+#   separated by a space character
+# - if `value` is a map, then returns key=value for each member separated by a space character
+# - if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)
+# - if `value` is table, TBD
+# - if `value` is an error, then a string consisting of the following in order
+#     1. the string `error`
+#     2. a space character
+#     3. the reason string
+#     4. if the detail record is non-empty
+#         1. a space character
+#         2. the result of calling toString on the detail record
+# - if `value` is an object, then
+#     - if `value` provides a `toString` method with a string return type and no required methods,
+#       then the result of calling that method on `value`
+#     - otherwise, `object` followed by some implementation-dependent string
+# - if `value` is any other behavioral type, then the identifier for the behavioral type
+#   (`function`, `future`, `service`, `typedesc` or `handle`)
+#   followed by some implementation-dependent string
+#
+# Note that `toString` may produce the same string for two Ballerina values
+# that are not equal (in the sense of the `==` operator).
+public function toString (any|error value) returns string = external;
+
 @typeParam
 type anydataType anydata;
 

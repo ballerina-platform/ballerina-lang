@@ -41,9 +41,8 @@ public interface IteratorValue extends RefValue, Iterator {
 
     @Override
     default String stringValue() {
-        return null;
+        return "iterator" + getType().toString();
     }
-    
 
     @Override
     public default Object copy(Map<Object, Object> refs) {
