@@ -61,7 +61,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        return "error " + reason + " " + Optional.ofNullable(details).map(Object::toString).orElse("");
+        return "error " + reason + Optional.ofNullable(details).map(details -> " " + details).orElse("");
     }
 
     @Override
