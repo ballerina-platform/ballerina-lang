@@ -56,10 +56,8 @@ public class StartRootSpan extends BlockingNativeCallableUnit {
 //        context.setReturnValues(new BInteger(spanId));
     }
 
-    public static long startRootSpan(Strand strand, String spanName, MapValue<?, ?> tags) {
-        int spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(spanName, Utils.toStringMap(tags),
+    public static long startRootSpan(Strand strand, String spanName, Object tags) {
+        return OpenTracerBallerinaWrapper.getInstance().startSpan(spanName, Utils.toStringMap((MapValue<?, ?>) tags),
                 ROOT_SPAN_INDICATOR, strand);
-
-        return spanId;
     }
 }
