@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
- * Constants for SQL Data Connectors.
+ * Constants for JDBC Client.
  *
  * @since 0.8.0
  */
@@ -201,7 +201,7 @@ public final class Constants {
     public static final String USER = "user";
     public static final String PASSWORD = "password";
 
-    public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
+    public static final String JDBC_PACKAGE_PATH = "ballerinax" + ORG_NAME_SEPARATOR + "jdbc";
     public static final String SQL_PARAMETER = "Parameter";
     public static final String SQL_CLIENT = "Client";
     public static final String SQL_UPDATE_RESULT = "UpdateResult";

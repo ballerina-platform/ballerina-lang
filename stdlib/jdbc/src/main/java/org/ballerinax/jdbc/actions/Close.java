@@ -18,28 +18,28 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.SQLDatasourceUtils;
 
-import static org.ballerinax.jdbc.Constants.SQL_PACKAGE_PATH;
+import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 
 /**
- * {@code Close} is the Close function implementation of the SQL Connector Connection pool.
+ * {@code Close} is the Close function implementation of the JDBC Connector Connection pool.
  *
  * @since 0.8.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "sql",
+        orgName = "ballerinax", packageName = "jdbc",
         functionName = "close",
         args = {
                 @Argument(name = "callerActions", type = TypeKind.RECORD, structType = Constants.SQL_CLIENT,
-                          structPackage = SQL_PACKAGE_PATH)
+                          structPackage = JDBC_PACKAGE_PATH)
         }
 )
 public class Close extends AbstractSQLAction {

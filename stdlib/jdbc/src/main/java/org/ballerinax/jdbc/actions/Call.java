@@ -18,9 +18,6 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.statement.CallStatement;
-import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -28,16 +25,19 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.statement.CallStatement;
+import org.ballerinax.jdbc.statement.SQLStatement;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code Call} is the Call remote function implementation of the SQL Connector.
+ * {@code Call} is the Call remote function implementation of the JDBC Connector.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "sql",
+        orgName = "ballerinax", packageName = "jdbc",
         functionName = "nativeCall",
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),

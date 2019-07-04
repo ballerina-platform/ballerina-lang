@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

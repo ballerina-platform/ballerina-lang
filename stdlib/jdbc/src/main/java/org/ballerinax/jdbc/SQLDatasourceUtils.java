@@ -17,8 +17,6 @@
  */
 package org.ballerinax.jdbc;
 
-import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -28,6 +26,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinax.jdbc.exceptions.ApplicationException;
+import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -293,7 +293,7 @@ public class SQLDatasourceUtils {
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME);
         MapValue<String, Object> populatedDetailRecord = BallerinaValues
                 .createRecord(sqlClientErrorDetailRecord, message, vendorCode, sqlState);
         return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, populatedDetailRecord);
@@ -311,7 +311,7 @@ public class SQLDatasourceUtils {
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME);
         MapValue<String, Object> populatedDetailRecord = BallerinaValues
                 .createRecord(sqlClientErrorDetailRecord, detailedErrorMessage);
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, populatedDetailRecord);
@@ -423,7 +423,7 @@ public class SQLDatasourceUtils {
     private static ObjectValue createSQLClient(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_CLIENT);
         sqlClient.addNativeData(Constants.SQL_CLIENT, sqlDatasource);
         return sqlClient;
     }

@@ -16,7 +16,7 @@
 
 # Represents a JDBC client endpoint.
 #
-# + jdbcClient - The base SQL Client
+# + jdbcClient - The base JDBC Client
 public type Client client object {
 
     private JdbcClient jdbcClient;
@@ -24,7 +24,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.sqlClient = createClient(c, getGlobalPoolConfigContainer().getGlobalPoolConfig());
+        self.jdbcClient = createClient(c, getGlobalPoolConfigContainer().getGlobalPoolConfig());
     }
 
     # The call remote function implementation for JDBC Client to invoke stored procedures/functions.

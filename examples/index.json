@@ -782,10 +782,7 @@
         "title": "Database",
         "column": 2,
         "category": "Working over the network",
-        "samples": [{
-                "name": "H2 Client",
-                "url": "h2-client"
-            },
+        "samples": [
             {
                 "name": "JDBC Client CRUD Operations",
                 "url": "jdbc-client-crud-operations"

@@ -17,12 +17,6 @@
  */
 package org.ballerinax.jdbc.statement;
 
-import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDataIterator;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
-import org.ballerinax.jdbc.table.BCursorTable;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
@@ -41,6 +35,12 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.SQLDataIterator;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.exceptions.ApplicationException;
+import org.ballerinax.jdbc.exceptions.DatabaseException;
+import org.ballerinax.jdbc.table.BCursorTable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
@@ -273,16 +273,16 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 return Constants.SQLDataTypes.BINARY;
             } else {
                 throw new ApplicationException("Array data type as direct value is supported only " +
-                        "with byte type elements, use sql:Parameter " + type.getName());
+                        "with byte type elements, use jdbc:Parameter " + type.getName());
             }
         default:
             throw new ApplicationException(
-                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + type.getName());
+                    "unsupported data type as direct value for sql operation, use jdbc:Parameter: " + type.getName());
         }
     }
 
     private MapValue<String, Object> getSQLParameter() {
-        return BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_PARAMETER);
+        return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_PARAMETER);
     }
 
     protected String getSQLType(MapValue<String, Object> parameter) {

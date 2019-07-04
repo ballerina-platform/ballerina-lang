@@ -558,7 +558,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-h2-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-jdbc-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

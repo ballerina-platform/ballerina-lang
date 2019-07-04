@@ -80,21 +80,21 @@ public type JdbcClient client object {
 
 //function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
 //   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
-function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
+function nativeSelect(JdbcClient sqlClient, @sensitive string sqlQuery, typedesc? recordType,
    Param... parameters) returns @tainted table<record {}>|JdbcClientError = external;
 
-function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+function nativeCall(JdbcClient sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|JdbcClientError = external;
 
-function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
+function nativeUpdate(JdbcClient sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
                              Param... parameters) returns UpdateResult|JdbcClientError = external;
 
-function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
+function nativeBatchUpdate(JdbcClient sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
     returns int[]|JdbcClientError = external;
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + jdbcClient - The Client object which represents the connection pool.
 # + return - Possible error during closing
-public function close(Client jdbcClient) returns error? = external;
+public function close(JdbcClient jdbcClient) returns error? = external;
 

@@ -78,7 +78,6 @@ dependencies {
     testCompile project(':ballerina-jvm')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     
-
     implementation 'com.zaxxer:HikariCP'
 }
 

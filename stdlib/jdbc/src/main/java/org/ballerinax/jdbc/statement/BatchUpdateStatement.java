@@ -17,13 +17,13 @@
  */
 package org.ballerinax.jdbc.statement;
 
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;

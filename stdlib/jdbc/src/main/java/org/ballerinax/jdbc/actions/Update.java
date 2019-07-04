@@ -18,9 +18,6 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.statement.SQLStatement;
-import org.ballerinax.jdbc.statement.UpdateStatement;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -28,16 +25,20 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.statement.SQLStatement;
+import org.ballerinax.jdbc.statement.UpdateStatement;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 
 /**
- * {@code Update} is the Update remote function implementation of the SQL Connector.
+ * {@code Update} is the Update remote function implementation of the JDBC Connector.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "sql",
+        orgName = "ballerinax", packageName = "jdbc",
         functionName = "nativeUpdate",
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
@@ -46,7 +47,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
                           structType = "Param")
         },
         returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = "Result", structPackage = "ballerina/sql"),
+                @ReturnType(type = TypeKind.RECORD, structType = "Result", structPackage = JDBC_PACKAGE_PATH),
                 @ReturnType(type = TypeKind.RECORD, structType = "JdbcClientError",
                         structPackage = BALLERINA_BUILTIN_PKG)
         }

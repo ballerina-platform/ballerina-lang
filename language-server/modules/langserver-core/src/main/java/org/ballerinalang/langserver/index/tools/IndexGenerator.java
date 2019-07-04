@@ -61,8 +61,8 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "h2",
-                "sql", "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "jdbc",
+                "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
                 "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
                 "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"/*, "websub"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();

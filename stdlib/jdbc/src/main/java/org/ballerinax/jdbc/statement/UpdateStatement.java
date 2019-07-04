@@ -17,11 +17,6 @@
  */
 package org.ballerinax.jdbc.statement;
 
-import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
-import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -30,6 +25,11 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.exceptions.ApplicationException;
+import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -163,7 +163,7 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     private MapValue<String, Object> createFrozenUpdateResultRecord(int count, MapValue<String, Object> generatedKeys) {
         MapValue<String, Object> updateResultRecord = BallerinaValues
-                .createRecordValue(Constants.SQL_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
         MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
                 .createRecord(updateResultRecord, count, generatedKeys);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));

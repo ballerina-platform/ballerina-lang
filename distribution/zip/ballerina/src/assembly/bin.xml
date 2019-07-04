@@ -107,7 +107,6 @@
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-filepath:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
-                <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
@@ -121,7 +120,6 @@
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
                 <include>org.ballerinalang:ballerina-runtime-api:jar</include>
-                <include>org.ballerinalang:ballerina-sql:jar</include>
                 <include>org.ballerinalang:ballerina-streams:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
                 <include>org.ballerinalang:ballerina-task:jar</include>

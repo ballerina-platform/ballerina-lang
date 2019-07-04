@@ -17,17 +17,17 @@
  */
 package org.ballerinax.jdbc.statement;
 
-import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
-import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.exceptions.ApplicationException;
+import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

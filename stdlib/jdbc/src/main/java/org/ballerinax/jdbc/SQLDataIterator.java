@@ -55,7 +55,7 @@ import javax.sql.rowset.CachedRowSet;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
- * related to ballerina.data.actions.sql connector.
+ * related to JDBC connector.
  *
  * @since 0.8.0
  */

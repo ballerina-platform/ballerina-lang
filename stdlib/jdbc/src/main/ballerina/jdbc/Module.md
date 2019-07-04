@@ -1,12 +1,11 @@
 ## Module overview
 
-This module provides the functionality required to access and manipulate data stored in any type of relational database that is accessible via Java Database Connectivity (JDBC).
+This module provides the functionality required to access and manipulate data stored in any type of relational database 
+that is accessible via Java Database Connectivity (JDBC).
 
 ### Client
 
 To access a database, you must first create a `client` object. A sample for creating a JDBC client can be found below.
-
-**NOTE**: Although the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use clients that are created using the client types specific to them via the relevant Ballerina modules.
 
 ### Connection pool handling
 
@@ -39,7 +38,7 @@ jdbc:Client testDB = new({
 ```
 
 3. Local shareable connection pool
-If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, for each
+If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
 set of clients that connect to the same database instance with the same set of properties, a shared connection pool
 will be created.
 
@@ -48,7 +47,7 @@ jdbc:Client testDB1;
 jdbc:Client testDB2;
 jdbc:Client testDB3;
 
-sql:PoolOptions poolOptions1 = { maximumPoolSize: 5 };
+jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5 };
 
 testDB1 = new({
     url: "jdbc:mysql://localhost:3306/testdb1",
@@ -76,8 +75,9 @@ testDB3 = new({
 ```
 ### Database operations
 
-Once the client is created, database operations can be executed through that client. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant for these database operations can be found in the documentation for the SQL module.
-
+Once the client is created, database operations can be executed through that client. This module provides support for 
+creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch 
+updating data. Samples for these operations can be found below. 
 
 ## Samples
 
@@ -90,8 +90,7 @@ jdbc:Client testDB = new({
     dbOptions: { useSSL: false }
 });
 ```
-The full list of client properties can be found listed under the `sql:PoolOptions` type, which is located in the
-`types.bal` file of the SQL module directory.
+The full list of client properties can be found listed under the `jdbc:PoolOptions` type.
 
 ### Creating tables
 
@@ -101,7 +100,7 @@ The CREATE statement is executed via the `update` remote function of the client.
 ```ballerina
 // Create the ‘Students’ table with fields ‘id’, 'name' and ‘age’.
 var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, name VARCHAR(255), PRIMARY KEY (id))");
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Students table create status in DB: " + returned.updatedRowCount);
 } else {
     io:println("Students table creation failed: " + <string>returned.detail().message);
@@ -110,39 +109,45 @@ if (returned is sql:UpdateResult) {
 
 ### Inserting data
 
-This sample shows three examples of data insertion by executing an INSERT statement using the `update` remote function of the client.
+This sample shows three examples of data insertion by executing an INSERT statement using the `update` remote function 
+of the client.
 
 In the first example, query parameter values are passed directly into the query statement of the `update`  remote function:
 
 ```ballerina
 var returned = testDB->update("INSERT INTO student(age, name) values (23, 'john')");
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Inserted row count to Students table: " + returned.updatedRowCount);
 } else {
     io:println("Insert to Students table failed: " + <string>returned.detail().message);
 }
 ```
 
-In the second example, the parameter values, which are in local variables, are passed directly as parameters to the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like string, int, float, or boolean. The sql type of the parameter is derived from the type of the Ballerina variable that is passed in.
+In the second example, the parameter values, which are in local variables, are passed directly as parameters to 
+the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like string, 
+int, float, or boolean. The sql type of the parameter is derived from the type of the Ballerina variable that 
+is passed in.
 
 ```ballerina
 string name = "Anne";
 int age = 8;
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", age, name);
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Inserted row count to Students table: " + returned.updatedRowCount);
 } else {
     io:println("Insert to Students table failed: " + <string>returned.detail().message);
 }
 ```
 
-In the third example, parameter values are passed as an `sql:Parameter` to the `update` remote function. Use `sql:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter direction. The default parameter direction is "IN". For more details on parameters, see the `sql` module.
+In the third example, parameter values are passed as an `jdbc:Parameter` to the `update` remote function. Use 
+`jdbc:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter 
+direction. The default parameter direction is "IN".
 
 ```ballerina
-sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
-sql:Parameter p2 = { sqlType: sql:TYPE_INTEGER, value: 10 };
+jdbc:Parameter p1 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
+jdbc:Parameter p2 = { sqlType: jdbc:TYPE_INTEGER, value: 10 };
 var returned = testDB->update("INSERT INTO student(age, name) values (?, ?)", p2, p1);
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Inserted row count to Students table: " + returned.updatedRowCount);
 } else {
     io:println("Insert to Students table failed: " + <string>returned.detail().message);
@@ -151,13 +156,14 @@ if (returned is sql:UpdateResult) {
 
 ### Inserting data with auto-generated keys
 
-This example demonstrates inserting data while returning the auto-generated keys. It achieves this by using the `update` remote function to execute the INSERT statement.
+This example demonstrates inserting data while returning the auto-generated keys. It achieves this by using the 
+`update` remote function to execute the INSERT statement.
 
 ```ballerina
 int age = 31;
 string name = "Kate";
 var retWithKey = testDB->update("INSERT INTO student (age, name) values (?, ?)", age, name);
-if (retWithKey is sql:UpdateResult) {
+if (retWithKey is jdbc:UpdateResult) {
     int count = retWithKey.updatedRowCount;
     int generatedKey = <int>retWithKey.generatedKeys.GENERATED_KEY;
     io:println("Inserted row count: " + count);
@@ -169,7 +175,11 @@ if (retWithKey is sql:UpdateResult) {
 
 ### Selecting data
 
-This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the SELECT query is executed via the `select` remote function of the client by passing that result set type. Once the query is executed, each data record can be retrieved by looping the result set. The table returned by the select operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. This table can be iterated only once.
+This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the 
+SELECT query is executed via the `select` remote function of the client by passing that result set type. Once the 
+query is executed, each data record can be retrieved by looping the result set. The table returned by the select 
+operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. 
+This table can be iterated only once.
 
 ```ballerina
 // Define a type to represent the results set.
@@ -214,7 +224,7 @@ if (selectRet is table<Student>) {
 This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of the client
 ```ballerina
 var returned = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?", 23);
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Updated row count in Students table: " + returned.updatedRowCount);
 } else {
     io:println("Insert to Students table failed: " + <string>returned.detail().message);
@@ -223,18 +233,21 @@ if (returned is sql:UpdateResult) {
 
 ### Batch updating data
 
-This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the `batchUpdate` remote function of the client. This is done by first creating multiple parameter arrays, each representing a single record, and then passing those arrays to the `batchUpdate` operation. Similarly, multiple UPDATE statements can also be executed via `batchUpdate`.
+This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the 
+`batchUpdate` remote function of the client. This is done by first creating multiple parameter arrays, each 
+representing a single record, and then passing those arrays to the `batchUpdate` operation. Similarly, multiple 
+UPDATE statements can also be executed via `batchUpdate`.
 
 ```ballerina
 // Create the first batch of parameters.
-sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, value: 12 };
-sql:Parameter[] parameters1 = [para1, para2];
+jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+jdbc:Parameter para2 = { sqlType: jdbc:TYPE_INTEGER, value: 12 };
+jdbc:Parameter[] parameters1 = [para1, para2];
 
 // Create the second batch of parameters.
-sql:Parameter para3 = { sqlType: sql:TYPE_VARCHAR, value: "Peter" };
-sql:Parameter para4 = { sqlType: sql:TYPE_INTEGER, value: 6 };
-sql:Parameter[] parameters2 = [para3, para4];
+jdbc:Parameter para3 = { sqlType: jdbc:TYPE_VARCHAR, value: "Peter" };
+jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 6 };
+jdbc:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
 var retBatch = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", parameters1, parameters2);
@@ -257,7 +270,7 @@ var returned = testDB->update("CREATE PROCEDURE INSERTDATA (IN pName VARCHAR(255
                            BEGIN
                               INSERT INTO Students(name, age) values (pName, pAge);
                            END");
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Stored proc creation status: : " + returned.updatedRowCount);
 } else {
     io:println("Stored proc creation failed: " + <string>returned.detail().message);
@@ -280,15 +293,15 @@ var returned = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, OUT pCo
                                 SELECT COUNT(*) INTO pID FROM Students WHERE id = pID;
                                 SELECT COUNT(*) INTO pCount FROM Students WHERE id = 2;
                            END");
-if (returned is sql:UpdateResult) {
+if (returned is jdbc:UpdateResult) {
     io:println("Stored proc creation status: : " + returned.updatedRowCount);
 } else {
     io:println("Stored procedure creation failed:  " + <string>returned.detail().message);
 }
 
 // Call the stored procedure.
-sql:Parameter param1 = { sqlType: sql:TYPE_INTEGER, value: 3, direction: sql:DIRECTION_INOUT };
-sql:Parameter param2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
+jdbc:Parameter param1 = { sqlType: jdbc:TYPE_INTEGER, value: 3, direction: jdbc:DIRECTION_INOUT };
+jdbc:Parameter param2 = { sqlType: jdbc:TYPE_INTEGER, direction: jdbc:DIRECTION_OUT };
 var retCall = testDB->call("{CALL GETCOUNT(?,?)}", (), param1, param2);
 if (retCall is ()|table<record {}>[]) {
     io:println("Call operation successful");

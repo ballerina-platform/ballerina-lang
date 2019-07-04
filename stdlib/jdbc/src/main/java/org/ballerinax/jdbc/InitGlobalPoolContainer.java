@@ -30,15 +30,17 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
+
 /**
  * Extern function to initialize the global pool map.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "sql",
+        orgName = "ballerinax", packageName = "jdbc",
         functionName = "initGlobalPoolContainer",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "GlobalPoolConfigContainer",
-                             structPackage = "ballerina/sql"),
+                             structPackage = JDBC_PACKAGE_PATH),
         args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")}
 )
 public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {

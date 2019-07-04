@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerina/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/h2",
+      "insertText": "ballerina/jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -291,14 +291,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/sql",
       "insertTextFormat": "Snippet"
     }
   ]

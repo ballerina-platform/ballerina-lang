@@ -566,29 +566,6 @@
       ]
     },
     {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/sql;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/internal",
       "kind": "Module",
       "detail": "Package",
@@ -911,11 +888,11 @@
       ]
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerina/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "h2",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -929,7 +906,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/h2;\n"
+          "newText": "import ballerina/jdbc;\n"
         }
       ]
     },

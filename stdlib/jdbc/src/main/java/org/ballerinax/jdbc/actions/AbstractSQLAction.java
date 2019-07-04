@@ -18,9 +18,9 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL remote functions.
