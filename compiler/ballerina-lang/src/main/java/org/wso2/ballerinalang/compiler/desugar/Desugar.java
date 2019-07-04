@@ -2513,21 +2513,26 @@ public class Desugar extends BLangNodeVisitor {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
         }
 
-        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
+        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD ||
+                (varRefType.tag == TypeTags.UNION &&
+                         (((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.OBJECT ||
+                                  ((BUnionType) varRefType).getMemberTypes().iterator().next().tag ==
+                                          TypeTags.RECORD))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.ARRAY) {
+        } else if (varRefType.tag == TypeTags.ARRAY ||
+                (varRefType.tag == TypeTags.UNION &&
+                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.ARRAY)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.TUPLE) {
+        } else if (varRefType.tag == TypeTags.TUPLE ||
+                (varRefType.tag == TypeTags.UNION &&
+                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.TUPLE)) {
             targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
