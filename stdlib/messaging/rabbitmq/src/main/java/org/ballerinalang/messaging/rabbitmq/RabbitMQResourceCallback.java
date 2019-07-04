@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
+package org.ballerinalang.messaging.rabbitmq;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 
 import java.util.concurrent.CountDownLatch;
@@ -43,8 +42,8 @@ public class RabbitMQResourceCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         countDownLatch.countDown();
-        ErrorHandlerUtils.printError("RabbitMQ Error: " + BLangVMErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("RabbitMQ Error: " + error.getPrintableStackTrace());
     }
 }

@@ -19,15 +19,10 @@
 package org.ballerinalang.messaging.rabbitmq;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import javax.transaction.xa.XAResource;
 
@@ -38,17 +33,15 @@ import javax.transaction.xa.XAResource;
  */
 public class RabbitMQTransactionContext implements BallerinaTransactionContext {
     private Channel channel;
-    private final String connectorId;
 
     /**
      * Initializes the rabbitmq transaction context.
      *
      * @param channelObject RabbitMQ Channel object.
-     * @param connectorId   Connector Id.
+     * @param connectorId Connector ID.
      */
-    public RabbitMQTransactionContext(BMap<String, BValue> channelObject, String connectorId) {
-        channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        this.connectorId = connectorId;
+    public RabbitMQTransactionContext(ObjectValue channelObject, String connectorId) {
+        this.channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
     }
 
     @Override
@@ -85,26 +78,8 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
 
     /**
      * Handles the transaction block if the context is in transaction.
-     *
-     * @param context Context.
      */
-    public void handleTransactionBlock(Context context) {
-        boolean isInTransaction = context.isInTransaction();
-        if (isInTransaction) {
-            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-            BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
-            if (Objects.isNull(txContext)) {
-                try {
-                    channel.txSelect();
-                } catch (IOException exception) {
-                    throw new RabbitMQConnectorException("I/O Error occurred while initiating the transaction."
-                            + exception.getMessage(), exception);
-                }
-                transactionLocalContext.registerTransactionContext(connectorId, this);
-                String globalTxId = transactionLocalContext.getGlobalTransactionId();
-                String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-                TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
-            }
-        }
+    public void handleTransactionBlock() {
+     // TODO: Transaction handling logic
     }
 }
