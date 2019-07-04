@@ -129,6 +129,8 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         return;
     }
 
+    boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+
     // generate object value classes
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
@@ -149,7 +151,6 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                 }
             }
 
-            boolean serviceEPAvailable = false;
             if (isEntry) {
                 bir:Function? mainFunc = getMainFunc(module.functions);
                 string mainClass = "";
@@ -157,7 +158,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
                                                         cleanupBalExt(mainFunc.pos.sourceFileName));
                 }
-                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
                 if (mainFunc is bir:Function) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
