@@ -54,33 +54,6 @@ public class GetJson extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-//        try {
-//            BRefType<?> result;
-//            BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//            BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
-//            if (dataSource != null) {
-//                // If the value is already a JSON, then return as it is.
-//                if (isJSON(dataSource)) {
-//                    result = (BRefType<?>) dataSource;
-//                } else {
-//                    // Else, build the JSON from the string representation of the payload.
-//                    BString payload = MimeUtil.getMessageAsString(dataSource);
-//                    result = JsonParser.parse(payload.stringValue());
-//                }
-//                setReturnValuesAndNotify(context, callback, result);
-//                return;
-//            }
-//
-//            if (isStreamingRequired(entity)) {
-//                result = EntityBodyHandler.constructJsonDataSource(entity);
-//                updateDataSourceAndNotify(context, callback, entity, result);
-//            } else {
-//                constructNonBlockingDataSource(context, callback, entity, SourceType.JSON);
-//            }
-//        } catch (Exception ex) {
-//            createErrorAndNotify(context, callback,
-//                                 "Error occurred while extracting json data from entity: " + ex.getMessage());
-//        }
     }
 
     public static Object getJson(Strand strand, ObjectValue entityObj) {
@@ -113,12 +86,6 @@ public class GetJson extends AbstractGetPayloadHandler {
         }
         return result;
     }
-
-//    private boolean isJSON(BValue value) {
-//        // If the value is string, it could represent any type of payload.
-//        // Therefore it needs to be parsed as JSON.
-//        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
-//    }
 
     private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.

@@ -47,12 +47,6 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 public class SetByteArray extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        byte[] payload = ((BValueArray) context.getRefArgument(SECOND_PARAMETER_INDEX)).getBytes();
-//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        EntityBodyHandler.addMessageDataSource(entityStruct, new BValueArray(payload));
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {

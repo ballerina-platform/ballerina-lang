@@ -43,7 +43,6 @@ import org.ballerinalang.net.http.HttpUtil;
 public class GetEntity extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        context.setReturnValues(BHttpUtil.getEntity(context, true, true));
     }
 
     public static Object getEntity(Strand strand, ObjectValue requestObj) {

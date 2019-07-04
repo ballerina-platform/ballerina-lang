@@ -46,13 +46,6 @@ public const string CONTENT_TYPE = "content-type";
 # Represents `content-disposition` header name.
 public const string CONTENT_DISPOSITION = "content-disposition";
 
-# Represents MIME error code.
-//public const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
-
-//type MIMEError record {
-//    string message = "";
-//};
-
 # Represents values in `Content-Disposition` header.
 #
 # + fileName - Default filename for storing the bodypart, if the receiving agent wishes to store it in an external
@@ -140,10 +133,9 @@ public type Entity object {
     #
     # + mediaType - Content type that needs to be set to the entity
     # + return - Nil if successful, error in case of invalid media-type
-    public function setContentType(@sensitive string mediaType) returns error? {
+    public function setContentType(@sensitive string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
-        return;
     }
 
     # Gets the content type of entity.
@@ -428,45 +420,9 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
     if (result is byte[]|EncodeError) {
         return result;
     } else {
-        //createErrorDetail("Error occurred while encoding byte[]");
         return prepareEncodingErrorWithDetail("Error occurred while encoding byte[]");
-        //
-        //error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
-        //return encodeErr;
     }
 }
-
-//# Encodes a given string with Base64 encoding scheme.
-//#
-//# + valueToBeEncoded - Content that needs to be encoded
-//# + charset - Charset to be used
-//# + return - An encoded `string`. In case of errors, an `error` record is returned
-//public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|EncodingError {
-//    var result = base64Encode(valueToBeEncoded);
-//    if (result is string|error) {
-//        return result;
-//    } else {
-//        return prepareEncodingErrorWithDetail("Error occurred while encoding string");
-//        //error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
-//        //return encodeErr;
-//    }
-//}
-
-//# Encodes a given ByteChannel with Base64 encoding scheme.
-//#
-//# + valueToBeEncoded - Content that needs to be encoded
-//# + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-//public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
-//                        returns io:ReadableByteChannel|EncodingError {
-//    var result = base64Encode(valueToBeEncoded);
-//    if (result is io:ReadableByteChannel|error) {
-//        return result;
-//    } else {
-//        return prepareEncodingErrorWithDetail("Error occurred while encoding ReadableByteChannel content");
-//        //error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
-//        //return customErr;
-//    }
-//}
 
 # Decodes a given byte[] with Base64 encoding scheme.
 #
@@ -478,42 +434,8 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeE
         return result;
     } else {
         return prepareDecodingErrorWithDetail("Error occurred while decoding byte[]");
-        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
-        //return decodeErr;
     }
 }
-
-//# Decodes a given string with Base64 encoding scheme.
-//#
-//# + valueToBeDecoded - Content that needs to be decoded
-//# + charset - Charset to be used
-//# + return - A decoded `string`. In case of errors, an `error` record is returned
-//public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|DecodingError {
-//    var result = base64Decode(valueToBeDecoded);
-//    if (result is string|error) {
-//        return result;
-//    } else {
-//        return prepareDecodingErrorWithDetail("Error occurred while decoding string");
-//        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
-//        //return decodeErr;
-//    }
-//}
-
-//# Decodes a given ByteChannel with Base64 encoding scheme.
-//#
-//# + valueToBeDecoded - Content that needs to be decoded
-//# + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-//public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded)
-//                        returns io:ReadableByteChannel|DecodingError {
-//    var result = base64Decode(valueToBeDecoded);
-//    if (result is io:ReadableByteChannel|error) {
-//        return result;
-//    } else {
-//        return prepareDecodingErrorWithDetail("Error occurred while decoding ReadableByteChannel content");
-//        //error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
-//        //return decodeErr;
-//    }
-//}
 
 # Gets the encoding value from a given MediaType.
 #
@@ -527,7 +449,7 @@ function getEncoding(MediaType contentType) returns (string) {
 #
 # + contentType - Content-Type in string
 # + return - `MediaType` object or an error in case of invalid content-type
-public function getMediaType(string contentType) returns MediaType|error = external;
+public function getMediaType(string contentType) returns MediaType|InvalidContentTypeError = external;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.
 #
@@ -541,12 +463,3 @@ public function getContentDispositionObject(string contentDisposition) returns C
 # + return - String representation of the given byte[]
 public function byteArrayToString(byte[] b, string encoding) returns string = external;
 
-//# Encode a given byte[] with Base64 encoding scheme.
-//#
-//# + return - Return an encoded byte[]
-//public function base64EncodeByteArray(byte[] b) returns byte[] = external;
-
-//# Decode a given byte[] with Base64 encoding scheme.
-//#
-//# + return - Return a decoded byte[]
-//public function base64DecodeByteArray(byte[] b) returns byte[] = external;

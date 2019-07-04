@@ -29,8 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 
 /**
@@ -48,15 +48,6 @@ public class GetMediaType extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        try {
-//            String contentType = context.getStringArgument(STRING_INDEX);
-//            BMap<String, BValue> mediaType =
-//                    ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-//            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
-//            context.setReturnValues(mediaType);
-//        } catch (Throwable e) {
-//            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
-//        }
     }
 
     public static Object getMediaType(Strand strand, String contentType) {
@@ -65,7 +56,7 @@ public class GetMediaType extends BlockingNativeCallableUnit {
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
         } catch (Throwable e) {
-            return MimeUtil.createError(PARSING_ENTITY_FAILED, e.getMessage());
+            return MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 }

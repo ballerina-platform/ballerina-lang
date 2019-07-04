@@ -60,41 +60,6 @@ public class GetByteArray extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-//        try {
-//            BValueArray result = null;
-//            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
-//            if (messageDataSource != null) {
-//                if (messageDataSource instanceof BValueArray) {
-//                    result = (BValueArray) messageDataSource;
-//                } else {
-//                    String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
-//                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
-//                    if (isNotNullAndEmpty(contentTypeValue)) {
-//                        String charsetValue = MimeUtil.getContentTypeBParamValue(contentTypeValue, CHARSET);
-//                        if (isNotNullAndEmpty(charsetValue)) {
-//                            result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
-//                        } else {
-//                            result = new BValueArray(messageDataSource.stringValue().getBytes(
-//                                    Charset.defaultCharset()));
-//                        }
-//                    }
-//                }
-//                setReturnValuesAndNotify(context, callback, result != null ? result : new BValueArray(new byte[0]));
-//                return;
-//            }
-//
-//            Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
-//            if (isStreamingRequired(entityObj) || transportMessage == null) {
-//                result = EntityBodyHandler.constructBlobDataSource(entityObj);
-//                updateDataSourceAndNotify(context, callback, entityObj, result);
-//            } else {
-//                constructNonBlockingDataSource(context, callback, entityObj, SourceType.BLOB);
-//            }
-//        } catch (Exception ex) {
-//            createErrorAndNotify(context, callback,
-//                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
-//        }
     }
 
     public static Object getByteArray(Strand strand, ObjectValue entityObj) {

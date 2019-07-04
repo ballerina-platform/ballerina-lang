@@ -44,31 +44,6 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        try {
-//            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//            String contentType = getContentTypeWithParameters(entityStruct);
-//            if (isMultipart(contentType)) {
-//                BString boundaryValue = HeaderUtil.extractBoundaryBParameter(contentType);
-//                String multipartDataBoundary = boundaryValue != null ? boundaryValue.toString() :
-//                        getNewMultipartDelimiter();
-//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//                MultipartBDataSource multipartDataSource = new MultipartBDataSource(entityStruct,
-//                                                                                    multipartDataBoundary);
-//                multipartDataSource.serialize(outputStream);
-//                EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
-//                        outputStream.toByteArray()));
-//                BMap<String, BValue> byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-//                                                               IOConstants.IO_PACKAGE, READABLE_BYTE_CHANNEL_STRUCT);
-//                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
-//                context.setReturnValues(byteChannelStruct);
-//            } else {
-//                context.setReturnValues(MimeUtil.createError(context, "Entity doesn't contain body parts"));
-//            }
-//        } catch (Throwable err) {
-//            log.error("Error occurred while constructing a byte channel out of body parts", err);
-//            context.setReturnValues(MimeUtil.createError(context, "Error occurred while constructing a byte " +
-//                    "channel out of body parts : " + err.getMessage()));
-//        }
     }
 
     public static Object getBodyPartsAsChannel(Strand strand, ObjectValue entityObj) {

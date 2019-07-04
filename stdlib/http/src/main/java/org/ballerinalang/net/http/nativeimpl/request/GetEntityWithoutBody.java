@@ -42,7 +42,6 @@ import org.ballerinalang.net.http.HttpUtil;
 public class GetEntityWithoutBody extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        context.setReturnValues(BHttpUtil.getEntity(context, true, false));
     }
 
     public static ObjectValue getEntityWithoutBody(Strand strand, ObjectValue requestObj) {

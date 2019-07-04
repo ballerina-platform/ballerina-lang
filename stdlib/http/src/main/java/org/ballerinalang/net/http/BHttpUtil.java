@@ -246,35 +246,6 @@ public class BHttpUtil {
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entity));
     }
 
-//    /**
-//     * Get the entity from request or response.
-//     *
-//     * @param context            Ballerina context
-//     * @param isRequest          boolean representing whether the message is a request or a response
-//     * @param entityBodyRequired boolean representing whether the entity body is required
-//     * @return Entity of the request or response
-//     */
-//    public static BValue[] getEntity(Context context, boolean isRequest, boolean entityBodyRequired) {
-//        try {
-//            BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>)
-    //            context.getRefArgument(HTTP_MESSAGE_INDEX);
-//            BMap<String, BValue> entity = (BMap<String, BValue>) httpMessageStruct
-//                    .get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-//            boolean byteChannelAlreadySet = false;
-//
-//            if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-//                byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-//            }
-//            if (entityBodyRequired && !byteChannelAlreadySet) {
-//                populateEntityBody(context, httpMessageStruct, entity, isRequest, false);
-//            }
-//            return new BValue[]{entity};
-//        } catch (Throwable throwable) {
-//            return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
-//                                            "Error occurred during entity construction: " + throwable.getMessage())};
-//        }
-//    }
-
     /**
      * Populate entity with the relevant body content.
      *

@@ -52,32 +52,6 @@ public class GetXml extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-//        try {
-//            BXML result;
-//            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
-//            if (dataSource != null) {
-//                if (dataSource instanceof BXML) {
-//                    result = (BXML) dataSource;
-//                } else {
-//                    // Build the XML from string representation of the payload.
-//                    BString payload = MimeUtil.getMessageAsString(dataSource);
-//                    result = XMLUtils.parse(payload.stringValue());
-//                }
-//                setReturnValuesAndNotify(context, callback, result);
-//                return;
-//            }
-//
-//            if (isStreamingRequired(entityObj)) {
-//                result = EntityBodyHandler.constructXmlDataSource(entityObj);
-//                updateDataSourceAndNotify(context, callback, entityObj, result);
-//            } else {
-//                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
-//            }
-//        } catch (Exception ex) {
-//            createErrorAndNotify(context, callback,
-//                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
-//        }
     }
 
     public static Object getXml(Strand strand, ObjectValue entityObj) {

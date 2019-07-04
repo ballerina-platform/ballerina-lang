@@ -56,41 +56,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         return false;
     }
 
-    //TODO Remove after migration : implemented using bvm values/types
-    void constructNonBlockingDataSource(Context context, CallableUnitCallback callback, BMap<String, BValue> entity,
-                                        SourceType sourceType) {
-//        HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
-//        inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
-//            @Override
-//            public void onComplete(HttpCarbonMessage inboundMessage) {
-//                BValue dataSource = null;
-//                HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
-//                InputStream inputStream = dataStreamer.getInputStream();
-//                switch (sourceType) {
-//                    case JSON:
-//                        dataSource = constructJsonDataSource(entity, inputStream);
-//                        break;
-//                    case TEXT:
-//                        dataSource = constructStringDataSource(entity, inputStream);
-//                        break;
-//                    case XML:
-//                        dataSource = constructXmlDataSource(entity, inputStream);
-//                        break;
-//                    case BLOB:
-//                        dataSource = constructBlobBDataSource(inputStream);
-//                        break;
-//                }
-//                updateDataSourceAndNotify(context, callback, entity, dataSource);
-//            }
-//
-//            @Override
-//            public void onError(Exception ex) {
-//                createErrorAndNotify(context, callback,
-//                                     "Error occurred while extracting content from message : " + ex.getMessage());
-//            }
-//        });
-    }
-
     static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
                                                SourceType sourceType) {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
@@ -139,12 +104,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         callback.notifySuccess();
     }
 
-//    //TODO Remove after migration : implemented using bvm values/types
-//    void createErrorAndNotify(Context context, CallableUnitCallback callback, String errMsg) {
-//        BError error = MimeUtil.createError(context, errMsg);
-//        setReturnValuesAndNotify(context, callback, error);
-//    }
-
     static Object createErrorAndNotify(String reason, NonBlockingCallback callback, String errMsg) {
         ErrorValue error = MimeUtil.createError(reason, errMsg);
         if (callback != null) {
@@ -174,16 +133,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
         updateDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
-
-    //TODO Remove after migration : implemented using bvm values/types
-//    private HttpCarbonMessage extractTransportMessageFromEntity(BMap<String, BValue> entityObj) {
-//        HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);
-//        if (message != null) {
-//            return message;
-//        } else {
-//            throw new BallerinaIOException("Empty content");
-//        }
-//    }
 
     private static HttpCarbonMessage extractTransportMessageFromEntity(ObjectValue entityObj) {
         HttpCarbonMessage message = (HttpCarbonMessage) entityObj.getNativeData(TRANSPORT_MESSAGE);

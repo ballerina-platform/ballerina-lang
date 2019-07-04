@@ -46,12 +46,6 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 public class SetJson extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        BValue jsonContent = context.getNullableRefArgument(SECOND_PARAMETER_INDEX);
-//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        EntityBodyHandler.addMessageDataSource(entityStruct, jsonContent);
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {

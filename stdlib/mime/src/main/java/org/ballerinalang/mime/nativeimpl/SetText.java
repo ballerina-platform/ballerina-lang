@@ -46,12 +46,6 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 public class SetText extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        String contentType = context.getStringArgument(SECOND_PARAMETER_INDEX);
-//        EntityBodyHandler.addMessageDataSource(entityStruct, new BString(textContent));
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setText(Strand strand, ObjectValue entityObj, String textContent, String contentType) {

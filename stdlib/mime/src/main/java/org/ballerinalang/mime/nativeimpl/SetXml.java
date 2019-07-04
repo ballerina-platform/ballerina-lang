@@ -47,12 +47,6 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 public class SetXml extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        BXML xmlContent = (BXML) context.getRefArgument(SECOND_PARAMETER_INDEX);
-//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setXml(Strand strand, ObjectValue entityObj, XMLValue xmlContent, String contentType) {

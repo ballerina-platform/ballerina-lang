@@ -47,12 +47,6 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 public class SetBodyParts extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        BValueArray bodyParts = (BValueArray) context.getRefArgument(SECOND_PARAMETER_INDEX);
-//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        entityStruct.addNativeData(BODY_PARTS, bodyParts);
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {

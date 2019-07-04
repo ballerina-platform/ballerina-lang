@@ -696,37 +696,6 @@ public class MimeUtil {
                 bodyPart.getNativeData(BODY_PARTS) != null;
     }
 
-//    /**
-//     * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
-//     *
-//     * @param context Represent ballerina context
-//     * @param errMsg  Actual error message
-//     * @return Ballerina error record
-//     */
-//    public static BError createError(Context context, String errMsg) {
-//        return createError(context, MIME_ERROR_CODE, errMsg);
-//    }
-
-//    /**
-//     * Create mime specific error record.
-//     *
-//     * @param context Represent ballerina context
-//     * @param reason  Error code in string form
-//     * @param errMsg  Actual error message
-//     * @return Ballerina error record
-//     */
-//    public static BError createError(Context context, String reason, String errMsg) {
-//        BMap<String, BValue> mimeErrorRecord = createMimeErrorRecord(context);
-//        mimeErrorRecord.put(MIME_ERROR_MESSAGE, new BString(errMsg));
-//        return BLangVMErrors.createError(context, true, org.ballerinalang.model.types.BTypes.typeError, reason,
-//                                         mimeErrorRecord);
-//    }
-
-//    private static BMap<String, BValue> createMimeErrorRecord(Context context) {
-//        return BLangConnectorSPIUtil.createBStruct(context, MimeConstants.PROTOCOL_PACKAGE_MIME,
-//                                                   MimeConstants.MIME_ERROR_RECORD);
-//    }
-
     /**
      * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
      *
@@ -737,7 +706,6 @@ public class MimeUtil {
      */
     public static ErrorValue createError(String reason, String errMsg) {
         return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
-//        return BallerinaErrors.createError(MIME_ERROR_CODE, errMsg);
     }
 
     public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {

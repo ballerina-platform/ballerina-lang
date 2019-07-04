@@ -59,33 +59,6 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-//        BMap<String, BValue> byteChannelStruct;
-//        try {
-//            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//            byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_IO,
-//                                                                    READABLE_BYTE_CHANNEL_STRUCT);
-//            populateEntityWithByteChannel(entityObj);
-//            Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
-//            if (byteChannel != null) {
-//                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
-//                context.setReturnValues(byteChannelStruct);
-//            } else {
-//                if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-//                    context.setReturnValues(MimeUtil.createError(context, "Byte channel is not available but " +
-//                            "payload can be obtain either as xml, json, string or byte[] type"));
-//                } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
-//                        getBodyPartArray(entityObj).size() != 0) {
-//                    context.setReturnValues(MimeUtil.createError(context,
-//                            "Byte channel is not available since payload contains a set of body parts"));
-//                } else {
-//                    context.setReturnValues(MimeUtil.createError(context,
-//                            "Byte channel is not available as payload"));
-//                }
-//            }
-//        } catch (Throwable e) {
-//            context.setReturnValues(MimeUtil.createError(context,
-//                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
-//        }
     }
 
     public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
@@ -115,20 +88,6 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage());
         }
     }
-
-//    private void populateEntityWithByteChannel(BMap<String, BValue> entity) {
-//        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);
-//        if (httpCarbonMessage == null) {
-//            return;
-//        }
-//        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
-//
-//        long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
-//        if (contentLength > 0) {
-//            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-//                    new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
-//        }
-//    }
 
     private static void populateEntityWithByteChannel(ObjectValue entity) {
         HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) entity.getNativeData(TRANSPORT_MESSAGE);

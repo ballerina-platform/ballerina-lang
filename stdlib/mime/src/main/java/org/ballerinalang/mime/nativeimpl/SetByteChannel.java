@@ -49,17 +49,6 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 public class SetByteChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-//        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-//        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(SECOND_PARAMETER_INDEX);
-//        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-//        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
-//                (IOConstants.BYTE_CHANNEL_NAME));
-//        BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-//        if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
-//            entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
-//        }
-//        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-//        context.setReturnValues();
     }
 
     public static void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel,
