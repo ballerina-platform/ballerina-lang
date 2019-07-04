@@ -27,5 +27,5 @@ public type InboundAuthHandler abstract object {
     #
     # + req - `Request` instance
     # + return - `true` if authenticated successfully, else `false` or, `error` in case of errors
-    public function handle(Request req) returns boolean|error;
+    public function process(Request req) returns boolean|error;
 };

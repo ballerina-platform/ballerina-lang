@@ -58,7 +58,7 @@ public type CustomAuthnHandler object {
     }
 };
 
-public function CustomAuthnHandler.handle(http:Request req) returns boolean|error {
+public function CustomAuthnHandler.process(http:Request req) returns boolean|error {
     var customAuthHeader = req.getHeader(http:AUTH_HEADER);
     string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
     return self.authProvider.authenticate(credential);
