@@ -46,7 +46,12 @@ public interface IteratorValue extends RefValue, Iterator {
 
     @Override
     public default Object copy(Map<Object, Object> refs) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public default Object frozenCopy(Map<Object, Object> refs) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

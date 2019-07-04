@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
 # Returns a simple, human-readable representation of `value` as a string.
 # - if `value` is a string, then returns `value`
 # - if `value` is `()`, then returns an empty string
@@ -46,10 +47,17 @@
 # that are not equal (in the sense of the `==` operator).
 public function toString (any|error value) returns string = external;
 
-
 @typeParam
-type Foo anydata;
+type anydataType anydata;
 
-public function clone(Foo f) returns Foo {
-    return f;
-}
+# Returns a clone of `value`.
+# A clone is a deep copy that does not copy immutable subtrees.
+# A clone can therefore safely be used concurrently with the original.
+# It corresponds to the Clone(v) abstract operation,
+# defined in the Ballerina Language Specification.
+public function clone(anydataType value) returns anydataType = external;
+
+# Returns a clone of `value` that is read-only, i.e. immutable.
+# It corresponds to the ImmutableClone(v) abstract operation,
+# defined in the Ballerina Language Specification.
+public function cloneReadOnly(anydataType value) returns anydataType = external;

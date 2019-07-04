@@ -74,7 +74,12 @@
 
      @Override
      public Object copy(Map<Object, Object> refs) {
-         return null;
+         throw new UnsupportedOperationException();
+     }
+
+     @Override
+     public Object frozenCopy(Map<Object, Object> refs) {
+         throw new UnsupportedOperationException();
      }
 
      public void cancel() {

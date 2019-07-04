@@ -664,6 +664,15 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         return refValueArray;
     }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        ArrayValue copy = (ArrayValue) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
     
     @Override
     public String toString() {
@@ -906,6 +915,22 @@ public class ArrayValue implements RefValue, CollectionValue {
                 Object value = this.getRefValue(i);
                 if (value instanceof RefValue) {
                     ((RefValue) value).attemptFreeze(freezeStatus);
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+            for (int i = 0; i < this.size; i++) {
+                Object value = this.getRefValue(i);
+                if (value instanceof RefValue) {
+                    ((RefValue) value).freezeDirect();
                 }
             }
         }

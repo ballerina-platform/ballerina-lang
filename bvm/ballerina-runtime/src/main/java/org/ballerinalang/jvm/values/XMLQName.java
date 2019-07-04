@@ -83,6 +83,7 @@ public final class XMLQName implements RefValue {
         if (obj == null || !(obj instanceof XMLQName)) {
             return false;
         }
+
         return ((XMLQName) obj).toString().equals(localName);
     }
 
@@ -93,6 +94,18 @@ public final class XMLQName implements RefValue {
         }
 
         return new XMLQName(localName, uri, prefix);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLQName copy = (XMLQName) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 
     public String getLocalName() {

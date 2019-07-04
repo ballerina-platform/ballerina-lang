@@ -89,6 +89,11 @@ public class FPValue<T, R> implements RefValue {
     }
 
     @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
     public boolean isFrozen() {
         return true;
     }
