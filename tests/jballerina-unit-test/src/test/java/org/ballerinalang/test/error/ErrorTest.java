@@ -57,6 +57,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testIndirectErrorCtor() {
+        BValue[] errors = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
+        Assert.assertEquals(errors.length, 4);
+        Assert.assertEquals(errors[0].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
+        Assert.assertEquals(errors[1].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
+        Assert.assertEquals(errors[2], errors[0]);
+        Assert.assertEquals(errors[3], errors[1]);
+    }
+
+    @Test
     public void errorConstructReasonTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
 
