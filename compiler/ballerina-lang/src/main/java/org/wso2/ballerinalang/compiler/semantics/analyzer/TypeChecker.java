@@ -2739,6 +2739,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
+        if (!reasonArgGiven) {
+
+        }
 
         if (ctorType.detailType.tag == TypeTags.RECORD) {
             BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
@@ -2789,10 +2792,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
-        if (errorType.reasonType.getKind() == TypeKind.FINITE) {
+        if (errorType.reasonType.tag != TypeTags.FINITE) {
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                    expType.tsymbol.name);
+            resultType = symTable.semanticError;
+            return true;
+        } else {
             BFiniteType finiteType = (BFiniteType) errorType.reasonType;
             if (finiteType.valueSpace.size() != 1) {
-                dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                if (errorType == symTable.errorType) {
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                } else {
+                    dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                            expType.tsymbol.name);
+                }
                 resultType = symTable.semanticError;
                 return true;
             }

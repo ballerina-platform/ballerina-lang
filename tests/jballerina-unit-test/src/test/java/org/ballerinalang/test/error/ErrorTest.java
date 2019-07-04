@@ -228,7 +228,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -246,8 +246,11 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
         BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 41);
         BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 40);
+        BAssertUtil.validateError(negativeCompileResult, 10,
+                "cannot infer reason type from error constructor: 'UserDefErrorOne'", 55, 27);
+        BAssertUtil.validateError(negativeCompileResult, 11,
+                "cannot infer reason type from error constructor: 'MyError'", 56, 19);
     }
-
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {
