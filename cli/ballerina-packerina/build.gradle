@@ -22,7 +22,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-launcher')
     implementation project(':testerina:testerina-core')
-    runtime project(':ballerina-backend-jvm')
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
 }

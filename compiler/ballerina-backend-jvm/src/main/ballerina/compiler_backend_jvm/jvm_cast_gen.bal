@@ -78,7 +78,7 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeByte) {
         mv.visitInsn(I2L);
     } else if (sourceType is bir:BTypeFloat) {
-        mv.visitInsn(D2L);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToInt", "(D)J", false);
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
@@ -97,6 +97,8 @@ function generateCheckCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
         // do nothing
     } else if (sourceType is bir:BTypeInt) {
         mv.visitInsn(L2D);
+    } else if (sourceType is bir:BTypeByte) {
+        mv.visitInsn(I2D);
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
@@ -124,6 +126,8 @@ function generateCheckCastToDecimal(jvm:MethodVisitor mv, bir:BType sourceType) 
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(J)L%s;", DECIMAL_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
+    } else if (sourceType is bir:BTypeByte) {
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", io:sprintf("(I)L%s;", DECIMAL_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
@@ -173,12 +177,17 @@ function generateCheckCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) 
 function generateCheckCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
     if (sourceType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToByte", "(J)I", false);
+    } else if (sourceType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToByte", "(D)I", false);
+    } else if (sourceType is bir:BTypeDecimal) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
     } else if (sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeAny ||
-            sourceType is bir:BTypeAnyData ||
-            sourceType is bir:BUnionType ||
-            sourceType is bir:BFiniteType) {
+                sourceType is bir:BTypeAnyData ||
+                sourceType is bir:BUnionType ||
+                sourceType is bir:BFiniteType ||
+                sourceType is bir:BJSONType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
@@ -207,15 +216,8 @@ function generateCheckCastToJSON(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCheckCastToUnionType(jvm:MethodVisitor mv, bir:BType sourceType, bir:BUnionType targetType) {
-    if (sourceType is bir:BTypeAny ||
-            sourceType is bir:BTypeAnyData ||
-            sourceType is bir:BUnionType||
-            sourceType is bir:BJSONType) {
-        checkCast(mv, targetType);
-    } else {
-        // if value types, then ad box instruction
-        generateCastToAny(mv, sourceType);
-    }
+    generateCastToAny(mv, sourceType);
+    checkCast(mv, targetType);
 }
 
 function checkCast(jvm:MethodVisitor mv, bir:BType targetType) {
@@ -256,21 +258,15 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
 }
 
 function generateCheckCastToFiniteType(jvm:MethodVisitor mv, bir:BType sourceType, bir:BFiniteType targetType) {
-    if (sourceType is bir:BTypeAny ||
-            sourceType is bir:BTypeAnyData ||
-            sourceType is bir:BUnionType||
-            sourceType is bir:BJSONType) {
-        checkCast(mv, targetType);
-    } else {
-        // if value types, then add box instruction
-        generateCastToAny(mv, sourceType);
-    }
+    generateCastToAny(mv, sourceType);
+    checkCast(mv, targetType);
 }
 
 
 // ------------------------------------------------------------------
 //   Generate Cast Methods - Performs cast without type checking
 // ------------------------------------------------------------------
+
 function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
     if (targetType is bir:BTypeInt) {
         generateCastToInt(mv, sourceType);
@@ -403,8 +399,9 @@ function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeAny ||
-            sourceType is bir:BTypeAnyData ||
-            sourceType is bir:BUnionType) {
+                sourceType is bir:BTypeAnyData ||
+                sourceType is bir:BUnionType ||
+                sourceType is bir:BJSONType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));

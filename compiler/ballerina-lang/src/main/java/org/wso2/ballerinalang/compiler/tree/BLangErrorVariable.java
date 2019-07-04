@@ -21,23 +21,30 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Represents an error variable node.
  * <p>
- * error (reason, detail) = error ("Error Code", {message: "Error Message"});
+ * error (var reason, message = msgVar, ...var restOfIt) =
+ *                          error ("Error Code", message = "Error Message", moreStuff = "some more");
  *
  * @since 0.985.0
  */
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
     public BLangSimpleVariable reason;
-    public BLangVariable detail;
+    public List<BLangErrorDetailEntry> detail;
+    public BLangSimpleVariable restDetail;
+    public BLangInvocation detailExpr;
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
+        this.detail = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
@@ -47,7 +54,7 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     }
 
     @Override
-    public BLangVariable getDetail() {
+    public List<BLangErrorDetailEntry> getDetail() {
         return detail;
     }
 
@@ -63,6 +70,41 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
 
     @Override
     public String toString() {
-        return "error (" + reason + ", " + detail + ")";
+        StringJoiner details = new StringJoiner(", ");
+        detail.forEach(d -> details.add(d.key.toString() + "=" + d.valueBindingPattern.toString()));
+        return "error (" + reason + ", " + details.toString() +
+                (restDetail != null ? ", ...var " + restDetail.name.toString() : "") + ")";
+    }
+
+    /**
+     * {@code BLangErrorDetailEntry} represent error detail entry in error binding pattern.
+     *
+     * @since 0.995.0
+     */
+    public static class BLangErrorDetailEntry implements ErrorVariableNode.ErrorDetailEntry {
+
+        public BLangIdentifier key;
+
+        public BLangErrorDetailEntry(BLangIdentifier key, BLangVariable valueBindingPattern) {
+            this.key = key;
+            this.valueBindingPattern = valueBindingPattern;
+        }
+
+        public BLangVariable valueBindingPattern;
+
+        @Override
+        public BLangIdentifier getKey() {
+            return key;
+        }
+
+        @Override
+        public BLangVariable getValue() {
+            return valueBindingPattern;
+        }
+
+        @Override
+        public String toString() {
+            return key + ": " + valueBindingPattern;
+        }
     }
 }

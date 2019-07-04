@@ -54,7 +54,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Error Two");
-        Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg One");
+        Assert.assertEquals(((BMap) returns[4]).toString(), "{\"detail\":\"Detail Msg\"}");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
         Assert.assertNull(returns[7]);
@@ -166,7 +166,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error",
+            groups = { "brokenOnJBallerina" })
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -217,7 +218,7 @@ public class ErrorVariableDefinitionTest {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'error', found 'error'", 28, 86);
+                "incompatible types: expected 'error', found 'error'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -228,13 +229,13 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<anydata|error>'", 54, 18);
+                "incompatible types: expected 'int', found 'map<(anydata|error)>'", 54, 18);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid error variable; expecting an error type but found 'int' in type definition", 55, 38);
+                "invalid error variable; expecting an error type but found 'int' in type definition", 55, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 61, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'anydata|error'", 62, 16);
+                "incompatible types: expected 'string', found '(anydata|error)'", 62, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 68, 16);
         BAssertUtil.validateError(resultNegative, ++i,

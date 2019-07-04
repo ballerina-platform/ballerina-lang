@@ -2,6 +2,7 @@ package org.ballerinalang.net.http.compiler;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -12,7 +13,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_BODY;
+import static org.ballerinalang.net.http.HttpConstants.ANN_RESOURCE_ATTR_PATH;
+import static org.ballerinalang.net.http.HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -54,11 +59,11 @@ public class ResourceSignatureValidator {
     }
 
     @SuppressWarnings("unchecked")
-
-    public static void validateAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
+    static void validateResourceAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) resourceNode.getAnnotationAttachments();
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
+        List<String> paramSegments = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG) &&
@@ -67,30 +72,146 @@ public class ResourceSignatureValidator {
                 count++;
             }
         }
-        if (count > 1) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "There cannot be more than one resource annotations");
-        } else if (count == 1) {
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-                if (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                        .getValue().equals("webSocketUpgrade")) {
-                    if (annVals.size() > 1) {
-                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                           "Invalid configurations for WebSocket upgrade resource");
-                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.size() == 1) {
-                        if (!((BLangSimpleVarRef) (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs).get(
-                                0).key.expr).variableName.getValue().equals("upgradeService")) {
-                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                               "An upgradeService need to be specified for the WebSocket upgrade " +
-                                                       "resource");
-                        }
-                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.isEmpty()) {
-                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                           "An upgradeService need to be specified for the WebSocket upgrade " +
-                                                   "resource");
+
+        if (count != 1) {
+            return;
+        }
+
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
+            switch (getAnnotationFieldKey(keyValue)) {
+                case ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE:
+                    validateWebSocketUpgrade(resourceNode, dlog, annVals, paramSegments, keyValue);
+                    break;
+                case ANN_RESOURCE_ATTR_PATH:
+                    validateResourcePath(dlog, paramSegments, keyValue);
+                    break;
+                case ANN_RESOURCE_ATTR_BODY:
+                    List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
+                    String bodyFieldValue = keyValue.getValue().toString();
+                    // Data binding param should be placed as the last signature param
+                    String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
+                    if (bodyFieldValue.isEmpty()) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
+                                           "Empty data binding param value");
+
+                    } else if (!signatureBodyParam.equals(bodyFieldValue)) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, keyValue.getValue().getPosition(),
+                                           "Invalid data binding param in the signature : expected '" +
+                                                   bodyFieldValue + "', but found '" + signatureBodyParam + "'");
                     }
-                }
+                    paramSegments.add(bodyFieldValue);
+                    break;
+                default:
+                    break;
             }
+        }
+        //Signature params must be a subset of path and data binding  param.
+        verifySignatureParamsWithAnnotatedParams(resourceNode, dlog, paramSegments);
+    }
+
+    private static void validateWebSocketUpgrade(FunctionNode resourceNode, DiagnosticLog dlog,
+                                                 List<BLangRecordLiteral.BLangRecordKeyValue> annVals,
+                                                 List<String> paramSegments,
+                                                 BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        if (annVals.size() > 1) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "Invalid configurations for WebSocket upgrade resource");
+            return;
+        }
+        List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields =
+                ((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs;
+        if (upgradeFields.isEmpty()) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "An upgradeService need to be specified for the WebSocket upgrade " +
+                                       "resource");
+            return;
+        }
+        if (upgradeFields.size() == 1 && !(getAnnotationFieldKey(upgradeFields.get(0)).equals("upgradeService"))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "An upgradeService need to be specified for the WebSocket upgrade " +
+                                       "resource");
+            return;
+        }
+        // WebSocket upgrade path validation
+        for (BLangRecordLiteral.BLangRecordKeyValue upgradeField : upgradeFields) {
+            if (getAnnotationFieldKey(upgradeField).equals(ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
+                validateResourcePath(dlog, paramSegments, upgradeField);
+            }
+        }
+    }
+
+    private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
+                                             BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        DiagnosticPos position = keyValue.getValue().getPosition();
+        String[] segments = keyValue.getValue().toString().split("/");
+        for (String segment : segments) {
+            validatePathSegment(segment, position, dlog, paramSegments);
+        }
+    }
+
+    private static void validatePathSegment(String segment, DiagnosticPos pos, DiagnosticLog dlog,
+                                            List<String> pathParamSegments) {
+        boolean expression = false;
+        int startIndex = 0;
+        int maxIndex = segment.length() - 1;
+        int pointerIndex = 0;
+        while (pointerIndex < segment.length()) {
+            char ch = segment.charAt(pointerIndex);
+            switch (ch) {
+                case '{':
+                    if (expression) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
+                                           "Illegal open brace character in resource path config");
+                        break;
+                    }
+                    if (pointerIndex + 1 >= maxIndex) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
+                                           "Invalid param expression in resource path config");
+                    }
+                    if (pointerIndex != startIndex) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "Illegal expression in resource path config");
+                    }
+                    expression = true;
+                    startIndex++;
+                    break;
+                case '}':
+                    if (!expression) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
+                                           "Illegal closing brace detected in resource path config");
+                        break;
+                    }
+                    if (pointerIndex <= startIndex) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
+                                           "Illegal empty expression in resource path config");
+                    }
+                    pathParamSegments.add(segment.substring(startIndex, pointerIndex));
+                    expression = false;
+                    startIndex = pointerIndex + 1;
+                    break;
+                default:
+                    if (pointerIndex == maxIndex) {
+                        if (expression) {
+                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "Incomplete path param expression");
+                            break;
+                        }
+                        if (startIndex != 0 && pointerIndex == startIndex) {
+                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos,
+                                               "Illegal expression in resource path config");
+                        }
+                    }
+            }
+            pointerIndex++;
+        }
+    }
+
+    private static void verifySignatureParamsWithAnnotatedParams(FunctionNode resourceNode, DiagnosticLog dlog,
+                                                                 List<String> paramSegments) {
+        List<? extends SimpleVariableNode> signatureParams = resourceNode.getParameters().subList(
+                COMPULSORY_PARAM_COUNT, resourceNode.getParameters().size());
+        if (!signatureParams.stream().allMatch(signatureParam -> paramSegments.stream()
+                .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                               "Invalid parameter(s) in the resource signature");
         }
     }
 
@@ -101,6 +222,10 @@ public class ResourceSignatureValidator {
         if (!resourceReturnsErrorOrNil) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
         }
+    }
+
+    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
     }
 }
 

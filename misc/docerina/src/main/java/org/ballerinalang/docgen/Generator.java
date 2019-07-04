@@ -33,7 +33,6 @@ import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.UnionType;
 import org.ballerinalang.docgen.generator.model.Variable;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -167,8 +166,8 @@ public class Generator {
      */
     public static Annotation createDocForAnnotation(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
-        String attachments = annotationNode.attachPoints.stream()
-                .map(AttachPoint::getValue)
+        String attachments = annotationNode.getAttachPoints().stream()
+                .map(attachPoint -> attachPoint.point.getValue())
                 .collect(Collectors.joining(", "));
         Type dataType = annotationNode.typeNode != null ? Type.fromTypeNode(annotationNode.typeNode) : null;
         return new Annotation(annotationName, description(annotationNode), dataType, attachments);

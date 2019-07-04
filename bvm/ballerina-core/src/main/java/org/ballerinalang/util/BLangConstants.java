@@ -63,7 +63,10 @@ public class BLangConstants {
     public static final String USER_REPO_ARTIFACTS_DIRNAME = "artifacts";
     public static final String USER_REPO_SRC_DIRNAME = "src";
     public static final String USER_REPO_OBJ_DIRNAME = "obj";
+    public static final String USER_REPO_BIR_DIRNAME = "bir";
     public static final String USER_REPO_METADATA_DIRNAME = "metadata";
+
+    public static final String BLANG_BIR_PACKAGE_FILE_SUFFIX = "." + USER_REPO_BIR_DIRNAME;
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
@@ -94,4 +97,6 @@ public class BLangConstants {
     public static final String BALLERINA_TARGET = "ballerina.target";
 
     public static final String JVM_TARGET = "jvm";
+
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
 }

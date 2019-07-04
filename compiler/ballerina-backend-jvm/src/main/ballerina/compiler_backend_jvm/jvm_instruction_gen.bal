@@ -95,6 +95,8 @@ type InstructionGenerator object {
             self.generateClosedRangeIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
             self.generateClosedRangeIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
+            self.generateAnnotAccessIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
             self.generateBitwiseAndIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
@@ -354,6 +356,17 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, LONG_STREAM, "rangeClosed", io:sprintf("(JJ)L%s;", LONG_STREAM), true);
         self.mv.visitMethodInsn(INVOKEINTERFACE, LONG_STREAM, "toArray", "()[J", true);
         self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", "([J)V", false);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
+    function generateAnnotAccessIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
+            io:sprintf("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
+
+        bir:BType targetType = binaryIns.lhsOp.variableDcl.typeValue;
+        addUnboxInsn(self.mv, targetType);
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
@@ -793,7 +806,7 @@ type InstructionGenerator object {
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    function generateObjectNewIns(bir:NewInstance objectNewIns) {
+    function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
         string className;
@@ -806,20 +819,17 @@ type InstructionGenerator object {
 
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
-        loadExternalOrLocalType(self.mv, typeDefRef);
+
+        bir:BType typeValue = typeDef.typeValue;
+        if (typeValue is bir:BServiceType) {
+            // For services, create a new type for each new service value. TODO: do only for local vars
+            duplicateServiceTypeWithAnnots(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex);
+        } else {
+            loadExternalOrLocalType(self.mv, typeDefRef);
+        }
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
-
-        if (typeDef.typeValue is bir:BServiceType) {
-            string varName = "#0"; // assuming #0 is the annotation data map
-            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
-            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
-            loadExternalOrLocalType(self.mv, typeDef);
-            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
-                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
-        }
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {
@@ -827,7 +837,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
@@ -854,7 +865,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = [inst, methodClass];
+        lambdas[lambdaName] = (inst, methodClass);
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

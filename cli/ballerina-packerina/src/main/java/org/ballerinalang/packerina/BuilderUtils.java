@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BackendCodeGeneratorProvider;
+import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -29,12 +30,16 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
@@ -53,6 +58,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * @since 0.95.2
  */
 public class BuilderUtils {
+    private static final String BALLERINA_HOME = "BALLERINA_HOME";
     private static PrintStream outStream = System.out;
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
@@ -81,7 +87,7 @@ public class BuilderUtils {
     }
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
-                                                String packagePath,
+                                                String packageName,
                                                 String targetPath,
                                                 boolean buildCompiledPkg,
                                                 boolean offline,
@@ -95,20 +101,18 @@ public class BuilderUtils {
                 lockEnabled, skiptests, enableExperimentalFeatures, siddhiRuntimeEnabled);
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.build(packagePath);
+        BLangPackage bLangPackage = compiler.build(packageName);
 
-        // TODO fix below properly (add testing as well)
-        if (jvmTarget) {
-            outStream.println();
-            CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-                    getBackendCodeGenerator();
-            Optional result = jvmCodeGen.generate(dumpBIR, bLangPackage, context, packagePath);
-            if (!result.isPresent()) {
-                throw new RuntimeException("Compiled binary jar is not found");
-            }
-            bLangPackage.jarBinaryContent = (byte[]) result.get();
-            compiler.write(bLangPackage, targetPath);
-            return;
+        try {
+            //TODO: replace with actual target dir
+            Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+            String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                                                    "ballerina.home is not set");
+
+            BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
+                                               targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error invoking jballerina backend", e);
         }
 
         if (skiptests) {
@@ -120,35 +124,6 @@ public class BuilderUtils {
         }
     }
 
-    public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
-                                                boolean skiptests, boolean enableExperimentalFeatures) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(OFFLINE, Boolean.toString(offline));
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-        options.put(SKIP_TESTS, Boolean.toString(skiptests));
-        options.put(TEST_ENABLED, "true");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
-
-        Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> packages = compiler.build();
-
-        if (skiptests) {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            outStream.println();
-            compiler.write(packages);
-        } else {
-            if (packages.size() == 0) {
-                throw new BLangCompilerException("no ballerina source files found to compile");
-            }
-            runTests(compiler, sourceRootPath, packages);
-            compiler.write(packages);
-        }
-    }
 
     public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
                                                 boolean skiptests, boolean enableExperimentalFeatures,
