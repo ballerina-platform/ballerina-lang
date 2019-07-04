@@ -43,6 +43,7 @@ public class Executor {
      * @param properties   to be passed to context.
      * @param args         required for the resource.
      */
+    @Deprecated
     public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
         submit(null, service, resourceName, callback, properties, args);
