@@ -47,6 +47,11 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public RegIndex varIndex;
 
+    /**
+     * This flag is set to true when this symbol represent a global variable who is annotated @tainted.
+     */
+    public boolean isMarkTainted;
+
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
     }

@@ -472,6 +472,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 setTaintedStatus(varNode, TaintedStatus.TAINTED);
             }
         }
+
+        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE) {
+            if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
+                ((BVarSymbol) varNode.symbol).isMarkTainted = true;
+                varNode.symbol.tainted = true;
+            }
+        }
     }
 
     @Override
@@ -542,8 +549,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (varRef.symbol != null && varRef.symbol.owner != null
+                        && !(((BVarSymbol) varRef.symbol).isMarkTainted)
                         && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
-                        || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE)) {
+                            || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE)) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     return;

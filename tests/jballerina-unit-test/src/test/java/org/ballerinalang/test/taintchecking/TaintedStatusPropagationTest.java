@@ -353,8 +353,9 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testGlobalVariablesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'globalVariable'", 12, 5);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'pa'", 6, 9);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVariable'", 14, 5);
     }
 
     @Test
