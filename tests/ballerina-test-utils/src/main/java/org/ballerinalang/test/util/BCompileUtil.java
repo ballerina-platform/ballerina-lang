@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
@@ -36,7 +35,6 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -161,21 +159,17 @@ public class BCompileUtil {
             Function<Object[], Object> func = objects -> {
                 try {
                     return method.invoke(null, objects[0]);
-                } catch (InvocationTargetException e) {
-                    throw (RuntimeException) e.getTargetException();
                 } catch (IllegalAccessException e) {
-                    throw new BallerinaException("Method has private access", e);
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
                 }
+                return null;
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
             scheduler.start();
-            final Throwable t = out.panic;
-            if (t != null) {
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions
-                            .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
-                }
-                throw (RuntimeException) t;
+            if (out.panic != null) {
+                throw new RuntimeException("Error in init/start", out.panic);
             }
             //method.invoke(null, new Strand(scheduler));
             //        } catch (InvocationTargetException e) {
@@ -191,7 +185,7 @@ public class BCompileUtil {
             //                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
             //            }
             //            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
     }
