@@ -308,7 +308,7 @@ public type BTypeDesc TYPE_DESC;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
-const HANDLE_TYPE_NAME = "ophandle";
+const HANDLE_TYPE_NAME = "handle";
 
 public type BServiceType record {|
     BObjectType oType;
