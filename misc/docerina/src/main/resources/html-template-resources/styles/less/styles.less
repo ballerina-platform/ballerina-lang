@@ -2,15 +2,15 @@
            API Method Colors 
 --------------------------------*/
 
-@construct: records #00c378,
-    objects #3498db,
-    clients #FF5722,
-    listeners #f44336,
+@construct: records #2A9988,
+    objects #265C9E,
+    clients #FD5618,
+    listeners #381268,
     functions #EC407A,
-    constant #8e44ad,
-    annotations #276dc4,
-    types #512DA8,
-    errors #f44336;
+    constant #81007F,
+    annotations #F4BB06,
+    types #974B00,
+    errors #AD0102;
 
 // Gen construct 
 .gen-construct-colors(@colors) {
@@ -67,6 +67,7 @@ body {
         overflow-y: hidden;
         position: fixed;
         font-size: 16px;
+        padding-top: 1em;
 
         &:hover {
             overflow-y: scroll;
@@ -84,11 +85,15 @@ body {
 
         .main-wrapper {
             width: 800px;
-            margin: 0 30px;
+            margin: 0 2.8em;
             overflow: hidden;
+            margin-bottom: 54em;
+            
+            .title-type {
+                font-weight: 300;
+             }
 
             &.module-wrapper {
-
                 h2:first-of-type {
                     border-bottom: 0;
                 }
@@ -98,6 +103,7 @@ body {
                 border-bottom: 1px solid #dededf;
                 line-height: 2em;
             }
+            
 
             h2 {
                 border-bottom: 1px solid #dededf;
@@ -112,6 +118,7 @@ body {
             p {
                 a {
                     color: #0067ad;
+                    text-decoration: underline;
 
                     &:hover {
                         text-decoration: underline
@@ -264,6 +271,19 @@ body {
                 font-weight: 300;
             }
         }
+        .breadcrumb-home {
+            width: 20px;
+            margin-right: 8px;
+            cursor: pointer
+        }
+
+        .breadcrumb-home-icon {
+            width: 24px;
+            opacity: 0.4;
+            &:hover {
+                opacity: 0.7;
+            }
+        }
 
         &:hover {
             overflow-y: auto;
@@ -278,7 +298,7 @@ body {
             color: #5e6265;
             background: #f1f1f1;
 
-            .language-ballerinaDup {
+            .language-ballerina {
                 color: #888;
             }
         }
@@ -293,6 +313,11 @@ body {
 
         .constants {
             margin-top: 20px;
+
+            .method-sum {
+                background: #f7f7f7;
+                padding: 20px;
+            }
 
             h2 {
                 font-size: 1.52rem;
@@ -316,47 +341,30 @@ body {
 
                 p {
                     line-height: 30px;
+                }
+
+                .param-sum {
                     display: flex !important;
 
                     .param-name {
                         align-items: flex-start;
                         padding-right: 5px;
+                        line-height: 1.5em;
+                        font-weight: 500;
+                        min-width: 128px;
+                        word-break: break-all;
                     }
 
                     .param-details {
                         align-items: flex-start;
+                        font-weight: 300;
+                        line-height: 1.5em;
                     }
                 }
 
                 a {
                     color: #464646;
                     font-weight: 500;
-                }
-
-            }
-
-            .method-content {
-                margin: 30px 0 40px 0;
-
-                .main-method-title {
-                    border-bottom: 1px solid #e8e9e9;
-                    margin-bottom: 10px;
-                    padding-bottom: 3px;
-
-                    h2 {
-                        line-height: 1em;
-                        display: inline;
-                        border: 0;
-                    }
-
-                    p {
-                        display: inline;
-                    }
-                }
-
-                .method-types {
-                    font-style: italic;
-                    color: #656565;
                 }
             }
 
@@ -389,6 +397,7 @@ body {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         padding-right: 20px;
+                        font-size: 1.1em;
                     }
                 }
 
@@ -418,6 +427,81 @@ body {
                 margin: 0;
                 padding: 10px;
             }
+        }
+
+        .method-content {
+            margin: 30px 0 40px 20px;
+
+            .main-method-title {
+                border-bottom: 1px solid #e8e9e9;
+                margin-bottom: 10px;
+                padding-bottom: 3px;
+                display: flex;
+                cursor: pointer;
+
+                h2 {
+                    line-height: 1em;
+                    display: inline;
+                    border: 0;
+                    padding: 0 4px;
+                    margin: 0;
+                    margin-bottom: 10px;
+                }
+
+                p {
+                    margin: 0 3px 0 0;
+                }
+                a.url-link  {
+                    visibility: hidden;
+                }
+
+                &:hover {
+
+                    a.url-link  {
+                        visibility: visible;
+                        width: 16px;
+                        display: inline-block;
+                        margin-right: 4px;
+                        cursor: pointer;
+                        margin-left: -20px;
+
+                            .url-link-img {
+                                width: 16px;
+                                margin-left: 5px;
+                                margin-top: 2px;
+                                cursor: pointer;
+                            }
+                    }
+                }
+            }
+
+            .here:target {
+                padding: 10px 4px;
+                animation-name: target-fade;
+                animation-fill-mode: forwards;
+                animation-duration: 4s;
+                animation-delay: 0s;
+            }
+            @keyframes target-fade {
+                0% {background-color:#fbe54e;}
+                100% { background-color:transparent;}
+            }
+            .method-title {
+                font-style: italic;
+                color: #656565;
+                align-items: flex-start;
+            }
+
+            .method-types {
+                font-style: italic;
+                color: #656565;
+                align-items: flex-start;
+            }
+
+            .return-types {
+                margin-top: 0.15em;
+            }
+
         }
 
         .module-title {
@@ -469,9 +553,11 @@ body {
     overflow-x: hidden;
     min-width: 210px;
     float: left;
+    padding-top: 1em;
 
     .navi-wrapper-content {
         width: 185px;
+        margin-left: 12px;
     }
 
     .logo {
@@ -486,7 +572,7 @@ body {
         margin-right: 7.2em;
         margin-top: -0.8em;
         margin-bottom: 2em;
-        margin-right: 6em;
+        margin-right: 1.4em;
     }
 
     &:hover {
@@ -503,15 +589,27 @@ body {
     }
 
     .primary-list {
-
         &.module-list,
         &.function-list {
             ul {
                 li {
                     text-transform: none;
+                    .active {
+                        a {
+                            font-weight: bolder !important;
+                        }
+                    }
+                    .active-item {
+                        font-weight: bolder !important;
+                        color: green;
+                    }
                 }
             }
         }
+
+        .current {
+            font-weight: 900;
+          }
 
         padding-left: 10px;
 
@@ -523,18 +621,17 @@ body {
                 list-style: none;
                 line-height: 25px;
                 margin-left: 15px;
-                font-weight: 300;
                 text-overflow: ellipsis;
                 overflow: hidden;
 
                 &:hover {
                     font-weight: 600;
                 }
-
+                &.active {
+                    font-weight: bolder !important;
+                }
                 &,
                 a {
-                    font-weight: 400;
-
                     &:hover {
                         color: #333;
                         font-weight: 600;
@@ -545,12 +642,9 @@ body {
 
         h3 {
             margin: 10px 0;
-            text-align: center;
         }
     }
 }
-
-// }
 
 .hidden.menu {
     display: none;
@@ -665,7 +759,7 @@ a.toc.item {
         }
     }
 
-    .fourteen.wide.column.content-wrapper.pusher {
+    .content-wrapper.pusher {
         width: 100% !important;
 
         .main-wrapper {
@@ -697,5 +791,7 @@ a.toc.item {
         margin-left: 4px;
         padding-left: 35px;
     }
-
+    .version {
+        margin-right: 6em;
+    }
 }

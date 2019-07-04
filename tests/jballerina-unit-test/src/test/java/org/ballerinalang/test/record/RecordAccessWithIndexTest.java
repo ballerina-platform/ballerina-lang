@@ -201,7 +201,7 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'id' in record 'Department'", 9, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 20, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'string|int?'", 26, 16);
+                "incompatible types: expected 'string', found '(string|int)?'", 26, 16);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 55, 40);
         BAssertUtil.validateError(negativeResult, i++,

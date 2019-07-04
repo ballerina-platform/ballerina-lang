@@ -228,9 +228,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
             return;
         }
-        boolean cursorBeforeNode = cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol);
-
-        if (terminateVisitor || cursorBeforeNode) {
+        if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;
         }
 
@@ -406,11 +404,6 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         this.acceptNode(exprStmtNode.expr, symbolEnv);
-        if (!terminateVisitor && CompletionVisitorUtil.withinInvocationArguments(exprStmtNode, this.lsContext)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
-            this.populateSymbols(visibleSymbolEntries, symbolEnv);
-            this.forceTerminateVisitor();
-        }
     }
 
     @Override
@@ -433,6 +426,14 @@ public class TreeVisitor extends LSNodeVisitor {
             posResolver.isCursorBeforeNode(node.getPosition(), visitor, visitor.lsContext, node, null);
             visitor.acceptNode(node, symbolEnv);
         });
+        // Specially check for the position of the cursor to support the completion for complete sources
+        // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
+        if (!terminateVisitor && (CompletionVisitorUtil.withinInvocationArguments(invocationNode, this.lsContext)
+                || CompletionVisitorUtil.cursorBeforeInvocationNode(invocationNode, this.lsContext))) {
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
+            this.populateSymbols(visibleSymbolEntries, symbolEnv);
+            this.forceTerminateVisitor();
+        }
         this.blockOwnerStack.pop();
         this.cursorPositionResolver = fallbackCursorPositionResolver;
     }
