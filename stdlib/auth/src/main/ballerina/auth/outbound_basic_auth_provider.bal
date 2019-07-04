@@ -35,16 +35,16 @@ public type OutboundBasicAuthProvider object {
 
     # Generates a token for Basic authentication.
     #
-    # + return - The generated token or the `error` if an error occurred during validation.
-    public function generateToken() returns string|error {
+    # + return - The generated token or the `AuthError` if an error occurred during validation.
+    public function generateToken() returns string|AuthError {
         return getAuthTokenForBasicAuth(self.credential);
     }
 
     # Inspects the incoming data and generates the token for Basic authentication.
     #
     # + data - Map of the data, which is extracted from the HTTP response.
-    # + return - The String token, the `error` occurred when generating the token, or `()` if nothing is to be returned.
-    public function inspect(map<anydata> data) returns string|error? {
+    # + return - The String token, the `AuthError` occurred when generating the token, or `()` if nothing is to be returned.
+    public function inspect(map<anydata> data) returns string|AuthError? {
         return ();
     }
 };
@@ -61,12 +61,12 @@ public type Credential record {|
 # Processes the auth token for Basic Auth.
 #
 # + credential - The credential configurations.
-# + return - The auth token or the `error` if an error occurred during validation.
-function getAuthTokenForBasicAuth(Credential credential) returns string|error {
+# + return - The auth token or the `AuthError` if an error occurred during validation.
+function getAuthTokenForBasicAuth(Credential credential) returns string|AuthError {
     string username = credential.username;
     string password = credential.password;
     if (username == EMPTY_STRING || password == EMPTY_STRING) {
-        return prepareError("Username or password cannot be empty.");
+        return prepareAuthError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
     string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
