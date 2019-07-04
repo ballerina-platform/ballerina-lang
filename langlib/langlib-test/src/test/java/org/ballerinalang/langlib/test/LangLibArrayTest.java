@@ -51,7 +51,7 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -60,37 +60,42 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) returns[3]).intValue(), 4);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testForeach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
         assertEquals(returns[0].stringValue(), "HelloWorldfromBallerina");
     }
 
     @Test
-    public void testSlice() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSlice");
+    public void testSort() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSort");
+
         assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-
         BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
-        assertEquals(arr.size(), 3);
-        assertEquals(arr.getFloat(0), 23.45);
-        assertEquals(arr.getFloat(1), 34.56);
-        assertEquals(arr.getFloat(2), 45.67);
-    }
 
-    @Test
-    public void testRemove() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
-        assertEquals(returns[0].stringValue(), "FooFoo");
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 8);
+        assertEquals(arr.getInt(0), 1);
+        assertEquals(arr.getInt(1), 2);
+        assertEquals(arr.getInt(2), 13);
+        assertEquals(arr.getInt(3), 13);
+        assertEquals(arr.getInt(4), 34);
+        assertEquals(arr.getInt(5), 44);
+        assertEquals(arr.getInt(6), 87);
+        assertEquals(arr.getInt(7), 98);
 
         assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[1];
+        arr = (BValueArray) returns[1];
 
-        assertEquals(arr.elementType.getTag(), TypeTags.STRING_TAG);
-        assertEquals(arr.size(), 3);
-        assertEquals(arr.getString(0), "Foo");
-        assertEquals(arr.getString(1), "Bar");
-        assertEquals(arr.getString(2), "BarBar");
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 8);
+        assertEquals(arr.getInt(0), 98);
+        assertEquals(arr.getInt(1), 34);
+        assertEquals(arr.getInt(2), 44);
+        assertEquals(arr.getInt(3), 87);
+        assertEquals(arr.getInt(4), 13);
+        assertEquals(arr.getInt(5), 2);
+        assertEquals(arr.getInt(6), 1);
+        assertEquals(arr.getInt(7), 13);
     }
 }
