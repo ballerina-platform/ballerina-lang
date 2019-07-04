@@ -86,7 +86,7 @@ public enum TypeKind {
     RECORD("record"),
     FINITE("finite"),
     CHANNEL("channel"),
-    HANDLE("ophandle")
+    HANDLE("handle")
     ;
 
     private String name;

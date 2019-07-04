@@ -52,7 +52,7 @@ public type AuthzHandler object {
     # + method - HTTP method name
     # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
-    function handle(string username, string serviceName, string resourceName, string method,
+    function process(string username, string serviceName, string resourceName, string method,
         string[]|string[][] scopes) returns boolean {
         // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
         // since different resources can have different scopes
