@@ -80,7 +80,7 @@ public class StreamValue implements RefValue {
     }
 
     public String stringValue() {
-        return "";
+        return "stream " + streamId + " " + getType().toString();
     }
 
     @Override

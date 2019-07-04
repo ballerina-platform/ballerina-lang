@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents an iterator of a Ballerina {@code {@link BCollection}}.
+ * Represents an iterator of a Ballerina {@code {@link CollectionValue}}.
  *
  * @since 0.995.0
  */
@@ -41,9 +41,8 @@ public interface IteratorValue extends RefValue, Iterator {
 
     @Override
     default String stringValue() {
-        return null;
+        return "iterator" + getType().toString();
     }
-    
 
     @Override
     public default Object copy(Map<Object, Object> refs) {

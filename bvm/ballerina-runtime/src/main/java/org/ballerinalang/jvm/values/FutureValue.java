@@ -59,7 +59,7 @@
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());
          }
-         return "future:" + sj.toString();
+         return "future " + sj.toString();
      }
 
      @Override
