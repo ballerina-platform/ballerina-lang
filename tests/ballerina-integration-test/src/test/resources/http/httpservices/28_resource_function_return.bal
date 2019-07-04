@@ -19,7 +19,7 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:"/"
 }
-service resourceReturnService on new http:Listener(9228) {
+service resourceReturnService on new http:Listener(9228, config = {server: "Mysql"}) {
 
     resource function manualErrorReturn(http:Caller caller, http:Request request) returns error? {
         http:Response response = new;

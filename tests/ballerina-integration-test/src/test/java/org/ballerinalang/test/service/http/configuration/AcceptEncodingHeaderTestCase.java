@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.service.http.configuration;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -47,7 +48,8 @@ public class AcceptEncodingHeaderTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort, "passthrough"),
                 message, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql", "Server name"
+                + " mismatched");
         Assert.assertEquals(response.getData(), expectedResponse,
                 "Response does not contains accept-encoding value.");
     }
