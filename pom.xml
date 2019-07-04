@@ -284,43 +284,22 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-h2 -->
+            <!-- ballerina-jdbc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-sql -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1860,8 +1839,7 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
@@ -1960,8 +1938,7 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
@@ -2054,8 +2031,7 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>

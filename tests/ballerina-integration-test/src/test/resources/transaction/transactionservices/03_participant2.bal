@@ -16,15 +16,13 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/sql;
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/system;
 
 listener http:Listener participant2EP02 = new(8890);
 
-h2:Client testDB = new({
-    path: "../../tempdb/",
-    name: "TEST_SQL_CONNECTOR",
+jdbc:Client testDB = new({
+    url: "jdbc:h2:file:../../tempdb/TEST_SQL_CONNECTOR",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 10 },

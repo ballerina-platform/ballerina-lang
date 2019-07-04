@@ -1,11 +1,9 @@
 import ballerina/io;
-import ballerina/h2;
-import ballerina/sql;
+import ballerina/jdbc;
 
 // Creates an endpoint for the H2 database. Changes the DB details before running the example.
-h2:Client testDB = new ({
-    path: "./local-transactions/",
-    name: "Testdb",
+jdbc:Client testDB = new ({
+    path: "jdbc:h2:file:./local-transactions/testdb",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 }
@@ -35,7 +33,7 @@ public function main() {
         // This is the second remote function participant of the transaction.
         ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
-        if (ret is sql:UpdateResult) {
+        if (ret is UpdateResult) {
             io:println("Inserted count: " + ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction
             // and exit the transaction block without retrying.

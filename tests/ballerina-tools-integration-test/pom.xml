@@ -224,8 +224,7 @@
                                                         <fileset dir="${basedir}/../../stdlib/builtin/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/h2/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/sql/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/file/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/grpc/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/http/target/classes" />
@@ -267,8 +266,7 @@
                                                         <fileset dir="${basedir}/../../stdlib/builtin/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/h2/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/sql/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/file/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/grpc/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/http/src/main/java" />
