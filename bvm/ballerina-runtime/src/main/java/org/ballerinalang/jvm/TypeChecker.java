@@ -77,10 +77,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class TypeChecker {
 
     public static Object checkCast(Object sourceVal, BType targetType) {
-        if (checkIsType(sourceVal, targetType)) {
-            return sourceVal;
-        }
-
         BType sourceType = getType(sourceVal);
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
             return TypeConverter.castValues(targetType, sourceVal);
@@ -93,9 +89,13 @@ public class TypeChecker {
                 try {
                     return TypeConverter.castValues(memberType, sourceVal);
                 } catch (Exception e) {
-                    continue;
+                    //ignore and continue
                 }
             }
+        }
+
+        if (checkIsType(sourceVal, targetType)) {
+            return sourceVal;
         }
 
         throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
@@ -1160,27 +1160,10 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-                return lhsValue.equals(rhsValue);
             case TypeTags.FLOAT_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return lhsValue.equals(((Number) rhsValue).doubleValue());
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((double) lhsValue).equals(rhsValue);
-                }
-
-                return false;
             case TypeTags.DECIMAL_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return DecimalValue.valueOf(((Number) rhsValue).doubleValue()).equals(lhsValue);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((DecimalValue) rhsValue).equals(lhsValue);
-                }
-
-                return false;
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
                 if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
                     return lhsValue.equals(((Number) rhsValue).longValue());
@@ -1198,16 +1181,6 @@ public class TypeChecker {
 
                 if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
                     return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
-                }
-
-                return false;
-            case TypeTags.BOOLEAN_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return ((boolean) lhsValue) == (((Number) rhsValue).longValue() == 1);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((boolean) lhsValue) == ((DecimalValue) rhsValue).booleanValue();
                 }
 
                 return false;
