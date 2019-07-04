@@ -84,7 +84,7 @@ public class TypeChecker {
 
         BType sourceType = getType(sourceVal);
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            return TypeConverter.convertValues(targetType, sourceVal);
+            return TypeConverter.castValues(targetType, sourceVal);
         }
 
         // if the source is a numeric value and the target type is a union, try to find a matching
@@ -92,7 +92,7 @@ public class TypeChecker {
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
                 try {
-                    return TypeConverter.convertValues(memberType, sourceVal);
+                    return TypeConverter.castValues(memberType, sourceVal);
                 } catch (Exception e) {
                     //ignore and continue
                 }
