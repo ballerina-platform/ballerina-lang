@@ -91,7 +91,8 @@ function testCall() returns @tainted string {
     } else if (ret is ()) {
         return "nil";
     } else {
-        return <string>ret.detail().message;
+        error e = ret;
+        return <string>e.detail().message;
     }
 
     string name = "";
@@ -121,7 +122,8 @@ function testGeneratedKeyOnInsert() returns string|int {
     if (x is sql:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
-        returnVal = <string>x.detail().message;
+        error e = x;
+        returnVal = <string>e.detail().message;
     }
 
     checkpanic testDB.stop();

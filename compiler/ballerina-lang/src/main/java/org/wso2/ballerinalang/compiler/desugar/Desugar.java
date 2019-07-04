@@ -478,7 +478,7 @@ public class Desugar extends BLangNodeVisitor {
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
-        pkgNode.initFunction = splitFunction(pkgNode, env);
+        pkgNode.initFunction = splitInitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -894,9 +894,9 @@ public class Desugar extends BLangNodeVisitor {
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
-                        null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                restParamType, this.env.scope.owner));
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1",
+                        parentIndexAccessExpr.type, null, new BVarSymbol(0, names.fromString("$map$1"),
+                                this.env.scope.owner.pkgID, parentIndexAccessExpr.type, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -5672,14 +5672,14 @@ public class Desugar extends BLangNodeVisitor {
      * @param env symbol environment
      * @return initial init function but trimmed in size
      */
-    private BLangFunction splitFunction(BLangPackage packageNode, SymbolEnv env) {
+    private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
         int methodSize = INIT_METHOD_SPLIT_SIZE;
         if (packageNode.initFunction.body.stmts.size() < methodSize || !isJvmTarget) {
             return packageNode.initFunction;
         }
         BLangFunction initFunction = packageNode.initFunction;
 
-        List<BLangFunction> genFuncs = new ArrayList<>();
+        List<BLangFunction> generatedFunctions = new ArrayList<>();
         List<BLangStatement> stmts = new ArrayList<>();
         stmts.addAll(initFunction.body.stmts);
         initFunction.body.stmts.clear();
@@ -5693,8 +5693,8 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             }
             if (i > 0 && i % methodSize == 0) {
-                genFuncs.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+                generatedFunctions.add(newFunc);
+                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
                 symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
             }
 
@@ -5711,8 +5711,8 @@ public class Desugar extends BLangNodeVisitor {
                     (newFunc.body.stmts.size() + chunkStmts.size() > methodSize)) {
                 // enf of current chunk
                 if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
-                    genFuncs.add(newFunc);
-                    newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+                    generatedFunctions.add(newFunc);
+                    newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
                     symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
                 }
                 newFunc.body.stmts.addAll(chunkStmts);
@@ -5721,18 +5721,18 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
-            genFuncs.add(newFunc);
-            newFunc = createIntermediateInitFunction(packageNode, env, genFuncs.size());
+            generatedFunctions.add(newFunc);
+            newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
             symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
         }
         newFunc.body.stmts.addAll(chunkStmts);
-        genFuncs.add(newFunc);
+        generatedFunctions.add(newFunc);
 
-        for (int j = 0; j < genFuncs.size() - 1; j++) {
-            BLangFunction thisFunction = genFuncs.get(j);
+        for (int j = 0; j < generatedFunctions.size() - 1; j++) {
+            BLangFunction thisFunction = generatedFunctions.get(j);
             BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos,
                     thisFunction.body);
-            expressionStmt.expr = createInvocationNode(genFuncs.get(j + 1).name.value, new ArrayList<>(),
+            expressionStmt.expr = createInvocationNode(generatedFunctions.get(j + 1).name.value, new ArrayList<>(),
                     symTable.nilType);
             expressionStmt.expr.pos = initFunction.pos;
 
@@ -5744,12 +5744,12 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // add last func
-        BLangFunction lastFunc = genFuncs.get(genFuncs.size() - 1);
+        BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
         lastFunc = rewrite(lastFunc, env);
         packageNode.functions.add(lastFunc);
         packageNode.topLevelNodes.add(lastFunc);
 
-        return genFuncs.get(0);
+        return generatedFunctions.get(0);
     }
 
     /**

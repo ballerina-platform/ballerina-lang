@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem;
+
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 project.ext.moduleName = files(file('src/main/ballerina').listFiles()).filter { File f ->
@@ -55,15 +57,27 @@ task createBirJar(type: Exec) {
         }
 
         configurations.birJarCompile.each {
-            commandLine 'sh',
+            if (OperatingSystem.current().isWindows()) {
+                commandLine 'cmd.exe', '/c',
 
-                    new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
 
-                    generatedBirDir + project.ext.moduleName + '.bir',
-                    mapPath,
-                    "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-                    'false',
-                    "$buildDir/bir-cache"
+                        generatedBirDir + project.ext.moduleName + '.bir',
+                        mapPath,
+                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
+                        'false',
+                        "$buildDir/bir-cache"
+            } else {
+                commandLine 'sh',
+
+                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+
+                        generatedBirDir + project.ext.moduleName + '.bir',
+                        mapPath,
+                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
+                        'false',
+                        "$buildDir/bir-cache"
+            }
         }
     }
 

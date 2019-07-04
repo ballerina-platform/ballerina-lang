@@ -124,7 +124,7 @@ public class WhileStmtTest {
         BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'boolean', found 'int'", 10,
                 8);
         BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: expected 'boolean', found " +
-                        "'int|string[]'", 14, 8);
+                        "'(int|string)[]'", 14, 8);
     }
 
     @Test(description = "Test nested while loop with break 1")
@@ -172,6 +172,18 @@ public class WhileStmtTest {
 
         String actual = returns[0].stringValue();
         String expected = "level2level3level1";
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test type narrowing inside the while body")
+    public void testTypeNarrowingInWhileBody() {
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testTypeNarrowingInWhileBody");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "foo1foo2foo3";
         Assert.assertEquals(actual, expected);
     }
 }

@@ -174,7 +174,8 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
     if (x is sql:UpdateResult) {
         returnVal = x.generatedKeys.length();
     } else {
-        returnVal = x.reason();
+        error e = x;
+        returnVal = e.reason();
     }
     checkpanic testDB.stop();
     return returnVal;

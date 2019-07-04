@@ -203,6 +203,7 @@ public class SymbolTable {
                 errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
         this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
         rootScope.define(errorConstructor.name, this.errorConstructor);
+        this.errorType.ctorSymbol = this.errorConstructor;
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
         this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);

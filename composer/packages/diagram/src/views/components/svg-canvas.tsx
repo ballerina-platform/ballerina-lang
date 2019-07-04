@@ -1,34 +1,35 @@
 import * as React from "react";
 import { DiagramContext } from "../../diagram/index";
-import { CompilationUnitViewState } from "../../view-model/index";
+
+const ZOOM_STEP = 50;
 
 const overlayGroupRef = React.createRef<SVGGElement>();
 
 export const SvgCanvas: React.StatelessComponent<{
-        model: CompilationUnitViewState,
-        zoom: number
+        width: number,
+        height: number,
+        zoom: number,
+        fitToWidthOrHeight: boolean,
     }>
-    = ({ model, children, zoom }) => {
-    const bBox = model.bBox;
+    = ({ width, height, children, zoom, fitToWidthOrHeight }) => {
+
+    const canvasWidth = fitToWidthOrHeight ? "100%" : (width + (zoom * ZOOM_STEP));
+    const canvasHeight = fitToWidthOrHeight ? "100%" : (height + (zoom * ZOOM_STEP));
 
     return (
         <DiagramContext.Consumer>
             {(diagContext) => {
-                const svgSize = {
-                    h: diagContext.diagramHeight,
-                    w: diagContext.diagramWidth
-                };
                 const disabledOpacity = (diagContext.hasSyntaxErrors) ? 0.3 : 1;
-                const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
+                const viewBox =  `0 0 ${width} ${height}`;
                 return (
                     <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >
-                        <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom, opacity: disabledOpacity }}>
+                        <div style={{ opacity: disabledOpacity }}>
                             <svg
                                 className="diagram-canvas"
-                                preserveAspectRatio="xMinYMin"
-                                width={svgSize.w * zoom}
-                                height={svgSize.h * zoom}
+                                width={canvasWidth}
+                                height={canvasHeight}
                                 viewBox={viewBox}
+                                preserveAspectRatio = {"xMinYMin"}
                             >
                                 {children}
                                 <g ref={overlayGroupRef} className="diagram-overlay" />

@@ -32,19 +32,18 @@ public type Connection object {
     #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
-    # + return - An `error` if an I/O problem is encountered.
+    # + return - An error if an I/O problem is encountered.
     public function close(int? closeCode = (), string? closeMessage = (), int? timeout = ()) returns error? = external;
 
     # Aborts the RabbitMQ `Connection` and all its `Channel`s.
     # Forces the `Connection` to close and waits for all the close operations to complete. When timeout is reached
-    # the socket is forced to close.
-    # Any encountered exceptions in the close operations are silently discarded.
+    # the socket is forced to close. Any encountered exceptions in the close operations are silently discarded.
     #
     # + closeCode - The close code (For information, go to the "Reply Codes" section in the
     #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
     # + closeMessage - A message indicating the reason for closing the connection.
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations. Use -1 for infinity.
-    # + return - Returns an `error` if an I/O problem is encountered.
+    # + return - An error if an I/O problem is encountered.
     public function abortConnection(int? closeCode = (), string? closeMessage = (), int? timeout = ())
                                                                                     returns error? = external;
 
@@ -53,30 +52,5 @@ public type Connection object {
     # + return - The value `true` if the `Connection` is already closed and `false` otherwise.
     public function isClosed() returns boolean = external;
 
-    # Extern function called to initialize the RabbitMQ `Connection`.
-    #
-    # + connectionConfiguration - Holds the connection parameters required to initialize the `Connection`.
     private function createConnection(ConnectionConfiguration connectionConfiguration) = external;
 };
-
-# Holds the parameters used to create a RabbitMQ `Connection`.
-#
-# + host - The host used for establishing the connection.
-# + port - The port used for establishing the connection.
-# + username - The username used for establishing the connection.
-# + password - The password used for establishing the connection.
-# + connectionTimeout - Connection TCP establishment timeout in milliseconds; zero for infinite.
-# + handshakeTimeout -  The AMQP 0-9-1 protocol handshake timeout, in milliseconds.
-# + shutdownTimeout - Shutdown timeout in milliseconds; zero for infinite; default 10000. If consumers exceed
-#                     this timeout then any remaining queued deliveries (and other Consumer callbacks) will be lost.
-# + heartbeat - The initially requested heartbeat timeout, in seconds; zero for none.
-public type ConnectionConfiguration record {|
-    string host;
-    int port = 5672;
-    string? username = ();
-    string? password = ();
-    int? connectionTimeout = ();
-    int? handshakeTimeout = ();
-    int? shutdownTimeout = ();
-    int? heartbeat = ();
-|};

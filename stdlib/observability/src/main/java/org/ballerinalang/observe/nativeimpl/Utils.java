@@ -19,70 +19,75 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.metrics.PercentileValue;
-import org.ballerinalang.util.metrics.Snapshot;
-import org.ballerinalang.util.metrics.StatisticConfig;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.metrics.PercentileValue;
+import org.ballerinalang.jvm.observability.metrics.Snapshot;
+import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This provides the util functions to observe related functions.
  */
 public class Utils {
 
-    public static Map<String, String> toStringMap(BMap map) {
+    private static final BType STATISTIC_CONFIG_TYPE =
+            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH,
+                    ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
+
+    private static final BType PERCENTILE_VALUE_TYPE =
+            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH,
+                    ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
+
+    private static final BType SNAPSHOT_TYPE =
+            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH,
+                    ObserveNativeImplConstants.SNAPSHOT).getType();
+
+    public static Map<String, String> toStringMap(MapValue<?, ?> map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
-            for (Object aKey : map.keys()) {
-                returnMap.put(aKey.toString(), map.get(aKey).stringValue());
+            for (Entry<?, ?> keyVals : map.entrySet()) {
+                Object value = keyVals.getValue();
+                returnMap.put(keyVals.getKey().toString(), value == null ? "()" : value.toString());
             }
         }
         return returnMap;
     }
 
-    public static BError createError(Context context, String message) {
-        return BLangVMErrors.createError(context, message);
-    }
-
-    public static BValueArray createBSnapshots(Snapshot[] snapshots, Context context) {
+    public static ArrayValue createBSnapshots(Snapshot[] snapshots, Strand strand) {
         if (snapshots != null && snapshots.length > 0) {
-            PackageInfo observePackage = context.getProgramFile().
-                    getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
-            StructureTypeInfo snapshotStructInfo = observePackage.
-                    getStructInfo(ObserveNativeImplConstants.SNAPSHOT);
-            StructureTypeInfo percentileStructInfo = observePackage.
-                    getStructInfo(ObserveNativeImplConstants.PERCENTILE_VALUE);
 
-            BValueArray bSnapshots = new BValueArray(new BArrayType(observePackage.
-                    getTypeInfo(ObserveNativeImplConstants.SNAPSHOT).getType()));
+            ArrayValue bSnapshots = new ArrayValue(new BArrayType(SNAPSHOT_TYPE));
             int index = 0;
             for (Snapshot snapshot : snapshots) {
-                BValueArray bPercentiles = new BValueArray(new BArrayType(observePackage.
-                        getTypeInfo(ObserveNativeImplConstants.PERCENTILE_VALUE).getType()));
+                ArrayValue bPercentiles = new ArrayValue(new BArrayType(PERCENTILE_VALUE_TYPE));
                 int percentileIndex = 0;
                 for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                    BMap<String, BValue> bPercentileValue = BLangVMStructs.createBStruct(percentileStructInfo,
-                            percentileValue.getPercentile(),
-                            percentileValue.getValue());
+                    MapValue<String, Object> bPercentileValue =
+                            BallerinaValues.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH,
+                                    ObserveNativeImplConstants.PERCENTILE_VALUE);
+                    bPercentileValue.put("percentile", percentileValue.getPercentile());
+                    bPercentileValue.put("value", percentileValue.getValue());
                     bPercentiles.add(percentileIndex, bPercentileValue);
                     percentileIndex++;
                 }
-                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(snapshotStructInfo,
-                        snapshot.getTimeWindow().toMillis(), snapshot.getMean(), snapshot.getMax(),
-                        snapshot.getMin(), snapshot.getStdDev(), bPercentiles);
+
+                MapValue<String, Object> aSnapshot = BallerinaValues.createRecordValue(
+                        ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.STATISTIC_CONFIG);
+                aSnapshot.put("timeWindow", snapshot.getTimeWindow().toMillis());
+                aSnapshot.put("mean", snapshot.getMean());
+                aSnapshot.put("max", snapshot.getMax());
+                aSnapshot.put("min", snapshot.getMin());
+                aSnapshot.put("stdDev", snapshot.getStdDev());
+                aSnapshot.put("percentileValues", bPercentiles);
                 bSnapshots.add(index, aSnapshot);
                 index++;
             }
@@ -92,29 +97,28 @@ public class Utils {
         }
     }
 
-    public static BValueArray createBStatisticConfig(StatisticConfig[] configs, Context context) {
-        PackageInfo observePackage = context.getProgramFile().
-                getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
-        StructureTypeInfo statisticConfigInfo = observePackage.
-                getStructInfo(ObserveNativeImplConstants.STATISTIC_CONFIG);
+    public static ArrayValue createBStatisticConfig(StatisticConfig[] configs) {
         if (configs != null) {
-            BValueArray bStatsConfig = new BValueArray(new BArrayType(statisticConfigInfo.getType()));
+            ArrayValue bStatsConfig = new ArrayValue(new BArrayType(STATISTIC_CONFIG_TYPE));
             int index = 0;
             for (StatisticConfig config : configs) {
-                BValueArray bPercentiles = new BValueArray(new BArrayType(BTypes.typeFloat));
+                ArrayValue bPercentiles = new ArrayValue(new BArrayType(BTypes.typeFloat));
                 int percentileIndex = 0;
                 for (Double percentile : config.getPercentiles()) {
-                    bPercentiles.add(percentileIndex, new BFloat(percentile));
+                    bPercentiles.add(percentileIndex, percentile);
                     percentileIndex++;
                 }
-                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(statisticConfigInfo,
-                        bPercentiles, config.getTimeWindow(), config.getBuckets());
+                MapValue<String, Object> aSnapshot = BallerinaValues.createRecordValue(
+                        ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.STATISTIC_CONFIG);
+                aSnapshot.put("percentiles", bPercentiles);
+                aSnapshot.put("timeWindow", config.getTimeWindow());
+                aSnapshot.put("buckets", config.getBuckets());
                 bStatsConfig.add(index, aSnapshot);
                 index++;
             }
             return bStatsConfig;
         } else {
-            return new BValueArray(new BArrayType(statisticConfigInfo.getType()));
+            return new ArrayValue(new BArrayType(STATISTIC_CONFIG_TYPE));
         }
     }
 }
