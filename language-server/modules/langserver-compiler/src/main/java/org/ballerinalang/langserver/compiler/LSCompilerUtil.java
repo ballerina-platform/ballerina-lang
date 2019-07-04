@@ -204,8 +204,10 @@ public class LSCompilerUtil {
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
+        // Compilation will stop before the mentioned phased.
+        // i.e. here compilation will run only upto one phase before desugar phase.
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.TAINT_ANALYZE);
+                documentManager, CompilerPhase.DESUGAR);
     }
 
     /**
