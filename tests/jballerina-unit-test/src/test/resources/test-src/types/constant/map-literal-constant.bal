@@ -234,17 +234,19 @@ public type TestConfig record {|
     map<string> m;
 |};
 
-public annotation<function> testAnnotation TestConfig;
+public annotation TestConfig testAnnotation on type;
 
 @testAnnotation {
     s: sConst,
     i: iConst,
     m: mConst
 }
-function testFunction() {
+type RecordOne record {
 
-}
+};
 
-function testConstInAnnotations() returns reflect:annotationData[] {
-    return reflect:getFunctionAnnotations(testFunction);
+function testConstInAnnotations() returns TestConfig? {
+    RecordOne r1 = {};
+    typedesc t = typeof r1;
+    return t.@testAnnotation;
 }

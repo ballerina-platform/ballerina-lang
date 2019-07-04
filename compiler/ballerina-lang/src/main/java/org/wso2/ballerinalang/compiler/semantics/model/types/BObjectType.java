@@ -91,7 +91,7 @@ public class BObjectType extends BStructureType implements ObjectType {
                 } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
                     sb.append(SPACE).append(PRIVATE);
                 }
-                sb.append(fun).append(SEMI_COLON);
+                sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
             return sb.toString();

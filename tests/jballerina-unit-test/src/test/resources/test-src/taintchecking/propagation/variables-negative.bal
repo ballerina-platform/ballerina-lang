@@ -14,14 +14,14 @@ public function main (string... args) {
     secureFunction(data1, data1);
 
     // tuple variable
-    (string, string) t = (args[0], "sample");
-    (string, string) (a1, b1) = t;
+    [string, string] t = [args[0], "sample"];
+    [string, string] [a1, b1] = t;
     secureFunction(a1, b1);
 
     // tuple variable reference
     string a2;
     string b2;
-    (a2, b2) = (args[0], "sample");
+    [a2, b2] = [args[0], "sample"];
     secureFunction(a2, b2);
 
     // record variable

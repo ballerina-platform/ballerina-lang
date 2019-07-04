@@ -24,13 +24,13 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
 
-    baloCreat project(':lib-creator')
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-runtime-api')

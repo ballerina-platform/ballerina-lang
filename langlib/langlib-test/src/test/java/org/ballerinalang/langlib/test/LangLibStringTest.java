@@ -24,9 +24,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Test cases for the lang.string library.
@@ -45,18 +46,30 @@ public class LangLibStringTest {
     @Test
     public void testToLower() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToLower");
-        Assert.assertEquals(returns[0].stringValue(), "hello ballerina!");
+        assertEquals(returns[0].stringValue(), "hello ballerina!");
     }
 
     @Test
     public void testLength() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
+        assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
     }
 
     @Test
     public void testSubString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSubString");
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
+        assertEquals(returns[0].stringValue(), "Bal");
+    }
+
+    @Test(enabled = false)
+    public void testIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
+        assertEquals(returns[0].stringValue(), "Bal");
+    }
+
+    @Test
+    public void testConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
+        assertEquals(returns[0].stringValue(), "Hello from Ballerina");
     }
 }

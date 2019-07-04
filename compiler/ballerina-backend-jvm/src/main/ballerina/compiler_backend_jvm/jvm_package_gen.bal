@@ -485,7 +485,6 @@ function importModuleToModuleId(bir:ImportModule mod) returns bir:ModuleID {
      return {org: mod.modOrg.value, name: mod.modName.value, modVersion: mod.modVersion.value};
 }
 
-// TODO 29/06/2019: Refactor this to properly handle lang.* modules
 function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
 
     // Add the builtin and utils modules to the imported list of modules
@@ -493,38 +492,90 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
                                           modName : {value:"lang.annotations"},
                                           modVersion : {value:""}};
 
-    bir:ImportModule langStringModule = {modOrg : {value:"ballerina"},
-                                         modName : {value:"lang.string"},
-                                         modVersion : {value:""}};
-
-    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
-                                    modName : {value:"utils"},
-                                    modVersion : {value:""}};
-
-    bir:ImportModule langMapModule = {modOrg : {value:"ballerina"},
-                                    modName : {value:"lang.map"},
-                                    modVersion : {value:""}};
-
     if (isSameModule(moduleId, annotationsModule)) {
         return;
     }
 
-    if (isSameModule(moduleId, langStringModule)) {
+    module.importModules[module.importModules.length()] = annotationsModule;
+
+    if (isLangModule(moduleId)) {
         return;
     }
 
-    if (isSameModule(moduleId, langMapModule)) {
-        return;
-    }
+    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
+                                        modName : {value:"utils"},
+                                        modVersion : {value:""}};
 
     if (isSameModule(moduleId, utilsModule)) {
-        module.importModules[module.importModules.length()] = annotationsModule;
-        module.importModules[module.importModules.length()] = langStringModule;
         return;
     }
 
     module.importModules[module.importModules.length()] = utilsModule;
+
+    bir:ImportModule langArrayModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.array"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langDecimalModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.decimal"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langErrorModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.error"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langFloatModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.float"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langFutureModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.future"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langIntModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.int"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langMapModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.map"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langObjectModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.object"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langStreamModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.stream"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langStringModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.string"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langTableModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.table"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langValueModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.value"},
+                                         modVersion : {value:""}};
+
+    bir:ImportModule langXmlModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.xml"},
+                                         modVersion : {value:""}};
+    module.importModules[module.importModules.length()] = langArrayModule;
+    module.importModules[module.importModules.length()] = langDecimalModule;
+    module.importModules[module.importModules.length()] = langErrorModule;
+    module.importModules[module.importModules.length()] = langFloatModule;
+    module.importModules[module.importModules.length()] = langFutureModule;
+    module.importModules[module.importModules.length()] = langIntModule;
     module.importModules[module.importModules.length()] = langMapModule;
+    module.importModules[module.importModules.length()] = langObjectModule;
+    module.importModules[module.importModules.length()] = langStreamModule;
+    module.importModules[module.importModules.length()] = langStringModule;
+    module.importModules[module.importModules.length()] = langTableModule;
+    module.importModules[module.importModules.length()] = langValueModule;
+    module.importModules[module.importModules.length()] = langXmlModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {
@@ -535,6 +586,13 @@ function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) retu
     } else {
         return moduleId.modVersion == importModule.modVersion.value;
     }
+}
+
+function isLangModule(bir:ModuleID moduleId) returns boolean{
+    if (moduleId.org != "ballerina") {
+        return false;
+    }
+    return moduleId.name.indexOf("lang.") == 0;
 }
 
 // TODO: this only works for 1000000 byte or less files, get a proper method in stdlib

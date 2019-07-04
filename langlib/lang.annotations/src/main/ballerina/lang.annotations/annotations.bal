@@ -15,13 +15,13 @@
 // under the License.
 
 # Denote that the parameter is security sensitive hence tainted data should not be accepted.
-public annotation<type, parameter> sensitive;
+public annotation sensitive on parameter;
 
 # Denote that the return value is tainted.
-public annotation<type, parameter> tainted;
+public annotation tainted on return;
 
 # Denote that the return value is untainted.
-public annotation<type, parameter> untainted;
+public annotation untainted on return;
 
 # Denotes annotated type is a parametric type.
-public annotation<type> typeParam;
+public annotation typeParam on type;

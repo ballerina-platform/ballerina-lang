@@ -77,9 +77,9 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         // .getValue())) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> {
-            ResourceSignatureValidator.validateAnnotation(res, dlog);
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
             ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);
+            ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
         //        }
         // get value from endpoint.

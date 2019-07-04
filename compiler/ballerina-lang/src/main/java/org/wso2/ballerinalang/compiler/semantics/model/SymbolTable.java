@@ -20,10 +20,12 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -41,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -57,6 +60,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -125,7 +130,9 @@ public class SymbolTable {
 
     public BErrorType errorType;
     public BRecordType detailType;
+    public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
+    public BFiniteType trueType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -205,6 +212,15 @@ public class SymbolTable {
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
 
+        BLangLiteral trueLiteral = new BLangLiteral();
+        trueLiteral.type = this.booleanType;
+        trueLiteral.value = Boolean.TRUE;
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                                                                names.fromString("$anonType$TRUE"),
+                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
+
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }
@@ -264,7 +280,6 @@ public class SymbolTable {
                 null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
         errorSymbol.type = this.errorType;
-        defineType(this.errorType, errorType.tsymbol);
 
         int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
         BField messageField = new BField(Names.DETAIL_MESSAGE, this.rootPkgNode.pos,
@@ -278,6 +293,13 @@ public class SymbolTable {
         detailSymbol.scope.define(Names.DETAIL_CAUSE, causeField.symbol);
 
         this.detailType.restFieldType = BUnionType.create(null, this.anydataType, this.errorType);
+
+        // Initialize constructor symbol for ballerina built-in error type
+        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR, this.errorType.tsymbol.flags,
+                this.errorType.tsymbol.name, this.errorType.tsymbol.pkgID,
+                this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
+        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        this.errorType.ctorSymbol = this.errorConstructor;
 
         // TODO : Remove this. Had to add this due to BIR codegen requires this.
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);

@@ -41,8 +41,7 @@ public class BearerAuthHandlerTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        compileResult = BCompileUtil.compile(
-                sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
     }
 
     @Test(description = "Test case for bearer auth header interceptor canHandle method, without the bearer auth header")

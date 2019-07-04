@@ -16,29 +16,29 @@
 
 # Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
 # close is required only if it is not fully iterated.
-public function table<record {}>.close() = external;
+public function close(table<record {}> dt) = external;
 
 # Checks for a new row in the given table. If a new row is found, moves the cursor to it.
 #
 # + return - True if there is a new row; false otherwise
-public function table<record {}>.hasNext() returns boolean = external;
+public function hasNext(table<record {}> dt) returns boolean = external;
 
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public function table<record {}>.getNext() returns any = external;
+public function getNext(table<record {}> dt) returns any = external;
 
 # Add record to the table.
 #
 # + data - A record with data
 # + return - An `error` will be returned if there is any error occurred during adding data or else nil is returned
-public function table<record {}>.add(any data) returns error|() = external;
+public function add(table<record {}> dt, any data) returns error|() = external;
 
 # Remove data from the table.
 #
 # + func - The function pointer for delete crieteria
 # + return - An `int` the number of deleted record count or `error` if any error occurred during removing data
-public function table<record {}>.remove(function (any) returns (boolean) func) returns int|error = external;
+public function remove(table<record {}> dt, function (any) returns (boolean) func) returns int|error = external;
 
 # Execute the given sql query to fetch the records and return as a new in memory table.
 #

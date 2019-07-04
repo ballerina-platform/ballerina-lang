@@ -281,6 +281,10 @@ public class TableValue implements RefValue, CollectionValue {
         return iterator.getArray(columnIndex);
     }
 
+    public DecimalValue getDecimal(int columnIndex) {
+        throw new UnsupportedOperationException();
+    }
+
     public List<ColumnDefinition> getColumnDefs() {
         return iterator.getColumnDefinitions();
     }
@@ -316,6 +320,18 @@ public class TableValue implements RefValue, CollectionValue {
         } finally {
             cloneIterator.close();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        TableValue copy = (TableValue) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 
     @Override
@@ -423,5 +439,10 @@ public class TableValue implements RefValue, CollectionValue {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+    }
+
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
     }
 }

@@ -33,4 +33,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - NATS'

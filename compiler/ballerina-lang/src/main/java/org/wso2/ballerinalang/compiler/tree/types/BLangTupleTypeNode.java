@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * {@code BLangUnionTypeNode} represents a tuple type node in Ballerina
  * <p>
- * e.g. (int, float , string)
+ * e.g. [int, float , string]
  *
  * @since 0.966.0
  */
@@ -53,6 +53,6 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     @Override
     public String toString() {
-        return "(" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(",")) + ")";
+        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(",")) + "]";
     }
 }

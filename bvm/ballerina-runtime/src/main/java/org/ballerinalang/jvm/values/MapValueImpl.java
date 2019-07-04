@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -349,22 +348,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        MapValueImpl<K, V> copy = (MapValueImpl<K, V>) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
     @Override
     public String stringValue() {
         readLock.lock();
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        StringJoiner sj = new StringJoiner(" ");
         try {
             switch (type.getTag()) {
-                case TypeTags.OBJECT_TYPE_TAG:
-                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
-                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
-                            continue;
-                        }
-                        String fieldName = field.getKey();
-                        V fieldVal = get((K) fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
-                    break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 case TypeTags.MAP_TAG:
@@ -374,12 +373,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     }
                     // Fallthrough
                 default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
                     for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                        String key;
-                        key = keySeparator + kvEntry.getKey() + keySeparator;
+                        K key = kvEntry.getKey();
                         V value = kvEntry.getValue();
-                        sj.add(key + ":" + getStringValue(value));
+                        sj.add(key + "=" + getStringValue(value));
                     }
                     break;
             }
@@ -467,6 +464,20 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+        this.values().forEach(val -> {
+            if (val instanceof RefValue) {
+                ((RefValue) val).freezeDirect();
+            }
+        });
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -480,8 +491,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private String getStringValue(Object value) {
         if (value == null) {
             return null;
-        } else if (value instanceof String) {
-            return "\"" + value.toString() + "\"";
         } else {
             return value.toString();
         }
