@@ -54,16 +54,48 @@ public class LangLibArrayTest {
     @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        assertEquals(((BInteger) returns[0]).intValue(), 1);
-        assertEquals(((BInteger) returns[1]).intValue(), 2);
-        assertEquals(((BInteger) returns[2]).intValue(), 3);
-        assertEquals(((BInteger) returns[3]).intValue(), 4);
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+
+        BValueArray arr = (BValueArray) returns[0];
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.getInt(0), 1);
+        assertEquals(arr.getInt(1), 2);
+        assertEquals(arr.getInt(2), 3);
+        assertEquals(arr.getInt(3), 4);
     }
 
     @Test
     public void testForeach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].stringValue(), "HelloWorldfromBallerina");
+        assertEquals(returns[0].stringValue(), "HelloWorld!fromBallerina");
+    }
+
+    @Test
+    public void testSlice() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSlice");
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+
+        BValueArray arr = (BValueArray) returns[0];
+        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(arr.size(), 3);
+        assertEquals(arr.getFloat(0), 23.45);
+        assertEquals(arr.getFloat(1), 34.56);
+        assertEquals(arr.getFloat(2), 45.67);
+    }
+
+    @Test
+    public void testRemove() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
+        assertEquals(returns[0].stringValue(), "FooFoo");
+
+        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
+        BValueArray arr = (BValueArray) returns[1];
+
+        assertEquals(arr.elementType.getTag(), TypeTags.STRING_TAG);
+        assertEquals(arr.size(), 3);
+        assertEquals(arr.getString(0), "Foo");
+        assertEquals(arr.getString(1), "Bar");
+        assertEquals(arr.getString(2), "BarBar");
     }
 
     @Test
