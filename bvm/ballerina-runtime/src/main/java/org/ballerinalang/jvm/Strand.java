@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;

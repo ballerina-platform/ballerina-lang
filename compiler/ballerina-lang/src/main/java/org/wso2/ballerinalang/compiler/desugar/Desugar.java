@@ -680,13 +680,14 @@ public class Desugar extends BLangNodeVisitor {
         abortFunc.function.requiredParams.add(onAbortTrxVar);
         abortFunc.type = new BInvokableType(Lists.of(onAbortTrxVar.symbol.type),
                                                       abortFunc.function.symbol.type.getReturnType(), null);
-        abortFunc.function.symbol.type =  abortFunc.type;
+        abortFunc.function.symbol.type = abortFunc.type;
         abortFunc.function.symbol.params = Lists.of(onAbortTrxVar.symbol);
-        
+
         BSymbol trxModSym = env.enclPkg.imports
                 .stream()
-                .filter(importPackage -> importPackage.symbol.pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names
-                        .ORG_NAME_SEPARATOR.value + Names.TRANSACTION_PACKAGE.value))
+                .filter(importPackage -> importPackage.symbol.
+                        pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names.ORG_NAME_SEPARATOR.value
+                                                        + Names.TRANSACTION_PACKAGE.value))
                 .findAny().get().symbol;
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),

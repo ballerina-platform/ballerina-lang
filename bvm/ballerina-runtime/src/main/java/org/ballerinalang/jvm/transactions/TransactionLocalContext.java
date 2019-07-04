@@ -33,8 +33,6 @@ public class TransactionLocalContext {
     private String globalTransactionId;
     private String url;
     private String protocol;
-    // Indicate this frame belong to a transaction participant
-    public TransactionParticipantType trxParticipant;
 
     private int transactionLevel;
     private Map<String, Integer> allowedTransactionRetryCounts;

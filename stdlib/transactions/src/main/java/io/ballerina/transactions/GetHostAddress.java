@@ -18,11 +18,8 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -41,12 +38,7 @@ import java.util.Enumeration;
         functionName = "getHostAddress",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )
-public class GetHostAddress extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        ctx.setReturnValues(new BString(getLocalHostLANAddress().getHostAddress()));
-    }
-
+public class GetHostAddress {
     public static String getHostAddress(Strand strand) {
         return getLocalHostLANAddress().getHostAddress();
     }

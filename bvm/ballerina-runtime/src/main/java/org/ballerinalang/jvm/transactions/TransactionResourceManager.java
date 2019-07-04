@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -89,11 +90,11 @@ public class TransactionResourceManager {
      * This method will register a committed function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param FPValue   the function pointer for the committed function
+     * @param fpValue   the function pointer for the committed function
      */
-    private void registerCommittedFunction(String transactionBlockId, FPValue FPValue) {
-        if (FPValue != null) {
-            committedFuncRegistry.put(transactionBlockId, FPValue);
+    private void registerCommittedFunction(String transactionBlockId, FPValue fpValue) {
+        if (fpValue != null) {
+            committedFuncRegistry.put(transactionBlockId, fpValue);
         }
     }
 
@@ -101,11 +102,11 @@ public class TransactionResourceManager {
      * This method will register an aborted function handler of a particular transaction.
      *
      * @param transactionBlockId the block id of the transaction
-     * @param FPValue   the function pointer for the aborted function
+     * @param fpValue   the function pointer for the aborted function
      */
-    private void registerAbortedFunction(String transactionBlockId, FPValue FPValue) {
-        if (FPValue != null) {
-            abortedFuncRegistry.put(transactionBlockId, FPValue);
+    private void registerAbortedFunction(String transactionBlockId, FPValue fpValue) {
+        if (fpValue != null) {
+            abortedFuncRegistry.put(transactionBlockId, fpValue);
         }
     }
 

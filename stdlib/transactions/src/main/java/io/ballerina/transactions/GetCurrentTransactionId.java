@@ -18,14 +18,11 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
  * Extern function ballerina.transactions:GetCurrentTransactionId.
@@ -37,22 +34,11 @@ import org.ballerinalang.util.transactions.TransactionLocalContext;
         functionName = "getCurrentTransactionId",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )
-public class GetCurrentTransactionId extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        String currentTransactionId = "";
-        TransactionLocalContext transactionLocalContext = ctx.getLocalTransactionInfo();
-        if (transactionLocalContext != null) {
-            currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
-                    .getCurrentTransactionBlockId();
-        }
-        ctx.setReturnValues(new BString(currentTransactionId));
-    }
+public class GetCurrentTransactionId {
 
     public static String getCurrentTransactionId(Strand strand) {
         String currentTransactionId = "";
-        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext
-                = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext != null) {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();

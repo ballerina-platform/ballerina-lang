@@ -43,4 +43,9 @@
     <Match>
         <Package name="org.ballerinalang.jvm.observability.tracer"/>
     </Match>
+    <Match>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </OR>
+    </Match>
 </FindBugsFilter>
