@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Extern function ballerina.transactions:prepareResourceManagers.
  *
- * @since 1.0
+ * @since 0.964.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
