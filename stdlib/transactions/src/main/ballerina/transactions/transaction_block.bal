@@ -17,6 +17,15 @@
 import ballerina/io;
 import ballerina/log;
 
+# Handles the transaction initiator block.
+# Transaction initiator block will be desugared to following method.
+#
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
+# + rMax - Max retry count.
+# + trxFunc - Transaction main block function.
+# + retryFunc - On retry block function.
+# + committedFunc - Committed function.
+# + abortedFunc - Abort function.
 function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
                                    function () retryFunc, function () committedFunc,
                                    function () abortedFunc) {
@@ -102,7 +111,15 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     }
 }
 
-function beginLocalParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
+# Handles the trahsaction local participant function.
+# Transaction local participant function will be desugared to following method.
+#
+# + transactionBlockId - ID of the transaction block.
+# + trxFunc - Participant logic.
+# + committedFunc - Committed function.
+# + abortedFunc - Abort function.
+# + return - Return value of the participant.
+function beginLocalParticipant(string transactionBlockId, function () returns any|error trxFunc,
                                function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
                                any|error|() {
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
@@ -114,19 +131,27 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
         if (returnContext is error) {
             notifyLocalParticipantOnFailure();
             panic returnContext;
+        } else {
+            log:printInfo("participant registered: " + returnContext.transactionId);
         }
-        var result = trap <any|error|()>trxFunc.call();
+        var result = trap transactionParticipantWrapper(trxFunc);
         if (result is error) {
             notifyLocalParticipantOnFailure();
             panic result;
+        } else {
+            return result.data;
         }
-        if (result is string) {
-        }
-        return result;
     }
 }
 
-
+# Handles the trahsaction remote participant function.
+# Transaction remote participant function will be desugared to following method.
+#
+# + transactionBlockId - ID of the transaction block.
+# + trxFunc - Participant logic.
+# + committedFunc - Committed function.
+# + abortedFunc - Abort function.
+# + return - Return value of the participant.
 function beginRemoteParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
                                 function (string trxId) committedFunc, function (string trxId) abortedFunc) returns 
                                 any|error|() {
@@ -139,13 +164,16 @@ function beginRemoteParticipant(string transactionBlockId, function () returns a
         if (returnContext is error) {
             notifyRemoteParticipantOnFailure();
             panic returnContext;
+        } else {
+            log:printInfo("participant registered: " + returnContext.transactionId);
         }
-        any|error|() result = trap trxFunc.call();
+        var result = trap transactionParticipantWrapper(trxFunc);
         if (result is error) {
             notifyRemoteParticipantOnFailure();
             panic result;
+        } else {
+            return result.data;
         }
-        return result;
     }
 }
 
@@ -157,7 +185,6 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
     if (result is error) {
         panic result;
     }
-    
     if (abortResult is error) {
         panic abortResult;
     }
@@ -268,6 +295,15 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
     return false;
 }
 
+# Wrapper function used to seperate panic and return error after calling participant function.
+#
+# + trxFunc - Participant logic.
+# + return - Return value of the participant.
+function transactionParticipantWrapper(function () returns any|error trxFunc) returns ParticipantFunctionResult {
+    return {data : trxFunc.call()};
+}
+
+
 # Prepare local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
@@ -324,14 +360,25 @@ function registerLocalParticipant(string transactionBlockId, function (string tr
 function registerRemoteParticipant(string transactionBlockId, function (string trxId) committedFunc,
                                         function (string trxId) abortedFunc) returns  TransactionContext? = external;
 
+# Notify the transaction resource manager on local participant failture.
 function notifyLocalParticipantOnFailure() = external;
 
+# Notify the transaction resource manager on remote participant failture.
 function notifyRemoteParticipantOnFailure() = external;
 
+# Notify the transaction resource manager on abort.
+#
+# + transactionBlockId - ID of the transaction block.
 function notifyResourceManagerOnAbort(string transactionBlockId) = external;
 
+# Rollback the transaction.
+#
+# + transactionBlockId - ID of the transaction block.
 function rollbackTransaction(string transactionBlockId) = external;
 
+# Cleanup the transaction context.
+#
+# + transactionBlockId - ID of the transaction block.
 function cleanupTransactionContext(string transactionBlockId) = external;
 
 

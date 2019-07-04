@@ -115,6 +115,7 @@
             <package name="org.ballerinalang.test.annotations"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
+            <package name="org.ballerinalang.test.statements.transaction.*"/>
         </packages>
 
         <classes>
@@ -147,8 +148,6 @@
                     <exclude name="testErrorInRecordWithDestructure"></exclude>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.statements.transaction.TransactionBlockTest"/>
-            <class name="org.ballerinalang.test.statements.transaction.TransactionStmtFlowTest"/>
             <class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>
         </classes>
     </test>

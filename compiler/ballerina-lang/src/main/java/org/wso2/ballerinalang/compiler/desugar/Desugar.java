@@ -255,7 +255,9 @@ public class Desugar extends BLangNodeVisitor {
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
-
+    private static final String TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = "beginLocalParticipant";
+    private static final String TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = "beginRemoteParticipant";
+    
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
@@ -587,9 +589,6 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.defaultableParams = rewrite(funcNode.defaultableParams, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
-//        result = funcNode;
-
-
 
         List<BLangAnnotationAttachment> participantAnnotation
                 = funcNode.annAttachments.stream()
@@ -602,6 +601,13 @@ public class Desugar extends BLangNodeVisitor {
             result = funcNode;
             return;
         }
+
+        // If function has transaction participant annotations it will be desugar either to beginLocalParticipant or 
+        // beginRemoteParticipant function in transaction package.
+        //
+        //function beginLocalParticipant(string transactionBlockId, function () committedFunc,
+        //                               function () abortedFunc, function () trxFunc) returns error|any {
+        
         BLangAnnotationAttachment annotation = participantAnnotation.get(0);
         BLangBlockStmt onCommitBody = null;
         BLangBlockStmt onAbortBody =  null;
@@ -677,9 +683,6 @@ public class Desugar extends BLangNodeVisitor {
         abortFunc.function.symbol.type =  abortFunc.type;
         abortFunc.function.symbol.params = Lists.of(onAbortTrxVar.symbol);
         
-        
-        //function beginLocalParticipant(string transactionBlockId, function () committedFunc,
-        //                               function () abortedFunc, function () trxFunc) returns error|any {
         BSymbol trxModSym = env.enclPkg.imports
                 .stream()
                 .filter(importPackage -> importPackage.symbol.pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names
@@ -708,11 +711,10 @@ public class Desugar extends BLangNodeVisitor {
 
     private String getParticipantFunctionName(BLangFunction function) {
         if (Symbols.isFlagOn((function).symbol.flags, Flags.RESOURCE)) {
-            return "beginRemoteParticipant";
+            return TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
         }
-        return "beginLocalParticipant";
+        return TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION;
     }
-
 
     public void visit(BLangForever foreverStatement) {
         if (foreverStatement.isSiddhiRuntimeEnabled()) {
@@ -2255,6 +2257,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        
+        // Transaction node will be desugar to beginTransactionInitiator function  in transaction package.
+        // function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
+        //                                    function () retryFunc, function () committedFunc,
+        //                                    function () abortedFunc) {
 
         DiagnosticPos pos = transactionNode.pos;
         BType trxReturnType = symTable.intType;
@@ -2281,7 +2288,6 @@ public class Desugar extends BLangNodeVisitor {
             transactionNode.onRetryBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
         }
 
-       // closureVarSymbols.forEach(bVarSymbol -> bVarSymbol.closure = true);
         if (transactionNode.retryCount == null) {
             transactionNode.retryCount = ASTBuilderUtil.createLiteral(pos, symTable.intType, 3L);
         }
