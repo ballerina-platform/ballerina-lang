@@ -12,13 +12,13 @@ listener http:MockListener testEP = new(9090);
               maxAge : 1
           }
 }
-service ^"sample Service" on testEP{
+service 'sample\ Service on testEP{
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/resource"
     }
-    resource function ^"sample resource" (http:Caller caller, http:Request req) {
+    resource function 'sample\ resource (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
@@ -29,10 +29,10 @@ service ^"sample Service" on testEP{
         methods:["GET"],
         path:"/resource2"
     }
-    resource function ^"sample resource2" (http:Caller caller, http:Request req) {
+    resource function 'sample\ resource2 (http:Caller caller, http:Request req) {
         http:Response res = new;
-        string ^"a a" = "hello";
-        res.setTextPayload(^"a a");
+        string 'a\ a = "hello";
+        res.setTextPayload('a\ a);
         checkpanic caller->respond(res);
     }
 }
