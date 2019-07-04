@@ -77,9 +77,14 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class TypeChecker {
 
     public static Object checkCast(Object sourceVal, BType targetType) {
+
+        if (checkIsType(sourceVal, targetType)) {
+            return sourceVal;
+        }
+
         BType sourceType = getType(sourceVal);
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            return TypeConverter.castValues(targetType, sourceVal);
+            return TypeConverter.convertValues(targetType, sourceVal);
         }
 
         // if the source is a numeric value and the target type is a union, try to find a matching
@@ -87,15 +92,11 @@ public class TypeChecker {
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
                 try {
-                    return TypeConverter.castValues(memberType, sourceVal);
+                    return TypeConverter.convertValues(memberType, sourceVal);
                 } catch (Exception e) {
                     //ignore and continue
                 }
             }
-        }
-
-        if (checkIsType(sourceVal, targetType)) {
-            return sourceVal;
         }
 
         throw BallerinaErrors.createTypeCastError(sourceVal, targetType);
@@ -358,16 +359,7 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    return ((BFiniteType) sourceType).valueSpace.stream()
-                            .allMatch(bValue -> checkIsType(bValue, targetType));
-                }
-                if (sourceType.getTag() == targetType.getTag()) {
-                    return true;
-                }
-                return sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.DECIMAL_TAG:
-                return sourceType.getTag() <= TypeTags.DECIMAL_TAG;
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
