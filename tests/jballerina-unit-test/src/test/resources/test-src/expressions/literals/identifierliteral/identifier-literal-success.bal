@@ -132,4 +132,9 @@ function testAcessILWithoutPipe() returns [string, string] {
      json j = {"foo" : {"int" : "I am an integer"}};
      return j.foo.'int;
  }
- 
+
+function testILConsistency() returns (string) {
+    map<string> nameMap = {};
+    nameMap.'\{http\:\/\/test\.com\}fname = "First Name";
+    return <string>nameMap["{http://test.com}fname"];
+}
