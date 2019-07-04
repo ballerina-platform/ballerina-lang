@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -355,16 +354,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         StringJoiner sj = new StringJoiner(" ");
         try {
             switch (type.getTag()) {
-                case TypeTags.OBJECT_TYPE_TAG:
-                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
-                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
-                            continue;
-                        }
-                        String fieldName = field.getKey();
-                        V fieldVal = get(fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
-                    break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 case TypeTags.MAP_TAG:
