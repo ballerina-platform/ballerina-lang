@@ -16,8 +16,8 @@
 
 import ballerina/http;
 
-listener http:Listener helloWorldEP = new (9090);
-@tainted listener http:Listener helloWorldEP1 = new (9092);
+listener http:Listener helloWorldEP = new (19093);
+@tainted listener http:Listener helloWorldEP1 = new (19094);
 
 // Services created using service constructor expressions are dynamically bound to listeners using listener.__attach
 // mechanism hence we consider those services to be tainted.

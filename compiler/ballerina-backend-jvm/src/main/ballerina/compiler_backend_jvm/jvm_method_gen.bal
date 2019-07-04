@@ -62,7 +62,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap);
+        generateUserDefinedTypes(mv);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -618,7 +618,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     bir:BType? lhsType;
     string orgName;
     string moduleName;
-    string funcName;
+    string funcName; 
     if (ins is bir:AsyncCall) {
         lhsType = ins.lhsOp.typeValue;
         orgName = ins.pkgID.org;
@@ -688,7 +688,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             mv.visitInsn(DUP);
 
             mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
-            mv.visitInsn(ARETURN);
+            mv.visitInsn(ARETURN);   
         } else {
             mv.visitInsn(RETURN);
         }
@@ -716,7 +716,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
                 addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }
+            }  
             argIndex += 1;
         }
     } else {
@@ -742,12 +742,13 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             paramIndex += 1;
             i += 1;
             argIndex += 1;
-
+            
             if (!isExternFunction) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }argIndex += 1;
+            } 
+            argIndex += 1; 
         }
     }
 
@@ -1027,10 +1028,6 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue.retType is bir:BTypeNil;
 
-    if (!isVoidFunction) {
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-    }
-
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
@@ -1124,9 +1121,20 @@ if (hasInitFunction(pkg)) {
 
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
+            // store future value
+            bir:VariableDcl futureVar = { typeValue: "any",
+                                    name: { value: "dummy" },
+                                    kind: "ARG" };
+            int futureVarIndex = indexMap.getIndex(futureVar);
+            mv.visitVarInsn(ASTORE, futureVarIndex);
+            jvm:Label jumpAfterPrint = new;
+            mv.visitVarInsn(ALOAD, futureVarIndex);
+            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+
+            mv.visitJumpInsn(IFNULL, jumpAfterPrint);
+
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitInsn(DUP_X1);
-            mv.visitInsn(POP);
+            mv.visitVarInsn(ALOAD, futureVarIndex);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
             bir:BType returnType = userMainFunc.typeValue.retType;
             addUnboxInsn(mv, returnType);
@@ -1141,6 +1149,7 @@ if (hasInitFunction(pkg)) {
             } else {
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
             }
+            mv.visitLabel(jumpAfterPrint);
         }
     }
 
@@ -1475,7 +1484,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkgName, untaint func, pkgEntries);
+        generateFrameClassForFunction(pkgName, func, pkgEntries);
     }
 
     foreach var typeDef in pkg.typeDefs {
@@ -1749,6 +1758,6 @@ function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
     mv.visitJumpInsn(IFEQ, notCancelledLabel);
     mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError", io:sprintf("()L%s;", ERROR_VALUE), false);
     mv.visitInsn(ATHROW);
-
+    
     mv.visitLabel(notCancelledLabel);
 }

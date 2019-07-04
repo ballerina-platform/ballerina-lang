@@ -15,7 +15,7 @@ public function main (string... args) {
 
     // tuple variable
     [string, string] t = [args[0], "sample"];
-    [string, string] [a1, b1]= t;
+    [string, string] [a1, b1] = t;
     secureFunction(a1, b1);
 
     // tuple variable reference

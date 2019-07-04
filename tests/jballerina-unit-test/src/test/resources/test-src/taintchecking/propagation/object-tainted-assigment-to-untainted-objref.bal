@@ -22,7 +22,6 @@ type TestObject object {
         self.field = ();
     }
 
-// 111111
     function test2(@sensitive TestObject o) returns string {
         o.field = self.field;
         secureFunction(<string> o.field, <string> self.field);
@@ -60,18 +59,4 @@ public function main (string... args) {
 
     var assig = o.testFunction("a");
     o.field = getTaintedString();
-    // todo: delete below commented from this file.
-    //o.readFromDisk(); // this is also illegal given 'readFromDisk' taint o
-    //o.inputParams(4, <some tainted val>) // illegal given 2nd param taint 'o'
-    //o.inputParams(<tainted val>, otherstuff) // legal given 1st param does not affect gaintedness of 'o'
-
-    //only way to make a object instance tainted is to annotate obj variable
-    //@tainted Obj to = new();
-    //o.field = <some tainted val>;
-    //o.readFromDisk(); // these all are valid.
-    //TestObject obj = new;
-    //string returnValue = obj.testFunction("staticValue");
-    //secureFunction(returnValue, returnValue);
 }
-
-
