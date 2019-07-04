@@ -41,13 +41,13 @@ import java.util.HashMap;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "lang.value",
-        functionName = "cloneAsReadOnly",
+        functionName = "cloneReadOnly",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.ANYDATA) }
 )
-public class CloneAsReadOnly {
+public class CloneReadOnly {
 
-    public static Object cloneAsReadOnly(Strand strand, Object value) {
+    public static Object cloneReadOnly(Strand strand, Object value) {
 
         if (value == null) {
             return null;
