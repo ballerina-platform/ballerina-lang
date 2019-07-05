@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.socket;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -90,7 +90,7 @@ public class ClientSocketTest {
     }
 
     @Test(description = "Write some content, then shutdown the write and try to write it again",
-          dependsOnMethods = "testOneWayWrite", enabled = false)
+          dependsOnMethods = "testOneWayWrite")
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1";
         String secondMsg = "Hello Ballerina2";
@@ -102,9 +102,10 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite")
+    @Test(description = "Test echo behavior",
+          dependsOnMethods = "testShutdownWrite")
     public void testClientEcho() {
-        String msg = "Hello Ballerina echo";
+        String msg = "Hello Ballerina Echo";
         BValue[] args = { new BString(msg) };
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "echo", args);
         String echo = echoResult[0].stringValue();
@@ -112,7 +113,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), msg, "Server didn't get expected msg");
     }
 
-    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho")
+    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho", enabled = false)
     public void testInvalidReadParam() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidReadParam");
         BError error = (BError) result[0];
@@ -120,7 +121,7 @@ public class ClientSocketTest {
                 "Requested byte length need to be 1 or more");
     }
 
-    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
+    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam", enabled = false)
     public void testInvalidAddress() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
         BError error = (BError) result[0];
