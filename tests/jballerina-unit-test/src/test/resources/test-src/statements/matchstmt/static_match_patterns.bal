@@ -136,7 +136,7 @@ function testTupleStaticMatch() returns string[] {
 function tar2(anydata f) returns string {
 
     match f {
-        [15] => return "Value is '(15)'";
+        15 => return "Value is '(15)'";
         [12, "Ballerina"] => return "Value is '(12, Ballerina)'";
         [15, "Ballerina", 100] => return "Value is '(15, Ballerina, 100)'";
         [15, "Ballerina"] => return "Value is '(15, Ballerina)'";
@@ -284,7 +284,7 @@ function testStaticMatchOrPatterns2() returns string[] {
 function caz1(anydata f) returns string {
 
     match f {
-        [15] | [12, "Ballerina"] => return "Value is : " + io:sprintf("%s", f);
+        15 | [12, "Ballerina"] => return "Value is : " + io:sprintf("%s", f);
         [15, "Ballerina"] | [20, "Ballerina"] | [20, "Balo"] => return "Value is : " + io:sprintf("%s", f);
         [15, "Bal", 100] | [15, "Bal", 200, 400] | [15, "Bal", "Ballerina", 5678, "Test"] => return "Value is : " + io:sprintf("%s", f);
     }
@@ -367,9 +367,9 @@ function caz3(any f) returns string {
 function testBracedUnionType() returns string {
     any a = 12;
     match a {
-        [1 | 2] => return "1|2";
+        1 | 2 => return "1|2";
         3 | 4 => return "3|4";
-        [11 | 12] => return "11|12";
+        11 | 12 => return "11|12";
         _ => return "Default";
     }
 }
@@ -398,7 +398,7 @@ function caz4(any a) returns string {
         "Bal" => return "Bal";
         NIL => return "Nil";
         CONST1 => return "Ballerina";
-    _ => return "Default";
+        _ => return "Default";
     }
 }
 
