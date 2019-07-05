@@ -399,62 +399,62 @@ function testXmlWithNull() returns xml {
     checkpanic testDB.stop();
     return ret;
 }
+// TODO: #16033
+//function testToXmlWithinTransaction() returns [string, int] {
+//    h2:Client testDB = new({
+//        path: "./target/tempdb/",
+//        name: "TEST_DATA_TABLE_H2",
+//        username: "SA",
+//        password: "",
+//        poolOptions: { maximumPoolSize: 1 }
+//    });
+//
+//    int returnValue = -1;
+//    string resultXml = "";
+//    transaction {
+//        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+//        if (dt is table<record {}>) {
+//            var result = xml.convert(dt);
+//            if (result is xml) {
+//                resultXml = io:sprintf("%s", result);
+//                returnValue = 0;
+//            } else {
+//                resultXml = "<fail>error</fail>";
+//            }
+//        }
+//    }
+//    checkpanic testDB.stop();
+//    return [resultXml, returnValue];
+//}
+// TODO: #16033
+//function testToJsonWithinTransaction() returns [string, int] {
+//    h2:Client testDB = new({
+//        path: "./target/tempdb/",
+//        name: "TEST_DATA_TABLE_H2",
+//        username: "SA",
+//        password: "",
+//        poolOptions: { maximumPoolSize: 1 }
+//    });
+//
+//    int returnValue = -1;
+//    string result = "";
+//    transaction {
+//        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+//        if (dt is table<record {}>) {
+//            var j = json.convert(dt);
+//            if (j is json) {
+//                result = io:sprintf("%s", j);
+//                returnValue = 0;
+//            } else {
+//                result = "<fail>error</fail>";
+//            }
+//        }
+//    }
+//    checkpanic testDB.stop();
+//    return [result, returnValue];
+//}
 
-function testToXmlWithinTransaction() returns (string, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    int returnValue = -1;
-    string resultXml = "";
-    transaction {
-        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-        if (dt is table<record {}>) {
-            var result = xml.convert(dt);
-            if (result is xml) {
-                resultXml = io:sprintf("%s", result);
-                returnValue = 0;
-            } else {
-                resultXml = "<fail>error</fail>";
-            }
-        }
-    }
-    checkpanic testDB.stop();
-    return (resultXml, returnValue);
-}
-
-function testToJsonWithinTransaction() returns (string, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    int returnValue = -1;
-    string result = "";
-    transaction {
-        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-        if (dt is table<record {}>) {
-            var j = json.convert(dt);
-            if (j is json) {
-                result = io:sprintf("%s", j);
-                returnValue = 0;
-            } else {
-                result = "<fail>error</fail>";
-            }
-        }
-    }
-    checkpanic testDB.stop();
-    return (result, returnValue);
-}
-
-function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string, decimal) {
+function testGetPrimitiveTypes() returns [int, int, float, float, boolean, string, decimal] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -487,10 +487,10 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
         }
     }
     checkpanic testDB.stop();
-    return (i, l, f, d, b, s, dec);
+    return [i, l, f, d, b, s, dec];
 }
 
-function testGetComplexTypes() returns (byte[], string, byte[]) {
+function testGetComplexTypes() returns [byte[], string, byte[]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -514,10 +514,10 @@ function testGetComplexTypes() returns (byte[], string, byte[]) {
         }
     }
     checkpanic testDB.stop();
-    return (blobData, clob, binaryData);
+    return [blobData, clob, binaryData];
 }
 
-function testArrayData() returns (int[], int[], decimal[], string[], boolean[]) {
+function testArrayData() returns [int[], int[], decimal[], string[], boolean[]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -544,10 +544,10 @@ function testArrayData() returns (int[], int[], decimal[], string[], boolean[]) 
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
-function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
+function testArrayDataInsertAndPrint() returns [int, int, int, int, int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -601,10 +601,10 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
         }
     }
     checkpanic testDB.stop();
-    return (updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
+    return [updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen];
 }
 
-function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
+function testDateTime(int datein, int timein, int timestampin) returns [string, string, string, string] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -641,10 +641,10 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
         }
     }
     checkpanic testDB.stop();
-    return (date, time, timestamp, datetime);
+    return [date, time, timestamp, datetime];
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int)|error {
+function testDateTimeAsTimeStruct() returns [int, int, int, int, int, int, int, int]|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -698,11 +698,11 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
         }
     }
     checkpanic testDB.stop();
-    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-    datetimeInserted, datetimeRetrieved);
+    return [dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
+    datetimeInserted, datetimeRetrieved];
 }
 
-function testDateTimeInt(int datein, int timein, int timestampin) returns (int, int, int, int) {
+function testDateTimeInt(int datein, int timein, int timestampin) returns [int, int, int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -741,7 +741,7 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns (int, 
         }
     }
     checkpanic testDB.stop();
-    return (date, time, timestamp, datetime);
+    return [date, time, timestamp, datetime];
 }
 
 function testBlobData() returns byte[] {
@@ -766,7 +766,7 @@ function testBlobData() returns byte[] {
     return blobData;
 }
 
-function testColumnAlias() returns (int, int, float, float, boolean, string, int) {
+function testColumnAlias() returns [int, int, float, float, boolean, string, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -800,7 +800,7 @@ function testColumnAlias() returns (int, int, float, float, boolean, string, int
         }
     }
     checkpanic testDB.stop();
-    return (i, l, f, d, b, s, i2);
+    return [i, l, f, d, b, s, i2];
 }
 
 function testBlobInsert() returns int {
@@ -830,7 +830,7 @@ function testBlobInsert() returns int {
     return insertCount;
 }
 
-function testTableAutoClose() returns (int, json) {
+function testTableAutoClose() returns [int, json] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -863,7 +863,7 @@ function testTableAutoClose() returns (int, json) {
     }
 
     checkpanic testDB.stop();
-    return (i, jsonData);
+    return [i, jsonData];
 }
 
 function testTableManualClose() returns int {
@@ -960,12 +960,13 @@ function testTablePrintAndPrintln() {
         io:print(selectRet);
         selectRet.close();
     } else {
-        io:print(<string>selectRet.reason());
+        error e = selectRet;
+        io:print(<string>e.reason());
     }
     checkpanic testDB.stop();
 }
 
-function testMultipleRows() returns (int, int) {
+function testMultipleRows() returns [int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -990,10 +991,10 @@ function testMultipleRows() returns (int, int) {
         }
     }
     checkpanic testDB.stop();
-    return (rs1.INT_TYPE, rs2.INT_TYPE);
+    return [rs1.INT_TYPE, rs2.INT_TYPE];
 }
 
-function testMultipleRowsWithoutLoop() returns (int, int, int, int, string, string) {
+function testMultipleRowsWithoutLoop() returns [int, int, int, int, string, string] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1108,10 +1109,10 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int, string, stri
         }
     }
     checkpanic testDB.stop();
-    return (i1, i2, i3, i4, s1, s2);
+    return [i1, i2, i3, i4, s1, s2];
 }
 
-function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
+function testHasNextWithoutConsume() returns [boolean, boolean, boolean] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1139,10 +1140,10 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
         selectRet.close();
     }
     checkpanic testDB.stop();
-    return (b1, b2, b3);
+    return [b1, b2, b3];
 }
 
-function testGetFloatTypes() returns (float, float, decimal, decimal) {
+function testGetFloatTypes() returns [float, float, decimal, decimal] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1171,10 +1172,10 @@ function testGetFloatTypes() returns (float, float, decimal, decimal) {
         }
     }
     checkpanic testDB.stop();
-    return (f, d, num, dec);
+    return [f, d, num, dec];
 }
 
-function testSignedIntMaxMinValues() returns (int, int, int, string, string, string) {
+function testSignedIntMaxMinValues() returns [int, int, int, string, string, string] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1252,10 +1253,10 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
         }
     }
     checkpanic testDB.stop();
-    return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
+    return [maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str];
 }
 
-function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, string, byte[][]) {
+function testComplexTypeInsertAndRetrieval() returns [int, int, string, string, string, byte[][]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1321,10 +1322,10 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
         }
     }
     checkpanic testDB.stop();
-    return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
+    return [retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected];
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
+function testJsonXMLConversionwithDuplicateColumnNames() returns [json, xml] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1342,10 +1343,10 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
 
     checkpanic testDB.stop();
 
-    return (j, x);
+    return [j, x];
 }
 
-function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int) {
+function testStructFieldNotMatchingColumnName() returns [int, int, int, int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1385,10 +1386,10 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int
         }
     }
     checkpanic testDB.stop();
-    return (countAll, i1, i2, i3, i4);
+    return [countAll, i1, i2, i3, i4];
 }
 
-function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boolean, string, decimal) {
+function testGetPrimitiveTypesWithForEach() returns [int, int, float, float, boolean, string, decimal] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1419,10 +1420,10 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boo
         }
     }
     checkpanic testDB.stop();
-    return (i, l, f, d, b, s, dec);
+    return [i, l, f, d, b, s, dec];
 }
 
-function testMultipleRowsWithForEach() returns (int, int) {
+function testMultipleRowsWithForEach() returns [int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1447,7 +1448,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
         }
     }
     checkpanic testDB.stop();
-    return (rs1.INT_TYPE, rs2.INT_TYPE);
+    return [rs1.INT_TYPE, rs2.INT_TYPE];
 }
 
 function testTableAddInvalid() returns string {
@@ -1490,7 +1491,8 @@ function testTableRemoveInvalid() returns string {
         if (ret is int) {
             s = string.convert(ret);
         } else {
-            s = <string> ret.detail().message;
+            error e = ret;
+            s = <string> e.detail().message;
         }
         selectRet.close();
     }
@@ -1523,7 +1525,7 @@ function isDelete(ResultPrimitiveInt p) returns boolean {
     return p.INT_TYPE < 2000;
 }
 
-function testToJsonAndAccessFromMiddle() returns (json, int) {
+function testToJsonAndAccessFromMiddle() returns [json, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1537,10 +1539,10 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
 
     json j = result[1];
     checkpanic testDB.stop();
-    return (result, result.length());
+    return [result, result.length()];
 }
 
-function testToJsonAndIterate() returns (json, int)|error {
+function testToJsonAndIterate() returns [json, int]|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1558,7 +1560,7 @@ function testToJsonAndIterate() returns (json, int)|error {
         i += 1;
     }
     checkpanic testDB.stop();
-    return (j, j.length());
+    return [j, j.length()];
 }
 
 function testToJsonAndSetAsChildElement() returns json {
@@ -1577,7 +1579,7 @@ function testToJsonAndSetAsChildElement() returns json {
     return j;
 }
 
-function testToJsonAndLengthof() returns (int, int) {
+function testToJsonAndLengthof() returns [int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1597,7 +1599,7 @@ function testToJsonAndLengthof() returns (int, int) {
     json j = result[0];
     int afterLen = result.length();
     checkpanic testDB.stop();
-    return (beforeLen, afterLen);
+    return [beforeLen, afterLen];
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
@@ -1675,8 +1677,8 @@ function testJoinQueryWithCursorTable() returns error? {
     return e;
 }
 
-function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (int, int, float, float, boolean,
-     string) {
+function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns [int, int, float, float, boolean,
+     string] {
      h2:Client testDB = new({
              path: "./target/tempdb/",
              name: "TEST_DATA_TABLE_H2",
@@ -1707,7 +1709,7 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (i
          }
      }
      checkpanic testDB.stop();
-     return (i, l, f, d, b, s);
+     return [i, l, f, d, b, s];
 }
 
 function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
