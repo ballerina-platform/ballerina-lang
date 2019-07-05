@@ -160,7 +160,7 @@ def copyBirSpec = {
 
 def copyBirJarSpec = {
     path -> copySpec {
-        from configurations.birJar
+        from(configurations.birJar)
         into(path + 'bre/lib')
     }
 }

@@ -14,19 +14,16 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
-configurations {
-    balx
-    generatedBalx
-}
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
+    resolutionStrategy.preferProjectModules()
 }
+
+//createBalo {
+//    jvmTarget = 'true'
+//}
 
 // Task to generate balx for the pull command.
 // task genBalxForPull(type: JavaExec) {
@@ -164,6 +161,3 @@ clean {
 
 description = 'Ballerina - Cli Utils'
 
-configurations.all {
-    resolutionStrategy.preferProjectModules()
-}
