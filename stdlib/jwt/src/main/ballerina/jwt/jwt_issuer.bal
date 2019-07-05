@@ -40,7 +40,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     if (header.alg == NONE) {
-        return (jwtAssertion);
+        return jwtAssertion;
     } else {
         if (config is JwtIssuerConfig) {
             crypto:KeyStore keyStore = config.keyStore;
@@ -61,7 +61,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
             } else {
                 return prepareError("Unsupported JWS algorithm.");
             }
-            return (jwtAssertion + "." + signature);
+            return jwtAssertion + "." + signature;
         } else {
             return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
         }
@@ -84,7 +84,12 @@ function buildHeaderString(JwtHeader header) returns string|error {
     } else {
         return prepareError("Unsupported JWS algorithm.");
     }
-    headerJson[TYP] = "JWT";
+    if (header["typ"] is string) {
+        headerJson[TYP] = header.typ;
+    }
+    if (header["cty"] is string) {
+        headerJson[CTY] = header.cty;
+    }
     string headerValInString = headerJson.toString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;
