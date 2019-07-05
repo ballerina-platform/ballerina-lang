@@ -33,7 +33,7 @@ public class OSUtils {
      * Returns name of the operating system running. null if not a unsupported operating system.
      * @return operating system
      */
-    static String getOperatingSystem() {
+    public static String getOperatingSystem() {
         if (OSUtils.isWindows()) {
             return WINDOWS;
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {

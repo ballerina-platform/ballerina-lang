@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.inspections;
 
+import com.google.common.base.Strings;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.module.Module;
@@ -26,7 +27,6 @@ import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -37,6 +37,7 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +56,6 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
         myProject = project;
         MessageBusConnection connection = myProject.getMessageBus().connect(project);
         connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
-
             @Override
             public void rootsChanged(ModuleRootEvent event) {
                 notifications.updateAllNotifications();
@@ -91,8 +91,11 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
             return null;
         }
 
-        String sdkHomePath = BallerinaSdkService.getInstance(myProject).getSdkHomePath(module);
-        if (StringUtil.isEmpty(sdkHomePath)) {
+        String sdkHomePath = BallerinaSdkUtils.getBallerinaSdkFor(myProject, module).getSdkPath();
+        if (Strings.isNullOrEmpty(sdkHomePath)) {
+            sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+        }
+        if (Strings.isNullOrEmpty(sdkHomePath)) {
             return createMissingSdkPanel(myProject, module);
         }
         return null;

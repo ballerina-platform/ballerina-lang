@@ -36,16 +36,11 @@ import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
 import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
-import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
-import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
-import static io.ballerina.plugins.idea.preloading.OSUtils.WINDOWS;
 import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
 /**
@@ -113,7 +108,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
                     "No ballerina SDK is found for project: %s\n Trying to Auto detect Ballerina Home...",
                     project.getBasePath()), MessageType.INFO));
 
-            balSdkPath = autoDetectSdk();
+            balSdkPath = BallerinaSdkUtils.autoDetectSdk();
             autoDetected = true;
         }
 
@@ -124,7 +119,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
                         balSdkPath, project.getBasePath()));
                 String finalBalSdkPath = balSdkPath;
                 ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
-                        "Auto Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
+                        "Auto-Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
             }
             return success;
         } else {
@@ -187,64 +182,6 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
                     BallerinaPathModificationTracker.removePath(balxPath.toString());
                 }
             }
-        }
-    }
-
-    private static String autoDetectSdk() {
-        String ballerinaPath = "";
-        String platform = OSUtils.getOperatingSystem();
-        switch (platform) {
-            case (WINDOWS):
-                String ballerinaHome = System.getenv("BALLERINA_HOME");
-                if (ballerinaHome != null && !ballerinaHome.isEmpty()) {
-                    return ballerinaHome;
-                }
-                ballerinaPath = getByCommand("where ballerina").trim();
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
-                }
-                return ballerinaPath;
-            case (MAC):
-                ballerinaPath = getByCommand("which ballerina");
-                // remove ballerina bin from ballerinaPath
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-                    // For homebrew installations ballerina executables are in libexcec
-                    File homebrewBallerinaPath = new File(ballerinaPath, "libexec");
-                    if (homebrewBallerinaPath.exists()) {
-                        ballerinaPath = homebrewBallerinaPath.getAbsolutePath();
-                    }
-                }
-                return ballerinaPath;
-            case (UNIX):
-                ballerinaPath = getByCommand("which ballerina");
-                // remove ballerina bin from path
-                if (!ballerinaPath.isEmpty()) {
-                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-                }
-                return ballerinaPath;
-        }
-        // If we cannot find ballerina home return empty.
-        return ballerinaPath;
-    }
-
-    private static String getByCommand(String cmd) {
-        java.util.Scanner s;
-        try {
-            // This may returns a symlink which links to the real path.
-            s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-            String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "") : "";
-            LOG.info("Which ballerina command returned: " + path);
-            if (path.isEmpty()) {
-                return path;
-            }
-
-            // Gets the actual file path if there are the symbolic links using "toRealPath()".
-            String realPath = new File(path).toPath().toRealPath().toString();
-            return realPath;
-        } catch (IOException e) {
-            LOG.warn("Error occurred when executing the command: " + cmd);
-            return "";
         }
     }
 

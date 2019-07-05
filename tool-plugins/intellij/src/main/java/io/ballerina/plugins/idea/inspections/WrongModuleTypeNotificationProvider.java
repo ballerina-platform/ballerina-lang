@@ -30,6 +30,7 @@ import com.intellij.ui.EditorNotifications;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -61,8 +62,9 @@ public class WrongModuleTypeNotificationProvider extends EditorNotifications.Pro
             return null;
         }
         Module module = ModuleUtilCore.findModuleForFile(file, myProject);
-        return module == null || BallerinaSdkService.getInstance(myProject).isBallerinaModule(module)
-                || getIgnoredModules(myProject).contains(module.getName()) ? null : createPanel(myProject, module);
+        return ((module == null || BallerinaSdkService.getInstance(myProject).isBallerinaModule(module)
+                || getIgnoredModules(myProject).contains(module.getName())) &&
+                BallerinaSdkUtils.autoDetectSdk().isEmpty()) ? null : createPanel(myProject, module);
     }
 
     @NotNull
