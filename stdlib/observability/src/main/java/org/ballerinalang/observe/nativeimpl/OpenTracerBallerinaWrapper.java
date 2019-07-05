@@ -20,7 +20,6 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.Strand;
