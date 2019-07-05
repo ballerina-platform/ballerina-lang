@@ -27,8 +27,10 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.langserver.completion.*"/> 
-            <package name="org.ballerinalang.langserver.definition.*"/>
+            <package name="org.ballerinalang.langserver.completion.*"/>
+            <package name="org.ballerinalang.langserver.definition.*">
+                <exclude name="org.ballerinalang.langserver.completion.definitions.FunctionDefinitionCompletionTest"/>
+            </package>
             <package name="org.ballerinalang.langserver.docsymbol.*"/>
             <package name="org.ballerinalang.langserver.hover.*"/>
             <package name="org.ballerinalang.langserver.implementation.*"/>
