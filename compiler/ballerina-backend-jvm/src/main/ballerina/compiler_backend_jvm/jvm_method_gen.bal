@@ -1215,11 +1215,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        // if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
-            addUnboxInsn(mv, pType);
-        // } else {
-        //     castFromString(pType, mv);
-        // }
+        addUnboxInsn(mv, pType);
         paramIndex += 1;
     }
 
