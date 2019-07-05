@@ -215,9 +215,14 @@ public class TreeVisitor extends LSNodeVisitor {
         DiagnosticPos functionPos = CommonUtil.clonePosition(funcNode.getPosition());
 
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
-            funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
+            // Set the current symbol environment instead of the function environment since the annotation is not
+            // within the function
+            funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
             if (!funcNode.annAttachments.isEmpty()) {
                 BLangAnnotationAttachment lastItem = CommonUtil.getLastItem(funcNode.annAttachments);
+                if (lastItem == null) {
+                    return;
+                }
                 List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
                 String[] firstWSItem = wsList.get(0).getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT);
                 int precedingNewLines = firstWSItem.length - 1;
@@ -228,9 +233,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
             return;
         }
-        boolean cursorBeforeNode = cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol);
-
-        if (terminateVisitor || cursorBeforeNode) {
+        if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;
         }
 
@@ -406,11 +409,6 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         this.acceptNode(exprStmtNode.expr, symbolEnv);
-        if (!terminateVisitor && CompletionVisitorUtil.withinInvocationArguments(exprStmtNode, this.lsContext)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
-            this.populateSymbols(visibleSymbolEntries, symbolEnv);
-            this.forceTerminateVisitor();
-        }
     }
 
     @Override
@@ -433,6 +431,14 @@ public class TreeVisitor extends LSNodeVisitor {
             posResolver.isCursorBeforeNode(node.getPosition(), visitor, visitor.lsContext, node, null);
             visitor.acceptNode(node, symbolEnv);
         });
+        // Specially check for the position of the cursor to support the completion for complete sources
+        // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
+        if (!terminateVisitor && (CompletionVisitorUtil.withinInvocationArguments(invocationNode, this.lsContext)
+                || CompletionVisitorUtil.cursorBeforeInvocationNode(invocationNode, this.lsContext))) {
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
+            this.populateSymbols(visibleSymbolEntries, symbolEnv);
+            this.forceTerminateVisitor();
+        }
         this.blockOwnerStack.pop();
         this.cursorPositionResolver = fallbackCursorPositionResolver;
     }
@@ -638,9 +644,17 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
         symbolEnv.copyTo(annotationAttachmentEnv);
+        if (annAttachmentNode.annotationSymbol == null) {
+            return;
+        }
         PackageID packageID = annAttachmentNode.annotationSymbol.pkgID;
         if (packageID.getOrgName().getValue().equals("ballerina") && packageID.getName().getValue().equals("grpc")
                 && annAttachmentNode.annotationName.getValue().equals("ServiceDescriptor")) {
+            return;
+        }
+        if (CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                    .isCursorBeforeNode(annAttachmentNode.getPosition(), this, this.lsContext, annAttachmentNode,
+                        annAttachmentNode.annotationSymbol)) {
             return;
         }
         this.acceptNode(annAttachmentNode.expr, annotationAttachmentEnv);

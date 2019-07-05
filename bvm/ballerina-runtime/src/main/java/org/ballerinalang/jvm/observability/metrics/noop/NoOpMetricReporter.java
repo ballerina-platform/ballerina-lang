@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
  *
  * @since 0.980.0
  */
-//@JavaSPIService("org.ballerinalang.util.metrics.spi.MetricReporter")
 public class NoOpMetricReporter implements MetricReporter {
 
     @Override

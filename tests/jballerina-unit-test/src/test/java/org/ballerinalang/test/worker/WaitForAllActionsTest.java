@@ -228,7 +228,7 @@ public class WaitForAllActionsTest {
         BRunUtil.invoke(result, "waitTest15");
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void waitTest16() {
         BValue[] returns = BRunUtil.invoke(result, "waitTest16");
         Assert.assertEquals(returns.length, 1);

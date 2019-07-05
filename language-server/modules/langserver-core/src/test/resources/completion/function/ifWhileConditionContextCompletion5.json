@@ -13,13 +13,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remove(function (any) returns (boolean) func)(int|error)",
+      "label": "remove(function (any) returns (boolean) func)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "insertText": "remove(${1})",
@@ -714,7 +714,7 @@
     {
       "label": "test",
       "kind": "Variable",
-      "detail": "string|boolean",
+      "detail": "(string|boolean)",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
@@ -818,13 +818,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "matches(string regex)(boolean|error)",
+      "label": "matches(string regex)((boolean|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nboolean|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \n(boolean|error)"
         }
       },
       "insertText": "matches(${1})",
@@ -839,13 +839,6 @@
       "kind": "Keyword",
       "detail": "String",
       "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -866,13 +859,13 @@
       }
     },
     {
-      "label": "findAll(string regex)(string[]|error)",
+      "label": "findAll(string regex)((string[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nstring[]|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \n(string[]|error)"
         }
       },
       "insertText": "findAll(${1})",
@@ -941,13 +934,13 @@
       }
     },
     {
-      "label": "toXML($anonType$builtin$0 options)(xml|error)",
+      "label": "toXML($anonType$builtin$0 options)((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \nxml|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \n(xml|error)"
         }
       },
       "insertText": "toXML(${1})",

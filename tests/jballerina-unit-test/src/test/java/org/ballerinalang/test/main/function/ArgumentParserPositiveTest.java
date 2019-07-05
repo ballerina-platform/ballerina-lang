@@ -47,40 +47,40 @@ public class ArgumentParserPositiveTest {
         defaultOut = System.out;
     }
 
-//    @Test(dataProvider = "mainFunctionArgsAndResult")
-//    public void testMainWithParams(String intString, String floatString, String expectedString) throws IOException {
-//        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
-//                "test_main_with_params.bal");
-//        resetTempOut();
-//        runMain(compileResult, new String[]{intString, floatString});
-//        Assert.assertEquals(tempOutStream.toString(), expectedString, "evaluated to invalid value");
-//    }
-//
-//    @Test
-//    public void testNoArg() throws IOException {
-//        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
-//                "test_main_with_no_params.bal");
-//        resetTempOut();
-//        runMain(compileResult, new String[]{});
-//        Assert.assertEquals(tempOutStream.toString(), "1", "evaluated to invalid value");
-//    }
-//
-//    @Test(dataProvider = "intValues")
-//    public void testIntArg(String specifiedInt, String expectedInt) throws IOException {
-//        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_int_param.bal");
-//        resetTempOut();
-//        runMain(compileResult, new String[]{specifiedInt});
-//        Assert.assertEquals(tempOutStream.toString(), expectedInt, "string arg parsed as invalid int");
-//    }
-//
-//    @Test(dataProvider = "decimalValues")
-//    public void testDecimalArg(String specifiedDecimal, String expectedDecimal) throws IOException {
-//        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
-//                "test_main_with_decimal_param.bal");
-//        resetTempOut();
-//        runMain(compileResult, new String[]{specifiedDecimal});
-//        Assert.assertEquals(tempOutStream.toString(), expectedDecimal, "string arg parsed as invalid decimal");
-//    }
+    @Test(dataProvider = "mainFunctionArgsAndResult")
+    public void testMainWithParams(String intString, String floatString, String expectedString) throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_params.bal");
+        resetTempOut();
+        runMain(compileResult, new String[]{intString, floatString});
+        Assert.assertEquals(tempOutStream.toString(), expectedString, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testNoArg() throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_no_params.bal");
+        resetTempOut();
+        runMain(compileResult, new String[]{});
+        Assert.assertEquals(tempOutStream.toString(), "1", "evaluated to invalid value");
+    }
+
+    @Test(dataProvider = "intValues")
+    public void testIntArg(String specifiedInt, String expectedInt) throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_int_param.bal");
+        resetTempOut();
+        runMain(compileResult, new String[]{specifiedInt});
+        Assert.assertEquals(tempOutStream.toString(), expectedInt, "string arg parsed as invalid int");
+    }
+
+    @Test(dataProvider = "decimalValues")
+    public void testDecimalArg(String specifiedDecimal, String expectedDecimal) throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_decimal_param.bal");
+        resetTempOut();
+        runMain(compileResult, new String[]{specifiedDecimal});
+        Assert.assertEquals(tempOutStream.toString(), expectedDecimal, "string arg parsed as invalid decimal");
+    }
 
     @Test(dataProvider = "jsonValues")
     public void testJsonArg(String arg) throws IOException {
@@ -114,7 +114,7 @@ public class ArgumentParserPositiveTest {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_tuple_param.bal");
         resetTempOut();
-        runMain(compileResult, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
+        runMain(compileResult, new String[]{"[101, {\"name\":\"Maryam\"}, \"finance\"]"});
         Assert.assertEquals(tempOutStream.toString(), "Id: 101, Name: Maryam, Dept: finance",
                             "string arg parsed as invalid tuple");
     }

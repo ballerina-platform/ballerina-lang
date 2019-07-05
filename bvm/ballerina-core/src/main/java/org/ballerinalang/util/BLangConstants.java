@@ -97,4 +97,6 @@ public class BLangConstants {
     public static final String BALLERINA_TARGET = "ballerina.target";
 
     public static final String JVM_TARGET = "jvm";
+
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
 }

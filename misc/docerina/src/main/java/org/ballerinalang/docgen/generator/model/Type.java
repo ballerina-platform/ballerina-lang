@@ -137,11 +137,10 @@ public class Type {
             typeModel.memberTypes = memberTypeNodes.stream()
                                     .map(Type::fromTypeNode)
                                     .collect(Collectors.toList());
-        } else if (type.nullable && type.type instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) type.type;
-            if (unionType.getMemberTypes().size() == 2) {
-                typeModel = new Type((BType) unionType.getMemberTypes().toArray()[0]);
-            }
+        } else if (type.nullable && type instanceof BLangUnionTypeNode
+                && ((BLangUnionTypeNode) type).getMemberTypeNodes().size() == 2) {
+            BLangUnionTypeNode unionType = (BLangUnionTypeNode) type;
+            typeModel = fromTypeNode((BLangType) unionType.getMemberTypeNodes().toArray()[0]);
         }
         if (typeModel == null) {
             typeModel = new Type(type);

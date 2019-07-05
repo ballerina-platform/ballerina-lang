@@ -129,7 +129,7 @@ public class MainFunctionsTest {
         validateError(negativeResult, 0, "the main function should be public", 17, 1);
         validateError(negativeResult, 1, "invalid type 'typedesc' as main function parameter, expected anydata",
                       17, 15);
-        validateError(negativeResult, 2, "invalid type 'int|typedesc' as main function parameter, expected anydata",
+        validateError(negativeResult, 2, "invalid type '(int|typedesc)' as main function parameter, expected anydata",
                       17, 27);
         validateError(negativeResult, 3, "invalid type 'FooObject[]' as main function parameter, expected anydata",
                       17, 47);

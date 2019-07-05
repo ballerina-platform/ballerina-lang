@@ -44,6 +44,7 @@ public class ProjectDirConstants {
     public static final String CACHES_DIR_NAME = "caches";
     public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
     public static final String USER_REPO_OBJ_DIRNAME = "obj";
+    public static final String USER_REPO_BIR_DIRNAME = "bir";
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";

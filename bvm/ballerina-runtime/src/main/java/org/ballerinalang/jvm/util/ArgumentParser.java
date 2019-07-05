@@ -184,9 +184,9 @@ public class ArgumentParser {
                             + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
-                if (!value.startsWith("(") || !value.endsWith(")")) {
+                if (!value.startsWith("[") || !value.endsWith("]")) {
                     throw BallerinaErrors.createUsageError("invalid argument '"
-                            + value + "', " + "expected tuple notation (\"()\") with tuple arg");
+                            + value + "', " + "expected tuple notation [\"[]\"] with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
             case TypeTags.ARRAY_TAG:
@@ -317,8 +317,8 @@ public class ArgumentParser {
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw BallerinaErrors.createUsageError("invalid argument '(" + tupleArg
-                    + ")', element count mismatch for tuple " + "type: '" + type + "'");
+            throw BallerinaErrors.createUsageError("invalid argument '[" + tupleArg
+                    + "]', element count mismatch for tuple " + "type: '" + type + "'");
         }
 
         ArrayValue tupleValues = new ArrayValue(type);

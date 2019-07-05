@@ -151,7 +151,7 @@ function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
 }
 
 function testRuntimeCheck() returns string[] {
-    (int, boolean) tuple = (50, true);
+    [int, boolean] tuple = [50, true];
     Foo foo1 = {s: "S", i: 23, f: 5.6, t: tuple};
     Foo foo2 = {s: "S", i: 23, f: 5.6};
     Foo foo3 = {s: "S", i: 23, f: 5.6, t: 12};
@@ -163,7 +163,7 @@ function testRuntimeCheck() returns string[] {
 
 function matchRuntimeCheck(Foo foo) returns string {
     match foo {
-        var {s, i, f, t: (i2, b)} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+        var {s, i, f, t: [i2, b]} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
                          ", " + io:sprintf("%s", f) + ", "+ io:sprintf("%s", i2) + ", "+ io:sprintf("%s", b);
         var {s, i, f, t} => return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
                         ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
@@ -175,7 +175,7 @@ function matchRuntimeCheck(Foo foo) returns string {
 
 function matchRuntimeCheckWithAny(any foo) returns string {
     match foo {
-        var {s, i, f, t: (i2, b)} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
+        var {s, i, f, t: [i2, b]} => return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
                          ", " + io:sprintf("%s", f) + ", "+ io:sprintf("%s", i2) + ", "+ io:sprintf("%s", b);
         var {s, i, f, t} => return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
                         ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
@@ -189,23 +189,23 @@ function testStructuredMatchPatternWithTypeGuard1() returns string[] {
     ClosedBar1 bar1 = {var1: "Ballerina", var2: 500};
     ClosedBar2 bar2 = {var1: "Language", var2: bar1};
 
-    (string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float a1 = ("Hello", 45);
-    (string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float a2 = bar1;
-    (string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float a3 = bar2;
-    (string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float a4 = (455, true);
-    (string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float a5 = 5.6;
+    [string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float a1 = ["Hello", 45];
+    [string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float a2 = bar1;
+    [string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float a3 = bar2;
+    [string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float a4 = [455, true];
+    [string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float a5 = 5.6;
 
     string[] result = [typeGuard1(a1), typeGuard1(a2), typeGuard1(a3), typeGuard1(a4), typeGuard1(a5)];
 
     return result;
 }
 
-function typeGuard1((string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float x) returns string {
+function typeGuard1([string, int]|ClosedBar1|ClosedBar2|[int, boolean]|int|float x) returns string {
     match x {
-        var (s, i) if s is string => {return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);}
+        var [s, i] if s is string => {return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);}
         var {var1, var2} if var2 is int => {return "Matched with record int : " + io:sprintf("%s", var1) + " with " + io:sprintf("%s", var2 + 12);}
         var {var1, var2} if var2 is ClosedBar1 => {return "Matched with record with ClosedBar1 : "+ io:sprintf("%s", var1) + " with " + io:sprintf("%s" , var2.var1);}
-        var (s, i) if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
+        var [s, i] if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
         var y => {return "Matched with default type - float : " + io:sprintf("%s", y);}
     }
 }
@@ -234,18 +234,18 @@ function typeGuard2(any matchExpr) returns string {
 }
 
 type FooRec record {
-    (int, string) var1;
-    (float, boolean) var2;
+    [int, string] var1;
+    [float, boolean] var2;
 };
 
 type BarRec record {
-    (decimal, int) var1;
-    (float, FooRec) var2;
+    [decimal, int] var1;
+    [float, FooRec] var2;
 };
 
 function testStructuredMatchPatternWithTypeGuard3() returns string[] {
-    FooRec foo = {var1: (12, "Bal"), var2: (12.5, true)};
-    BarRec bar = {var1: (12.1, 100), var2: (400.1, foo)};
+    FooRec foo = {var1: [12, "Bal"], var2: [12.5, true]};
+    BarRec bar = {var1: [12.1, 100], var2: [400.1, foo]};
 
     string[] result = [typeGuard3(foo), typeGuard3(bar), typeGuard3(true)];
 
@@ -254,9 +254,9 @@ function testStructuredMatchPatternWithTypeGuard3() returns string[] {
 
 function typeGuard3(any matchExpr) returns string {
     match matchExpr {
-        var {var1, var2: (x, y)} if (x is float && y is boolean) => return "Matched with foo : " + io:sprintf("%s", x + 6.1);
-        var {var1, var2: (x, {var1: y})} if (x is float && y is (string, string)) => return "Matched with nothing : " + io:sprintf("%s", x + 5);
-        var {var1, var2: (x, {var1: y, var2: z})} if (y is (int, string) && z is (float, boolean)) => return "Matched with bar : " + io:sprintf("%s", y[0] + 5);
+        var {var1, var2: [x, y]} if (x is float && y is boolean) => return "Matched with foo : " + io:sprintf("%s", x + 6.1);
+        var {var1, var2: [x, {var1: y}]} if (x is float && y is [string, string]) => return "Matched with nothing : " + io:sprintf("%s", x + 5);
+        var {var1, var2: [x, {var1: y, var2: z}]} if (y is [int, string] && z is [float, boolean]) => return "Matched with bar : " + io:sprintf("%s", y[0] + 5);
         var y => return "Matched with default : " + io:sprintf("%s", y);
     }
 }
