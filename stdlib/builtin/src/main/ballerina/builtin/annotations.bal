@@ -22,13 +22,3 @@ public annotation<type, parameter> tainted;
 
 # Denote that the return value is untainted.
 public annotation<type, parameter> untainted;
-
-# Defaultable argument names. This is for internal use.
-#
-# + args - Service descriptor sets at compile time.
-public type ArgsData record {|
-    string[] args = [];
-|};
-
-# Service descriptor data generated at compile time. This is for internal use.
-public annotation<function> defaultableArgs ArgsData;
