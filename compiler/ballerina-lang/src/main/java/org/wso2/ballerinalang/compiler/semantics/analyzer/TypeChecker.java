@@ -3684,6 +3684,11 @@ public class TypeChecker extends BLangNodeVisitor {
             if (indexExpr.type != symTable.semanticError) {
                 actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
             }
+
+            if (nillableExprType) {
+                indexBasedAccessExpr.nilSafeNavigation = true;
+                indexBasedAccessExpr.originalType = actualType;
+            }
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
             actualType = checkListIndexBasedAccess(indexBasedAccessExpr, varRefType);
