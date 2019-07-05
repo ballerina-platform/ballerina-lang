@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
@@ -72,19 +72,19 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 return byteChannelObj;
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-                    return MimeUtil.createError(PARSING_ENTITY_FAILED, "Byte channel is not available but " +
+                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available but " +
                                                         "payload can be obtain either as xml, json, string or byte[] " +
                                                         "type");
                 } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
                         getBodyPartArray(entityObj).size() != 0) {
-                    return MimeUtil.createError(PARSING_ENTITY_FAILED,
+                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
                             "Byte channel is not available since payload contains a set of body parts");
                 } else {
-                    return MimeUtil.createError(PARSING_ENTITY_FAILED, "Byte channel is not available as payload");
+                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available as payload");
                 }
             }
         } catch (Throwable e) {
-            return MimeUtil.createError(PARSING_ENTITY_FAILED,
+            return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage());
         }
     }

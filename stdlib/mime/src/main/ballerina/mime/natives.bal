@@ -457,9 +457,4 @@ public function getMediaType(string contentType) returns MediaType|InvalidConten
 # + return - A `ContentDisposition` object
 public function getContentDispositionObject(string contentDisposition) returns ContentDisposition = external;
 
-# Converts given byte[] to a string.
-#
-# + encoding - Encoding to used in byte[] conversion to string
-# + return - String representation of the given byte[]
-public function byteArrayToString(byte[] b, string encoding) returns string = external;
 

@@ -37,7 +37,7 @@ import java.util.Locale;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Extract body parts from a given entity.
@@ -79,11 +79,11 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
                 return partsArray;
             } else {
-                return MimeUtil.createError(PARSING_ENTITY_FAILED, "Entity body is not a type of " +
+                return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Entity body is not a type of " +
                         "composite media type. Received content-type : " + baseType);
             }
         } catch (Throwable e) {
-            return MimeUtil.createError(PARSING_ENTITY_FAILED,
+            return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
                     "Error occurred while extracting body parts from entity: " + e.getMessage());
         }
     }

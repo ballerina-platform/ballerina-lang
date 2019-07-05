@@ -1,3 +1,4 @@
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/mime;
 
@@ -58,7 +59,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = untaint mime:byteArrayToString(person, "UTF-8");
+        string name = untaint encoding:byteArrayToString(person, encoding = "UTF-8");
         checkpanic caller->respond({ Key: name });
     }
 

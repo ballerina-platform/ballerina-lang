@@ -39,7 +39,7 @@ public type SetHeaderError error<SET_HEADER_FAILED, Detail>;
 public const READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
 public type ReadingHeaderFailed error<READING_HEADER_FAILED, Detail>;
 
-public const PARSER_ERROR = "{ballerina/mime}ParsingEntityFailed";
+public const PARSER_ERROR = "{ballerina/mime}ParsingEntityBodyFailed";
 public type ParserError error<PARSER_ERROR, Detail>;
 
 public const INVALID_CONTENT_TYPE = "{ballerina/mime}InvalidContentType";

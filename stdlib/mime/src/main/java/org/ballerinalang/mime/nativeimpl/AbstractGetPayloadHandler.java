@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSou
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 /**
@@ -84,7 +84,7 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(PARSING_ENTITY_FAILED, callback,
+                createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
