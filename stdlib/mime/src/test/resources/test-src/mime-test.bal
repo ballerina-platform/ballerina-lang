@@ -281,8 +281,8 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
         log:printError("error in returnContent3", err = returnContent3);
     }
 
-    string contentAsString = mime:byteArrayToString(content1, "utf-8") + mime:byteArrayToString(content2, "utf-8") +
-        mime:byteArrayToString(content3, "utf-8");
+    string contentAsString = encoding:byteArrayToString(content1, encoding = "utf-8") + encoding:byteArrayToString(content2, encoding = "utf-8") +
+        encoding:byteArrayToString(content3, encoding = "utf-8");
     return contentAsString;
 }
 
