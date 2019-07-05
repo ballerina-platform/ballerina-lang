@@ -242,8 +242,8 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
-                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: 'int' cannot be cast to 'byte\\|boolean'\"\\}.*")
     public void testInvalidIntAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testIntAsByteInUnions", new BValue[]{new BInteger(i)});
     }
