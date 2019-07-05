@@ -643,6 +643,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     }
 
     boolean isExternFunction =  isExternStaticFunctionCall(ins);
+    boolean isBuiltinModule = isBallerinaBuiltinModule(orgName, moduleName);
 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
@@ -709,14 +710,14 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     if (ins is bir:AsyncCall) {
         bir:VarRef?[] paramTypes = ins.args;
         if (isVirtual) {
-            genLoadDataForObjectAttachedLambdas(ins, mv, closureMapsCount, paramTypes , isExternFunction);
+            genLoadDataForObjectAttachedLambdas(ins, mv, closureMapsCount, paramTypes , isBuiltinModule);
             int paramTypeIndex = 1;
             paramIndex = 2;
             while ( paramTypeIndex < paramTypes.length()) {
                 generateObjectArgs(mv, paramIndex);
                 paramTypeIndex += 1;
                 paramIndex += 1;
-                if (!isExternFunction) {
+                if (!isBuiltinModule) {
                     generateObjectArgs(mv, paramIndex);
                     paramIndex += 1;
                 }
@@ -734,7 +735,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
                 paramIndex += 1;
     
                 argIndex += 1;
-                if (!isExternFunction) {
+                if (!isBuiltinModule) {
                     addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                     paramBTypes[paramIndex -1] = "boolean";
                     paramIndex += 1;
@@ -766,7 +767,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             i += 1;
             argIndex += 1;
             
-            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
+            if (!isBuiltinModule) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
@@ -781,7 +782,8 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     } else {
         string methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
-        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
+        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, getLambdaMethodDesc(paramBTypes, returnType,
+                           closureMapsCount), false);
     }
     
     if (isVoid) {
@@ -796,7 +798,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 }
 
 function genLoadDataForObjectAttachedLambdas(bir:AsyncCall ins, jvm:MethodVisitor mv, int closureMapsCount,
-                    bir:VarRef?[] paramTypes , boolean isExternFunction) {
+                    bir:VarRef?[] paramTypes , boolean isBuiltinModule) {
     mv.visitInsn(POP);
     mv.visitVarInsn(ALOAD, closureMapsCount);
     mv.visitInsn(ICONST_1);
@@ -810,7 +812,7 @@ function genLoadDataForObjectAttachedLambdas(bir:AsyncCall ins, jvm:MethodVisito
   
     mv.visitLdcInsn(cleanupObjectTypeName(ins.name.value));
     int objectArrayLength = paramTypes.length() - 1;
-    if (!isExternFunction) {
+    if (!isBuiltinModule) {
         mv.visitIntInsn(BIPUSH, objectArrayLength * 2);
     } else {
         mv.visitIntInsn(BIPUSH, objectArrayLength);
