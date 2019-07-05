@@ -13,29 +13,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-import ballerina/h2;
+import ballerina/jdbc;
 
-sql:PoolOptions properties = { maximumPoolSize: 1,
+jdbc:PoolOptions properties = { maximumPoolSize: 1,
     idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,
     minimumIdle: 1, validationTimeout: 5000,
     connectionInitSql: "SELECT 1" };
 
 map<any> propertiesMap = { "AUTO_RECONNECT": "TRUE" };
-sql:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+jdbc:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 map<any> propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
-sql:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+jdbc:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-sql:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+jdbc:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
-sql:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+jdbc:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 function testConnectionPoolProperties1() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -49,9 +47,8 @@ function testConnectionPoolProperties1() returns json {
 }
 
 function testConnectionPoolProperties2() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: properties
@@ -65,9 +62,8 @@ function testConnectionPoolProperties2() returns json {
 }
 
 function testConnectionPoolProperties3() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: ""
     });
@@ -81,9 +77,8 @@ function testConnectionPoolProperties3() returns json {
 
 
 function testConnectorWithDefaultPropertiesForListedDB() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: { }
@@ -97,9 +92,8 @@ function testConnectorWithDefaultPropertiesForListedDB() returns json {
 }
 
 function testConnectorWithWorkers() returns (json) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: { }
@@ -122,9 +116,8 @@ function testConnectorWithWorkers() returns (json) {
 }
 
 function testConnectorWithDataSourceClass() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: properties3,
@@ -139,9 +132,8 @@ function testConnectorWithDataSourceClass() returns json {
 }
 
 function testConnectorWithDataSourceClassAndProps() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: properties4,
@@ -156,9 +148,8 @@ function testConnectorWithDataSourceClassAndProps() returns json {
 }
 
 function testConnectorWithDataSourceClassWithoutURL() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: properties5
@@ -172,9 +163,8 @@ function testConnectorWithDataSourceClassWithoutURL() returns json {
 }
 
 function testConnectorWithDataSourceClassURLPriority() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: properties6,
@@ -191,9 +181,8 @@ function testConnectorWithDataSourceClassURLPriority() returns json {
 
 
 function testPropertiesGetUsedOnlyIfDataSourceGiven() returns json {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 },
@@ -208,9 +197,8 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns json {
 }
 
 function testConnectionFailure() {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "NON_EXISTING_DB",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/NON_EXISTING_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 },

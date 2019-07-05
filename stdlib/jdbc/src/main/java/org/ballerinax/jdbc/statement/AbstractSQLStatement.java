@@ -85,11 +85,11 @@ import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
  * @since 1.0.0
  */
 public abstract class AbstractSQLStatement implements SQLStatement {
-    protected Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     private static final String POSTGRES_DOUBLE = "float8";
     private static final int ORACLE_CURSOR_TYPE = -10;
 
-    protected ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
+    ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
         ArrayValue parametersNew = new ArrayValue();
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
@@ -119,7 +119,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
      *
      * @return The string with "?" place holders for parameters
      */
-    protected String createProcessedQueryString(String query, ArrayValue parameters) {
+     String createProcessedQueryString(String query, ArrayValue parameters) {
         String currentQuery = query;
         if (parameters != null) {
             int start = 0;
@@ -150,7 +150,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return currentQuery;
     }
 
-    protected TableValue constructTable(TableResourceManager rm, ResultSet rs, BStructureType structType,
+    TableValue constructTable(TableResourceManager rm, ResultSet rs, BStructureType structType,
             List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         BStructureType tableConstraint = structType;
         if (structType == null) {
@@ -164,7 +164,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 tableConstraint);
     }
 
-    protected int getParameterDirection(MapValue<String, Object> parameter) {
+    int getParameterDirection(MapValue<String, Object> parameter) {
         int direction = 0;
         String directionInput = parameter.getStringValue(PARAMETER_DIRECTION_FIELD);
         if (directionInput != null) {
@@ -183,7 +183,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return direction;
     }
 
-    protected List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
+     List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
         List<ColumnDefinition> columnDefs = new ArrayList<>();
         Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
@@ -200,6 +200,15 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             columnNames.add(colName);
         }
         return columnDefs;
+    }
+
+    String getSQLType(MapValue<String, Object> parameter) {
+        String sqlType = "";
+        Object sqlTypeValue = parameter.get(PARAMETER_SQL_TYPE_FIELD);
+        if (sqlTypeValue != null) {
+            sqlType = (String) sqlTypeValue;
+        }
+        return sqlType;
     }
 
     /**
@@ -285,15 +294,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_PARAMETER);
     }
 
-    protected String getSQLType(MapValue<String, Object> parameter) {
-        String sqlType = "";
-        Object sqlTypeValue = parameter.get(PARAMETER_SQL_TYPE_FIELD);
-        if (sqlTypeValue != null) {
-            sqlType = (String) sqlTypeValue;
-        }
-        return sqlType;
-    }
-
    /* protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
@@ -313,8 +313,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 */
 
-    protected void createProcessedStatement(Connection conn, PreparedStatement stmt, ArrayValue params,
-            String databaseProductName) throws ApplicationException, DatabaseException {
+   void createProcessedStatement(Connection conn, PreparedStatement stmt, ArrayValue params, String databaseProductName)
+           throws ApplicationException, DatabaseException {
         if (params == null) {
             return;
         }
@@ -397,7 +397,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
      * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
      * of externally.
      */
-    protected void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
+    void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
@@ -420,7 +420,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
      * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
      * of externally.
      */
-    protected void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
+    void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
@@ -440,7 +440,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 */
 
-    public Connection getDatabaseConnection(ObjectValue client, SQLDatasource datasource, boolean isSelectQuery)
+    Connection getDatabaseConnection(ObjectValue client, SQLDatasource datasource, boolean isSelectQuery)
             throws DatabaseException {
         //TODO: JBalMigration Commenting out transaction handling and observability
         //TODO: #16033

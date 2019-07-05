@@ -46,6 +46,7 @@ import java.sql.Types;
  * @since 1.0.0
  */
 public class UpdateStatement extends AbstractSQLStatement {
+
     private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;

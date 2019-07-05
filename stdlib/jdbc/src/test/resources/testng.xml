@@ -32,10 +32,11 @@ under the License.
             <package name="org.ballerinalang.stdlib.database.sql.*"/> -->
         </packages>
         <classes>
-            <class name="org.ballerinalang.stdlib.database.h2.H2ClientActionsTest"/>
-            <class name="org.ballerinalang.stdlib.database.sql.SQLActionsTest"/>
-            <class name="org.ballerinalang.stdlib.database.sql.SQLConnectionPoolTest"/>
-            <class name="org.ballerinalang.stdlib.database.sql.SQLConnectorInitTest"/>
+            <class name="org.ballerinax.jdbc.JDBCActionsTest"/>
+            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>
+            <class name="org.ballerinax.jdbc.SQLActionsTest"/>
+            <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>
+            <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
         </classes>
     </test>
 </suite>

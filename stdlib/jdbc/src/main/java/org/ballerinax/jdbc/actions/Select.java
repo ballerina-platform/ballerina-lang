@@ -23,37 +23,20 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.SelectStatement;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-
 /**
- * {@code Select} is the Select remote function implementation of the JDBC Connector.
+ * {@code Select} is the Select remote function implementation of the JDBC client.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerinax", packageName = "jdbc",
-        functionName = "nativeSelect",
-        args = {
-                @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "recordType", type = TypeKind.TYPEDESC),
-                //@Argument(name = "loadToMemory", type = TypeKind.BOOLEAN),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
-                          structType = "Param")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.RECORD, structType = "JdbcClientError",
-                        structPackage = BALLERINA_BUILTIN_PKG)
-        }
+        functionName = "nativeSelect"
 )
 public class Select extends BlockingNativeCallableUnit {
 

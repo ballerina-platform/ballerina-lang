@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
@@ -39,17 +38,14 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 @BallerinaFunction(
         orgName = "ballerinax", packageName = "jdbc",
         functionName = "initGlobalPoolContainer",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "GlobalPoolConfigContainer",
-                             structPackage = JDBC_PACKAGE_PATH),
-        args = { @Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolOptions")}
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "GlobalPoolConfigContainer",
+                             structPackage = JDBC_PACKAGE_PATH)
 )
 public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         //TODO: #16033
-        /*BMap<String, BRefType> globalPoolConfig = (BMap<String, BRefType>) context.getRefArgument(1);
-        SQLDatasourceUtils.addDatasourceContainer(globalPoolConfig, new ConcurrentHashMap<>());*/
     }
 
     public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,

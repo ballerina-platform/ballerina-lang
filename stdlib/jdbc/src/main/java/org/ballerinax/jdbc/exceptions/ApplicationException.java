@@ -18,17 +18,13 @@
 package org.ballerinax.jdbc.exceptions;
 
 /**
- * The exception to throw Ballerina SQL application related exceptions.
+ * The exception to throw application related exceptions of JDBC client.
  *
  * @since 1.0.0
  */
 public class ApplicationException extends Exception {
 
     private String errorMessage = null;
-
-    public ApplicationException() {
-        super();
-    }
 
     /**
      * Constructs a new {@link ApplicationException} with the specified error reason message.

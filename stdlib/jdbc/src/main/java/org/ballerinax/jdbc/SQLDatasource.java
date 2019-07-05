@@ -296,7 +296,7 @@ public class SQLDatasource {
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
-    protected static class SQLDatasourceParams {
+    static class SQLDatasourceParams {
         private PoolOptionsWrapper poolOptionsWrapper;
         private String jdbcUrl;
         private String dbType;

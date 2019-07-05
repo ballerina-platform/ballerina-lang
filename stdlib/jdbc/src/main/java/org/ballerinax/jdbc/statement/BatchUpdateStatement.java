@@ -44,8 +44,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final String query;
     private final ArrayValue parameters;
 
-    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                                ArrayValue parameters) {
+    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters) {
         this.client = client;
         this.datasource = datasource;
         this.query = query;
@@ -142,7 +141,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         // those updates.
         long[] returnedCount = new long[paramArrayCount];
         Arrays.fill(returnedCount, Statement.EXECUTE_FAILED);
-        ArrayValue countArray = new ArrayValue(BTypes.typeInt);
+        ArrayValue countArray = new ArrayValue(returnedCount);
         if (updatedCounts != null) {
             int iSize = updatedCounts.length;
             for (int i = 0; i < iSize; ++i) {

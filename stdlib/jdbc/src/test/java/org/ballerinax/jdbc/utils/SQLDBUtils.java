@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.utils;
+package org.ballerinax.jdbc.utils;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.slf4j.Logger;

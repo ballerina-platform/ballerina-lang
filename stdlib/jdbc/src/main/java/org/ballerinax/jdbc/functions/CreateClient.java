@@ -22,8 +22,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
@@ -31,7 +29,7 @@ import org.ballerinax.jdbc.SQLDatasourceUtils;
 import java.util.UUID;
 
 /**
- * Returns the JDBC Client connector.
+ * Returns the JDBC Client.
  *
  * @since 0.970
  */
@@ -39,30 +37,13 @@ import java.util.UUID;
 @BallerinaFunction(
         orgName = "ballerinax", packageName = "jdbc",
         functionName = "createClient",
-        args = {
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfig"),
-                @Argument(name = "globalPoolOptions", type = TypeKind.RECORD, structType = "PoolOptions")
-        },
         isPublic = true
 )
 public class CreateClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        /*BMap<String, BValue> clientEndpointConfig = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BRefType> globalPoolOptions = (BMap<String, BRefType>) context.getRefArgument(1);
-        BMap<String, BRefType> dbOptions = (BMap<String, BRefType>) clientEndpointConfig
-                .get(Constants.EndpointConfig.DB_OPTIONS);
-        String urlOptions = "";
-        if (!dbOptions.isEmpty()) {
-            urlOptions = SQLDatasourceUtils.createJDBCDbOptions(Constants.JDBCUrlSeparators.H2_PROPERTY_BEGIN_SYMBOL,
-                    Constants.JDBCUrlSeparators.H2_SEPARATOR, dbOptions);
-        }
-        BMap<String, BValue> sqlClient = SQLDatasourceUtils
-                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig, urlOptions,
-                        globalPoolOptions);
-        sqlClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
-        context.setReturnValues(sqlClient);*/
+        //TODO: #16033
     }
 
     public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,

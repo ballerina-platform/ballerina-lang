@@ -71,7 +71,6 @@ public class CallStatement extends AbstractSQLStatement {
 
     public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue structTypes,
                          ArrayValue parameters) {
-
         this.client = client;
         this.datasource = datasource;
         this.query = query;
@@ -191,7 +190,6 @@ public class CallStatement extends AbstractSQLStatement {
                     // ballerina-platform/ballerina-lang#8643
                     break;
                 }
-
             }
             // This point reaches if current result was an update count. So it is needed to capture any remaining
             // results

@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.database.sql;
+package org.ballerinax.jdbc;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
@@ -23,10 +23,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.stdlib.utils.SQLDBUtils;
-import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
-import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils;
+import org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
+import org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

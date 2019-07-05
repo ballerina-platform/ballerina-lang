@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
- * Constants for JDBC Client.
+ * Constants for JDBC client.
  *
  * @since 0.8.0
  */
@@ -123,10 +123,7 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class EndpointConfig {
-        public static final String HOST = "host";
         public static final String URL = "url";
-        public static final String PATH = "path";
-        public static final String PORT = "port";
         public static final String NAME = "name";
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
@@ -157,17 +154,6 @@ public final class Constants {
     }
 
     /**
-     * Constants used when appending JDBC driver properties for the connection URL.
-     */
-    public static final class JDBCUrlSeparators {
-        public static final String H2_SEPARATOR = ";";
-        public static final String H2_PROPERTY_BEGIN_SYMBOL = ";";
-        public static final String MYSQL_SEPARATOR = "&";
-        public static final String MYSQL_PROPERTY_BEGIN_SYMBOL = "?";
-        public static final String EQUAL_SYMBOL = "=";
-    }
-
-    /**
      * Constants used for database product names.
      */
     public static final class DatabaseNames {
@@ -190,13 +176,7 @@ public final class Constants {
     public static final String SQL_PARAMETER = "Parameter";
     public static final String JDBC_CLIENT = "JdbcClient";
     public static final String SQL_UPDATE_RESULT = "UpdateResult";
-    public static final String SERVER_MODE = "ServerModeConfig";
-    public static final String EMBEDDED_MODE = "EmbeddedModeConfig";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
-
-    public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
-    public static final String SQL_FILE_DB_POSTFIX = "_FILE";
-    public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
 
     public static final String APPLICATION_ERROR_DATA_RECORD_NAME = "ApplicationErrorData";
     public static final String DATABASE_ERROR_DATA_RECORD_NAME = "DatabaseErrorData";

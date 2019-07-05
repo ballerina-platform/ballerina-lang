@@ -21,45 +21,25 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
 
-import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
-
 /**
- * {@code Close} is the Close function implementation of the JDBC Connector Connection pool.
+ * {@code Close} is the Close function implementation of the JDBC client connection pool.
  *
  * @since 0.8.4
  */
 @BallerinaFunction(
         orgName = "ballerinax", packageName = "jdbc",
-        functionName = "close",
-        args = {
-                @Argument(name = "callerActions", type = TypeKind.RECORD, structType = Constants.JDBC_CLIENT,
-                          structPackage = JDBC_PACKAGE_PATH)
-        }
+        functionName = "close"
 )
 public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         //TODO: #16033
-       /* SQLDatasource datasource = retrieveDatasource(context);
-        // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
-        // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
-        // situation following null check is needed.
-        if (datasource != null && !datasource.isGlobalDatasource()) {
-            try {
-                datasource.decrementClientCounterAndAttemptPoolShutdown();
-            } catch (InterruptedException e) {
-                context.setReturnValues(
-                        SQLDatasourceUtils.getSQLConnectorError(context, "Error while stopping the database client"));
-            }
-        }*/
     }
 
     public static Object close(Strand strand, ObjectValue client) {

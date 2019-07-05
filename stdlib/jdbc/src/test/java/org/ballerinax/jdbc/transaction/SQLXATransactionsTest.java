@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.database.sql.transaction;
+package org.ballerinax.jdbc.transaction;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.utils.SQLDBUtils;
-import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
-import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils;
+import org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
+import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;

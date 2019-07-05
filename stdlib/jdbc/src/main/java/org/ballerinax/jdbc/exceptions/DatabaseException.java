@@ -20,34 +20,15 @@ package org.ballerinax.jdbc.exceptions;
 import java.sql.SQLException;
 
 /**
- * The exception to throw Ballerina SQL database related exceptions.
+ * The exception to throw SQL database related exceptions of JDBC client.
  *
  * @since 1.0.0
  */
 public class DatabaseException extends Exception {
 
     private int sqlErrorCode;
-    private String sqlState = null;
-    private String sqlErrorMessage = null;
-
-    public DatabaseException() {
-        super();
-    }
-
-    /**
-     * Constructs a new {@link DatabaseException} with the specified Sql error code, Sql state and Sql error message.
-     *
-     * @param reason Error Reason
-     * @param sqlErrorCode SQL database error code
-     * @param sqlState SQL database error state
-     * @param sqlErrorMessage SQL database error message
-     */
-    public DatabaseException(String reason, int sqlErrorCode, String sqlState, String sqlErrorMessage) {
-        super(reason);
-        this.sqlErrorCode = sqlErrorCode;
-        this.sqlState = sqlState;
-        this.sqlErrorMessage = sqlErrorMessage;
-    }
+    private String sqlState;
+    private String sqlErrorMessage;
 
     /**
      * Constructs a new {@link DatabaseException} with the specified detail message and cause.

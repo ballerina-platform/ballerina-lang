@@ -13,8 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-import ballerina/h2;
+import ballerinax/jdbc;
 import ballerina/io;
 import ballerina/runtime;
 
@@ -31,33 +30,29 @@ function testGlobalConnectionPoolSingleDestination() returns (int|string?)[] {
 }
 
 function drainGlobalPool(string dbName) returns (int|string?)[] {
-    h2:Client testDB1 = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    string jdbcURL = "jdbc:h2:file:./target/tempdb/" + dbName;
+    jdbc:Client testDB1 = new({
+            url: jdbcURL,
             username: "SA",
             password: ""
         });
-    h2:Client testDB2 = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    jdbc:Client testDB2 = new({
+            url: jdbcURL,
             username: "SA",
             password: ""
         });
-    h2:Client testDB3 = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    jdbc:Client testDB3 = new({
+            url: jdbcURL,
             username: "SA",
             password: ""
         });
-    h2:Client testDB4 = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    jdbc:Client testDB4 = new({
+            url: jdbcURL,
             username: "SA",
             password: ""
         });
-    h2:Client testDB5 = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    jdbc:Client testDB5 = new({
+            url: jdbcURL,
             username: "SA",
             password: ""
         });
@@ -153,9 +148,8 @@ function closeTables([table<record{}>|error?, table<record{}>|error?] t) {
 }
 
 function testGlobalConnectionPoolConcurrentHelper1() returns [table<record{}>|error,table<record{}>|error] {
-    h2:Client testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+    jdbc:Client testDB1 = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
             password: ""
         });
@@ -165,9 +159,8 @@ function testGlobalConnectionPoolConcurrentHelper1() returns [table<record{}>|er
 }
 
 function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
-    h2:Client testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+    jdbc:Client testDB1 = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
             password: ""
         });
@@ -184,44 +177,39 @@ function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
 }
 
 function testLocalSharedConnectionPoolConfigSingleDestination() returns (int|string?)[] {
-    h2:Client testDB1;
-    h2:Client testDB2;
-    h2:Client testDB3;
-    h2:Client testDB4;
-    h2:Client testDB5;
-    sql:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:Client testDB3;
+    jdbc:Client testDB4;
+    jdbc:Client testDB5;
+    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeout: 1000, validationTimeout: 1000 };
 
     testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
             username: "SA",
             password: "",
             poolOptions: poolOptions1
         });
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
             username: "SA",
             password: "",
             poolOptions: poolOptions1
         });
     testDB3 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
             username: "SA",
             password: "",
             poolOptions: poolOptions1
         });
     testDB4 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
             username: "SA",
             password: "",
             poolOptions: poolOptions1
         });
     testDB5 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
             username: "SA",
             password: "",
             poolOptions: poolOptions1
@@ -255,54 +243,48 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns (int|str
 }
 
 function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|string?)[] {
-    h2:Client testDB1;
-    h2:Client testDB2;
-    h2:Client testDB3;
-    h2:Client testDB4;
-    h2:Client testDB5;
-    h2:Client testDB6;
-    sql:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:Client testDB3;
+    jdbc:Client testDB4;
+    jdbc:Client testDB5;
+    jdbc:Client testDB6;
+    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeout: 1000, validationTimeout: 1000 };
 
     // One pool will be created to these clients.
     testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB3 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     // Another pool will be created to these clients.
     testDB4 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB5 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
         });
     testDB6 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
             username: "SA",
             password: "",
             poolOptions: poolOptions2
@@ -339,22 +321,20 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|
 }
 
 function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns [int|string, int|string, int|string, int|string] {
-    h2:Client testDB1;
-    h2:Client testDB2;
-    h2:Client testDB3;
-    h2:Client testDB4;
-    sql:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:Client testDB3;
+    jdbc:Client testDB4;
+    jdbc:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
 
     testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
         });
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
@@ -375,8 +355,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns [int|s
 
     // Now a new pool should be created
     testDB3 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
             username: "SA",
             password: "",
             poolOptions: poolOptions5
@@ -392,7 +371,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns [int|s
 }
 
 function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
-    sql:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
 
     worker w1 {
         testLocalSharedConnectionPoolStopInitInterleaveHelper1(poolOptions);
@@ -406,10 +385,9 @@ function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
     return result;
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:PoolOptions poolOptions) {
-    h2:Client testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
+function testLocalSharedConnectionPoolStopInitInterleaveHelper1(jdbc:PoolOptions poolOptions) {
+    jdbc:Client testDB1 = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
             username: "SA",
             password: "",
             poolOptions: poolOptions
@@ -419,12 +397,11 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper1(sql:PoolOptions 
     checkpanic testDB1.stop();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions poolOptions) returns int|string {
-    h2:Client testDB2;
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions poolOptions) returns int|string {
+    jdbc:Client testDB2;
     runtime:sleep(10);
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
             username: "SA",
             password: "",
             poolOptions: poolOptions
@@ -438,9 +415,8 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(sql:PoolOptions 
 }
 
 function testShutDownUnsharedLocalConnectionPool() returns [int|string, int|string] {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 }
@@ -457,22 +433,20 @@ function testShutDownUnsharedLocalConnectionPool() returns [int|string, int|stri
 }
 
 function testShutDownSharedConnectionPool() returns [int|string, int|string, int|string, int|string, int|string] {
-    h2:Client testDB1;
-    h2:Client testDB2;
-    h2:Client testDB3;
-    sql:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:Client testDB3;
+    jdbc:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
 
     testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
         });
 
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
             username: "SA",
             password: "",
             poolOptions: poolOptions3
@@ -506,14 +480,13 @@ function testShutDownSharedConnectionPool() returns [int|string, int|string, int
 }
 
 function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string, int|string, int|string, int|string] {
-    h2:Client testDB1;
-    h2:Client testDB2;
-    sql:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
 
     // One pool is created for this client.
     testDB1 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
             username: "SA",
             password: "",
             poolOptions: poolOptions4
@@ -522,8 +495,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string,
     // Another pool is created for this client, because, even though both are using the same pool config,
     // they point to different databases.
     testDB2 = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
             username: "SA",
             password: "",
             poolOptions: poolOptions4
@@ -552,9 +524,8 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string,
 
 function testStopClientUsingGlobalPool() returns [int|string, int|string] {
     // This client doesn't have pool config specified therefore, global pool will be used.
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
             password: ""
         });
@@ -579,9 +550,9 @@ function testLocalConnectionPoolShutDown() returns [int|string, int|string] {
 }
 
 function getOpenConnectionCount(string dbName) returns int|string {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: dbName,
+    string jdbcUrl = "jdbc:h2:file:./target/tempdb/" + dbName;
+    jdbc:Client testDB = new({
+            url: jdbcUrl,
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 }

@@ -13,9 +13,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
-import ballerina/sql;
 import ballerina/io;
+import ballerinax/jdbc;
 
 public type Customer record {
     int customerId;
@@ -29,9 +28,8 @@ public type Result record {
 };
 
 function testSelect() returns int[] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -56,9 +54,8 @@ function testSelect() returns int[] {
 }
 
 function testUpdate() returns int {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -67,7 +64,7 @@ function testUpdate() returns int {
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
-    if (insertCountRet is sql:UpdateResult) {
+    if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
     checkpanic testDB.stop();
@@ -75,9 +72,8 @@ function testUpdate() returns int {
 }
 
 function testCall() returns string {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -107,9 +103,8 @@ function testCall() returns string {
 }
 
 function testGeneratedKeyOnInsert() returns string|int {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -119,7 +114,7 @@ function testGeneratedKeyOnInsert() returns string|int {
 
     var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
 
-    if (x is sql:UpdateResult) {
+    if (x is jdbc:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
         error e = x;
@@ -131,9 +126,8 @@ function testGeneratedKeyOnInsert() returns string|int {
 }
 
 function testBatchUpdate() returns int[] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -142,18 +136,18 @@ function testBatchUpdate() returns int[] {
     int[] updateCount;
     string returnVal;
     //Batch 1
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 10 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    sql:Parameter para3 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Australia" };
-    sql:Parameter?[] parameters1 = [para1, para2, para3, para4];
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_INTEGER, value: 10 };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_VARCHAR, value: "Australia" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4];
 
     //Batch 2
-    sql:Parameter para5 = { sqlType: sql:TYPE_INTEGER, value: 11 };
-    sql:Parameter para6 = { sqlType: sql:TYPE_VARCHAR, value: "John" };
-    sql:Parameter para7 = { sqlType: sql:TYPE_DOUBLE, value: 3400.2 };
-    sql:Parameter para8 = { sqlType: sql:TYPE_VARCHAR, value: "UK" };
-    sql:Parameter?[] parameters2 = [para5, para6, para7, para8];
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_INTEGER, value: 11 };
+    jdbc:Parameter para6 = { sqlType: jdbc:TYPE_VARCHAR, value: "John" };
+    jdbc:Parameter para7 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.2 };
+    jdbc:Parameter para8 = { sqlType: jdbc:TYPE_VARCHAR, value: "UK" };
+    jdbc:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
@@ -168,9 +162,8 @@ function testBatchUpdate() returns int[] {
 }
 
 function testUpdateInMemory() returns [int, string] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -182,7 +175,7 @@ function testUpdateInMemory() returns [int, string] {
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
-    if (insertCountRet is sql:UpdateResult) {
+    if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
 
@@ -200,9 +193,8 @@ function testUpdateInMemory() returns [int, string] {
 }
 
 function testInitWithNilDbOptions() returns int[] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -211,9 +203,8 @@ function testInitWithNilDbOptions() returns int[] {
 }
 
 function testInitWithDbOptions() returns int[] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 },
@@ -224,9 +215,8 @@ function testInitWithDbOptions() returns int[] {
 }
 
 function testInitWithInvalidDbOptions() returns int[] {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 },
@@ -238,9 +228,8 @@ function testInitWithInvalidDbOptions() returns int[] {
 
 function testCloseConnectionPool(string connectionCountQuery)
              returns int {
-    h2:Client testDB = new({
-            path: "./target/H2Client/",
-            name: "TestDBH2",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -259,7 +248,7 @@ function testCloseConnectionPool(string connectionCountQuery)
     return count;
 }
 
-function selectFunction(h2:Client testDB) returns int[] {
+function selectFunction(jdbc:Client testDB) returns int[] {
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds = [];
@@ -280,8 +269,8 @@ function selectFunction(h2:Client testDB) returns int[] {
 }
 
 function testH2MemDBUpdate() returns [int, string] {
-    h2:Client testDB = new(<h2:InMemoryConfig>{
-            name: "TestMEMDB",
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:mem:TestMEMDB",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -299,7 +288,7 @@ function testH2MemDBUpdate() returns [int, string] {
         }
     }
     int insertCount = 0;
-    if (insertCountRet is sql:UpdateResult) {
+    if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
     checkpanic testDB.stop();

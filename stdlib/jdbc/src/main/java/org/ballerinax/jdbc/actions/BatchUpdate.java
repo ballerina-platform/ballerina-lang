@@ -22,36 +22,20 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.BatchUpdateStatement;
 import org.ballerinax.jdbc.statement.SQLStatement;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-
 /**
- * {@code BatchUpdate} is the Batch update remote function implementation of the JDBC Connector.
+ * {@code BatchUpdate} is the Batch update remote function implementation of the JDBC client.
  *
  * @since 0.8.6
  */
 @BallerinaFunction(
         orgName = "ballerinax", packageName = "jdbc",
-        functionName = "nativeBatchUpdate",
-        args = {
-                @Argument(name = "client", type = TypeKind.OBJECT),
-                @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
-                          structType = "Param")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
-                @ReturnType(type = TypeKind.RECORD, structType = "JdbcClientError",
-                        structPackage = BALLERINA_BUILTIN_PKG)
-        }
+        functionName = "nativeBatchUpdate"
 )
 public class BatchUpdate extends BlockingNativeCallableUnit {
 

@@ -13,8 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/io;
 
 type ResultCustomers record {
@@ -33,8 +32,7 @@ type ResultCustomers2 record {
 
 function testSelectData() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -49,8 +47,7 @@ function testSelectData() returns string {
 
 function testErrorWithSelectData() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -77,8 +74,7 @@ function testErrorWithSelectData() returns string {
 
 function testGeneratedKeyOnInsert() returns int|string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2"
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -102,8 +98,7 @@ function testGeneratedKeyOnInsert() returns int|string {
 
 function testGeneratedKeyOnInsertError() returns int|string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TestDBH2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -127,8 +122,7 @@ function testGeneratedKeyOnInsertError() returns int|string {
 
 function testUpdateReslt() returns int|string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -150,8 +144,7 @@ function testUpdateReslt() returns int|string {
 
 function testBatchUpdate() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -194,8 +187,7 @@ function testBatchUpdate() returns string {
 
 function testErrorWithBatchUpdate() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -238,8 +230,7 @@ function testErrorWithBatchUpdate() returns string {
 
 function testInvalidArrayofQueryParameters() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -270,8 +261,7 @@ function testInvalidArrayofQueryParameters() returns string {
 
 function testErrorWithInvalidArrayofQueryParameters() returns string {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -302,8 +292,7 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
 
 function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -335,8 +324,7 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
 
 function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
     h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  * This class provides methods to manipulate aforementioned map.
  */
 public class PoolOptionsWrapper {
+
     private final MapValue<String, Object> poolOptions;
 
     protected PoolOptionsWrapper(MapValue<String, Object> poolOptions) {
