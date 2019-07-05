@@ -116,6 +116,7 @@ public class Flags {
                     break;
                 case LAMBDA:
                     mask |= LAMBDA;
+                    break;
                 case TYPE_PARAM:
                     mask |= TYPE_PARAM;
                     break;
@@ -188,6 +189,7 @@ public class Flags {
                     break;
                 case LAMBDA:
                     flagVal = LAMBDA;
+                    break;
                 case TYPE_PARAM:
                     flagVal = TYPE_PARAM;
                     break;

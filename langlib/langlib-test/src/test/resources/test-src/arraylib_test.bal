@@ -19,26 +19,26 @@ function testLength() returns int {
     return arr.length();
 }
 
-//function testMap() returns int[] {
-//    int[] arr = [10, 20, 30, 40];
-//    int[] newArr = arr.^"map"(function (int x) returns int {
-//        return x/10;
-//    });
-//    return newArr;
-//}
+function testMap() returns int[] {
+    int[] arr = [10, 20, 30, 40];
+    int[] newArr = arr.^"map"(function (int x) returns int {
+        return x/10;
+    });
+    return newArr;
+}
 
-//function testForeach() returns string {
-//    string?[] arr = ["Hello", "World!", (), "from", "Ballerina"];
-//    string result = "";
-//
-//    arr.forEach(function (string? x) {
-//        if (x is string) {
-//            result += x;
-//        }
-//    });
-//
-//    return result;
-//}
+function testForeach() returns string {
+    string?[] arr = ["Hello", "World!", (), "from", "Ballerina"];
+    string result = "";
+
+    arr.forEach(function (string? x) {
+        if (x is string) {
+            result += x;
+        }
+    });
+
+    return result;
+}
 
 function testSlice() returns float[] {
     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
@@ -49,4 +49,12 @@ function testRemove() returns [string, string[]] {
     string[] arr = ["Foo", "Bar", "FooFoo", "BarBar"];
     string elem = arr.remove(2);
     return [elem, arr];
+}
+
+function testSort() returns [int[], int[]] {
+    int[] arr = [98, 34, 44, 87, 13, 2, 1, 13];
+    int[] sorted = arr.sort(function (int x, int y) returns int {
+        return x - y;
+    });
+    return [sorted, arr];
 }

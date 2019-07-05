@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+
 /**
  * Native implementation of lang.array:sort((any|error)[], function).
  *
@@ -39,61 +41,56 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Sort {
 
-    public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Integer> func) {
-        ArrayValue dest = new ArrayValue(arr.getType());
-        mergeSort(arr, dest, 0, arr.size(), strand, func);
-        return arr;
+    public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Long> func) {
+        return mergesort(arr, strand, func);
     }
 
-    private static void mergeSort(ArrayValue arr, ArrayValue dest, int left, int right, Strand strand,
-                                  FPValue<Object, Integer> func) {
-        if (left < right) {
-            int mid = left + (right - 1) / 2;
+    // Adapted from https://algs4.cs.princeton.edu/14analysis/Mergesort.java.html
+    private static ArrayValue mergesort(ArrayValue input, Strand strand, FPValue<Object, Long> comparator) {
+        int n = input.size();
 
-            mergeSort(arr, dest, left, mid, strand, func);
-            mergeSort(arr, dest, mid + 1, right, strand, func);
-
-            merge(arr, dest, left, mid, right, strand, func);
+        if (n <= 1) {
+            return input;
         }
+
+        ArrayValue leftArr = new ArrayValue(input.getType());
+        ArrayValue rightArr = new ArrayValue(input.getType());
+        int leftArrSize = n / 2;
+        int rightArrSize = n - n / 2;
+        int elemTypeTag = input.elementType.getTag();
+
+        for (int i = 0; i < leftArrSize; i++) {
+            add(leftArr, elemTypeTag, i, input.get(i));
+        }
+
+        for (int i = 0; i < rightArrSize; i++) {
+            add(rightArr, elemTypeTag, i, input.get(i + n / 2));
+        }
+
+        return merge(mergesort(leftArr, strand, comparator),
+                     mergesort(rightArr, strand, comparator), strand, comparator);
     }
 
-    private static void merge(ArrayValue arr, ArrayValue dest, int left, int mid, int right, Strand strand,
-                              FPValue<Object, Integer> func) {
-        int n1 = mid - left + 1;
-        int n2 = right - mid;
-        ArrayValue leftHalf = new ArrayValue(arr.getType());
-        ArrayValue rightHalf = new ArrayValue(arr.getType());
+    private static ArrayValue merge(ArrayValue leftArr, ArrayValue rightArr, Strand strand,
+                                    FPValue<Object, Long> comparator) {
+        ArrayValue mergedArr = new ArrayValue(leftArr.getType());
+        int leftArrSize = leftArr.size();
+        int rightArrSize = rightArr.size();
+        int mergedArrSize = leftArrSize + rightArrSize;
+        int elemTypeTag = mergedArr.elementType.getTag();
 
-        for (int i = 0; i < n1; i++) {
-            leftHalf.add(i, arr.get(left + i));
-        }
-
-        for (int i = 0; i < n2; i++) {
-            rightHalf.add(i, arr.get(mid + 1 + i));
-        }
-
-        int i = 0, j = 0, k = left;
-        while (i < n1 && j < n2) {
-            Object lVal = leftHalf.get(i);
-            Object rVal = rightHalf.get(j);
-
-            if (func.apply(new Object[]{strand, lVal, rVal}) <= 0) {
-                dest.add(k, lVal);
-                i++;
+        for (int i = 0, j = 0, k = 0; k < mergedArrSize; k++) {
+            if (i >= leftArrSize) {
+                add(mergedArr, elemTypeTag, k, rightArr.get(j++));
+            } else if (j >= rightArrSize) {
+                add(mergedArr, elemTypeTag, k, leftArr.get(i++));
+            } else if (comparator.apply(new Object[]{strand, leftArr.get(i), true, rightArr.get(j), true}) <= 0) {
+                add(mergedArr, elemTypeTag, k, leftArr.get(i++));
             } else {
-                dest.add(k, rVal);
-                j++;
+                add(mergedArr, elemTypeTag, k, rightArr.get(j++));
             }
-
-            k++;
         }
 
-        while (i < n1) {
-            dest.add(k++, leftHalf.get(i++));
-        }
-
-        while (j < n2) {
-            dest.add(k++, rightHalf.get(j++));
-        }
+        return mergedArr;
     }
 }
