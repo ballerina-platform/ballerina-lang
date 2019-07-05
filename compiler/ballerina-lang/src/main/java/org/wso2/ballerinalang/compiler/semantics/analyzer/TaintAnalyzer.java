@@ -1417,11 +1417,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Taintedness of a service variable depends on taintedness of listeners attached to this service.
         // If any listener is tainted then the service variable is tainted.
 
-        boolean anyListenersUntainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
+        boolean anyListenerstainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
                 .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
                 .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
 
-        if (anyListenersUntainted || serviceConstructorExpr.type.tsymbol.tainted) {
+        if (anyListenerstainted || serviceConstructorExpr.type.tsymbol.tainted) {
             // Service type tainted due to listeners being tainted.
             serviceConstructorExpr.type.tsymbol.tainted = true;
         }
@@ -1876,7 +1876,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         attachedFunctionAnalysis = true;
-        visit((BLangFunction) invNode);
+        visit(invNode);
         attachedFunctionAnalysis = false;
 
         invNode.requiredParams = prevRequiredParam;
@@ -1940,8 +1940,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
-
-        // todo: hadle unknown taintedness of return
     }
 
     private void analyzeReturnTaintedStatus(Map<Integer, TaintRecord> taintTable, BLangInvokableNode invokableNode,
@@ -2408,8 +2406,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                                                      TaintedStatus returnTaintedStatus,
                                                                      BVarSymbol receiverSymbol) {
         TaintRecord receiverTaintRecord = taintTable.get(0);
-        returnTaintedStatus = checkTaintErrorsInObjectMethods(
-                invocationExpr, returnTaintedStatus, receiverSymbol, receiverTaintRecord);
+        if (receiverSymbol != null) {
+            // receiverSymbol == null for method invocations on literals "str".substring()
+            returnTaintedStatus = checkTaintErrorsInObjectMethods(invocationExpr,
+                    returnTaintedStatus, receiverSymbol, receiverTaintRecord);
+        }
 
         TaintRecord allUntaintedEntry = taintTable.get(-1); // when everything is untainted
         if (allUntaintedEntry != null
@@ -2454,22 +2455,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                                           TaintedStatus returnTaintedStatus,
                                                           BVarSymbol receiverSymbol,
                                                           TaintRecord receiverTaintRecord) {
-        if (receiverSymbol != null && receiverSymbol.tainted) {
+        if (receiverSymbol.tainted) {
             if (receiverTaintRecord == null) {
-                // there is a taint error when receiver is tainted.
-                // indicating that at this point receiver/self being tainted cause tainted value
-                // (via receiver/self) passing to a sensitive parameter down the call.
+                // This scenario indicate that passing a tainted value to the receiver causes tainted value to be
+                // passed to a sensitive parameter somewhere inside the function.
                 addTaintError(invocationExpr.pos, receiverSymbol.name.value,
                         DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+                return returnTaintedStatus;
             }
 
             // does this taint other params and return?
-            if (receiverTaintRecord != null
-                    && receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
+            if (receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
                 returnTaintedStatus = TaintedStatus.TAINTED;
             }
-            if (receiverTaintRecord != null
-                    && receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
+            if (receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
                 for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
                     if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                         addTaintError(receiverTaintRecord.taintError);
