@@ -113,7 +113,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         }
 
         if (!Strings.isNullOrEmpty(balSdkPath)) {
-            boolean success = doRegister(balSdkPath);
+            boolean success = doRegister(project, balSdkPath);
             if (success && autoDetected) {
                 LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
                         balSdkPath, project.getBasePath()));
@@ -129,7 +129,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         return false;
     }
 
-    private static boolean doRegister(@NotNull String sdkPath) {
+    private static boolean doRegister(@NotNull Project project, @NotNull String sdkPath) {
         String os = OSUtils.getOperatingSystem();
         if (os != null) {
             String args = null;
@@ -140,7 +140,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             }
 
             if (!Strings.isNullOrEmpty(args)) {
-                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", new String[]{args}));
+                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
+                        new String[]{args}), project);
                 IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
                 LOG.info("Registered language server definition using Sdk path: " + sdkPath);
                 return true;
