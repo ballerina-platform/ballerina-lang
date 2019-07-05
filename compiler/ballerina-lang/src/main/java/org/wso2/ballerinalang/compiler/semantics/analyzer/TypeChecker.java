@@ -1286,10 +1286,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType errorDetailType = new BMapType(TypeTags.MAP, errorRefRestFieldType, null);
         BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
         errorTSymbol.type = errorType;
-        this.resultType = errorType;
-//        BConstructorSymbol ctorSymbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-//                errorTSymbol.flags, errorTSymbol.name, errorTSymbol.pkgID, errorTSymbol.type, errorTSymbol.owner);
-//        errorType.ctorSymbol = ctorSymbol;
+        resultType = errorType;
     }
 
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
