@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -412,7 +413,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
-        defineSymbol(xmlnsNode.pos, xmlnsSymbol);
+        defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -600,6 +601,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
+
+        if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            // constructors are only defined for named types.
+            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
+    }
+
+    private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+        BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
+                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
     }
 
     @Override
@@ -931,7 +947,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
             return;
         }
 
@@ -957,7 +973,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {

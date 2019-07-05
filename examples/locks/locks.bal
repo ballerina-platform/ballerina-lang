@@ -15,7 +15,7 @@ type Counter object {
     public function update() {
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the `count` field variable and increment the `count`.
+                // Locks the `count` field variable and increments the `count`.
                 // The `count` field of the same object instance will be locked.
                 self.count = self.count + 1;
             }
@@ -28,10 +28,10 @@ Counter counterObj = new;
 function process() {
     worker w1 {
         counterObj.update();
-        // Lock the shared `counter` variable and increment the `counter`.
+        // Locks the shared `counter` variable and increments the `counter`.
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared `counter` variable and increment the `counter`.
+                // Locks the shared `counter` variable and increments the `counter`.
                 counter = counter + 1;
             }
         }
@@ -40,7 +40,7 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared `counter` variable and increment the `counter`.
+                // Locks the shared `counter` variable and increments the `counter`.
                 counter = counter + 1;
             }
         }
@@ -49,7 +49,7 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared `counter` variable and increment the `counter`.
+                // Locks the shared `counter` variable and increments the `counter`.
                 counter = counter + 1;
             }
         }
@@ -58,11 +58,11 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared `counter` variable and increment the `counter`.
+                // Locks the shared `counter` variable and increments the `counter`.
                 counter = counter + 1;
             }
         }
     }
-    // Wait for all workers to complete.
+    // Waits for all workers to complete.
     var result = wait {w1,w2,w3,w4};
 }

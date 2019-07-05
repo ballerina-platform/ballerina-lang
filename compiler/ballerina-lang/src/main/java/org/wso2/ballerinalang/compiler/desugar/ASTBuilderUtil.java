@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -76,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -747,17 +745,6 @@ public class ASTBuilderUtil {
         dupVarSymbol.kind = varSymbol.kind;
 
         return dupVarSymbol;
-    }
-
-    static BLangRecordDestructure createRecordDestructureStmt(DiagnosticPos pos, BLangExpression expr,
-                                                              BLangRecordVarRef detail, BLangBlockStmt target) {
-        BLangRecordDestructure destructureStatementNode =
-                (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
-        destructureStatementNode.pos = pos;
-        destructureStatementNode.expr = expr;
-        destructureStatementNode.varRef = detail;
-        target.addStatement(destructureStatementNode);
-        return destructureStatementNode;
     }
 
     private static IdentifierNode createIdentifier(String value) {

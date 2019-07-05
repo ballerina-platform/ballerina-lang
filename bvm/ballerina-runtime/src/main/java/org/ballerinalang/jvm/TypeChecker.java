@@ -1025,7 +1025,7 @@ public class TypeChecker {
             return false;
         }
         return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues) &&
+                targetType.reasonType, unresolvedValues) &&
                 checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 

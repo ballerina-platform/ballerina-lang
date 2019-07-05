@@ -200,6 +200,11 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+            return true;
+        }
+
         //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
@@ -212,21 +217,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
-        // ignore if this is added through compensations
-        if ((symbol.flags & Flags.COMPENSATE) == Flags.COMPENSATE) {
-            return true;
-        }
-        // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
-        if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
-                || foundSym.getKind() != SymbolKind.XMLNS
-                // Check for redeclared variables in function, object-function, resource parameters.
-                || foundSym.owner.tag == SymTag.FUNCTION
-                || foundSym.owner.tag == SymTag.OBJECT) {
-            // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
-            // symbol.
+
+        if (Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
+
         return true;
     }
 

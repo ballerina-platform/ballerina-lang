@@ -88,39 +88,35 @@ public type MediaType object {
     # Gets “primaryType/subtype+suffix” combination in string format.
     #
     # + return - Base type as a string from MediaType struct
-    public function getBaseType() returns (string);
+    public function getBaseType() returns string {
+        return self.primaryType + "/" + self.subType;
+    }
 
     # Converts the media type to a string, suitable to be used as the value of a corresponding HTTP header.
     #
     # + return - Content type with parameters as a string
-    public function toString() returns (string);
-};
-
-public function MediaType.getBaseType() returns (string) {
-    return self.primaryType + "/" + self.subType;
-}
-
-public function MediaType.toString() returns (string) {
-    string contentType = self.getBaseType();
-    // map<string> parameters = self.parameters;
-    string[] arrKeys = self.parameters.keys();
-    int size = arrKeys.length();
-    if (size > 0) {
-        contentType = contentType + "; ";
-    }
-    int index = 0;
-    while (index < size) {
-        string value = self.parameters[arrKeys[index]] ?: "";
-        if (index == size - 1) {
-            contentType = contentType + arrKeys[index] + "=" + value;
-            break;
-        } else {
-            contentType = contentType + arrKeys[index] + "=" + value + ";";
-            index = index + 1;
+    public function toString() returns string {
+        string contentType = self.getBaseType();
+        // map<string> parameters = self.parameters;
+        string[] arrKeys = self.parameters.keys();
+        int size = arrKeys.length();
+        if (size > 0) {
+            contentType = contentType + "; ";
         }
+        int index = 0;
+        while (index < size) {
+            string value = self.parameters[arrKeys[index]] ?: "";
+            if (index == size - 1) {
+                contentType = contentType + arrKeys[index] + "=" + value;
+                break;
+            } else {
+                contentType = contentType + arrKeys[index] + "=" + value + ";";
+                index = index + 1;
+            }
+        }
+        return contentType;
     }
-    return contentType;
-}
+};
 
 # Represents the headers and body of a message. This can be used to represent both the entity of a top level message
 # and an entity(body part) inside of a multipart entity.
@@ -222,7 +218,21 @@ public type Entity object {
     # Sets the entity body with the given content.
     #
     # + entityBody - Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`
-    public function setBody(@sensitive string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody);
+    public function setBody(@sensitive string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
+        if (entityBody is string) {
+            self.setText(entityBody);
+        } else if (entityBody is xml) {
+            self.setXml(entityBody);
+        } else if (entityBody is json) {
+            self.setJson(entityBody);
+        } else if (entityBody is byte[]) {
+            self.setByteArray(entityBody);
+        } else if(entityBody is io:ReadableByteChannel) {
+            self.setByteChannel(entityBody);
+        } else {
+            self.setBodyParts(entityBody);
+        }
+    }
 
     # Sets the entity body with a given file. This method overrides any existing `content-type` headers
     # with the default content type `application/octet-stream`. The default value `application/octet-stream`
@@ -231,7 +241,10 @@ public type Entity object {
     # + filePath - Represents the path to the file
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octet-stream");
+    public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octet-stream") {
+        io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
+        self.setByteChannel(byteChannel, contentType = contentType);
+    }
 
     # Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
     # with the default content type `application/json`. The default value `application/json` can be overridden
@@ -375,28 +388,6 @@ public type Entity object {
     public function hasHeader(@sensitive string headerName) returns boolean = external;
 };
 
-public function Entity.setFileAsEntityBody(@sensitive string filePath,
-                                     @sensitive string contentType = "application/octet-stream") {
-    io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
-    self.setByteChannel(byteChannel, contentType = contentType);
-}
-
-public function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
-    if (entityBody is string) {
-        self.setText(entityBody);
-    } else if (entityBody is xml) {
-        self.setXml(entityBody);
-    } else if (entityBody is json) {
-        self.setJson(entityBody);
-    } else if (entityBody is byte[]) {
-        self.setByteArray(entityBody);
-    } else if(entityBody is io:ReadableByteChannel) {
-        self.setByteChannel(entityBody);
-    } else {
-        self.setBodyParts(entityBody);
-    }
-}
-
 # Encodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
@@ -428,7 +419,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
     if (result is byte[]|error) {
         return result;
     } else {
-        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
+        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding byte[]");
         return encodeErr;
     }
 }
@@ -443,7 +434,7 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
     if (result is string|error) {
         return result;
     } else {
-        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
+        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding string");
         return encodeErr;
     }
 }
@@ -457,7 +448,7 @@ public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
     if (result is io:ReadableByteChannel|error) {
         return result;
     } else {
-        error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
+        error customErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding ReadableByteChannel content");
         return customErr;
     }
 }
@@ -471,7 +462,7 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
     if (result is byte[]|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding byte[]");
         return decodeErr;
     }
 }
@@ -486,7 +477,7 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
     if (result is string|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding string");
         return decodeErr;
     }
 }
@@ -500,7 +491,7 @@ public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded)
     if (result is io:ReadableByteChannel|error) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
+        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding ReadableByteChannel content");
         return decodeErr;
     }
 }

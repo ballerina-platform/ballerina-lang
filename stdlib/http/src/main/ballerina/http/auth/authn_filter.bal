@@ -30,7 +30,7 @@ public type AuthnFilter object {
     # Request filter method which attempts to authenticated the request.
     #
     # + caller - Caller for outbound HTTP responses
-    # + request - An inboud HTTP request message
+    # + request - An inbound HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {

@@ -82,6 +82,7 @@
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.foreach.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -147,7 +148,7 @@
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
             <class name="org.ballerinalang.test.types.constant.ConstantAccessNegativeTest" />
             <class name="org.ballerinalang.test.types.constant.ConstantAccessTest" />
-            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/> 
+            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest"/>
             <class name="org.ballerinalang.test.types.constant.ConstantInTypeDefinitionTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantNegativeTest" />
             <class name="org.ballerinalang.test.types.constant.SimpleConstantTest" />
@@ -230,6 +231,23 @@
             </class>
             <class name="org.ballerinalang.test.types.xml.XMLNativeFunctionTest"/>
             <class name="org.ballerinalang.test.types.xml.XMLSecurityTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingTest"/>
+            <class name="org.ballerinalang.test.variable.shadowing.VariableShadowingNegativeTest"/>
+            <class name="org.ballerinalang.test.error.ErrorTest" />
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStructuredErrorPatternsTest"/>
+            <class name="org.ballerinalang.test.statements.foreach.ForeachErrorBindingPatternsTests" />
+            <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest">
+                <methods>
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                    <exclude name="testErrorInRecordWithDestructure2"></exclude>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.variabledef.ErrorVariableDefinitionTest">
+                <methods>
+                    <!-- fails at record destructure -->
+                    <exclude name="testErrorInRecordWithDestructure"></exclude>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
