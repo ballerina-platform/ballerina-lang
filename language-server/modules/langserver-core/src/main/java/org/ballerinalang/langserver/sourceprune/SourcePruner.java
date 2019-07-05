@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Source Pruner utility class which used to prune the invalid sources.
@@ -52,7 +53,7 @@ public class SourcePruner {
                 BallerinaParser.LEFT_BRACE, BallerinaParser.RIGHT_BRACE, BallerinaParser.SEMICOLON,
                 BallerinaParser.COMMA, BallerinaParser.LEFT_PARENTHESIS, BallerinaParser.RIGHT_PARENTHESIS,
                 BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION,
-                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER
+                BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER, BallerinaParser.LEFT_BRACKET
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,
@@ -145,7 +146,15 @@ public class SourcePruner {
                 .traverseLHS(tokenStream, tokenIndex);
         List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx, pruneTokens)
                 .traverseRHS(tokenStream, tokenIndex + 1);
-        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens); 
+        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens); 
+        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes); 
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
 
         // Update document manager
@@ -180,6 +189,8 @@ public class SourcePruner {
         context.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, 0);
         context.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY, 0);
+        context.put(SourcePruneKeys.RIGHT_BRACKET_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, LHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, RHS_TRAVERSE_TERMINALS);
         context.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, BLOCK_REMOVE_KW_TERMINALS);

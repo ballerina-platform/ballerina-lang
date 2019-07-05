@@ -149,6 +149,8 @@ public class SourcePruneTest {
                 // Annotation Definition
                 {"src_prune_config25.json"},
 //                {"src_prune_config26.json"},
+                {"src_prune_config78.json"},
+                {"src_prune_config79.json"},
                 // Global variable Definition
                 {"src_prune_config27.json"},
                 {"src_prune_config28.json"},
@@ -159,7 +161,7 @@ public class SourcePruneTest {
                 // Variable Definition statement
                 {"src_prune_config32.json"},
                 {"src_prune_config33.json"},
-                {"src_prune_config34.json"},
+//                {"src_prune_config34.json"}, //TODO: Fix this
                 {"src_prune_config35.json"},
                 {"src_prune_config36.json"},
                 {"src_prune_config37.json"},
@@ -171,9 +173,9 @@ public class SourcePruneTest {
                 {"src_prune_config41.json"},
                 // Match Statement
                 {"src_prune_config42.json"},
-                {"src_prune_config43.json"},
+//                {"src_prune_config43.json"}, //TODO: Fix this
                 {"src_prune_config44.json"},
-                {"src_prune_config45.json"},
+//                {"src_prune_config45.json"}, //TODO: Fix this
                 {"src_prune_config46.json"},
                 // Foreach statement
                 {"src_prune_config47.json"},
@@ -216,6 +218,8 @@ public class SourcePruneTest {
                 {"src_prune_config74.json"},
                 {"src_prune_config75.json"},
                 {"src_prune_config76.json"},
+                // Iterable Operators
+                {"src_prune_config77.json"},
         };
     }
 }

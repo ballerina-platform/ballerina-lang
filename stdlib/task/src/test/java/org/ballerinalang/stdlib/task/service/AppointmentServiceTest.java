@@ -81,7 +81,7 @@ public class AppointmentServiceTest {
         CompileResult compileResult = BCompileUtil.compile("listener/appointment/invalid_appointment_data_record.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected " +
-                        "'string|ballerina/task:AppointmentData', found 'DuplicateAppointmentData'",
+                        "'(string|ballerina/task:AppointmentData)', found 'DuplicateAppointmentData'",
                 40, 25);
     }
 }

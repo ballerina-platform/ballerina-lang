@@ -242,8 +242,8 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
-                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
+                    "\"incompatible types: 'int' cannot be cast to 'byte\\|boolean'\"\\}.*")
     public void testInvalidIntAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testIntAsByteInUnions", new BValue[]{new BInteger(i)});
     }
@@ -271,7 +271,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'decimal' cannot be cast to 'byte\\|Employee'\"}.*")
+                    "types: 'decimal' cannot be cast to '(byte\\|Employee)'\"}.*")
     public void testInvalidDecimalAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[] { new BDecimal(new BigDecimal(i)) });
     }
@@ -443,7 +443,7 @@ public class NumericConversionTest {
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
                               "'decimal'", 61, 19);
         validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be cast to " +
-                              "'int|decimal'", 66, 24);
+                              "'(int|decimal)'", 66, 24);
     }
 
     @DataProvider

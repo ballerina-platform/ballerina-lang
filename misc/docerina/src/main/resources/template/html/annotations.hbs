@@ -11,7 +11,7 @@
                 <h3>Annotations</h3>
                 <ul>
                     {{#each module.annotations}}
-                        <li>
+                        <li {{#equals annotations.name name}}class="active"{{/equals}}>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
                     {{/each}}
@@ -31,7 +31,7 @@
                     <h3>Annotations</h3>
                     <ul>
                         {{#each module.annotations}}
-                            <li>
+                            <li {{#equals annotations.name name}}class="active"{{/equals}}>
                                 <a href="#{{name}}">{{name}}</a>
                             </li>
                         {{/each}}
@@ -47,14 +47,19 @@
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
-            <h1>Annotations</h1>
+             <h1>
+                 {{> breadcrumb }}
+                 <span class="title-type">Annotations - </span> 
+                 <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+            </h1>
             <div class="annotations">
                 <div class="data-wrapper">
                     {{#each annotations}}
                         <div class="params-listing">
                             <ul>
-                                <li><b>{{ name }}</b><span class="type">{{#if type}} {{{ typeName
-                                        type }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                <li>
+                                    <b>{{ name }}</b><span class="type">{{#if type}} {{{ typeName
+                                        type }}}{{/if}}</span> .{{ attachmentPoints }}</li>
                                 <li>
                                     {{{ description }}}
                                 </li>

@@ -139,13 +139,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "encoding",
       "kind": "Module",
       "detail": "Package",
@@ -216,6 +209,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "http",
       "kind": "Module",
       "detail": "Package",
@@ -237,6 +237,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "log",
       "kind": "Module",
       "detail": "Package",
@@ -255,13 +262,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "socket",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "socket",
       "insertTextFormat": "Snippet"
     },
     {

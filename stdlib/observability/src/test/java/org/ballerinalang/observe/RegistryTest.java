@@ -53,7 +53,7 @@ public class RegistryTest extends MetricTest {
                 "There shouldn't be any metrics registered in initial state.");
     }
 
-    @Test(dependsOnMethods = "testGetAllMetrics")
+    @Test(groups = "RegistryTest.testRegister", dependsOnMethods = "testGetAllMetrics")
     public void testRegister() {
         BValue[] returns = BRunUtil.invoke(compileResult, "registerAngGetMetrics");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2,
