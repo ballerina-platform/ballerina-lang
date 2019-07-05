@@ -22,3 +22,13 @@ public annotation tainted on return;
 
 # Denote that the return value is untainted.
 public annotation untainted on return;
+
+# Defaultable argument names. This is for internal use.
+#
+# + args - Defaultable argument names are set at compile time.
+public type ArgsData record {|
+    string[] args = [];
+|};
+
+ # Defaultable annotation data generated at compile time. This is for internal use.
+public annotation ArgsData DefaultableArgs on function;
