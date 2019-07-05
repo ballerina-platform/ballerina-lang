@@ -89,7 +89,9 @@ public class BootstrapRunner {
             throws IOException {
         for (BPackageSymbol pkg : imports) {
             PackageID id = pkg.pkgID;
-            if (!"ballerina".equals(id.orgName.value)) {
+            //Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
+            //Todo: Remove ballerinax check after fixing it by the packerina team
+            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
                 writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
 
                 byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
