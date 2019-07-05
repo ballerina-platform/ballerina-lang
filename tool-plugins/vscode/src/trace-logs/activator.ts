@@ -21,7 +21,7 @@ import { commands, window, ViewColumn, ExtensionContext, WebviewPanel, StatusBar
 import { render, renderDetailView } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
-import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import Traces from './traces';
 
 let traceLogsPanel: WebviewPanel | undefined;
@@ -39,10 +39,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         'ballerinaNetworkLogs',
         "Ballerina Network logs",
         { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-        {
-            enableScripts: true,
-            retainContextWhenHidden: false,
-        }
+        getCommonWebViewOptions()
     );
 
     const html = render(context, langClient);
@@ -68,10 +65,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
                     'ballerinaNetworkLogsDetails',
                     "Ballerina Network Log Details",
                     { viewColumn: ViewColumn.Beside } ,
-                    {
-                        enableScripts: true,
-                        retainContextWhenHidden: false,
-                    }
+                    getCommonWebViewOptions()
                 );
                 const html = renderDetailView(context, langClient, trace);
                 traceDetailsPanel.webview.html = html;
@@ -103,7 +97,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         
     ];
 
-    WebViewRPCHandler.create(traceLogsPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(traceLogsPanel, langClient, remoteMethods);
 
     traceLogsPanel.onDidDispose(() => {
         traceDetailsPanel!.dispose();

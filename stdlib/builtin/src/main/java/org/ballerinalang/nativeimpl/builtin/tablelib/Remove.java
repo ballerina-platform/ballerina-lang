@@ -20,6 +20,10 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BTable;
@@ -49,6 +53,16 @@ public class Remove extends BlockingNativeCallableUnit {
             table.performRemoveOperation(context, lambdaFunction);
         } catch (BLangFreezeException e) {
             throw new BallerinaException(e.getMessage(), "Failed to remove data from the table: " + e.getDetail());
+        }
+    }
+
+    public static Object remove(Strand strand, TableValue table, FPValue fpValue) {
+        try {
+            table.performRemoveOperation();
+            return null;
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(),
+                                              "Failed to remove data from the table: " + e.getDetail());
         }
     }
 }

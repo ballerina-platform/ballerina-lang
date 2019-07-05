@@ -32,10 +32,10 @@ function testInvalidErrorReasonWithConstantAsReason() returns error {
     return e;
 }
 
-type Foo record {
+type Foo record {|
     string message;
     int...;
-};
+|};
 
 type InvalidErrorOne error<int, map<any>>;
 type InvalidErrorTwo error<string, boolean>;

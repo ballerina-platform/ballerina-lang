@@ -18,9 +18,7 @@ type B record {
 };
 
 function testSimpleRecordTypes_1() returns string {
-    A x = {
-        a: "foo"
-    };
+    A x = {a: "foo"};
 
     any y = x;
     if (y

@@ -19,6 +19,10 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,4 +48,14 @@ public class GetErrorCallStackFrame extends BlockingNativeCallableUnit {
         context.setReturnValues(errorStack);
     }
 
+    public static ArrayValue getErrorCallStackFrame(Strand strand, ErrorValue errorRecord) {
+        ArrayValue errorStack = new ArrayValue(TypeChecker.getType(errorRecord));
+        //TODO verify logic as the StackTraceElement of Throwable is used
+        StackTraceElement[] stackTraceElements = errorRecord.getStackTrace();
+        int index = 0;
+        for (StackTraceElement stackTrace : stackTraceElements) {
+            errorStack.add(index++, stackTrace);
+        }
+        return errorStack;
+    }
 }

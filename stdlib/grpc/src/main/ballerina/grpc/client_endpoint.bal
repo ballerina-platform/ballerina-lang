@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
 public type Client client object {
@@ -50,7 +52,7 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
     public remote function blockingExecute(string methodID, any payload, Headers? headers = ())
-                               returns ((any, Headers)|error) = external;
+                               returns ([any, Headers]|error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -76,9 +78,7 @@ public type Client client object {
 # Represents client endpoint configuration.
 #
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + httpVersion - The HTTP version understood by the client
-# + chunking - The chunking behaviour of the request
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
 # + poolConfig - Connection pool configuration
@@ -86,9 +86,7 @@ public type Client client object {
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {|
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
     string httpVersion = "2.0";
-    Chunking chunking = CHUNKING_NEVER;
     string forwarded = "disable";
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
@@ -125,8 +123,8 @@ public type ProxyConfig record {|
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

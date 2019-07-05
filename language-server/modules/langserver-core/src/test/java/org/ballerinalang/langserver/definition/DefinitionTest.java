@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -140,6 +140,8 @@ public class DefinitionTest {
                 {"defAssignment3.json", "assignment"},
                 {"defAssignment4.json", "assignment"},
                 {"defAssignment6.json", "assignment"},
+                {"defAssignment7.json", "assignment"},
+                {"defAssignment8.json", "assignment"},
                 {"defCompoundAssignment1.json", "compoundassignment"},
                 {"defForeach1.json", "foreach"},
                 {"defForeach2.json", "foreach"},
@@ -184,6 +186,9 @@ public class DefinitionTest {
                 {"defRecord1.json", "record"},
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
+                {"defExpressionConnectorInit.json", "expression"},
+//                TODO: enable
+//                {"defExpressionNamedArgs.json", "expression"},
         };
     }
     

@@ -5,7 +5,8 @@ import { InitializeParams, InitializeResult,
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
+    GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GoToSourceParams,
+    IBallerinaLangClient, RevealRangeParams } from "./model";
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
@@ -22,6 +23,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
                     this.isInitialized = true;
                     return resp;
                 });
+    }
+
+    public getProjectAST(params: GetProjectASTParams): Thenable<GetProjectASTResponse> {
+        return this.lsConnection.sendRequest<GetProjectASTResponse>("ballerinaProject/modules", params);
     }
 
     public getAST(params: GetASTParams): Thenable<GetASTResponse> {

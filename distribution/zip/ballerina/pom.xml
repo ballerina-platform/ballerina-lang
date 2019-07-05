@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -47,6 +47,7 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
+            <version>${ballerina.milestone.version}</version>
         </dependency>
 
         <!-- stdlib jar dependencies -->
@@ -73,6 +74,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -105,6 +110,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-rabbitmq</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -166,6 +175,7 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-privacy</artifactId>
         </dependency>
+        <!-- This dependency is required for WebSocket Compression -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jzlib</artifactId>
@@ -199,12 +209,28 @@
             <artifactId>netty-transport-native-epoll</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-kqueue</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-nats</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
         </dependency>
         <!-- end of stdlib jar dependencies -->
 
@@ -223,10 +249,6 @@
         <dependency>
             <groupId>javax.jms</groupId>
             <artifactId>javax.jms-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.andes.wso2</groupId>
-            <artifactId>andes-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
@@ -409,6 +431,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -446,6 +474,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -560,6 +594,24 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-nats</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -610,6 +662,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -659,6 +717,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-activemq-artemis</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -761,6 +825,24 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-privacy</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jwt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-ldap</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-oauth2</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -813,43 +895,48 @@
                         <configuration>
                             <includeArtifactIds>
                                 <!-- stdlib dependencies -->
+                                ballerina-activemq-artemis,
                                 ballerina-auth,
                                 ballerina-builtin,
                                 ballerina-cache,
                                 ballerina-config-api,
                                 ballerina-crypto,
                                 ballerina-encoding,
-                                ballerina-database,
                                 ballerina-file,
+                                ballerina-filepath,
                                 ballerina-grpc,
                                 ballerina-h2,
                                 ballerina-http,
-                                ballerina-io,
-                                ballerina-socket,
                                 ballerina-internal,
+                                ballerina-io,
                                 ballerina-jms,
-                                ballerina-activemq-artemis,
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
                                 ballerina-mysql,
+                                ballerina-nats,
                                 ballerina-observability,
+                                ballerina-openapi,
+                                ballerina-privacy,
+                                ballerina-rabbitmq,
                                 ballerina-reflect,
                                 ballerina-runtime-api,
+                                ballerina-socket,
                                 ballerina-sql,
                                 ballerina-streams,
                                 ballerina-system,
-                                ballerina-openapi,
                                 ballerina-task,
                                 ballerina-time,
                                 ballerina-transactions,
                                 ballerina-utils,
                                 ballerina-websub,
-                                ballerina-privacy,
+                                ballerina-jwt,
+                                ballerina-ldap,
+                                ballerina-oauth2,
+
                                 <!-- other dependencies -->
                                 ballerina-config,
-                                strip-bouncycastle,
-                                ballerina-nats
+                                strip-bouncycastle
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -878,6 +965,11 @@
                             <outputDirectory>${project.build.directory}/extracted-distributions/ballerina-all-sources
                             </outputDirectory>
                             <resources>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-activemq-artemis-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-auth-ballerina-sources-zip/ballerina
@@ -915,6 +1007,11 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-filepath-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-grpc-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
@@ -940,11 +1037,6 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-socket-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
@@ -965,17 +1057,32 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-nats-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-mysql-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-nats-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-observability-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-rabbitmq-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -995,12 +1102,12 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-streams-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-socket-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-streams-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -1035,7 +1142,17 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-jwt-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-ldap-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-oauth2-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                             </resources>

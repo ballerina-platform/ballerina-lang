@@ -20,6 +20,9 @@ package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -59,5 +62,14 @@ public class Slice extends BlockingNativeCallableUnit {
         
         // Setting output value.
         ctx.setReturnValues(result);
+    }
+
+    public static XMLValue<?> slice(Strand strand, XMLValue<?> xml, long startIndex, long endIndex) {
+        try {
+            return xml.slice(startIndex, endIndex);
+        } catch (Throwable e) {
+            BLangExceptionHelper.handleXMLException(OPERATION, e);
+        }
+        return null;
     }
 }

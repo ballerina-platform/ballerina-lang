@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -47,23 +46,23 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -312,7 +311,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Add block map to the 0th position if a block map symbol is there.
         if (blockNode.mapSymbol != null) {
-            BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(blockNode.pos, symTable.mapType);
+            BLangRecordLiteral emptyRecord =
+                    ASTBuilderUtil.createEmptyRecordLiteral(blockNode.pos, blockNode.mapSymbol.type);
             BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(blockNode.pos,
                     blockNode.mapSymbol.name.value, blockNode.mapSymbol.type, emptyRecord,
                     blockNode.mapSymbol);
@@ -586,7 +586,25 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangArrayLiteral arrayLiteral) {
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.exprs = rewriteExprs(listConstructorExpr.exprs);
+        result = listConstructorExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
+        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
+        result = jsonArrayLiteral;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
+        result = tupleLiteral;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
         arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         result = arrayLiteral;
     }
@@ -680,9 +698,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
-        result = bracedOrTupleExpr;
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression = rewriteExpr(groupExpr.expression);
+        result = groupExpr;
     }
 
     @Override
@@ -835,7 +853,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // If it is marked as a closure variable then the following calculations are carried out.
         // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
-        int absoluteLevel = findResolvedLevel(env, localVarRef.varSymbol);
+        int absoluteLevel = findResolvedLevel(env, (BVarSymbol) localVarRef.varSymbol);
 
         // self absolute level : level I'm currently in.
         int selfAbsoluteLevel = env.envCount;
@@ -1011,6 +1029,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
+        result = constRef;
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
         result = functionVarRef;
     }
@@ -1164,13 +1187,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errConstExpr) {
-        errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
-        errConstExpr.detailsExpr = rewriteExpr(errConstExpr.detailsExpr);
-        result = errConstExpr;
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         result = serviceConstructorExpr;
     }
@@ -1188,16 +1204,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        annotAccessExpr.expr = rewriteExpr(annotAccessExpr.expr);
+        result = annotAccessExpr;
+    }
+
+    @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
         result = bLangStatementExpression;
-    }
-
-    @Override
-    public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
-        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
-        result = jsonArrayLiteral;
     }
 
     @Override
@@ -1237,11 +1253,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
-        /* Ignore */
     }
 
     @Override

@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 /**
  * Represents a tuple variable node.
  * Example:
- *      (string, int, float) (s, i, f) = ("Foo", 12, 4.5);
- *      ((string, boolean), int) ((s, b), i) = expr;
+ *      [string, int, float] [s, i, f] = ["Foo", 12, 4.5];
+ *      [[string, boolean], int] [[s, b], i] = expr;
  *
  * @since 0.985.0
  */
@@ -42,7 +42,6 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
     public BLangTupleVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
         this.memberVariables = new ArrayList<>();
     }
 
@@ -68,7 +67,7 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
 
     @Override
     public String toString() {
-        return "(" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) + ") " +
+        return "[" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) + "] " +
                 (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

@@ -21,6 +21,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,8 +31,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
 /**
  * This class tests invoking an entry function in a balx via the Ballerina Run Command and the data binding
@@ -89,8 +88,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         try {
-            deleteFiles(tempProjectDir);
-            deleteFiles(tempProjectDirTwo);
+            TestUtils.deleteFiles(tempProjectDir);
+            TestUtils.deleteFiles(tempProjectDirTwo);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
         }

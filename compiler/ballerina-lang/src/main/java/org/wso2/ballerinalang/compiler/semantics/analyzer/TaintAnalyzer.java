@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -77,21 +76,22 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -184,6 +184,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
@@ -459,11 +460,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
-        /* ignore */
-    }
-
     // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
@@ -533,11 +529,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 overridingAnalysis = false;
                 updatedVarRefTaintedState(fieldBasedAccessExpr, varTaintedStatus);
                 overridingAnalysis = true;
-            } else if (varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR) {
-                BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) varRefExpr;
+            } else if (varRefExpr.getKind() == NodeKind.GROUP_EXPR) {
+                BLangGroupExpr groupExpr = (BLangGroupExpr) varRefExpr;
                 // Propagate tainted status to fields, when field symbols are present (Example: struct).
-                bracedOrTupleExpr.expressions.forEach(expr -> visitAssignment(expr, varTaintedStatus,
-                        bracedOrTupleExpr.pos));
+                visitAssignment(groupExpr.expression, varTaintedStatus, groupExpr.pos);
+            } else if (varRefExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) varRefExpr;
+                // Propagate tainted status to fields, when field symbols are present (Example: struct).
+                listConstructorExpr.exprs.forEach(expr -> visitAssignment(expr, varTaintedStatus,
+                        listConstructorExpr.pos));
             } else if (varRefExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 overridingAnalysis = false;
                 updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
@@ -846,18 +846,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        if (arrayLiteral.exprs.size() == 0) {
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        if (listConstructorExpr.exprs.size() == 0) {
             // Empty arrays are untainted.
             getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
         } else {
-            for (BLangExpression expr : arrayLiteral.exprs) {
-                expr.accept(this);
+            TaintedStatus isTainted = TaintedStatus.UNTAINTED;
+            for (BLangExpression expression : listConstructorExpr.exprs) {
+                expression.accept(this);
+                // Used to update the variable this literal is getting assigned to.
                 if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                    break;
+                    isTainted = TaintedStatus.TAINTED;
                 }
             }
+            getCurrentAnalysisState().taintedStatus = isTainted;
         }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression.accept(this);
     }
 
     @Override
@@ -925,6 +933,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        // handle error constructor invocation
+        if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            ((BInvokableSymbol) invocationExpr.symbol).taintTable = createIdentityTaintTable(invocationExpr);
+        }
+
         if (invocationExpr.functionPointerInvocation) {
             // Skip function pointers and assume returns of function pointer executions are untainted.
             // TODO: Resolving function pointers / lambda expressions and perform analysis.
@@ -985,6 +998,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 analyzeInvocation(invocationExpr);
             }
         }
+    }
+
+    private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {
+        Map<Integer, TaintRecord> taintTable = new HashMap<>();
+
+        int requiredParamCount = invocationExpr.requiredArgs.size();
+        int defaultableParamCount = invocationExpr.namedArgs.size();
+        int totalParamCount = requiredParamCount + defaultableParamCount + (invocationExpr.restArgs == null ? 0 : 1);
+
+        for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
+            TaintRecord record = new TaintRecord(
+                    i == ALL_UNTAINTED_TABLE_ENTRY_INDEX ? TaintedStatus.UNTAINTED : TaintedStatus.TAINTED,
+                    new ArrayList<>());
+            taintTable.put(i, record);
+
+            for (int j = 0; j < totalParamCount; j++) {
+                record.parameterTaintedStatusList.add(TaintedStatus.UNTAINTED);
+            }
+        }
+
+        return taintTable;
     }
 
     private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
@@ -1103,19 +1137,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus rhsTaintedCheckResult = getCurrentAnalysisState().taintedStatus;
         getCurrentAnalysisState().taintedStatus = getCombinedTaintedStatus(lhsTaintedCheckResult,
                 rhsTaintedCheckResult);
-    }
-
-    @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        TaintedStatus isTainted = TaintedStatus.UNTAINTED;
-        for (BLangExpression expression : bracedOrTupleExpr.expressions) {
-            expression.accept(this);
-            // Used to update the variable this literal is getting assigned to.
-            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                isTainted = TaintedStatus.TAINTED;
-            }
-        }
-        getCurrentAnalysisState().taintedStatus = isTainted;
     }
 
     @Override
@@ -1326,21 +1347,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
-        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
-        if (errorConstructorExpr.reasonExpr != null) {
-            errorConstructorExpr.reasonExpr.accept(this);
-            reasonTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        if (errorConstructorExpr.detailsExpr != null) {
-            errorConstructorExpr.detailsExpr.accept(this);
-            detailsTaintedStatus = getCurrentAnalysisState().taintedStatus;
-        }
-        getCurrentAnalysisState().taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         // todo: set correct tainted status of the service by checking variables within service constructor.
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
@@ -1349,6 +1355,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         typeTestExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        annotAccessExpr.expr.accept(this);
     }
 
     // Type nodes
@@ -2213,7 +2224,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void updateArgTaintedStatus(BLangExpression varRefExpr, TaintedStatus varTaintedStatus) {
         if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                || varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR
+                || varRefExpr.getKind() == NodeKind.GROUP_EXPR
+                || varRefExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
                 || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);

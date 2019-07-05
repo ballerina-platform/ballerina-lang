@@ -31,13 +31,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -51,6 +53,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -172,6 +175,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         typeTestExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeTestExpr.expr),
                                                                 typeTestExpr.expr.type);
         result = typeTestExpr;
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        // do nothing;
     }
 
     @Override
@@ -318,11 +326,23 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        int bound = bracedOrTupleExpr.expressions.size();
-        IntStream.range(0, bound).forEach(i -> bracedOrTupleExpr.expressions
-                .set(i, (BLangExpression) rewrite(bracedOrTupleExpr.expressions.get(i))));
-        result = bracedOrTupleExpr;
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.expression = (BLangExpression) rewrite(groupExpr.expression);
+        result = groupExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        IntStream.range(0, listConstructorExpr.exprs.size()).forEach(i -> listConstructorExpr.exprs
+                .set(i, (BLangExpression) rewrite(listConstructorExpr.exprs.get(i))));
+        result = listConstructorExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        IntStream.range(0, tupleLiteral.exprs.size()).forEach(i -> tupleLiteral.exprs
+                .set(i, (BLangExpression) rewrite(tupleLiteral.exprs.get(i))));
+        result = tupleLiteral;
     }
 
     @Override
@@ -358,28 +378,44 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM || fieldAccessExpr.expr.type.tag == TypeTags.TABLE) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) fieldAccessExpr.expr;
-            BLangSimpleVarRef mapRef;
-            int mapVarArgIndex;
-
-            //mapVarArgs can contain at most 2 map arguments required for conditional expr in join clause
-            if (rhsStream != null && ((varRef.variableName.value.equals((rhsStream).symbol.toString()))
-                    || (varRef.variableName.value.equals(aliasMap.get((rhsStream).symbol.toString()))))) {
-                mapVarArgIndex = 1;
-            } else {
-                mapVarArgIndex = 0;
-            }
-            mapRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, mapVarSymbols[mapVarArgIndex]);
-
             String variableName = ((BLangSimpleVarRef) (fieldAccessExpr).expr).variableName.value;
             if (aliasMap.containsKey(variableName)) {
                 ((BLangSimpleVarRef) (fieldAccessExpr).expr).variableName.value = aliasMap.get(variableName);
             }
             String mapKey = fieldAccessExpr.toString();
-            BLangExpression indexExpr = ASTBuilderUtil.createLiteral(fieldAccessExpr.pos, symTable.stringType,
-                                                                     mapKey);
-            result = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol, indexExpr);
+            BLangExpression indexExpr = ASTBuilderUtil.createLiteral(fieldAccessExpr.pos, symTable.stringType, mapKey);
+
+            if (mapVarSymbols != null) {
+                generateMapAccessExpr(fieldAccessExpr.pos, varRef, indexExpr);
+            } else if (streamEventSymbol != null) {
+                generateStreamEventGetInvocation(fieldAccessExpr.pos, indexExpr);
+            }
         } else {
             result = fieldAccessExpr;
         }
+    }
+
+    private void generateStreamEventGetInvocation(DiagnosticPos pos, BLangExpression indexExpr) {
+        BLangInvocation getFuncInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos, StreamingCodeDesugar.
+                getInvokableSymbolOfObject(streamEventSymbol, StreamingCodeDesugar.GET_METHOD_NAME),
+                Lists.of(indexExpr), symResolver);
+        getFuncInvocation.expr = ASTBuilderUtil.createVariableRef(pos, streamEventSymbol);
+        getFuncInvocation.argExprs = getFuncInvocation.requiredArgs;
+        result = getFuncInvocation;
+    }
+
+    private void generateMapAccessExpr(DiagnosticPos pos, BLangSimpleVarRef varRef,
+                                       BLangExpression indexExpr) {
+        int mapVarArgIndex;
+        BLangSimpleVarRef mapRef;
+        //mapVarArgs can contain at most 2 map arguments required for conditional expr in join clause
+        if (rhsStream != null && ((varRef.variableName.value.equals((rhsStream).symbol.toString()))
+                                  || (varRef.variableName.value.equals(aliasMap.get((rhsStream).symbol.toString()))))) {
+            mapVarArgIndex = 1;
+        } else {
+            mapVarArgIndex = 0;
+        }
+        mapRef = ASTBuilderUtil.createVariableRef(pos, mapVarSymbols[mapVarArgIndex]);
+        result = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol, indexExpr);
     }
 }

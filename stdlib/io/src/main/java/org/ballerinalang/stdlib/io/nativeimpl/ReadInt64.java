@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -94,5 +97,35 @@ public class ReadInt64 implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object readInt64(Strand strand, ObjectValue dataChannelObj) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.BIT_64, eventContext);
+        Register register = EventRegister.getFactory().register(event, ReadInt64::readChannelResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+    /**
+     * Triggers upon receiving the response.
+     *
+     * @param result the response received after reading int.
+     * @return read int value.
+     */
+    private static EventResult readChannelResponse(EventResult<Long, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        Throwable error = eventContext.getError();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            callback.setReturnValues(result.getResponse());
+        }
+        IOUtils.validateChannelState(eventContext);
+        callback.notifySuccess();
+        return result;
     }
 }

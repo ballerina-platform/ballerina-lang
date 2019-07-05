@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -41,6 +40,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -191,10 +191,14 @@ public class TextDocumentFormatUtil {
             nodeJson.add(SYMBOL_TYPE, type);
         }
         if (node.getKind() == NodeKind.INVOCATION) {
+
             assert node instanceof BLangInvocation : node.getClass();
             BLangInvocation invocation = (BLangInvocation) node;
             if (invocation.symbol != null && invocation.symbol.kind != null) {
                 nodeJson.addProperty(INVOCATION_TYPE, invocation.symbol.kind.toString());
+                JsonArray defLink = new JsonArray();
+                getDefinitionLink(invocation.symbol, defLink);
+                nodeJson.add("definition", defLink);
             }
         }
 
@@ -239,7 +243,7 @@ public class TextDocumentFormatUtil {
                 ((BLangAnnotation) node)
                         .getAttachPoints()
                         .stream()
-                        .map(AttachPoint::getValue)
+                        .map(attachPoint -> attachPoint.point.getValue())
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);
@@ -323,6 +327,33 @@ public class TextDocumentFormatUtil {
             }
         }
         return nodeJson;
+    }
+
+    /**
+     * Get a list of names of the owners of the invocation node.
+     *
+     * @param symbol The symbol of which the owners are found
+     * @param owners Array of strings that will be filled with the names of owners in the chain
+     */
+    public static void getDefinitionLink(BSymbol symbol, JsonArray owners) {
+        if (symbol == null) {
+            return;
+        }
+
+        JsonArray part = new JsonArray();
+        if (symbol.name == null) {
+            part.add((JsonElement) null);
+        } else {
+            part.add(symbol.name.value);
+        }
+
+        if (symbol.kind == null) {
+            part.add((JsonElement) null);
+        } else {
+            part.add(symbol.kind.name());
+        }
+        owners.add(part);
+        getDefinitionLink(symbol.owner, owners);
     }
 
     /**

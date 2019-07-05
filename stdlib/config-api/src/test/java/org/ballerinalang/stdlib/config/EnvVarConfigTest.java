@@ -19,14 +19,14 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -171,16 +171,14 @@ public class EnvVarConfigTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'int'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'int'.*")
     public void testInvalidIntEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsInt", new BValue[]{key});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'float'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'float'.*")
     public void testInvalidFloatEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsFloat", new BValue[]{key});

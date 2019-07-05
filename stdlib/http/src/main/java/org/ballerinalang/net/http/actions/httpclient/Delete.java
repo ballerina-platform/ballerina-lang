@@ -18,10 +18,18 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 
 /**
  * {@code Delete} is the DELETE action implementation of the HTTP Connector.
@@ -42,7 +50,20 @@ public class Delete extends AbstractHTTPAction {
     @Override
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
         return outboundRequestMsg;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object nativeDelete(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(url, config, path, requestObj);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
+        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
+        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
+                                                  outboundRequestMsg);
+        executeNonBlockingAction(dataContext, false);
+        return null;
     }
 }

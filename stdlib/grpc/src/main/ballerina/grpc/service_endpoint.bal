@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
@@ -53,17 +55,20 @@ public type Listener object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        self.init(self.port, self.config);
+        error? err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
     }
 
-    function init(int port, ServiceEndpointConfiguration config) = external;
+    function initEndpoint() returns error? = external;
 
 
     function register(service serviceType, string? name) returns error? = external;
 
-    function start() returns error? = external;
+    function start() = external;
 
-    function stop() returns error? = external;
+    function stop() = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.
@@ -113,8 +118,8 @@ public type ServiceEndpointConfiguration record {|
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
 public type ServiceSecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

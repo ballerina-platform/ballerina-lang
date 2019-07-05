@@ -1,19 +1,22 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This initializes a JMS connection with the provider.
+// This initializes a JMS connection with the provider.  This example uses
+// the ActiveMQ Artemis broker . However, it can be tried with
+// other brokers that support JMS.
+
 jms:Connection jmsConnection = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon?"
-            + "brokerlist='tcp://localhost:5672'"
+        initialContextFactory:
+         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616"
     });
 
-// This initializes a JMS session on top of the created connection.
+// TInitializes a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-// This initializes a queue sender.
+// Initializes a queue sender.
 jms:QueueSender queueSender = new(jmsSession, queueName = "MyQueue");
 
 public function main() {

@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -102,4 +105,29 @@ public class WriteString implements NativeCallableUnit {
         return false;
     }
 
+    public static Object writeString(Strand strand, ObjectValue dataChannelObj, String value, String encoding) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        WriteStringEvent writeStringEvent = new WriteStringEvent(channel, value, encoding, eventContext);
+        Register register = EventRegister.getFactory().register(writeStringEvent, WriteString::writeStringResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+    /**
+     * Triggers upon receiving the response.
+     *
+     * @param result the response received after writing string.
+     */
+    private static EventResult writeStringResponse(EventResult<Long, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
+    }
 }

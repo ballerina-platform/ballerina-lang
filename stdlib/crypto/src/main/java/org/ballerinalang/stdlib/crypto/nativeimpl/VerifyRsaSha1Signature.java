@@ -20,10 +20,9 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -41,16 +40,17 @@ public class VerifyRsaSha1Signature extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue dataBValue = context.getRefArgument(0);
-        BValue signatureBValue = context.getRefArgument(1);
-        BMap<String, BValue> publicKey = (BMap<String, BValue>) context.getRefArgument(2);
-        byte[] data = ((BValueArray) dataBValue).getBytes();
-        byte[] signature = ((BValueArray) signatureBValue).getBytes();
+    }
+
+    public static Object verifyRsaSha1Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
+                                                MapValue<?, ?> publicKey) {
+        byte[] data = dataValue.getBytes();
+        byte[] signature = signatureValue.getBytes();
         try {
-            context.setReturnValues(new BBoolean(CryptoUtils.verify(context, "SHA1withRSA",
-                    (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY), data, signature)));
+            PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+            return CryptoUtils.verify("SHA1withRSA", key, data, signature);
         } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
+            return CryptoUtils.createCryptoError("invalid uninitialized key");
         }
     }
 }

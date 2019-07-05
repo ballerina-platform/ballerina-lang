@@ -63,7 +63,7 @@ public type Client client object {
     #
     # + length - - Positive integer. Represents the number of bytes which should be read
     # + return - - Content as a byte array and the number of bytes read or an error if encounters an error while reading
-    public remote function read(int length = -100) returns (byte[], int)|error = external;
+    public remote function read(int length = -100) returns @tainted (byte[], int)|error = external;
 
     # Closes the client socket connection.
     #
@@ -85,9 +85,11 @@ public type Client client object {
 #
 # + host - Target service URL
 # + port - Port number of the remote service
+# + readTimeout - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 # + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
 public type ClientConfig record {|
     string host;
     int port;
+    int readTimeout = 300000;
     service callbackService?;
 |};

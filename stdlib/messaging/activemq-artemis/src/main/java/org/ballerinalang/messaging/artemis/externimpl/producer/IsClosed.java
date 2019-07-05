@@ -22,11 +22,10 @@ package org.ballerinalang.messaging.artemis.externimpl.producer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -37,20 +36,26 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
+        orgName = ArtemisConstants.BALLERINA,
+        packageName = ArtemisConstants.ARTEMIS,
         functionName = "isClosed",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.PRODUCER_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = ArtemisConstants.PRODUCER_OBJ,
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
+        ),
         isPublic = true
 )
 public class IsClosed extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> producerObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static boolean isClosed(Strand strand, ObjectValue producerObj) {
         ClientProducer producer =
                 (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
-        context.setReturnValues(new BBoolean(producer.isClosed()));
+        return producer.isClosed();
     }
+
 }

@@ -20,6 +20,9 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -83,6 +86,36 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context, "Error occurred while extracting body parts " +
                     "from entity: " + e.getMessage()));
+        }
+    }
+
+    public static Object getBodyParts(Strand strand, ObjectValue entityObj) {
+        ArrayValue partsArray;
+        try {
+            String baseType = HeaderUtil.getBaseType(entityObj);
+            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
+                    baseType.toLowerCase(Locale.getDefault()).startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
+                //Get the body parts from entity's multipart data field, if they've been already been decoded
+                partsArray = EntityBodyHandler.getBodyPartArray(entityObj);
+                if (partsArray == null || partsArray.size() < 1) {
+                    Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
+                    if (byteChannel != null) {
+                        EntityBodyHandler.decodeEntityBody(entityObj, byteChannel);
+                        //Check the body part availability for the second time, since the parts will be by this
+                        // time populated from bytechannel
+                        partsArray = EntityBodyHandler.getBodyPartArray(entityObj);
+                        //Set byte channel that belongs to parent entity to null, once the message body parts have
+                        // been decoded
+                        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                    }
+                }
+                return partsArray;
+            } else {
+                return MimeUtil.createError("Entity body is not a type of " +
+                        "composite media type. Received content-type : " + baseType);
+            }
+        } catch (Throwable e) {
+            return MimeUtil.createError("Error occurred while extracting body parts from entity: " + e.getMessage());
         }
     }
 }

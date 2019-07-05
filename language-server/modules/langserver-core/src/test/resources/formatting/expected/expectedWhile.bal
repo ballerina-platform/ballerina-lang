@@ -13,3 +13,16 @@ function name2() {
         }
     }
 }
+
+function name3() {
+    int b = 0;
+    while (b > 0) {}
+}
+
+function name4() {
+    int b = 0;
+    while
+    (b > 0)
+    {
+    }
+}

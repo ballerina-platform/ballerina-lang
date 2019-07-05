@@ -40,7 +40,9 @@ public class ItemResolverConstants {
     public static final String LOCK = "lock";
     public static final String ON = "on";
     public static final String NEW = "new";
-    public static final String ENDPOINT = "endpoint";
+    public static final String CLIENT = "client";
+    public static final String EXTERNAL = "external";
+    public static final String ABSTRACT = "abstract";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String FOREACH = "foreach";
@@ -54,6 +56,7 @@ public class ItemResolverConstants {
     public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSUB = "service/webSub";
+    public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";
@@ -80,7 +83,7 @@ public class ItemResolverConstants {
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
-    public static final String NEW_OBJECT_INITIALIZER_TYPE = "new object initializer";
+    public static final String NEW_OBJECT_INITIALIZER_TYPE = "init";
     // End Symbol Types Constants
     
     // Keyword constants
@@ -88,12 +91,14 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
     public static final String LISTENER_KEYWORD = "listener";
+    public static final String RETURNS_KEYWORD = "returns";
+    public static final String UNTAINT_KEYWORD = "untaint";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
     public static final String FINAL_KEYWORD = "final";
     public static final String CONST_KEYWORD = "const";
-    
+
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";
     public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";

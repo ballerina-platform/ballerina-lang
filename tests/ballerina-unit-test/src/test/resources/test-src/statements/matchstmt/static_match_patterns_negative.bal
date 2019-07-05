@@ -207,11 +207,11 @@ function tupleTypes() returns string {
     return "Fail";
 }
 
-type Foo record {
+type Foo record {|
     int x;
     boolean y?;
     string...;
-};
+|};
 
 function recordRestParamAndOptionalFields() returns string {
     Foo f = {x: 1, a: "a"};

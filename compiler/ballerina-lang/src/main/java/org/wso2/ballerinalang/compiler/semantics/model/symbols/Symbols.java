@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -87,9 +89,17 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
-                                                           BType type, BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
+    @Deprecated
+    public static BAnnotationSymbol createAnnotationSymbol(int flags, int maskedPoints, Name name,
+                                                           PackageID pkgID, BType type, BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, maskedPoints, pkgID, type, owner);
+        annotationSymbol.kind = SymbolKind.ANNOTATION;
+        return annotationSymbol;
+    }
+
+    public static BAnnotationSymbol createAnnotationSymbol(int flags, Set<AttachPoint> points, Name name,
+                                                           PackageID pkgID, BType type, BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -229,6 +239,10 @@ public class Symbols {
 
     public static boolean isOptional(BSymbol sym) {
         return (sym.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
+    }
+
+    public static boolean isFunctionDeclaration(BSymbol sym) {
+        return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
 
     public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {

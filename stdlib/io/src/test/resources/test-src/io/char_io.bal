@@ -20,9 +20,13 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+function initReadableChannel(string filePath, string encoding) returns error? {
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+    } else {
+        return byteChannel;
+    }
 }
 
 function initWritableChannel(string filePath, string encoding) {
@@ -113,6 +117,16 @@ function readXml() returns xml|error {
 
 function writeJson(json content) {
     var result = wch.writeJson(content);
+}
+
+function writeJsonWithHigherUnicodeRange() {
+    json content = {
+        "loop": "É"
+    };
+    var result = wch.writeJson(content);
+    if (result is error) {
+        panic result;
+    }
 }
 
 function writeXml(xml content) {

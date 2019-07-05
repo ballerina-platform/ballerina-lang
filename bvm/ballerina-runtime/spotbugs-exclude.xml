@@ -31,4 +31,16 @@
     <Match>
         <Package name="org.ballerinalang.jvm.commons"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.values.connector"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability.metrics"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability.tracer"/>
+    </Match>
 </FindBugsFilter>

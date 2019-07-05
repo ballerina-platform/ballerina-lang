@@ -6,213 +6,284 @@
   "source": "function/source/matchStatementSuggestions3.bal",
   "items": [
     {
-      "label":"equalsIgnoreCase(anotherString)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Compares two strings, ignoring the case of the strings.\n"
+      "label": "hasSuffix(suffix)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string ends with specified suffix.\n  \n  \n---    \n**Parameters**  \n- _suffix_  \n    The suffix to be compared  \n  \n  \n**Return**  \nboolean"
+        }
       },
-      "sortText":"120",
-      "insertText":"equalsIgnoreCase(anotherString) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "hasSuffix(suffix) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"toUpper()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a string with all the characters converted to uppercase.\n"
+      "label": "unescape()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns an unescaped string by omitting the escape characters of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"toUpper() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "unescape() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"substring(startIndex,endIndex)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a new string that is the substring of the specified string.\n"
+      "label": "split(regex)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nSplits the string with the given regular expression to produce a string array.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regex to split the string  \n  \n  \n**Return**  \nstring[]"
+        }
       },
-      "sortText":"120",
-      "insertText":"substring(startIndex,endIndex) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "split(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"lastIndexOf(substring)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns the first index of the last occurence of the substring within the specified string.\n"
+      "label": "matches(regex)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether the string matches the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nboolean|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"lastIndexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "matches(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"replaceFirst(regex,replaceWith)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Replaces the first instance of the replacePattern with the replaceWith string and returns the result.\n"
+      "label": "replace(regex,replaceWith)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces all instances of the replacePattern string with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"replaceFirst(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "replace(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"length()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns the length of the specified string.\n"
+      "label": "indexOf(substring)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the first occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
+        }
       },
-      "sortText":"120",
-      "insertText":"length() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "indexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"contains(substring)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a Boolean value indicating whether a string contains the specified substring.\n"
+      "label": "hashCode()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a hash code for this string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
       },
-      "sortText":"120",
-      "insertText":"contains(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "hashCode() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"indexOf(substring)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns the first index of the first occurence of the substring within the specified string.\n"
+      "label": "hasPrefix(prefix)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string starts with the specified prefix.\n  \n  \n---    \n**Parameters**  \n- _prefix_  \n    The prefix to be compared  \n  \n  \n**Return**  \nboolean"
+        }
       },
-      "sortText":"120",
-      "insertText":"indexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "hasPrefix(prefix) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"trim()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n"
+      "label": "substring(startIndex,endIndex)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a new string that is the substring of the specified string.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    The starting index  \n  \n- _endIndex_  \n    The ending index  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"trim() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "substring(startIndex,endIndex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"hasSuffix(suffix)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a Boolean value indicating whether the string ends with specified suffix.\n"
+      "label": "contains(substring)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a Boolean value indicating whether a string contains the specified substring.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to be compared  \n  \n  \n**Return**  \nboolean"
+        }
       },
-      "sortText":"120",
-      "insertText":"hasSuffix(suffix) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "contains(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"unescape()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns an unescaped string by omitting the escape characters of the original string.\n"
+      "label": "findAll(regex)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nFinds all the strings matching the regular expression.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    Regular expression  \n  \n  \n**Return**  \nstring[]|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"unescape() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "findAll(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"toLower()",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a string with all the characters converted to lowercase.\n"
+      "label": "lastIndexOf(substring)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the first index of the last occurence of the substring within the specified string.\n  \n  \n---    \n**Parameters**  \n- _substring_  \n    The substring to search for  \n  \n  \n**Return**  \nint"
+        }
       },
-      "sortText":"120",
-      "insertText":"toLower() {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "lastIndexOf(substring) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"hasPrefix(prefix)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a Boolean value indicating whether a string starts with the specified prefix.\n"
+      "label": "equalsIgnoreCase(anotherString)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nCompares two strings, ignoring the case of the strings.\n  \n  \n---    \n**Parameters**  \n- _anotherString_  \n    The string to be compared  \n  \n  \n**Return**  \nboolean"
+        }
       },
-      "sortText":"120",
-      "insertText":"hasPrefix(prefix) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "equalsIgnoreCase(anotherString) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"replaceAll(regex,replaceWith)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Replaces each substring of the string that matches the given regular expression with the given replacement.\n"
+      "label": "trim()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"replaceAll(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "trim() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"replace(regex,replaceWith)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Replaces all instances of the replacePattern string with the replaceWith string and returns the result.\n"
+      "label": "replaceAll(regex,replaceWith)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces each substring of the string that matches the given regular expression with the given replacement.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The regular expression to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"replace(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "replaceAll(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"split(regex)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Splits the string with the given regular expression to produce a string array.\n"
+      "label": "replaceFirst(regex,replaceWith)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReplaces the first instance of the replacePattern with the replaceWith string and returns the result.\n  \n  \n---    \n**Parameters**  \n- _regex_  \n    The pattern to search for  \n  \n- _replaceWith_  \n    The replacement string  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"split(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "replaceFirst(regex,replaceWith) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"findAll(regex)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Finds all the strings matching the regular expression.\n"
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns the length of the specified string.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
       },
-      "sortText":"120",
-      "insertText":"findAll(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "length() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"matches(regex)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Returns a Boolean value indicating whether the string matches the regular expression.\n"
+      "label": "toByteArray(encoding)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts string to a byte array.\n  \n  \n---    \n**Parameters**  \n- _encoding_  \n    Encoding to be used in the conversion  \n  \n  \n**Return**  \nbyte[]"
+        }
       },
-      "sortText":"120",
-      "insertText":"matches(regex) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "toByteArray(encoding) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"toByteArray(encoding)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Converts string to a byte array.\n"
+      "label": "toLower()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to lowercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"toByteArray(encoding) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "toLower() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toUpper()",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns a string with all the characters converted to uppercase.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toUpper() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

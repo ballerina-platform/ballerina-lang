@@ -20,6 +20,10 @@ package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -31,8 +35,10 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 
 import java.util.Map;
 
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_NAME;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_OPERATION;
+import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 
 /**
  * File System connector listener for Ballerina.
@@ -40,24 +46,45 @@ import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_OPERA
 public class FSListener implements LocalFileSystemListener {
 
     private static final Logger log = LoggerFactory.getLogger(FSListener.class);
+    private ObjectValue service = null;
+    private Map<String, AttachedFunction> attachedFunctionRegistry;
 
     private Map<String, Resource> resourceRegistry;
-    private StructureTypeInfo structInfo;
+    private StructureTypeInfo structInfo = null;
 
     public FSListener(Map<String, Resource> resourceRegistry, StructureTypeInfo structInfo) {
         this.resourceRegistry = resourceRegistry;
         this.structInfo = structInfo;
     }
 
+    public FSListener(ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
+        this.service = service;
+        this.attachedFunctionRegistry = resourceRegistry;
+    }
+
     @Override
     public void onMessage(LocalFileSystemEvent fileEvent) {
-        BValue[] parameters = getSignatureParameters(fileEvent);
-        Resource resource = getResource(fileEvent.getEvent());
-        if (resource != null) {
-            Executor.submit(resource, new DirectoryListenerCallback(), null, null, parameters);
+        //TODO remove following condition once bvm values are removed. This is temp fix to handle both types
+        if (this.structInfo != null) {
+            BValue[] parameters = getSignatureParameters(fileEvent);
+            Resource resource = getResource(fileEvent.getEvent());
+            if (resource != null) {
+                Executor.submit(resource, new DirectoryListenerCallback(), null, null, parameters);
+            } else {
+                log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
+                        .getFileName());
+            }
         } else {
-            log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
-                    .getFileName());
+            Object[] parameters = getJvmSignatureParameters(fileEvent);
+            AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
+            if (resource != null) {
+                org.ballerinalang.jvm.values.connector.Executor.submit(service, resource.getName(),
+                                                                       new DirectoryCallback(), null,
+                                                                       parameters);
+            } else {
+                log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
+                        .getFileName());
+            }
         }
     }
 
@@ -70,5 +97,16 @@ public class FSListener implements LocalFileSystemListener {
 
     private Resource getResource(String event) {
         return resourceRegistry.get(event);
+    }
+
+    private Object[] getJvmSignatureParameters(LocalFileSystemEvent fileEvent) {
+        MapValue<String, Object> eventStruct = BallerinaValues.createRecordValue(FILE_PACKAGE, FILE_SYSTEM_EVENT);
+        eventStruct.put(FILE_EVENT_NAME, fileEvent.getFileName());
+        eventStruct.put(FILE_EVENT_OPERATION, fileEvent.getEvent());
+        return new Object[] { eventStruct, true };
+    }
+
+    private AttachedFunction getAttachedFunction(String event) {
+        return attachedFunctionRegistry.get(event);
     }
 }

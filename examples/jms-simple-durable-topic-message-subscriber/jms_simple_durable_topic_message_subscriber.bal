@@ -1,11 +1,13 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This creates a simple durable topic subscriber.
-listener jms:DurableTopicSubscriber subscriberEndpoint = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'",
+// This creates a simple durable topic subscriber.  This example makes use of
+// the ActiveMQ Artemis broker for demonstration while it can be tried with
+// other brokers that support JMS.
+listener jms:DurableTopicListener subscriberEndpoint = new({
+        initialContextFactory: 
+        "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     }, "BallerinaTopic", "sub1");
 

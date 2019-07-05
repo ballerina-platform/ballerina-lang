@@ -20,15 +20,15 @@ int spanId = observe:startRootSpan("Parent Span");
 
 // Do Something.
 
-int spanId2 = check observe:startSpan("Child Span", parentSpanId = spanId);
+int spanId2 = checkpanic observe:startSpan("Child Span", parentSpanId = spanId);
 
 // Do Something.
 
-_ = observe:finishSpan(spanId2);
+var ret1 = observe:finishSpan(spanId2);
 
 // Do Something.
 
-_ = observe:finishSpan(spanId);
+var ret2 = observe:finishSpan(spanId);
 ```
 
 #### Start a span attached to a system trace
@@ -36,11 +36,11 @@ _ = observe:finishSpan(spanId);
 When no parentSpanId is given or a parentSpanId of -1 is given, a span is started as a child span to the current active span in the ootb system trace.
 
 ```ballerina
-int spanId = check observe:startSpan("Child Span");
+int spanId = checkpanic observe:startSpan("Child Span");
 
 // Do Something.
 
-_ = observe:finishSpan(spanId);
+var ret = observe:finishSpan(spanId);
 ```
 
 #### Attach a tag to a span
@@ -54,7 +54,7 @@ _ = observe:addTagToSpan(spanId = spanId, "Tag Key", "Tag Value");
 When no spanId is provided or -1 is given, the defined tags are added to the current active span in the ootb system trace.
 
 ```ballerina
-_ = observe:addTagToSpan("Tag Key", "Tag Value");
+var ret = observe:addTagToSpan("Tag Key", "Tag Value");
 ```
 
 ## Metrics 
@@ -140,7 +140,7 @@ The current value can be retrieved by this operation.
 ```ballerina
 map<string> counterTags = { "method": "GET" };
 observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
-int currentValue = counterWithTags.getValue(); 
+int currentValue = counterWithTags.getValue();
 ```
 
 ### Gauge Samples

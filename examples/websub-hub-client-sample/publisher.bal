@@ -7,13 +7,13 @@ import ballerina/websub;
 
 public function main() {
 
-    // Start up the internal Ballerina Hub.
+    // Starts the internal Ballerina Hub.
     io:println("Starting up the Ballerina Hub Service");
 
     var result = websub:startHub(new http:Listener(9191));
     websub:WebSubHub webSubHub = result is websub:HubStartedUpError
                                                 ? result.startedUpHub : result;
-    // Register a topic at the hub.
+    // Registers a topic at the hub.
     var registrationResponse = webSubHub.registerTopic(
                                             "http://websubpubtopic.com");
     if (registrationResponse is error) {
@@ -23,10 +23,10 @@ public function main() {
         io:println("Topic registration successful!");
     }
 
-    // Make the publisher wait until the subscriber subscribes at the hub.
+    // Makes the publisher wait until the subscriber subscribes at the hub.
     runtime:sleep(5000);
 
-    // Publish directly to the internal Ballerina Hub.
+    // Publishes directly to the internal Ballerina Hub.
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
                             { "action": "publish", "mode": "internal-hub" });
     if (publishResponse is error) {
@@ -36,10 +36,10 @@ public function main() {
         io:println("Update notification successful!");
     }
 
-    // Make the publisher wait until the subscriber unsubscribes at the hub.
+    // Makes the publisher wait until the subscriber unsubscribes at the hub.
     runtime:sleep(5000);
 
-    // Publish directly to the internal Ballerina Hub.
+    // Publishes directly to the internal Ballerina Hub.
     publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
                             { "action": "publish", "mode": "internal-hub" });
     if (publishResponse is error) {
@@ -49,6 +49,6 @@ public function main() {
         io:println("Update notification successful!");
     }
 
-    // Make the publisher wait until notification is done to subscribers.
+    // Makes the publisher wait until subscribers are notified.
     runtime:sleep(2000);
 }

@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.system;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class SystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidEnv");
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getenv("JAVA_HOME");
-        Assert.assertEquals(returns[0].stringValue(), expectedValue);
+        Assert.assertEquals(returns[0].stringValue(), expectedValue == null ? "" : expectedValue);
     }
 
     @Test

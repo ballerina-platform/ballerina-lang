@@ -19,9 +19,12 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.CallStatement;
+import org.ballerinalang.database.sql.statement.SQLStatement;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,26 +47,30 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
+                @ReturnType(type = TypeKind.RECORD, structType = "JdbcClientError",
+                        structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
+        //TODO: #16033
+       /* String query = context.getStringArgument(0);
+        BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
-            SQLDatasource datasource = retrieveDatasource(context);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeProcedure(context, datasource, query, parameters, structTypes);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement callStatement = new CallStatement(context, datasource, query, parameters, structTypes);
+        callStatement.execute();*/
+    }
+
+    public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
+            ArrayValue parameters) {
+        SQLDatasource datasource = retrieveDatasource(client);
+        SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
+                parameters);
+        return callStatement.execute();
     }
 }

@@ -37,11 +37,14 @@ public class WorkspaceDocument {
     private List<CodeLens> codeLenses;
     private Path path;
     private String content;
+    private String prunedContent;
+    private boolean usePrunedSource;
 
     public WorkspaceDocument(Path path, String content) {
         this.path = path;
         this.content = content;
         this.codeLenses = new ArrayList<>();
+        this.usePrunedSource = false;
     }
 
     public List<CodeLens> getCodeLenses() {
@@ -61,6 +64,17 @@ public class WorkspaceDocument {
     }
 
     public String getContent() {
+        /*
+        If the pruned source flag is true, return the pruned source. After single access, the pruned source will be 
+        stale, and hence set to null. If a certain operation need to use the pruned source, then the operation set the
+        pruned source within the operation as well as rhe flag
+         */
+        if (this.usePrunedSource) {
+            this.usePrunedSource = false;
+            String prunedSourceCopy = this.prunedContent;
+            this.prunedContent = null;
+            return prunedSourceCopy;
+        }
         return content;
     }
 
@@ -70,6 +84,11 @@ public class WorkspaceDocument {
 
     public void setContent(Range range, String content) {
         this.content = getRangeTextAppliedContent(range, content, this.content);
+    }
+
+    public void setPrunedContent(String prunedContent) {
+        this.prunedContent = prunedContent;
+        this.usePrunedSource = true;
     }
 
     private String getRangeTextAppliedContent(Range range, String newText, String oldText) {
@@ -92,7 +111,14 @@ public class WorkspaceDocument {
             oldTextLines.set(start.getLine(), mLine);
         } else {
             // multi-line edit
-            String[] newTextArr = newText.split(LINE_SEPARATOR_SPLIT);
+
+            String trimmedNewText = newText.trim();
+            int trimmedNewTextStart = newText.indexOf(trimmedNewText);
+            int newTextTrailingNewLines = newText.substring(trimmedNewTextStart + trimmedNewText.length())
+                    .replaceAll("\\r?\\n", " ").length();
+            List<String> newTextList = new ArrayList<>(Arrays.asList(newText.split(LINE_SEPARATOR_SPLIT)));
+            newTextList.addAll(Collections.nCopies(newTextTrailingNewLines, ""));
+
             String sLine = oldTextLines.get(start.getLine());
             String eLine = oldTextLines.get(end.getLine());
 
@@ -105,10 +131,10 @@ public class WorkspaceDocument {
 
             //add lines
             int j = 0;
-            while (j < newTextArr.length) {
-                String changeText = newTextArr[j];
+            while (j < newTextList.size()) {
+                String changeText = newTextList.get(j);
                 String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
-                String suffix = (j == newTextArr.length - 1) ? eLine.substring(end.getCharacter()) : "";
+                String suffix = (j == newTextList.size() - 1) ? eLine.substring(end.getCharacter()) : "";
                 String mLine = prefix + changeText + suffix;
                 oldTextLines.add(start.getLine() + j, mLine);
                 j++;
@@ -119,6 +145,7 @@ public class WorkspaceDocument {
 
     @Override
     public String toString() {
-        return "{" + "path:" + this.path + ", content:" + this.content + "}";
+        String cont = (this.usePrunedSource) ? prunedContent : this.content;
+        return "{" + "path:" + this.path + ", content:" + cont + "}";
     }
 }

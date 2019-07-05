@@ -14,6 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents HTTP/1.0 protocol
+const string HTTP_1_0 = "1.0";
+
+# Represents HTTP/1.1 protocol
+const string HTTP_1_1 = "1.1";
+
+# Represents HTTP/2.0 protocol
+const string HTTP_2_0 = "2.0";
+
+# Defines the supported HTTP protocols.
+#
+# `HTTP_1_0`: HTTP/1.0 protocol
+# `HTTP_1_1`: HTTP/1.1 protocol
+# `HTTP_2_0`: HTTP/2.0 protocol
+public type HttpVersion HTTP_1_0|HTTP_1_1|HTTP_2_0;
+
 # Represents http protocol scheme
 const string HTTP_SCHEME = "http://";
 
@@ -58,6 +74,9 @@ public const HTTP_PATCH = "PATCH";
 
 # Constant for the HTTP HEAD method
 public const HTTP_HEAD = "HEAD";
+
+# constant for the HTTP SUBMIT method
+public const HTTP_SUBMIT = "SUBMIT";
 
 # Constant for the identify not an HTTP Operation
 public const HTTP_NONE = "NONE";
@@ -114,8 +133,13 @@ public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChann
 # `PUT`: Replace the target resource
 # `PATCH`: Apply partial modification to the resource
 # `HEAD`: Identical to `GET` but no resource body should be returned
+# `SUBMIT`: Submits a http request and returns an HttpFuture object
 # `NONE`: No operation should be performed
-public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD|HTTP_NONE;
+public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD
+                                                                                                |HTTP_SUBMIT|HTTP_NONE;
+
+// Common type used for HttpFuture and Response used for resiliency clients.
+type HttpResponse Response|HttpFuture;
 
 # A record for configuring SSL/TLS protocol and version to be used.
 #
@@ -170,7 +194,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns (string, map<any>)|error = external;
+public function parseHeader(string headerValue) returns [string, map<any>]|error = external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -198,9 +222,7 @@ function buildRequest(RequestMessage message) returns Request {
 
 function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
-    if (message is ()) {
-        return response;
-    } else if (message is Response) {
+    if (message is Response) {
         response = message;
     } else if (message is string) {
         response.setTextPayload(message);
@@ -225,9 +247,10 @@ function buildResponse(ResponseMessage message) returns Response {
 # + outRequest - A Request struct
 # + requestAction - `HttpOperation` related to the request
 # + httpClient - HTTP client which uses to call the relavant functions
+# + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, Client httpClient) returns Response|error {
+public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
+                                                HttpClient httpClient, string verb = "") returns HttpResponse|error {
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
         return result;
@@ -252,6 +275,8 @@ public function invokeEndpoint (string path, Request outRequest,
     } else if (HTTP_HEAD == requestAction) {
         var result = httpClient->head(path, message = outRequest);
         return result;
+    } else if (HTTP_SUBMIT == requestAction) {
+        return httpClient->submit(verb, path, outRequest);
     } else {
         return getError();
     }
@@ -276,6 +301,8 @@ function extractHttpOperation (string httpVerb) returns HttpOperation {
         inferredConnectorAction = HTTP_FORWARD;
     } else if ("HEAD" == httpVerb) {
         inferredConnectorAction = HTTP_HEAD;
+    } else if ("SUBMIT" == httpVerb) {
+        inferredConnectorAction = HTTP_SUBMIT;
     }
     return inferredConnectorAction;
 }
@@ -344,6 +371,11 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
         newOutRequest.setEntity(requestEntity);
         return newOutRequest;
     }
+}
+
+function getInvalidTypeError() returns error {
+    error invalidTypeError = error("Invalid return type found for the HTTP operation");
+    return invalidTypeError;
 }
 
 //Resolve a given path against a given URI.

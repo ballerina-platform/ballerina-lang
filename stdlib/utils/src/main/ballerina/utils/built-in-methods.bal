@@ -18,40 +18,40 @@
 #
 # + value - Value to be cloned
 # + return - Clone of the given value
-function clone(anydata value) returns anydata = external;
+function clone(any value) returns anydata|error = external;
 
 # Stamp the value to given type.
 #
 # + stampType - Type to be stamped
 # + value - Value to be stamped
 # + return - Stamped value
-function stamp(typedesc stampType, anydata value) returns anydata = external;
+function stamp(typedesc stampType, any value) returns anydata|error = external;
 
 # Convert value to given type which can be stampable.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-function convert(typedesc convertType, anydata value) returns anydata = external;
+function convert(typedesc convertType, any value) returns anydata|error = external;
 
 # Convert simple value to given type.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-function simpleValueConvert(typedesc convertType, anydata value) returns anydata = external;
+function simpleValueConvert(typedesc convertType, any value) returns anydata|error = external;
 
 # Freeze a given value.
 #
 # + value - Value to be frozen
 # + return - Frozen value
-function freeze(anydata value) returns anydata = external;
+function freeze(any|error value) returns anydata|error = external;
 
 # Check freeze status of given value.
 #
 # + value - Value to check freeze status
 # + return - True for a frozen value
-function isFrozen(anydata value) returns boolean = external;
+function isFrozen(any|error value) returns boolean = external;
 
 # Get the reason phrase of an error value.
 #
@@ -67,8 +67,8 @@ function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #
-# + collection - Data collection
-# + iterator - Iterator for the given data
+# + data - Data collection
+# + return - Iterator for the given data
 function iterate(any data) returns any = external;
 
 # Get length of given value.
@@ -76,3 +76,9 @@ function iterate(any data) returns any = external;
 # + value - Value to get the length
 # + return - Length of the given value
 function length(anydata value) returns int = external;
+
+# Get the next value of an iterator.
+#
+# + iterator - Iterator
+# + return - Next value
+function next(any iterator) returns anydata|error = external;

@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.stdlib.database.sql;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -32,6 +32,8 @@ import java.io.File;
 /**
  * Test SQL Connector Initialization.
  */
+//TODO: #16033
+@Test(groups = "broken")
 public class SQLConnectorInitTest {
 
     private CompileResult result;
@@ -39,6 +41,7 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enableJBallerinaTests", "true");
         result = BCompileUtil.compile("test-src/sql/sql_connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");

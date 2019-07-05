@@ -48,8 +48,8 @@ public type CustomWindow object {
     public function getCandidateEvents(streams:StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (streams:StreamEvent?, streams:StreamEvent?)[] {
-        (streams:StreamEvent?, streams:StreamEvent?)[] events = [];
+                        returns [streams:StreamEvent?, streams:StreamEvent?][] {
+        [streams:StreamEvent?, streams:StreamEvent?][] events = [];
         return events;
     }
 

@@ -381,4 +381,29 @@ service WildcardService on testEP {
         res.setJsonPayload(responseJson);
         checkpanic caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        path:"/twisted/{age}/{name}"
+    }
+    resource function twistedPathParams(http:Caller caller, http:Request req, string name, string age) {
+        http:Response res = new;
+        json responseJson = { Name:name, Age:age };
+        checkpanic caller->respond(untaint responseJson);
+    }
+
+    @http:ResourceConfig {
+        path:"/type/{age}/{name}/{status}/{weight}"
+    }
+    resource function MultiTypedPathParams(http:Caller caller, http:Request req, string name, int age,
+                                            float weight, boolean status) {
+        http:Response res = new;
+        int balAge = age + 1;
+        float balWeight = weight + 2.95;
+        string balName = name + " false";
+        if (status) {
+            balName = name;
+        }
+        json responseJson = { Name:name, Age:balAge, Weight:balWeight, Status:status, Lang: balName};
+        checkpanic caller->respond(untaint responseJson);
+    }
 }

@@ -1,33 +1,72 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
+plugins {
+    id "com.github.harbby.gradle.serviceloader" version "1.1.5"
+}
+ 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
-    implementation 'io.netty:netty-transport:4.1.34.Final'
-    implementation 'io.netty:netty-codec:4.1.34.Final'
-    implementation 'io.netty:netty-buffer:4.1.34.Final'
-    implementation 'io.netty:netty-common:4.1.34.Final'
-    implementation 'io.netty:netty-codec-http:4.1.34.Final'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-    implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
-    implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n:1.2.11-wso2v11'
-    implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
-    implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
-    implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'javax.transaction:javax.transaction-api:1.2'
-    implementation 'io.ballerina.messaging:broker-common:0.970.0'
-    implementation 'io.ballerina.messaging:broker-core:0.970.5'
     implementation project(':ballerina-streaming:siddhi-core')
     implementation project(':ballerina-streaming:siddhi-query-api')
     implementation project(':ballerina-streaming:siddhi-query-compiler')
     implementation project(':ballerina-streaming:siddhi-annotations')
-    implementation 'io.opentracing:opentracing-api:0.31.0'
-    implementation 'io.opentracing:opentracing-util:0.31.0'
-    implementation 'org.awaitility:awaitility:3.0.0'
-    implementation 'com.zaxxer:HikariCP:3.3.1'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'io.netty:netty-transport'
+    implementation 'io.netty:netty-codec'
+    implementation 'io.netty:netty-buffer'
+    implementation 'io.netty:netty-common'
+    implementation 'io.netty:netty-codec-http'
+    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    implementation 'org.apache.ws.commons.axiom:axiom-api'
+    implementation 'org.apache.ws.commons.axiom:axiom-impl'
+    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
+    implementation 'org.wso2.staxon:staxon-core'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'javax.transaction:javax.transaction-api'
+    implementation 'io.ballerina.messaging:broker-common'
+    implementation 'io.ballerina.messaging:broker-core'
+    implementation 'io.opentracing:opentracing-api'
+    implementation 'io.opentracing:opentracing-util'
+    implementation 'org.awaitility:awaitility'
+    implementation 'com.zaxxer:HikariCP'
 }
 
 description = 'Ballerina - Core'
+
+configurations {
+    implementation {
+        exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
+    }
+}
+
+serviceLoader {
+    serviceInterface 'org.ballerinalang.util.LaunchListener'
+    serviceInterface 'org.ballerinalang.util.tracer.TracingLaunchListener'
+    serviceInterface 'org.ballerinalang.util.metrics.MetricsLaunchListener'
+}
+
+serviceLoaderBuild {
+    inputs.files(sourceSets.main.java);
+    outputs.dir("$buildDir/resources/main/META-INF/services/")
+    outputs.cacheIf { true }
+}

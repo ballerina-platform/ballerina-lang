@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.ConstantSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CONSTANT;
@@ -28,15 +29,18 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CON
 /**
  * @since 0.985.0
  */
-public class BConstantSymbol extends BSymbol implements ConstantSymbol {
+public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
 
-    public Object literalValue;
-    public int literalValueTypeTag;
-    public BType literalValueType;
+    public BLangConstantValue value;
+    public BType literalType;
 
-    public BConstantSymbol(int flags, Name name, PackageID pkgID, BType finiteType, BType valueType, BSymbol owner) {
-        super(CONSTANT, flags, name, pkgID, finiteType, owner);
-        this.literalValueType = valueType;
+    // Keep the cp entry index in the symbol so it can be easily accessed in constant references.
+    public int cpEntryIndex = -1;
+
+    public BConstantSymbol(int flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner) {
+        super(flags, name, pkgID, type, owner);
+        this.tag = CONSTANT;
+        this.literalType = literalType;
     }
 
     @Override

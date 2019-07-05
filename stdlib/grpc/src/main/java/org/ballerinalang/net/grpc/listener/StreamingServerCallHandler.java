@@ -19,8 +19,8 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
@@ -55,19 +55,19 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         return new StreamingServerCallListener(requestObserver, responseObserver);
     }
 
-    public StreamObserver invoke(StreamObserver responseObserver) {
+    private StreamObserver invoke(StreamObserver responseObserver) {
         ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
         StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver);
-        Executor.submit(onOpen.getResource(), callback, null, null, computeMessageParams
-                (onOpen, null, responseObserver));
+        Executor.submit(onOpen.getService(), onOpen.getFunctionName(), callback, null, null,
+                computeMessageParams(onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
         return new StreamObserver() {
             @Override
             public void onNext(Message value) {
                 ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver);
-                Executor.submit(onMessage.getResource(), callback, null, null, computeMessageParams(onMessage, value,
-                        responseObserver));
+                Executor.submit(onMessage.getService(), onMessage.getFunctionName(), callback, null, null,
+                        computeMessageParams(onMessage, value, responseObserver));
             }
 
             @Override
@@ -84,8 +84,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                     throw new ServerRuntimeException(message);
                 }
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted.getResource(), callback, null, null, computeMessageParams
-                        (onCompleted, null, responseObserver));
+                Executor.submit(onCompleted.getService(), onCompleted.getFunctionName(), callback, null, null,
+                        computeMessageParams(onCompleted, null, responseObserver));
             }
         };
     }

@@ -52,7 +52,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string  qualifiedMetricName = metric.name.replaceAll("/", "_");
+            string  qualifiedMetricName = metric.name.replaceAll("/", "_").replaceAll("\\.", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -128,7 +128,7 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
-    foreach var (key, value) in labels {
+    foreach var [key, value] in labels {
         string labelKey = key.replaceAll("\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");

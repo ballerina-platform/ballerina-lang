@@ -15,6 +15,7 @@
  */
 package io.ballerina.plugins.idea.preloading;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.diagnostic.Logger;
@@ -22,13 +23,14 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.remoteServer.util.CloudNotifier;
 import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
+import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
+import io.ballerina.plugins.idea.sdk.BallerinaSdk;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -39,6 +41,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
 import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
 import static io.ballerina.plugins.idea.preloading.OSUtils.WINDOWS;
@@ -50,8 +54,6 @@ import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOG = Logger.getInstance(BallerinaPreloadingActivity.class);
-    private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
-    private static final String ballerinaSourcePath = "lib/repo";
     private static CloudNotifier notifier = new CloudNotifier("Ballerina Home Auto Detection");
 
     /**
@@ -96,26 +98,38 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     }
 
     private static boolean registerServerDefinition(Project project) {
+
         boolean autoDetected = false;
+
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
-        String balSdkPath = getBallerinaSdk(project);
+        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
+        String balSdkPath = balSdk.getSdkPath();
+
         // Checks for the user-configured auto detection settings.
         if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
+            ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
+                    "No ballerina SDK is found for project: %s\n Trying to Auto detect Ballerina Home...",
+                    project.getBasePath()), MessageType.INFO));
+
             balSdkPath = autoDetectSdk();
             autoDetected = true;
         }
-        if (balSdkPath != null && !balSdkPath.isEmpty()) {
+
+        if (!Strings.isNullOrEmpty(balSdkPath)) {
             boolean success = doRegister(balSdkPath);
             if (success && autoDetected) {
-                LOG.info("Auto-detected Ballerina Home: " + balSdkPath + " for the project: " + project.getBasePath());
+                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
+                        balSdkPath, project.getBasePath()));
                 String finalBalSdkPath = balSdkPath;
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    notifier.showMessage("No ballerina SDK is found for: " + project.getBasePath()
-                            + "\nAuto Detected Ballerina Home: " + finalBalSdkPath, MessageType.INFO);
-                });
+                ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
+                        "Auto Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
             }
             return success;
+        } else {
+            ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage("Auto-Detection Failed",
+                    MessageType.WARNING));
         }
         return false;
     }
@@ -123,17 +137,17 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     private static boolean doRegister(@NotNull String sdkPath) {
         String os = OSUtils.getOperatingSystem();
         if (os != null) {
-            String arg = "";
+            String args = null;
             if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
-                arg = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
+                args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString();
             } else if (os.equals(OSUtils.WINDOWS)) {
-                arg = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
+                args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString();
             }
 
-            if (arg != null && !arg.isEmpty()) {
-                // Provides ballerina language server launcher script location for the language client library.
-                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", new String[] { arg }));
-                LOG.info("registered language server definition using Sdk path: " + sdkPath);
+            if (!Strings.isNullOrEmpty(args)) {
+                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", new String[]{args}));
+                IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
+                LOG.info("Registered language server definition using Sdk path: " + sdkPath);
                 return true;
             }
             return false;
@@ -163,9 +177,9 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     }
 
     private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
-        String balSdkPath = getBallerinaSdk(project);
+        String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
         if (balSdkPath != null) {
-            Path balxPath = Paths.get(balSdkPath, ballerinaSourcePath);
+            Path balxPath = Paths.get(balSdkPath, BALLERINAX_SOURCE_PATH);
             if (balxPath.toFile().isDirectory()) {
                 if (status == ProjectStatus.OPENED) {
                     BallerinaPathModificationTracker.addPath(balxPath.toString());
@@ -176,58 +190,39 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         }
     }
 
-    @Nullable
-    private static String getBallerinaSdk(Project project) {
-        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (projectSdk == null) {
-            return null;
-        }
-        String sdkPath = projectSdk.getHomePath();
-        return (isValidBallerinaSdk(sdkPath)) ? sdkPath : null;
-    }
-
-    private static boolean isValidBallerinaSdk(String sdkPath) {
-        // Checks for either shell script or batch file, since the shell script recognition error in windows.
-        String balShellScript = Paths.get(sdkPath, "bin", "ballerina").toString();
-        String balBatchScript = Paths.get(sdkPath, "bin", "ballerina.bat").toString();
-        String launcherShellScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
-        String launcherBatchScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
-        return (new File(balShellScript).exists() || new File(balBatchScript).exists()) && (
-                new File(launcherShellScript).exists() || new File(launcherBatchScript).exists());
-    }
-
     private static String autoDetectSdk() {
         String ballerinaPath = "";
-        String platform = getOperatingSystem();
+        String platform = OSUtils.getOperatingSystem();
         switch (platform) {
-        case (WINDOWS):
-            String ballerinaHome = System.getenv("BALLERINA_HOME");
-            if (ballerinaHome != null && !ballerinaHome.isEmpty()) {
-                return ballerinaHome;
-            }
-            ballerinaPath = getByCommand("where ballerina").trim();
-            if (!ballerinaPath.isEmpty()) {
-                ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
-            }
-        case MAC:
-            ballerinaPath = getByCommand("which ballerina");
-            // remove ballerina bin from ballerinaPath
-            if (!ballerinaPath.isEmpty()) {
-                ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-                // For homebrew installations ballerina executables are in libexcec
-                File homebrewBallerinaPath = new File(ballerinaPath, "libexec");
-                if (homebrewBallerinaPath.exists()) {
-                    ballerinaPath = homebrewBallerinaPath.getAbsolutePath();
+            case (WINDOWS):
+                String ballerinaHome = System.getenv("BALLERINA_HOME");
+                if (ballerinaHome != null && !ballerinaHome.isEmpty()) {
+                    return ballerinaHome;
                 }
-            }
-            return ballerinaPath;
-        case UNIX:
-            ballerinaPath = getByCommand("which ballerina");
-            // remove ballerina bin from path
-            if (!ballerinaPath.isEmpty()) {
-                ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
-            }
-            return ballerinaPath;
+                ballerinaPath = getByCommand("where ballerina").trim();
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
+                }
+                return ballerinaPath;
+            case (MAC):
+                ballerinaPath = getByCommand("which ballerina");
+                // remove ballerina bin from ballerinaPath
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
+                    // For homebrew installations ballerina executables are in libexcec
+                    File homebrewBallerinaPath = new File(ballerinaPath, "libexec");
+                    if (homebrewBallerinaPath.exists()) {
+                        ballerinaPath = homebrewBallerinaPath.getAbsolutePath();
+                    }
+                }
+                return ballerinaPath;
+            case (UNIX):
+                ballerinaPath = getByCommand("which ballerina");
+                // remove ballerina bin from path
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
+                }
+                return ballerinaPath;
         }
         // If we cannot find ballerina home return empty.
         return ballerinaPath;

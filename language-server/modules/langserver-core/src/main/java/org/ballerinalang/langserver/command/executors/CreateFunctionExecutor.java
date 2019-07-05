@@ -22,8 +22,10 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -61,7 +63,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateFunctionExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_FUNC";
+    public static final String COMMAND = "CREATE_FUNC";
 
     /**
      * {@inheritDoc}
@@ -103,7 +105,12 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
-        BLangInvocation functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+        BLangInvocation functionNode = null;
+        try {
+            functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Error while compiling the source!");
+        }
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
@@ -137,10 +144,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                     edits.add(addPackage(pkgName, packageNode, context));
                 }
             };
-            returnType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
-            returnValue = CommonUtil.FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
+            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
+            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
                                                                            "    return {%1};");
-            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
+            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
                                                                                    functionNode);
             if (arguments != null) {
                 funcArgs = String.join(", ", arguments);
@@ -149,7 +156,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        String editText = CommonUtil.FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
+        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);

@@ -50,7 +50,7 @@ function testImplicitInitialValueOfFloatType() {
 function testImplicitInitialValueOfDecimalType() {
     decimal[] decimalArray = [];
     decimalArray[1] = 50.9;
-    test:assertEquals(decimalArray[0], <decimal>0.0, msg = "expected implicit initial value of decimal to be 0.0");
+    test:assertEquals(decimalArray[0], 0.0d, msg = "expected implicit initial value of decimal to be 0.0");
 }
 
 @test:Config {}

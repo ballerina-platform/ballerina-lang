@@ -12,12 +12,16 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|int|boolean)"
         }
       },
       "sortText": "120",
       "insertText": "bar(i) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType)",
@@ -26,19 +30,24 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$8\u003e"
         }
       },
       "sortText": "120",
       "insertText": "queryTableWithJoinClause(sqlQuery,fromTable,joinTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "io",
       "kind": "Module",
-      "detail": "BType",
-      "sortText": "150",
-      "insertText": "io"
+      "detail": "Package",
+      "sortText": "130",
+      "insertText": "io",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType)",
@@ -47,12 +56,16 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n"
+          "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$10\u003e"
         }
       },
       "sortText": "120",
       "insertText": "queryTableWithoutJoinClause(sqlQuery,fromTable,parameters,retType) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers)",
@@ -66,7 +79,11 @@
       },
       "sortText": "120",
       "insertText": "startForever(streamQuery,inStreamRefs,inTableRefs,outStreamRefs,outTableRefs,funcPointers) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "i",
@@ -79,9 +96,10 @@
     {
       "label": "i",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "(string|int|boolean)",
       "sortText": "130",
-      "insertText": "i"
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "p",
@@ -96,14 +114,16 @@
       "kind": "Variable",
       "detail": "Person",
       "sortText": "130",
-      "insertText": "p"
+      "insertText": "p",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "http",
       "kind": "Module",
-      "detail": "BType",
-      "sortText": "150",
-      "insertText": "http"
+      "detail": "Package",
+      "sortText": "130",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "var5",
@@ -118,7 +138,8 @@
       "kind": "Variable",
       "detail": "string",
       "sortText": "130",
-      "insertText": "var5"
+      "insertText": "var5",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "var4",
@@ -133,37 +154,24 @@
       "kind": "Variable",
       "detail": "int",
       "sortText": "130",
-      "insertText": "var4"
-    },
-    {
-      "label": "var3",
-      "kind": "Variable",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "var3 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "var4",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var3",
-      "kind": "Variable",
-      "detail": "(string,int)|(float,(string,boolean))|(float,(string,(boolean,int)))|float",
-      "sortText": "130",
-      "insertText": "var3"
     },
     {
       "label": "var2",
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "var2 {\n\t${1:(\"\", 0, false)} \u003d\u003e {${2}}\n}",
+      "insertText": "var2 {\n\t${1:[\"\", 0, false]} \u003d\u003e {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "var2",
       "kind": "Variable",
-      "detail": "(string,int,boolean)",
+      "detail": "[string,int,boolean]",
       "sortText": "130",
-      "insertText": "var2"
+      "insertText": "var2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "var1",
@@ -176,9 +184,10 @@
     {
       "label": "var1",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "(string|int|boolean)",
       "sortText": "130",
-      "insertText": "var1"
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -191,7 +193,7 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
-        Assert.assertEquals(seq.stringValue(), "hello aaa<bbb good morning <fname>John</fname> <lname>Doe</lname>. "
+        Assert.assertEquals(seq.stringValue(), "hello aaa&lt;bbb good morning <fname>John</fname> <lname>Doe</lname>. "
                 + "Have a nice day!<foo>123</foo><bar></bar>");
 
         BValueArray items = seq.value();
@@ -212,6 +214,27 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[3] instanceof BXML);
         Assert.assertEquals(returns[3].stringValue(), "<_-foo id=\"hello 5\">hello</_-foo>");
+    }
+
+    @Test
+    public void testXMLLiteralWithEscapeSequence() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;");
+        Assert.assertEquals(arrayToString(returns[1]), "hello < > &");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 11);
+        Assert.assertEquals(arrayToString(returns[3]), "hello < > &");
+    }
+
+    private String arrayToString(BValue aReturn) {
+        BValueArray ar = ((BValueArray) aReturn);
+        StringBuilder builder = new StringBuilder();
+        BIterator bIterator = ar.newIterator();
+        while (bIterator.hasNext()) {
+            String str = ((BString) bIterator.getNext()).stringValue();
+            builder.append(str);
+        }
+        return builder.toString();
     }
 
     @Test

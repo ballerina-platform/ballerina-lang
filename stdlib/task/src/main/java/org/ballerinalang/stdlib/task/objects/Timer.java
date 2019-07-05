@@ -44,12 +44,11 @@ public class Timer extends AbstractTask {
     /**
      * Creates a Timer object.
      *
-     * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
      * @throws SchedulingException When provided configuration values are invalid.
      */
-    public Timer(Context context, long delay, long interval) throws SchedulingException {
+    public Timer(long delay, long interval) throws SchedulingException {
         super();
         validateTimerConfigurations(delay, interval);
         this.interval = interval;
@@ -59,13 +58,12 @@ public class Timer extends AbstractTask {
     /**
      * Creates a Timer object with limited number of running times.
      *
-     * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
      * @param maxRuns  Number of times after which the timer will turn off.
      * @throws SchedulingException When provided configuration values are invalid.
      */
-    public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
+    public Timer(long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);
         validateTimerConfigurations(delay, interval);
         this.interval = interval;
@@ -76,7 +74,21 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
+    //TODO Remove after migration : implemented using bvm values/types
     public void start(Context context) throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
+        try {
+            scheduleTimer(jobDataMap);
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to schedule Task.", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);

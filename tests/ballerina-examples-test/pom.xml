@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -88,7 +88,7 @@
                     <executable>${project.build.directory}/../src/main/resources/run${script.extension}</executable>
                     <arguments>
                         <argument>${project.build.directory}/ballerina-tools-${project.version}/examples/</argument>
-                        <argument>${maven.test.skip}</argument>
+                        <argument>${skipTests}</argument>
                     </arguments>
                 </configuration>
             </plugin>

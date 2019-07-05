@@ -20,7 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class ImportModuleExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "IMPORT_MODULE";
+    public static final String COMMAND = "IMPORT_MODULE";
 
     /**
      * {@inheritDoc}
@@ -78,7 +78,6 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-//            context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
@@ -94,7 +93,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             Range range = new Range(start, start);
 
             String importStatement = ItemResolverConstants.IMPORT + " " + pkgName
-                    + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+                    + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
 
             return applySingleTextEdit(importStatement, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());

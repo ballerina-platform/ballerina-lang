@@ -92,11 +92,11 @@ function testFolderContent(string rootPathValue) returns boolean|error {
                 testReadFile(xmlFilePath.getPathValue()) &&
                 paths.length() == 1;
         } else {
-            error listNotFound = error(INTERNAL_ERROR_CODE, { message : "File list fetching error" });
+            error listNotFound = error(INTERNAL_ERROR_CODE, message = "File list fetching error");
             return listNotFound;
         }
     } else {
-        error directoryNotFound = error(INTERNAL_ERROR_CODE, { message : "Directory not found" });
+        error directoryNotFound = error(INTERNAL_ERROR_CODE, message = "Directory not found");
         return directoryNotFound;
     }
 }
@@ -107,8 +107,8 @@ function testGetModifiedTime(string pathValue) returns string|error {
     return time:toString(modifiedTime);
 }
 
-function testCopyToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testCopyToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
     if (result is error) {
@@ -136,8 +136,8 @@ function testFolderDelete(string path) returns boolean {
     }
 }
 
-function testMoveToFunction(string source, string target) returns boolean {
-    internal:Path sourcePath = new(source);
+function testMoveToFunction(string sourceStr, string target) returns boolean {
+    internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
     if (moveResult is error) {
@@ -163,14 +163,14 @@ function testWriteFile(string pathValue) returns error? {
 }
 
 function testReadFile(string pathValue) returns boolean {
-    io:ReadableByteChannel byteChannel = io:openReadableFile(pathValue);
+    io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
     if (readResult is error) {
         log:printError("Error occurred while reading content: " + pathValue, err = readResult);
         return false;
     } else {
-        var (bytes, numberOfBytes) = readResult;
+        var [bytes, numberOfBytes] = readResult;
         return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
     }
 }

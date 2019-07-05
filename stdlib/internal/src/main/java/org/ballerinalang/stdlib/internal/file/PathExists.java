@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -55,5 +57,11 @@ public class PathExists extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         boolean exists = Files.exists(path);
         context.setReturnValues(new BBoolean(exists));
+    }
+
+    public static boolean exists(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        boolean exists = Files.exists(path);
+        return exists;
     }
 }

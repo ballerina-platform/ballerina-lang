@@ -3,7 +3,7 @@ import ballerina/test;
 
 // The `dataProvider` attribute allows you to add a data provider function to the test-case. 
 @test:Config {
-    // `stringDataProvider` function provides the data set to this function.
+    // The `stringDataProvider` function provides the data set to this function.
     dataProvider: "stringDataProvider"
 }
 // Data is passed to the function as function parameters.
@@ -20,13 +20,13 @@ function testAddingValues(string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, msg = "Incorrect Sum");
 }
 
-// The data provider function that returns a `string` value-set.
+// The data provider function, which returns a `string` value-set.
 function stringDataProvider() returns (string[][]) {
     return [["1", "2", "3"], ["10", "20", "30"], ["5", "6", "11"]];
 }
 
 @test:Config {
-    // `jsonDataProvider` function provides the data set to this function.
+    // The `jsonDataProvider` function provides the data set to this function.
     dataProvider: "jsonDataProvider"
 }
 function testJsonObjects(json fValue, json sValue, json result) {
@@ -38,7 +38,7 @@ function testJsonObjects(json fValue, json sValue, json result) {
     test:assertEquals(result, c, msg = "json data provider failed");
 }
 
-// The data provider function that returns a JSON value-set.
+// The data provider function, which returns a JSON value-set.
 function jsonDataProvider() returns (json[][]) {
     return [[{ "a": "a" }, { "b": "b" }, { "c": "c" }]];
 }

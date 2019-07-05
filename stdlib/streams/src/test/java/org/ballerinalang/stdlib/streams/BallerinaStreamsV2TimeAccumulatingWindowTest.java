@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.streams;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,7 +41,7 @@ public class BallerinaStreamsV2TimeAccumulatingWindowTest {
         result = BCompileUtil.compile("test-src/streamingv2-time-accumulating-window-test.bal");
     }
 
-    @Test(description = "Test Time accumulating window query", enabled = false)
+    @Test(description = "Test Time accumulating window query")
     public void testTimeAccumulatingQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startAccumulatingTimeWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);

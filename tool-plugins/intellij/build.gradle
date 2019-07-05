@@ -16,8 +16,8 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.7"
-    id "de.undercouch.download" version "3.2.0"
+    id "org.jetbrains.intellij" version "0.4.8"
+    id "de.undercouch.download" version "3.4.3"
     id "org.sonarqube" version "2.6"
 }
 
@@ -33,7 +33,9 @@ repositories {
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.6.0'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.34.58'
-    compile 'com.github.ballerina-platform:lsp4intellij:improved-inspections-SNAPSHOT'
+    compile group: 'com.github.ballerina-platform', name: 'lsp4intellij', version: '0.91.0'
+    compile group: 'com.github.jknack', name: 'handlebars', version: '4.1.2'
+    configurations.compile.exclude(group: 'org.slf4j', module: 'slf4j-api')
 }
 
 apply plugin: 'java'
@@ -58,13 +60,9 @@ intellij {
     // alternativeIdePath localIdePath
 }
 
-apply plugin: 'de.undercouch.download'
-task downloadPsiViewerPlugin() {
-    download {
-        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
-        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
-        onlyIfNewer true
-    }
+task downloadPsiViewerPlugin(type: Download) {
+    src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+    dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
 }
 
 apply plugin: "jacoco"
@@ -84,15 +82,15 @@ runIde.dependsOn copyPsiViewerPluginToSandBox
 
 apply plugin: 'checkstyle'
 checkstyle {
-    configDir new File("src/main/resources/checkstyle")
+    configFile rootProject.file("src/main/resources/checkstyle/checkstyle.xml")
     checkstyleMain {
-        source "src/main/java"
+        source = fileTree("src/main/java")
         include '**/*.java'
     }
     checkstyleTest {
-        source "src/test/java"
+        source = fileTree("src/test/java")
     }
 }
 
-//runIde.dependsOn check
-//buildPlugin.dependsOn check
+runIde.dependsOn check
+buildPlugin.dependsOn check

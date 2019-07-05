@@ -25,6 +25,7 @@ package org.ballerinalang.util.diagnostic;
 public enum DiagnosticCode {
 
     UNDEFINED_MODULE("undefined.module"),
+    CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("unused.import.module"),
     MODULE_NOT_FOUND("module.not.found"),
     REDECLARED_IMPORT_MODULE("redeclared.import.module"),
@@ -39,6 +40,7 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
+    ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
@@ -74,6 +76,7 @@ public enum DiagnosticCode {
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
+    CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -97,6 +100,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
+    REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
@@ -232,6 +236,7 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
@@ -254,8 +259,11 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
     INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
+    INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
+    INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -266,8 +274,11 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
-    ANNOTATION_REQUIRE_RECORD("annotation.require.record"),
+    ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE("annotation.attachment.cannot.have.a.value"),
+    ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE("annotation.attachment.requires.a.value"),
+    ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES("annotation.attachment.cannot.specify.multiple.values"),
+    ANNOTATION_INVALID_TYPE("annotation.invalid.type"),
+    ANNOTATION_REQUIRES_CONST("annotation.requires.const"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
@@ -369,8 +380,12 @@ public enum DiagnosticCode {
 
     // Constants related codes.
     ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
+    TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS("type.required.for.const.with.record.literals"),
+    CANNOT_UPDATE_CONSTANT_VALUE("cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
     CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
+    EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("expression.is.not.a.constant.expression"),
+    KEY_NOT_FOUND("key.not.found"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
@@ -386,6 +401,7 @@ public enum DiagnosticCode {
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+    INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

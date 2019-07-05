@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BValue;
@@ -45,5 +47,9 @@ public class Publish extends BlockingNativeCallableUnit {
         BStream stream = (BStream) context.getRefArgument(0);
         BValue data = context.getRefArgument(1);
         stream.publish(data);
+    }
+
+    public static void publish(Strand strand, StreamValue streamValue, Object data) {
+        streamValue.publish(strand, data);
     }
 }

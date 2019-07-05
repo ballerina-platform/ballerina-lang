@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -28,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,17 +42,25 @@ class BIRGenEnv {
     BIRPackage enclPkg;
 
     BIRFunction enclFunc;
+
+    List<BIRBasicBlock> enclBasicBlocks;
+
     // This is a cache which can be stored inside the BIRFunction
     Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
     // This is a global variable cache
     Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
+    private int currentLambdaVarId = -1;
     private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
     BIRBasicBlock trapBB;
     BIROperand targetOperand;
+    BIRBasicBlock enclLoopBB;
+    BIRBasicBlock enclLoopEndBB;
+
+    List<BIRAnnotationAttachment> enclAnnotAttachments;
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.
@@ -68,6 +78,11 @@ class BIRGenEnv {
     Name nextLocalVarId(Names names) {
         currentLocalVarId++;
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
+    }
+
+    Name nextLambdaVarId(Names names) {
+        currentLambdaVarId++;
+        return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLambdaVarId)));
     }
 
     Name nextGlobalVarId(Names names) {

@@ -6,81 +6,102 @@
   "source": "function/source/matchStatementSuggestions4.bal",
   "items": [
     {
-      "label":"extractBasicAuthHeaderValue(req)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Extracts the basic authentication header value from the request.\n"
+      "label": "extractAuthorizationHeaderValue(req)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
+        }
       },
-      "sortText":"120",
-      "insertText":"extractBasicAuthHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "extractAuthorizationHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"createHttpCachingClient(url,config,cacheConfig)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Creates an HTTP client capable of caching HTTP responses.\n"
+      "label": "createHttpCachingClient(url,config,cacheConfig)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:Client|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"createHttpCachingClient(url,config,cacheConfig) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "createHttpCachingClient(url,config,cacheConfig) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"parseHeader(headerValue)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Parses the given header value to extract its value and parameter map.\n"
+      "label": "parseHeader(headerValue)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n[string,map]|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"parseHeader(headerValue) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "parseHeader(headerValue) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"invokeEndpoint(path,outRequest,requestAction,httpClient)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider."
+      "label": "invokeEndpoint(path,outRequest,requestAction,httpClient,verb)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"invokeEndpoint(path,outRequest,requestAction,httpClient) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "invokeEndpoint(path,outRequest,requestAction,httpClient,verb) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"createHttpSecureClient(url,config)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Creates an HTTP client capable of securing HTTP requests with authentication.\n"
+      "label": "createHttpSecureClient(url,config)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:Client|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"createHttpSecureClient(url,config) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "createHttpSecureClient(url,config) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"encode(url,charset)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Encodes the given URL.\n"
+      "label": "encode(url,charset)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nstring|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"encode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "encode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"decode(url,charset)",
-      "kind":"Function",
-      "detail":"Snippet",
-      "documentation":{
-        "left":"Decodes the given URL.\n"
+      "label": "decode(url,charset)",
+      "kind": "Function",
+      "detail": "Snippet",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nstring|error"
+        }
       },
-      "sortText":"120",
-      "insertText":"decode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat":"Snippet"
+      "sortText": "120",
+      "insertText": "decode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -24,18 +24,23 @@ import org.ballerinalang.jvm.values.ErrorValue;
  *
  * @since 0.995.0
  */
-public class BErrorType extends BType {
+public class BErrorType extends AnnotatableType {
 
-    private BType reasonType;
-    private BType detailType;
+    public BType reasonType;
+    public BType detailType;
 
-    public BErrorType(String typeName, String pkgPath, BType reasonType, BType detailType) {
-        super(typeName, pkgPath, ErrorValue.class);
+    public BErrorType(String typeName, BPackage pkg, BType reasonType, BType detailType) {
+        super(typeName, pkg, ErrorValue.class);
         this.reasonType = reasonType;
         this.detailType = detailType;
     }
 
-    public BErrorType(BType reasonType, BType detailType) {
+    public BErrorType(String typeName, BPackage pkg, BType reasonType) {
+        super(typeName, pkg, ErrorValue.class);
+        this.reasonType = reasonType;
+    }
+
+    public BErrorType(BType reasonType) {
         super(TypeConstants.ERROR, null, ErrorValue.class);
         this.reasonType = reasonType;
         this.detailType = detailType;
@@ -54,5 +59,32 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    public void setDetailType(BType detailType) {
+        this.detailType = detailType;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailType == other.detailType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return typeName;
+    }
+
+    public BType getDetailType() {
+        return detailType;
     }
 }

@@ -18,9 +18,16 @@
 package org.ballerinalang.langserver;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.SnippetBlock.SnippetType;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.IntStream;
 
 /**
  * Generates Snippets for language constructs.
@@ -71,6 +78,36 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getNewKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get abstract keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAbstractKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ABSTRACT, "abstract ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get client keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClientKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CLIENT, "client ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get external keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getExternalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -126,6 +163,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Function Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFunctionKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FUNCTION, "function ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Continue Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -143,6 +190,26 @@ public class SnippetGenerator {
     public static SnippetBlock getListenerKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.LISTENER_KEYWORD, "listener ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Returns Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReturnsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RETURNS_KEYWORD, "returns ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Untaint Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getUntaintKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.UNTAINT_KEYWORD, "untiant ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
     }
 
     /**
@@ -326,6 +393,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Annotation Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAnnotationKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ANNOTATION_TYPE, "annotation ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Record Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -339,16 +416,119 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Resource Definition Snippet Block.
+     * Get HTTP Resource Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getResourceDefinitionSnippet() {
+    public static SnippetBlock getHttpResourceDefinitionSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get Common/Generic Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommonResourceDefinitionSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "resource function ${1:newResource}(${2}) {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get gRPC Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGRPCResourceDefinitionSnippet() {
+        Pair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "resource function ${1:newResource}(grpc:Caller ${2:caller}, ${3:string request}) {"
+                + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get WebSocket OnOpen Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnOpenSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onOpen", Collections.singletonList(
+                "http:WebSocketCaller ${#:caller}"), new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnText Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnTextSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onText", Arrays.asList(
+                "http:WebSocketCaller ${#:caller}", "string ${#:data}", "boolean ${#:finalFrame}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnClose Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnCloseSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onClose", Arrays.asList(
+                "http:WebSocketCaller ${#:caller}", "int ${#:statusCode}", "string ${#:reason}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSub OnIntentVerification Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSubResourceOnIntentVerificationSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onIntentVerification",
+                                                             Arrays.asList("websub:Caller ${#:caller}",
+                                                                           "websub:IntentVerificationRequest " +
+                                                                                   "${#:request}"),
+                                                             new ImmutablePair<>("ballerina",
+                                                                                 "websub"));
+    }
+
+    /**
+     * Get WebSub OnNotification Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSubResourceOnNotificationSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onNotification",
+                Collections.singletonList("websub:Notification ${#:notification}"),
+                new ImmutablePair<>("ballerina", "websub"));
+    }
+
+    /**
+     * Get Resource Definition Snippet Block.
+     *
+     * @param name             name of the snippet
+     * @param params           params for the snippet
+     * @param orgToAliasImport import
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getHttpResourceDefinitionSnippet(String name, List<String> params,
+                                                                Pair<String, String> orgToAliasImport) {
+        StringJoiner paramsJoiner = new StringJoiner(",");
+        IntStream.range(0, params.size()).forEach(
+                i -> paramsJoiner.add(params.get(i).replace("#", String.valueOf(i + 2))));
+        String snippet = "resource function ${1:" + name + "}(" + paramsJoiner.toString() + ") {"
+                + CommonUtil.LINE_SEPARATOR + "\t${" + (2 + params.size()) + "}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(name + " " + ItemResolverConstants.RESOURCE, snippet,
+                                ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, orgToAliasImport);
     }
 
     /**
@@ -423,6 +603,21 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get gRPC Service Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGRPCServiceDefSnippet() {
+        ImmutablePair<String, String> grpcImport = new ImmutablePair<>("ballerina", "grpc");
+        String snippet = "service ${1:serviceName} on new grpc:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function ${2:newResource}(grpc:Caller caller, ${3:string} request) {" +
+                CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.SERVICE_GRPC, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, grpcImport);
+    }
+
+    /**
      * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -458,7 +653,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries ${1:0} {" + CommonUtil.LINE_SEPARATOR
+        String snippet = "transaction with retries = ${1:0} {" + CommonUtil.LINE_SEPARATOR
                 + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,

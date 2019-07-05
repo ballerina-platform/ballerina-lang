@@ -34,23 +34,25 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -585,8 +587,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.getExpressions().forEach(this::acceptNode);
+    public void visit(BLangGroupExpr groupExpr) {
+        this.acceptNode(groupExpr.expression);
     }
 
     @Override
@@ -616,8 +618,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        arrayLiteral.exprs.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.exprs.forEach(this::acceptNode);
     }
 
     @Override
@@ -633,6 +635,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
         this.acceptNode(conversionExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        this.acceptNode(bLangNamedArgsExpression.expr);
     }
 
     private void acceptNode(BLangNode node) {
@@ -697,8 +709,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private int getTypeLengthWithWS(BLangType typeNode, boolean nested) {
-        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
         int length = 0;
+
+        // Check whether whitespaces are null for the type node.
+        // If null return length as 0.
+        if (typeNode == null || typeNode.getWS() == null) {
+            return length;
+        }
+
+        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
 
         if (typeNode instanceof BLangUnionTypeNode) {
             length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);

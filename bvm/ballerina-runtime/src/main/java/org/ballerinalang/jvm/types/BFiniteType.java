@@ -18,8 +18,10 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -32,23 +34,77 @@ public class BFiniteType extends BType {
 
     public Set<Object> valueSpace;
 
-    public BFiniteType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, RefValue.class);
+    public BFiniteType(String typeName) {
+        super(typeName, null, RefValue.class);
         this.valueSpace = new LinkedHashSet<>();
+    }
+
+    public BFiniteType(String typeName, Set<Object> values) {
+        super(typeName, null, RefValue.class);
+        this.valueSpace = values;
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
+        if (valueSpace.stream().anyMatch(val -> val == null || TypeChecker.getType(val).isNilable())) {
+            return null;
+        }
+
+        Iterator<Object> valueIterator = valueSpace.iterator();
+        Object firstVal = valueIterator.next();
+
+        if (isSingletonType()) {
+            return (V) firstVal;
+        }
+
+        Object implicitInitValOfType = TypeChecker.getType(firstVal).getZeroValue();
+        if (implicitInitValOfType.equals(firstVal)) {
+            return (V) implicitInitValOfType;
+        }
+
+        while (valueIterator.hasNext()) {
+            Object value = valueIterator.next();
+            if (implicitInitValOfType.equals(value)) {
+                return (V) implicitInitValOfType;
+            }
+        }
+
         return null;
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
+        if (valueSpace.stream().anyMatch(val -> val == null || TypeChecker.getType(val).isNilable())) {
+            return null;
+        }
+
+        Iterator<Object> valueIterator = valueSpace.iterator();
+        Object firstVal = valueIterator.next();
+
+        if (isSingletonType()) {
+            return (V) firstVal;
+        }
+
+        Object implicitInitValOfType = TypeChecker.getType(firstVal).getEmptyValue();
+        if (implicitInitValOfType.equals(firstVal)) {
+            return (V) implicitInitValOfType;
+        }
+
+        while (valueIterator.hasNext()) {
+            Object value = valueIterator.next();
+            if (implicitInitValOfType.equals(value)) {
+                return (V) implicitInitValOfType;
+            }
+        }
+
         return null;
     }
-
     @Override
     public int getTag() {
         return TypeTags.FINITE_TYPE_TAG;
+    }
+
+    private boolean isSingletonType() {
+        return valueSpace.size() == 1;
     }
 }
