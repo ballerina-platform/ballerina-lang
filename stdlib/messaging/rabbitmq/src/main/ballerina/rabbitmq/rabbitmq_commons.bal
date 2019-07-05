@@ -123,6 +123,6 @@ public type ConnectionConfiguration record {|
 public type SecureSocket record {|
     crypto:TrustStore trustStore = {};
     crypto:KeyStore keyStore = {};
-    string? tlsVersion = ();
+    string tlsVersion = "TLS";
     boolean verifyHostname = true;
 |};

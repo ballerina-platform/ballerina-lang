@@ -68,7 +68,7 @@ public class ConnectionUtils {
                 if (secureSocket.getBooleanValue(RabbitMQConstants.RABBITMQ_CONNECTION_VERIFY_HOST)) {
                     connectionFactory.enableHostnameVerification();
                 }
-                logger.info("TLS enabled for the connection with the RabbitMQ server.");
+                logger.info("TLS enabled for the connection.");
             }
 
             String host = connectionConfig.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
@@ -118,17 +118,11 @@ public class ConnectionUtils {
         try {
             MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
             MapValue cryptoTrustStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_TRUSTORE);
-
             char[] keyPassphrase = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
             String keyFilePath = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
-
             char[] trustPassphrase = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
             String trustFilePath = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
-
             String tlsVersion = secureSocket.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_TLS_VERSION);
-            if (tlsVersion == null) {
-                tlsVersion = "TLS";
-            }
 
             KeyStore keyStore = KeyStore.getInstance(RabbitMQConstants.KEY_STORE_TYPE);
             if (keyFilePath != null) {
