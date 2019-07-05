@@ -2547,7 +2547,6 @@
         <mimepull.version>1.9.11</mimepull.version>
         <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
         <bcpkix-jdk15on.version>1.61</bcpkix-jdk15on.version>
-
         <broker.version>0.970.5</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.23.Final</netty-tcnative-boringssl-static.version>
 
