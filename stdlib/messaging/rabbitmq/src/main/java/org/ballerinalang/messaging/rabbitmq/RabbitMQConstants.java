@@ -68,6 +68,8 @@ public class RabbitMQConstants {
     public static final String RABBITMQ_CONNECTION_VERIFY_HOST = "verifyHostname";
     public static final String RABBITMQ_CONNECTION_TLS_VERSION = "tlsVersion";
     public static final String KEY_STORE_TYPE = "PKCS12";
+    public static final String KEY_STORE_PASS = "password";
+    public static final String KEY_STORE_PATH = "path";
 
     // Channel listener constant fields
     public static final String LISTENER_OBJECT = "Listener";

@@ -119,11 +119,11 @@ public class ConnectionUtils {
             MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
             MapValue cryptoTrustStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_TRUSTORE);
 
-            char[] keyPassphrase = cryptoKeyStore.getStringValue("password").toCharArray();
-            String keyFilePath = cryptoKeyStore.getStringValue("path");
+            char[] keyPassphrase = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
+            String keyFilePath = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
 
-            char[] trustPassphrase = cryptoTrustStore.getStringValue("password").toCharArray();
-            String trustFilePath = cryptoTrustStore.getStringValue("path");
+            char[] trustPassphrase = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
+            String trustFilePath = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
 
             String tlsVersion = secureSocket.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_TLS_VERSION);
             if (tlsVersion == null) {
