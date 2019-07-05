@@ -65,10 +65,10 @@ public class Executor {
                               CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
 
         //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
-//        if (scheduler == null) {
-//            scheduler = new Scheduler(4, false);
-//            scheduler.start();
-//        }
+        if (scheduler == null) {
+            scheduler = new Scheduler(4, false);
+            scheduler.start();
+        }
         Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
         scheduler.schedule(new Object[1], func, null, callback, properties);
     }
