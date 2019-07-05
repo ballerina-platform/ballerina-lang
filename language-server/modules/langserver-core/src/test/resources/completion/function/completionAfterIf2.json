@@ -407,7 +407,7 @@
       ]
     },
     {
-      "label": "ballerina/jdbc",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",

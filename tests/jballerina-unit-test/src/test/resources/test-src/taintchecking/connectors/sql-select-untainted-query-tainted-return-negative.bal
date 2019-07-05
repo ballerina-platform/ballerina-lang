@@ -1,4 +1,4 @@
-import ballerina/jdbc;
+import ballerinax/jdbc;
 
 type Employee record {
     int id;

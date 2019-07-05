@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jdbc;
+import ballerinax/jdbc;
 import ballerina/io;
 
 jdbc:Client mysqlDB = new ({

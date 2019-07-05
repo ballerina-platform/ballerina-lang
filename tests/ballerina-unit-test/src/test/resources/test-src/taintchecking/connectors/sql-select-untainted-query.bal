@@ -1,4 +1,4 @@
-import ballerina/jdbc;
+import ballerinax/jdbc;
 
 public function main(string... args) {
     testSelectWithUntaintedQuery(...args);
