@@ -39,11 +39,9 @@ public class ForEach {
 
     public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
-        Object[] args = new Object[]{strand, null};
 
         for (int i = 0; i < size; i++) {
-            args[1] = arr.get(i);
-            func.accept(args);
+            func.accept(new Object[]{strand, arr.get(i), true});
         }
     }
 }

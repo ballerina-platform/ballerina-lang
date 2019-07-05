@@ -1,6 +1,21 @@
 import ballerina/http;
 
-service serviceName1 on new http:Listener(9090){
+http:Listener ln1 = new(9090);
+http:Listener ln2 = new(9095);
+
+    service    serviceName0    on  ln1 , ln2  {
+         resource function newResource(http:Caller caller, http:Request request) {
+            json? payload;
+    (http:Response | error | ()) clientResponse;
+           (json | error) jsonMsg = req.getJsonPayload();
+     http:Response res = new;
+           res.setPayload("sd");
+     var d = 0;
+           checkpanic caller->respond(res);
+  }
+}
+
+service  serviceName1  on  new http:Listener(9090){
     resource function newResource(http:Caller caller, http:Request request) {
     json? payload;
           (http:Response | error | ()) clientResponse;
@@ -60,4 +75,35 @@ service serviceName4 on new http:Listener(9090) {
                 }
             }
         }
+}
+
+service serviceName5 on
+    ln1
+   ,
+        ln2{
+    resource function newResource(http:Caller caller, http:Request request) {
+        json? payload;
+        (http:Response | error | ()) clientResponse;
+        (json | error) jsonMsg = req.getJsonPayload();
+        http:Response res = new;
+        res.setPayload("sd");
+        var d = 0;
+        checkpanic caller->respond(res);
+    }
+}
+
+service serviceName6 on
+    new
+  http
+     :
+    Listener(9090){
+    resource function newResource(http:Caller caller, http:Request request) {
+        json? payload;
+        (http:Response | error | ()) clientResponse;
+        (json | error) jsonMsg = req.getJsonPayload();
+        http:Response res = new;
+        res.setPayload("sd");
+        var d = 0;
+        checkpanic caller->respond(res);
+    }
 }

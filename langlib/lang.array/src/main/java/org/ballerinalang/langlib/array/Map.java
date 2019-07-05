@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+
 /**
  * Native implementation of lang.array:map(Type[]).
  *
@@ -47,10 +49,11 @@ public class Map {
         BType arrType = new BArrayType(elemType);
         ArrayValue newArr = new ArrayValue(arrType);
         int size = arr.size();
+        int elemTypeTag = arr.elementType.getTag();
 
         for (int i = 0; i < size; i++) {
-            Object newVal = func.apply(new Object[]{strand, arr.get(i)});
-            newArr.add(i, newVal);
+            Object newVal = func.getFunction().apply(new Object[]{strand, arr.get(i), true});
+            add(newArr, elemTypeTag, i, newVal);
         }
 
         return newArr;

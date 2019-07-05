@@ -337,13 +337,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "divideNumbers(int a, int b)(int|error)",
+      "label": "divideNumbers(int a, int b)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "sortText": "120",
@@ -376,14 +376,6 @@
       "detail": "String",
       "sortText": "110",
       "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "sortText": "110",
-      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {

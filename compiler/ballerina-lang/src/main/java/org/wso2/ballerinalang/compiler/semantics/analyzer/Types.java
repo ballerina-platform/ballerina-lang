@@ -617,6 +617,10 @@ public class Types {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.INVOKABLE && target.tag == TypeTags.INVOKABLE) {
+            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new ArrayList<>());
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
@@ -700,20 +704,80 @@ public class Types {
         return target.tag == TypeTags.ANY && !isValueType(source);
     }
 
-    public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        return checkFunctionTypeEquality(source, target, new ArrayList<>());
+    private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
+                                             List<TypePair> unresolvedTypes) {
+        // For invokable types with typeParam parameters, we have to check whether the source param types are
+        // covariant with the target param types.
+        if (containsTypeParams(target)) {
+            // TODO: 7/4/19 See if the below code can be generalized to avoid code duplication
+            if (source.paramTypes.size() != target.paramTypes.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < source.paramTypes.size(); i++) {
+                BType sourceParam = source.paramTypes.get(i);
+                BType targetParam = target.paramTypes.get(i);
+                boolean isTypeParam = Symbols.isFlagOn(targetParam.tsymbol.flags, Flags.TYPE_PARAM);
+
+                if (isTypeParam) {
+                    if (!isAssignable(sourceParam, targetParam)) {
+                        return false;
+                    }
+                } else {
+                    if (!isAssignable(targetParam, sourceParam)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (source.retType == null && target.retType == null) {
+                return true;
+            } else if (source.retType == null || target.retType == null) {
+                return false;
+            }
+
+            // Source return type should be covariant with target return type
+            return isAssignable(source.retType, target.retType, unresolvedTypes);
+        }
+
+        // Source param types should be contravariant with target param types. Hence s and t switched when checking
+        // assignability.
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean containsTypeParams(BInvokableType type) {
+        boolean hasParameterizedTypes = type.paramTypes.stream()
+                .anyMatch(t -> {
+                    if (t.tag == TypeTags.FUNCTION_POINTER) {
+                        return containsTypeParams((BInvokableType) t);
+                    }
+                    return Symbols.isFlagOn(t.tsymbol.flags, Flags.TYPE_PARAM);
+                });
+
+        if (hasParameterizedTypes) {
+            return hasParameterizedTypes;
+        }
+
+        if (type.retType.tag == TypeTags.FUNCTION_POINTER) {
+            return containsTypeParams((BInvokableType) type.retType);
+        }
+
+        return Symbols.isFlagOn(type.retType.tsymbol.flags, Flags.TYPE_PARAM);
+    }
+
+    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
     }
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
-                                              List<TypePair> unresolvedTypes) {
+                                              List<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            // Source param types should be contravariant with target param types
             if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(target.paramTypes.get(i), source.paramTypes.get(i), unresolvedTypes)) {
+                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -1420,7 +1484,8 @@ public class Types {
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionTypeEquality((BInvokableType) s, t)) {
+            } else if (s.tag == TypeTags.INVOKABLE && isFunctionTypeAssignable((BInvokableType) s, t,
+                                                                               new ArrayList<>())) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
@@ -1589,8 +1654,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE &&
-                    checkFunctionTypeEquality((BInvokableType) s, t);
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new ArrayList<>());
         }
 
         @Override
@@ -1643,7 +1707,7 @@ public class Types {
 
         @Override
         public Boolean visit(BServiceType t, BType s) {
-            return t == s;
+            return t == s || t.tag == s.tag;
         }
 
         @Override
@@ -1684,7 +1748,7 @@ public class Types {
                                                        List<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type, unresolvedTypes))
+                .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
     }
@@ -2417,5 +2481,15 @@ public class Types {
         public int hashCode() {
             return Objects.hash(sourceType, targetType);
         }
+    }
+
+    /**
+     * A functional interface for parameterizing the type of type checking that needs to be done on the source and
+     * target types.
+     *
+     * @since 0.995.0
+     */
+    private interface TypeEqualityPredicate {
+        boolean test(BType source, BType target, List<TypePair> unresolvedTypes);
     }
 }

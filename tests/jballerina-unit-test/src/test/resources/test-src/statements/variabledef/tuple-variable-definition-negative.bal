@@ -15,20 +15,20 @@
 // under the License.
 
 function testNegative1() {
-    (string, int, float) (s, i, f) = ("D", 4, 6.7);
-    (int, byte, boolean) (s, i, r, t) = (4, 6, true);
+    [string, int, float] [s, i, f] = ["D", 4, 6.7];
+    [int, byte, boolean] [s, i, r, t] = [4, 6, true];
 }
 
 function testNegative2() {
-    (string, int, float) (s1, i1) = ("D", 4, 6.7);
-    (string, int, float) (s2, i2, r2, t2) = ("D", 4, 6.7);
-    ((string, int), float) ((s3, (i3, r3)), f3) = (("D", 4), 6.7);
+    [string, int, float] [s1, i1] = ["D", 4, 6.7];
+    [string, int, float] [s2, i2, r2, t2] = ["D", 4, 6.7];
+    [[string, int], float] [[s3, [i3, r3]], f3] = [["D", 4], 6.7];
 }
 
 function testNegative3() {
-    (string, int, float) (s1, i1, f1) = ("D", 4, 6.7, 45);
-    (int, byte, boolean) (s2, i2, r2) = (4, 6);
-    (string, int, float) (s3, i3, f3) = (4, 5.6, "3");
+    [string, int, float] [s1, i1, f1] = ["D", 4, 6.7, 45];
+    [int, byte, boolean] [s2, i2, r2] = [4, 6];
+    [string, int, float] [s3, i3, f3] = [4, 5.6, "3"];
 }
 
 function testNegative4() {
@@ -36,7 +36,7 @@ function testNegative4() {
     Bar bar = {id:34, flag:true};
     FooObj fooObj = new ("Fooo", 3.7, 23);
     BarObj barObj = new (true, 56);
-    ((Foo, (BarObj, FooObj)), Bar) ((f, (bo, fo)), b) = ((bar, (fooObj, barObj)), foo);
+    [[Foo, [BarObj, FooObj]], Bar] [[f, [bo, fo]], b] = [[bar, [fooObj, barObj]], foo];
 }
 
 function testNegative5() {
@@ -44,7 +44,7 @@ function testNegative5() {
     Bar bar = {id:34, flag:true};
     FooObj fooObj = new ("Fooo", 3.7, 23);
     BarObj barObj = new (true, 56);
-    (Foo, (BarObj, FooObj), Bar) (f, (bo, fo), b) = (bar, fooObj, foo);
+    [Foo, [BarObj, FooObj], Bar] [f, [bo, fo], b] = [bar, fooObj, foo];
 }
 
 function testNegative6() {
@@ -52,7 +52,7 @@ function testNegative6() {
     Bar bar = {id:34, flag:true};
     FooObj fooObj = new ("Fooo", 3.7, 23);
     BarObj barObj = new (true, 56);
-    (int, Foo, (BarObj, string, FooObj), Bar, boolean) (i, fr, (bo, s, fo), br, b) = (bar, 12, (fooObj, "DD", barObj), foo, true);
+    [int, Foo, [BarObj, string, FooObj], Bar, boolean] [i, fr, [bo, s, fo], br, b] = [bar, 12, [fooObj, "DD", barObj], foo, true];
 }
 
 type Foo record {
@@ -86,22 +86,22 @@ type BarObj object {
 };
 
 function testInvalidTupleVarDef1() {
-    ((string, (int, (boolean, int))), (float, int)) t = (("Bal", (3, (true, 34))), (5.6, 45));
+    [[string, [int, [boolean, int]]], [float, int]] t = [["Bal", [3, [true, 34]]], [5.6, 45]];
     any a = t;
-    var ((s, (i1, (b, y))), (f, i2)) = a;
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = a;
 }
 
-function testInvalidTupleVarDef2() returns (string, int, boolean, int, float, int) {
-    ((string, (int, (boolean, int))), (float, int)) t = (("Bal", (3, (true, 34))), (5.6, 45));
+function testInvalidTupleVarDef2() returns [string, int, boolean, int, float, int] {
+    [[string, [int, [boolean, int]]], [float, int]] t = [["Bal", [3, [true, 34]]], [5.6, 45]];
     any a = t;
     return fn1(a);
 }
 
-function fn1(any t) returns (string, int, boolean, int, float, int) {
-    ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = t;
-    return (s, i1, b, y, f, i2);
+function fn1(any t) returns [string, int, boolean, int, float, int] {
+    [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = t;
+    return [s, i1, b, y, f, i2];
 }
 
 function testIgnoredVariables() {
-    (string, int, float) (_, _, _) = ("D", 4, 6.7); // no new variables on left side
+    [string, int, float] [_, _, _] = ["D", 4, 6.7]; // no new variables on left side
 }

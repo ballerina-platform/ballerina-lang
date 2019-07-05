@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
  *
@@ -40,8 +42,10 @@ public class Push {
 
     public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
         int nVals = vals.size();
+        int elemTypeTag = arr.elementType.getTag();
+
         for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-            arr.add(i, vals.get(j));
+            add(arr, elemTypeTag, i, vals.get(j));
         }
     }
 }

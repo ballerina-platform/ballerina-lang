@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,6 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetIterator {
 
     public static ObjectValue iterator(Strand strand, String str) {
-        return null;
+        throw BallerinaErrors.createError("Function 'iterator()' is not implemented");
     }
 }
