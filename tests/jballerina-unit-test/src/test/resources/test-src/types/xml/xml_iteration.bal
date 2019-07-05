@@ -63,8 +63,7 @@ function foreachOpTest() returns [int, string][] {
         }
     });
 
-    // todo: remove <@untainted> when issue #16175 is fixed.
-    return <@untainted> titles;
+    return titles;
 }
 
 function mapOpTest() returns xml[] {

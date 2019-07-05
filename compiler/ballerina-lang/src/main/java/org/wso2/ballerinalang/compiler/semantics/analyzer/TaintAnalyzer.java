@@ -1862,6 +1862,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             invNode.symbol.taintTable = taintTable;
             validateReturnAndParameterTaintedAnnotations(invNode, taintTable);
+            restCurrentTaintPropagationSet();
         }
         return false;
     }

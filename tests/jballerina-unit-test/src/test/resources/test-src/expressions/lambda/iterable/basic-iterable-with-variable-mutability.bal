@@ -303,8 +303,7 @@ function testWithComplexJson() returns json[] {
             index += 1;
         });
 
-    // todo: remove <@untainted> when issue #16175 is fixed.
-    return <@untainted> filteredResults;
+    return filteredResults;
 }
 
 function testWithComplexXML() returns ([int, string][]) {
@@ -350,8 +349,7 @@ function testWithComplexXML() returns ([int, string][]) {
             }
     });
 
-    // todo: remove <@untainted> when issue #16175 is fixed.
-    return <@untainted> titles;
+    return titles;
 }
 
 type Balance record {
@@ -408,6 +406,5 @@ function multipleIterableOps() returns string[] {
         strArr[index] = currency;
     });
 
-    // todo: remove <@untainted> when issue #16175 is fixed.
-    return <@untained> strArr;
+    return strArr;
 }
