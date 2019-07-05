@@ -546,6 +546,12 @@ public class Types {
             return true;
         }
 
+        if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) source;
+            BMapType mapType = (BMapType) target;
+            return isAssignableRecordType(recordType, mapType);
+        }
+
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
             // Special casing services, until we figure out service type concept.
             return true;
@@ -613,6 +619,11 @@ public class Types {
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
+    }
+
+    private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
+        return  recordType.fields.stream().anyMatch(field -> !isAssignable(field.type, mapType.constraint)) ||
+                isAssignable(recordType.restFieldType, mapType.constraint);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
@@ -857,10 +868,7 @@ public class Types {
                 break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
-                varType = new BTupleType(new LinkedList<BType>() {{
-                    add(symTable.stringType);
-                    add(inferRecordFieldType(recordType));
-                }});
+                varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
