@@ -27,20 +27,20 @@ import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeoutException;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Util class for RabbitMQ Connection handling.
@@ -115,17 +115,15 @@ public class ConnectionUtils {
      * @return Initialized SSLContext.
      */
     private static SSLContext getSSLContext(MapValue secureSocket) {
-        final String CERT_PASS = "password";
-        final String CERT_PATH = "path";
         try {
             MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
             MapValue cryptoTrustStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_TRUSTORE);
 
-            char[] keyPassphrase = cryptoKeyStore.getStringValue(CERT_PASS).toCharArray();
-            String keyFilePath = cryptoKeyStore.getStringValue(CERT_PATH);
+            char[] keyPassphrase = cryptoKeyStore.getStringValue("password").toCharArray();
+            String keyFilePath = cryptoKeyStore.getStringValue("path");
 
-            char[] trustPassphrase = cryptoTrustStore.getStringValue(CERT_PASS).toCharArray();
-            String trustFilePath = cryptoTrustStore.getStringValue(CERT_PATH);
+            char[] trustPassphrase = cryptoTrustStore.getStringValue("password").toCharArray();
+            String trustFilePath = cryptoTrustStore.getStringValue("path");
 
             String tlsVersion = secureSocket.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_TLS_VERSION);
             if (tlsVersion == null) {
@@ -134,7 +132,9 @@ public class ConnectionUtils {
 
             KeyStore keyStore = KeyStore.getInstance(RabbitMQConstants.KEY_STORE_TYPE);
             if (keyFilePath != null) {
-                keyStore.load(new FileInputStream(keyFilePath), keyPassphrase);
+                try (FileInputStream keyFileInputStream = new FileInputStream(keyFilePath)) {
+                    keyStore.load(keyFileInputStream, keyPassphrase);
+                }
             } else {
                 throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                         "Path for the keystore is not found.");
@@ -145,7 +145,9 @@ public class ConnectionUtils {
 
             KeyStore trustStore = KeyStore.getInstance(RabbitMQConstants.KEY_STORE_TYPE);
             if (trustFilePath != null) {
-                trustStore.load(new FileInputStream(trustFilePath), trustPassphrase);
+                try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
+                    trustStore.load(trustFileInputStream, trustPassphrase);
+                }
             } else {
                 throw new RabbitMQConnectorException("Path for the truststore is not found.");
             }
@@ -161,20 +163,16 @@ public class ConnectionUtils {
                     exception.getLocalizedMessage());
         } catch (IOException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
-                    "I/O error occurred. " +
-                    exception.getLocalizedMessage());
+                    "I/O error occurred.");
         } catch (CertificateException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
-                    "Certification error occurred. " +
-                    exception.getLocalizedMessage());
+                    "Certification error occurred.");
         } catch (UnrecoverableKeyException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
-                    "A key in the keystore cannot be recovered. " +
-                    exception.getLocalizedMessage());
+                    "A key in the keystore cannot be recovered.");
         } catch (NoSuchAlgorithmException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
-                    "The particular cryptographic algorithm requested is not available in the environment." +
-                    exception.getLocalizedMessage());
+                    "The particular cryptographic algorithm requested is not available in the environment.");
         } catch (KeyStoreException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "No provider supports a KeyStoreSpi implementation for this keystore type." +
