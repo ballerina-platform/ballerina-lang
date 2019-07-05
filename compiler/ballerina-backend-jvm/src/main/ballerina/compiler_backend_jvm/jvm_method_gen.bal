@@ -421,17 +421,64 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // Create Local Variable Table
     k = localVarOffset;
-    int lVarIndex = 1;
+    int lVarIndex = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         if (localVar.kind is bir:LocalVarKind && localVar.metaVarName != "") {
-            mv.visitLocalVariable(localVar.metaVarName, localVar.metaVarName, methodStartLabel, methodEndLabel, lVarIndex);
+            mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
+                methodStartLabel, methodEndLabel, lVarIndex);
             lVarIndex = lVarIndex + 1;
         }
         k = k + 1;
     }
     mv.visitMaxs(200, 400);
     mv.visitEnd();
+}
+
+function getJVMTypeSign(bir:BType bType) returns string {
+    string jvmType = "";
+    if (bType is bir:BTypeInt) {
+        jvmType = "J";
+    } else if (bType is bir:BTypeByte) {
+        jvmType = "I";
+    } else if (bType is bir:BTypeFloat) {
+        jvmType = "D";
+    } else if (bType is bir:BTypeBoolean) {
+        jvmType = "Z";
+    } else if (bType is bir:BTypeString) {
+        jvmType = io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        jvmType = io:sprintf("L%s;", DECIMAL_VALUE);
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+        jvmType = io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BTableType) {
+        jvmType = io:sprintf("L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        jvmType = io:sprintf("L%s;", STREAM_VALUE);
+    } else if (bType is bir:BArrayType ||
+                bType is bir:BTupleType) {
+        jvmType = io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
+        jvmType = io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BErrorType) {
+        jvmType = io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        jvmType = io:sprintf("L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BInvokableType) {
+        jvmType = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeDesc) {
+        jvmType = io:sprintf("L%s;", TYPEDESC_VALUE);
+    }   else if (bType is bir:BTypeNil 
+            || bType is bir:BTypeAny 
+            || bType is bir:BTypeAnyData 
+            || bType is bir:BUnionType 
+            || bType is bir:BJSONType 
+            || bType is bir:BFiniteType) {
+        jvmType = io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BXMLType) {
+        jvmType = io:sprintf("L%s;", XML_VALUE);
+    }
+    return jvmType;
 }
 
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
