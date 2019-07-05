@@ -46,13 +46,6 @@ public const string CONTENT_TYPE = "content-type";
 # Represents `content-disposition` header name.
 public const string CONTENT_DISPOSITION = "content-disposition";
 
-# Represents MIME error code.
-public const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
-
-type MIMEError record {
-    string message = "";
-};
-
 # Represents values in `Content-Disposition` header.
 #
 # + fileName - Default filename for storing the bodypart, if the receiving agent wishes to store it in an external
@@ -140,10 +133,9 @@ public type Entity object {
     #
     # + mediaType - Content type that needs to be set to the entity
     # + return - Nil if successful, error in case of invalid media-type
-    public function setContentType(@sensitive string mediaType) returns error? {
+    public function setContentType(@sensitive string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
-        return;
     }
 
     # Gets the content type of entity.
@@ -244,9 +236,9 @@ public type Entity object {
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
-    # + return - `json` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `json` data extracted from the the entity body. An `ParserError` record is returned in case of
     #            errors.
-    public function getJson() returns @tainted json|error = external;
+    public function getJson() returns @tainted json|ParserError = external;
 
     # Sets the entity body with the given XML content. This method overrides any existing content-type headers
     # with the default content-type `application/xml`. The default value `application/xml` can be overridden
@@ -259,9 +251,9 @@ public type Entity object {
 
     # Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
     #
-    # + return - `xml` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `xml` data extracted from the the entity body. An `ParserError` record is returned in case of
     #            errors.
-    public function getXml() returns @tainted xml|error = external;
+    public function getXml() returns @tainted xml|ParserError = external;
 
     # Sets the entity body with the given text content. This method overrides any existing content-type headers
     # with the default content-type `text/plain`. The default value `text/plain` can be overridden
@@ -274,8 +266,8 @@ public type Entity object {
 
     # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
     #
-    # + return - `string` data extracted from the the entity body or `error` in case of errors.
-    public function getText() returns @tainted string|error = external;
+    # + return - `string` data extracted from the the entity body or `ParserError` in case of errors.
+    public function getText() returns @tainted string|ParserError = external;
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
     # with the default content type `application/octet-stream`. The default value `application/octet-stream`
@@ -289,9 +281,9 @@ public type Entity object {
     # Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
     # using getByteChannel() method instead.
     #
-    # + return - `byte[]` data extracted from the the entity body. An `error` record is returned in case of
+    # + return - `byte[]` data extracted from the the entity body. An `ParserError` record is returned in case of
     #            errors.
-    public function getByteArray() returns @tainted byte[]|error = external;
+    public function getByteArray() returns @tainted byte[]|ParserError = external;
 
     # Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
     # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
@@ -304,19 +296,19 @@ public type Entity object {
 
     # Given an entity, gets the entity body as a byte channel.
     #
-    # + return - An `io:ReadableByteChannel`. An `error` record will be returned in case of errors
-    public function getByteChannel() returns @tainted io:ReadableByteChannel|error = external;
+    # + return - An `io:ReadableByteChannel`. An `ParserError` record will be returned in case of errors
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|ParserError = external;
 
     # Given an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.
     #
-    # + return - An array of body parts(`Entity[]`) extracted from the entity body. An `error` record will be
+    # + return - An array of body parts(`Entity[]`) extracted from the entity body. An `ParserError` record will be
     #            returned in case of errors.
-    public function getBodyParts() returns Entity[]|error = external;
+    public function getBodyParts() returns Entity[]|ParserError = external;
 
     # Given an entity, gets the body parts as a byte channel.
     #
     # + return - Body parts as a byte channel
-    public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|error = external;
+    public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|ParserError = external;
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
     # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden
@@ -404,9 +396,9 @@ public function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByt
 # + return - If the given input is of type string, an encoded `string` is returned.
 #            If the given input is of type byte[], an encoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `error` record is returned.
-function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|error) = external;
+#            In case of errors, an `EncodeError` record is returned.
+public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
+    returns (string|byte[]|io:ReadableByteChannel|EncodeError) = external;
 
 # Decodes a given input with MIME specific Base64 encoding scheme.
 #
@@ -415,93 +407,33 @@ function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded,
 # + return - If the given input is of type string, a decoded `string` is returned.
 #            If the given input is of type byte[], a decoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `error` record is returned.
-function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|error) = external;
+#            In case of errors, an `DecodeError` record is returned.
+public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
+    returns (string|byte[]|io:ReadableByteChannel|DecodeError) = external;
 
 # Encodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeEncoded - Content that needs to be encoded
-# + return - An encoded byte[]. In case of errors, an `error` record is returned
-public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
+# + return - An encoded byte[]. In case of errors, an `EncodeError` record is returned
+public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeError {
     var result = base64Encode(valueToBeEncoded);
-    if (result is byte[]|error) {
+    if (result is byte[]|EncodeError) {
         return result;
     } else {
-        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding byte[]");
-        return encodeErr;
-    }
-}
-
-# Encodes a given string with Base64 encoding scheme.
-#
-# + valueToBeEncoded - Content that needs to be encoded
-# + charset - Charset to be used
-# + return - An encoded `string`. In case of errors, an `error` record is returned
-public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
-    var result = base64Encode(valueToBeEncoded);
-    if (result is string|error) {
-        return result;
-    } else {
-        error encodeErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding string");
-        return encodeErr;
-    }
-}
-
-# Encodes a given ByteChannel with Base64 encoding scheme.
-#
-# + valueToBeEncoded - Content that needs to be encoded
-# + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded) returns io:ReadableByteChannel|error {
-    var result = base64Encode(valueToBeEncoded);
-    if (result is io:ReadableByteChannel|error) {
-        return result;
-    } else {
-        error customErr = error(MIME_ERROR_CODE, message = "Error occurred while encoding ReadableByteChannel content");
-        return customErr;
+        return prepareEncodingErrorWithDetail("Error occurred while encoding byte[]");
     }
 }
 
 # Decodes a given byte[] with Base64 encoding scheme.
 #
 # + valueToBeDecoded - Content that needs to be decoded
-# + return - A decoded `byte[]`. In case of errors, an `error` record is returned
-public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
+# + return - A decoded `byte[]`. In case of errors, an `DecodeError` record is returned
+public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeError {
     var result = base64Decode(valueToBeDecoded);
-    if (result is byte[]|error) {
+    if (result is byte[]|DecodeError) {
         return result;
     } else {
-        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding byte[]");
-        return decodeErr;
-    }
-}
-
-# Decodes a given string with Base64 encoding scheme.
-#
-# + valueToBeDecoded - Content that needs to be decoded
-# + charset - Charset to be used
-# + return - A decoded `string`. In case of errors, an `error` record is returned
-public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
-    var result = base64Decode(valueToBeDecoded);
-    if (result is string|error) {
-        return result;
-    } else {
-        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding string");
-        return decodeErr;
-    }
-}
-
-# Decodes a given ByteChannel with Base64 encoding scheme.
-#
-# + valueToBeDecoded - Content that needs to be decoded
-# + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
-public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded) returns io:ReadableByteChannel|error {
-    var result = base64Decode(valueToBeDecoded);
-    if (result is io:ReadableByteChannel|error) {
-        return result;
-    } else {
-        error decodeErr = error(MIME_ERROR_CODE, message = "Error occurred while decoding ReadableByteChannel content");
-        return decodeErr;
+        return prepareDecodingErrorWithDetail("Error occurred while decoding byte[]");
     }
 }
 
@@ -517,7 +449,7 @@ function getEncoding(MediaType contentType) returns (string) {
 #
 # + contentType - Content-Type in string
 # + return - `MediaType` object or an error in case of invalid content-type
-public function getMediaType(string contentType) returns MediaType|error = external;
+public function getMediaType(string contentType) returns MediaType|InvalidContentTypeError = external;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.
 #
@@ -525,18 +457,4 @@ public function getMediaType(string contentType) returns MediaType|error = exter
 # + return - A `ContentDisposition` object
 public function getContentDispositionObject(string contentDisposition) returns ContentDisposition = external;
 
-# Converts given byte[] to a string.
-#
-# + encoding - Encoding to used in byte[] conversion to string
-# + return - String representation of the given byte[]
-public function byteArrayToString(byte[] b, string encoding) returns string = external;
 
-# Encode a given byte[] with Base64 encoding scheme.
-#
-# + return - Return an encoded byte[]
-public function base64EncodeByteArray(byte[] b) returns byte[] = external;
-
-# Decode a given byte[] with Base64 encoding scheme.
-#
-# + return - Return a decoded byte[]
-public function base64DecodeByteArray(byte[] b) returns byte[] = external;
