@@ -24,13 +24,18 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+
+import java.util.List;
+
+import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
 /**
  * Creates a subscription with the NATS server.
@@ -66,7 +71,11 @@ public class Register extends BlockingNativeCallableUnit {
         }
         String queueName = subscriptionConfig.getStringValue("queueName");
         String subject = subscriptionConfig.getStringValue("subject");
-        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(service));
+        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(strand.scheduler, service));
+        // Add dispatcher. This is needed when closing the connection.
+        @SuppressWarnings("unchecked")
+        List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
+        dispatcherList.add(dispatcher);
         try {
             if (queueName != null) {
                 dispatcher.subscribe(subject, queueName);
@@ -83,16 +92,10 @@ public class Register extends BlockingNativeCallableUnit {
     @SuppressWarnings("unchecked")
     private static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
 
-        ArrayValue annotationArray = null;
-        if (annotationData instanceof ArrayValue) {
-            annotationArray = (ArrayValue) annotationData;
+        MapValue annotationRecord = null;
+        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
+            annotationRecord = (MapValue) annotationData;
         }
-        if (annotationArray != null && annotationArray.size() > 0) {
-            Object annotationValue = annotationArray.getRefValue(0);
-            if (annotationValue instanceof MapValue) {
-                return (MapValue) annotationValue;
-            }
-        }
-        return null;
+        return annotationRecord;
     }
 }
