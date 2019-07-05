@@ -300,6 +300,7 @@ public class SymbolTable {
                 this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
         this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
         this.errorType.ctorSymbol = this.errorConstructor;
+        this.errorConstructor.retType = errorType;
 
         // TODO : Remove this. Had to add this due to BIR codegen requires this.
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);

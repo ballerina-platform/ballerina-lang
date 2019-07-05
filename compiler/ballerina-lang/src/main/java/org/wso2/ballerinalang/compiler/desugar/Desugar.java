@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -4514,7 +4515,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangInvocation invocation = (BLangInvocation) expr;
             invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
 
-            if (Symbols.isFlagOn(invocation.type.tsymbol.flags, Flags.TYPE_PARAM)) {
+            if (TypeParamAnalyzer.isTypeParam(invocation.type)) {
                 BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
                                                                                     symTable.errorType, false, true,
                                                                                     InstructionCodes.NOP, null, null);

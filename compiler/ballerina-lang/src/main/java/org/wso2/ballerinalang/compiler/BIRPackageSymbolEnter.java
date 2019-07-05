@@ -435,6 +435,7 @@ public class BIRPackageSymbolEnter {
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
+        symbol.retType = typeDefSymbol.type;
         scope.define(symbol.name, symbol);
 
         ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
