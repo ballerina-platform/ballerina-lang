@@ -1065,44 +1065,6 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     if (userMainFunc is bir:Function) {
         mv.visitInsn(DUP);
-        // string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
-        // bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
-
-        // mv.visitIntInsn(BIPUSH, paramTypes.length() + 1);
-        // mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-        // // first element of the args array will be set by the scheduler
-        // // load and cast param values
-        // int paramIndex = 0;
-        // int paramTypeIndex = 0;
-        // int argArrayIndex = 0;
-        // while (paramTypeIndex < paramTypes.length()) {
-        //     var paramType = paramTypes[paramTypeIndex];
-        //     bir:BType pType = getType(paramType);
-        //     mv.visitInsn(DUP);
-        //     mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        //     // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
-        //     if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
-        //         // load VarArgs array
-        //         mv.visitVarInsn(ALOAD, 0);
-        //         mv.visitIntInsn(BIPUSH, argArrayIndex);
-        //         loadType(mv, pType);
-        //         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "createVarArgsArray", 
-        //             io:sprintf("([L%s;IL%s;)L%s;", STRING_VALUE, ARRAY_TYPE, ARRAY_VALUE), false);
-        //     } else {
-        //         generateParamCast(argArrayIndex, pType, mv);
-        //     }
-        //     mv.visitInsn(AASTORE);
-        //     paramIndex += 1;
-
-        //     mv.visitInsn(DUP);
-        //     mv.visitIntInsn(BIPUSH, paramIndex + 1);
-        //     mv.visitLdcInsn("true");
-        //     mv.visitInsn(AASTORE);
-        //     paramIndex += 1;
-        //     argArrayIndex += 1;
-        //     paramTypeIndex += 2;
-        // }
         loadCLIArgsForMain(mv, userMainFunc.params, userMainFunc.restParamExist, userMainFunc.annotAttachments);
 
         // invoke the user's main method
