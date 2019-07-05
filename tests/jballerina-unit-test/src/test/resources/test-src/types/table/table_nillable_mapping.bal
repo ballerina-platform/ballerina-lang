@@ -117,8 +117,8 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testMappingToNillableTypeFields() returns (int?, int?, float?,
-            float?, boolean?, string?, decimal?, decimal?, float?, int?, int?, string?, byte[]?) {
+function testMappingToNillableTypeFields() returns [int?, int?, float?,
+            float?, boolean?, string?, decimal?, decimal?, float?, int?, int?, string?, byte[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -164,9 +164,9 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
         }
     }
     checkpanic testDB.stop();
-    return (int_type, long_type, float_type, double_type,
+    return [int_type, long_type, float_type, double_type,
     boolean_type, string_type,
-    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type);
+    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type];
 }
 
 function testMappingToNillableTypeFieldsBlob() returns byte[]? {
@@ -192,7 +192,7 @@ function testMappingToNillableTypeFieldsBlob() returns byte[]? {
     return blob_type;
 }
 
-function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, int, int, int)|error {
+function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, int, int, int]|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -246,11 +246,11 @@ function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, 
         }
     }
     checkpanic testDB.stop();
-    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-    datetimeInserted, datetimeRetrieved);
+    return [dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
+    datetimeInserted, datetimeRetrieved];
 }
 
-function testMappingDatesToNillableIntType(int datein, int timein, int timestampin) returns (int, int, int, int) {
+function testMappingDatesToNillableIntType(int datein, int timein, int timestampin) returns [int, int, int, int] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -289,11 +289,11 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
         }
     }
     checkpanic testDB.stop();
-    return (date, time, timestamp, datetime);
+    return [date, time, timestamp, datetime];
 }
 
-function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns (string, string, string,
-        string) {
+function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns [string, string, string,
+        string] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -331,12 +331,12 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
         }
     }
     checkpanic testDB.stop();
-    return (date, time, timestamp, datetime);
+    return [date, time, timestamp, datetime];
 }
 
-function testMappingNullToNillableTypes() returns (int?, int?, float?,
+function testMappingNullToNillableTypes() returns [int?, int?, float?,
             float?, boolean?, string?, decimal?, decimal?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
-            , time:Time?, time:Time?) {
+            , time:Time?, time:Time?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -392,9 +392,9 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
         }
     }
     checkpanic testDB.stop();
-    return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
+    return [int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
     real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type, time_type, datetime_type,
-    timestamp_type);
+    timestamp_type];
 }
 
 function testMappingNullToNillableTypesBlob() returns byte[]? {
@@ -423,7 +423,7 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
 }
 
 function testMapArrayToNonNillableTypeWithNillableElementType()
-             returns (int?[], int?[], decimal?[], string?[], boolean?[]) {
+             returns [int?[], int?[], decimal?[], string?[], boolean?[]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -454,11 +454,11 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
-function testMapArrayToNillableTypeWithNillableElementType() returns (
-            int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?) {
+function testMapArrayToNillableTypeWithNillableElementType() returns [
+            int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -489,11 +489,11 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapArrayToNillableTypeWithNonNillableElementType()
-             returns (int[]?, int[]?, decimal[]?, string[]?, boolean[]?) {
+             returns [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -523,11 +523,11 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() returns
-                                     (int?[], int?[], decimal?[], string?[], boolean?[]) {
+                                     [int?[], int?[], decimal?[], string?[], boolean?[]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -558,11 +558,11 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() return
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapNillIncludedArrayNillableTypeWithNillableElementType()
-             returns (int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?) {
+             returns [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -593,11 +593,11 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
-             returns (int[]?, int[]?, decimal[]?, string[]?, boolean[]?) {
+             returns [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -628,11 +628,11 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapNilArrayToNillableTypeWithNillableElementTypes()
-             returns (int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?) {
+             returns [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -663,11 +663,11 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
 function testMapNillElementsOnlyArray()
-             returns (int?[], int?[], decimal?[], string?[], boolean?[]) {
+             returns [int?[], int?[], decimal?[], string?[], boolean?[]] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -698,5 +698,5 @@ function testMapNillElementsOnlyArray()
         }
     }
     checkpanic testDB.stop();
-    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+    return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }

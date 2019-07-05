@@ -91,6 +91,7 @@ public class SignatureHelpTest {
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
                 {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
+                {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"}
         };
     }
 
