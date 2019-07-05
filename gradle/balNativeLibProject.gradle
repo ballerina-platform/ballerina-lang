@@ -22,6 +22,7 @@ configurations {
         transitive false
     }
 }
+project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
 
 class CreateBaloTask extends JavaExec {
     def isBuiltin = 'false'
@@ -40,7 +41,7 @@ class CreateBaloTask extends JavaExec {
         def args = []
         args << isBuiltin
         args << "src/main/ballerina/"
-        args << "${project.buildDir}/generated-balo/repo/ballerina"
+        args << "${project.buildDir}/generated-balo/repo/" + project.ext.orgName
         args << "${project.buildDir}/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget

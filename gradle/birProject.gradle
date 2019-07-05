@@ -6,7 +6,7 @@ project.ext.moduleName = files(file('src/main/ballerina').listFiles()).filter { 
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
 
-def generatedBirDir = "$buildDir/generated-bir/ballerina/" + project.ext.moduleName + "/0.0.0/"
+def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/"
 
 
 task copyExternalMappingNextToBir(type: Copy) {
@@ -21,7 +21,7 @@ task createBir {
 
     doLast {
         copy {
-            def zipFile = zipTree("$buildDir/generated-balo/repo/ballerina/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip").matching {
+            def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip").matching {
                 include "**/*.bir"
             }.files
             from zipFile
@@ -29,7 +29,7 @@ task createBir {
         }
     }
 
-    inputs.file "$buildDir/generated-balo/repo/ballerina/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip"
+    inputs.file "$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip"
     outputs.dir "$buildDir/generated-bir"
 }
 

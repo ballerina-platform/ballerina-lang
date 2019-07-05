@@ -42,6 +42,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private int ltSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
+    private boolean forcedProcessedToken;
 
     LHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
@@ -51,6 +52,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
 
         this.removeBlock = false;
         this.capturedAssignToken = false;
+        this.forcedProcessedToken = false;
         this.rightParenthesisCount = 0;
         this.rightBraceCount = 0;
         this.rightBracketCount = 0;
@@ -75,7 +77,10 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             } else if (BallerinaParser.RIGHT_BRACKET == type) {
                 rightBracketCount++;
             }
-            processToken(token.get());
+            if (!this.forcedProcessedToken) {
+                processToken(token.get());
+            }
+            this.forcedProcessedToken = false;
             tokenIndex = token.get().getTokenIndex() - 1;
             token = tokenIndex < 0 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
@@ -93,18 +98,15 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         if (type == BallerinaParser.RIGHT_PARENTHESIS) {
             this.rightParenthesisCount++;
             this.processToken(token);
+            this.forcedProcessedToken = true;
             return false;
         }
         if (type == BallerinaParser.LEFT_PARENTHESIS) {
             Optional<Token> tokenToLeft = CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex());
-            if (processedTokens.isEmpty()) {
-                //TODO: Add a test case for this
-                int leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
-                sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, ++leftParenthesisCount);
-                return false;
-            } else if (this.rightParenthesisCount > 0) {
+            if (this.rightParenthesisCount > 0) {
                 this.rightParenthesisCount--;
                 this.processToken(token);
+                this.forcedProcessedToken = true;
                 return false;
             } else if (tokenToLeft.isPresent() && 
                     (BallerinaParser.IF == tokenToLeft.get().getType() ||
@@ -125,16 +127,19 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 && (this.lastProcessedToken == BallerinaParser.ASSIGN
                 || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0)) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             this.rightBraceCount++;
             return false;
         }
         if (type == BallerinaParser.LEFT_BRACE && this.rightBraceCount > 0) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             this.rightBraceCount--;
             return false;
         }
         if (type == BallerinaParser.LEFT_BRACKET && this.rightBracketCount > 0) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             this.rightBracketCount--;
             return false;
         }
@@ -145,11 +150,13 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
          */
         if (type == BallerinaParser.LT) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             this.ltSymbolCount++;
             return false;
         }
         if (type == BallerinaParser.RETURNS) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
             // If we return true, then always we need to check the right parenthesis count and the right braces count
             return !this.capturedAssignToken && this.rightParenthesisCount == 0 && this.rightBraceCount == 0;
         }
@@ -160,6 +167,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 .contains(BallerinaParser.SERVICE);
         if (token.getType() == BallerinaParser.COMMA || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
             this.processToken(token);
+            this.forcedProcessedToken = true;
         }
         
         return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;

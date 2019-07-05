@@ -29,7 +29,7 @@ function testRecordUnreachablePattern() returns string {
     any a = k;
     match k {
         var{x: name, y: age} => return "A";
-        var{x: name, y: (p, q)} => return "A"; // unreachable since y is matched above
+        var{x: name, y: [p, q]} => return "A"; // unreachable since y is matched above
         var{x: name} => return "A";
         var{x: name} => return "A"; // unreachable since same type
     }
@@ -40,14 +40,14 @@ function testRecordUnreachablePattern() returns string {
 function testTupleUnreachablePattern() returns string {
     any an = 112;
     match an {
-        var (a, b, {s, i}) => return "A";
-        var (a, b, c) => return "A";
-        var (a, b, c, d) => return "A";
-        var (a, b, c, {e, f}) => return "A"; // unreachable
-        var (a, b, c, (s, i)) => return "A"; // unreachable
+        var [a, b, {s, i}] => return "A";
+        var [a, b, c] => return "A";
+        var [a, b, c, d] => return "A";
+        var [a, b, c, {e, f}] => return "A"; // unreachable
+        var [a, b, c, [s, i]] => return "A"; // unreachable
 
-        var (a, {b}) => return "A";
-        var (a, {b, c}) => return "A";
+        var [a, {b}] => return "A";
+        var [a, {b, c}] => return "A";
     }
 
     return "Default";
@@ -62,16 +62,16 @@ function testSimpleRules() returns string {
     }
 
     match k {
-        var (a, b) => return "A";
-        var (a, b, c) => return "A";
-        var (a, b) => return "A"; // unreachable
+        var [a, b] => return "A";
+        var [a, b, c] => return "A";
+        var [a, b] => return "A"; // unreachable
     }
 
     match k {
         var x => return "A";
         var y => return "A"; // unreachable
         var {a, b} => return "A"; // unreachable
-        var (a, b) => return "A"; // unreachable
+        var [a, b] => return "A"; // unreachable
         var y => return "A"; // unreachable
     }
 
@@ -81,18 +81,18 @@ function testSimpleRules() returns string {
 function testMixedVariables() returns string {
     any k = 1;
     match k {
-        var {x: name, y: (p, q)} => return "A";
-        var (a, b, c, {e, f}) => return "A";
+        var {x: name, y: [p, q]} => return "A";
+        var [a, b, c, {e, f}] => return "A";
         var {x: name, y: age} => return "A";
-        var (a, b, c, d) => return "A";
+        var [a, b, c, d] => return "A";
         var x => return "A";
     }
 
     match k {
         var {x: name, y: age} => return "A";
-        var (a, b, c, d) => return "A";
-        var {x: name, y: (p, q)} => return "A"; // unreachable
-        var (a, b, c, {e, f}) => return "A"; // unreachable
+        var [a, b, c, d] => return "A";
+        var {x: name, y: [p, q]} => return "A"; // unreachable
+        var [a, b, c, {e, f}] => return "A"; // unreachable
         var x => return "A";
     }
 
@@ -106,8 +106,8 @@ function testClosedRecordPatterns() returns string {
         var {| var1: name2 |} => return "A"; // unreachable
         var {var3: name} => return "A";
         var {| var3: name |} => return "A"; // unreachable
-        var (a, b, {var1, var2: (d, {var2})}, c) => return "B";
-        var (a, b, {var1, var2: (d, {| var2 |})}, c) => return "B"; // unreachable
+        var [a, b, {var1, var2: [d, {var2}]}, c] => return "B";
+        var [a, b, {var1, var2: [d, {| var2 |}]}, c] => return "B"; // unreachable
     }
 
     return "Default";
@@ -116,12 +116,12 @@ function testClosedRecordPatterns() returns string {
 function testWithTypeGuard() returns string {
     any k = 1;
     match k {
-        var (a, b) if a is string => return "A";
-        var (a, b) => return "A";
-        var (a, b) if a is int => return "A"; // unreachable
-        var (a, b, c) if a is boolean => return "A";
-        var (a, b, c) if a is boolean => return "A"; // unreachable
-        var (a, b) if a is string => return "A"; // unreachable
+        var [a, b] if a is string => return "A";
+        var [a, b] => return "A";
+        var [a, b] if a is int => return "A"; // unreachable
+        var [a, b, c] if a is boolean => return "A";
+        var [a, b, c] if a is boolean => return "A"; // unreachable
+        var [a, b] if a is string => return "A"; // unreachable
     }
 
     return "A";
@@ -130,12 +130,12 @@ function testWithTypeGuard() returns string {
 function testUnreachableReturnStmt() returns string {
     any k = 1;
     match k {
-        var (a, b) if a is string => return "A";
+        var [a, b] if a is string => return "A";
         var x => x = "A";
     }
 
     match k {
-        var (a, b) if a is string => return "A";
+        var [a, b] if a is string => return "A";
         var x => return  "B";
     }
 
@@ -164,7 +164,7 @@ function testUnreachableCode3() returns string {
         var x => return "A";
         _ => return "A";
         "12" => return "A"; // unreachable pattern
-        var (a, b) => return "A"; // unreachable pattern
+        var [a, b] => return "A"; // unreachable pattern
     }
 
     return "A";
