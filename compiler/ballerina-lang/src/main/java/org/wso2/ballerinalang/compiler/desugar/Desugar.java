@@ -894,9 +894,9 @@ public class Desugar extends BLangNodeVisitor {
             BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
-                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
-                        null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
-                                restParamType, this.env.scope.owner));
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1",
+                        parentIndexAccessExpr.type, null, new BVarSymbol(0, names.fromString("$map$1"),
+                                this.env.scope.owner.pkgID, parentIndexAccessExpr.type, this.env.scope.owner));
                 mapVariable.expr = parentIndexAccessExpr;
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
@@ -4677,11 +4677,12 @@ public class Desugar extends BLangNodeVisitor {
             recordVarType.fields = fields;
             if (recordVariable.isClosed) {
                 recordVarType.sealed = true;
+                recordVarType.restFieldType = symTable.noType;
             } else {
                 // if rest param is null we treat it as an open record with anydata rest param
                 recordVarType.restFieldType = recordVariable.restParam != null ?
                         ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
-                        symTable.anydataType;
+                        symTable.pureType;
             }
             BLangRecordTypeNode recordTypeNode = createRecordTypeNode(typeDefFields, recordVarType);
             recordTypeNode.pos = bindingPatternVariable.pos;

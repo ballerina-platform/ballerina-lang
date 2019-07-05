@@ -42,11 +42,36 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
 # runtime type and populate the static fields.
 #
 # + mv - method visitor
-# + typeDefs - array of type definitions
-public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, BalToJVMIndexMap indexMap) {
-    string fieldName;
+public function generateUserDefinedTypes(jvm:MethodVisitor mv) {
+    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypes", "()V", false);
+}
+
+function generateCreateTypesMethod(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) {
+    createTypesInstance(cw, typeDefs);
+    string[] populateTypeFuncNames = populateTypes(cw, typeDefs);
+
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypes", "()V", (), ());
+    mv.visitCode();
+
+    // Invoke create-type-instances method
+    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypeInstances", "()V", false);
+
+    // Invoke the populate-type functions
+    foreach var funcName in populateTypeFuncNames {
+        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, funcName, "()V", false);
+    }
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0,0);
+    mv.visitEnd();
+}
+
+function createTypesInstance(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypeInstances", "()V", (), ());
+    mv.visitCode();
 
     // Create the type
+    string fieldName;
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
@@ -67,7 +92,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
     }
 
-    // Populate the field types
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0,0);
+    mv.visitEnd();
+}
+
+function populateTypes(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) returns string[] {
+    string[] funcNames = [];
+    string fieldName;
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         bir:BType bType = typeDef.typeValue;
@@ -77,8 +109,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
         }
 
         fieldName = getTypeFieldName(typeDef.name.value);
+        string methodName = io:sprintf("$populate%s", fieldName);
+        funcNames[funcNames.length()] = methodName;
+
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName, "()V", (), ());
+        mv.visitCode();
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 
+        BalToJVMIndexMap indexMap = new;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
             mv.visitInsn(DUP);
@@ -103,8 +141,15 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             loadType(mv, bType.detailType);
             mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD, io:sprintf("(L%s;)V", BTYPE), false);
         }
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0,0);
+        mv.visitEnd();
     }
+
+    return funcNames;
 }
+
 
 // -------------------------------------------------------
 //              Runtime value creation methods

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -97,6 +98,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -380,15 +382,29 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID        Package Id
+     * @param packageID Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
-     * @param ctx                       LS Service operation context, in this case completion context
-     * @return {@link CompletionItem}   Completion item for the annotation
+     * @param ctx LS Service operation context, in this case completion context
+     * @param pkgAlias LS Service operation context, in this case completion context
+     * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx) {
-        String label = getAnnotationLabel(packageID, annotationSymbol);
-        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
+                                                             LSContext ctx, CommonToken pkgAlias) {
+        boolean withAlias = pkgAlias == null;
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
+                .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
+        
+        String aliasComponent = "";
+        if (pkgAliasMap.containsKey(packageID.toString())) {
+            // Check if the imported packages contains the particular package with the alias
+            aliasComponent = pkgAliasMap.get(packageID.toString());
+        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue()) && withAlias) {
+            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+        }
+        
+        String label = getAnnotationLabel(aliasComponent, annotationSymbol, withAlias);
+        String insertText = getAnnotationInsertText(aliasComponent, annotationSymbol, withAlias);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -500,15 +516,16 @@ public class CommonUtil {
     /**
      * Get the annotation Insert text.
      *
-     * @param packageID        Package ID
+     * @param aliasComponent Package ID
      * @param annotationSymbol Annotation to get the insert text
-     * @return {@link String}   Insert text
+     * @param withAlias insert text with alias
+     * @return {@link String} Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
-        String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+    private static String getAnnotationInsertText(String aliasComponent, BAnnotationSymbol annotationSymbol,
+                                                  boolean withAlias) {
         StringBuilder annotationStart = new StringBuilder();
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            annotationStart.append(pkgAlias).append(CommonKeys.PKG_DELIMITER_KEYWORD);
+        if (withAlias) {
+            annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
             annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
@@ -537,17 +554,13 @@ public class CommonUtil {
     /**
      * Get the completion Label for the annotation.
      *
-     * @param packageID  Package ID
+     * @param aliasComponent package alias
      * @param annotation BLang annotation
-     * @return {@link String}          Label string
+     * @param withAlias label with alias
+     * @return {@link String} Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
-        String pkgComponent = "";
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            pkgComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD;
-        }
-
+    private static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
+        String pkgComponent = withAlias ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.getName().getValue();
     }
 

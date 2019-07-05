@@ -35,6 +35,8 @@ dependencies {
     implementation project(':metrics-extensions:ballerina-metrics-extension')
     implementation 'io.opentracing:opentracing-api'
 
+    testRuntime 'org.slf4j:slf4j-jdk14'
+
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')

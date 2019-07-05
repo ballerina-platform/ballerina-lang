@@ -91,13 +91,8 @@ public class SQLDatasource {
         return databaseProductName;
     }
 
-    public Connection getSQLConnection() {
-        try {
-            return hikariDataSource.getConnection();
-        } catch (SQLException e) {
-            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
-                    e);
-        }
+    public Connection getSQLConnection() throws SQLException {
+        return hikariDataSource.getConnection();
     }
 
     public boolean isXAConnection() {

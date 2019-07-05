@@ -31,7 +31,6 @@ import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ResponseReader;
 import org.ballerinalang.test.utils.SQLDBUtils;
@@ -87,7 +86,7 @@ public class TableTest {
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
-        service = BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
+        service = BCompileUtil.compile("test-src/types/table/table_to_json_service_test.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")

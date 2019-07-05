@@ -783,3 +783,29 @@ function testClosedArrayAsInvalidClosedArray() returns boolean {
     any b = a;
     return b is (int|string)[4] || b is (int|string)[2];
 }
+
+function funcWithUnionParam(string|int s) returns string  {
+    return "string";
+}
+
+function funcReturningString() returns string  {
+    return "string";
+}
+
+function testFunctions1() returns [boolean, boolean, boolean, boolean] {
+    any a = funcWithUnionParam;
+    boolean b1 = a is function(string s) returns string;
+    boolean b2 = a is function(int i) returns string;
+    boolean b3 = a is function(string|int) returns string;
+    boolean b4 = a is function(float f) returns string;
+    return [b1, b2, b3, b4];
+}
+
+function testFunctions2() returns [boolean, boolean, boolean, boolean] {
+    any a = funcReturningString;
+    boolean b1 = a is function() returns string|int;
+    boolean b2 = a is function() returns int;
+    boolean b3 = a is function() returns string;
+    boolean b4 = a is function() returns float;
+    return [b1, b2, b3, b4];
+}

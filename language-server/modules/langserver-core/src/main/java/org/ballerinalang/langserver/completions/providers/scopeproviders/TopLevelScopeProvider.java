@@ -25,8 +25,8 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
+import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -58,7 +58,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         completionItems.addAll(addTopLevelItems(ctx));
         completionItems.addAll(getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
 
-        ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
+        ItemSorters.get(TopLevelContextSorter.class).sortItems(ctx, completionItems);
         return completionItems;
     }
 
@@ -68,7 +68,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         if (lhsTokens == null || lhsTokens.isEmpty()) {
             return Optional.empty();
         }
-        if (lhsTokens.get(lhsTokens.size() - 1).getType() == BallerinaParser.AT) {
+        if (this.isAnnotationAttachmentContext(ctx)) {
             return Optional.ofNullable(this.getProvider(AnnotationAttachmentContextProvider.class));
         }
         // Handle with the parser rule context

@@ -95,7 +95,7 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid tuple binding pattern; member variable count mismatch with member type count", 60, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern with type '(string,int,ClosedFoo)'", 61, 13);
+                "invalid record binding pattern with type '[string,int,ClosedFoo]'", 61, 13);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 62, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
