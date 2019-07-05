@@ -40,8 +40,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Represents a stack frame in debug window.
@@ -161,7 +159,7 @@ public class BallerinaStackFrame extends XStackFrame {
                 // Add the list to the node as children.
                 node.addChildren(xValueChildrenList, true);
             }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (Exception e) {
             LOG.warn("Scope Request Failed.", e);
         }
 

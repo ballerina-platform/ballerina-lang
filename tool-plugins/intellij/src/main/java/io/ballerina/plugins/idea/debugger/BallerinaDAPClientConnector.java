@@ -44,9 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_DEBUG_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_DEBUG_LAUNCHER_PATH;
@@ -160,7 +158,7 @@ public class BallerinaDAPClientConnector {
                 requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(5006));
                 try {
                     requestManager.attach(requestArgs);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                } catch (Exception e) {
                     LOG.warn("Attaching to the debug adapter failed", e);
                 }
             } else if (command == Command.STOP) {
@@ -168,14 +166,14 @@ public class BallerinaDAPClientConnector {
                 disconnectArgs.setTerminateDebuggee(false);
                 try {
                     requestManager.disconnect(disconnectArgs);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                } catch (Exception e) {
                     LOG.warn("Disconnecting from the debug adapter failed", e);
                 }
             }
         }
     }
 
-    void sendCommand(Command command, String threadId) {
+    void sendCommand(Command command, Long threadId) {
         if (isConnected()) {
 //            debugClient.sendText(generateRequest(command, threadId));
         }

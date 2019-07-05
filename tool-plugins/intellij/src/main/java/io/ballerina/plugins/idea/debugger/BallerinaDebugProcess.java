@@ -46,12 +46,16 @@ import io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
 import io.ballerina.plugins.idea.debugger.protocol.Command;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
+import org.eclipse.lsp4j.debug.ContinueArguments;
+import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
+import org.eclipse.lsp4j.debug.StepInArguments;
+import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.jetbrains.annotations.NotNull;
@@ -63,8 +67,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -74,6 +76,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaDebugProcess.class);
 
+    private final XDebugSession debugSession;
     private final ProcessHandler processHandler;
     private final ExecutionConsole executionConsole;
     private final BallerinaDebuggerEditorsProvider editorsProvider;
@@ -88,6 +91,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaDAPClientConnector connector,
                                  @Nullable ExecutionResult executionResult) {
         super(session);
+        debugSession = session;
         dapClientConnector = connector;
         processHandler = executionResult == null ? super.getProcessHandler() : executionResult.getProcessHandler();
         executionConsole = executionResult == null ? super.createConsole() : executionResult.getExecutionConsole();
@@ -181,34 +185,71 @@ public class BallerinaDebugProcess extends XDebugProcess {
     }
 
     private void startDebugSession() {
-        if (isConnected) {
-            initBreakpointHandlersAndSetBreakpoints();
-            LOGGER.debug("Sending breakpoints.");
-            breakpointHandler.sendBreakpoints(true);
+        if (!isConnected) {
+            return;
         }
+        initBreakpointHandlersAndSetBreakpoints();
+        LOGGER.debug("Sending breakpoints.");
+        breakpointHandler.sendBreakpoints(true);
     }
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        String workerID = getWorkerID(context);
-        if (workerID != null) {
-            dapClientConnector.sendCommand(Command.STEP_OVER, workerID);
+        Long workerID = getWorkerID(context);
+        if (workerID == null || !checkCanPerformCommands()) {
+            return;
+        }
+        NextArguments nextArgs = new NextArguments();
+        nextArgs.setThreadId(workerID);
+        try {
+            dapClientConnector.getRequestManager().next(nextArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Step over request failed", e);
         }
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        String workerID = getWorkerID(context);
-        if (workerID != null) {
-            dapClientConnector.sendCommand(Command.STEP_IN, workerID);
+        Long workerID = getWorkerID(context);
+        if (workerID == null || !checkCanPerformCommands()) {
+            return;
+        }
+        StepInArguments stepInArgs = new StepInArguments();
+        stepInArgs.setThreadId(workerID);
+        try {
+            dapClientConnector.getRequestManager().stepIn(stepInArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Step in request failed", e);
         }
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        String workerID = getWorkerID(context);
-        if (workerID != null) {
-            dapClientConnector.sendCommand(Command.STEP_OUT, workerID);
+        Long workerID = getWorkerID(context);
+        if (workerID == null || !checkCanPerformCommands()) {
+            return;
+        }
+        StepOutArguments stepOutArgs = new StepOutArguments();
+        stepOutArgs.setThreadId(workerID);
+        try {
+            dapClientConnector.getRequestManager().stepOut(stepOutArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Step out request failed", e);
+        }
+    }
+
+    @Override
+    public void resume(@Nullable XSuspendContext context) {
+        Long workerID = getWorkerID(context);
+        if (workerID == null || !checkCanPerformCommands()) {
+            return;
+        }
+        ContinueArguments continueArgs = new ContinueArguments();
+        continueArgs.setThreadId(workerID);
+        try {
+            dapClientConnector.getRequestManager().resume(continueArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Step out request failed", e);
         }
     }
 
@@ -244,21 +285,12 @@ public class BallerinaDebugProcess extends XDebugProcess {
         });
     }
 
-    @Override
-    public void resume(@Nullable XSuspendContext context) {
-        String threadId = getWorkerID(context);
-        if (threadId != null) {
-            dapClientConnector.sendCommand(Command.RESUME, threadId);
-        }
-    }
-
     @Nullable
-    private String getWorkerID(@Nullable XSuspendContext context) {
+    private Long getWorkerID(@Nullable XSuspendContext context) {
         if (context != null) {
             XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
             if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getMyWorkerID()
-                        .toString();
+                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getMyWorkerID();
             }
         }
         getSession().getConsoleView().print("Error occurred while getting the thread ID.",
@@ -317,7 +349,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     }
                 }
 
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            } catch (Exception e) {
                 LOGGER.warn("Error occurred when fetching stack frames", e);
             }
         });
@@ -536,7 +568,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     try {
                         // Sends "configuration done" notification to the debug server.
                         dapClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
-                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    } catch (Exception e) {
                         LOGGER.warn("Configuration done request failed.", e);
                     }
                     // Sends attach request to the debug server.
