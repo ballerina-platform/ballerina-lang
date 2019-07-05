@@ -21,9 +21,6 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Test cases for authentication with inbound/outbound custom providers and handlers.
  */
