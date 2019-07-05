@@ -18,8 +18,7 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 /**
  * BallerinaException that could occur in RabbitMQ connector.
@@ -40,16 +39,6 @@ public class RabbitMQConnectorException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link RabbitMQConnectorException} with error message and ballerina context.
-     *
-     * @param message Error message.
-     * @param context Ballerina context.
-     */
-    public RabbitMQConnectorException(String message, Context context) {
-        super(message, context);
-    }
-
-    /**
      * Constructs a new {@link RabbitMQConnectorException} with the specified detail message and cause.
      *
      * @param message Error message.
@@ -60,32 +49,11 @@ public class RabbitMQConnectorException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link RabbitMQConnectorException} with the specified detail message,
-     * cause and ballerina context.
-     *
-     * @param message Error message.
-     * @param cause   Cause.
-     * @param context Ballerina context.
-     */
-    public RabbitMQConnectorException(String message, Throwable cause, Context context) {
-        super(message, cause, context);
-    }
-
-    /**
      * Constructs a new {@link RabbitMQConnectorException} with the cause.
      *
      * @param cause Throwable to be wrap by {@link RabbitMQConnectorException}.
      */
     public RabbitMQConnectorException(Throwable cause) {
         super(cause);
-    }
-
-    /**
-     * Constructs a new {@link RabbitMQConnectorException} with ballerina context.
-     *
-     * @param stack Ballerina context.
-     */
-    public RabbitMQConnectorException(Context stack) {
-        super(stack);
     }
 }

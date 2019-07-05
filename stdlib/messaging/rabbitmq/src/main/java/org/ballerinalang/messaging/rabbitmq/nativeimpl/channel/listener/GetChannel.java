@@ -20,12 +20,11 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -39,23 +38,22 @@ import org.ballerinalang.natives.annotations.Receiver;
         packageName = RabbitMQConstants.RABBITMQ,
         functionName = "getChannel",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_LISTENER_OBJECT,
+                structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class GetChannel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelObj =
-                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        if (channelObj != null) {
-            context.setReturnValues(channelObj);
+    }
+
+    public static Object getChannel(Strand strand, ObjectValue listenerObjectValue) {
+        ObjectValue channel = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        if (channel != null) {
+            return channel;
         } else {
-            RabbitMQUtils.returnError("Error occurred while retrieving the Channel",
-                    context, new RabbitMQConnectorException("Channel is not properly initialized"));
+            return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the Channel," +
+                    " Channel is not properly initialized");
         }
     }
 }

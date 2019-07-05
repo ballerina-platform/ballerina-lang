@@ -364,7 +364,7 @@ public class CallStatement extends AbstractSQLStatement {
     }
 
     private SQLDatasource retrieveDatasource(ObjectValue client) {
-        return  (SQLDatasource) client.getNativeData(Constants.SQL_CLIENT);
+        return  (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
     }
 
     private BStructureType getStructType(MapValue<String, Object> parameter) {

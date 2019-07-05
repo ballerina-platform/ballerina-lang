@@ -25,12 +25,10 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -181,28 +179,6 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    public static ObjectValue createServerBasedDBClient(String dbType, MapValue<String, Object> clientEndpointConfig,
-            String urlOptions, MapValue<String, Object> globalPoolOptions) {
-        String host = clientEndpointConfig.getStringValue(Constants.EndpointConfig.HOST);
-        int port = (clientEndpointConfig.getIntValue(Constants.EndpointConfig.PORT)).intValue();
-        String name = clientEndpointConfig.getStringValue(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PASSWORD);
-        MapValue<String, Object> poolOptions = (MapValue<String, Object>) clientEndpointConfig
-                .getMapValue(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
-        if (userProvidedPoolOptionsNotPresent) {
-            poolOptions = globalPoolOptions;
-        }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
-        String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
-        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl(jdbcUrl)
-                .withPoolOptions(poolOptionsWrapper).withUsername(username).withPassword(password).withDbName(name)
-                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
-        return createSQLClient(sqlDatasourceParams);
-    }
-
     public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
             MapValue<String, Object> globalPoolOptions) {
         String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
@@ -226,53 +202,6 @@ public class SQLDatasourceUtils {
                 .build();
 
         return createSQLClient(sqlDatasourceParams);
-    }
-
-    public static ObjectValue createMultiModeDBClient(String dbType, MapValue<String, Object> clientEndpointConfig,
-            String urlOptions, MapValue<String, Object> globalPoolOptions) {
-        String modeRecordType = clientEndpointConfig.getType().getName();
-        String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
-        String hostOrPath = "";
-        int port = -1;
-        if (modeRecordType.equals(Constants.SERVER_MODE)) {
-            dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringValue(Constants.EndpointConfig.HOST);
-            port = clientEndpointConfig.getIntValue(Constants.EndpointConfig.PORT).intValue();
-        } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
-            dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PATH);;
-        }
-        dbType = dbType + dbPostfix;
-        String name = clientEndpointConfig.getStringValue(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PASSWORD);
-        MapValue<String, Object> poolOptions = (MapValue<String, Object>) clientEndpointConfig
-                .getMapValue(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
-        if (userProvidedPoolOptionsNotPresent) {
-            poolOptions = globalPoolOptions;
-        }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
-        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        String jdbcUrl = constructJDBCURL(dbType, hostOrPath, port, name, username, password, urlOptions);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
-                .withJdbcUrl(jdbcUrl).withDbType(dbType).withUsername(username).withPassword(password).withDbName(name)
-                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
-        return createSQLClient(sqlDatasourceParams);
-    }
-
-    public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
-            MapValue<String, Object> dbOptions) {
-        StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
-        dbOptions.forEach((key, value) -> {
-            if (isSupportedDbOptionType(value)) {
-                dbOptionsStringJoiner
-                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + value);
-            } else {
-                throw new BallerinaException("Unsupported type for the db option: " + key);
-            }
-        });
-        return dbOptionsStringJoiner.toString();
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
@@ -317,17 +246,17 @@ public class SQLDatasourceUtils {
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, populatedDetailRecord);
     }
 
-    protected static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+    static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
             MapValue<String, Object> poolOptions) {
         return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
-    protected static void addDatasourceContainer(MapValue<String, Object> poolOptions,
+    public static void addDatasourceContainer(MapValue<String, Object> poolOptions,
             ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
     }
 
-    protected static boolean isSupportedDbOptionType(Object value) {
+    static boolean isSupportedDbOptionType(Object value) {
         boolean supported = false;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -339,92 +268,11 @@ public class SQLDatasourceUtils {
         return supported;
     }
 
-    private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
-            String password, String dbOptions) {
-        StringBuilder jdbcUrl = new StringBuilder();
-        dbType = dbType.toUpperCase(Locale.ENGLISH);
-        hostOrPath = hostOrPath.replaceAll("/$", "");
-        switch (dbType) {
-        case Constants.DBTypes.MYSQL:
-            if (port <= 0) {
-                port = Constants.DefaultPort.MYSQL;
-            }
-            jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.SQLSERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.SQLSERVER;
-            }
-            jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
-                    .append(dbName);
-            break;
-        case Constants.DBTypes.ORACLE:
-            if (port <= 0) {
-                port = Constants.DefaultPort.ORACLE;
-            }
-            jdbcUrl.append("jdbc:oracle:thin:").append(username).append("/").append(password).append("@")
-                    .append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.SYBASE:
-            if (port <= 0) {
-                port = Constants.DefaultPort.SYBASE;
-            }
-            jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.POSTGRESQL:
-            if (port <= 0) {
-                port = Constants.DefaultPort.POSTGRES;
-            }
-            jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.IBMDB2:
-            if (port <= 0) {
-                port = Constants.DefaultPort.IBMDB2;
-            }
-            jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.HSQLDB_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.HSQLDB_SERVER;
-            }
-            jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
-                    .append(dbName);
-            break;
-        case Constants.DBTypes.HSQLDB_FILE:
-            jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        case Constants.DBTypes.H2_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.H2_SERVER;
-            }
-            jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.H2_FILE:
-            jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        case Constants.DBTypes.H2_MEMORY:
-            jdbcUrl.append("jdbc:h2:mem:").append(dbName);
-            break;
-        case Constants.DBTypes.DERBY_SERVER:
-            if (port <= 0) {
-                port = Constants.DefaultPort.DERBY_SERVER;
-            }
-            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
-            break;
-        case Constants.DBTypes.DERBY_FILE:
-            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
-            break;
-        default:
-            throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
-        }
-        return dbOptions.isEmpty() ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
-    }
-
     private static ObjectValue createSQLClient(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, sqlDatasource);
+        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_CLIENT);
+        sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
         return sqlClient;
     }
 

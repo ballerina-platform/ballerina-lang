@@ -109,7 +109,7 @@ public class SQLDatasource {
         return xaDataSource;
     }
 
-    public void closeConnectionPool() {
+    private void closeConnectionPool() {
         hikariDataSource.close();
         poolShutdown = true;
     }

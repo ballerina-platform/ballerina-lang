@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.BatchUpdateStatement;
 import org.ballerinax.jdbc.statement.SQLStatement;
@@ -51,21 +53,15 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
                         structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
-public class BatchUpdate extends AbstractSQLAction {
+public class BatchUpdate extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         //TODO: #16033
-       /* String query = context.getStringArgument(0);
-        BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
-        SQLDatasource datasource = retrieveDatasource(context);
-
-        SQLStatement batchUpdateStatement = new BatchUpdateStatement(context, datasource, query, parameters);
-        batchUpdateStatement.execute();*/
     }
 
     public static Object nativeBatchUpdate(Strand strand, ObjectValue client, String sqlQuery, ArrayValue parameters) {
-        SQLDatasource datasource = retrieveDatasource(client);
+        SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters);
         return batchUpdateStatement.execute();
     }

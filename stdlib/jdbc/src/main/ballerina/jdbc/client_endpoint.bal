@@ -115,4 +115,3 @@ public type Client client object {
     }
 };
 
-function createClient(ClientEndpointConfig config, PoolOptions globalPoolOptions) returns JdbcClient = external;

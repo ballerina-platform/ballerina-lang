@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.CallStatement;
 import org.ballerinax.jdbc.statement.SQLStatement;
@@ -51,24 +53,16 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
                         structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
-public class Call extends AbstractSQLAction {
+public class Call extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         //TODO: #16033
-       /* String query = context.getStringArgument(0);
-        BValueArray structTypes = (BValueArray) context.getNullableRefArgument(1);
-        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-
-        SQLDatasource datasource = retrieveDatasource(context);
-
-        SQLStatement callStatement = new CallStatement(context, datasource, query, parameters, structTypes);
-        callStatement.execute();*/
     }
 
     public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
             ArrayValue parameters) {
-        SQLDatasource datasource = retrieveDatasource(client);
+        SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
                 parameters);
         return callStatement.execute();

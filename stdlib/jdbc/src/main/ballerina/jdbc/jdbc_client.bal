@@ -92,6 +92,8 @@ function nativeUpdate(JdbcClient sqlClient, @sensitive string sqlQuery, string[]
 function nativeBatchUpdate(JdbcClient sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
     returns int[]|JdbcClientError = external;
 
+function createClient(ClientEndpointConfig config, PoolOptions globalPoolOptions) returns JdbcClient = external;
+
 # An internal function used by clients to shutdown the connection pool.
 #
 # + jdbcClient - The Client object which represents the connection pool.

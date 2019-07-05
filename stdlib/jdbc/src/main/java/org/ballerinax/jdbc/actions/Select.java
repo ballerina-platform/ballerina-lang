@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -26,6 +27,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.SelectStatement;
@@ -53,29 +55,19 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
                         structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
-public class Select extends AbstractSQLAction {
+public class Select extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         //TODO: #16033
-        /*String query = context.getStringArgument(0);
-        BStructureType structType = getStructType(context, 1);
-        boolean loadSQLTableToMemory = context.getBooleanArgument(0);
-
-        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-        SQLDatasource datasource = retrieveDatasource(context);
-
-        SQLStatement selectStatement = new SelectStatement(context, datasource, query, parameters, structType,
-                loadSQLTableToMemory);
-        selectStatement.execute();*/
     }
 
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {
         //TODO: JBalMigration: once default params are supported fix this
         ////TODO: #16033
-        Boolean loadSQLTableToMemory = false;
-        SQLDatasource sqlDatasource = retrieveDatasource(client);
+        boolean loadSQLTableToMemory = false;
+        SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         //        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         //        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,

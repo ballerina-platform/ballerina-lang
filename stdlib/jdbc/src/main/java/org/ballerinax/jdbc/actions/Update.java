@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.UpdateStatement;
@@ -52,23 +54,16 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
                         structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
-public class Update extends AbstractSQLAction {
+public class Update extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         //TODO: #16033
-        /*String query = context.getStringArgument(0);
-        BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
-        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-        SQLDatasource datasource = retrieveDatasource(context);
-
-        SQLStatement updateStatement = new UpdateStatement(context, datasource, query, keyColumns, parameters);
-        updateStatement.execute();*/
     }
 
     public static Object nativeUpdate(Strand strand, ObjectValue client, String query, Object keyColumns,
             ArrayValue parameters) {
-        SQLDatasource sqlDatasource = retrieveDatasource(client);
+        SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, (ArrayValue) keyColumns,
                 parameters);
         return updateStatement.execute();

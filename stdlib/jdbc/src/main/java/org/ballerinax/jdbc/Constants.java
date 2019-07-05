@@ -107,21 +107,6 @@ public final class Constants {
     }
 
     /**
-     * Constants default DB ports.
-     */
-    public static final class DefaultPort {
-        public static final int MYSQL = 3306;
-        public static final int SQLSERVER = 1433;
-        public static final int ORACLE = 1521;
-        public static final int SYBASE = 5000;
-        public static final int POSTGRES = 5432;
-        public static final int IBMDB2 = 50000;
-        public static final int HSQLDB_SERVER = 9001;
-        public static final int H2_SERVER = 9092;
-        public static final int DERBY_SERVER = 1527;
-    }
-
-    /**
      * Constants for SQL Query Parameter direction.
      */
     public static final class QueryParamDirection {
@@ -203,7 +188,7 @@ public final class Constants {
 
     public static final String JDBC_PACKAGE_PATH = "ballerinax" + ORG_NAME_SEPARATOR + "jdbc";
     public static final String SQL_PARAMETER = "Parameter";
-    public static final String SQL_CLIENT = "Client";
+    public static final String JDBC_CLIENT = "JdbcClient";
     public static final String SQL_UPDATE_RESULT = "UpdateResult";
     public static final String SERVER_MODE = "ServerModeConfig";
     public static final String EMBEDDED_MODE = "EmbeddedModeConfig";
