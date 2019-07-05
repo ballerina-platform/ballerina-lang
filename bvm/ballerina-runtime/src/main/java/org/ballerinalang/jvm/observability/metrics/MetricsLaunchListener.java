@@ -38,7 +38,6 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 /**
  * Listen to Launcher events and initialize Metrics.
  */
-//@JavaSPIService("org.ballerinalang.util.LaunchListener")
 public class MetricsLaunchListener implements LaunchListener {
 
     private static final PrintStream consoleError = System.err;
@@ -56,6 +55,7 @@ public class MetricsLaunchListener implements LaunchListener {
                 DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
                 return;
             }
+
             //load metric provider configured
             MetricProvider metricProvider = loadMetricProvider(configRegistry);
             // Initialize Metric Provider
@@ -73,6 +73,7 @@ public class MetricsLaunchListener implements LaunchListener {
                 consoleError.println("Invalid configuration error when initializing metrics reporter. "
                         + e.getMessage());
             }
+
             // Add Metrics Observer
             ObserveUtils.addObserver(new BallerinaMetricsObserver());
         }
