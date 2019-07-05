@@ -162,6 +162,13 @@ public class LSPackageLoader {
     }
 
     /**
+     * Clear the home repo packages.
+     */
+    public static void clearHomeRepoPackages() {
+        homeRepoPackages.clear();
+    }
+
+    /**
      * Returns a list of packages available for the current project.
      *
      * @param pkg        Built {@link BLangPackage}
