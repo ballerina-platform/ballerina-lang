@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 /**
  * This will hold the {@link SocketService} and the {@link CallableUnitCallback}.
@@ -30,15 +30,12 @@ import org.ballerinalang.model.values.BError;
 public class ChannelRegisterCallback {
 
     private SocketService socketService;
-    private CallableUnitCallback callableUnitCallback;
-    private Context context;
+    private NonBlockingCallback callback;
     private final int initialInterest;
 
-    public ChannelRegisterCallback(SocketService socketService, CallableUnitCallback callableUnitCallback,
-            Context context, int initialInterest) {
+    public ChannelRegisterCallback(SocketService socketService, NonBlockingCallback callback, int initialInterest) {
         this.socketService = socketService;
-        this.callableUnitCallback = callableUnitCallback;
-        this.context = context;
+        this.callback = callback;
         this.initialInterest = initialInterest;
     }
 
@@ -56,8 +53,7 @@ public class ChannelRegisterCallback {
      * @param serviceAttached whether to invoke onConnect or not.
      */
     public void notifyRegister(boolean serviceAttached) {
-        callableUnitCallback.notifySuccess();
-        context.setReturnValues();
+        callback.notifySuccess();
         if (serviceAttached) {
             SelectorDispatcher.invokeOnConnect(socketService);
         }
@@ -69,9 +65,8 @@ public class ChannelRegisterCallback {
      * @param errorMsg the error message
      */
     public void notifyFailure(String errorMsg) {
-        BError error = SocketUtils.createSocketError(context, errorMsg);
-        context.setReturnValues(error);
-        callableUnitCallback.notifyFailure(error);
+        ErrorValue error = SocketUtils.createSocketError(errorMsg);
+        callback.notifyFailure(error);
         // We don't need to dispatch the error to the onError here.
         // This should treated as a panic and stop listener/client getting start.
     }

@@ -149,8 +149,9 @@ public class Register extends BlockingNativeCallableUnit {
     }
 
     private static Map<String, AttachedFunction> getResourceRegistry(ObjectValue service) {
-        Map<String, AttachedFunction> registry = new HashMap<>(3);
-        for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
+        Map<String, AttachedFunction> registry = new HashMap<>(5);
+        final AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
+        for (AttachedFunction resource : attachedFunctions) {
             switch (resource.getName()) {
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
                     registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
