@@ -2064,7 +2064,8 @@ public class Desugar extends BLangNodeVisitor {
         // cast $result$ to non-nilable  type.
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
         valueAccessExpr.expr =
-                addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type, false));
+                addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type,
+                                                                                    true, false));
 
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
         variableDefinitionNode.getVariable().setInitialExpression(valueAccessExpr);
@@ -2513,27 +2514,16 @@ public class Desugar extends BLangNodeVisitor {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
         }
 
-        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD ||
-                (varRefType.tag == TypeTags.UNION &&
-                         (((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.OBJECT ||
-                                  ((BUnionType) varRefType).getMemberTypes().iterator().next().tag ==
-                                          TypeTags.RECORD))) {
+        if (varRefType.tag == TypeTags.MAP) {
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
-        } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.ARRAY ||
-                (varRefType.tag == TypeTags.UNION &&
-                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.ARRAY)) {
+        } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
-        } else if (varRefType.tag == TypeTags.TUPLE ||
-                (varRefType.tag == TypeTags.UNION &&
-                         ((BUnionType) varRefType).getMemberTypes().iterator().next().tag == TypeTags.TUPLE)) {
-            targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
 
@@ -3591,7 +3581,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation nextInvocation = createIteratorNextInvocation(foreach, collectionSymbol, iteratorSymbol);
 
         // we are inside the while loop. hence the iterator cannot be nil. hence remove nil from iterator's type
-        nextInvocation.expr.type = types.getSafeType(nextInvocation.expr.type, false);
+        nextInvocation.expr.type = types.getSafeType(nextInvocation.expr.type, true, false);
 
         return ASTBuilderUtil.createAssignmentStmt(foreach.pos, resultReferenceInAssignment, nextInvocation, false);
     }
@@ -5154,7 +5144,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
             BLangSimpleVariable tempResultVar, boolean liftError) {
-        BType type = types.getSafeType(accessExpr.expr.type, liftError);
+        BType type = types.getSafeType(accessExpr.expr.type, true, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
 
         BVarSymbol  successPatternSymbol;
@@ -5266,7 +5256,7 @@ public class Desugar extends BLangNodeVisitor {
 
             //Cloning the expression and set the nil lifted type.
             expr = cloneExpression(expr);
-            expr.type = types.getSafeType(expr.type, false);
+            expr.type = types.getSafeType(expr.type, true, false);
 
             if (isDefaultableMappingType(expr.type) && !root) { // TODO for records, type should be defaultable as well
                 // This will properly get desugered later to a json literal
@@ -5334,7 +5324,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
         }
-        varRef.type = types.getSafeType(originalAccessExpr.expr.type, false);
+        varRef.type = types.getSafeType(originalAccessExpr.expr.type, true, false);
 
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
@@ -5386,7 +5376,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
         BType fieldType = accessExpr.originalType;
-        BType type = types.getSafeType(accessExpr.expr.type, false);
+        BType type = types.getSafeType(accessExpr.expr.type, true, false);
         switch (type.tag) {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -5506,7 +5496,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isDefaultableMappingType(BType type) {
-        switch (types.getSafeType(type, false).tag) {
+        switch (types.getSafeType(type, true, false).tag) {
             case TypeTags.JSON:
             case TypeTags.MAP:
             case TypeTags.RECORD:

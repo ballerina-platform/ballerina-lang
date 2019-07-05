@@ -233,30 +233,6 @@ public class JSONUtils {
     }
 
     /**
-     * Get an element from a JSON array.
-     * 
-     * @param jsonArray JSON array to get the element from
-     * @param index Index of the element needed
-     * @return Element at the given index, if the provided JSON is an array. Null, otherwise.
-     */
-    public static Object getArrayElement(Object jsonArray, long index) {
-        if (!isJSONArray(jsonArray)) {
-            return null;
-        }
-
-        try {
-            return Lists.get((ArrayValue) jsonArray, index);
-        } catch (ErrorValue e) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR,
-                                                           BallerinaErrors.getErrorMessageFromDetail(
-                                                                   (MapValueImpl<String, Object>) e.getDetails()));
-
-        } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
-        }
-    }
-
-    /**
      * Set an element in the given position of a JSON array. This method will update the existing value.
      * If the JSON is not array type, then this operation has no effect.
      * 

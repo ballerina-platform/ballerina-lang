@@ -746,15 +746,12 @@ type InstructionGenerator object {
     # + inst - field access instruction
     function generateArrayValueLoad(bir:FieldAccess inst) {
         self.loadVar(inst.rhsOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         self.loadVar(inst.keyOp.variableDcl);
         bir:BType bType = inst.lhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
-        if (varRefType is bir:BJSONType ||
-                (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
-            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
-                        io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
-        } else if (varRefType is bir:BTupleType) {
+        if (varRefType is bir:BTupleType) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
             addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
