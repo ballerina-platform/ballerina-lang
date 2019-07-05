@@ -35,6 +35,7 @@ import org.ballerinalang.nats.Constants;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -112,7 +113,8 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Connection natsConnection = Nats.connect(opts.build());
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
-            List clientslist = new ArrayList();
+            @SuppressWarnings("unchecked")
+            List<ObjectValue> clientslist = Collections.synchronizedList(new ArrayList());
             connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, clientslist);
 
         } catch (IOException | InterruptedException e) {

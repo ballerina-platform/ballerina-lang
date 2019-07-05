@@ -33,6 +33,11 @@ public class Constants {
     public static final String CONNECTED_CLIENTS = "connected_clients";
 
     /**
+     * Represents dispatcher list.
+     */
+    public static final String DISPATCHER_LIST = "dispatcher_list";
+
+    /**
      * Represent whether connection close already triggered.
      */
     public static final String CLOSING = "closing";
@@ -52,11 +57,6 @@ public class Constants {
     public static final String NATS_MSG = "NATSMSG";
 
     /**
-     * Represents the message content native data.
-     */
-    public static final String MSG_CONTENT_NAME = "content";
-
-    /**
      * Error code for i/o.
      */
     public static final String NATS_ERROR_CODE = "{ballerina/nats}NATSError";
@@ -65,4 +65,6 @@ public class Constants {
      * Represents the object which holds the connection.
      */
     public static final String CONNECTION_OBJ = "connection";
+
+    public static final String COUNTDOWN_LATCH = "count_down_latch";
 }
