@@ -76,6 +76,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         }
     }
 
+    jvm:Label methodStartLabel = new;
+    mv.visitLabel(methodStartLabel);
+
     // generate method body
     int k = 1;
 
@@ -205,9 +208,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
-
-    jvm:Label methodStartLabel = new;
-    mv.visitLabel(methodStartLabel);
 
     k = localVarOffset;
     while (k < localVars.length()) {
