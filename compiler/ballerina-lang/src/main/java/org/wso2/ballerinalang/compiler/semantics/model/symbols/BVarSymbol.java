@@ -48,7 +48,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     public RegIndex varIndex;
 
     /**
-     * This flag is set to true when this symbol represent a global variable who is annotated @tainted.
+     * This indicate the indicated (by programmer) taintedness of a variable.
      */
     public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
@@ -61,6 +61,9 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
         return null;
     }
 
+    /**
+     * Indicate the allowed taintedness marked for a given variable.
+     */
     public enum TaintabilityAllowance {
         TAINTED, UNTAINTED, IGNORED
     }
