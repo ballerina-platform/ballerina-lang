@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -32,7 +33,6 @@ dependencies {
     implementation project(':ballerina-runtime')
 
     testCompile 'org.testng:testng:6.13.1'
-    testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-logging')
@@ -47,9 +47,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 }
 

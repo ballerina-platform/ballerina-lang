@@ -23,7 +23,9 @@ public type StringReader object {
     # + content - content which should be written
     # + encoding - encoding of the characters of the content
     public function __init(string content, string encoding = "UTF-8") {
-        byte[] contentBytes = content.toByteArray(encoding);
+        // TODO : Fix me. 
+        // byte[] contentBytes = content.toByteArray(encoding);
+        byte[] contentBytes = content.toBytes();
         ReadableByteChannel byteChannel = createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
@@ -32,14 +34,22 @@ public type StringReader object {
     #
     # + return - json or an error
     public function readJson() returns json|error {
-        return self.charChannel.readJson();
+        if(self.charChannel is ReadableCharacterChannel){
+            var result = <ReadableCharacterChannel> self.charChannel;
+            return result.readJson();
+        }
+        return ();
     }
 
     # Reads string as XML from reader
     #
     # + return -
     public function readXml() returns xml|error? {
-        return self.charChannel.readXml();
+        if(self.charChannel is ReadableCharacterChannel){
+            var result = <ReadableCharacterChannel> self.charChannel;
+            return result.readXml();
+        }
+        return ();
     }
 
     # Reads characters from the given string.
@@ -47,13 +57,21 @@ public type StringReader object {
     # + nCharacters - read specific number of characters
     # + return - string or an error
     public function readChar(int nCharacters) returns string|error? {
-        return self.charChannel.read(nCharacters);
+        if(self.charChannel is ReadableCharacterChannel){
+            var result = <ReadableCharacterChannel> self.charChannel;
+            return result.read(nCharacters);
+        }
+        return ();
     }
 
     # Closes reader.
     #
     # + return - An error if could not close the channel.
     public function close() returns error? {
-        return self.charChannel.close();
+        if(self.charChannel is ReadableCharacterChannel){
+            var result = <ReadableCharacterChannel> self.charChannel;
+            return result.close();
+        }
+        return ();
     }
 };

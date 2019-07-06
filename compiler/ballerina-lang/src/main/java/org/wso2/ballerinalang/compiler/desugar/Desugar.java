@@ -4970,8 +4970,7 @@ public class Desugar extends BLangNodeVisitor {
 
         NodeKind kind = accessExpr.expr.getKind();
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+                kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             return safeNavigate((BLangAccessExpression) accessExpr.expr);
         }
 

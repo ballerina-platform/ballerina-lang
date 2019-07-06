@@ -876,6 +876,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorType = (BErrorType) entry.symbol.type;
             symTable.detailType = (BRecordType) symTable.errorType.detailType;
             symTable.errorConstructor = symTable.errorType.ctorSymbol;
+            symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
+            symTable.detailType.restFieldType = symTable.pureType;
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

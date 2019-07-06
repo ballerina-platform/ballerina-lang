@@ -62,14 +62,22 @@ public type ReadableCSVChannel object {
     #
     # + return - List of fields in the CSV or error
     public function getNext() returns @tainted string[]|error? {
-        return self.dc.getNext();
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.getNext();
+        }
+        return ();
     }
 
     # Closes a given CSVChannel.
     #
     # + return - Returns if an error is encountered
     public function close() returns error? {
-        return self.dc.close();
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.close();
+        }
+        return ();
     }
 
     # Returns a table which corresponds to the CSV records.

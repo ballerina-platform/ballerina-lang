@@ -279,6 +279,7 @@ public class SymbolTable {
         BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
                 null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
+        this.errorType.flags |= Flags.NATIVE;
         errorSymbol.type = this.errorType;
 
         int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));

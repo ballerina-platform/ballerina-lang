@@ -886,6 +886,11 @@ public class BIRPackageSymbolEnter {
                     errorSymbol.name = names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
+                    if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
+                            && Symbols.isFlagOn(typeFlag, Flags.NATIVE)) {
+                        // This is a workaround to avoid, getting no type for error detail field.
+                        return symTable.errorType;
+                    }
                     return errorType;
                 case TypeTags.ITERATOR:
                     // TODO fix
