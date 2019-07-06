@@ -75,6 +75,7 @@ public enum DiagnosticCode {
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
@@ -100,6 +101,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
+    REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),

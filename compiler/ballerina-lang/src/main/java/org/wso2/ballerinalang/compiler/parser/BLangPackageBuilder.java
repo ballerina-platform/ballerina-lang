@@ -370,8 +370,7 @@ public class BLangPackageBuilder {
 
     private BLangDiagnosticLog dlog;
 
-    private static final String IDENTIFIER_LITERAL_PREFIX = "^\"";
-    private static final String IDENTIFIER_LITERAL_SUFFIX = "\"";
+    private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -669,9 +668,9 @@ public class BLangPackageBuilder {
             return node;
         }
 
-        if (value.startsWith(IDENTIFIER_LITERAL_PREFIX) && value.endsWith(IDENTIFIER_LITERAL_SUFFIX)) {
+        if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             value = StringEscapeUtils.unescapeJava(value);
-            node.setValue(value.substring(2, value.length() - 1));
+            node.setValue(value.substring(1));
             node.setLiteral(true);
         } else {
             node.setValue(value);
@@ -718,7 +717,8 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier,
+                          DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
@@ -726,7 +726,7 @@ public class BLangPackageBuilder {
                 generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, pos, false);
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, pos, false);
+                    generateBasicVarNodeWithoutType(pos, null, restIdentifier, restParamPos, false);
         }
     }
 

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.stdlib.database.sql;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -361,16 +362,40 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
     }
 
+    @Test(groups = CONNECTOR_TEST, description = "Test failed select query error")
+    public void testErrorWithSelectData() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithSelectData");
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina\\/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
+    }
+
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
         Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
     }
 
+    @Test(groups = CONNECTOR_TEST, description = "Test error for failed update with generated id action")
+    public void testFailedGeneratedKeyOnInsertError() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsertError");
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
+    }
+
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed batch update")
+    public void testErrorWithBatchUpdate() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithBatchUpdate");
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
+        Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -385,6 +410,32 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed parameter array update")
+    public void testErrorWithInvalidArrayofQueryParameters() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithInvalidArrayofQueryParameters");
+        Assert.assertTrue(returns[0].stringValue()
+                .contains("execute query failed: unsupported array type for parameter index 0"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/sql}ApplicationError"));
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error type for application level errors")
+    public void testCheckApplicationErrorType() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckApplicationErrorType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test(groups = { CONNECTOR_TEST }, description = "Test error type for database errors")
+    public void testCheckDatabaseErrorType() {
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCheckDatabaseErrorType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(groups = { CONNECTOR_TEST, "broken" },

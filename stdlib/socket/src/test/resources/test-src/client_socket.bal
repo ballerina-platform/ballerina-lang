@@ -75,8 +75,8 @@ function echo(string msg) returns string {
         panic writeResult;
     }
     var result = socketClient->read();
-    if (result is (byte[], int)) {
-        var (content, length) = result;
+    if (result is [byte[], int]) {
+        var [content, length] = result;
         if (length > 0) {
             var str = getString(content);
             if (str is string) {
@@ -105,7 +105,7 @@ function getString(byte[] content) returns string|error {
     return characterChannel.read(50);
 }
 
-function invalidReadParam() returns (byte[], int)|error {
+function invalidReadParam() returns [byte[], int]|error {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
     return trap socketClient->read(length = 0);
 }

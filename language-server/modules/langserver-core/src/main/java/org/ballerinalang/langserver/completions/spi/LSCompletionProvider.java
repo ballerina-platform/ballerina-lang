@@ -424,33 +424,41 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> getResourceSnippets(LSContext ctx) {
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CompletionItem> items = new ArrayList<>();
-        if (symbolEnvNode instanceof BLangService) {
-            BLangService service = (BLangService) symbolEnvNode;
-            String owner = service.listenerType.tsymbol.owner.name.value;
-            String serviceTypeName = service.listenerType.tsymbol.name.value;
-            // Only http, grpc have generic resource templates, others will have generic resource snippet
-            switch (owner) {
-                case "http":
-                    if ("Listener".equals(serviceTypeName)) {
-                        items.add(Snippet.DEF_RESOURCE.get().build(ctx));
-                        break;
-                    } else if ("WebSocketListener".equals(serviceTypeName)) {
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
-                        break;
-                    }
-                    return items;
-                case "grpc":
-                    items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+        if (!(symbolEnvNode instanceof BLangService)) {
+            return items;
+        }
+        BLangService service = (BLangService) symbolEnvNode;
+        
+        if (service.listenerType == null) {
+            items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
+            return items;
+        }
+        
+        String owner = service.listenerType.tsymbol.owner.name.value;
+        String serviceTypeName = service.listenerType.tsymbol.name.value;
+        
+        // Only http, grpc have generic resource templates, others will have generic resource snippet
+        switch (owner) {
+            case "http":
+                if ("Listener".equals(serviceTypeName)) {
+                    items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
                     break;
-                case "websub":
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                } else if ("WebSocketListener".equals(serviceTypeName)) {
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
                     break;
-                default:
-                    return items;
-            }
+                }
+                return items;
+            case "grpc":
+                items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+                break;
+            case "websub":
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                break;
+            default:
+                return items;
         }
         return items;
     }
@@ -723,6 +731,31 @@ public abstract class LSCompletionProvider {
         completionItems.add(trapExpression);
 
         return completionItems;
+    }
+
+    /**
+     * Check whether the current context is annotation context.
+     *
+     * @param context Language server context
+     * @return {@link Boolean} whether the cursor is in the annotation context
+     */
+    protected boolean isAnnotationAttachmentContext(LSContext context) {
+        List<Integer> lhsDefaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        /*
+        Max token bactrack count is set to 4 in order to support the following
+        @moduleName:Rec
+         */
+        int maxTokenVisitCount = 4;
+        int counter = 0;
+        while (counter < lhsDefaultTokenTypes.size() && counter < maxTokenVisitCount) {
+            Integer token = lhsDefaultTokenTypes.get(counter);
+            if (token == BallerinaParser.AT) {
+                return true;
+            }
+            counter++;
+        }
+        
+        return false;
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {

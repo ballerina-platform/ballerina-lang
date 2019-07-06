@@ -21,18 +21,16 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
@@ -52,28 +50,29 @@ import java.nio.charset.StandardCharsets;
 )
 public class BasicPublish extends BlockingNativeCallableUnit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicPublish.class);
-
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
-        Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
-                Channel.class, context);
-        BValue msgContent = context.getRefArgument(1);
-        String routingKey = context.getStringArgument(0);
-        String exchange = context.getStringArgument(1);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObject.
+    }
+
+    public static Object basicPublish(Strand strand, ObjectValue channelObjectValue, Object messageContent,
+                                      String routingKey, String exchangeName, Object properties) {
+        String defaultExchangeName = "";
+        if (exchangeName != null) {
+            defaultExchangeName = exchangeName;
+        }
+        Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
-            ChannelUtils.basicPublish(channel, routingKey, msgContent.stringValue().getBytes(StandardCharsets.UTF_8),
-                    exchange);
+            ChannelUtils.basicPublish(channel, routingKey, messageContent.toString().getBytes(StandardCharsets.UTF_8),
+                    defaultExchangeName, properties);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(context);
+                transactionContext.handleTransactionBlock();
             }
         } catch (RabbitMQConnectorException exception) {
-            LOGGER.error("I/O exception while publishing a message", exception);
-            RabbitMQUtils.returnError(RabbitMQConstants.RABBITMQ_CLIENT_ERROR, context, exception);
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR +
+                    exception.getDetail());
         }
+        return null;
     }
 }
