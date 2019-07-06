@@ -38,6 +38,7 @@ public class ProjectDirConstants {
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String DOT_BALLERINA_DIR_NAME = ".ballerina";
     public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
+    public static final String SOURCE_DIR_NAME = "src";
     public static final String TARGET_DIR_NAME = "target";
     public static final String RESOURCE_DIR_NAME = "resource";
     public static final String TEST_DIR_NAME = "tests";

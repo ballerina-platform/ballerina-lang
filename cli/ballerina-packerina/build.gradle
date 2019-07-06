@@ -19,6 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-core')
     implementation project(':ballerina-launcher')
     implementation project(':testerina:testerina-core')

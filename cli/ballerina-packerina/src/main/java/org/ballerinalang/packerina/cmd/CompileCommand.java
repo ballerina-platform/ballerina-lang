@@ -1,20 +1,3 @@
-/*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.launcher.BLauncherCmd;
@@ -30,20 +13,32 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+import static org.ballerinalang.packerina.cmd.Constants.COMPILE_COMMAND;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
 
 /**
- * This class represents the "ballerina build" command.
+ * Compile Ballerina modules in to balo.
  *
- * @since 0.90
+ * @since 0.992.0
  */
-@CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
-public class BuildCommand implements BLauncherCmd {
-    private static final String USER_DIR = "user.dir";
-    private static PrintStream outStream = System.err;
+@CommandLine.Command(name = COMPILE_COMMAND, description = "Compile Ballerina modules")
+public class CompileCommand implements BLauncherCmd  {
+
+    private Path userDir;
+    private PrintStream errStream;
+
+    public CompileCommand() {
+        userDir = Paths.get(System.getProperty("user.dir"));
+        errStream = System.err;
+    }
+
+    public CompileCommand(Path userDir, PrintStream errStream) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+    }
+
 
     @CommandLine.Option(names = {"-c"}, description = "build a compiled module")
     private boolean buildCompiledPkg;
@@ -64,7 +59,7 @@ public class BuildCommand implements BLauncherCmd {
     private List<String> argList;
 
     @CommandLine.Option(names = {"--native"}, hidden = true,
-                        description = "compile Ballerina program to a native binary")
+            description = "compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -91,8 +86,8 @@ public class BuildCommand implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
-            outStream.println(commandUsageInfo);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(COMPILE_COMMAND);
+            errStream.println(commandUsageInfo);
             return;
         }
 
@@ -101,7 +96,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        Path sourceRootPath = userDir;
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
@@ -156,16 +151,16 @@ public class BuildCommand implements BLauncherCmd {
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
-                                                                "files can be used with the 'ballerina build' " +
-                                                                        "command.");
+                            "files can be used with the 'ballerina build' " +
+                            "command.");
                 }
 
                 if (Files.exists(resolvedFullPath)) {
                     if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString()
-                                                                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
                         throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
-                                                                    "files can be used with the 'ballerina build' " +
-                                                                            "command.");
+                                "files can be used with the 'ballerina build' " +
+                                "command.");
                     }
                 } else {
                     throw LauncherUtils.createLauncherException("ballerina source does not exist '" + sourcePath + "'");
@@ -177,14 +172,14 @@ public class BuildCommand implements BLauncherCmd {
                 if (Files.isRegularFile(resolvedFullPath) && sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX) &&
                         parentPath != null) {
                     throw LauncherUtils.createLauncherException("you are trying to build a ballerina file inside a " +
-                                                                        "module within a project. Try running " +
-                                                                        "'ballerina build <module-name>'");
+                            "module within a project. Try running " +
+                            "'ballerina build <module-name>'");
                 }
             } else {
                 // Invalid source file provided
                 throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
-                                                                    "directory or a file  with a \'"
-                                                            + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+                        "directory or a file  with a \'"
+                        + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
 
             // Load the configuration file. If no config file is given then the default config file i.e.
@@ -202,7 +197,6 @@ public class BuildCommand implements BLauncherCmd {
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
         }
-        Runtime.getRuntime().exit(0);
     }
 
     /**
@@ -223,12 +217,12 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return BUILD_COMMAND;
+        return COMPILE_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina sources and writes the output to a file. \n");
+        out.append("Compiles Ballerina modules and create balo files. \n");
         out.append("\n");
         out.append("By default, output filename is the last part of module name \n");
         out.append("or the filename (minus the extension) with the extension \".balx\". \n");
