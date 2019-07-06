@@ -14,6 +14,6 @@ public function anotherNormalFunction (string anotherNormalInput) {
     globalVariable = anotherNormalInput;
 }
 
-public function sen(@sensitive string pa) {
+public function sen(@untainted string pa) {
 
 }

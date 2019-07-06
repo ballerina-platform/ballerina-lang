@@ -201,7 +201,7 @@ import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef
  * Propagate tainted status of variables across the program.
  * <p>
  * Evaluate invocations and generate errors if:
- * (*) Tainted value has been passed to a sensitive parameter.
+ * (*) Tainted value has been passed to a untainted parameter.
  * (*) Tainted value has been passed to a global variable.
  *
  * @since 0.965.0
@@ -233,7 +233,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private static final String ANNOTATION_TAINTED = "tainted";
     public static final String ANNOTATION_UNTAINTED = "untainted";
-    private static final String ANNOTATION_SENSITIVE = "sensitive";
 
     public static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
@@ -1752,7 +1751,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         // Entry point input parameters are all tainted, since they contain user controlled data.
-        // If any value has been marked "sensitive" generate an error.
+        // If any value has been marked "untainted" generate an error.
         if (isEntryPointParamsInvalid(invNode.requiredParams, markParamsTainted)) {
             return;
         }
@@ -1790,8 +1789,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 if (markParamsTainted) {
                     setTaintedStatus(param.symbol, TaintedStatus.TAINTED);
                 }
-                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
-                    this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE,
+                if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
+                    this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
                     return true;
                 }
@@ -1855,8 +1854,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
                             defaultableParamCount);
-                    // If parameter is sensitive, it's invalid to have a case where tainted status of parameter is true.
-                    if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
+                    // If parameter is untainted, it's invalid to have a case where tainted status of parameter is true.
+                    if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                         continue;
                     }
                     // Set each parameter "tainted", then analyze the body to observe the outcome of the function.
@@ -1969,10 +1968,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
         if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
-            // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
+            // When invocation returns an error (due to passing a tainted argument to a untainted parameter) add current
             // error to the table for future reference. However, if taint-error is raised when analyzing all-parameters
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
-            // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
+            // function body to a untainted parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
             if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX
                     && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)
@@ -2097,8 +2096,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                 BLangSimpleVariable param = getParam(invokableNode, paramIndex, requiredParamCount,
                         defaultableParamCount);
-                // If parameter is sensitive, test for this parameter being tainted is invalid.
-                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
+                // If parameter is untainted, test for this parameter being tainted is invalid.
+                if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                     continue;
                 }
                 taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, paramTaintedStatusList));
@@ -2155,7 +2154,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangSimpleVariable param = getParam(function, paramIndex, requiredParamCount, defaultableParamCount);
                 if (taintRecord == null) {
                     addTaintError(argExpr.pos, param.name.value,
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                     addTaintError(taintRecord.taintError);
                 }
@@ -2291,7 +2290,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (allParamsUntaintedRecord != null) {
             if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
                 // This can occur when there is a error regardless of tainted status of parameters.
-                // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
+                // Example: Tainted value returned by function is passed to another functions's untainted parameter.
                 addTaintError(allParamsUntaintedRecord.taintError);
             } else {
                 returnTaintedStatus = allParamsUntaintedRecord.returnTaintedStatus;
@@ -2449,7 +2448,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < requiredArgsCount + namedArgsCount + restArgsCount; i++) {
             TaintRecord taintRecord = taintTable.get(i);
             if (taintRecord == null) {
-                // No record in the taint table, this is a sensitive param.
+                // No record in the taint table, this is a untainted param.
                 paramIndexVsSelfTaintedStatusList.add(TaintedStatus.UNTAINTED);
                 continue;
             }
@@ -2470,9 +2469,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (receiverSymbol.tainted) {
             if (receiverTaintRecord == null) {
                 // This scenario indicate that passing a tainted value to the receiver causes tainted value to be
-                // passed to a sensitive parameter somewhere inside the function.
+                // passed to a untainted parameter somewhere inside the function.
                 addTaintError(invocationExpr.pos, receiverSymbol.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
                 return returnTaintedStatus;
             }
 
@@ -2490,9 +2489,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     } else {
                         // todo: we need a better error message here.
                         // indicating that at this point receiver/self being tainted cause tainted value
-                        // (via receiver/self) passing to a sensitive parameter down the call.
+                        // (via receiver/self) passing to a untainted parameter down the call.
                         addTaintError(invocationExpr.pos, receiverSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT);
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
                     }
                 }
             }
@@ -2654,20 +2653,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     defaultableParamCount);
 
             if (taintRecord == null) {
-                // This is when current parameter is "sensitive". Therefore, providing a tainted value to a sensitive
+                // This is when current parameter is "untainted". Therefore, providing a tainted value to a untainted
                 // parameter is invalid and should return a compiler error.
                 DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                 addTaintError(argPos, paramSymbol.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
-                // This is when current parameter is derived to be sensitive.
+                // This is when current parameter is derived to be untainted.
                 taintRecord.taintError.forEach(error -> {
                     if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                         addTaintError(taintRecord.taintError);
                     } else {
                         DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                         addTaintError(argPos, paramSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                     }
                 });
             } else {

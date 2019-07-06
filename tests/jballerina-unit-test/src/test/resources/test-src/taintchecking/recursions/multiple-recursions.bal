@@ -21,6 +21,6 @@ function f2 (int[] arr, int l, int r) returns @tainted string {
     return "tainted-value";
 }
 
-function secureFunction(@sensitive string secureIn, string insecureIn) {
+function secureFunction(@untainted string secureIn, string insecureIn) {
 
 }

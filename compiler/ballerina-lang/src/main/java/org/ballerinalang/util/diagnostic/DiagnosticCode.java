@@ -371,10 +371,10 @@ public enum DiagnosticCode {
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
-    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
-    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
-    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER_ORIGINATING_AT(
-            "tainted.value.passed.to.sensitive.param.in.obj.method"),
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER("tainted.value.passed.to.untainted.parameter"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT(
+            "tainted.value.passed.to.untainted.param.in.obj.method"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT("tainted.value.passed.to.global.object"),
     INVOCATION_TAINT_GLOBAL_OBJECT("method.invocation.taint.global.object"),

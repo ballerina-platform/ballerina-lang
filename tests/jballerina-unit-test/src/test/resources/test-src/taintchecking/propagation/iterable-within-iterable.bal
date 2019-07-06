@@ -12,7 +12,7 @@ public function main (string... args) {
     .foreach(function (record{} k) { globalVar = k;});
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 
 }
 

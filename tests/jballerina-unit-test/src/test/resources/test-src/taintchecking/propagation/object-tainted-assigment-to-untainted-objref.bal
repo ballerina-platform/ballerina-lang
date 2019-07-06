@@ -21,7 +21,7 @@ type TestObject object {
         self.field = ();
     }
 
-    function test2(@sensitive TestObject o) returns string {
+    function test2(@untainted TestObject o) returns string {
         o.field = self.field;
         secureFunction(<string> o.field, <string> self.field);
         return <string> o.field;
@@ -36,7 +36,7 @@ type TestObject object {
     }
 };
 
-function secureFunction(@sensitive string secureIn, @sensitive string insecureIn) {
+function secureFunction(@untainted string secureIn, @untainted string insecureIn) {
 
 }
 

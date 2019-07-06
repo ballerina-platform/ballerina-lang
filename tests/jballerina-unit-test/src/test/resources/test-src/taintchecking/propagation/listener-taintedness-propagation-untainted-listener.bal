@@ -35,6 +35,6 @@ service sample on helloWorldEP {
     }
 }
 
-function sensitiveFunc(@sensitive any p) {
+function sensitiveFunc(@untainted any p) {
     // do some stuff
 }

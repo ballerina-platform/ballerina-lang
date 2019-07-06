@@ -22,5 +22,5 @@ public function main (string... args) {
     }
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 }

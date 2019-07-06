@@ -39,8 +39,8 @@ public class ListenerServiceTaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-tainted-listener.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'p'", 26, 23);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'p'", 27, 23);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'p'", 42, 23);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 26, 23);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 27, 23);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 42, 23);
     }
 }

@@ -41,6 +41,6 @@ function returnInput (string inputData) returns (string) {
     return inputData;
 }
 
-function secureFunction (@sensitive string secureIn) {
+function secureFunction (@untainted string secureIn) {
 
 }

@@ -21,7 +21,7 @@ service sample on helloWorldEP {
     }
 }
 
-function sen(@sensitive any secureIn) {
+function sen(@untainted any secureIn) {
 
 }
 
