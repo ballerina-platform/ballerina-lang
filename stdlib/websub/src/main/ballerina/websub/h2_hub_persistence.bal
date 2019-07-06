@@ -42,12 +42,14 @@ public type H2HubPersistenceStore object {
         self.subscriptionDbClient = subscriptionDbClient;
         var updateResult = self.subscriptionDbClient->update(CREATE_TOPICS_TABLE);
         if (updateResult is error) {
-            panic updateResult;
+            error e = updateResult;
+            panic e;
         }
 
         updateResult = self.subscriptionDbClient->update(CREATE_SUBSCRIPTIONS_TABLE);
         if (updateResult is error) {
-            panic updateResult;
+            error e = updateResult;
+            panic e;
         }
     }
 
@@ -65,7 +67,8 @@ public type H2HubPersistenceStore object {
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully removed " + ret.updatedRowCount + " entries for existing subscription");
         } else {
-            string errCause = <string> ret.detail().message;
+            error e = ret;
+            string errCause = <string> e.detail().message;
             log:printError("Error occurred deleting subscription data: " + errCause);
         }
 
@@ -74,7 +77,8 @@ public type H2HubPersistenceStore object {
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for subscription");
         } else {
-            string errCause = <string> ret.detail().message;
+            error e = ret;
+            string errCause = <string> e.detail().message;
             log:printError("Error occurred updating subscription data: " + errCause);
         }
     }
@@ -90,7 +94,8 @@ public type H2HubPersistenceStore object {
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for unsubscription");
         } else {
-            string errCause = <string> ret.detail().message;
+            error e = ret;
+            string errCause = <string> e.detail().message;
             log:printError("Error occurred updating unsubscription data: " + errCause);
         }
     }
@@ -104,7 +109,8 @@ public type H2HubPersistenceStore object {
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic registration");
         } else {
-            string errCause = <string> ret.detail().message;
+            error e = ret;
+            string errCause = <string> e.detail().message;
             log:printError("Error occurred updating topic registration data: " + errCause);
         }
     }
@@ -118,7 +124,8 @@ public type H2HubPersistenceStore object {
         if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic unregistration");
         } else {
-            string errCause = <string> ret.detail().message;
+            error e = ret;
+            string errCause = <string> e.detail().message;
             log:printError("Error occurred updating topic unregistration data: " + errCause);
         }
     }
@@ -137,12 +144,14 @@ public type H2HubPersistenceStore object {
                     topics[topicIndex] = registrationDetails.topic;
                     topicIndex += 1;
                 } else {
-                    string errCause = <string> registrationDetails.detail().message;
+                    error e = registrationDetails;
+                    string errCause = <string> e.detail().message;
                     log:printError("Error retreiving topic registration details from the database: " + errCause);
                 }
             }
         } else {
-            string errCause = <string> dbResult.detail().message;
+            error e = dbResult;
+            string errCause = <string> e.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
         }
         return topics;
@@ -162,12 +171,14 @@ public type H2HubPersistenceStore object {
                     subscriptions[subscriptionIndex] = subscriptionDetails;
                     subscriptionIndex += 1;
                 } else {
-                    string errCause = <string> subscriptionDetails.detail().message;
+                    error e = subscriptionDetails;
+                    string errCause = <string> e.detail().message;
                     log:printError("Error retreiving subscription details from the database: " + errCause);
                 }
             }
         } else {
-            string errCause = <string> dbResult.detail().message;
+            error e = dbResult;
+            string errCause = <string> e.detail().message;
             log:printError("Error retreiving data from the database: " + errCause);
         }
         return subscriptions;

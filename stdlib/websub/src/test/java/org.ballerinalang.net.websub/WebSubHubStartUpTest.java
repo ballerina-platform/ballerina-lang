@@ -72,7 +72,7 @@ public class WebSubHubStartUpTest {
     @Test(description = "Test shut down and restart", dependsOnMethods = "testHubStartUpWhenStarted")
     public void testHubShutdownAndStart() {
         int port = 9393;
-        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{new BInteger(port)});
+        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{new BInteger(9494)});
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue((((BBoolean) returns[0]).value()));

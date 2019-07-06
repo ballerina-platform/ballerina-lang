@@ -231,8 +231,8 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private ObjectValue getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                         MapValue endpointConfig) {
-        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
-                                                                          HTTP_LISTENER_ENDPOINT);
+        ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
+                          9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);

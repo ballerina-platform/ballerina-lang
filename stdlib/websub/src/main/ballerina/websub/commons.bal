@@ -132,27 +132,18 @@ public type IntentVerificationRequest object {
     #
     # + expectedTopic - The topic for which subscription should be accepted
     # + return - `http:Response` The response to the hub verifying/denying intent to subscribe
-    public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response;
+    public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response {
+        return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
+    }
 
     # Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which unsubscription should be accepted
     # + return - `http:Response` The response to the hub verifying/denying intent to unsubscribe
-    public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response;
-
+    public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response {
+        return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
+    }
 };
-
-public function IntentVerificationRequest.buildSubscriptionVerificationResponse(string expectedTopic)
-    returns http:Response {
-
-    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
-}
-
-public function IntentVerificationRequest.buildUnsubscriptionVerificationResponse(string expectedTopic)
-    returns http:Response {
-
-    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
-}
 
 # Function to build intent verification response for subscription/unsubscription requests sent.
 #
@@ -508,7 +499,11 @@ public type WebSubHub object {
     # Stops the started up Ballerina WebSub Hub.
     #
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
-    public function stop() returns boolean;
+    public function stop() returns boolean {
+        // TODO: return error
+        var stopResult = self.hubHttpListener.__stop();
+        return stopHubService(self.hubUrl) && !(stopResult is error);
+    }
 
     # Publishes an update against the topic in the initialized Ballerina Hub.
     #
@@ -517,19 +512,61 @@ public type WebSubHub object {
     # + contentType - The content type header to set for the request delivering the payload
     # + return - `error` if the hub is not initialized or does not represent the internal hub
     public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                  string? contentType = ()) returns error?;
+                                  string? contentType = ()) returns error? {
+        if (self.hubUrl == "") {
+            error webSubError = error(WEBSUB_ERROR_CODE,
+                                    message = "Internal Ballerina Hub not initialized or incorrectly referenced");
+            return webSubError;
+        }
+
+        WebSubContent content = {};
+
+        if (payload is io:ReadableByteChannel) {
+            content.payload = constructByteArray(payload);
+        } else {
+            content.payload = payload;
+        }
+
+        if (contentType is string) {
+            content.contentType = contentType;
+        } else {
+            if (payload is string) {
+                content.contentType = mime:TEXT_PLAIN;
+            } else if (payload is xml) {
+                content.contentType = mime:APPLICATION_XML;
+            } else if (payload is json) {
+                content.contentType = mime:APPLICATION_JSON;
+            } else {
+                content.contentType = mime:APPLICATION_OCTET_STREAM;
+            }
+        }
+
+        return validateAndPublishToInternalHub(self.hubUrl, topic, content);
+    }
 
     # Registers a topic in the Ballerina Hub.
     #
     # + topic - The topic to register
     # + return - `error` if an error occurred with registration
-    public function registerTopic(string topic) returns error?;
+    public function registerTopic(string topic) returns error? {
+        if (!hubTopicRegistrationRequired) {
+            error e = error(WEBSUB_ERROR_CODE, message = "Internal Ballerina Hub not initialized or incorrectly referenced");
+            return e;
+        }
+        return registerTopicAtHub(topic);
+    }
 
     # Unregisters a topic in the Ballerina Hub.
     #
     # + topic - The topic to unregister
     # + return - `error` if an error occurred with unregistration
-    public function unregisterTopic(string topic) returns error?;
+    public function unregisterTopic(string topic) returns error?{
+        if (!hubTopicRegistrationRequired) {
+            error e = error(WEBSUB_ERROR_CODE, message = "Remote topic unregistration not allowed/not required at the Hub");
+            return e;
+        }
+        return unregisterTopicAtHub(topic);
+    }
 
     # Retrieves topics currently recognized by the Hub.
     #
@@ -542,61 +579,6 @@ public type WebSubHub object {
     # + return - An array of subscriber details
     public function getSubscribers(string topic) returns SubscriberDetails[] = external;
 };
-
-public function WebSubHub.stop() returns boolean {
-    // TODO: return error
-    var stopResult = self.hubHttpListener.__stop();
-    return stopHubService(self.hubUrl) && !(stopResult is error);
-}
-
-public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                  string? contentType = ()) returns error? {
-    if (self.hubUrl == "") {
-        error webSubError = error(WEBSUB_ERROR_CODE,
-                                        message = "Internal Ballerina Hub not initialized or incorrectly referenced");
-        return webSubError;
-    }
-
-    WebSubContent content = {};
-
-    if (payload is io:ReadableByteChannel) {
-        content.payload = constructByteArray(payload);
-    } else {
-        content.payload = payload;
-    }
-
-    if (contentType is string) {
-        content.contentType = contentType;
-    } else {
-        if (payload is string) {
-            content.contentType = mime:TEXT_PLAIN;
-        } else if (payload is xml) {
-            content.contentType = mime:APPLICATION_XML;
-        } else if (payload is json) {
-            content.contentType = mime:APPLICATION_JSON;
-        } else {
-            content.contentType = mime:APPLICATION_OCTET_STREAM;
-        }
-    }
-
-    return validateAndPublishToInternalHub(self.hubUrl, topic, content);
-}
-
-public function WebSubHub.registerTopic(string topic) returns error? {
-    if (!hubTopicRegistrationRequired) {
-        error e = error(WEBSUB_ERROR_CODE, message = "Internal Ballerina Hub not initialized or incorrectly referenced");
-        return e;
-    }
-    return registerTopicAtHub(topic);
-}
-
-public function WebSubHub.unregisterTopic(string topic) returns error? {
-    if (!hubTopicRegistrationRequired) {
-        error e = error(WEBSUB_ERROR_CODE, message = "Remote topic unregistration not allowed/not required at the Hub");
-        return e;
-    }
-    return unregisterTopicAtHub(topic);
-}
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////
