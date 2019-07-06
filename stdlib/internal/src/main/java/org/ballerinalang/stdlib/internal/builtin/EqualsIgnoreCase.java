@@ -16,13 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -34,25 +31,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "equalsIgnoreCase",
         receiver = @Receiver(type = TypeKind.STRING),
         args = {@Argument(name = "anotherString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class EqualsIgnoreCase extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String string1 = context.getStringArgument(0);
-        String anotherString = context.getStringArgument(1);
-
-        BBoolean booleanValue = new BBoolean(string1.equalsIgnoreCase(anotherString));
-        context.setReturnValues(booleanValue);
-    }
+public class EqualsIgnoreCase {
 
     public static boolean equalsIgnoreCase(Strand strand, String value, String other) {
+
         StringUtils.checkForNull(value, other);
         return value.equalsIgnoreCase(other);
     }

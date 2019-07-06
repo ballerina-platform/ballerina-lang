@@ -16,14 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,29 +34,17 @@ import java.util.regex.PatternSyntaxException;
  * Extern function ballerina.model.strings:matches.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "matches",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class Matches extends AbstractRegexFunction {
-    @Override
-    public void execute(Context context) {
-        String s = context.getStringArgument(0);
-        String regex = context.getStringArgument(1);
-        try {
-            Pattern pattern = AbstractRegexFunction.validatePattern(regex);
-            Matcher matcher = pattern.matcher(s);
-            BBoolean matches = new BBoolean(matcher.matches());
-            context.setReturnValues(matches);
-        } catch (PatternSyntaxException e) {
-            context.setReturnValues(ErrorUtils.createStringError(context, e.getMessage()));
-        }
-    }
+public class Matches {
 
     public static Object matches(Strand strand, String value, String regex) {
+
         StringUtils.checkForNull(value, regex);
         try {
             Pattern pattern = AbstractRegexFunction.validatePattern(regex);

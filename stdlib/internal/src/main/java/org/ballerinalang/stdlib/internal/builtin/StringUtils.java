@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.stdlib.internal.builtin;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 
