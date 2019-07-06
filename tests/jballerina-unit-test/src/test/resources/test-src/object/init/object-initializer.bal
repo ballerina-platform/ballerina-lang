@@ -27,12 +27,10 @@ public type person object {
         self.age = a;
     }
 
-    function getAge();
+    public function getAge() {
+        self.age = 12;
+    }
 };
-
-function person.getAge() {
-    self.age = 12;
-}
 
 function testObjectInitializerInSamePackage1() returns [int, string]{
     person p = new(n = "Peter");
