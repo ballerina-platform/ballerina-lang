@@ -1,59 +1,59 @@
 import testorg/foo version v1;
 
-public function testSimpleObjectAsStruct () returns (int, string, int, string) {
+public function testSimpleObjectAsStruct () returns [int, string, int, string] {
     foo:Man p = new ();
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectFieldDefaultable () returns (int, string, int, string) {
+public function testObjectFieldDefaultable () returns [int, string, int, string] {
     foo:Man p = new foo:Man();
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testSimpleObjectAsStructWithNew () returns (int, string, int, string) {
+public function testSimpleObjectAsStructWithNew () returns [int, string, int, string] {
     foo:Man p = new;
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithSimpleInit () returns (int, string, int, string) {
+public function testObjectWithSimpleInit () returns [int, string, int, string] {
     foo:Human p = new foo:Human(99, 7);
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithDefaultableValues () returns (int, string, int, string) {
+public function testObjectWithDefaultableValues () returns [int, string, int, string] {
     foo:Planet p = new foo:Planet(99);
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithSimpleInitWithDiffValues () returns (int, string, int, string) {
+public function testObjectWithSimpleInitWithDiffValues () returns [int, string, int, string] {
     foo:Human p = new foo:Human(675, 27, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithoutRHSType () returns (int, string, int, string) {
+public function testObjectWithoutRHSType () returns [int, string, int, string] {
     foo:Human p = new (675, 27, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
-public function testObjectWithAttachedFunc1 () returns (int, string, int, string) {
+public function testObjectWithAttachedFunc1 () returns [int, string, int, string] {
     foo:Company p = new foo:Company(99, 7);
-    var (a, b) = p.attachFunc1(344, "added values ");
-    return (a, b, p.year, p.month);
+    var [a, b] = p.attachFunc1(344, "added values ");
+    return [a, b, p.year, p.month];
 }
 
-public function testObjectWithSelfKeyword () returns (string, string, string, string) {
+public function testObjectWithSelfKeyword () returns [string, string, string, string] {
     foo:Building p = new foo:Building();
-    return (p.getNameWrapperInside1(), p.getNameWrapperInside2(), p.getNameWrapperOutside1(), p.getNameWrapperOutside2());
+    return [p.getNameWrapperInside1(), p.getNameWrapperInside2(), p.getNameWrapperOutside1(), p.getNameWrapperOutside2()];
 }
 
-public function testObjectCallAttachedFunctions () returns (string, string, string, string) {
+public function testObjectCallAttachedFunctions () returns [string, string, string, string] {
     foo:Building p = new foo:Building();
-    return (p.getNameWrapperInside1(), p.getNameWrapperInside2(), p.getNameWrapperOutside1(), p.getNameWrapperOutside2());
+    return [p.getNameWrapperInside1(), p.getNameWrapperInside2(), p.getNameWrapperOutside1(), p.getNameWrapperOutside2()];
 }
 
-public function testObjectInsideObject () returns (string, string) {
+public function testObjectInsideObject () returns [string, string] {
     foo:Boy p = new foo:Boy();
-    return (p.getNameWrapperInside1(), p.getNameFromDiffObject());
+    return [p.getNameWrapperInside1(), p.getNameFromDiffObject()];
 }
 
 function testGetValueFromPassedSelf() returns string {
@@ -61,9 +61,9 @@ function testGetValueFromPassedSelf() returns string {
     return p.selfAsValue();
 }
 
-public function testObjectWithInterface () returns (int, string, int, string) {
+public function testObjectWithInterface () returns [int, string, int, string] {
     foo:Bin p = new DustBin(100, 10, val1 = "adding value in invocation");
-    return (p.age, p.name, p.year, p.month);
+    return [p.age, p.name, p.year, p.month];
 }
 
 public type DustBin object {
@@ -79,22 +79,22 @@ public type DustBin object {
         self.month = val1 + " uuuu";
     }
 
-    public function attachFunc1(int add, string value1) returns (int, string) {
+    public function attachFunc1(int add, string value1) returns [int, string] {
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 
-    public function attachInterface(int add, string value1) returns (int, string){
+    public function attachInterface(int add, string value1) returns [int, string] {
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 };
 
-public function testShadowingObjectField () returns (int, string) {
+public function testShadowingObjectField () returns [int, string] {
     foo:Car p = new foo:Car(a = 50, n = "passed in name value");
-    return (p.age, p.name);
+    return [p.age, p.name];
 }
 
 function testCreateObjectInReturnSameType () returns int {
@@ -131,13 +131,13 @@ type Vehicle object {
 
 Vehicle v = new;
 
-function testGetDefaultValuesInObjectGlobalVar() returns (int, string, int, string) {
-    return (v.age, v.emp.name, v.foo.key, v.bar.address);
+function testGetDefaultValuesInObjectGlobalVar() returns [int, string, int, string] {
+    return [v.age, v.emp.name, v.foo.key, v.bar.address];
 }
 
-function testGetDefaultValuesInObject() returns (int, string, int, string) {
+function testGetDefaultValuesInObject() returns [int, string, int, string] {
     Vehicle p = new;
-    return (p.age, p.emp.name, p.foo.key, p.bar.address);
+    return [p.age, p.emp.name, p.foo.key, p.bar.address];
 }
 
 function testCyclicReferenceWithDefaultable () returns int {
@@ -158,21 +158,21 @@ public type Office object {
     public foo:Architect ep = new(88, "sanjiva");
 };
 
-function testFieldWithExpr() returns (int, string) {
+function testFieldWithExpr() returns [int, string] {
     Office p = new;
-    return (p.ep.pp, p.ep.name);
+    return [p.ep.pp, p.ep.name];
 }
 
-function testObjectWithByteTypeFields() returns (byte[], byte[], byte[]) {
+function testObjectWithByteTypeFields() returns [byte[], byte[], byte[]] {
     foo:Desk desk = new;
-    return (desk.dimensions, desk.code1, desk.code2);
+    return [desk.dimensions, desk.code1, desk.code2];
 }
 
 // --------------Test abstract objects and object type reference -----------------
 
-public function testObjectReferingTypeFromBalo_1() returns (string, float) {
+public function testObjectReferingTypeFromBalo_1() returns [string, float] {
     foo:Manager1 mgr = new();
-    return (mgr.getName(), mgr.getBonus(0.1));
+    return [mgr.getName(), mgr.getBonus(0.1)];
 }
 
 // Test referring an object coming from a balo 
@@ -190,15 +190,15 @@ type Manager2 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
+
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
 };
 
-public function Manager2.getName(string greeting = "Hello") returns string {
-    return greeting + " " + self.name;
-}
-
-public function testObjectReferingTypeFromBalo_2() returns (string, float) {
+public function testObjectReferingTypeFromBalo_2() returns [string, float] {
     Manager2 mgr2 = new("Jane");
-    return (mgr2.getName(), mgr2.getBonus(0.1));
+    return [mgr2.getName(), mgr2.getBonus(0.1)];
 }
 
 // Test referring a type coming from a balo
@@ -225,13 +225,13 @@ type Manager3 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
+
+    public function getName(string greeting = "Good morning") returns string {
+        return greeting + " " + self.name;
+    }
 };
 
-public function Manager3.getName(string greeting = "Good morning") returns string {
-    return greeting + " " + self.name;
-}
-
-public function testObjectReferingTypeFromBalo_3() returns (string, float) {
+public function testObjectReferingTypeFromBalo_3() returns [string, float] {
     Manager3 mgr3 = new("Jane");
-    return (mgr3.getName(), mgr3.getBonus(0.1));
+    return [mgr3.getName(), mgr3.getBonus(0.1)];
 }

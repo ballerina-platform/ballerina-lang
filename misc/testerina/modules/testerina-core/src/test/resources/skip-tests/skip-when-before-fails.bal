@@ -15,13 +15,13 @@ public function test1() {
 }
 
 // Independent function which passes
-@test:Config
+@test:Config {}
 public function test3() {
     io:println("test3 - independent");
 }
 
 // Independent function - which fails
-@test:Config
+@test:Config {}
 public function test4() {
     io:println("test4 - independent");
     test:assertFail();

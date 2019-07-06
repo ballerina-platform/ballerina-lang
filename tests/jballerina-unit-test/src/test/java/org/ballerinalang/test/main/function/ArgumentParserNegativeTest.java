@@ -201,7 +201,7 @@ public class ArgumentParserNegativeTest {
 
     @Test
     public void testInvalidStringElementTupleArg() {
-        String argument = "(101, {\"name\":\"Maryam\"}, finance)";
+        String argument = "[101, {\"name\":\"Maryam\"}, finance]";
         try {
             LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
                                      runtimeParams, configFilePath, new String[]{argument}, offline, observe);
@@ -222,7 +222,7 @@ public class ArgumentParserNegativeTest {
                                      runtimeParams, configFilePath, new String[]{arg}, offline, observe);
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg + "', expected tuple "
-                                                               + "notation (\"()\") with tuple arg"),
+                                                               + "notation [\"[]\"] with tuple arg"),
                               "invalid error message, error message for invalid tuple arg not found");
             return;
         }
@@ -236,7 +236,7 @@ public class ArgumentParserNegativeTest {
                                      runtimeParams, configFilePath, new String[]{arg}, offline, observe);
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg + "', element count "
-                                                               + "mismatch for tuple type: '(int,Employee,string)'"),
+                                                               + "mismatch for tuple type: '[int,Employee,string]'"),
                               "invalid error message, error message for tuple element count mismatch not found");
             return;
         }
@@ -245,7 +245,7 @@ public class ArgumentParserNegativeTest {
 
     @Test
     public void testInvalidTupleArgWithIncorrectElementArg() {
-        String arg = "(\"101\", {\"name\":\"Maryam\"}, \"finance\")";
+        String arg = "[\"101\", {\"name\":\"Maryam\"}, \"finance\"]";
         try {
             LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
                                      runtimeParams, configFilePath, new String[]{arg}, offline, observe);
@@ -466,8 +466,8 @@ public class ArgumentParserNegativeTest {
     @DataProvider(name = "tupleArgsWithoutBrackets")
     public Object[][] tupleArgsWithoutBrackets() {
         return new Object[][]{
-                {"(1, {\"name\":\"Maryam\"}, \"ABC\""},
-                {"1, {\"name\":\"Maryam\"}, \"ABC\")"},
+                {"[1, {\"name\":\"Maryam\"}, \"ABC\""},
+                {"1, {\"name\":\"Maryam\"}, \"ABC\"]"},
                 {"1, {\"name\":\"Maryam\"}, \"ABC\""}
         };
     }
@@ -475,8 +475,8 @@ public class ArgumentParserNegativeTest {
     @DataProvider(name = "tupleArgsWithIncorrectElementCount")
     public Object[][] tupleArgsWithIncorrectElementCount() {
         return new Object[][]{
-                {"(1, {\"name\":\"Maryam\"})"},
-                {"(1, {\"name\":\"Maryam\"}, \"ABC\", 1500)"}
+                {"[1, {\"name\":\"Maryam\"}]"},
+                {"[1, {\"name\":\"Maryam\"}, \"ABC\", 1500]"}
         };
     }
 }

@@ -22,18 +22,12 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -51,40 +45,32 @@ import org.ballerinalang.natives.annotations.Receiver;
                 type = TypeKind.OBJECT,
                 structType = ArtemisConstants.MESSAGE_OBJ,
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
-        ),
-        args = {
-                @Argument(
-                        name = "key",
-                        type = TypeKind.STRING
-                ),
-                @Argument(
-                        name = "value",
-                        type = TypeKind.UNION
-                )
-        }
+        )
 )
 public class PutProperty extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static void putProperty(Strand strand, ObjectValue messageObj, String key, Object valObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
 
-        String key = context.getStringArgument(0);
-        BValue valObj = context.getRefArgument(1);
-        if (valObj instanceof BString) {
-            message.putStringProperty(key, valObj.stringValue());
-        } else if (valObj instanceof BInteger) {
-            message.putLongProperty(key, ((BInteger) valObj).intValue());
-        } else if (valObj instanceof BFloat) {
-            message.putDoubleProperty(key, ((BFloat) valObj).floatValue());
-        } else if (valObj instanceof BBoolean) {
-            message.putBooleanProperty(key, ((BBoolean) valObj).booleanValue());
-        } else if (valObj instanceof BByte) {
-            message.putByteProperty(key, (byte) ((BByte) valObj).byteValue());
-        } else if (valObj instanceof BValueArray) {
-            message.putBytesProperty(key, ArtemisUtils.getBytesData((BValueArray) valObj));
+        if (valObj instanceof String) {
+            message.putStringProperty(key, (String) valObj);
+        } else if (valObj instanceof Long) {
+            message.putLongProperty(key, (long) valObj);
+        } else if (valObj instanceof Double) {
+            message.putDoubleProperty(key, (double) valObj);
+        } else if (valObj instanceof Boolean) {
+            message.putBooleanProperty(key, (boolean) valObj);
+        } else if (valObj instanceof Byte) {
+            message.putByteProperty(key, (byte) valObj);
+        } else if (valObj instanceof ArrayValue) {
+            message.putBytesProperty(key, ArtemisUtils.getBytesData((ArrayValue) valObj));
+        } else if (valObj instanceof Integer) {
+            message.putIntProperty(key, (Integer) valObj);
         }//else is not needed because these are the only values supported by the Ballerina the method
     }
+
 }

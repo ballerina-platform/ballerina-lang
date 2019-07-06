@@ -283,6 +283,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExternalFunctionBody(ctx.annotationAttachment().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         if (isInErrorState) {
             return;
@@ -304,22 +316,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
-        boolean nativeFunc = ctx.EXTERNAL() != null;
+        boolean nativeFunc = ctx.externalFunctionBody() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
-            this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
-                            nativeFunc,
-                            bodyExists, ctx.Identifier().getText());
+            this.pkgBuilder.endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc,
+                                                      remoteFunc, nativeFunc, bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                bodyExists, isReceiverAttached, false);
+                                       bodyExists, isReceiverAttached, false);
     }
 
     @Override
@@ -521,11 +531,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
-        boolean nativeFunc = ctx.EXTERNAL() != null;
+        boolean nativeFunc = ctx.externalFunctionBody() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                resourceFunc, nativeFunc, bodyExists, markdownDocExists, ctx.annotationAttachment().size());
+                                                     resourceFunc, nativeFunc, bodyExists, markdownDocExists,
+                                                     ctx.annotationAttachment().size());
     }
 
     /**
@@ -551,8 +562,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         boolean isTypeAttached = ctx.typeName() != null;
+        boolean isConst = ctx.CONST() != null;
         this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(),
-                                         getCurrentPos(ctx.Identifier()), publicAnnotation, isTypeAttached);
+                getCurrentPos(ctx.Identifier()), publicAnnotation, isTypeAttached, isConst);
     }
 
     /**
@@ -592,7 +604,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addAttachPoint(AttachPoint.getAttachmentPoint(ctx.getText()), getWS(ctx));
+
+        AttachPoint attachPoint;
+        if (ctx.dualAttachPoint() != null) {
+            if (ctx.dualAttachPoint().SOURCE() != null) {
+                attachPoint = AttachPoint.getAttachmentPoint(ctx.dualAttachPoint().dualAttachPointIdent().getText(),
+                                                             true);
+            } else {
+                attachPoint = AttachPoint.getAttachmentPoint(ctx.getText(), false);
+            }
+        } else {
+            // source-only-attach-point
+            attachPoint = AttachPoint.getAttachmentPoint(
+                    ctx.sourceOnlyAttachPoint().sourceOnlyAttachPointIdent().getText(), true);
+        }
+        this.pkgBuilder.addAttachPoint(attachPoint, getWS(ctx));
     }
 
     @Override
@@ -1283,7 +1309,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         final DiagnosticPos serviceDefPos = getCurrentPos(ctx);
         final String serviceVarName = null;
         final DiagnosticPos varPos = serviceDefPos;
-        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, true);
+        this.pkgBuilder.endServiceDef(serviceDefPos, getWS(ctx), serviceVarName, varPos, true,
+                                      ctx.serviceConstructorExpr().annotationAttachment().size());
     }
 
     @Override
@@ -2333,6 +2360,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createTypeTestExpression(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitAnnotAccessExpression(BallerinaParser.AnnotAccessExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createAnnotAccessNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

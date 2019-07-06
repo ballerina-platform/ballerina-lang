@@ -6,7 +6,7 @@ public function main (string... args) returns error? {
 
     var intArg = int.convert(args[0]);
     if (intArg is int) {
-        io:ReadableByteChannel rbh = io:openReadableFile(filePath);
+        io:ReadableByteChannel rbh = checkpanic io:openReadableFile(filePath);
         io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
         io:WritableByteChannel wbh = io:openWritableFile(filePath);

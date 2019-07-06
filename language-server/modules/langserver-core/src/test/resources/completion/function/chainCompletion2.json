@@ -6,7 +6,7 @@
   "source": "function/source/chainCompletion2.bal",
   "items": [
     {
-      "label": "setFileAsEntityBody(string filePath, string contentType \u003d application/octet-stream)",
+      "label": "setFileAsEntityBody(string filePath)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -16,11 +16,15 @@
         }
       },
       "sortText": "121",
-      "insertText": "setFileAsEntityBody(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setFileAsEntityBody(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setBody(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] entityBody)",
+      "label": "setBody((string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) entityBody)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -30,8 +34,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setBody(${1:entityBody});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setBody(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setContentType(string mediaType)(error?)",
@@ -44,8 +52,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setContentType(${1:mediaType})",
-      "insertTextFormat": "Snippet"
+      "insertText": "setContentType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getContentType()(string)",
@@ -58,8 +70,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getContentType()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getContentType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setContentId(string contentId)",
@@ -72,8 +88,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setContentId(${1:contentId});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setContentId(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getContentId()(string)",
@@ -86,8 +106,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getContentId()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getContentId(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setContentLength(int contentLength)",
@@ -100,22 +124,30 @@
         }
       },
       "sortText": "121",
-      "insertText": "setContentLength(${1:contentLength});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setContentLength(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getContentLength()(int|error)",
+      "label": "getContentLength()((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getContentLength()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getContentLength(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setContentDisposition(mime:ContentDisposition contentDisposition)",
@@ -128,8 +160,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setContentDisposition(${1:contentDisposition});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setContentDisposition(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getContentDisposition()(ballerina/mime:ContentDisposition)",
@@ -142,11 +178,15 @@
         }
       },
       "sortText": "121",
-      "insertText": "getContentDisposition()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getContentDisposition(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setJson(json jsonContent, string contentType \u003d application/json)",
+      "label": "setJson(json jsonContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -156,25 +196,33 @@
         }
       },
       "sortText": "121",
-      "insertText": "setJson(${1:jsonContent}, contentType \u003d ${2:\"application/json\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setJson(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getJson()(json|error)",
+      "label": "getJson()((json|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \njson|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getJson()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setXml(xml xmlContent, string contentType \u003d application/xml)",
+      "label": "setXml(xml xmlContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -184,25 +232,33 @@
         }
       },
       "sortText": "121",
-      "insertText": "setXml(${1:xmlContent}, contentType \u003d ${2:\"application/xml\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setXml(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getXml()(xml|error)",
+      "label": "getXml()((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getXml()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getXml(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setText(string textContent, string contentType \u003d text/plain)",
+      "label": "setText(string textContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -212,25 +268,33 @@
         }
       },
       "sortText": "121",
-      "insertText": "setText(${1:textContent}, contentType \u003d ${2:\"text/plain\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setText(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getText()(string|error)",
+      "label": "getText()((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getText()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getText(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setByteArray(byte[] blobContent, string contentType \u003d application/octet-stream)",
+      "label": "setByteArray(byte[] blobContent)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -240,25 +304,33 @@
         }
       },
       "sortText": "121",
-      "insertText": "setByteArray(${1:blobContent}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setByteArray(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getByteArray()(byte[]|error)",
+      "label": "getByteArray()((byte[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nbyte[]|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getByteArray()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getByteArray(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setByteChannel(io:ReadableByteChannel byteChannel, string contentType \u003d application/octet-stream)",
+      "label": "setByteChannel(io:ReadableByteChannel byteChannel)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -268,53 +340,69 @@
         }
       },
       "sortText": "121",
-      "insertText": "setByteChannel(${1:byteChannel}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setByteChannel(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getByteChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getByteChannel()((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getByteChannel()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getByteChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getBodyParts()(ballerina/mime:Entity[]|error)",
+      "label": "getBodyParts()((ballerina/mime:Entity[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity[]|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getBodyParts()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getBodyParts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getBodyPartsAsChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getBodyPartsAsChannel()((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "sortText": "121",
-      "insertText": "getBodyPartsAsChannel()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getBodyPartsAsChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
+      "label": "setBodyParts(mime:Entity[] bodyParts)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -324,8 +412,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setBodyParts(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeader(string headerName)(string)",
@@ -338,8 +430,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeaders(string headerName)(string[])",
@@ -352,8 +448,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeaders(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeaders(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getHeaderNames()(string[])",
@@ -366,8 +466,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "getHeaderNames()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeaderNames(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "addHeader(string headerName, string headerValue)",
@@ -380,8 +484,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "addHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
+      "insertText": "addHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setHeader(string headerName, string headerValue)",
@@ -394,8 +502,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "setHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeHeader(string headerName)",
@@ -408,8 +520,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "removeHeader(${1:headerName});",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeAllHeaders()",
@@ -422,8 +538,12 @@
         }
       },
       "sortText": "121",
-      "insertText": "removeAllHeaders();",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeAllHeaders(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasHeader(string headerName)(boolean)",
@@ -436,21 +556,29 @@
         }
       },
       "sortText": "121",
-      "insertText": "hasHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "__init()",
+      "label": "new()",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "__init();",
-      "insertTextFormat": "Snippet"
+      "insertText": "new(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "cType",
       "kind": "Variable",
-      "detail": "ballerina/mime:MediaType",
+      "detail": "mime:MediaType",
       "sortText": "221",
       "insertText": "cType",
       "insertTextFormat": "Snippet"
@@ -474,7 +602,7 @@
     {
       "label": "cDisposition",
       "kind": "Variable",
-      "detail": "ballerina/mime:ContentDisposition",
+      "detail": "mime:ContentDisposition",
       "sortText": "221",
       "insertText": "cDisposition",
       "insertTextFormat": "Snippet"

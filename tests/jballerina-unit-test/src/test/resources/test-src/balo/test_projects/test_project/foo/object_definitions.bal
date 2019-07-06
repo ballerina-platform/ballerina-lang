@@ -46,10 +46,10 @@ public type Company object {
         self.age += count;
     }
 
-    public function attachFunc1(int add, string value1) returns (int, string) {
+    public function attachFunc1(int add, string value1) returns [int, string] {
         int count = self.age + add;
         string val2 = value1 + self.month;
-        return (count, val2);
+        return [count, val2];
     }
 };
 
@@ -72,25 +72,18 @@ public type Building object {
         return self.getNameOut();
     }
 
-    public function getNameOut() returns string;
+    public function getNameOut() returns string {
+        return self.name;
+    }
 
-    public function getNameWrapperOutside1() returns string;
+    public function getNameWrapperOutside1() returns string {
+        return self.getName();
+    }
 
-    public function getNameWrapperOutside2() returns string;
-
+    public function getNameWrapperOutside2() returns string {
+        return self.getNameOut();
+    }
 };
-
-public function Building.getNameOut() returns string {
-    return self.name;
-}
-
-public function Building.getNameWrapperOutside1() returns string {
-    return self.getName();
-}
-
-public function Building.getNameWrapperOutside2() returns string {
-    return self.getNameOut();
-}
 
 public type Boy object {
     public int age = 10;
@@ -128,9 +121,9 @@ public type Bin abstract object {
     public int year = 50;
     public string month = "february";
 
-    public function attachFunc1(int add, string value1) returns (int, string);
+    public function attachFunc1(int add, string value1) returns [int, string];
 
-    public function attachInterface(int add, string value1) returns (int, string);
+    public function attachInterface(int add, string value1) returns [int, string];
 };
 
 public type Car object {
@@ -249,6 +242,6 @@ public type Desk object {
     public byte[] code1 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     public byte[] code2 = base16 `aaabcfccad afcd34 1a4bdf abcd8912df`;
 
-    public function __init (){
+    public function __init () {
     }
 };

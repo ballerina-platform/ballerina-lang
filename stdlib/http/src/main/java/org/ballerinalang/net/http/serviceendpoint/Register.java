@@ -43,7 +43,7 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Register a service to the listener.
  *
  * @since 0.966
  */
@@ -72,7 +72,7 @@ public class Register extends AbstractHttpNativeFunction {
             String callerType = param.getVarType().toString();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+            } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
                 BWebSocketService webSocketService = new BWebSocketService(service);
                 webSocketServicesRegistry.registerService(webSocketService);
             }
@@ -83,7 +83,7 @@ public class Register extends AbstractHttpNativeFunction {
     }
 
     public static Object register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
-                                Object annotationData) {
+                                  Object annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
         httpServicesRegistry.setScheduler(strand.scheduler);
@@ -94,8 +94,8 @@ public class Register extends AbstractHttpNativeFunction {
             String callerType = param.getQualifiedName();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) { // TODO fix should work with equals - rajith
                 httpServicesRegistry.registerService(service);
-            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                WebSocketService webSocketService = new WebSocketService(service);
+            } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
                 webSocketServicesRegistry.registerService(webSocketService);
             }
         } else {

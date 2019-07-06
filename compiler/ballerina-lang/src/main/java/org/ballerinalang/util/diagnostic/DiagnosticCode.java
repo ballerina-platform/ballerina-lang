@@ -101,6 +101,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
+    REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
@@ -274,8 +275,11 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
-    ANNOTATION_REQUIRE_RECORD("annotation.require.record"),
+    ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE("annotation.attachment.cannot.have.a.value"),
+    ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE("annotation.attachment.requires.a.value"),
+    ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES("annotation.attachment.cannot.specify.multiple.values"),
+    ANNOTATION_INVALID_TYPE("annotation.invalid.type"),
+    ANNOTATION_REQUIRES_CONST("annotation.requires.const"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 

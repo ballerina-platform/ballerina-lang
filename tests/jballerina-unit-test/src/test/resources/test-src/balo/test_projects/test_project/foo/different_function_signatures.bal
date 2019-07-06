@@ -1,11 +1,11 @@
 //------------ Testing a function with all types of parameters ---------
 
 public function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z)
-        returns (int, float, string, int, string, int[]) {
-    return (a, b, c, d, e, z);
+        returns [int, float, string, int, string, int[]] {
+    return [a, b, c, d, e, z];
 }
 
-public function getIntArray() returns (int[]) {
+public function getIntArray() returns int[] {
     return [1,2,3,4];
 }
 
@@ -13,28 +13,28 @@ public function getIntArray() returns (int[]) {
 //------------- Testing a function having required and rest parameters --------
 
 public function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
-            (int, float, string, int, string) {
-    return (a, b, c, d, e);
+            [int, float, string, int, string] {
+    return [a, b, c, d, e];
 }
 
 
 //------------- Testing a function having only named parameters --------
 
 public function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
-                                                                                                    returns (int, float, string, int, string) {
-    return (a, b, c, d, e);
+                                                                                                    returns [int, float, string, int, string] {
+    return [a, b, c, d, e];
 }
 
 //------------- Testing a function having only rest parameters --------
 
-public function functionWithOnlyRestParam(int... z) returns (int[]) {
+public function functionWithOnlyRestParam(int... z) returns int[] {
     return z;
 }
 
 
 //------------- Testing a function with rest parameter of any type --------
 
-public function functionAnyRestParam(any... z) returns (any[]) {
+public function functionAnyRestParam(any... z) returns any[] {
     return z;
 }
 
@@ -82,17 +82,15 @@ public type Employee object {
 public type Person object {
     public int age = 0;
 
-    public function test1(int a = 77, string n = "inner default") returns (int, string);
-
-    public function test2(int a = 89, string n = "hello") returns (int, string) {
+    public function test1(int a = 77, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
-        return (intVal, val);
+        return [intVal, val];
+    }
+
+    public function test2(int a = 89, string n = "hello") returns [int, string] {
+        string val = n + " world";
+        int intVal = a + 10;
+        return [intVal, val];
     }
 };
-
-public function Person.test1(int a = 77, string n = "hello") returns (int, string) {
-    string val = n + " world";
-    int intVal = a + 10;
-    return (intVal, val);
-}

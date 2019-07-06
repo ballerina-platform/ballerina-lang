@@ -541,7 +541,7 @@ type TypeEmitter object {
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
                 || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
-                || typeVal is BServiceType) {
+                || typeVal is BServiceType || typeVal is BTypeDecimal) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
@@ -708,7 +708,11 @@ function println(any... vals) {
 }
 
 function print(any... vals) {
-    io:print(...vals);
+    error? e = trap io:print(...vals);
+    if (e is error) {
+        io:print("Warning: Print failed:", e.reason());
+    }
+    
 }
 
 public function getVisibility(int flags) returns string {

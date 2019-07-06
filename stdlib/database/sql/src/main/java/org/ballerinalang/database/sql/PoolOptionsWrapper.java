@@ -18,8 +18,7 @@
 
 package org.ballerinalang.database.sql;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,9 +30,9 @@ import java.util.concurrent.ConcurrentMap;
  * This class provides methods to manipulate aforementioned map.
  */
 public class PoolOptionsWrapper {
-    private final BMap<String, BRefType> poolOptions;
+    private final MapValue<String, Object> poolOptions;
 
-    protected PoolOptionsWrapper(BMap<String, BRefType> poolOptions) {
+    protected PoolOptionsWrapper(MapValue<String, Object> poolOptions) {
         this.poolOptions = poolOptions;
     }
 
@@ -90,8 +89,38 @@ public class PoolOptionsWrapper {
      * @param fieldName The name of the field to retrieve the value of
      * @return The value of the field
      */
-    public BRefType get(String fieldName) {
+    public Object get(String fieldName) {
         return poolOptions.get(fieldName);
+    }
+
+    /**
+     * Retrieve the value of the field corresponding to the provided field.
+     *
+     * @param fieldName The name of the field to retrieve the value of
+     * @return The value of the field
+     */
+    public Long getInt(String fieldName) {
+        return poolOptions.getIntValue(fieldName);
+    }
+
+    /**
+     * Retrieve the value of the field corresponding to the provided field.
+     *
+     * @param fieldName The name of the field to retrieve the value of
+     * @return The value of the field
+     */
+    public String getString(String fieldName) {
+        return poolOptions.getStringValue(fieldName);
+    }
+
+    /**
+     * Retrieve the value of the field corresponding to the provided field.
+     *
+     * @param fieldName The name of the field to retrieve the value of
+     * @return The value of the field
+     */
+    public Boolean getBoolean(String fieldName) {
+        return poolOptions.getBooleanValue(fieldName);
     }
 
     private ConcurrentMap<String, SQLDatasource> createPoolMapIfNotExists() {

@@ -43,15 +43,15 @@ type Manager1 object {
         self.name = "sample name 2";
         self.salary = 8.0;
     }
+
+    public function getSalary() returns float {
+        return self.salary;
+    }
 };
 
-public function Manager1.getSalary() returns float {
-    return self.salary;
-}
-
-public function testSimpleObjectTypeReference() returns (int, string, float, string) {
+public function testSimpleObjectTypeReference() returns [int, string, float, string] {
     Manager1 mgr = new Manager1();
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 type Manager2 object {
@@ -70,15 +70,15 @@ type Manager2 object {
         self.name = "John";
         self.salary = 1000.0;
     }
+
+    public function getSalary() returns float {
+        return self.salary;
+    }
 };
 
-public function Manager2.getSalary() returns float {
-    return self.salary;
-}
-
-public function testInitTypeReferenceObjectWithNew() returns (int, string, float, string) {
+public function testInitTypeReferenceObjectWithNew() returns [int, string, float, string] {
     Manager2 mgr = new Manager2();
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 type Manager3 object {
@@ -90,7 +90,15 @@ type Manager3 object {
         self.age = age;
         self.salary = 2500.0;
         self.name = "Doe";
-    } 
+    }
+
+    public function getName() returns string {
+        return self.name + " from outer function";
+    }
+
+    public function getSalary() returns float {
+        return self.salary;
+    }
 };
 
 type Employee2 abstract object {
@@ -100,18 +108,10 @@ type Employee2 abstract object {
     public function getSalary() returns float; 
 };
 
-public function Manager3.getName() returns string {
-    return self.name + " from outer function";
-}
-
-public function Manager3.getSalary() returns float {
-    return self.salary;
-}
-
-public function testObjectWithChainedTypeReferences() returns (int, string, float, string) {
+public function testObjectWithChainedTypeReferences() returns [int, string, float, string] {
     Manager3 mgr = new Manager3();
     mgr.name = "John";
-    return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
+    return [mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt];
 }
 
 // Test invoking object member method with default values
@@ -129,11 +129,11 @@ type Manager4 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
-};
 
-public function Manager4.getName(string greeting = "Hello") returns string {
-    return greeting + " " + self.name;
-}
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
+};
 
 type Employee3 abstract object {
     public float salary = 0.0;
@@ -149,7 +149,7 @@ type Person3 abstract object {
     public function getName(string greeting = "Hi") returns string;
 };
 
-public function testAbstractObjectFuncWithDefaultVal() returns (string, float) {
+public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
     Manager4 mgr = new Manager4("Jane");
-    return (mgr.getName(), mgr.getBonus(0.1));
+    return [mgr.getName(), mgr.getBonus(0.1)];
 }

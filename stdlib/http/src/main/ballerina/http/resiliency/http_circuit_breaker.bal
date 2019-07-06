@@ -123,12 +123,12 @@ public type CircuitBreakerInferredConfig record {|
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + circuitHealth - The circuit health monitor
 # + currentCircuitState - The current state the circuit is in
-public type CircuitBreakerClient object {
+public type CircuitBreakerClient client object {
 
     public string url;
     public ClientEndpointConfig config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
     public CircuitHealth circuitHealth;
     public CircuitState currentCircuitState = CB_CLOSED_STATE;
 
@@ -140,7 +140,7 @@ public type CircuitBreakerClient object {
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
     public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
-                                        circuitBreakerInferredConfig, Client httpClient, CircuitHealth circuitHealth) {
+                                        circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
         self.url = url;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;

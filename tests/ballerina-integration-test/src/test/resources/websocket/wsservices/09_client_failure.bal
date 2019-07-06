@@ -37,7 +37,9 @@ service errorHandlingService = @http:WebSocketServiceConfig {} service {
         if (serverCaller is http:WebSocketCaller) {
             var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message,
             timeoutInSecs = 0);
-            log:printError("Failed during closing the connection", err = closeErr);
+            if  (closeErr is error) {
+                log:printError("Failed during closing the connection", err = closeErr);
+            }
         } else {
             log:printError("serverCaller has not been set");
         }

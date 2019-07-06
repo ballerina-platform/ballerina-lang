@@ -134,7 +134,6 @@ public class HTTPServicesRegistry {
 
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-//            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
             MapValue resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
                                                          HttpConstants.HTTP_PACKAGE_PATH);
@@ -146,10 +145,9 @@ public class HTTPServicesRegistry {
                     HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
             ObjectValue serviceField =
                     (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-            //TODO Test following line whether need to create a service here
-//            ObjectValue webSocketTypeService = BLangConnectorSPIUtil.getBalService(serviceField);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
-                                                                     upgradeToWebSocketResource, serviceField);
+                                                                     upgradeToWebSocketResource, serviceField,
+                                                                     scheduler);
             webSocketServicesRegistry.registerService(webSocketService);
         });
     }

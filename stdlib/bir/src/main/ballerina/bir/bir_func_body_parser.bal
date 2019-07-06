@@ -555,8 +555,7 @@ public type FuncBodyParser object {
         VarKind kind = parseVarKind(self.reader);
         VarScope varScope = parseVarScope(self.reader);
         string varName = self.reader.readStringCpRef();
-
-        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName, kind);
+        var decl = self.getDecl(varScope, varName, kind);
         return {typeValue : decl.typeValue, variableDcl : decl};
     }
 
@@ -596,6 +595,8 @@ public type FuncBodyParser object {
             kind = BINARY_CLOSED_RANGE;
         } else if (kindTag == INS_HALF_OPEN_RANGE) {
             kind = BINARY_HALF_OPEN_RANGE;
+        } else if (kindTag == INS_ANNOT_ACCESS){
+            kind = BINARY_ANNOT_ACCESS;
         } else if (kindTag == INS_BITWISE_AND) {
             kind = BINARY_BITWISE_AND;
         } else if (kindTag == INS_BITWISE_OR) {
@@ -630,37 +631,48 @@ public type FuncBodyParser object {
         }
     }
 
-};
+    private function getDecl(VarScope varScope, string varName, VarKind kind) returns VariableDcl {
+        if (varScope == VAR_SCOPE_GLOBAL) {
+            if (kind == VAR_KIND_CONSTANT) {
+                var bType = self.reader.readTypeCpRef();
+                ModuleID pkgId = self.reader.readModuleIDCpRef();
+                VariableDcl varDecl = { kind : kind, 
+                                        varScope : varScope, 
+                                        name : {value : varName},
+                                        typeValue : bType,
+                                        moduleId : pkgId
+                                    };
+                return varDecl;
+            }
 
-function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName, 
-        VarKind kind) returns VariableDcl {
-    if (varScope == VAR_SCOPE_GLOBAL) {
-        var possibleDcl = globalVarMap[varName];
+            var possibleDcl = self.globalVarMap[varName];
+            if (possibleDcl is VariableDcl) {
+                return possibleDcl;
+            } else {
+                error err = error("global var missing " + varName);
+                panic err;
+            }
+        }
+
+        // for self referrence, create a dummy varDecl
+        if (kind == VAR_KIND_SELF) {
+            VariableDcl varDecl = { kind : kind, 
+                                    varScope : varScope, 
+                                    name : {value : varName}
+                                };
+            return varDecl;
+        }
+
+        var possibleDcl = self.localVarMap[varName];
         if (possibleDcl is VariableDcl) {
             return possibleDcl;
         } else {
-            error err = error("global var missing " + varName);
+            error err = error("local var missing " + varName);
             panic err;
         }
     }
+};
 
-    // for self referrence, create a dummy varDecl
-    if (kind == VAR_KIND_SELF) {
-        VariableDcl varDecl = { kind : kind, 
-                                varScope : varScope, 
-                                name : {value : varName}
-                              };
-        return varDecl;
-    }
-
-    var possibleDcl = localVarMap[varName];
-    if (possibleDcl is VariableDcl) {
-        return possibleDcl;
-    } else {
-        error err = error("local var missing " + varName);
-        panic err;
-    }
-}
 
 public function parseVariableDcl(BirChannelReader reader) returns VariableDcl {
     VarKind kind = parseVarKind(reader);

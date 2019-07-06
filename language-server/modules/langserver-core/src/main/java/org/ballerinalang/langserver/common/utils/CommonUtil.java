@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -97,6 +98,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -380,15 +382,32 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID        Package Id
+     * @param packageID Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
-     * @param ctx                       LS Service operation context, in this case completion context
-     * @return {@link CompletionItem}   Completion item for the annotation
+     * @param ctx LS Service operation context, in this case completion context
+     * @param pkgAlias LS Service operation context, in this case completion context
+     * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx) {
-        String label = getAnnotationLabel(packageID, annotationSymbol);
-        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
+                                                             LSContext ctx, CommonToken pkgAlias) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
+        Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
+                .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
+        
+        String aliasComponent = "";
+        if (pkgAliasMap.containsKey(packageID.toString())) {
+            // Check if the imported packages contains the particular package with the alias
+            aliasComponent = pkgAliasMap.get(packageID.toString());
+        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                && !currentPkgID.name.value.equals(packageID.name.value)) {
+            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+        }
+
+        boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
+        
+        String label = getAnnotationLabel(aliasComponent, annotationSymbol, withAlias);
+        String insertText = getAnnotationInsertText(aliasComponent, annotationSymbol, withAlias);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -398,6 +417,10 @@ public class CommonUtil {
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        if (currentPkgID.name.value.equals(packageID.name.value)) {
+            // If the annotation resides within the current package, no need to set the additional text edits
+            return annotationItem;
+        }
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
@@ -414,6 +437,20 @@ public class CommonUtil {
                     packageID.name.getValue()));
         }
         return annotationItem;
+    }
+
+    /**
+     * Get the Annotation completion Item.
+     *
+     * @param packageID Package Id
+     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param ctx LS Service operation context, in this case completion context
+     *
+     * @return {@link CompletionItem} Completion item for the annotation
+     */
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol, 
+                                                             LSContext ctx) {
+        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null);
     }
 
     /**
@@ -500,15 +537,16 @@ public class CommonUtil {
     /**
      * Get the annotation Insert text.
      *
-     * @param packageID        Package ID
+     * @param aliasComponent Package ID
      * @param annotationSymbol Annotation to get the insert text
-     * @return {@link String}   Insert text
+     * @param withAlias insert text with alias
+     * @return {@link String} Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
-        String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+    private static String getAnnotationInsertText(String aliasComponent, BAnnotationSymbol annotationSymbol,
+                                                  boolean withAlias) {
         StringBuilder annotationStart = new StringBuilder();
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            annotationStart.append(pkgAlias).append(CommonKeys.PKG_DELIMITER_KEYWORD);
+        if (withAlias) {
+            annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
             annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
@@ -537,17 +575,13 @@ public class CommonUtil {
     /**
      * Get the completion Label for the annotation.
      *
-     * @param packageID  Package ID
+     * @param aliasComponent package alias
      * @param annotation BLang annotation
-     * @return {@link String}          Label string
+     * @param withAlias label with alias
+     * @return {@link String} Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
-        String pkgComponent = "";
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            pkgComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD;
-        }
-
+    private static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
+        String pkgComponent = withAlias ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.getName().getValue();
     }
 
@@ -708,9 +742,13 @@ public class CommonUtil {
      * @return {@link String}   BType Name as String
      */
     public static String getBTypeName(BType bType, LSContext ctx) {
+        if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
+            return bType.toString();
+        }
         PackageID pkgId = bType.tsymbol.pkgID;
         PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-        String[] nameComponents = bType.toString().split(":");
+        // split to remove the $ symbol appended type name. (For the service types)
+        String[] nameComponents = bType.toString().split("\\$")[0].split(":");
         if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
             return nameComponents[nameComponents.length - 1];
         } else {
@@ -727,7 +765,18 @@ public class CommonUtil {
      * @return      Extracted last Item
      */
     public static <T> T getLastItem(List<T> list) {
-        return list.get(list.size() - 1);
+        return (list.size() == 0) ? null : list.get(list.size() - 1);
+    }
+
+    /**
+     * Get the last item of the Array.
+     *
+     * @param list  Array to get the Last Item
+     * @param <T>   Array content Type
+     * @return      Extracted last Item
+     */
+    public static <T> T getLastItem(T[] list) {
+        return (list.length == 0) ? null : list[list.length - 1];
     }
 
     /**
@@ -889,10 +938,6 @@ public class CommonUtil {
     }
 
     public static boolean isInvalidSymbol(BSymbol symbol) {
-        // TODO: this is a temp hack to avoid NPE. fix this properly.
-        if (symbol == null) {
-            return true;
-        }
 
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())

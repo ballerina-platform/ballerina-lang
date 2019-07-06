@@ -27,6 +27,7 @@ under the License.
         <groups>
             <run>
                 <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
             </run>
         </groups>
 

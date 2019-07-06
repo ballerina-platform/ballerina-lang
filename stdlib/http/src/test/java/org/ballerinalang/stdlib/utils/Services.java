@@ -68,6 +68,9 @@ public class Services {
     public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
         RegistryHolder registryHolder = MockHTTPConnectorListener.getInstance()
                                                             .getHttpServicesRegistry(listenerPort);
+        if (registryHolder == null) {
+            return null;
+        }
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;

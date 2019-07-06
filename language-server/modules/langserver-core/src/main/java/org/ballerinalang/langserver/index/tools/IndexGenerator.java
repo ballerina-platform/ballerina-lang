@@ -49,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -60,9 +61,10 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql", "openapi", "system",
-                "task", "time", "transactions", "websub"/*, "socket", "observability", "streams", "privacy"*/);
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "h2", "mysql",
+                "sql", "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
+                "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi", "privacy",
+                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"/*, "websub"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -70,11 +72,11 @@ public class IndexGenerator {
                         new org.wso2.ballerinalang.compiler.util.Name(pkg),
                         new org.wso2.ballerinalang.compiler.util.Name(""));
                 BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
+                Objects.requireNonNull(bPackageSymbol);
                 bPackageSymbols.add(bPackageSymbol);
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Exception e) {
                 logger.error("Cannot Load Package: ballerina/" + pkg);
+                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
             }
         });
 

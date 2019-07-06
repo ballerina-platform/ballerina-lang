@@ -60,7 +60,6 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -112,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -370,8 +370,7 @@ public class BLangPackageBuilder {
 
     private BLangDiagnosticLog dlog;
 
-    private static final String IDENTIFIER_LITERAL_PREFIX = "^\"";
-    private static final String IDENTIFIER_LITERAL_SUFFIX = "\"";
+    private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -669,9 +668,9 @@ public class BLangPackageBuilder {
             return node;
         }
 
-        if (value.startsWith(IDENTIFIER_LITERAL_PREFIX) && value.endsWith(IDENTIFIER_LITERAL_SUFFIX)) {
+        if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             value = StringEscapeUtils.unescapeJava(value);
-            node.setValue(value.substring(2, value.length() - 1));
+            node.setValue(value.substring(1));
             node.setLiteral(true);
         } else {
             node.setValue(value);
@@ -1718,6 +1717,25 @@ public class BLangPackageBuilder {
         invokableNode.setBody(block);
     }
 
+    void endExternalFunctionBody(int annotCount) {
+        InvokableNode invokableNode = this.invokableNodeStack.peek();
+
+        if (annotCount == 0 || annotAttachmentStack.empty()) {
+            return;
+        }
+
+        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(annotCount);
+        for (int i = 0; i < annotCount; i++) {
+            if (annotAttachmentStack.empty()) {
+                break;
+            }
+            tempAnnotAttachments.add(annotAttachmentStack.pop());
+        }
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(tempAnnotAttachments);
+        tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
+    }
+
     void addImportPackageDeclaration(DiagnosticPos pos,
                                      Set<Whitespace> ws,
                                      String orgName,
@@ -1761,7 +1779,7 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    private LiteralNode generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+    private BLangConstant generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                              DiagnosticPos identifierPos, boolean isTypeAvailable) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         constantNode.pos = pos;
@@ -1773,7 +1791,7 @@ public class BLangPackageBuilder {
         if (isTypeAvailable) {
             constantNode.setTypeNode(this.typeNodeStack.pop());
         }
-        constantNode.setValue(this.exprNodeStack.pop());
+        constantNode.expr = (BLangExpression) this.exprNodeStack.pop();
         return constantNode;
     }
 
@@ -1816,7 +1834,7 @@ public class BLangPackageBuilder {
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
-        NodeKind nodeKind = ((BLangExpression) constantNode.value).getKind();
+        NodeKind nodeKind = constantNode.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.
@@ -1825,8 +1843,8 @@ public class BLangPackageBuilder {
             BLangLiteral literal = nodeKind == NodeKind.LITERAL ?
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
-            literal.setValue(((BLangLiteral) constantNode.value).value);
-            literal.type = ((BLangLiteral) constantNode.value).type;
+            literal.setValue(((BLangLiteral) constantNode.expr).value);
+            literal.type = constantNode.expr.type;
             literal.isConstant = true;
 
             // Create a new finite type node.
@@ -2135,7 +2153,7 @@ public class BLangPackageBuilder {
     }
 
     void endAnnotationDef(Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos, boolean publicAnnotation,
-                          boolean isTypeAttached) {
+                          boolean isTypeAttached, boolean isConst) {
         BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.addWS(ws);
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
@@ -2145,9 +2163,15 @@ public class BLangPackageBuilder {
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
-        while (!attachPointStack.empty()) {
-            annotationNode.attachPoints.add(attachPointStack.pop());
+
+        if (isConst) {
+            annotationNode.flagSet.add(Flag.CONSTANT);
         }
+
+        while (!attachPointStack.empty()) {
+            annotationNode.addAttachPoint(attachPointStack.pop());
+        }
+
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();
         }
@@ -2693,19 +2717,24 @@ public class BLangPackageBuilder {
     void startServiceDef(DiagnosticPos pos) {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
-        attachAnnotations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
         serviceNodeStack.push(serviceNode);
     }
 
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
                        boolean isAnonServiceValue) {
+        endServiceDef(pos, ws, serviceName, identifierPos, isAnonServiceValue, this.annotAttachmentStack.size());
+    }
+
+    void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
+                       boolean isAnonServiceValue, int annotCount) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".
         //      This is a global variable if the service is defined in module level.
         //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
+        attachAnnotations(serviceNode, annotCount);
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
@@ -3694,6 +3723,17 @@ public class BLangPackageBuilder {
         typeTestExpr.pos = pos;
         typeTestExpr.addWS(ws);
         addExpressionNode(typeTestExpr);
+    }
+
+    void createAnnotAccessNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAnnotAccessExpr annotAccessExpr = (BLangAnnotAccessExpr) TreeBuilder.createAnnotAccessExpressionNode();
+        annotAccessExpr.pos = pos;
+        annotAccessExpr.addWS(ws);
+        annotAccessExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
+        addExpressionNode(annotAccessExpr);
     }
 
     void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {

@@ -18,18 +18,10 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ErrorValue;
 
 /**
  * Util class used to bridge the RabbitMQ connector's native code and the Ballerina API.
@@ -38,60 +30,22 @@ import org.slf4j.LoggerFactory;
  */
 public class RabbitMQUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQUtils.class);
-
-    public static <T> T getNativeObject(BMap<String, BValue> obj, String objectId,
-                                        Class<T> objectClass, Context context) {
-        Object messageNativeData = obj.getNativeData(objectId);
-        return verifyNativeObject(context, obj.getType().getName(), objectClass, messageNativeData);
+    public static ErrorValue returnErrorValue(String errorMessage) {
+        return BallerinaErrors.createError(RabbitMQConstants.RABBITMQ_ERROR_CODE, errorMessage);
     }
 
-    private static <T> T verifyNativeObject(Context context, String objName, Class<T> objectClass, Object
-            nativeData) {
-        if (!objectClass.isInstance(nativeData)) {
-            throw new BallerinaException(objName + " is not properly initialized.", context);
-        }
-        return objectClass.cast(nativeData);
-    }
-
-    private static BMap<String, BValue> createErrorRecord(Context context, String errorMessage, Exception e) {
-        BMap<String, BValue> errorStruct =
-                BLangConnectorSPIUtil.createBStruct(context, RabbitMQConstants.PACKAGE_RABBITMQ,
-                        RabbitMQConstants.RABBITMQ_ERROR_RECORD);
-        errorStruct.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(errorMessage + " " + e.getMessage()));
-        return errorStruct;
-    }
-
-    public static void returnError(String errorMessage, Context context, Exception e) {
-        LOGGER.error(errorMessage, e);
-        BMap<String, BValue> errorRecord = createErrorRecord(context, errorMessage, e);
-        context.setReturnValues(BLangVMErrors.
-                createError(context, true, BTypes.typeError, RabbitMQConstants.RABBITMQ_ERROR_CODE,
-                        errorRecord));
-    }
-
-    public static int getIntFromBValue(BMap<String, BValue> config, String key, Logger logger) {
-        long timeout = ((BInteger) config.get(key)).intValue();
-        if (timeout <= 0) {
-            return -1;
-        }
-        try {
-            return Math.toIntExact(timeout);
-        } catch (ArithmeticException e) {
-            logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}",
-                    key, Integer.MAX_VALUE, key, Integer.MAX_VALUE);
-            return Integer.MAX_VALUE;
-        }
-    }
-
-    public static String getStringFromBValue(BMap<String, BValue> config, String key) {
-        return (config.hasKey(key)) ? config.get(key).toString() : null;
-    }
-
-    public static boolean getBooleanFromBValue(BMap<String, BValue> config, String key) {
-        return (config.hasKey(key)) && ((BBoolean) config.get(key)).booleanValue();
+    public static boolean checkIfInt(Object object) {
+        return TypeChecker.getType(object).getTag() == TypeTags.INT_TAG;
     }
 
     private RabbitMQUtils() {
+    }
+
+    public static boolean checkIfBoolean(Object object) {
+        return TypeChecker.getType(object).getTag() == TypeTags.BOOLEAN_TAG;
+    }
+
+    public static boolean checkIfString(Object object) {
+        return TypeChecker.getType(object).getTag() == TypeTags.STRING_TAG;
     }
 }

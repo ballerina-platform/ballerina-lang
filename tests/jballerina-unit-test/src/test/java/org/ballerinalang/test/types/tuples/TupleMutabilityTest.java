@@ -116,10 +116,10 @@ public class TupleMutabilityTest {
                 "incompatible types: expected '[Employee,Employee]', found '[Person,Employee]'",
                 34, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '[boolean|float|Person,int]', found '[boolean|float,int?]'",
+                "incompatible types: expected '[(boolean|float|Person),int]', found '[(boolean|float),int?]'",
                 38, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '[[int?,boolean?],Person?]', found '[[int|string,boolean],Person]'",
+                "incompatible types: expected '[[int?,boolean?],Person?]', found '[[(int|string),boolean],Person]'",
                 42, 38);
     }
 

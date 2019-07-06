@@ -423,11 +423,7 @@ public class BValueArray extends BNewArray implements Serializable {
         }
 
         StringJoiner sj;
-        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
-        } else {
-            sj = new StringJoiner(", ", "[", "]");
-        }
+        sj = new StringJoiner(", ", "[", "]");
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
@@ -465,7 +461,9 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     public byte[] getBytes() {
-        return byteValues.clone();
+        byte[] bytes = new byte[this.size];
+        System.arraycopy(byteValues, 0, bytes, 0, this.size);
+        return bytes;
     }
 
     public String[] getStringArray() {

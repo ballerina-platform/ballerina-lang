@@ -74,8 +74,13 @@
             </directory>
             <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/composer-library-zip/composer-library-${project.version}
+            </directory>
+            <outputDirectory>lib/tools/composer-library/</outputDirectory>
+        </fileSet>
     </fileSets>
-
     <files>
         <file>
             <source>bin/version.txt</source>
@@ -136,6 +141,7 @@
                     in ballerina OpenAPI CLI tools
                  -->
                 <include>org.ballerinalang:language-server-compiler:jar</include>
+                <include>org.ballerinalang:ballerina-formatter:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-client-generator:jar</include>

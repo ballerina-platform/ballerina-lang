@@ -53,7 +53,7 @@ public function testSendMapFloat() {
     var err = prod->send(msg);
 }
 
-public function testSendMapByte() {
+public function main() {
     map<byte> msg = {
         "byte1": 1,
         "byte2": 7

@@ -38,19 +38,19 @@ public type StreamEvent object {
     public string streamName;
     public string eventId;
 
-    public function __init((string, map<map<anydata>[]>)|(string, map<anydata>)|map<anydata> eventData,
+    public function __init([string, map<map<anydata>[]>]|[string, map<anydata>]|map<anydata> eventData,
     EventType eventType, int timestamp) {
         self.eventType = eventType;
         self.timestamp = timestamp;
         self.streamName = "";
         self.eventId = system:uuid();
-        if (eventData is (string, map<map<anydata>[]>)) {
+        if (eventData is [string, map<map<anydata>[]>]) {
             self.streamName = eventData[0];
             self.dataMap = eventData[1];
             self.toData(self.dataMap);
-        } else if (eventData is (string, map<anydata>)) {
+        } else if (eventData is [string, map<anydata>]) {
             self.streamName = eventData[0];
-            foreach var (k, v) in eventData[1] {
+            foreach var [k, v] in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
             self.toDataMap(self.data);
@@ -66,7 +66,7 @@ public type StreamEvent object {
     #
     # + return - A copy of the `StreamEvent` object with its state.
     public function copy() returns StreamEvent {
-        (string,map<map<anydata>[]>) data = (self.streamName, self.cloneDataMap());
+        [string, map<map<anydata>[]>] data = [self.streamName, self.cloneDataMap()];
         StreamEvent clone = new(data, self.eventType, self.timestamp);
         clone.eventId = self.eventId;
         return clone;
@@ -76,7 +76,7 @@ public type StreamEvent object {
     #
     # + eventData - map of anydata values to be added to field `data`.
     public function addData(map<anydata> eventData) {
-        foreach var (k, v) in eventData {
+        foreach var [k, v] in eventData {
             self.data[k] = v;
         }
         self.toDataMap(eventData);
@@ -105,7 +105,7 @@ public type StreamEvent object {
         string attrib = attribSplit[1];
         string alias = aliasSplit[0];
         int index = 0;
-        map<anydata>[] dArray = self.dataMap[alias] ?: [];
+        map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
             string indexStr = aliasSplit[1].replaceAll("]", "").trim();
             if (indexStr.contains("last")) {
@@ -157,9 +157,9 @@ public type StreamEvent object {
     #
     # + dataMap - map containg event attribute values.
     public function toData(map<map<anydata>[]> dataMap) {
-        foreach var (key, val) in dataMap {
+        foreach var [key, val] in dataMap {
             map<anydata> data = (val.length() > 0) ? val[0] : {};
-            foreach var (k, v) in data {
+            foreach var [k, v] in data {
                 self.data[key + DELIMITER + k] = v;
             }
         }
@@ -169,7 +169,7 @@ public type StreamEvent object {
     #
     # + data - map containg event attribute values.
     public function toDataMap(map<anydata> data) {
-        foreach var (k, v) in data {
+        foreach var [k, v] in data {
             string[] key = k.split("\\.");
             if (key.length() == 2) {
                 map<anydata>[] dataMapArray = self.dataMap[key[0]] ?: [];

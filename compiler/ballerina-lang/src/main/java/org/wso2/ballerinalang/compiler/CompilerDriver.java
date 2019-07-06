@@ -233,6 +233,7 @@ public class CompilerDriver {
             }
             this.birGenerator.genBIR(pkgNode);
         }
+        //return pkgNode;
         return this.codeGenerator.generateBALO(pkgNode);
     }
 

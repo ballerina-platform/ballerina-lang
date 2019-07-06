@@ -2,4 +2,6 @@
 // existing queue using the Ballerina RabbitMQ message listener
 // and Ballerina transactions.
 // Upon successful execution of the transaction block,
-// the channel will commit and rollback in the case of any error.
+// the acknowledgement will commit or rollback in the case of any error.
+// Messages will not be re-queued in the case of a rollback
+// automatically unless negatively acknowledged by the user.

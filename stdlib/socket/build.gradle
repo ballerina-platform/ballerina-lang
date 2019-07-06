@@ -20,18 +20,18 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 description = 'Ballerina - Socket'
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    baloCreat project(':lib-creator-milestone')
-//    implementation project(':ballerina-lang')
+    baloCreat project(':lib-creator')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
-    testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
+    testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
@@ -48,4 +48,8 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }

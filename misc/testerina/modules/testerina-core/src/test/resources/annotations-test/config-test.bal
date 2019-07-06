@@ -55,12 +55,12 @@ function testAfterAlone () {
     reset();
 }
 
-@test:Config
+@test:Config {}
 function test3 () {
     j = j + 1;
 }
 
-@test:Config
+@test:Config {}
 function test4 () {
     j = j + 2;
 }
@@ -73,7 +73,7 @@ function testDependsOn1 () {
     test:assertTrue(k == 2, msg = "Expected k to be 2, but k = " +k);
 }
 
-@test:Config
+@test:Config {}
 function test5 () {
     k = k + 2;
 }

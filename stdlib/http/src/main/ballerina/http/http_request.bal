@@ -216,12 +216,12 @@ public type Request object {
         if (mimeEntity is mime:Entity) {
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
                 string errorMessage = "Content type header is not available";
-                error typeError = error(mime:MIME_ERROR_CODE, message = errorMessage);
+                error typeError = error(mime:HEADER_UNAVAILABLE, message = errorMessage);
                 return typeError;
             }
             if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
-                error typeError = error(mime:MIME_ERROR_CODE, message = errorMessage);
+                error typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return typeError;
             }
         } else {

@@ -360,6 +360,7 @@ public class IterableCodeDesugar {
                 tupleExpr.exprs.add(ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol));
             }
             tupleExpr.type = new BTupleType(getTupleTypeList(ctx.getFirstOperation().inputType));
+            tupleExpr.pos = pos;
             assignmentStmt.expr = tupleExpr;
         }
 
@@ -612,7 +613,7 @@ public class IterableCodeDesugar {
         ternaryExpr.expr = compare;
         ternaryExpr.thenExpr = resultVar;
         ternaryExpr.elseExpr = valueVar;
-        ternaryExpr.type = compare.type;
+        ternaryExpr.type = resultVar.type;
 
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         countAdd.varRef = resultVar;
@@ -763,7 +764,7 @@ public class IterableCodeDesugar {
         final BLangBinaryExpr divide = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         divide.pos = pos;
         divide.type = ctx.resultVar.symbol.type;
-        divide.opKind = OperatorKind.ADD;
+        divide.opKind = OperatorKind.DIV;
         divide.lhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
         divide.rhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.countVar.symbol);
         divide.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.DIV, divide.type,

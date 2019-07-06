@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -632,6 +633,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        throw new AssertionError();
+    }
+
     // Type nodes
 
     public void visit(BLangValueType valueType) {
@@ -846,6 +851,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
         throw new AssertionError();
     }
 }

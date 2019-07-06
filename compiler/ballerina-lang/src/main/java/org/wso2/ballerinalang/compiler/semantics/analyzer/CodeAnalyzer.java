@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
@@ -707,7 +708,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (pattern.type.tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
-                            return precedingPatternSym.literalValue.equals(patternSym.literalValue);
+                            return precedingPatternSym.value.equals(patternSym.value);
                         }
                         // pattern is '_'.
                         return false;
@@ -716,7 +717,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
                             (BLangLiteral) ((BLangGroupExpr) pattern).expression :
                             (BLangLiteral) pattern;
-                    return (precedingPatternSym.literalValue.equals(literal.value));
+                    return (precedingPatternSym.value.equals(literal.value));
                 }
 
                 if (types.isValueType(pattern.type)) {
@@ -729,7 +730,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (pattern.type.tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
-                            return patternSym.literalValue.equals(precedingLiteral.value);
+                            return patternSym.value.equals(precedingLiteral.value);
                         }
                         // pattern is '_'.
                         return false;
@@ -1113,23 +1114,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void analyzeArrayElementImplicitInitialValue(BType type, DiagnosticPos pos) {
-        if (type == null || type.tag != TypeTags.ARRAY) {
-            return;
-        }
-
-        BArrayType arrayType = (BArrayType) type;
-
-        if (arrayType.state != BArrayState.UNSEALED) {
-            return;
-        }
-
-        if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, arrayType.eType,
-                            getNilableType(arrayType.eType));
-        }
-    }
-
     private BType getNilableType(BType type) {
         if (type.isNullable()) {
             return type;
@@ -1426,7 +1410,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        analyzeArrayElementImplicitInitialValue(listConstructorExpr.type, listConstructorExpr.pos);
         analyzeExprs(listConstructorExpr.exprs);
     }
 
@@ -1969,6 +1952,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
                        typeTestExpr.typeNode.type);
         }
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        analyzeExpr(annotAccessExpr.expr);
     }
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {

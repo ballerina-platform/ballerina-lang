@@ -18,13 +18,13 @@
 package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,6 +45,7 @@ public class SQLConnectionPoolTest {
 
     @BeforeClass
     public void setup() throws Exception {
+        System.setProperty("enableJBallerinaTests", "true");
         Path ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
@@ -144,7 +145,7 @@ public class SQLConnectionPoolTest {
     public void testShutDownUnsharedLocalConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -152,28 +153,28 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(),
-                "(1, 1, 1, \"Client has been stopped\", \"Client has been stopped\")");
+                "[1, 1, 1, \"Client has been stopped\", \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownPoolCorrespondingToASharedPoolConfig() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, 1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, 1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, \"Client has been stopped\", 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, \"Client has been stopped\", 1]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testStopClientUsingGlobalPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -187,6 +188,6 @@ public class SQLConnectionPoolTest {
     public void testLocalConnectionPoolShutDown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1]");
     }
 }

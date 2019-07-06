@@ -123,7 +123,7 @@ function buildWindowsPath(string... parts) returns string|error {
 	return normalizedHead + pathSeparator + normalizedTail;
 }
 
-function getWindowsRoot(string input) returns (string, int)|error {
+function getWindowsRoot(string input) returns [string, int]|error {
     int length = input.length();
     int offset = 0;
     string root = "";
@@ -134,22 +134,22 @@ function getWindowsRoot(string input) returns (string, int)|error {
         if (isSlash(c0) && isSlash(c1)) {
             boolean unc = check isUNC(input);
             if (!unc) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Invalid UNC path: " + input);
                 return err;
             }
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
-                " + input });
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Hostname is missing in UNC path:
+                " + input);
                 return err;
             }
             string host = input.substring(offset, next);  //host
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
-                " + input });
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Sharename is missing in UNC path:
+                " + input);
                 return err;
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
@@ -178,7 +178,7 @@ function getWindowsRoot(string input) returns (string, int)|error {
             root = "\\";
             offset = 1;
     }
-    return (root, offset);
+    return [root, offset];
 }
 
 function getWindowsOffsetIndex(string path) returns int[]|error {
@@ -189,7 +189,7 @@ function getWindowsOffsetIndex(string path) returns int[]|error {
         offsetIndexes[count] = 0;
         count = count + 1;
     } else {
-        (_, index) = check getWindowsRoot(path);
+        [_, index] = check getWindowsRoot(path);
         while(index < path.length()) {
             string cn = check charAt(path, index);
             if (cn == "/" || cn == "\\") {

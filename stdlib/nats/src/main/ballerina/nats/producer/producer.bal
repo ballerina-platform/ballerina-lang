@@ -69,8 +69,7 @@ public type Producer client object {
             if (self.adhocConnection) {
                 return self.connection.close();
             } else {
-                error conErr = error("{ballerina/nats}CONNECTION_ERROR",
-                        { message: "unable to close a shared connection." });
+                error conErr = error("{ballerina/nats}CONNECTION_ERROR", message = "unable to close a shared connection.");
                 return conErr;
             }
         }

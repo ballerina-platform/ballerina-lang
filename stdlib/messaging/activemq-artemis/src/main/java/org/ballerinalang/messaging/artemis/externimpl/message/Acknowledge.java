@@ -23,12 +23,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -53,18 +53,21 @@ public class Acknowledge extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static Object acknowledge(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         ArtemisTransactionContext transactionContext =
                 (ArtemisTransactionContext) messageObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
         try {
             message.acknowledge();
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(context, ArtemisConstants.MESSAGE_OBJ);
+                transactionContext.handleTransactionBlock(ArtemisConstants.MESSAGE_OBJ);
             }
         } catch (ActiveMQException e) {
-            context.setReturnValues(ArtemisUtils.getError(context, "Error on acknowledging the message"));
+            return ArtemisUtils.getError(e);
         }
+        return null;
     }
+
 }

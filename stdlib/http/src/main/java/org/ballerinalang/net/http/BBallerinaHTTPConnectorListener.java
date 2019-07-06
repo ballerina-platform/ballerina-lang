@@ -17,16 +17,12 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -34,12 +30,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -103,26 +93,26 @@ public class BBallerinaHTTPConnectorListener implements HttpConnectorListener {
         BValue[] signatureParams = BHttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext observerContext = null;
-        if (ObserveUtils.isObservabilityEnabled()) {
-            observerContext = new ObserverContext();
-            observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
-            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-                                                                                       .getBalService()
-                                                                                       .getServiceInfo()));
-            observerContext.setResourceName(balResource.getName());
-
-            Map<String, String> httpHeaders = new HashMap<>();
-            inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
-            observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-            observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
-        }
-
-        CallableUnitCallback callback = new BHttpCallableUnitCallback(inboundMessage);
-        //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
+//        ObserverContext observerContext = null;
+//        if (ObserveUtils.isObservabilityEnabled()) {
+//            observerContext = new ObserverContext();
+//            observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
+//                                                                                       .getBalService()
+//                                                                                       .getServiceInfo()));
+//            observerContext.setResourceName(balResource.getName());
+//
+//            Map<String, String> httpHeaders = new HashMap<>();
+//            inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+//            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+//            observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
+//            observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+//            observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
+//        }
+//
+//        CallableUnitCallback callback = new BHttpCallableUnitCallback(inboundMessage);
+//        //TODO handle BallerinaConnectorException
+//        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

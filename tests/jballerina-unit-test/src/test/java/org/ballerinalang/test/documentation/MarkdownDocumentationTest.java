@@ -74,7 +74,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(0);
+        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(1);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -86,7 +86,7 @@ public class MarkdownDocumentationTest {
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNull(returnParameter);
 
-        variableNode = packageNode.getGlobalVariables().get(1);
+        variableNode = packageNode.getGlobalVariables().get(2);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNull(documentationAttachment);
@@ -120,7 +120,7 @@ public class MarkdownDocumentationTest {
 
         List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        SimpleVariableNode variableNode = globalVariables.get(0);
+        SimpleVariableNode variableNode = globalVariables.get(1);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -129,7 +129,7 @@ public class MarkdownDocumentationTest {
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNull(returnParameter);
 
-        variableNode = globalVariables.get(1);
+        variableNode = globalVariables.get(2);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -169,7 +169,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getFunctions().get(4).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
                 "`false`) for a given key. Please note that #foo will always be bigger than #bar.\n" +
@@ -196,14 +196,14 @@ public class MarkdownDocumentationTest {
                 " `C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src`");
 
         // Test union param.
-        documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
         parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 3);
 
         Assert.assertEquals(parameters.get(0).getSymbol().getType().tag, TypeTags.UNION);
-        Assert.assertEquals(parameters.get(0).getSymbol().getType().toString(), "string|int|float");
+        Assert.assertEquals(parameters.get(0).getSymbol().getType().toString(), "(string|int|float)");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "value of param1");
 
         Assert.assertEquals(parameters.get(1).getSymbol().getType().tag, TypeTags.INT);
@@ -215,14 +215,14 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(2).getParameterDocumentation(), "value of rest param");
 
         // Test union return.
-        documentationAttachment = packageNode.getFunctions().get(2).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
         returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNotNull(returnParameter);
 
         Assert.assertEquals(returnParameter.getReturnType().tag, TypeTags.UNION);
-        Assert.assertEquals(returnParameter.getReturnType().toString(), "string|error");
+        Assert.assertEquals(returnParameter.getReturnType().toString(), "(string|error)");
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "`string` value of the X will be " +
                 "returned if found, else an `error` will be returned");
     }
@@ -242,21 +242,21 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 22, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 24, 5);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cdd'", 28, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 35, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 36, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 37, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 44, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 45, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 48, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 69, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 70, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 73, 3);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 78, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 79, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 87, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 88, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 99, 5);
-        BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 100, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 33, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 34, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 37, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 39, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 43, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 44, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 67, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 68, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 71, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 76, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 77, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 85, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 86, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 97, 5);
+        BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 98, 1);
     }
 
     @Test(description = "Test doc service")
@@ -347,7 +347,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
                 "  ``string s = string `hello ${name}`;``\n\n" +
@@ -369,7 +369,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
+                packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
                 "  ```string s = string `hello ${name}`;```\n" +
