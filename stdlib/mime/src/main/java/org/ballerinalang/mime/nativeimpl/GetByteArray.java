@@ -29,8 +29,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,7 +38,7 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
@@ -62,41 +60,6 @@ public class GetByteArray extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            BValueArray result = null;
-            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
-            if (messageDataSource != null) {
-                if (messageDataSource instanceof BValueArray) {
-                    result = (BValueArray) messageDataSource;
-                } else {
-                    String contentTypeValue = HeaderUtil.getHeaderValue(entityObj,
-                                                                        HttpHeaderNames.CONTENT_TYPE.toString());
-                    if (isNotNullAndEmpty(contentTypeValue)) {
-                        String charsetValue = MimeUtil.getContentTypeBParamValue(contentTypeValue, CHARSET);
-                        if (isNotNullAndEmpty(charsetValue)) {
-                            result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
-                        } else {
-                            result = new BValueArray(messageDataSource.stringValue().getBytes(
-                                    Charset.defaultCharset()));
-                        }
-                    }
-                }
-                setReturnValuesAndNotify(context, callback, result != null ? result : new BValueArray(new byte[0]));
-                return;
-            }
-
-            Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);
-            if (isStreamingRequired(entityObj) || transportMessage == null) {
-                result = EntityBodyHandler.constructBlobDataSource(entityObj);
-                updateDataSourceAndNotify(context, callback, entityObj, result);
-            } else {
-                constructNonBlockingDataSource(context, callback, entityObj, SourceType.BLOB);
-            }
-        } catch (Exception ex) {
-            createErrorAndNotify(context, callback,
-                                 "Error occurred while extracting blob data from entity : " + ex.getMessage());
-        }
     }
 
     public static Object getByteArray(Strand strand, ObjectValue entityObj) {
@@ -132,7 +95,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(callback,
+            createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
                                  "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
         return result;

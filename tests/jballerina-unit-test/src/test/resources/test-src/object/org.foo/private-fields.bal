@@ -5,18 +5,14 @@ public type userFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    public function getName() returns (string);
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge() returns (int);
+    public function getAge () returns int {
+        return self.age;
+    }
 };
-
-public function userFoo.getName () returns (string) {
-    return self.name;
-}
-
-public function userFoo.getAge () returns (int) {
-    return self.age;
-}
 
 public type user object {
     public int age = 0;
@@ -62,9 +58,8 @@ public type FooObj object {
     public int age = 0;
     public string name = "";
 
-    public function getName() returns (string);
-};
+    public function getName() returns string {
+        return self.name;
+    }
 
-public function FooObj.getName() returns (string) {
-    return self.name;
-}
+};

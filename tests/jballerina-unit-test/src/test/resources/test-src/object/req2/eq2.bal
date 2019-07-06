@@ -6,15 +6,11 @@ public type userPB object {
 
     function __init () {}
 
-    public function getName () returns (string);
+    public function getName () returns (string) {
+        return self.name;
+    }
 
-    public function getAge () returns (int);
+    public function getAge () returns (int) {
+        return self.age;
+    }
 };
-
-public function userPB.getName () returns (string) {
-    return self.name;
-}
-
-public function userPB.getAge () returns (int) {
-    return self.age;
-}
