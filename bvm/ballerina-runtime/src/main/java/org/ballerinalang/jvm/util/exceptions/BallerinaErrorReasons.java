@@ -34,6 +34,7 @@ public class BallerinaErrorReasons {
 
     public static final String TYPE_CAST_ERROR = BALLERINA_PREFIX.concat("TypeCastError");
     public static final String NUMBER_CONVERSION_ERROR = BALLERINA_PREFIX.concat("NumberConversionError");
+    public static final String NUMBER_PARSING_ERROR = BALLERINA_PREFIX.concat("NumberParsingError");
     public static final String TRANSACTION_ERROR = BALLERINA_PREFIX.concat("TransactionError");
 
     public static final String JSON_OPERATION_ERROR = BALLERINA_PREFIX.concat("JSONOperationError");
