@@ -90,6 +90,9 @@ function buildHeaderString(JwtHeader header) returns string|error {
     if (header["cty"] is string) {
         headerJson[CTY] = header.cty;
     }
+    if (header["kid"] is string) {
+        headerJson[KID] = header.kid;
+    }
     string headerValInString = headerJson.toString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;

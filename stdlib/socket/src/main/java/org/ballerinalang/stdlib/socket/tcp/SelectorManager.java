@@ -18,15 +18,13 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
@@ -55,8 +53,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import static java.nio.channels.SelectionKey.OP_READ;
-import static org.ballerinalang.model.types.BTypes.typeByte;
-import static org.ballerinalang.model.types.BTypes.typeInt;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
@@ -77,7 +73,11 @@ public class SelectorManager {
     private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
     private ConcurrentLinkedQueue<Integer> readReadySockets = new ConcurrentLinkedQueue<>();
     private final Object startStopLock = new Object();
-    private static final BTupleType readTupleType = new BTupleType(Arrays.asList(new BArrayType(typeByte), typeInt));
+    private static final BTupleType receiveFromResultTuple = new BTupleType(
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt,
+                    BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address").getType()));
+    private static final BTupleType tcpReadResultTuple = new BTupleType(
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     private SelectorManager() throws IOException {
         selector = Selector.open();
@@ -194,7 +194,7 @@ public class SelectorManager {
             }
             // Notification needs to happen to the client connection in the socket server only if the client has
             // a callback service.
-            boolean serviceAttached = (socketService.getResources() != null
+            boolean serviceAttached = (socketService.getService() != null
                     && channelRegisterCallback.getInitialInterest() == OP_READ);
             channelRegisterCallback.notifyRegister(serviceAttached);
         }
@@ -235,25 +235,29 @@ public class SelectorManager {
             client.configureBlocking(false);
             // Creating a new SocketService instance with the newly accepted client.
             // We don't need the ServerSocketChannel in here since we have all the necessary resources.
-            SocketService clientSocketService = new SocketService(client, socketService.getResources(),
-                    socketService.getReadTimeout());
+            SocketService clientSocketService = new SocketService(client, socketService.getScheduler(),
+                    socketService.getService(), socketService.getReadTimeout());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
             client.register(selector, OP_READ, clientSocketService);
             SelectorDispatcher.invokeOnConnect(clientSocketService);
         } catch (ClosedByInterruptException e) {
-            SelectorDispatcher.invokeOnError(new SocketService(socketService.getResources()),
+            SelectorDispatcher
+                    .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
                     "Client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {
             SelectorDispatcher
-                    .invokeOnError(new SocketService(socketService.getResources()), "Client closed by another process");
+                    .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
+                            "Client closed by another process");
         } catch (ClosedChannelException e) {
             SelectorDispatcher
-                    .invokeOnError(new SocketService(socketService.getResources()), "Client is already closed");
+                    .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
+                            "Client is already closed");
         } catch (IOException e) {
             log.error("An error occurred while accepting new client", e);
             SelectorDispatcher
-                    .invokeOnError(new SocketService(socketService.getResources()), "Unable to accept a new client");
+                    .invokeOnError(new SocketService(socketService.getScheduler(), socketService.getService()),
+                            "Unable to accept a new client");
         }
     }
 
@@ -264,7 +268,7 @@ public class SelectorManager {
         key.interestOps(0);
         // Add to the read ready queue. The content will be read through the caller->read action.
         ReadReadySocketMap.getInstance().add(new SocketReader(socketService, key));
-        invokeRead(key.channel().hashCode(), socketService.getResources() != null);
+        invokeRead(key.channel().hashCode(), socketService.getService() != null);
     }
 
     /**
@@ -329,7 +333,7 @@ public class SelectorManager {
             }
             byte[] bytes = SocketUtils
                     .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
-            callback.getContext().setReturnValues(createUdpSocketReturnValue(callback, bytes, remoteAddress));
+            callback.getCallback().setReturnValues(createUdpSocketReturnValue(callback, bytes, remoteAddress));
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (CancelledKeyException | ClosedChannelException e) {
@@ -339,10 +343,9 @@ public class SelectorManager {
             processError(callback, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            BError socketError = SocketUtils
-                    .createSocketError(callback.getContext(), "Error while on receiveFrom operation");
-            callback.getContext().setReturnValues(socketError);
-            callback.getCallback().notifyFailure(socketError);
+            ErrorValue socketError = SocketUtils.createSocketError("Error while on receiveFrom operation");
+            callback.getCallback().setReturnValues(socketError);
+            callback.getCallback().notifySuccess();
         }
     }
 
@@ -367,13 +370,13 @@ public class SelectorManager {
                 if (callback.getExpectedLength() != DEFAULT_EXPECTED_READ_LENGTH
                         && callback.getExpectedLength() != callback.getCurrentLength()) {
                     ReadPendingSocketMap.getInstance().add(socketChannel.hashCode(), callback);
-                    invokeRead(socketChannel.hashCode(), socketReader.getSocketService().getResources() != null);
+                    invokeRead(socketChannel.hashCode(), socketReader.getSocketService().getService() != null);
                     return;
                 }
             }
             byte[] bytes = SocketUtils
                     .getByteArrayFromByteBuffer(callback.getBuffer() == null ? buffer : callback.getBuffer());
-            callback.getContext().setReturnValues(createTcpSocketReturnValue(callback, bytes));
+            callback.getCallback().setReturnValues(createTcpSocketReturnValue(callback, bytes));
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (NotYetConnectedException e) {
@@ -385,36 +388,33 @@ public class SelectorManager {
             processError(callback, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Error while on read operation");
-            callback.getContext().setReturnValues(socketError);
-            callback.getCallback().notifyFailure(socketError);
+            ErrorValue socketError = SocketUtils.createSocketError("Error while on read operation");
+            callback.getCallback().setReturnValues(socketError);
+            callback.getCallback().notifySuccess();
         }
     }
 
     private void processError(ReadPendingCallback callback, String msg) {
-        BError socketError = SocketUtils.createSocketError(callback.getContext(), msg);
-        callback.getContext().setReturnValues(socketError);
+        ErrorValue socketError = SocketUtils.createSocketError(msg);
+        callback.getCallback().setReturnValues(socketError);
         callback.getCallback().notifySuccess();
     }
 
-    private BValueArray createTcpSocketReturnValue(ReadPendingCallback callback, byte[] bytes) {
-        BValueArray contentTuple = new BValueArray(readTupleType);
-        contentTuple.add(0, new BValueArray(bytes));
-        contentTuple.add(1, new BInteger(callback.getCurrentLength()));
+    private ArrayValue createTcpSocketReturnValue(ReadPendingCallback callback, byte[] bytes) {
+        ArrayValue contentTuple = new ArrayValue(tcpReadResultTuple);
+        contentTuple.add(0, new ArrayValue(bytes));
+        contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         return contentTuple;
     }
 
-    private BValueArray createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
+    private ArrayValue createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
             InetSocketAddress remoteAddress) {
-        BMap<String, BValue> address = BLangConnectorSPIUtil
-                .createBStruct(callback.getContext(), SOCKET_PACKAGE, "Address");
-        address.put("port", new BInteger(remoteAddress.getPort()));
-        address.put("host", new BString(remoteAddress.getHostName()));
-        BTupleType receiveFromTupleType = new BTupleType(
-                Arrays.asList(new BArrayType(typeByte), typeInt, address.getType()));
-        BValueArray contentTuple = new BValueArray(receiveFromTupleType);
-        contentTuple.add(0, new BValueArray(bytes));
-        contentTuple.add(1, new BInteger(callback.getCurrentLength()));
+        MapValue<String, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address");
+        address.put("port", remoteAddress.getPort());
+        address.put("host", remoteAddress.getHostName());
+        ArrayValue contentTuple = new ArrayValue(receiveFromResultTuple);
+        contentTuple.add(0, new ArrayValue(bytes));
+        contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         contentTuple.add(2, address);
         return contentTuple;
     }
