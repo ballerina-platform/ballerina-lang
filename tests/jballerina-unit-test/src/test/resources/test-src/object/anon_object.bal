@@ -128,12 +128,10 @@ public type Person object {
         return self.name;
     }
 
-    public function getKind() returns string;
+    public function getKind() returns string {
+        return self.kind;
+    }
 };
-
-public function Person.getKind() returns string {
-    return self.kind;
-}
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns [int, string, string] {
     object { 

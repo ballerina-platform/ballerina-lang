@@ -1,0 +1,77 @@
+function (){
+}
+
+serialized json output:
+
+ ERROR [ballerina-parser/parserModule] - 1:10: expected IDENTIFIER; found '('
+
+{
+	"nodeKind": "package",
+	"tokenList": [{
+		"tokenType": 51,
+		"text": "EOF",
+		"startPos": 1,
+		"endPos": 1,
+		"lineNumber": 3,
+		"index": 6,
+		"whiteSpace": "\n"
+	}],
+	"definitionList": [{
+		"nodeKind": "function",
+		"tokenList": [{
+			"tokenType": 53,
+			"text": "function",
+			"startPos": 1,
+			"endPos": 8,
+			"lineNumber": 1,
+			"index": 1,
+			"whiteSpace": null
+		}],
+		"fnSignature": {
+			"nodeKind": "errorFunctionSignature",
+			"tokenList": [{
+				"tokenType": 6,
+				"text": "(",
+				"startPos": 10,
+				"endPos": 10,
+				"lineNumber": 1,
+				"index": 2,
+				"whiteSpace": " "
+			}, {
+				"tokenType": 7,
+				"text": ")",
+				"startPos": 11,
+				"endPos": 11,
+				"lineNumber": 1,
+				"index": 3,
+				"whiteSpace": null
+			}],
+			"functionIdentifier": {
+				"nodeKind": "errorIdentifier",
+				"tokenList": [],
+				"identifier": null
+			}
+		},
+		"blockNode": {
+			"nodeKind": "blockNode",
+			"tokenList": [{
+				"tokenType": 0,
+				"text": "{",
+				"startPos": 12,
+				"endPos": 12,
+				"lineNumber": 1,
+				"index": 4,
+				"whiteSpace": null
+			}, {
+				"tokenType": 1,
+				"text": "}",
+				"startPos": 1,
+				"endPos": 1,
+				"lineNumber": 2,
+				"index": 5,
+				"whiteSpace": "\n"
+			}],
+			"statementList": []
+		}
+	}]
+}
