@@ -303,7 +303,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resolveBlockedInvokable(blockedEntryPointNodeList);
 
         if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName));
+            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
+                    dlogEntry.paramName.toArray()));
         }
         currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
@@ -482,8 +483,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE
                 || (varNode.symbol.owner.type != null && varNode.symbol.owner.type.tag == TypeTags.SERVICE)) {
             if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
-                ((BVarSymbol) varNode.symbol).isMarkTainted = true;
+                ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.TAINTED;
                 setTaintedStatus(varNode.symbol, TaintedStatus.TAINTED);
+            } else if (hasAnnotation(varNode, ANNOTATION_UNTAINTED)) {
+                ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.UNTAINTED;
             }
         }
     }
@@ -555,10 +558,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Generate error if a global variable has been assigned with a tainted value.
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
-                if (isGlobalVarOrServiceVar(varRef)) {
+                if (isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(pos, varRef.symbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT);
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
                     } else {
                         addTaintError(pos, varRef.symbol.name.value,
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
@@ -569,6 +572,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
+                } else if (varRef.symbol != null && isMarkedUntainted(varRef)
+                        && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                    addTaintError(pos, varRef.symbol.name.value,
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
             // TODO: Re-evaluating the full data-set (array) when a change occur.
@@ -604,9 +611,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private boolean isMarkedTainted(BLangVariableReference varRef) {
+        return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
+    }
+
+    private boolean isMarkedUntainted(BLangVariableReference varRef) {
+        return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
+    }
+
     private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
         return varRef.symbol != null && varRef.symbol.owner != null
-                && !(((BVarSymbol) varRef.symbol).isMarkTainted)
                 && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
                     || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);
     }
@@ -1773,7 +1787,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
             for (TaintRecord.TaintError taintError : getCurrentAnalysisState().taintErrorSet) {
-                if (taintError.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
+                if (taintError.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                     dlogSet.add(new TaintRecord.TaintError(taintError.pos, taintError.paramName,
                             DiagnosticCode.INVOCATION_TAINT_GLOBAL_OBJECT));
                 } else {
@@ -2173,6 +2187,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void addTaintError(DiagnosticPos diagnosticPos, String paramName, String paramName2,
+                               DiagnosticCode diagnosticCode) {
+        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, paramName2,
+                diagnosticCode);
+        getCurrentAnalysisState().taintErrorSet.add(taintError);
+        if (!entryPointAnalysis) {
+            stopAnalysis = true;
+        }
+    }
+
     private void addTaintError(List<TaintRecord.TaintError> taintErrors) {
         getCurrentAnalysisState().taintErrorSet.addAll(taintErrors);
         if (!entryPointAnalysis) {
@@ -2313,7 +2337,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             List<TaintedStatus> paramIndexVsSelfTaintedStatusList = null;
             // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
             // Hence add the receiver to required arg count.
-            if (isTaintAnalyzableAttachedFunction(invocationExpr, taintTable)) {
+            if (isTaintAnalyzableAttachedFunction(invocationExpr)) {
                 BVarSymbol receiverSymbol = getMethodReceiverSymbol(invocationExpr.expr);
 
                 returnTaintedStatus = analyzeAllArgsUntaintedReceiverTaintedness(
@@ -2483,14 +2507,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
                     if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                         addTaintError(receiverTaintRecord.taintError);
-                    } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT) {
+                    } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                         addTaintError(invocationExpr.pos,
                                 getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
                     } else {
-                        // todo: we need a better error message here.
-                        // indicating that at this point receiver/self being tainted cause tainted value
+                        // Indicate that at this point receiver/self being tainted cause tainted value
                         // (via receiver/self) passing to a untainted parameter down the call.
-                        addTaintError(invocationExpr.pos, receiverSymbol.name.value,
+                        addTaintError(invocationExpr.pos, error.paramName.get(0), invocationExpr.name.value,
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
                     }
                 }
@@ -2499,20 +2522,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return returnTaintedStatus;
     }
 
-    private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr,
-                                                      Map<Integer, TaintRecord> taintTable) {
+    private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr) {
         if (invocationExpr.builtinMethodInvocation) {
             return false;
         }
-        TaintRecord allUntaintedTaintRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
 
-        int totalParamCount = invocationExpr.requiredArgs.size() + invocationExpr.namedArgs.size()
-                + invocationExpr.restArgs.size();
-
-        return (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED
-                && invocationExpr.expr != null;
-                // taint table generated in bootstraping compiler. Can not perform receiver taint analysis for this.
-                //&& (totalParamCount + 1) == allUntaintedTaintRecord.parameterTaintedStatusList.size();
+        return (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED && invocationExpr.expr != null;
     }
 
     private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,

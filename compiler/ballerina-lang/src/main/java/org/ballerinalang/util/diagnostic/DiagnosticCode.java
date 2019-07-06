@@ -377,7 +377,7 @@ public enum DiagnosticCode {
     TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT(
             "tainted.value.passed.to.untainted.param.in.obj.method"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    TAINTED_VALUE_PASSED_TO_GLOBAL_OBJECT("tainted.value.passed.to.global.object"),
+    TAINTED_VALUE_PASSED_TO_MODULE_OBJECT("tainted.value.passed.to.module.object"),
     INVOCATION_TAINT_GLOBAL_OBJECT("method.invocation.taint.global.object"),
     TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE("tainted.value.passed.to.closure.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),

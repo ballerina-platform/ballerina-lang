@@ -445,7 +445,8 @@ public class TaintedStatusPropagationTest {
                 "test-src/taintchecking/propagation/object-tainted-assigment-to-untainted-objref.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0,
-                "tainted value 'o' passed to untainted parameter originating from object method invocation", 52, 15);
+                "tainted value passed to untainted parameter 'secureIn' originating from object method " +
+                        "'test2' invocation", 52, 15);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 56, 20);
     }
 

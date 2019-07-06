@@ -50,7 +50,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     /**
      * This flag is set to true when this symbol represent a global variable who is annotated @tainted.
      */
-    public boolean isMarkTainted;
+    public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
@@ -59,5 +59,9 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     @Override
     public Object getConstValue() {
         return null;
+    }
+
+    public enum TaintabilityAllowance {
+        TAINTED, UNTAINTED, IGNORED
     }
 }
