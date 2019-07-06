@@ -3713,11 +3713,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (indexExpr.type != symTable.semanticError) {
                 actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
             }
-
-            if (nillableExprType) {
-                indexBasedAccessExpr.nilSafeNavigation = true;
-                indexBasedAccessExpr.originalType = actualType;
-            }
+            indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
+            indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
             actualType = checkListIndexBasedAccess(indexBasedAccessExpr, varRefType);
@@ -4006,15 +4003,18 @@ public class TypeChecker extends BLangNodeVisitor {
                         if (fieldType == symTable.semanticError) {
                             fieldType = checkRecordRestFieldAccess(accessExpr, names.fromString(fieldName), record);
                         }
-                        fieldType = addNilForNillableIndexBasedAccess(accessExpr, fieldType);
+
+                        if (fieldType != symTable.semanticError) {
+                            fieldType = addNilForNillableIndexBasedAccess(accessExpr, fieldType);
+                        }
                     }
 
                     if (fieldType.tag == TypeTags.SEMANTIC_ERROR) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
-                        return actualType;
+                        continue;
                     }
                     possibleTypes.add(fieldType);
                 }
+
                 if (possibleTypes.isEmpty()) {
                     dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
                     break;
