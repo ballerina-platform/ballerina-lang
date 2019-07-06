@@ -48,7 +48,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -59,7 +58,6 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_MODE;
@@ -73,11 +71,11 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_MODE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 
@@ -151,7 +149,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         Object[] signatureParams = new Object[paramTypes.size() * 2];
         String resourceName = httpResource.getName();
         if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
-            signatureParams[paramIndex++] = getWebSubCaller(httpResource, httpCarbonMessage);
+            signatureParams[paramIndex++] = getWebSubCaller(httpResource, httpCarbonMessage, endpointConfig);
             signatureParams[paramIndex++] = true;
             ObjectValue intentVerificationRequest = createIntentVerificationRequest();
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
@@ -204,12 +202,11 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private void validateSignature(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
                                    ObjectValue request) {
         //invoke processWebSubNotification function
-        System.out.println("BallerinaWebSubConnectorListener-validateSignature-225");
         Object returnValue;
         try {
             Object[] args = {request, httpResource.getParentService().getBalService()};
-            returnValue = WebSubUtils.executeFunction(scheduler, this.getClass().getClassLoader(), "commons",
-                                                      "processWebSubNotification", args);
+            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), WEBSUB, "commons",
+                                                   "processWebSubNotification", args);
         } catch (BallerinaException e) {
             log.debug("Signature Validation failed: " + e.getMessage());
             httpCarbonMessage.setHttpStatusCode(404);
@@ -224,54 +221,23 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         }
     }
 
-//    private Object executeFunction(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
-//                                   ObjectValue request, String className, String methodName) {
-//        try {
-//            Class<?> commonsClazz = this.getClass().getClassLoader().loadClass(className);
-//            int paramCount = httpResource.getParamTypes().size() * 2 + 1;
-//            Class<?>[] jvmParamTypes = new Class[paramCount];
-//            Object[] jvmArgs = new Object[paramCount];
-//            jvmParamTypes[0] = Strand.class;
-//            jvmArgs[0] = strand;
-//            jvmParamTypes[1] = ObjectValue.class;
-//            jvmArgs[1] = request;
-//            jvmParamTypes[2] = boolean.class;
-//            jvmArgs[2] = true;
-//            jvmParamTypes[3] = ObjectValue.class;
-//            jvmArgs[3] = httpResource.getParentService().getBalService();
-//            jvmParamTypes[4] = boolean.class;
-//            jvmArgs[4] = true;
-//
-//
-//            Method method = commonsClazz.getDeclaredMethod(methodName, jvmParamTypes);
-//            return method.invoke(null, jvmArgs);
-//        } catch (Exception e) {
-//            log.debug("Signature Validation function invocation failed: " + e.getMessage());
-//            httpCarbonMessage.setHttpStatusCode(404);
-//            throw new BallerinaException("Signature Validation function invocation failed: " + e.getMessage());
-//        }
-//    }
-
     /**
      * Method to retrieve the struct representing the WebSub subscriber service endpoint.
      *
      * @param httpResource      the resource of the service receiving the request
      * @param httpCarbonMessage the HTTP message representing the request received
+     * @param endpointConfig    listener endpoint configuration
      * @return the struct representing the subscriber service endpoint
      */
-    private ObjectValue getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage) {
-        ObjectValue subscriberServiceServer = BallerinaValues.createObjectValue(WEBSUB_PACKAGE,
-                                                                                WEBSUB_SERVICE_LISTENER);
+    private ObjectValue getWebSubCaller(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
+                                        MapValue endpointConfig) {
         ObjectValue httpServiceServer = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
                                                                           HTTP_LISTENER_ENDPOINT);
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
 
-        HttpUtil.enrichHttpCallerWithConnectionInfo(httpServiceServer, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
-
         httpServiceServer.addNativeData(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
-        subscriberServiceServer.set(LISTENER_SERVICE_ENDPOINT, httpServiceServer);
-
         return BallerinaValues.createObjectValue(WEBSUB_PACKAGE, WEBSUB_SERVICE_CALLER, httpCaller);
     }
 

@@ -72,7 +72,7 @@ public class WebSubHubStartUpTest {
     @Test(description = "Test shut down and restart", dependsOnMethods = "testHubStartUpWhenStarted")
     public void testHubShutdownAndStart() {
         int port = 9393;
-        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
+        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{new BInteger(port)});
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue((((BBoolean) returns[0]).value()));
@@ -87,7 +87,8 @@ public class WebSubHubStartUpTest {
 
     @AfterClass
     public void tearDown() {
-        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
+        //TODO Uncomment following once test suite is migrated to jBal types and values
+//        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
     }
 
 }

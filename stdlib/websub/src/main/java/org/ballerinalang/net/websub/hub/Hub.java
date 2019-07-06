@@ -34,9 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.ballerinalang.jvm.values.connector.Executor.executeFunction;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-import static org.ballerinalang.net.websub.WebSubUtils.executeFunction;
 
 /**
  * The Ballerina WebSub Hub.
@@ -87,7 +88,8 @@ public class Hub {
             topics.add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 Object[] args = {"register", topic};
-                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
+                executeFunction(strand.scheduler, classLoader, WEBSUB, HUB_SERVICE, "persistTopicRegistrationChange",
+                                args);
             }
         }
     }
@@ -99,7 +101,8 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 Object[] args = {"unregister", topic};
-                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "persistTopicRegistrationChange", args);
+                executeFunction(strand.scheduler, classLoader, WEBSUB, HUB_SERVICE, "persistTopicRegistrationChange",
+                                args);
             }
         }
     }
@@ -110,7 +113,7 @@ public class Hub {
 
     /**
      * Method to add a subscription to the topic on MB.
-     * @param strand
+     * @param strand    the current strand
      * @param topic     the topic to which the subscription should be added
      * @param callback  the callback registered for the particular subscription
      * @param subscriptionDetails the subscription details
@@ -124,7 +127,7 @@ public class Hub {
         } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
-            if (getSubscribers().contains(new HubSubscriber(strand,"", topic, callback, null))) {
+            if (getSubscribers().contains(new HubSubscriber(strand, "", topic, callback, null))) {
                 unregisterSubscription(strand, topic, callback);
             }
             String queue = UUID.randomUUID().toString();
@@ -138,7 +141,7 @@ public class Hub {
     /**
      * Method to remove a subscription to the topic on MB.
      *
-     * @param strand
+     * @param strand    the current strand
      * @param topic     the topic to which the subscription should was added
      * @param callback  the callback registered for the particular subscription
      */
@@ -209,14 +212,14 @@ public class Hub {
                 hubTopicRegistrationRequired = topicRegistrationRequired;
                 String hubUrl = populateHubUrl(publicUrl, hubListener);
                 //TODO: change once made public and available as a param
-                Object returnValue = executeFunction(strand.scheduler, classLoader, "hub_configuration",
+                Object returnValue = executeFunction(strand.scheduler, classLoader, WEBSUB, "hub_configuration",
                                                      "isHubPersistenceEnabled");
                 hubPersistenceEnabled = Boolean.parseBoolean(returnValue.toString());
 
                 PrintStream console = System.err;
                 console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
                 started = true;
-                executeFunction(strand.scheduler, classLoader, HUB_SERVICE, "setupOnStartup");
+                executeFunction(strand.scheduler, classLoader, WEBSUB, HUB_SERVICE, "setupOnStartup");
                 setHubUrl(hubUrl);
                 setHubObject(BallerinaValues.createObjectValue(WEBSUB_PACKAGE, STRUCT_WEBSUB_BALLERINA_HUB, hubUrl,
                                                                hubListener));

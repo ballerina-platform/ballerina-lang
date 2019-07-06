@@ -154,18 +154,10 @@ public class WebSubSubscriberServiceValidator {
 
     private static void validateStructType(String resourceName, BType paramVarType, String packageName,
                                            String structName) {
-        if (!paramVarType.getPackage().getName().equals(packageName)) {
+        if (!(packageName.concat(":").concat(structName)).equals((paramVarType.getQualifiedName()))) {
             throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s in resource %s. Requires %s:%s",
-                                  paramVarType.getPackage().getName(), paramVarType.getName(), resourceName,
-                                  packageName, structName));
-        }
-
-        if (!paramVarType.getName().equals(structName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s in resource %s. Requires %s:%s",
-                                  paramVarType.getPackage().getName(), paramVarType.getName(), resourceName,
-                                  packageName, structName));
+                    String.format("Invalid parameter type %s in resource %s. Requires %s:%s",
+                                  paramVarType.getQualifiedName(), resourceName, packageName, structName));
         }
     }
 

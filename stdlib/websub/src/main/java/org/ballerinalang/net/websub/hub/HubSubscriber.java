@@ -25,11 +25,13 @@ import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.net.websub.WebSubUtils;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 
 import java.util.Objects;
 import java.util.Properties;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 
 /**
  * WebSub Subscriber representation for the Broker.
@@ -61,8 +63,8 @@ public class HubSubscriber extends Consumer {
                         .unwrap()).getValue();
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
         try {
-            WebSubUtils.executeFunction(scheduler, this.getClass().getClassLoader(), "hub_service",
-                                        "distributeContent", args);
+            Executor.executeFunction(scheduler, this.getClass().getClassLoader(), WEBSUB, "hub_service",
+                                     "distributeContent", args);
         } catch (BallerinaException e) {
             throw new BallerinaException("send failed: " + e.getMessage());
         }

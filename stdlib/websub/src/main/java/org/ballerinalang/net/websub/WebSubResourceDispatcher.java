@@ -221,7 +221,7 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(String topic, MapValue<String, Object> topicResourceMap) {
         if (topicResourceMap.containsKey(topic)) {
-            return ((ArrayValue) topicResourceMap.get(topic)).get(0).toString();
+            return ((ArrayValue) topicResourceMap.get(topic)).getRefValue(0).toString();
         } else {
             throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }

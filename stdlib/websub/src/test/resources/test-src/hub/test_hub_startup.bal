@@ -22,7 +22,9 @@ function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpErr
     return websub:startHub(new http:Listener(hubPort));
 }
 
-function stopHub(websub:WebSubHub|websub:HubStartedUpError hubStartUpResult) returns boolean {
+//TODO change function to accept websub:WebSubHub|websub:HubStartedUpError hubStartUpResult once test migration is done
+function stopHub(int hubPort) returns boolean {
+    var hubStartUpResult = websub:startHub(new http:Listener(hubPort));
     if (hubStartUpResult is websub:WebSubHub) {
         return hubStartUpResult.stop();
     } else {

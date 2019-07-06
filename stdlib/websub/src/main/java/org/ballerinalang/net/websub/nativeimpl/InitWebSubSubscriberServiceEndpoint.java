@@ -21,7 +21,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -196,8 +196,8 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
 
     private static void populateResourceDetails(HashMap<String, String[]> resourceDetails,
                                                 ArrayValue resourceDetailTuple) {
-        String resourceName = resourceDetailTuple.getString(0);
-        BStructureType paramDetails = (BStructureType) ((TypedescValue) resourceDetailTuple.get(1)).getType();
-        resourceDetails.put(resourceName, new String[]{paramDetails.getPackage().getName(), paramDetails.getName()});
+        String resourceName = resourceDetailTuple.getRefValue(0).toString();
+        BType paramType = ((TypedescValue) resourceDetailTuple.getRefValue(1)).getDescribingType();
+        resourceDetails.put(resourceName, new String[]{paramType.getPackage().getName(), paramType.getName()});
     }
 }
