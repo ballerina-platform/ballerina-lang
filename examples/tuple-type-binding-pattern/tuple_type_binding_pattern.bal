@@ -12,11 +12,7 @@ public function main() {
     io:println("Tuple variable : ", a1, " ", a2);
 
     // The binding patterns are recursive in nature. These examples show
-<<<<<<< HEAD
     // how to write complex recursive variable definitions.
-=======
-    // how we can write complex recursive variable definitions.
->>>>>>> lang-issues-14969-remote
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
 

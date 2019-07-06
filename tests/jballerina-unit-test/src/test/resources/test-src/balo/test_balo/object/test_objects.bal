@@ -190,11 +190,11 @@ type Manager2 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
-};
 
-public function Manager2.getName(string greeting = "Hello") returns string {
-    return greeting + " " + self.name;
-}
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
+};
 
 public function testObjectReferingTypeFromBalo_2() returns [string, float] {
     Manager2 mgr2 = new("Jane");
@@ -225,11 +225,11 @@ type Manager3 object {
     public function getBonus(float ratio, int months=6) returns float {
         return self.salary*ratio*months;
     }
-};
 
-public function Manager3.getName(string greeting = "Good morning") returns string {
-    return greeting + " " + self.name;
-}
+    public function getName(string greeting = "Good morning") returns string {
+        return greeting + " " + self.name;
+    }
+};
 
 public function testObjectReferingTypeFromBalo_3() returns [string, float] {
     Manager3 mgr3 = new("Jane");
