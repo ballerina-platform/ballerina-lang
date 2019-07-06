@@ -36,7 +36,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 188);
+        Assert.assertEquals(compileResult.getErrorCount(), 177);
     }
 
     @Test
@@ -127,35 +127,8 @@ public class AnnotationAttachmentPointTest {
     }
 
     @Test
-    public void testInvalidAttachmentOnObjectOutsideMethodDefinition() {
-        int index = 45;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on object_method, function",
-                      177, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on object_method, function",
-                      180, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on object_method, function",
-                      183, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on object_method, function",
-                      186, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on object_method, function",
-                      189, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on object_method, function",
-                      190, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on object_method, function",
-                      193, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on object_method, function",
-                      196, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on object_method, function",
-                      199, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on object_method, function",
-                      202, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on object_method, function",
-                      205, 1);
-    }
-
-    @Test
     public void testInvalidAttachmentOnFunction() {
-        int index = 56;
+        int index = 45;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on function", 212, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on function", 215, 1);
         validateError(compileResult, index++, "annotation 'v4' is not allowed on function", 218, 1);
@@ -172,7 +145,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnParam() {
-        int index = 68;
+        int index = 57;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on parameter", 250, 31);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on parameter", 253, 29);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on parameter", 256, 29);
@@ -189,7 +162,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnReturn() {
-        int index = 80;
+        int index = 69;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on return", 283, 53);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on return", 286, 53);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on return", 289, 53);
@@ -206,7 +179,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnListener() {
-        int index = 92;
+        int index = 81;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on listener", 322, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on listener", 325, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on listener", 328, 1);
@@ -223,7 +196,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnService() {
-        int index = 104;
+        int index = 93;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 358, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 361, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on service", 364, 1);
@@ -240,7 +213,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnResource() {
-        int index = 116;
+        int index = 105;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on resource, function", 394, 5);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on resource, function", 397, 5);
         validateError(compileResult, index++, "annotation 'v4' is not allowed on resource, function", 400, 5);
@@ -256,7 +229,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnAnnotation() {
-        int index = 127;
+        int index = 116;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on annotation", 446, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on annotation", 449, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on annotation", 452, 1);
@@ -273,7 +246,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnVar() {
-        int index = 139;
+        int index = 128;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on var", 482, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on var", 485, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on var", 488, 1);
@@ -290,7 +263,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnConst() {
-        int index = 151;
+        int index = 140;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on const", 518, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on const", 521, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on const", 524, 1);
@@ -307,7 +280,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnExternal() {
-        int index = 163;
+        int index = 152;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on external", 554, 62);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on external", 557, 61);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on external", 560, 61);
@@ -324,7 +297,7 @@ public class AnnotationAttachmentPointTest {
 
     @Test
     public void testInvalidAttachmentOnServiceVariable() {
-        int index = 175;
+        int index = 164;
         validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 589, 1);
         validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 593, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 596, 1);

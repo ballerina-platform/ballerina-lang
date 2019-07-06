@@ -4677,11 +4677,12 @@ public class Desugar extends BLangNodeVisitor {
             recordVarType.fields = fields;
             if (recordVariable.isClosed) {
                 recordVarType.sealed = true;
+                recordVarType.restFieldType = symTable.noType;
             } else {
                 // if rest param is null we treat it as an open record with anydata rest param
                 recordVarType.restFieldType = recordVariable.restParam != null ?
                         ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
-                        symTable.anydataType;
+                        symTable.pureType;
             }
             BLangRecordTypeNode recordTypeNode = createRecordTypeNode(typeDefFields, recordVarType);
             recordTypeNode.pos = bindingPatternVariable.pos;

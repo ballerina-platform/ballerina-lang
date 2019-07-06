@@ -72,7 +72,7 @@ function testBasicErrorMatch2() returns string {
     error <string, map<string>> err1 = error("Error Code", message = "Msg");
     [string, map<any>]|error t1 = err1;
     match t1 {
-        var [reason, detail] => return "Matched with tuple : " + reason + " " + "io:sprintf(\"%s\", detail)";
+        var [reason, detail] => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason, message = message) => return "Matched with error : " + reason + " {\"message\":\"" + <string>message + "\"}";
     }
     return "Default";

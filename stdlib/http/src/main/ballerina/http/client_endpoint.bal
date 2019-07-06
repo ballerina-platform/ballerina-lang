@@ -269,7 +269,7 @@ public type Http2Settings record {|
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
-# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + backOffFactor - Multiplier, which increases the retry interval exponentially.
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {|

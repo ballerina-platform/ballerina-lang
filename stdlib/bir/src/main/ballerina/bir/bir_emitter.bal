@@ -541,7 +541,7 @@ type TypeEmitter object {
     function emitType(BType typeVal, string tabs = "") {
         if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
                 || typeVal is BTypeFloat || typeVal is BTypeByte || typeVal is BTypeAnyData || typeVal is BTypeNone
-                || typeVal is BServiceType) {
+                || typeVal is BServiceType || typeVal is BTypeDecimal) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
