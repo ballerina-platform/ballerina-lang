@@ -58,7 +58,7 @@ public type UdpClient client object {
     # + length - Positive integer. Represents the number of bytes which should be read
     # + return - Content as a byte array, the number of bytes read and the address of the sender
     # or an error if encounters an error while reading
-    public remote function receiveFrom(int length = -100) returns (byte[], int, Address)|error = external;
+    public remote function receiveFrom(int length = -100) returns [byte[], int, Address]|error = external;
 
     # Closes the client socket connection.
     #
