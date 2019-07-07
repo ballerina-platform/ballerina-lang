@@ -70,7 +70,7 @@ function genMethodForBallerinaFunction(bir:Function func,
         generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv);
 
-        string alteredPackageName = "".equalsIgnoreCase(currentPackageName) ? "." : currentPackageName;
+        string alteredPackageName = currentPackageName == "" ? "." : currentPackageName;
 
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);

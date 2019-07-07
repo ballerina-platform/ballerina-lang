@@ -207,10 +207,10 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
             Object[] args = {request, httpResource.getParentService().getBalService()};
             returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), WEBSUB, "commons",
                                                    "processWebSubNotification", args);
-        } catch (BallerinaException e) {
-            log.debug("Signature Validation failed: " + e.getMessage());
+        } catch (BallerinaException ex) {
+            log.debug("Signature Validation failed: " + ex.getMessage());
             httpCarbonMessage.setHttpStatusCode(404);
-            throw WebSubUtils.createError(e.getMessage());
+            throw ex;
         }
         ErrorValue error = (ErrorValue) returnValue;
         if (error != null) {

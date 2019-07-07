@@ -90,7 +90,6 @@ public type Client client object {
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic registration request: " + errCause);
             return webSubError;
         }
-        return;
     }
 
     # Unregisters a topic in a Ballerina WebSub Hub.

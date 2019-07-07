@@ -560,7 +560,7 @@ public type WebSubHub object {
     #
     # + topic - The topic to unregister
     # + return - `error` if an error occurred with unregistration
-    public function unregisterTopic(string topic) returns error?{
+    public function unregisterTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
             error e = error(WEBSUB_ERROR_CODE, message = "Remote topic unregistration not allowed/not required at the Hub");
             return e;

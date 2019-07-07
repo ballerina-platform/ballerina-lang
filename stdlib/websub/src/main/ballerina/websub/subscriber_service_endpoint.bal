@@ -38,14 +38,12 @@ public type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         self.registerWebSubSubscriberServiceEndpoint(s);
-        return;
     }
 
     public function __start() returns error? {
         // TODO: handle data and return error on error
         self.startWebSubSubscriberServiceEndpoint();
         self.sendSubscriptionRequests();
-        return;
     }
 
     public function __stop() returns error? {
