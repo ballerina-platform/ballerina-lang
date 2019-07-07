@@ -156,8 +156,8 @@ public class ArraysOfArraysTest {
     public void testArrayUnion() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(result, "testArrayUnion", args);
-        Assert.assertEquals(((BValueArray)(((BValueArray) returns[0]).getRefValue(0))).getBoolean(0), 0);
-        Assert.assertEquals(((BValueArray)(((BValueArray) returns[1]).getRefValue(0))).getString(0), "scope1");
+        Assert.assertEquals(((BValueArray) (((BValueArray) returns[0]).getRefValue(0))).getBoolean(0), 0);
+        Assert.assertEquals(((BValueArray) (((BValueArray) returns[1]).getRefValue(0))).getString(0), "scope1");
     }
 
     private static byte[] hexStringToByteArray(String str) {
