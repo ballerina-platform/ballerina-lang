@@ -2333,7 +2333,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx),
+                ctx.annotationAttachment().size(), ctx.typeName() != null);
     }
 
     @Override

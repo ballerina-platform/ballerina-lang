@@ -340,7 +340,7 @@ public class CloneOperationTest {
         BAssertUtil.validateError(negativeResult, 3, "function invocation on type 'error' is not supported", 35, 15);
 
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
-        BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 12, 22);
+        BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to untainted parameter 'intArg'", 12, 22);
 
     }
 

@@ -80,7 +80,7 @@ function echo(string msg) returns string {
         if (length > 0) {
             var str = getString(content);
             if (str is string) {
-                returnStr = untaint str;
+                returnStr = <@untainted> str;
             } else {
                 io:println(str.detail().message);
             }
@@ -99,13 +99,13 @@ function echo(string msg) returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns string|error {
+function getString(byte[] content) returns @tainted string|error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(50);
 }
 
-function invalidReadParam() returns [byte[], int]|error {
+function invalidReadParam() returns @tainted ([byte[], int]|error) {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
     return trap socketClient->read(length = 0);
 }
