@@ -85,8 +85,7 @@ function testIssueJwtWithSingleAudAndAudAsArray(string keyStorePath) returns str
     return jwt:issueJwt(header, payload, config);
 }
 
-function testValidateJwt(string jwtToken, string trustStorePath) returns @tainted (boolean|error) {
-function testValidateJwt(string jwtToken, string trustStorePath) returns boolean|jwt:JwtError {
+function testValidateJwt(string jwtToken, string trustStorePath) returns @tainted boolean|jwt:JwtError {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
@@ -145,8 +144,7 @@ function testIssueJwtWithNoAudOrSub(string keyStorePath) returns string|jwt:JwtE
     return jwt:issueJwt(header, payload, config);
 }
 
-function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns @tainted boolean|error {
-function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns boolean|jwt:JwtError {
+function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns @tainted boolean|jwt:JwtError {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         certificateAlias: "ballerina",

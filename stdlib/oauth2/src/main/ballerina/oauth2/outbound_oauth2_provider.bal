@@ -208,7 +208,8 @@ type RequestConfig record {|
 # + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token or `OAuth2Error` if the validation fails
 function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                               @tainted CachedToken tokenCache, boolean updateRequest) returns @tainted string|OAuth2Error {
+                               @tainted CachedToken tokenCache, boolean updateRequest)
+                               returns @tainted string|OAuth2Error {
     if (authConfig is PasswordGrantConfig) {
         return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
     } else if (authConfig is ClientCredentialsGrantConfig) {
@@ -267,7 +268,8 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + tokenCache - Cached token configurations
 # + return - Auth token or `OAuth2Error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
+                                                     @tainted CachedToken tokenCache)
+                                                     returns @tainted string|OAuth2Error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -495,8 +497,8 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Access token received or `OAuth2Error` if an error occurred during HTTP client invocation
-function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig, @tainted CachedToken tokenCache,
-                   int clockSkew) returns @tainted string|OAuth2Error {
+function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
+                   @tainted CachedToken tokenCache, int clockSkew) returns @tainted string|OAuth2Error {
     http:Client clientEP = new(url, config = clientConfig);
     var response = clientEP->post(EMPTY_STRING, request);
     if (response is http:Response) {
@@ -557,7 +559,8 @@ function prepareRequest(RequestConfig config) returns http:Request|OAuth2Error {
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Extracted access token or `OAuth2Error` if an error occurred during the HTTP client invocation
-function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkew) returns @tainted string|OAuth2Error {
+function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkew)
+                                        returns @tainted string|OAuth2Error {
     if (response.statusCode == http:OK_200) {
         var payload = response.getJsonPayload();
         if (payload is json) {
