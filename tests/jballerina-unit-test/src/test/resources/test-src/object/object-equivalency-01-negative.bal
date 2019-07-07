@@ -185,24 +185,18 @@ public type person07 object {
     public string zipcode = "95134";
     public string ssn = "";
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function setSSN(string s);
+    public function setSSN(string s) {
+        self.ssn = s;
+    }
 };
-
-public function person07.getAge() returns (int) {
-    return self.age;
-}
-
-public function person07.getName() returns (string) {
-    return self.name;
-}
-
-public function person07.setSSN(string s) {
-    self.ssn = s;
-}
 
 public type employee07 object {
 
@@ -218,18 +212,14 @@ public type employee07 object {
         self.name = name;
     }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 };
-
-public function employee07.getName() returns (string) {
-    return self.name;
-}
-
-public function employee07.getAge() returns (int) {
-    return self.age;
-}
 
 // Public Objects attached function count mismatch
 function testEqOfObjectsInSamePackage07() returns (string) {
@@ -248,24 +238,18 @@ public type person08 object {
     public string ssn = "";
 
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function setSSN(string s);
+    public function setSSN(string s) {
+        self.ssn = s;
+    }
 };
-
-public function person08.getAge() returns (int) {
-    return self.age;
-}
-
-public function person08.getName() returns (string) {
-    return self.name;
-}
-
-public function person08.setSSN(string s) {
-    self.ssn = s;
-}
 
 public type employee08 object {
 
@@ -281,24 +265,18 @@ public type employee08 object {
         self.name = name;
     }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 
-    public function getSSN() returns (string);
+    public function getSSN() returns string {
+        return self.ssn;
+    }
 };
-
-public function employee08.getName() returns (string) {
-    return self.name;
-}
-
-public function employee08.getAge() returns (int) {
-    return self.age;
-}
-
-public function employee08.getSSN() returns (string) {
-    return self.ssn;
-}
 
 // Public Objects attached function visibility mismatch
 function testEqOfObjectsInSamePackage08() returns (string) {
@@ -317,24 +295,18 @@ public type person09 object {
     public string ssn = "";
 
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function setSSN(string s);
+    public function setSSN(string s) {
+        self.ssn = s;
+    }
 };
-
-public function person09.getAge() returns (int) {
-    return self.age;
-}
-
-public function person09.getName() returns (string) {
-    return self.name;
-}
-
-public function person09.setSSN(string s) {
-    self.ssn = s;
-}
 
 public type employee09 object {
 
@@ -350,24 +322,18 @@ public type employee09 object {
         self.name = name;
     }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function getAge(int i) returns (int);
+    public function getAge(int i) returns int {
+        return self.age;
+    }
 
-    public function getSSN() returns (string);
+    public function getSSN() returns string {
+        return self.ssn;
+    }
 };
-
-public function employee09.getName() returns (string) {
-    return self.name;
-}
-
-public function employee09.getAge(int i) returns (int) {
-    return self.age;
-}
-
-public function employee09.getSSN() returns (string) {
-    return self.ssn;
-}
 
 // Public Objects attached function signature mismatch
 function testEqOfObjectsInSamePackage09() returns (string) {
