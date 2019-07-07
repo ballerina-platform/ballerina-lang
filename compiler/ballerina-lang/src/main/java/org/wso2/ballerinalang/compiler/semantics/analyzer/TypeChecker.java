@@ -735,15 +735,18 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.noType;
         List<BType> listCompatibleTypes = new ArrayList<>();
         for (BType type : expTypes) {
-            if (type.tag == TypeTags.ARRAY) {
-                List<BType> resTypes = checkExprs(listConstructorExpr.exprs, this.env, symTable.noType);
-                Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
-                BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+            if (type.tag == TypeTags.TUPLE) {
+                BTupleType tupleType = (BTupleType) type;
+                if (checkTupleType(listConstructorExpr, tupleType)) {
+                    listCompatibleTypes.add(tupleType);
+                }
+            } else {
+                BType[] uniqueExprTypes = checkArrayExpr(listConstructorExpr, this.env);
                 BType arrayLiteralType;
                 if (uniqueExprTypes.length == 0) {
                     arrayLiteralType = symTable.anyType;
                 } else if (uniqueExprTypes.length == 1) {
-                    arrayLiteralType = resTypes.get(0);
+                    arrayLiteralType = uniqueExprTypes[0];
                 } else {
                     BType superType = uniqueExprTypes[0];
                     for (int i = 1; i < uniqueExprTypes.length; i++) {
@@ -756,13 +759,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     arrayLiteralType = superType;
                 }
-                actualType = new BArrayType(arrayLiteralType, null, listConstructorExpr.exprs.size(),
-                        BArrayState.UNSEALED);
-                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
-            } else if (type.tag == TypeTags.TUPLE) {
-                BTupleType tupleType = (BTupleType) type;
-                if (checkTupleType(listConstructorExpr, tupleType)) {
-                    listCompatibleTypes.add(tupleType);
+                if (arrayLiteralType.tag != TypeTags.SEMANTIC_ERROR) {
+                    actualType = new BArrayType(arrayLiteralType);
+                    listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
                 }
             }
         }
@@ -777,12 +776,28 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
             actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ARRAY) {
-            checkExprs(listConstructorExpr.exprs, this.env, ((BArrayType) listCompatibleTypes.get(0)).eType);
+            checkExpr(listConstructorExpr, this.env, listCompatibleTypes.get(0));
         } else if (listCompatibleTypes.get(0).tag == TypeTags.TUPLE) {
             actualType = listCompatibleTypes.get(0);
             setTupleType(listConstructorExpr, actualType);
         }
         return actualType;
+    }
+
+    private BType[] checkArrayExpr(BLangListConstructorExpr expr, SymbolEnv env) {
+        List<BType> types = new ArrayList<>();
+        SymbolEnv prevEnv = this.env;
+        BType preExpType = this.expType;
+        this.env = env;
+        this.expType = symTable.noType;
+        for (BLangExpression e : expr.exprs) {
+            e.accept(this);
+            types.add(resultType);
+        }
+        this.env = prevEnv;
+        this.expType = preExpType;
+        LinkedHashSet<BType> typesSet = new LinkedHashSet<>(types);
+        return typesSet.toArray(new BType[0]);
     }
 
     private boolean checkTupleType(BLangExpression expression, BType type) {
