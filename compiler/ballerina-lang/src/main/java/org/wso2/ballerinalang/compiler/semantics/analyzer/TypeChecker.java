@@ -3180,10 +3180,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        if (indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar) {
-            return actualType;
-        }
-
         return BUnionType.create(null, actualType, symTable.nilType);
     }
 
@@ -3748,6 +3744,15 @@ public class TypeChecker extends BLangNodeVisitor {
                                    indexBasedAccessExpr.expr.type);
                         return symTable.semanticError;
                     }
+
+                    if (indexBasedAccessExpr.lhsVar
+                            && indexBasedAccessExpr.expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
+                            && indexBasedAccessExpr.expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                        dlog.error(indexBasedAccessExpr.pos,
+                                   DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                                   indexBasedAccessExpr.expr.type);
+                        return symTable.semanticError;
+                    }
                 }
             }
         }
@@ -4021,9 +4026,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         if (actualType == symTable.semanticError) {
                             return actualType;
                         }
+                        return addNilForNillableIndexBasedAccess(accessExpr, actualType);
                     }
-                    actualType = addNilForNillableIndexBasedAccess(accessExpr, actualType);
-                    return actualType;
+
+                    if (accessExpr.lhsVar) {
+                        return actualType;
+                    }
+                    return addNilForNillableIndexBasedAccess(accessExpr, actualType);
                 }
 
                 LinkedHashSet<BType> fieldTypes = record.fields.stream()
