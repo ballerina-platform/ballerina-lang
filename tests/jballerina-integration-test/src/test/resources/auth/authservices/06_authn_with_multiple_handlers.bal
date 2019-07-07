@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider06_1 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider06_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -27,7 +27,7 @@ jwt:JWTAuthProvider jwtAuthProvider06_1 = new({
     }
 });
 
-jwt:JWTAuthProvider jwtAuthProvider06_2 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider06_2 = new({
     issuer: "example2",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -38,12 +38,12 @@ jwt:JWTAuthProvider jwtAuthProvider06_2 = new({
 });
 
 
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler06_1 = new(jwtAuthProvider06_1);
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler06_2 = new(jwtAuthProvider06_2);
+http:BearerAuthHandler jwtAuthHandler06_1 = new(jwtAuthProvider06_1);
+http:BearerAuthHandler jwtAuthHandler06_2 = new(jwtAuthProvider06_2);
 
 listener http:Listener listener06 = new(9097, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler06_1, jwtAuthnHandler06_2]
+        authHandlers: [jwtAuthHandler06_1, jwtAuthHandler06_2]
     },
     secureSocket: {
         keyStore: {
