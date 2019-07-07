@@ -512,6 +512,7 @@ public type FieldAccess record {|
     VarRef keyOp;
     VarRef rhsOp;
     boolean optionalFieldAccess = false;
+    boolean fillingRead = false;
 |};
 
 public type TypeCast record {|

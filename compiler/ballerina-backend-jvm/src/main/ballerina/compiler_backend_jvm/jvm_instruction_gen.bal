@@ -662,8 +662,13 @@ type InstructionGenerator object {
                         io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
             }
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            if (mapLoadIns.fillingRead) {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            }
         }
 
         // store in the target reg

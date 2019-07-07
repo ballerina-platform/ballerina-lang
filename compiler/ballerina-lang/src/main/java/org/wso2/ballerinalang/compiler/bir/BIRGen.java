@@ -1992,7 +1992,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_LOAD;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
-                    varRefRegIndex, except));
+                    varRefRegIndex, except, astIndexBasedAccessExpr.lhsVar && !astIndexBasedAccessExpr.leafNode));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

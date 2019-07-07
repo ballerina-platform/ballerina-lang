@@ -141,22 +141,41 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     /**
-     * Retrieve the value for the given key from map.
-     * A {@link BallerinaException} will be thrown if the key does not exists.
+     * Retrieve the value for the given key from map. If the key does not exist, but there exists a filler value for
+     * the expected type, a new value will be created and added and then returned.
+     * A {@link BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key
      */
-    public V getOrThrow(Object key) {
-        readLock.lock();
+    public V fillAndGet(Object key) {
+        writeLock.lock();
         try {
-            if (!containsKey(key)) {
+            if (containsKey(key)) {
+                return super.get(key);
+            }
+
+            // The type should be a BRecordType, since this is expected to be called only for records with optional
+            // fields.
+            Map fields = ((BRecordType) this.type).getFields();
+            if (!fields.containsKey(key)) {
+                // Panic if this record type does not contain a key by the specified name.
                 throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
                         key + "'");
             }
-            return super.get(key);
+
+            BField expectedField = (BField) fields.get(key);
+            if (!TypeChecker.hasFillerValue(expectedField.type)) {
+                // Panic if the field does not have a filler value.
+                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
+                        key + "'");
+            }
+
+            Object value = expectedField.type.getZeroValue();
+            this.put((K) key, (V) value);
+            return (V) value;
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
