@@ -74,7 +74,7 @@ public type Client client object {
     #
     # + topic - The topic to register
     # + return - `error` if an error occurred registering the topic
-    public remote function registerTopic(string topic) returns error? {
+    public remote function registerTopic(string topic) returns @tainted error? {
         http:Client httpClientEndpoint = self.httpClientEndpoint;
         http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
         var registrationResponse = httpClientEndpoint->post("", request);
@@ -96,7 +96,7 @@ public type Client client object {
     #
     # + topic - The topic to unregister
     # + return - `error` if an error occurred unregistering the topic
-    public remote function unregisterTopic(string topic) returns error? {
+    public remote function unregisterTopic(string topic) returns @tainted error? {
         http:Client httpClientEndpoint = self.httpClientEndpoint;
         http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
         var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -123,7 +123,7 @@ public type Client client object {
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the update
     public remote function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                         string? contentType = (), map<string>? headers = ()) returns error? {
+                                         string? contentType = (), map<string>? headers = ()) returns @tainted error? {
         http:Client httpClientEndpoint = self.httpClientEndpoint;
         http:Request request = new;
         string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
@@ -139,7 +139,7 @@ public type Client client object {
             }
         }
 
-        var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
+        var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
         if (response is http:Response) {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
@@ -160,7 +160,7 @@ public type Client client object {
     # + topic - The topic for which the update occurred
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the notification
-    public remote function notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+    public remote function notifyUpdate(string topic, map<string>? headers = ()) returns @tainted error? {
         http:Client httpClientEndpoint = self.httpClientEndpoint;
         http:Request request = new;
         string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
@@ -171,7 +171,7 @@ public type Client client object {
             }
         }
 
-        var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
+        var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
         if (response is http:Response) {
             if (!isSuccessStatusCode(response.statusCode)) {
                 var result = response.getTextPayload();
