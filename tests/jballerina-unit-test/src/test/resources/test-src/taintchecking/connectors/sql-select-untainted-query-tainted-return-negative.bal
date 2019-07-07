@@ -31,7 +31,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
     return;
 }
 
-public function testFunction(@sensitive string anyValue) {
+public function testFunction(@untainted string anyValue) {
 
 }
 

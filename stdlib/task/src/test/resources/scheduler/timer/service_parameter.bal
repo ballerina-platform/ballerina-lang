@@ -37,7 +37,7 @@ string result = "";
 service timerService = service {
     resource function onTrigger(Person person) {
         person.age = person.age + 1;
-        result = untaint (person.name + " is " + person.age + " years old");
+        result = <@untainted string> (person.name + " is " + person.age + " years old");
     }
 };
 
