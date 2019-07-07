@@ -220,6 +220,7 @@ public enum DiagnosticCode {
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
+    OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT("operation.does.not.support.field.access.for.assignment"),
     OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS("operation.does.not.support.optional.field.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD(
             "operation.does.not.support.field.access.for.non.required.field"),
@@ -338,7 +339,7 @@ public enum DiagnosticCode {
 
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
-    INVALID_ERROR_LIFTING_ON_LHS("invalid.error.lifting.on.lhs"),
+    OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("optional.field.access.not.required.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
