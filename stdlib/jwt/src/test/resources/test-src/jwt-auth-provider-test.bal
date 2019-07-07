@@ -30,7 +30,7 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     return jwtAuthProvider;
 }
 
-function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns boolean|auth:AuthError {
+function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns @tainted boolean|auth:AuthError {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
@@ -62,7 +62,7 @@ function generateJwt(string keyStorePath) returns string|jwt:JwtError {
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, string trustStorePath) returns jwt:JwtPayload|jwt:JwtError {
+function verifyJwt(string jwt, string trustStorePath) returns @tainted jwt:JwtPayload|jwt:JwtError {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig validatorConfig = {
         issuer: "wso2",

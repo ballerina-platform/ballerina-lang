@@ -48,7 +48,7 @@ public type OutboundOAuth2Provider object {
     # Generate token for OAuth2 authentication.
     #
     # + return - Generated token or `auth:AuthError` if an error occurred
-    public function generateToken() returns string|auth:AuthError {
+    public function generateToken() returns @tainted string|auth:AuthError {
         var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, false);
         if (authToken is string) {
             return authToken;
@@ -63,7 +63,7 @@ public type OutboundOAuth2Provider object {
     #
     # + data - Map of data which is extracted from the HTTP response
     # + return - String token, or `auth:AuthError` occurred when generating token or `()` if nothing to be returned
-    public function inspect(map<anydata> data) returns string|auth:AuthError? {
+    public function inspect(map<anydata> data) returns @tainted string|auth:AuthError? {
         if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
             var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
             if (authToken is string) {
@@ -208,7 +208,7 @@ type RequestConfig record {|
 # + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token or `OAuth2Error` if the validation fails
 function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig authConfig,
-                               CachedToken tokenCache, boolean updateRequest) returns string|OAuth2Error {
+                               @tainted CachedToken tokenCache, boolean updateRequest) returns @tainted string|OAuth2Error {
     if (authConfig is PasswordGrantConfig) {
         return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
     } else if (authConfig is ClientCredentialsGrantConfig) {
@@ -227,7 +227,7 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
 # + tokenCache - Cached token configurations
 # + return - Auth token or `OAuth2Error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            CachedToken tokenCache) returns string|OAuth2Error {
+                                            @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -267,7 +267,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + tokenCache - Cached token configurations
 # + return - Auth token or `OAuth2Error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     CachedToken tokenCache) returns string|OAuth2Error {
+                                                     @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -307,7 +307,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + tokenCache - Cached token configurations
 # + return - Auth token or `OAuth2Error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              CachedToken tokenCache) returns string|OAuth2Error {
+                                              @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         var directAccessToken = grantTypeConfig["accessToken"];
@@ -381,7 +381,7 @@ function isCachedTokenValid(CachedToken tokenCache) returns boolean {
 # + tokenCache - Cached token configurations
 # + return - Access token received or `OAuth2Error` if an error occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
-                                                CachedToken tokenCache) returns string|OAuth2Error {
+                                                @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
     RequestConfig requestConfig;
     int clockSkew;
     string tokenUrl;
@@ -437,7 +437,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 # + tokenCache - Cached token configurations
 # + return - Access token received or `OAuth2Error` if an error occurred during HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
-                                          CachedToken tokenCache) returns string|OAuth2Error {
+                                          @tainted CachedToken tokenCache) returns @tainted string|OAuth2Error {
     RequestConfig requestConfig;
     int clockSkew;
     string refreshUrl;
@@ -495,8 +495,8 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Access token received or `OAuth2Error` if an error occurred during HTTP client invocation
-function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig, CachedToken tokenCache,
-                   int clockSkew) returns string|OAuth2Error {
+function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig, @tainted CachedToken tokenCache,
+                   int clockSkew) returns @tainted string|OAuth2Error {
     http:Client clientEP = new(url, config = clientConfig);
     var response = clientEP->post(EMPTY_STRING, request);
     if (response is http:Response) {
@@ -547,7 +547,7 @@ function prepareRequest(RequestConfig config) returns http:Request|OAuth2Error {
             return prepareOAuth2Error("Client ID or client secret is not provided for client authentication.");
         }
     }
-    req.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    req.setTextPayload(<@untainted> textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     return req;
 }
 
@@ -557,7 +557,7 @@ function prepareRequest(RequestConfig config) returns http:Request|OAuth2Error {
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Extracted access token or `OAuth2Error` if an error occurred during the HTTP client invocation
-function extractAccessTokenFromResponse(http:Response response, CachedToken tokenCache, int clockSkew) returns string|OAuth2Error {
+function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkew) returns @tainted string|OAuth2Error {
     if (response.statusCode == http:OK_200) {
         var payload = response.getJsonPayload();
         if (payload is json) {
