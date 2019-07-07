@@ -127,7 +127,7 @@ public type Listener object {
                         continue;
                     }
                 }
-                invokeClientConnectorForSubscription(hub, subscriptionClientConfig, untaint subscriptionDetails);
+                invokeClientConnectorForSubscription(hub, subscriptionClientConfig, <@untainted> subscriptionDetails);
             }
         }
     }

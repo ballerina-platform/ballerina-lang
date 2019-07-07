@@ -51,7 +51,7 @@ service websubSubscriberTwo on websubEP {
         } else {
             io:println("Intent verification denied explicitly for subscription change request");
         }
-        var result = caller->respond(untaint response);
+        var result = caller->respond(<@untainted> response);
         if (result is error) {
             io:println("Error responding to intent verification request: ", result);
         }

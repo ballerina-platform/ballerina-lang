@@ -195,7 +195,7 @@ public type Client client object {
 # + mode - Whether the request is for registration or unregistration
 # + topic - The topic to register/unregister
 # + return - `http:Request` The Request to send to the hub to register/unregister
-function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive string topic) returns (http:Request) {
+function buildTopicRegistrationChangeRequest(@untainted string mode, @untainted string topic) returns (http:Request) {
     http:Request request = new;
     request.setTextPayload(HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);
@@ -208,7 +208,7 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
 # + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
 #                               parameters to use
 # + return - `http:Request` The Request to send to the hub to subscribe/unsubscribe
-function buildSubscriptionChangeRequest(@sensitive string mode,
+function buildSubscriptionChangeRequest(@untainted string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;
 
@@ -243,7 +243,7 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
 # + httpClientEndpoint - The underlying HTTP Client Endpoint
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function processHubResponse(@sensitive string hub, @sensitive string mode,
+function processHubResponse(@untainted string hub, @untainted string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
                             http:Response|error response, http:Client httpClientEndpoint,
                             int remainingRedirects) returns @tainted SubscriptionChangeResponse|error {
@@ -298,7 +298,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 # + auth - The auth config to use at the hub, if specified
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
+function invokeClientConnectorOnRedirection(@untainted string hub, @untainted string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,
                                             http:OutboundAuthConfig? auth, int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
