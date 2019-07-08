@@ -24,7 +24,7 @@ public type AbstractSQLClient abstract client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `sql:JdbcClientError` will be returned if there is any error
-    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
        returns @tainted table<record {}>[]|()|JdbcClientError;
 
     # The select remote function implementation for SQL Client to select data from tables.
@@ -38,7 +38,7 @@ public type AbstractSQLClient abstract client object {
     //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
     //   Param... parameters) returns @tainted table<record {}>|sql:JdbcClientError;
     // TODO: #16033
-    public remote function select(@sensitive string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc? recordType,
            Param... parameters) returns @tainted table<record {}>|JdbcClientError;
 
     # The update remote function implementation for SQL Client to update data and schema of the database.
@@ -48,7 +48,7 @@ public type AbstractSQLClient abstract client object {
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - A `sql:UpdateResult` with the updated row count and key column values,
     #            else `sql:JdbcClientError` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
+    public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
                                returns UpdateResult|JdbcClientError;
 
     # The batchUpdate remote function implementation for SQL Client to batch data insert.
@@ -64,6 +64,6 @@ public type AbstractSQLClient abstract client object {
     #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, Param?[]... parameters)
+    public remote function batchUpdate(@untainted string sqlQuery, Param?[]... parameters)
                                returns int[]|JdbcClientError;
 };
