@@ -52,7 +52,7 @@ public class UntaintTest {
     public void testUntaintVariable() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint-variable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 20);
     }
 
     // Tests to confirm that "untaint" expression does not introduce any side effects to expected runtime behaviour.

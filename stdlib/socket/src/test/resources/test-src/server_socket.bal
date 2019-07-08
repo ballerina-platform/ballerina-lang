@@ -76,7 +76,7 @@ function getTotalLength() returns int {
     return totalLength;
 }
 
-function getString(byte[] content) returns string|error {
+function getString(byte[] content) returns @tainted string|error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(50);
@@ -86,7 +86,7 @@ function process(any|error result, socket:Caller caller) {
     if (result is [byte[], int]) {
         var [content, length] = result;
         if (length > 0) {
-            totalLength = totalLength + untaint length;
+            totalLength = totalLength + <@untainted> length;
         } else {
             log:printInfo("Client close: " + caller.remotePort);
             return;
@@ -144,7 +144,7 @@ service errorServer on new socket:Listener(59155) {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        errorString = untaint string.convert(er.reason());
+        errorString = <@untainted> string.convert(er.reason());
     }
 }
 

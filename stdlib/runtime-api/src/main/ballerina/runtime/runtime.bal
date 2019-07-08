@@ -25,7 +25,7 @@ public function sleep(int millis) = external;
 #
 # + name - Name of the property
 # + return - Value of the property if the property exists, an empty string otherwise
-public function getProperty(@sensitive string name) returns string = external;
+public function getProperty(@untainted string name) returns string = external;
 
 # Gives a timeout to the current worker for a predefined amount of time.
 #

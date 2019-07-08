@@ -439,7 +439,7 @@ public class AnnotationDesugar {
                     }
                 }
 
-                if (attachPoint.source) {
+                if (attachPoint == null || attachPoint.source) {
                     // Avoid defining annotation values for source only annotations.
                     continue;
                 }

@@ -86,13 +86,13 @@ public type Path object {
     #
     # + target - The location to copy file or directory
     # + return - Error if the file could not be copied
-    public function copyTo(@sensitive Path target) returns error? = external;
+    public function copyTo(@untainted Path target) returns error? = external;
 
     # Move file or directory to another path.
     #
     # + target - The location to move file or directory
     # + return - Error if the file could not be moved
-    public function moveTo(@sensitive Path target) returns error? = external;
+    public function moveTo(@untainted Path target) returns error? = external;
 
     # Get the enclosing parent directory.
     #

@@ -25,10 +25,10 @@ public function main (string... args) {
     secureFunction1(err.detail(), err.detail());
 }
 
-public function secureFunction (@sensitive error secureIn, error insecureIn) {
+public function secureFunction (@untainted error secureIn, error insecureIn) {
 
 }
 
-public function secureFunction1 (@sensitive any secureIn, any insecureIn) {
+public function secureFunction1 (@untainted any secureIn, any insecureIn) {
 
 }

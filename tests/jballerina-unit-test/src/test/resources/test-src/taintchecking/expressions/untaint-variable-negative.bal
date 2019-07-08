@@ -1,10 +1,10 @@
 public function main (string... args) {
     string data = args[0];
-    string untaintedData = untaint data;
+    string untaintedData = <@untainted string> data;
     secureFunction(untaintedData);
     secureFunction(data);
 }
 
-function secureFunction (@sensitive string secureIn) {
+function secureFunction (@untainted string secureIn) {
 
 }
