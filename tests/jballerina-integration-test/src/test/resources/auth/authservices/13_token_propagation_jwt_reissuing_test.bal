@@ -68,7 +68,7 @@ service passthroughService13 on listener13_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP13->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP13->get("/nyseStock/stocks", message = <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {

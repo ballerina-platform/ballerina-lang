@@ -46,7 +46,7 @@ service passthrough on listener17_1 {
         path: "/{testCase}"
     }
     resource function test(http:Caller caller, http:Request req, string testCase) {
-        var response = client17->get("/echo/" + untaint testCase);
+        var response = client17->get("/echo/" + <@untainted> testCase);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -171,9 +171,9 @@ public type OutboundCustomAuthHandler object {
 
     public function inspect(http:Request req, http:Response resp) returns http:Request|error? {
         map<anydata> headerMap = { "STATUS_CODE": resp.statusCode };
-        string[] headerNames = resp.getHeaderNames();
+        string[] headerNames = <@untainted> resp.getHeaderNames();
         foreach string header in headerNames {
-            string[] headerValues = resp.getHeaders(untaint header);
+            string[] headerValues = resp.getHeaders(header);
             headerMap[header] = headerValues;
         }
         string? token = check self.authProvider.inspect(headerMap);
