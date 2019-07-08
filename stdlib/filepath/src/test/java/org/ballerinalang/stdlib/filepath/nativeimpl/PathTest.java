@@ -18,15 +18,15 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,8 +171,8 @@ public class PathTest {
             BString filename = (BString) returns[0];
             log.info("{ballerina/filepath}:filename(). Input: " + path + " | Return: " + filename.stringValue());
             assertEquals(filename.stringValue(), expected, "Path: " + path + " filename()");
-            String expectedValue = Paths.get(path).getFileName() != null ? 
-                                    Paths.get(path).getFileName().toString() : "";
+            String expectedValue = Paths.get(path).getFileName() != null ?
+                    Paths.get(path).getFileName().toString() : "";
             assertEquals(filename.stringValue(), expectedValue, "Assert with Java | Path: " + path + " filename()");
         }
     }
@@ -283,7 +283,7 @@ public class PathTest {
     private void validateBuildPath(String[] parts, String expected) {
         BValueArray valueArray = new BValueArray(BTypes.typeString);
         int i = 0;
-        for (String part: parts) {
+        for (String part : parts) {
             valueArray.add(i++, part);
         }
         BValue[] args = {valueArray};
@@ -336,12 +336,12 @@ public class PathTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getDetails().stringValue(),
-                    "{\"message\":\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
+                         "{\"message\":\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
         } else {
             assertTrue(returns[0] instanceof BString);
             BString relative = (BString) returns[0];
             log.info("{ballerina/filepath}:relative(). Input: Base " + basePath + ", Target " + targetPath + " | " +
-                    "Return: " + relative.stringValue());
+                             "Return: " + relative.stringValue());
             assertEquals(relative.stringValue(), expected);
         }
     }
@@ -431,78 +431,78 @@ public class PathTest {
 
     @DataProvider(name = "filename_data")
     public Object[][] getFileNameDataset() {
-        return new Object[][] {
-            {"/A/B/C", "C", "C"}, 
-            {"/foo/..", "..", ".."},
-            {".", ".", "."},
-            {"..", "..", ".."},
-            {"../../", "..", ".."},
-            {"foo/", "foo", "foo"},
-            {"foo/bar/", "bar", "bar"},
-            {"/AAA/////BBB/", "BBB", "BBB"},
-            {"", "", ""},
-            {"//////////////////", "", "error"},
-            {"\\\\\\\\\\\\\\\\\\\\", "\\\\\\\\\\\\\\\\\\\\", "error"},
-            {"/foo/./bar", "bar", "bar"},
-            {"foo/../bar", "bar", "bar"},
-            {"../foo/bar", "bar", "bar"},
-            {"./foo/bar/../", "..", ".."},
-            {"../../foo/../bar/zoo", "zoo", "zoo"},
-            {"abc/../../././../def", "def", "def"},
-            {"abc/def/../../..", "..", ".."},
-            {"abc/def/../../../ghi/jkl/../../../mno", "mno", "mno"},
-            // windows paths
-            {"//server", "server", "error"},
-            {"\\\\server", "\\\\server", "error"},
-            {"C:/foo/..", "..", ".."},
-            {"C:\\foo\\..", "C:\\foo\\..", ".."},
-            {"D;\\bar\\baz", "D;\\bar\\baz", "baz"},
-            {"bar\\baz", "bar\\baz", "baz"},
-            {"bar/baz", "baz", "baz"},
-            {"C:\\\\\\\\", "C:\\\\\\\\", ""},
-            {"\\..\\A\\B", "\\..\\A\\B", "B"}
+        return new Object[][]{
+                {"/A/B/C", "C", "C"},
+                {"/foo/..", "..", ".."},
+                {".", ".", "."},
+                {"..", "..", ".."},
+                {"../../", "..", ".."},
+                {"foo/", "foo", "foo"},
+                {"foo/bar/", "bar", "bar"},
+                {"/AAA/////BBB/", "BBB", "BBB"},
+                {"", "", ""},
+                {"//////////////////", "", "error"},
+                {"\\\\\\\\\\\\\\\\\\\\", "\\\\\\\\\\\\\\\\\\\\", "error"},
+                {"/foo/./bar", "bar", "bar"},
+                {"foo/../bar", "bar", "bar"},
+                {"../foo/bar", "bar", "bar"},
+                {"./foo/bar/../", "..", ".."},
+                {"../../foo/../bar/zoo", "zoo", "zoo"},
+                {"abc/../../././../def", "def", "def"},
+                {"abc/def/../../..", "..", ".."},
+                {"abc/def/../../../ghi/jkl/../../../mno", "mno", "mno"},
+                // windows paths
+                {"//server", "server", "error"},
+                {"\\\\server", "\\\\server", "error"},
+                {"C:/foo/..", "..", ".."},
+                {"C:\\foo\\..", "C:\\foo\\..", ".."},
+                {"D;\\bar\\baz", "D;\\bar\\baz", "baz"},
+                {"bar\\baz", "bar\\baz", "baz"},
+                {"bar/baz", "baz", "baz"},
+                {"C:\\\\\\\\", "C:\\\\\\\\", ""},
+                {"\\..\\A\\B", "\\..\\A\\B", "B"}
         };
     }
 
     @DataProvider(name = "is_absolute_data")
     public Object[][] isAbsoluteDataset() {
-        return new Object[][] {
-            {"/A/B/C", true, false}, 
-            {"/foo/..", true, false},
-            {".", false, false},
-            {"..", false, false},
-            {"../../", false, false},
-            {"foo/", false, false},
-            {"foo/bar/", false, false},
-            {"/AAA/////BBB/", true, false},
-            {"", false, false},
-            {"//////////////////", true, false},
-            {"\\\\\\\\\\\\\\\\\\\\", false, false},
-            {"/foo/./bar", true, false},
-            {"foo/../bar", false, false},
-            {"../foo/bar", false, false},
-            {"./foo/bar/../", false, false},
-            {"../../foo/../bar/zoo", false, false},
-            {"abc/../../././../def", false, false},
-            {"abc/def/../../..", false, false},
-            {"abc/def/../../../ghi/jkl/../../../mno", false, false},
-            // windows paths
-            {"//server", true, false},
-            {"\\\\server", false, false},
-            {"\\\\host\\share\\foo", false, true},
-            {"C:/foo/..", false, true},
-            {"C:\\foo\\..", false, true},
-            {"D;\\bar\\baz", false, false},
-            {"bar\\baz", false, false},
-            {"bar/baz", false, false},
-            {"C:\\\\\\\\", false, true},
-            {"\\..\\A\\B", false, false}
+        return new Object[][]{
+                {"/A/B/C", true, false},
+                {"/foo/..", true, false},
+                {".", false, false},
+                {"..", false, false},
+                {"../../", false, false},
+                {"foo/", false, false},
+                {"foo/bar/", false, false},
+                {"/AAA/////BBB/", true, false},
+                {"", false, false},
+                {"//////////////////", true, false},
+                {"\\\\\\\\\\\\\\\\\\\\", false, false},
+                {"/foo/./bar", true, false},
+                {"foo/../bar", false, false},
+                {"../foo/bar", false, false},
+                {"./foo/bar/../", false, false},
+                {"../../foo/../bar/zoo", false, false},
+                {"abc/../../././../def", false, false},
+                {"abc/def/../../..", false, false},
+                {"abc/def/../../../ghi/jkl/../../../mno", false, false},
+                // windows paths
+                {"//server", true, false},
+                {"\\\\server", false, false},
+                {"\\\\host\\share\\foo", false, true},
+                {"C:/foo/..", false, true},
+                {"C:\\foo\\..", false, true},
+                {"D;\\bar\\baz", false, false},
+                {"bar\\baz", false, false},
+                {"bar/baz", false, false},
+                {"C:\\\\\\\\", false, true},
+                {"\\..\\A\\B", false, false}
         };
     }
 
     @DataProvider(name = "parent_data")
     public Object[][] getParentDataset() {
-        return new Object[][] {
+        return new Object[][]{
                 {"/A/B/C", "/A/B", "\\A\\B"},
                 {"/foo/..", "/foo", "\\foo"},
                 {".", "", ""},
@@ -540,7 +540,7 @@ public class PathTest {
 
     @DataProvider(name = "normalize_data")
     public Object[][] getNormalizedDataset() {
-        return new Object[][] {
+        return new Object[][]{
                 {"/A/B/C", "/A/B/C", "\\A\\B\\C"},
                 {"/foo/..", "/", "\\"},
                 {".", "", ""},
@@ -580,7 +580,7 @@ public class PathTest {
 
     @DataProvider(name = "split_data")
     public Object[][] getSplitDataset() {
-        return new Object[][] {
+        return new Object[][]{
                 {"/A/B/C", "A,B,C", "A,B,C"},
                 {"/foo/..", "foo,..", "foo,.."},
                 {".", ".", "."},
@@ -620,61 +620,61 @@ public class PathTest {
 
     @DataProvider(name = "posix_file_parts")
     public Object[][] getPosixFileParts() {
-        return new Object[][] {
-                {new String[] {}, ""},
-                {new String[] {""}, ""},
-                {new String[] {"/"}, "/"},
-                {new String[] {"a"}, "a"},
-                {new String[] {"A", "B", "C"}, "A/B/C"},
-                {new String[] {"a", ""}, "a"},
-                {new String[] {"", "b"}, "b"},
-                {new String[] {"/", "a"}, "/a"},
-                {new String[] {"/", "a/b"}, "/a/b"},
-                {new String[] {"/", ""}, "/"},
-                {new String[] {"//", "a"}, "/a"},
-                {new String[] {"/a", "b"}, "/a/b"},
-                {new String[] {"a/", "b"}, "a/b"},
-                {new String[] {"a/", ""}, "a"},
-                {new String[] {"", ""}, ""},
-                {new String[] {"/", "a", "b"}, "/a/b"},
-                {new String[] {"C:\\", "test", "data\\eat"}, "C:\\/test/data\\eat"},
-                {new String[] {"C:", "test", "data\\eat"}, "C:/test/data\\eat"}
+        return new Object[][]{
+                {new String[]{}, ""},
+                {new String[]{""}, ""},
+                {new String[]{"/"}, "/"},
+                {new String[]{"a"}, "a"},
+                {new String[]{"A", "B", "C"}, "A/B/C"},
+                {new String[]{"a", ""}, "a"},
+                {new String[]{"", "b"}, "b"},
+                {new String[]{"/", "a"}, "/a"},
+                {new String[]{"/", "a/b"}, "/a/b"},
+                {new String[]{"/", ""}, "/"},
+                {new String[]{"//", "a"}, "/a"},
+                {new String[]{"/a", "b"}, "/a/b"},
+                {new String[]{"a/", "b"}, "a/b"},
+                {new String[]{"a/", ""}, "a"},
+                {new String[]{"", ""}, ""},
+                {new String[]{"/", "a", "b"}, "/a/b"},
+                {new String[]{"C:\\", "test", "data\\eat"}, "C:\\/test/data\\eat"},
+                {new String[]{"C:", "test", "data\\eat"}, "C:/test/data\\eat"}
         };
     }
 
     @DataProvider(name = "windows_file_parts")
     public Object[][] getWindowsFileParts() {
-        return new Object[][] {
-                {new String[] {"directory", "file"}, "directory\\file"},
-                {new String[] {"C:\\Windows\\", "System32"}, "C:\\Windows\\System32"},
-                {new String[] {"C:\\Windows\\", ""}, "C:\\Windows"},
-                {new String[] {"C:\\", "Windows"}, "C:\\Windows"},
-                {new String[] {"C:", "a"}, "C:a"},
-                {new String[] {"C:", "a\\b"}, "C:a\\b"},
-                {new String[] {"C:", "a", "b"}, "C:a\\b"},
-                {new String[] {"C:", "", "b"}, "C:b"},
-                {new String[] {"C:", "", "", "b"}, "C:b"},
-                {new String[] {"C:", ""}, "C:"},
-                {new String[] {"C:", "", ""}, "C:"},
-                {new String[] {"C:.", "a"}, "C:\\a"},
-                {new String[] {"C:a", "b"}, "C:a\\b"},
-                {new String[] {"C:a", "b", "d"}, "C:a\\b\\d"},
-                {new String[] {"\\\\host\\share", "foo"}, "\\\\host\\share\\foo"},
-                {new String[] {"\\\\host\\share\\foo"}, "\\\\host\\share\\foo"},
-                {new String[] {"//host/share", "foo/bar"}, "\\\\host\\share\\foo\\bar"},
-                {new String[] {"\\"}, "\\"},
-                {new String[] {"\\", ""}, "\\"},
-                {new String[] {"\\", "a"}, "\\a"},
-                {new String[] {"\\", "a", "b"}, "\\a\\b"},
-                {new String[] {"\\", "\\\\a\\b", "c"}, "\\a\\b\\c"},
-                {new String[] {"\\\\a", "b", "c"}, "error"},
-                {new String[] {"\\\\a\\", "b", "c"}, "error"},
+        return new Object[][]{
+                {new String[]{"directory", "file"}, "directory\\file"},
+                {new String[]{"C:\\Windows\\", "System32"}, "C:\\Windows\\System32"},
+                {new String[]{"C:\\Windows\\", ""}, "C:\\Windows"},
+                {new String[]{"C:\\", "Windows"}, "C:\\Windows"},
+                {new String[]{"C:", "a"}, "C:a"},
+                {new String[]{"C:", "a\\b"}, "C:a\\b"},
+                {new String[]{"C:", "a", "b"}, "C:a\\b"},
+                {new String[]{"C:", "", "b"}, "C:b"},
+                {new String[]{"C:", "", "", "b"}, "C:b"},
+                {new String[]{"C:", ""}, "C:"},
+                {new String[]{"C:", "", ""}, "C:"},
+                {new String[]{"C:.", "a"}, "C:\\a"},
+                {new String[]{"C:a", "b"}, "C:a\\b"},
+                {new String[]{"C:a", "b", "d"}, "C:a\\b\\d"},
+                {new String[]{"\\\\host\\share", "foo"}, "\\\\host\\share\\foo"},
+                {new String[]{"\\\\host\\share\\foo"}, "\\\\host\\share\\foo"},
+                {new String[]{"//host/share", "foo/bar"}, "\\\\host\\share\\foo\\bar"},
+                {new String[]{"\\"}, "\\"},
+                {new String[]{"\\", ""}, "\\"},
+                {new String[]{"\\", "a"}, "\\a"},
+                {new String[]{"\\", "a", "b"}, "\\a\\b"},
+                {new String[]{"\\", "\\\\a\\b", "c"}, "\\a\\b\\c"},
+                {new String[]{"\\\\a", "b", "c"}, "error"},
+                {new String[]{"\\\\a\\", "b", "c"}, "error"},
         };
     }
 
     @DataProvider(name = "ext_parts")
     public Object[] getExtensionsSet() {
-        return new Object[][] {
+        return new Object[][]{
                 {"path.bal", "bal", "bal"},
                 {"path.pb.bal", "bal", "bal"},
                 {"a.pb.bal/b", "", ""},
@@ -686,8 +686,8 @@ public class PathTest {
     }
 
     @DataProvider(name = "relative_tests")
-    public  Object[][] getRelativeSet() {
-        return new Object[][] {
+    public Object[][] getRelativeSet() {
+        return new Object[][]{
                 {"a/b", "a/b", ".", "."},
                 {"a/b/.", "a/b", ".", "."},
                 {"a/b", "a/b/.", ".", "."},
@@ -740,7 +740,7 @@ public class PathTest {
 
     @DataProvider(name = "match_test")
     public Object[] getMatchesSet() {
-        return new Object[][] {
+        return new Object[][]{
                 {"abc", "abc", "true", "true"},
                 {"*", "abc", "true", "true"},
                 {"*c", "abc", "true", "true"},

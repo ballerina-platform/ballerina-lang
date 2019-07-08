@@ -18,17 +18,17 @@ public function main (string... args) {
     error err = error(args[0]);
     secureFunction(err, err);
 
-    error err1 = error("Reason", { message: args[0] });
+    error err1 = error("Reason", message = args[0]);
     secureFunction(err1, err1);
 
     secureFunction1(err.reason(), err.reason());
     secureFunction1(err.detail(), err.detail());
 }
 
-public function secureFunction (@sensitive error secureIn, error insecureIn) {
+public function secureFunction (@untainted error secureIn, error insecureIn) {
 
 }
 
-public function secureFunction1 (@sensitive any secureIn, any insecureIn) {
+public function secureFunction1 (@untainted any secureIn, any insecureIn) {
 
 }

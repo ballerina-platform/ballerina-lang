@@ -140,8 +140,8 @@ public type TimeWindow object {
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events = [];
+                        returns @tainted [StreamEvent?, StreamEvent?][] {
+        [StreamEvent?, StreamEvent?][] events = [];
         int i = 0;
         foreach var e in self.expiredEventQueue.asArray() {
             if (e is StreamEvent) {
@@ -150,11 +150,11 @@ public type TimeWindow object {
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
                     if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
-                        events[i] = (lshEvent, rhsEvent);
+                        events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }
                 } else {
-                    events[i] = (lshEvent, rhsEvent);
+                    events[i] = [lshEvent, rhsEvent];
                     i += 1;
                 }
             }

@@ -79,7 +79,7 @@ public type HttpCachingClient client object {
 
     public string url = "";
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
     public HttpCache cache;
     public CacheConfig cacheConfig = {};
 
@@ -92,7 +92,7 @@ public type HttpCachingClient client object {
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
         var httpSecureClient = createHttpSecureClient(url, config);
-        if (httpSecureClient is Client) {
+        if (httpSecureClient is HttpClient) {
             self.httpClient = httpSecureClient;
         } else {
             panic httpSecureClient;
@@ -125,7 +125,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(string path, RequestMessage message = ()) returns Response|error {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted (Response|error) {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
@@ -157,7 +157,7 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(string httpMethod, string path, RequestMessage message) returns Response|error {
+    public remote function execute(string httpMethod, string path, RequestMessage message) returns @tainted (Response|error) {
         Request request = <Request>message;
         setRequestCacheControlHeader(request);
 
@@ -216,7 +216,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(string path, RequestMessage message = ()) returns Response|error {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted (Response|error) {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
@@ -246,7 +246,7 @@ public type HttpCachingClient client object {
     # + path - Request path
     # + request - The HTTP request to be forwarded
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(string path, Request request) returns Response|error {
+    public remote function forward(string path, @tainted Request request) returns @tainted (Response|error) {
         if (request.method == GET || request.method == HEAD) {
             return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
                                      self.cacheConfig.isShared, true);
@@ -318,7 +318,7 @@ public type HttpCachingClient client object {
 # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
 # + return - An `HttpCachingClient` instance which wraps the base `Client` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns Client|error {
+                                                                                      returns HttpClient|error {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
@@ -326,8 +326,8 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-function getCachedResponse(HttpCache cache, Client httpClient, Request req, string httpMethod, string path,
-                           boolean isShared, boolean forwardRequest) returns Response|error {
+function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Request req, string httpMethod, string path,
+                           boolean isShared, boolean forwardRequest) returns @tainted (Response|error) {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 
@@ -339,7 +339,7 @@ function getCachedResponse(HttpCache cache, Client httpClient, Request req, stri
         });
 
         updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
-        setAgeHeader(cachedResponse);
+        setAgeHeader(<@untainted> cachedResponse);
 
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
@@ -392,15 +392,15 @@ function getCachedResponse(HttpCache cache, Client httpClient, Request req, stri
         if (cache.isAllowedToCache(response)) {
             response.requestTime = currentT.time;
             response.receivedTime = time:currentTime().time;
-            cache.put(getCacheKey(httpMethod, path), req.cacheControl, response);
+            cache.put(<@untainted> getCacheKey(httpMethod, path), <@untainted> req.cacheControl, <@untainted> response);
         }
     }
     return response;
 }
 
-function getValidationResponse(Client httpClient, Request req, Response cachedResponse, HttpCache cache,
+function getValidationResponse(HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
-                                                                                returns Response|error {
+                                                                                returns @tainted Response|error {
     // If the no-cache directive is set, always validate the response before serving
     Response validationResponse = new; // TODO: May have to make this Response?
 
@@ -420,7 +420,7 @@ function getValidationResponse(Client httpClient, Request req, Response cachedRe
     // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present and
     // origin server couldn't be reached.
     updateResponseTimestamps(cachedResponse, currentT.time, time:currentTime().time);
-    setAgeHeader(cachedResponse);
+    setAgeHeader(<@untainted> cachedResponse);
     if (!isFreshResponse) {
         // If the origin server cannot be reached and a fresh response is unavailable, serve a stale
         // response (unless it is prohibited through a directive).
@@ -454,7 +454,7 @@ function getValidationResponse(Client httpClient, Request req, Response cachedRe
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function handle304Response(Response validationResponse, Response cachedResponse, HttpCache cache, string path,
-                           string httpMethod) returns Response|error {
+                           string httpMethod) returns @tainted Response|error {
     if (validationResponse.hasHeader(ETAG)) {
         string etag = validationResponse.getHeader(ETAG);
 
@@ -463,7 +463,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             Response[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
 
             foreach var resp in matchingCachedResponses {
-                updateResponse(resp, validationResponse);
+                updateResponse(resp, <@untainted> validationResponse);
             }
             log:printDebug("304 response received, with a strong validator. Response(s) updated");
             return cachedResponse;
@@ -484,7 +484,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
     if (!cachedResponse.hasHeader(ETAG) && !cachedResponse.hasHeader(LAST_MODIFIED) &&
                                                         !validationResponse.hasHeader(LAST_MODIFIED)) {
         log:printDebug("304 response received and stored response do not have validators. Updating the stored response.");
-        updateResponse(cachedResponse, validationResponse);
+        updateResponse(<@untainted> cachedResponse, validationResponse);
     }
 
     log:printDebug("304 response received, but stored responses were not updated.");
@@ -542,7 +542,7 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
     return STALE;
 }
 
-function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns boolean {
+function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns @tainted boolean {
     int currentAge = getResponseAge(cachedResponse);
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
     return freshnessLifetime > currentAge;
@@ -587,7 +587,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(Client httpClient, string path, Response cachedResponse) returns Response|error {
+function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
@@ -603,7 +603,7 @@ function sendValidationRequest(Client httpClient, string path, Response cachedRe
     return httpClient->get(path, message = validationRequest);
 }
 
-function sendNewRequest(Client httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
+function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
                                                                                 returns Response|error {
     if (forwardRequest) {
         return httpClient->forward(path, request);
@@ -619,11 +619,11 @@ function sendNewRequest(Client httpClient, Request request, string path, string 
 }
 
 function setAgeHeader(Response cachedResponse) {
-    cachedResponse.setHeader(AGE, "" + calculateCurrentResponseAge(cachedResponse));
+    cachedResponse.setHeader(<@untainted> AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse));
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
-function calculateCurrentResponseAge(Response cachedResponse) returns int {
+function calculateCurrentResponseAge(Response cachedResponse) returns @tainted int {
     int ageValue = getResponseAge(cachedResponse);
     int dateValue = getDateValue(cachedResponse);
     int now = time:currentTime().time;
@@ -668,13 +668,13 @@ function isAStrongValidator(string etag) returns boolean {
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders(Response cachedResponse, Response validationResponse) {
-    string[] headerNames = untaint validationResponse.getHeaderNames();
+    string[] headerNames = <@untainted> validationResponse.getHeaderNames();
 
     log:printDebug("Updating response headers using validation response.");
 
     foreach var headerName in headerNames {
         cachedResponse.removeHeader(headerName);
-        string[] headerValues = validationResponse.getHeaders(headerName);
+        string[] headerValues = <@untainted> validationResponse.getHeaders(headerName);
         foreach var value in headerValues {
             cachedResponse.addHeader(headerName, value);
         }
@@ -683,7 +683,7 @@ function replaceHeaders(Response cachedResponse, Response validationResponse) {
 
 function retain2xxWarnings(Response cachedResponse) {
     if (cachedResponse.hasHeader(WARNING)) {
-        string[] warningHeaders = cachedResponse.getHeaders(WARNING);
+        string[] warningHeaders = <@untainted> cachedResponse.getHeaders(WARNING);
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach var warningHeader in warningHeaders {
@@ -698,7 +698,7 @@ function retain2xxWarnings(Response cachedResponse) {
     }
 }
 
-function getResponseAge(Response cachedResponse) returns int {
+function getResponseAge(Response cachedResponse) returns @tainted int {
     if (!cachedResponse.hasHeader(AGE)) {
         return 0;
     }

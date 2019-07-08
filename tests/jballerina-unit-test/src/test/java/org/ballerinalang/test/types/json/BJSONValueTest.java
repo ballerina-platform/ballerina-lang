@@ -394,9 +394,9 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "b");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: failed to get element from json: " +
-                    "\\{\"message\":\"array index out of range: index: 5, size: 3\"\\}.*")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
+                  "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }
@@ -555,7 +555,7 @@ public class BJSONValueTest {
     public void testDecimalArrayToJsonAssignment() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalArrayToJsonAssignment");
         Assert.assertTrue(returns[0] instanceof BNewArray);
-        Assert.assertEquals(returns[0].stringValue(), "[1.3, 1.234, 4.1, 4.54]");
+        Assert.assertEquals(returns[0].stringValue(), "[1.3, 1.234, 4.1, 4.540000000000000035527136788005009]");
         Assert.assertTrue(returns[1] instanceof BDecimal);
         Assert.assertEquals(((BDecimal) returns[1]).decimalValue(), new BigDecimal("1.234", MathContext.DECIMAL128));
     }

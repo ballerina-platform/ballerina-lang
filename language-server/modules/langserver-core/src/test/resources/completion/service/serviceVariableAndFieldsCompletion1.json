@@ -1,30 +1,50 @@
 {
-    "position": {
-        "line": 5,
-        "character": 21
-    },
-    "source": "service/source/serviceVariableAndFieldsCompletion1.bal",
-    "items": [
-        {
-            "label":"serviceFunc()",
-            "kind":"Function",
-            "detail":"Function",
-            "documentation":{
-                "right":{
-                    "kind":"markdown",
-                    "value":"**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n"
-                }
-            },
-            "sortText":"121",
-            "insertText":"serviceFunc();",
-            "insertTextFormat":"Snippet"
-        },
-        {
-            "label":"testVal",
-            "kind":"Variable",
-            "detail":"int",
-            "sortText":"221",
-            "insertText":"testVal"
+  "position": {
+    "line": 5,
+    "character": 21
+  },
+  "source": "service/source/serviceVariableAndFieldsCompletion1.bal",
+  "items": [
+    {
+      "label": "sayHello(http:Caller caller, http:Request request)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
-    ]
+      },
+      "insertText": "sayHello(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "serviceFunc()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "serviceFunc(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testVal",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "testVal",
+      "insertTextFormat": "Snippet"
+    }
+  ]
 }

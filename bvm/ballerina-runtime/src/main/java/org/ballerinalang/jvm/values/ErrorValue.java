@@ -49,7 +49,8 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     public ErrorValue(String reason, Object details) {
         super(reason);
-        this.type = new BErrorType(TypeConstants.ERROR, null, BTypes.typeString, TypeChecker.getType(details));
+        this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
+                BTypes.typeString, TypeChecker.getType(details));
         this.reason = reason;
         this.details = details;
     }

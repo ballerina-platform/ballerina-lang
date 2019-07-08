@@ -94,9 +94,9 @@ function tableJoinFunc() {
         [], (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "symbol": e.data["tb.symbol"],
-                "tweet": e.data["twitterStream.tweet"],
-                "price": e.data["tb.price"]
+                "symbol": e.get("tb.symbol"),
+                "tweet": e.get("twitterStream.tweet"),
+                "price": e.get("tb.price")
             };
         }
     );
@@ -108,7 +108,7 @@ function tableJoinFunc() {
         function (streams:StreamEvent s) returns map<anydata>[] {
             map<anydata>[] result = [];
             int i = 0;
-            foreach var r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
+            foreach var r in queryStocksTable(<string>s.get("twitterStream.company"), 1) {
                 result[i] = <map<anydata>>map<anydata>.convert(r);
                 i += 1;
             }

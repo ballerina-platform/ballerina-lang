@@ -62,7 +62,7 @@ public type BirChannelReader object {
         if (bType is BType){
             return bType;
         }
-        error err = error("reference to non existing bType " + index );
+        error err = error(io:sprintf("reference to non existing bType '%s' at %d", bType, index));
         panic err;
     }
 
@@ -70,11 +70,11 @@ public type BirChannelReader object {
     // following methods "proxied" since ballerina doesn't support obj inheritance yet
 
     public function readBoolean() returns boolean {
-        return self.reader.readBoolean();
+        return untaint self.reader.readBoolean();
     }
 
     public function readInt8() returns int {
-        return self.reader.readInt8();
+        return untaint self.reader.readInt8();
     }
 
     public function readInt32() returns int {
@@ -91,6 +91,6 @@ public type BirChannelReader object {
     }
 
     public function readByteArray(int len) returns byte[] {
-        return self.reader.readByteArray(len);
+        return untaint self.reader.readByteArray(len);
     }
 };

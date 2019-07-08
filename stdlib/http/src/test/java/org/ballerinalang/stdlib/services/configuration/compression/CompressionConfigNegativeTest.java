@@ -39,7 +39,7 @@ public class CompressionConfigNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "incompatible types: expected 'AUTO|ALWAYS|NEVER', found 'string'");
+                            "incompatible types: expected '(AUTO|ALWAYS|NEVER)', found 'string'");
     }
 
     @Test(description = "Test the compilation error for multiple compression configs")

@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -25,8 +27,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -87,9 +87,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 //            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
 //                            null, observerContext, signatureParams);
             //TODO this is temp fix till we get the service.start() API
-            Executor.submit(wsService.getBalService(), balResource.getName(),
-                            new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService), null,
-                            signatureParams);
+            Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+                            balResource.getName(), new OnUpgradeResourceCallableUnitCallback(
+                            webSocketHandshaker, wsService), null, signatureParams);
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
         }
@@ -108,7 +108,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         @Override
         public void notifySuccess() {
             if (!webSocketHandshaker.isCancelled() && !webSocketHandshaker.isHandshakeStarted()) {
-                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
+                WebSocketUtil.handleHandshake(wsService, connectionManager, null,
+                                              webSocketHandshaker, null);
             } else {
                 if (!webSocketHandshaker.isCancelled()) {
                     AttachedFunction onOpenResource = wsService.getResourceByName(

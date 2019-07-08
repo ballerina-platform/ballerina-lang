@@ -26,7 +26,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public function absolute(@sensitive string path) returns string|error = external;
+public function absolute(@untainted string path) returns string|error = external;
 
 # Returns path separator of underline operating system.
 #
@@ -105,7 +105,7 @@ public function parent(string path) returns string|error {
     }
     int offset;
     string root;
-    (root, offset) = check getRoot(validatedPath);
+    [root, offset] = check getRoot(validatedPath);
     if (len < offset) {
         return root;
     }
@@ -129,7 +129,7 @@ public function normalize(string path) returns string|error {
 
     string root;
     int offset;
-    (root, offset) = check getRoot(validatedPath);
+    [root, offset] = check getRoot(validatedPath);
     string c0 = check charAt(path, 0);
 
     int i = 0;
@@ -290,13 +290,13 @@ public function relative(string base, string target) returns string|error {
     }
     string baseRoot;
     int baseOffset;
-    (baseRoot, baseOffset) = check getRoot(cleanBase);
+    [baseRoot, baseOffset] = check getRoot(cleanBase);
     string targetRoot;
     int targetOffset;
-    (targetRoot, targetOffset) = check getRoot(cleanTarget);
+    [targetRoot, targetOffset] = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
-        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", { message: "Can't make: " + target
-        + " relative to " + base});
+        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", message = "Can't make: " + target
+        + " relative to " + base);
         return err;
     }
     int b0 = baseOffset;
@@ -325,8 +325,8 @@ public function relative(string base, string target) returns string|error {
         t0 = ti;
     }
     if (cleanBase.substring(b0, bi) == "..") {
-        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", { message: "Can't make: " + target
-        + " relative to " + base});
+        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", message = "Can't make: " + target
+        + " relative to " + base);
         return err;
     }
     if (b0 != bl) {
@@ -354,7 +354,7 @@ public function relative(string base, string target) returns string|error {
 #
 # + path - String value of file path.
 # + return - Resolved file path
-public function resolve(@sensitive string path) returns string|error = external;
+public function resolve(@untainted string path) returns string|error = external;
 
 # Reports whether all of filename matches the provided pattern, not just a substring.
 # An error is returned if the pattern is malformed.
@@ -375,7 +375,7 @@ function parse(string input) returns string|error {
     if (isWindows) {
         int offset = 0;
         string root = "";
-        (root, offset) = check getRoot(input);
+        [root, offset] = check getRoot(input);
         return root + check parseWindowsPath(input, offset);
     } else {
         int n = input.length();
@@ -396,7 +396,7 @@ function parse(string input) returns string|error {
     }
 }
 
-function getRoot(string input) returns (string,int)|error {
+function getRoot(string input) returns [string,int]|error {
     if (isWindows) {
         return getWindowsRoot(input);
     } else {
@@ -459,7 +459,7 @@ function charAt(string input, int index) returns string|error {
     int length = input.length();
     if (index > length) {
         error err = error("{ballerina/filepath}INVALID_OPERATION",
-        { message: io:sprintf("Character index %d is greater then path string length %d", index, length) });
+            message = io:sprintf("Character index %d is greater then path string length %d", index, length));
         return err;
     }
     return input.substring(index, index + 1);

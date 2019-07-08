@@ -38,6 +38,10 @@ public class CommonKeys {
 
     public static final String CLOSE_PARENTHESES_KEY = ")";
 
+    public static final String OPEN_BRACKET_KEY = "[";
+
+    public static final String CLOSE_BRACKET_KEY = "]";
+
     public static final String PKG_DELIMITER_KEYWORD = ":";
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";

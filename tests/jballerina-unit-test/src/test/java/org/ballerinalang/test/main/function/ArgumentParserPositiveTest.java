@@ -118,7 +118,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_tuple_param.bal"), false, true);
         resetTempOut();
-        runMain(programFile, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
+        runMain(programFile, new String[]{"[101, {\"name\":\"Maryam\"}, \"finance\"]"});
         Assert.assertEquals(tempOutStream.toString(), "Id: 101, Name: Maryam, Dept: finance",
                             "string arg parsed as invalid tuple");
     }

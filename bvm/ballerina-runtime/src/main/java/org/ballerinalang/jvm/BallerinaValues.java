@@ -45,16 +45,37 @@ public class BallerinaValues {
         return valueCreator.createRecordValue(recordTypeName);
     }
 
+    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
+            Map<String, Object> valueMap) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
+        MapValue<String, Object> record = valueCreator.createRecordValue(recordTypeName);
+        BRecordType recordType = (BRecordType) record.getType();
+        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            mapValue.put(fieldEntry.getKey(), valueMap.get(fieldEntry.getKey()));
+        }
+        return mapValue;
+    }
+
     /**
      * Method that creates a runtime object value using the given package name and object type name.
      *
      * @param pkgName the name of the package that the record type resides.
      * @param objectTypeName name of the object type.
+     * @param fieldValues values to be used for fields when creating the object value instance.
      * @return value of the object.
      */
-    public static ObjectValue createObjectValue(String pkgName, String objectTypeName) {
+    public static ObjectValue createObjectValue(String pkgName, String objectTypeName, Object... fieldValues) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
-        return valueCreator.createObjectValue(objectTypeName);
+        Object[] fields = new Object[fieldValues.length * 2];
+
+        // Adding boolean values for each arg
+        for (int i = 0, j = 0; i < fieldValues.length; i++) {
+            fields[j++] = fieldValues[i];
+            fields[j++] = true;
+        }
+        //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
+        return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
     }
 
     /**
@@ -66,7 +87,7 @@ public class BallerinaValues {
      */
     public static MapValue<String, Object> createRecord(MapValue<String, Object> record, Object... values) {
         BRecordType recordType = (BRecordType) record.getType();
-        MapValue mapValue = new MapValueImpl(recordType);
+        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;
         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
             mapValue.put(fieldEntry.getKey(), values[i++]);

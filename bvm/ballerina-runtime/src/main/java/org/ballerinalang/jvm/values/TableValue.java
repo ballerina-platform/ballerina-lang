@@ -281,6 +281,10 @@ public class TableValue implements RefValue, CollectionValue {
         return iterator.getArray(columnIndex);
     }
 
+    public DecimalValue getDecimal(int columnIndex) {
+        throw new UnsupportedOperationException();
+    }
+
     public List<ColumnDefinition> getColumnDefs() {
         return iterator.getColumnDefinitions();
     }
@@ -424,4 +428,5 @@ public class TableValue implements RefValue, CollectionValue {
             this.freezeStatus = freezeStatus;
         }
     }
+
 }

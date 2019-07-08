@@ -216,7 +216,10 @@ public type TypeParser object {
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
-        obj.initFunction = self.parseRecordInitFunction();
+        boolean isInitFuncAvailable = self.readInt8() == 1;
+        if (isInitFuncAvailable) {
+            obj.initFunction = self.parseRecordInitFunction();
+        }
         return obj;
     }
 
@@ -264,6 +267,7 @@ public type TypeParser object {
             constructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
+
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();
@@ -273,8 +277,8 @@ public type TypeParser object {
             BServiceType bServiceType = {oType: obj};
             return bServiceType;
         }
-        return obj;
 
+        return obj;
     }
 
     function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
@@ -310,7 +314,6 @@ public type TypeParser object {
             fields[c] = self.parseObjectField();
             c = c + 1;
         }
-
         return fields;
     }
 
@@ -365,13 +368,15 @@ public type TypeParser object {
         return finiteType;
     }
 
-    private function getValue(BType valueType) returns (int | string | boolean | float | byte| ()) {
+    private function getValue(BType valueType) returns (int | string | boolean | float | byte| () | Decimal) {
         if (valueType is BTypeInt) {
             return self.readIntCpRef();
         } else if (valueType is BTypeByte) {
             return self.readByteCpRef();
-        } else if (valueType is BTypeString || valueType is BTypeDecimal) {
+        } else if (valueType is BTypeString) {
             return self.readStringCpRef();
+        } else if (valueType is BTypeDecimal) {
+            return {value: self.readStringCpRef()};
         } else if (valueType is BTypeBoolean) {
             return self.readInt8() == 1;
         } else if (valueType is BTypeFloat) {

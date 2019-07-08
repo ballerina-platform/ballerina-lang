@@ -167,9 +167,10 @@ public class OpenRecordTest {
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/record/record_literal_with_attached_functions_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
+        BAssertUtil.validateError(result, 1, "outside object method definitions are not allowed", 7, 1);
+        BAssertUtil.validateError(result, 2, "undefined symbol 'self'", 8, 12);
     }
 
     @Test(description = "Test addition of different types for default rest field type")
@@ -441,7 +442,7 @@ public class OpenRecordTest {
         Assert.assertTrue(miscInfo.getRefValue(2) instanceof BMap);
 
         Assert.assertEquals(person.stringValue(),
-                "{name:\"Foo\", age:25, misc:(5.9, \"Bar\", {kind:\"Cat\", name:\"Miaw\"})}");
+                "{name:\"Foo\", age:25, misc:[5.9, \"Bar\", {kind:\"Cat\", name:\"Miaw\"}]}");
     }
 
     @Test(description = "Test non-existent tuple rest field RHS access", expectedExceptions =

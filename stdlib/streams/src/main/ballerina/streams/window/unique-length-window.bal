@@ -169,8 +169,8 @@ public type UniqueLengthWindow object {
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events = [];
+                        returns @tainted [StreamEvent?, StreamEvent?][] {
+        [StreamEvent?, StreamEvent?][] events = [];
         int i = 0;
         foreach var e in self.expiredEventChunk.asArray() {
             if(e is StreamEvent) {
@@ -179,11 +179,11 @@ public type UniqueLengthWindow object {
 
                 if(conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
                     if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
-                        events[i] = (lshEvent, rhsEvent);
+                        events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }
                 } else {
-                    events[i] = (lshEvent, rhsEvent);
+                    events[i] = [lshEvent, rhsEvent];
                     i += 1;
                 }
             }
@@ -196,7 +196,7 @@ public type UniqueLengthWindow object {
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         map<SnapshottableStreamEvent> uMap = {};
-        foreach var (k, v) in self.uniqueMap {
+        foreach var [k, v] in self.uniqueMap {
             uMap[k] = toSnapshottableEvent(v);
         }
         return {
@@ -218,7 +218,7 @@ public type UniqueLengthWindow object {
         var uMap = state["uMap"];
         if (uMap is map<SnapshottableStreamEvent>) {
             self.uniqueMap = {};
-            foreach var (k, v) in uMap {
+            foreach var [k, v] in uMap {
                 self.uniqueMap[k] = toStreamEvent(v);
             }
         }

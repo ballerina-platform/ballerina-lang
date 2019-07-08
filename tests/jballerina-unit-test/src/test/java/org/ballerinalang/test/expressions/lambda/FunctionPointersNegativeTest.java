@@ -52,7 +52,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "function invocation on type 'anydata|error' is not supported", 17, 16);
+        BAssertUtil.validateError(result, 0, "function invocation on type '(anydata|error)' is not supported", 17, 16);
     }
 
     @Test()

@@ -18,9 +18,10 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
+    // implementation project(':ballerina-core')
+    implementation project(':ballerina-jvm')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation 'org.hdrhistogram:HdrHistogram'
     testCompile 'org.testng:testng'

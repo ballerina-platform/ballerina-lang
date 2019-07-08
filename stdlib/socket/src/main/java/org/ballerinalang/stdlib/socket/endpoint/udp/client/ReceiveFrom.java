@@ -20,10 +20,11 @@ package org.ballerinalang.stdlib.socket.endpoint.udp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -58,25 +59,31 @@ public class ReceiveFrom implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
-        int expectedLength = (int) context.getIntArgument(0);
-        if (expectedLength != DEFAULT_EXPECTED_READ_LENGTH && expectedLength < 1) {
-            String msg = "Requested byte length need to be 1 or more";
-            callback.notifyFailure(SocketUtils.createSocketError(context, msg));
-            return;
-        }
-        DatagramChannel socket = (DatagramChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        int socketHash = socket.hashCode();
-        SocketService socketService = (SocketService) clientEndpoint.getNativeData(SocketConstants.SOCKET_SERVICE);
-        ReadPendingCallback readPendingCallback = new ReadPendingCallback(context, callback, expectedLength, socketHash,
-                socketService.getReadTimeout());
-        ReadPendingSocketMap.getInstance().add(socket.hashCode(), readPendingCallback);
-        log.debug("Notify to invokeRead");
-        SelectorManager.getInstance().invokeRead(socketHash, false);
     }
 
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object receiveFrom(Strand strand, ObjectValue client, long length) {
+        final NonBlockingCallback callback = new NonBlockingCallback(strand);
+        if (length == 0) {
+            length = DEFAULT_EXPECTED_READ_LENGTH;
+        }
+        if (length != DEFAULT_EXPECTED_READ_LENGTH && length < 1) {
+            String msg = "Requested byte length need to be 1 or more";
+            callback.notifyFailure(SocketUtils.createSocketError(msg));
+            return null;
+        }
+        DatagramChannel socket = (DatagramChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
+        int socketHash = socket.hashCode();
+        SocketService socketService = (SocketService) client.getNativeData(SocketConstants.SOCKET_SERVICE);
+        ReadPendingCallback readPendingCallback = new ReadPendingCallback(callback, (int) length, socketHash,
+                socketService.getReadTimeout());
+        ReadPendingSocketMap.getInstance().add(socket.hashCode(), readPendingCallback);
+        log.debug("Notify to invokeRead");
+        SelectorManager.getInstance().invokeRead(socketHash, false);
+        return null;
     }
 }

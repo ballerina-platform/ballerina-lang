@@ -1,13 +1,13 @@
 {
   "position": {
     "line": 5,
-    "character": 28
+    "character": 29
   },
   "expected": {
     "result": {
       "signatures": [
         {
-          "label": "contains(string substring)",
+          "label": "string.contains(string substring)",
           "documentation": {
             "right": {
               "kind": "markdown",

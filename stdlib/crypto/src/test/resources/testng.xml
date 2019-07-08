@@ -20,26 +20,18 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <listeners>
-        <listener class-name="org.ballerinalang.stdlib.crypto.util.JBallerinaTestInitializer"/>
-    </listeners>
+
     <test name="ballerina-crypto-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
 
-        <classes>
-            <!--TODO: Enable all when error return in BRunUtil is fixed-->
-            <class name="org.ballerinalang.stdlib.crypto.CryptoTest">
-                <methods>
-                    <exclude name="testEncryptRsaEcbWithPrivateKeyPkcs1WithInvalidPadding"/>
-                    <exclude name="testHmacNegativeInvalidKey"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.stdlib.crypto.KeyParsingTest">
-                <methods>
-                    <exclude name="testParsingEncryptedPrivateKeyFromInvalidLocation"/>
-                    <exclude name="testParsingPublicKeyFromInvalidLocation"/>
-                </methods>
-            </class>
-        </classes>
+        <packages>
+            <package name="org.ballerinalang.stdlib.crypto.*"/>
+        </packages>
     </test>
 </suite>

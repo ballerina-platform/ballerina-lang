@@ -25,7 +25,10 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-builtin')
+
+    bir project(path: ':ballerina-utils', configuration: 'bir')
 }
+
 
 createBalo {
     jvmTarget = 'true'

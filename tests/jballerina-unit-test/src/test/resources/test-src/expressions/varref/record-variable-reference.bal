@@ -23,10 +23,10 @@ type Person record {|
     string name;
     boolean married;
     Age age;
-    (string, int) extra?;
+    [string, int] extra?;
 |};
 
-function testVariableAssignment() returns (string, boolean, int, string) {
+function testVariableAssignment() returns [string, boolean, int, string] {
     string fName;
     boolean married;
     int theAge;
@@ -34,7 +34,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
-    return (fName, married, theAge, format);
+    return [fName, married, theAge, format];
 }
 
 function getPerson() returns Person {
@@ -56,14 +56,14 @@ type Some record {
     string? var2;
 };
 
-function testRecVarRefInsideRecVarRefInsideRecVarRef() returns (map<int>, int|float, string, string?) {
+function testRecVarRefInsideRecVarRefInsideRecVarRef() returns [map<int>, int|float, string, string?] {
     map<int> fooVar1;
     int|float barVar1;
     string someVar1;
     string? someVar2;
 
     {var1: fooVar1, var2: {var1: barVar1, var2: {var1: someVar1, var2: someVar2}}} = getFoo();
-    return (fooVar1, barVar1, someVar1, someVar2);
+    return [fooVar1, barVar1, someVar1, someVar2];
 }
 
 function getFoo() returns Foo {
@@ -84,25 +84,25 @@ function testRestParam() returns map<anydata|error> {
     return rest;
 }
 
-function testRecordTypeInRecordVarRef() returns (map<any>, int|float, Some) {
+function testRecordTypeInRecordVarRef() returns [map<any>, int|float, Some] {
     map<int> fooVar1;
     int|float barVar1;
     Some var2;
 
     {var1: fooVar1, var2: {var1: barVar1, var2}} = getFoo();
-    return (fooVar1, barVar1, var2);
+    return [fooVar1, barVar1, var2];
 }
 
 type Student record {
     string name;
-    (int, int, int) dob;
+    [int, int, int] dob;
     byte gender;
 };
 
-function testTupleVarRefInRecordVarRef() returns (string, (int, int, int), byte, string, int, int, int) {
-    Student st1 = {name: "Mark", dob: (1, 1, 1990), gender: 1};
+function testTupleVarRefInRecordVarRef() returns [string, [int, int, int], byte, string, int, int, int] {
+    Student st1 = {name: "Mark", dob: [1, 1, 1990], gender: 1};
     string name;
-    (int, int, int) dob;
+    [int, int, int] dob;
     byte gender;
     string sName;
     int a;
@@ -110,8 +110,8 @@ function testTupleVarRefInRecordVarRef() returns (string, (int, int, int), byte,
     int c;
 
     {name, dob, gender} = st1;
-    {name: sName, dob: (a, b, c)} = st1;
-    return (name, dob, gender, sName, a, b, c);
+    {name: sName, dob: [a, b, c]} = st1;
+    return [name, dob, gender, sName, a, b, c];
 }
 
 type Parent record {
@@ -122,13 +122,13 @@ type Parent record {
 
 type Child record {
     string name;
-    (int, Age) yearAndAge;
+    [int, Age] yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map<anydata|error>) {
-    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
-    (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
-    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+function testRecordInsideTupleInsideRecord() returns [string[], string, map<anydata|error>] {
+    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
+    [int, Age] yearAndAge2 = [1994, {age: 24, format: "x"}];
+    [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
     Child ch1 = {name: "A", yearAndAge: yearAndAge1};
     Child ch2 = {name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "C", yearAndAge: yearAndAge3};
@@ -139,13 +139,13 @@ function testRecordInsideTupleInsideRecord() returns (string[], string, map<anyd
 
     Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
     {namesOfChildren, children, ...child} = parent;
-    return (namesOfChildren, children[0].name, child);
+    return [namesOfChildren, children[0].name, child];
 }
 
-function testRecordInsideTupleInsideRecord2() returns (string, int, int, string) {
-    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
-    (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
-    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+function testRecordInsideTupleInsideRecord2() returns [string, int, int, string] {
+    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
+    [int, Age] yearAndAge2 = [1994, {age: 24, format: "x"}];
+    [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
     Child ch1 = {name: "A", yearAndAge: yearAndAge1};
     Child ch2 = {name: "B", yearAndAge: yearAndAge2};
     Child ch3 = {name: "C", yearAndAge: yearAndAge3};
@@ -158,16 +158,16 @@ function testRecordInsideTupleInsideRecord2() returns (string, int, int, string)
     string format;
 
     Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
-    {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
-    return (name, yearInt, age, format);
+    {namesOfChildren, children, child: {name, yearAndAge: [yearInt, {age, format}]}} = parent;
+    return [name, yearInt, age, format];
 }
 
-function testFieldAndIndexBasedVarRefs() returns (anydata, anydata) {
-    (int, Age) yearAndAge3 = (2002, {age: 22, format: "Z"});
+function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
+    [int, Age] yearAndAge3 = [2002, {age: 22, format: "Z"}];
     Child ch3 = {name: "D", yearAndAge: yearAndAge3};
     map<anydata> m = {};
-    {name: m.var1, yearAndAge: (m["var2"], _)} = ch3;
-    return (m.var1, m.var2);
+    {name: m.var1, yearAndAge: [m["var2"], _]} = ch3;
+    return [m.var1, m.var2];
 }
 
 type Object object {
@@ -194,7 +194,7 @@ type ObjectRestRecord record {|
     Object...;
 |};
 
-function testRestParameterType() returns (boolean, boolean) {
+function testRestParameterType() returns [boolean, boolean] {
     string name;
     map<anydata|error> other1 = {};
     map<any|error> other2 = {};
@@ -208,7 +208,7 @@ function testRestParameterType() returns (boolean, boolean) {
     any a1 = other1;
     any a2 = other2;
 
-    return (a1 is map<anydata|error>, a2 is map<any>);
+    return [a1 is map<anydata|error>, a2 is map<any>];
 }
 
 // TODO: Uncomment below tests once record literal is supported with var ref

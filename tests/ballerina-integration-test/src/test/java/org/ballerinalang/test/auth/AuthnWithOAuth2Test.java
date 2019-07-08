@@ -31,7 +31,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnWithOAuth2Test extends AuthBaseTest {
 
-    private final int servicePort = 9116;
+    private final int servicePort = 9117;
 
     @Test(description = "Test inbound OAuth2 success with valid token")
     public void testOAuth2SuccessTest() throws Exception {

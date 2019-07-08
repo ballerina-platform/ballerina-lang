@@ -72,18 +72,27 @@ public class BallerinaErrors {
                                                     TypeChecker.getType(inputValue), targetType));
     }
 
-    static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
+    public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
 
     }
 
-    static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
+    public static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorMessage(
                                   RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                   TypeChecker.getType(inputValue), inputValue, targetType));
+    }
+
+    public static ErrorValue createNumericConversionError(Object inputValue, BType inputType, BType targetType) {
+        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
+    }
+
+    static String getErrorMessageFromDetail(MapValueImpl<String, Object> detailMap) {
+        return (String) detailMap.get(ERROR_MESSAGE_FIELD);
     }
 
     public static ErrorValue createCancelledFutureError() {

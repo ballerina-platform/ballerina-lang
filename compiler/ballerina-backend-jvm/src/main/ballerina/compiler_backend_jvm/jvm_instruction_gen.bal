@@ -95,6 +95,8 @@ type InstructionGenerator object {
             self.generateClosedRangeIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
             self.generateClosedRangeIns(binaryIns);
+        } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
+            self.generateAnnotAccessIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
             self.generateBitwiseAndIns(binaryIns);
         } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
@@ -357,6 +359,17 @@ type InstructionGenerator object {
         self.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
+    function generateAnnotAccessIns(bir:BinaryOp binaryIns) {
+        self.loadVar(binaryIns.rhsOp1.variableDcl);
+        self.loadVar(binaryIns.rhsOp2.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
+            io:sprintf("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
+
+        bir:BType targetType = binaryIns.lhsOp.variableDcl.typeValue;
+        addUnboxInsn(self.mv, targetType);
+        self.storeToVar(binaryIns.lhsOp.variableDcl);
+    }
+
     function generateAddIns(bir:BinaryOp binaryIns) {
         bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -558,16 +571,16 @@ type InstructionGenerator object {
 
     function generateMapNewIns(bir:NewMap mapNewIns) {
         bir:BType typeOfMapNewIns = mapNewIns.bType;
-
         string className = MAP_VALUE_IMPL;
 
         if (typeOfMapNewIns is bir:BRecordType) {
             var typeRef = mapNewIns.typeRef;
-            className = self.currentPackageName;
             if (typeRef is bir:TypeRef) {
-                className = typeRefToClassName(typeRef) + "/";
+                className = typeRefToClassName(typeRef, cleanupTypeName(typeOfMapNewIns.name.value));
+            } else {
+                className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
             }
-            className = className + cleanupTypeName(typeOfMapNewIns.name.value);
+
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
             if (typeRef is bir:TypeRef) {
@@ -793,30 +806,30 @@ type InstructionGenerator object {
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    function generateObjectNewIns(bir:NewInstance objectNewIns) {
+    function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
-        string className = self.currentPackageName;
+        string className;
         if (typeDefRef is bir:TypeRef) {
-            className = typeRefToClassName(typeDefRef) + "/";
+            className = typeRefToClassName(typeDefRef, typeDefRef.name.value);
+        } else {
+            className = self.currentPackageName + cleanupTypeName(typeDefRef.name.value);
         }
-        className = className + cleanupTypeName(typeDef.name.value);
+
+
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
-        loadExternalOrLocalType(self.mv, typeDefRef);
+
+        bir:BType typeValue = typeDef.typeValue;
+        if (typeValue is bir:BServiceType) {
+            // For services, create a new type for each new service value. TODO: do only for local vars
+            duplicateServiceTypeWithAnnots(self.mv, typeValue.oType, typeDef, self.currentPackageName, strandIndex);
+        } else {
+            loadExternalOrLocalType(self.mv, typeDefRef);
+        }
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.storeToVar(objectNewIns.lhsOp.variableDcl);
-
-        if (typeDef.typeValue is bir:BServiceType) {
-            string varName = "#0"; // assuming #0 is the annotation data map
-            string pkgClassName = lookupGlobalVarClassName(self.currentPackageName + varName);
-            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
-            loadExternalOrLocalType(self.mv, typeDef);
-            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
-                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
-        }
     }
 
     function generateFPLoadIns(bir:FPLoad inst) {
@@ -824,7 +837,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string methodClass = lookupFullQualifiedClassName(self.currentPackageName + inst.name.value);
+        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
@@ -851,7 +865,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = [inst, methodClass];
+        lambdas[lambdaName] = (inst, methodClass);
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
@@ -1064,6 +1078,14 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
     } else if (varDcl.kind == bir:VAR_KIND_SELF) {
         mv.visitVarInsn(ALOAD, 0);
         return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+        return;
     }
 
     if (bType is bir:BTypeInt) {
@@ -1105,9 +1127,17 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
 function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
     bir:BType bType = varDcl.typeValue;
 
-    if (varDcl.kind == "GLOBAL") {
+    if (varDcl.kind == bir:VAR_KIND_GLOBAL) {
         string varName = varDcl.name.value;
         string className = lookupGlobalVarClassName(currentPackageName + varName);
+        string typeSig = getTypeDesc(bType);
+        mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
+        return;
+    } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
+        string varName = varDcl.name.value;
+        bir:ModuleID moduleId = varDcl.moduleId;
+        string pkgName = getPackageName(moduleId.org, moduleId.name);
+        string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
         mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
         return;
