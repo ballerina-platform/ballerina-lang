@@ -165,7 +165,7 @@ sourceOnlyAttachPointIdent
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
+    :   annotationAttachment* workerDefinition LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 workerDefinition

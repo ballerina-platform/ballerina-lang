@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -1013,10 +1014,12 @@ public class BLangPackageBuilder {
         addExpressionNode(arrowFunctionNode);
     }
 
-    void markLastInvocationAsAsync(DiagnosticPos pos) {
+    void markLastInvocationAsAsync(DiagnosticPos pos, int numAnnotations) {
         final ExpressionNode expressionNode = this.exprNodeStack.peek();
         if (expressionNode.getKind() == NodeKind.INVOCATION) {
-            ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+            BLangInvocation invocation = (BLangInvocation) this.exprNodeStack.peek();
+            invocation.async = true;
+            attachAnnotations(invocation, numAnnotations);
         } else {
             dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
         }
@@ -1484,7 +1487,7 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
-    void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async) {
+    void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, int numAnnotations) {
         BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
@@ -1492,6 +1495,7 @@ public class BLangPackageBuilder {
         invocationExpr.async = async;
 
         invocationExpr.expr = (BLangExpression) exprNodeStack.pop();
+        attachAnnotations(invocationExpr, numAnnotations);
         exprNodeStack.push(invocationExpr);
     }
 
@@ -1667,7 +1671,7 @@ public class BLangPackageBuilder {
         this.startBlock();
     }
 
-    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
+    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail, int numAnnotations) {
         // Merge worker definition whitespaces and worker declaration whitespaces.
         if (this.workerDefinitionWSStack.size() > 0 && ws != null) {
             ws.addAll(this.workerDefinitionWSStack.pop());
@@ -1691,7 +1695,7 @@ public class BLangPackageBuilder {
         createSimpleVariableReference(pos, null);
         startInvocationNode(null);
         createInvocationNode(pos, null, BLangBuiltInMethod.CALL.toString(), false, false);
-        markLastInvocationAsAsync(pos);
+        markLastInvocationAsAsync(pos, numAnnotations);
         addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
     }
 
