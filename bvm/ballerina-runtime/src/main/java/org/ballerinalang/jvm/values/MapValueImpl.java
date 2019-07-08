@@ -155,23 +155,33 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 return super.get(key);
             }
 
-            // The type should be a BRecordType, since this is expected to be called only for records with optional
-            // fields.
-            Map fields = ((BRecordType) this.type).getFields();
-            if (!fields.containsKey(key)) {
-                // Panic if this record type does not contain a key by the specified name.
-                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
-                        key + "'");
+            BType expectedType = null;
+
+            // The type should be a record or map for filling read.
+            if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType recordType = (BRecordType) this.type;
+                Map fields = recordType.getFields();
+                if (fields.containsKey(key)) {
+                    expectedType = ((BField) fields.get(key)).type;
+                } else {
+                    if (recordType.sealed) {
+                        // Panic if this record type does not contain a key by the specified name.
+                        throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                                          "cannot find key '" + key + "'");
+                    }
+                    expectedType = recordType.restFieldType;
+                }
+            } else {
+                expectedType = ((BMapType) this.type).getConstrainedType();
             }
 
-            BField expectedField = (BField) fields.get(key);
-            if (!TypeChecker.hasFillerValue(expectedField.type)) {
+            if (!TypeChecker.hasFillerValue(expectedType)) {
                 // Panic if the field does not have a filler value.
-                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR, "cannot find key '" +
-                        key + "'");
+                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                                  "cannot find key '" + key + "'");
             }
 
-            Object value = expectedField.type.getZeroValue();
+            Object value = expectedType.getZeroValue();
             this.put((K) key, (V) value);
             return (V) value;
         } finally {

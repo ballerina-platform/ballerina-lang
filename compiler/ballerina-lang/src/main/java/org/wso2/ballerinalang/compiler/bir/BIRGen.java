@@ -1212,7 +1212,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
         emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
-                keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess));
+                keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
+                                              astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }

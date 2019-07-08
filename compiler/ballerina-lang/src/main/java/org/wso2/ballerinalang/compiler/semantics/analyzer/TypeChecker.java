@@ -3126,8 +3126,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             if (((BRecordType) recordType).sealed) {
-                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                        recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
                 return symTable.semanticError;
             }
 
@@ -3240,8 +3240,8 @@ public class TypeChecker extends BLangNodeVisitor {
         fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, objectType.tsymbol);
 
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                    objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                       objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
             return symTable.semanticError;
         }
 
@@ -3591,7 +3591,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // name in all records.
             actualType = checkRecordFieldAccessLhsExpr(fieldAccessExpr, varRefType, fieldName);
             if (actualType == symTable.semanticError) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
                            varRefType.tsymbol.type.getKind().typeName(), varRefType);
             }
         } else if (types.isLax(varRefType)) {
@@ -3745,9 +3745,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     }
 
-                    if (indexBasedAccessExpr.lhsVar
-                            && indexBasedAccessExpr.expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
-                            && indexBasedAccessExpr.expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                    if (indexBasedAccessExpr.lhsVar) {
                         dlog.error(indexBasedAccessExpr.pos,
                                    DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
                                    indexBasedAccessExpr.expr.type);
@@ -3766,6 +3764,13 @@ public class TypeChecker extends BLangNodeVisitor {
             if (indexExpr.type != symTable.semanticError) {
                 actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
             }
+
+            if (actualType == symTable.semanticError) {
+                dlog.error(indexBasedAccessExpr.indexExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
+                           ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
+                return symTable.semanticError;
+            }
+
             indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
             indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
         } else if (types.isSubTypeOfList(varRefType)) {
@@ -3780,15 +3785,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
             checkExpr(indexExpr, this.env);
             actualType = symTable.xmlType;
-        } else if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
-            indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-        } else {
-            indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                       indexBasedAccessExpr.expr.type);
         }
 
         if (actualType == symTable.semanticError) {
+            checkExpr(indexExpr, this.env, symTable.semanticError);
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                       indexBasedAccessExpr.expr.type);
             return actualType;
         }
 

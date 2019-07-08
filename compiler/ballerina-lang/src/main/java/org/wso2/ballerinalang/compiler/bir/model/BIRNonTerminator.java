@@ -288,15 +288,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         }
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
-                           BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean optionalFieldAccess) {
-            super(pos, kind);
-            this.lhsOp = lhsOp;
-            this.keyOp = keyOp;
-            this.rhsOp = rhsOp;
-            this.optionalFieldAccess = optionalFieldAccess;
-        }
-
-        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean optionalFieldAccess,
                            boolean fillingRead) {
             super(pos, kind);

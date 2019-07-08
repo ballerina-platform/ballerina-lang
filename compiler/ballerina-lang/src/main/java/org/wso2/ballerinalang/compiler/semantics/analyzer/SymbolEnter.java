@@ -1894,7 +1894,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveObjectField(varNode.pos, env, varName, objectTypeSumbol);
 
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
+            dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, varName,
                        env.enclType.type.getKind().typeName(), env.enclType.type.tsymbol.name);
         }
 
