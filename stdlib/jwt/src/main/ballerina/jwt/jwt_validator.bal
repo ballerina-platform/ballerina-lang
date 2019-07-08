@@ -30,7 +30,7 @@ import ballerina/time;
 # + jwtCache - Cache used to store parsed JWT information as CachedJwt
 public type JwtValidatorConfig record {|
     string issuer?;
-    string[] audience?;
+    string|string[] audience?;
     int clockSkew = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
@@ -240,7 +240,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
         }
     }
     var aud = config["audience"];
-    if (aud is string[]) {
+    if (aud is string || aud is string[]) {
         var audienceStatus = validateAudience(jwtPayload, config);
         if (audienceStatus is JwtError) {
             return audienceStatus;
@@ -348,18 +348,38 @@ function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) return
 }
 
 function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) returns JwtError? {
-    var aud = jwtPayload["aud"];
-    if (aud is string[]) {
-        boolean validationStatus = false;
-        foreach string audiencePayload in jwtPayload.aud {
-            validationStatus = matchAudience(audiencePayload, config);
-            if (validationStatus) {
-                break;
+    var audiencePayload = jwtPayload["aud"];
+    var audienceConfig = config.audience;
+    if (audiencePayload is string) {
+        if (audienceConfig is string) {
+            if (audiencePayload == audienceConfig) {
+                return ();
+            }
+        } else {
+            foreach string audience in audienceConfig {
+                if (audience == audiencePayload) {
+                    return ();
+                }
             }
         }
-        if (!validationStatus) {
-            return prepareJwtError("Invalid audience.");
+        return prepareJwtError("Invalid audience.");
+    } else if (audiencePayload is string[]) {
+        if (audienceConfig is string) {
+            foreach string audience in audiencePayload {
+                if (audience == audienceConfig) {
+                    return ();
+                }
+            }
+        } else {
+            foreach string audienceC in audienceConfig {
+                foreach string audienceP in audiencePayload {
+                    if (audienceC == audienceP) {
+                        return ();
+                    }
+                }
+            }
         }
+        return prepareJwtError("Invalid audience.");
     } else {
         return prepareJwtError("JWT must contain a valid audience.");
     }
