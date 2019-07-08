@@ -315,7 +315,7 @@ public class CallStatement extends AbstractSQLStatement {
                 }
                 break;
                 case Constants.SQLDataTypes.TIME: {
-                    Time value = stmt.getTime(index + 1, utcCalendar);
+                    Time value = stmt.getTime(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;

@@ -48,7 +48,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.sql.rowset.CachedRowSet;
@@ -61,17 +60,15 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class SQLDataIterator extends TableIterator {
 
-    private Calendar utcCalendar;
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
     private String sourceDatabase;
     private static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
 
-    public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
+    public SQLDataIterator(TableResourceManager rm, ResultSet rs,
             List<ColumnDefinition> columnDefs, BStructureType structType, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
-        this.utcCalendar = utcCalendar;
         this.sourceDatabase = databaseProductName;
     }
 
@@ -174,7 +171,7 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.TIME:
                         case Types.TIME_WITH_TIMEZONE:
-                            Time time = rs.getTime(index, utcCalendar);
+                            Time time = rs.getTime(index);
                             handleDateValue(bStruct, fieldName, time, fieldType);
                             break;
                         case Types.TIMESTAMP:

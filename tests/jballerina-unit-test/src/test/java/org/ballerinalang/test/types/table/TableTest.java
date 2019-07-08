@@ -399,7 +399,8 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result,  "testDateTimeAsTimeStruct");
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
+        Assert.assertEquals(((BInteger) returns[2]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[3]).intValue());
         Assert.assertEquals(((BInteger) returns[4]).intValue() - getTimezoneOffSet(),
                 ((BInteger) returns[5]).intValue());
         Assert.assertEquals(((BInteger) returns[6]).intValue() - getTimezoneOffSet(),
@@ -761,7 +762,8 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableTimeType");
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
+        Assert.assertEquals(((BInteger) returns[2]).intValue() - getTimezoneOffSet(),
+                ((BInteger) returns[3]).intValue());
         Assert.assertEquals(((BInteger) returns[4]).intValue() - getTimezoneOffSet(),
                 ((BInteger) returns[5]).intValue());
         Assert.assertEquals(((BInteger) returns[6]).intValue() - getTimezoneOffSet(),
@@ -1135,7 +1137,7 @@ public class TableTest {
             DateFormat dfTime = new SimpleDateFormat("HH:mm:ss.SSS");
             String timeReturned = returns[1].stringValue();
             long timeReturnedEpoch = dfTime.parse(timeReturned).getTime();
-            Assert.assertEquals(timeReturnedEpoch, timeInserted);
+            Assert.assertEquals(timeReturnedEpoch, timeInserted - getTimezoneOffSet());
 
             DateFormat dfTimestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             String timestampReturned = returns[2].stringValue();
@@ -1155,7 +1157,7 @@ public class TableTest {
         Assert.assertEquals(dateReturnedEpoch, dateInserted);
 
         long timeReturnedEpoch = ((BInteger) returns[1]).intValue();
-        Assert.assertEquals(timeReturnedEpoch, timeInserted);
+        Assert.assertEquals(timeReturnedEpoch, timeInserted - getTimezoneOffSet());
 
         long timestampReturnedEpoch = ((BInteger) returns[2]).intValue();
         Assert.assertEquals(timestampReturnedEpoch, timestampInserted - getTimezoneOffSet());
