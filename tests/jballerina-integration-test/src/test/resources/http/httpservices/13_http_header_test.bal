@@ -27,7 +27,7 @@ service headerService on new http:Listener(9106) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP->get("/sample/stocks", message = untaint req);
+        var result = stockqEP->get("/sample/stocks", message = <@untainted> req);
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
@@ -113,7 +113,7 @@ service headerService on new http:Listener(9106) {
     }
 
     resource function passthruGet(http:Caller caller, http:Request req) {
-        var result = stockqEP->get("/sample/entitySizeChecker", message = untaint req);
+        var result = stockqEP->get("/sample/entitySizeChecker", message = <@untainted> req);
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
@@ -144,7 +144,7 @@ service quoteService1 on new http:Listener(9107) {
             payload = {"response":"core header not available"};
         }
         http:Response res = new;
-        res.setJsonPayload(untaint payload);
+        res.setJsonPayload(<@untainted> payload);
         checkpanic caller->respond(res);
     }
 

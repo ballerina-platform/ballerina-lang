@@ -82,7 +82,7 @@ service testRedirect on serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            checkpanic caller->respond(untaint value);
+            checkpanic caller->respond(<@untainted> value);
         } else {
             io:println("Connector error!");
         }
@@ -99,7 +99,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -119,7 +119,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -139,7 +139,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else  {
                 io:println("Payload error!");
             }
@@ -159,7 +159,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -179,7 +179,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -199,7 +199,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -221,7 +221,7 @@ service testRedirect on serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            checkpanic caller->respond(untaint value);
+            checkpanic caller->respond(<@untainted> value);
         } else {
             io:println("Connector error!");
         }
@@ -238,7 +238,7 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
                 io:println("Payload error!");
             }
@@ -334,7 +334,7 @@ service redirect1 on serviceEndpoint3 {
     resource function processQP(http:Caller caller, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        checkpanic caller->respond(untaint returnVal);
+        checkpanic caller->respond(<@untainted> returnVal);
     }
 }
 
