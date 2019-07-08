@@ -25,17 +25,12 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set the entity body with body parts.
@@ -52,12 +47,6 @@ import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 public class SetBodyParts extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BValueArray bodyParts = (BValueArray) context.getRefArgument(SECOND_PARAMETER_INDEX);
-        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        entityStruct.addNativeData(BODY_PARTS, bodyParts);
-        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-        context.setReturnValues();
     }
 
     public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {

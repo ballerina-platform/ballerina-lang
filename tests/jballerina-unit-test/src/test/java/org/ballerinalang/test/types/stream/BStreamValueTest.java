@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -232,9 +231,9 @@ public class BStreamValueTest {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableTupleTypeStream",
                                            new BValue[]{ s1, i1, s2, i2 });
         Assert.assertEquals(s1.stringValue(), returns[0].stringValue());
-        Assert.assertEquals(i1.floatValue(), ((BFloat) returns[1]).value());
+        Assert.assertEquals(i1.intValue(), ((BInteger) returns[1]).intValue());
         Assert.assertEquals(s2.stringValue(), returns[2].stringValue());
-        Assert.assertEquals(i2.floatValue(), ((BFloat) returns[3]).value());
+        Assert.assertEquals(i2.intValue(), ((BInteger) returns[3]).intValue());
     }
 
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")

@@ -1,10 +1,11 @@
 import ballerina/http;
 
-listener http:Listener helloWorldEP = new (9090);
+listener http:Listener helloWorldEP = new (19294);
 
 any globalLevelVariable = "";
 service sample on helloWorldEP {
     any serviceLevelVariable = "";
+    @tainted any taintedServiceVar = "";
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -16,6 +17,11 @@ service sample on helloWorldEP {
 
         self.serviceLevelVariable = foo;
         globalLevelVariable = foo;
+        sen(self.taintedServiceVar);
     }
+}
+
+function sen(@untainted any secureIn) {
+
 }
 
