@@ -45,6 +45,8 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
 
     long getDefaultableIntValue(String key);
 
+    V getOrThrow(Object key);
+
     V fillAndGet(Object key);
 
     K[] getKeys();
