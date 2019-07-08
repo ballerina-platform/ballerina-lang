@@ -132,7 +132,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (jsonHeader is json) {
         jwtHeaderJson = jsonHeader;
     } else {
-        return prepareJwtError("String to Json conversion failed for JWT header.", err = jsonHeader);
+        return prepareJwtError("String to JSON conversion failed for JWT header.", err = jsonHeader);
     }
 
     reader = new(jwtPayload);

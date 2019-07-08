@@ -74,7 +74,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
                     return prepareJwtError("Unsupported JWS algorithm.");
                 }
             } else {
-                return prepareJwtError("Private key decoiding failed.", err = privateKey);
+                return prepareJwtError("Private key decoding failed.", err = privateKey);
             }
         } else {
             return prepareJwtError("Signing JWT requires JwtIssuerConfig with keystore information.");
