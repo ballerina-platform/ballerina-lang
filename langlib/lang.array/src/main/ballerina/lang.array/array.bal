@@ -35,7 +35,7 @@ public function enumerate(Type[] arr) returns [int, Type][] = external;
 
 // Functional iteration
 
-public function ^"map"(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
+public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
 
 public function forEach(Type[] arr, function(Type val) returns () func) returns () = external;
 

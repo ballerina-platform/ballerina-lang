@@ -22,4 +22,4 @@ public const annotation tainted on parameter, return, source listener, source va
 public const annotation untainted on return, parameter, source type, source listener;
 
 # Denotes annotated type is a parametric type.
-public annotation typeParam on type;
+public const annotation typeParam on source type;
