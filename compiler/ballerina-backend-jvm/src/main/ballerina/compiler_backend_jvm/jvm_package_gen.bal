@@ -259,7 +259,7 @@ function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
         if (mappingPath.exists()) {
             var externalMap = readMap(mappingFile);
             foreach var (key,val) in externalMap {
-                externalMapCache[cleanupName(key)] = val;
+                externalMapCache[key] = val;
             }
         }
         compiledPkgCache[orgName + moduleName] = parsedPkg;
@@ -606,5 +606,5 @@ function isLangModule(bir:ModuleID moduleId) returns boolean{
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    return externalMapCache[pkgName + "/" + functionName];
+    return externalMapCache[cleanupName(pkgName) + "/" + functionName];
 }
