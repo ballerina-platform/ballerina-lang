@@ -262,9 +262,9 @@ public class MimeUtilityFunctionTest {
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteArrayMultipleTimes", args);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "ballerina");
-        Assert.assertEquals(new String(((BValueArray) returns[1]).getBytes()), "ballerina");
-        Assert.assertEquals(new String(((BValueArray) returns[2]).getBytes()), "ballerina");
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), content);
+        Assert.assertEquals(new String(((BValueArray) returns[1]).getBytes()), content);
+        Assert.assertEquals(new String(((BValueArray) returns[2]).getBytes()), content);
     }
 
     @Test(description = "Set file as entity body and get the content back as a byte array")
