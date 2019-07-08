@@ -34,7 +34,13 @@ import org.ballerinalang.nats.Constants;
 
 import java.io.IOException;
 import java.time.Duration;
+<<<<<<< HEAD
 import java.util.concurrent.atomic.AtomicInteger;
+=======
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+>>>>>>> be0dc302474dd7de9d8a67e124490da84b5acc7e
 
 /**
  * Establish a connection with NATS server.

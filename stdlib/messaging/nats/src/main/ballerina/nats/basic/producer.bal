@@ -27,7 +27,10 @@ public type Producer client object {
     # + c - An already established connection.
     public function __init(Connection c) {
         self.connection = c;
+        self.init(c);
     }
+
+    private function init(Connection c) = external;
 
     # Produces a message to a NATS basic server for the given subject.
     #

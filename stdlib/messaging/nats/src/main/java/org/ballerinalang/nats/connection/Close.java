@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Close a given connection in the NATS server.
@@ -60,7 +60,7 @@ public class Close extends BlockingNativeCallableUnit {
     }
 
     public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
-        ArrayList connectedList = (ArrayList) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
+        List connectedList = (List) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
         if (connectedList == null || connectedList.isEmpty() || TypeChecker.anyToBoolean(forceful)) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             try {
