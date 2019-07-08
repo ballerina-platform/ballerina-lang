@@ -32,10 +32,10 @@ service echo4 on echoEP5 {
         var payload = req.getTextPayload();
         network:Response resp = new;
         if (payload is string) {
-            checkpanic caller->respond(<@untainted> payload);
+            checkpanic caller->respond(untaint payload);
         } else {
             resp.statusCode = 500;
-            resp.setPayload(<@untainted> payload.reason());
+            resp.setPayload(untaint payload.reason());
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

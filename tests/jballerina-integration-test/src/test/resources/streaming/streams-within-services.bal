@@ -62,7 +62,7 @@ service StoreService bind storeServiceEndpoint {
         path:"/requests"
     }
     requests (endpoint conn, http:Request req) {
-        string hostName = <@untainted> req.getHeader("Host");
+        string hostName = untaint req.getHeader("Host");
         ClientRequest clientRequest = {host : hostName};
         requestStream.publish(clientRequest);
 

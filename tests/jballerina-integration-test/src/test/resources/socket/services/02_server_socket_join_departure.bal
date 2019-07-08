@@ -38,7 +38,7 @@ service echoServer on server {
                 io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
                 var str = characterChannel.read(20);
                 if (str is string) {
-                    io:println(<@untainted> str);
+                    io:println(untaint str);
                 } else {
                     io:println("Error: ", str.detail().message);
                 }

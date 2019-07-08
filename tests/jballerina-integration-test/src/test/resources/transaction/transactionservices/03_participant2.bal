@@ -110,7 +110,7 @@ service participant2 on participant2EP02 {
                 io:println(reg);
                 payload = reg.REGISTRATIONID;
             }
-           res.setTextPayload(<@untainted> payload);
+           res.setTextPayload(untaint payload);
         }
 
         checkpanic ep->respond(res);

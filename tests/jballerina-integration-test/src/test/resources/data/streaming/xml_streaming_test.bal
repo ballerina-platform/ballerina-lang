@@ -36,7 +36,7 @@ service dataService on dataServiceListener {
         if (selectRet is table<record {}>) {
             var xmlConversionRet = xml.convert(selectRet);
             if (xmlConversionRet is xml) {
-                var responseToCaller = caller->respond(<@untainted> xmlConversionRet);
+                var responseToCaller = caller->respond(untaint xmlConversionRet);
                 if (responseToCaller is error) {
                     log:printError("Error sending response", err = responseToCaller);
                 }

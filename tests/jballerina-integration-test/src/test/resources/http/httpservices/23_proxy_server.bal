@@ -42,8 +42,8 @@ service proxyService on new http:Listener(9219) {
         path:"/*"
     }
     resource function sayHello (http:Caller caller, http:Request req) {
-        string url = <@untainted> req.rawPath;
-        sendRequest(url, <@untainted> req, caller);
+        string url = untaint req.rawPath;
+        sendRequest(url, untaint req, caller);
     }
 }
 

@@ -39,7 +39,7 @@ service generalCases on ep {
         var result1 = priorOn->submit("GET", "/bogusResource", serviceReq);
         var result2 = priorOff->submit("GET", "/bogusResource", serviceReq);
         string response = handleResponse(result1) + "--" + handleResponse(result2);
-        checkpanic caller->respond(<@untainted> response);
+        checkpanic caller->respond(untaint response);
     }
 }
 

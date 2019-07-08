@@ -40,9 +40,9 @@ service backEndService on new http:Listener(9097) {
     resource function sendByteChannel(http:Caller caller, http:Request req) {
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            checkpanic caller->respond(<@untainted> byteChannel);
+            checkpanic caller->respond(untaint byteChannel);
         } else {
-            checkpanic caller->respond(<@untainted> byteChannel.reason());
+            checkpanic caller->respond(untaint byteChannel.reason());
         }
     }
 
@@ -58,37 +58,37 @@ service backEndService on new http:Listener(9097) {
                 if (mime:TEXT_PLAIN == baseType) {
                     var textValue = req.getTextPayload();
                     if (textValue is string) {
-                        checkpanic caller->respond(<@untainted> textValue);
+                        checkpanic caller->respond(untaint textValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> textValue.reason());
+                        checkpanic caller->respond(untaint textValue.reason());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
-                        checkpanic caller->respond(<@untainted> xmlValue);
+                        checkpanic caller->respond(untaint xmlValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> xmlValue.reason());
+                        checkpanic caller->respond(untaint xmlValue.reason());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
-                        checkpanic caller->respond(<@untainted> jsonValue);
+                        checkpanic caller->respond(untaint jsonValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> jsonValue.reason());
+                        checkpanic caller->respond(untaint jsonValue.reason());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
-                        checkpanic caller->respond(<@untainted> blobValue);
+                        checkpanic caller->respond(untaint blobValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> blobValue.reason());
+                        checkpanic caller->respond(untaint blobValue.reason());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
-                    checkpanic caller->respond(<@untainted> bodyParts);
+                    checkpanic caller->respond(untaint bodyParts);
                     } else {
-                    checkpanic caller->respond(<@untainted> bodyParts.reason());
+                    checkpanic caller->respond(untaint bodyParts.reason());
                     }
                 }
             } else {
@@ -144,7 +144,7 @@ service testService on new http:Listener(9098) {
                 value = value + result.reason();
             }
         }
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -166,7 +166,7 @@ service testService on new http:Listener(9098) {
             value = clientResponse.reason();
         }
 
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -204,7 +204,7 @@ service testService on new http:Listener(9098) {
                 value = value + result.reason();
             }
         }
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -224,7 +224,7 @@ service testService on new http:Listener(9098) {
                 value = result.reason();
             }
         }
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -235,7 +235,7 @@ service testService on new http:Listener(9098) {
         string value = "";
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            var res = clientEP2->post("/test1/byteChannel", <@untainted> byteChannel);
+            var res = clientEP2->post("/test1/byteChannel", untaint byteChannel);
             if (res is http:Response) {
                 var result = res.getTextPayload();
                 if (result is string) {
@@ -249,7 +249,7 @@ service testService on new http:Listener(9098) {
         } else {
             value = byteChannel.reason();
         }
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -298,6 +298,6 @@ service testService on new http:Listener(9098) {
         } else {
             value = res.reason();
         }
-        checkpanic caller->respond(<@untainted> value);
+        checkpanic caller->respond(untaint value);
     }
 }

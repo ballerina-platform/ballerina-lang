@@ -77,7 +77,7 @@ function isValidResponse(string expectedMsg) returns boolean {
 service ChatMessageListener = service {
 
     resource function onMessage(string message) {
-        responseMsg = <@untainted> message;
+        responseMsg = untaint message;
         io:println("Response received from server: " + responseMsg);
     }
 
