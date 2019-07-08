@@ -14,13 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type StringIterator object {
+
+    private string m;
+
+    public function __init(string m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        string value;
+    |}? = external;
+};
+
 public function length(string str) returns int = external;
 
 # Returns an iterator over the string
 # The iterator will return the substrings of length 1 in order.
 public function iterator(string str) returns abstract object {
-    public function next() returns record {| string value; |}?;
-} = external;
+    public function next() returns record {|
+        string value;
+    |}?;
+    } {
+    StringIterator stringIterator = new(str);
+    return stringIterator;
+}
 
 # Concatenate all the `strs`. Empty string if empty.
 public function concat(string... strs) returns string = external;

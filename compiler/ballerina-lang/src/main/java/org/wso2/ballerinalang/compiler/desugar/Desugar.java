@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -311,6 +312,7 @@ public class Desugar extends BLangNodeVisitor {
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -1985,6 +1987,7 @@ public class Desugar extends BLangNodeVisitor {
         // Get the symbol of the variable (collection).
         BVarSymbol collectionSymbol = dataVariable.symbol;
         switch (foreach.collection.type.tag) {
+            case TypeTags.STRING:
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.XML:
@@ -2060,6 +2063,8 @@ public class Desugar extends BLangNodeVisitor {
         // However, we are within the while loop. hence the $result$ can never be nil. Therefore
         // cast $result$ to non-nilable  type.
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach, resultSymbol);
+        valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
+                types.getSafeType(valueAccessExpr.expr.type, false));
 
         VariableDefinitionNode variableDefinitionNode = foreach.variableDefinitionNode;
         variableDefinitionNode.getVariable()
@@ -2081,6 +2086,7 @@ public class Desugar extends BLangNodeVisitor {
         blockNode.addStatement(resultVariableDefinition);
 
         // Add the while node to the block.
+
         blockNode.addStatement(whileNode);
         return blockNode;
     }

@@ -33,11 +33,12 @@ type ArrayIterator object {
 
     public function next() returns record {|
         Type value;
-    |}|() = external;
+    |}? = external;
 };
 
 public function length((any|error)[] arr) returns int = external;
 
+# Returns an iterator over the elements of `arr`.
 public function iterator(Type[] arr) returns abstract object {
     public function next() returns record {|
         Type value;

@@ -16,18 +16,17 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.map;
+package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,32 +35,32 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 
 /**
- * Native implementation of lang.map.MapIterator:next().
+ * Native implementation of lang.xml.XMLIterator:next().
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator", structPackage = "ballerina/lang.map"),
-        args = {@Argument(name = "m", type = TypeKind.OBJECT)},
+        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
+        args = {@Argument(name = "x", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
-        IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
+        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
-        if (mapIterator == null) {
-            mapIterator = ((MapValue) m.get("m")).getIterator();
-            m.addNativeData("&iterator&", mapIterator);
+        if (xmlIterator == null) {
+            xmlIterator = ((XMLValue) m.get("m")).getIterator();
+            m.addNativeData("&iterator&", xmlIterator);
         }
 
-        if (mapIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
+        if (xmlIterator.hasNext()) {
+            Object xmlValue = xmlIterator.next();
             BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
             BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.getValue(1));
+            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), xmlValue);
         }
 
         return null;

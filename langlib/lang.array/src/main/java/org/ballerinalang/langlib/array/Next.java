@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 
 /**
- * Native implementation of lang.mapIterator:next().
+ * Native implementation of lang.array.ArrayIterator:next().
  *
  * @since 1.0
  */

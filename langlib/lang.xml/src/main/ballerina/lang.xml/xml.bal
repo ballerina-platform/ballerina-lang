@@ -14,6 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type XMLIterator object {
+
+    private xml m;
+
+    public function __init(xml m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        (xml|string) value;
+    |}? = external;
+};
+
+# Returns an iterator over the xml items of `x`
+public function iterator(xml x) returns abstract object {
+    public function next() returns record {|
+        (xml|string) value;
+    |}?;
+    } {
+    XMLIterator xmlIterator = new(x);
+    return xmlIterator;
+}
 # Check whether the XML sequence contains only a single element.
 #
 # + x - The xml source

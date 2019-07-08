@@ -33,7 +33,7 @@ type MapIterator object {
 
     public function next() returns record {|
         Type value;
-    |}|() = external;
+    |}? = external;
 };
 
 # Returns number of members in `m`.
@@ -43,7 +43,7 @@ public function length(map<any|error> m) returns int = external;
 public function iterator(map<Type> m) returns abstract object {
     public function next() returns record {|
         Type value;
-    |}|();
+    |}?;
 } {
     MapIterator mapIterator = new(m);
     return mapIterator;

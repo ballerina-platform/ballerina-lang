@@ -915,6 +915,9 @@ public class Types {
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         BType varType;
         switch (collectionType.tag) {
+            case TypeTags.STRING:
+                varType = symTable.stringType;
+                break;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;
                 varType = arrayType.eType;
