@@ -16,8 +16,11 @@
  */
  
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
 
 configurations {
+    cliJars
     balx
     generatedBalx
 }
@@ -26,6 +29,16 @@ configurations.testCompileClasspath {
     resolutionStrategy {
         preferProjectModules()
     }
+}
+
+createBalo {
+    jvmTarget = 'true'
+}
+
+createBir {
+}
+
+createBirJar {
 }
 
 // Task to generate balx for the pull command.
@@ -107,6 +120,7 @@ configurations.testCompileClasspath {
 // }
 
 dependencies {
+    baloCreat project(':lib-creator')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-cache", configuration: 'baloImplementation')
@@ -142,24 +156,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 }
 
-//artifacts {
-//    balx file: file("src/main/ballerina/packaging_pull"), builtBy: genBalxForPull
-//    balx file: file("src/main/ballerina/packaging_push"), builtBy: genBalxForPush
-//    balx file: file("src/main/ballerina/packaging_search"), builtBy: genBalxForSearch
-//    balx file: file("src/main/ballerina/packaging_token_updater"), builtBy: genBalxForTokenUpdater
-//}
-
-jar {
-    from("$buildDir/generated-balx") {
-        into "META-INF/ballerina"
-    }
-
-    // The jar should be created after balxs for push, pull, search and token updater are created.
-    //dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
-}
-
-clean {
-    delete "$buildDir/generated-balx"
+artifacts {
+    cliJars file: file("$buildDir/generated-bir-jar"), builtBy: createBirJar
 }
 
 description = 'Ballerina - Cli Utils'

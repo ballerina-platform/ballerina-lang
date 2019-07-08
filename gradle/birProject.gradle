@@ -2,34 +2,37 @@ import org.gradle.internal.os.OperatingSystem;
 
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
-project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
-    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
-}.singleFile.name
-
-def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/"
-
+project.ext.modules = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
+    f.isDirectory() && f.getName() != 'target' && f.getName() != '.ballerina'
+}
 
 task copyExternalMappingNextToBir(type: Copy) {
     dependsOn compileJava
-    from "$buildDir/classes/java/main/META-INF/this.map.json"
-    into generatedBirDir
-    rename { project.ext.moduleName + ".map.json" }
+
+    project.ext.modules.each { File module ->
+        from "$buildDir/classes/java/main/META-INF/this.map.json"
+        into "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
+        rename { module.getName() + ".map.json" }
+    }
 }
 
 task createBir {
     dependsOn createBalo
 
     doLast {
-        copy {
-            def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip").matching {
-                include "**/*.bir"
-            }.files
-            from zipFile
-            into generatedBirDir
+        project.ext.modules.each { File module ->
+            def generatedBirDir = "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
+            copy {
+                def zipFile = zipTree("$buildDir/generated-balo/repo/ballerina/" + module.getName() + "/0.0.0/" + module.getName() + ".zip").matching {
+                    include "**/*.bir"
+                }.files
+                from zipFile
+                into generatedBirDir
+            }
         }
     }
 
-    inputs.file "$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip"
+    inputs.dir "$buildDir/generated-balo/repo/ballerina/"
     outputs.dir "$buildDir/generated-bir"
 }
 
@@ -38,45 +41,60 @@ task createBirAndMappings {
     dependsOn copyExternalMappingNextToBir
 }
 
-
-task createBirJar(type: Exec) {
+task createBirJar() {
     dependsOn configurations.birJarCompile
     dependsOn configurations.bir
     dependsOn createBir
     dependsOn createBirCache
     dependsOn copyExternalMappingNextToBir
-    
-    workingDir "$buildDir/generated-bir-jar"
 
-    onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
-        def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
-        if (!sourceSets.main.allJava.isEmpty()) {
-            mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
-        }
 
-        configurations.birJarCompile.each {
-            if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c',
+        project.ext.modules.each { File module ->
+            println "createBirJar: " + module.getName()
+            def generatedBirDir = "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
 
-                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+            if (file(generatedBirDir + module.getName() + '.bir').exists()) {
 
-                        generatedBirDir + project.ext.moduleName + '.bir',
-                        mapPath,
-                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-                        'false',
-                        "$buildDir/bir-cache"
-            } else {
-                commandLine 'sh',
+                println "MAP.JSON: " + generatedBirDir + module.getName() + '.map.json'
+                println generatedBirDir + module.getName() + '.map.json'
+                def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
+                if (!sourceSets.main.allJava.isEmpty()) {
+                    mapPath = generatedBirDir + module.name + '.map.json'
+                }
 
-                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                configurations.birJarCompile.each {
+                    def pack3 = it;
+                    println "BIR COMPILE: " + module.getAbsolutePath()
+                    if (OperatingSystem.current().isWindows()) {
+                        exec {
+                            workingDir "$buildDir/generated-bir-jar"
+                            commandLine 'cmd.exe', '/c',
 
-                        generatedBirDir + project.ext.moduleName + '.bir',
-                        mapPath,
-                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-                        'false',
-                        "$buildDir/bir-cache"
+                                        new File(pack3, '/bin/ballerina.bat'), 'run', new File(pack3, '/bin/compiler_backend_jvm.balx'),
+
+                                        generatedBirDir + module.getName() + '.bir',
+                                        mapPath,
+                                        "$buildDir/generated-bir-jar/" + module.getName() + ".jar",
+                                        'false',
+                                        "$buildDir/bir-cache"
+                        }
+                    } else {
+                        exec {
+                            workingDir "$buildDir/generated-bir-jar"
+                            commandLine 'sh',
+
+                                        new File(pack3, '/bin/ballerina'), 'run', new File(pack3, '/bin/compiler_backend_jvm.balx'),
+
+                                        generatedBirDir + module.getName() + '.bir',
+                                        mapPath,
+                                        "$buildDir/generated-bir-jar/" + module.name + ".jar",
+                                        'false',
+                                        "$buildDir/bir-cache"
+                        }
+                    }
+                }
             }
         }
     }
@@ -98,11 +116,13 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBirJar
 
-
-    classpath += files("$buildDir/generated-bir-jar/" + moduleName + ".jar")
+    project.ext.modules.each { File module ->
+        classpath += files("$buildDir/generated-bir-jar/" + module.name + ".jar")
+    }
 }
+
 
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createBirAndMappings) }
-    birJar file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), { builtBy(createBirJar) }
+    birJar file("$buildDir/generated-bir-jar/"), { builtBy(createBirJar) }
 }

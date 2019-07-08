@@ -119,6 +119,7 @@ dependencies {
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+    birJar  project(path: ':ballerina-cli-utils', configuration: 'cliJars')
 
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
@@ -157,7 +158,9 @@ def copyBirSpec = {
 
 def copyBirJarSpec = {
     path -> copySpec {
-        from configurations.birJar
+        from(configurations.birJar) {
+            include '**/*.jar'
+        }
         into(path + 'bre/lib')
     }
 }
