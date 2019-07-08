@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -338,6 +339,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
         });
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
+    }
+
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+            if (conversionExpr.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
+            }
+
+            annotationAttachment.accept(this);
+        });
+        validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
     @Override
@@ -2417,16 +2430,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
-            // object outer attached function must have a body
-            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            }
-
-            if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT, funcNode.name,
-                        funcNode.receiver.type);
-            }
-
+            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
             return;
         }
 

@@ -898,11 +898,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos currentPos = getCurrentPos(ctx);
 
         String restIdentifier = null;
+        DiagnosticPos restParamPos = null;
         if (ctx.errorRestBindingPattern() != null) {
             restIdentifier = ctx.errorRestBindingPattern().Identifier().getText();
+            restParamPos = getCurrentPos(ctx.errorRestBindingPattern());
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier);
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier, restParamPos);
     }
 
     @Override
@@ -928,8 +930,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String restIdentifier = null;
+        DiagnosticPos restParamPos = null;
         if (ctx.restMatchPattern() != null) {
             restIdentifier = ctx.restMatchPattern().Identifier().getText();
+            restParamPos = getCurrentPos(ctx.restMatchPattern());
         }
 
         String reasonIdentifier = null;
@@ -937,7 +941,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
         }
 
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, restIdentifier);
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, restIdentifier,
+                restParamPos);
     }
 
     @Override
@@ -2319,7 +2324,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx), getWS(ctx),
+                ctx.annotationAttachment().size(), ctx.typeName() != null);
     }
 
     @Override

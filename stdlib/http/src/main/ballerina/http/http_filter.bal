@@ -21,7 +21,7 @@ public type Filter abstract object {
     # not be dispatched to the next filter or the resource.
     #
     # + caller - The http caller
-    # + request - An inboud HTTP request message
+    # + request - An inbound HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean;

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class TCPSocketCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         String errorMsg = error.stringValue();
         if (log.isDebugEnabled()) {
             log.debug("Socket resource dispatch failed: " + errorMsg);
@@ -61,5 +61,6 @@ public class TCPSocketCallback implements CallableUnitCallback {
         } else {
             log.error("NotifyFailure hit twice, hence preventing error dispatching. Cause: " + errorMsg);
         }
+
     }
 }

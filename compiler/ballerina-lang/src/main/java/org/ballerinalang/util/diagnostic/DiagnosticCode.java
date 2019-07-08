@@ -76,6 +76,7 @@ public enum DiagnosticCode {
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
@@ -379,12 +380,18 @@ public enum DiagnosticCode {
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
-    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
-    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER("tainted.value.passed.to.untainted.parameter"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT(
+            "tainted.value.passed.to.untainted.param.in.obj.method"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    TAINTED_VALUE_PASSED_TO_MODULE_OBJECT("tainted.value.passed.to.module.object"),
+    INVOCATION_TAINT_GLOBAL_OBJECT("method.invocation.taint.global.object"),
     TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE("tainted.value.passed.to.closure.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_FOR_BUILTIN_METHOD("unable.to.perform.taint.checking.for.builtin.method"),
+    TAINTED_RETURN_NOT_ANNOTATED_TAINTED("tainted.return.not.annotated.tainted"),
+    TAINTED_PARAM_NOT_ANNOTATED_TAINTED("tainted.param.not.annotated.tainted"),
 
     // Constants related codes.
     ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),

@@ -105,7 +105,7 @@ service InitiatorService on coordinatorListener {
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;
-                    res.setJsonPayload(untaint resPayload);
+                    res.setJsonPayload(<@untainted json> resPayload);
                     var resResult = conn->respond(res);
                     if (resResult is error) {
                         log:printError("Sending response for register request for transaction " + txnId +
