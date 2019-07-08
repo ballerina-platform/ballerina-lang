@@ -36,52 +36,52 @@ public type Message object {
     # + key - The string property name
     # + value - The string property value
     # + return - Nil or a JMS error
-    public function setStringProperty(@sensitive string key, string value) returns error? = external;
+    public function setStringProperty(@untainted string key, string value) returns error? = external;
 
     # Gets a JMS transport string property from the message
     #
     # + key - The string property name
     # + return - The string property value, JMS error or nil if there is no property by this name
-    public function getStringProperty(@sensitive string key) returns @tainted string|error? = external;
+    public function getStringProperty(@untainted string key) returns @tainted string|error? = external;
 
     # Sets a JMS transport integer property from the message
     #
     # + key - The integer property name
     # + value - The integer property value
     # + return - Nil or a JMS error
-    public function setIntProperty(@sensitive string key, int value) returns error? = external;
+    public function setIntProperty(@untainted string key, int value) returns error? = external;
 
     # Gets a JMS transport integer property from the message
     #
     # + key - The integer property name
     # + return - The integer property value or JMS error
-    public function getIntProperty(@sensitive string key) returns @tainted int|error = external;
+    public function getIntProperty(@untainted string key) returns @tainted int|error = external;
 
     # Sets a JMS transport boolean property from the message
     #
     # + key - The boolean property name
     # + value - The boolean property value
     # + return - Nil or a JMS error
-    public function setBooleanProperty(@sensitive string key, boolean value) returns error? = external;
+    public function setBooleanProperty(@untainted string key, boolean value) returns error? = external;
 
     # Gets a JMS transport boolean property from the message
     #
     # + key - The boolean property name
     # + return - The boolean property value or JMS error
-    public function getBooleanProperty(@sensitive string key) returns @tainted boolean|error = external;
+    public function getBooleanProperty(@untainted string key) returns @tainted boolean|error = external;
 
     # Sets a JMS transport float property from the message
     #
     # + key - The float property name
     # + value - The float property value
     # + return - Nil or a JMS error
-    public function setFloatProperty(@sensitive string key, float value) returns error? = external;
+    public function setFloatProperty(@untainted string key, float value) returns error? = external;
 
     # Gets a JMS transport float property from the message
     #
     # + key - The float property name
     # + return - The float property value or JMS error
-    public function getFloatProperty(@sensitive string key) returns @tainted float|error = external;
+    public function getFloatProperty(@untainted string key) returns @tainted float|error = external;
 
     # Gets JMS transport header MessageID from the message
     #

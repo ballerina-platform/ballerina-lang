@@ -15,7 +15,5 @@
 // under the License.
 
 type Person object {
-    public function printName(string s) returns string;
+    public function printName(string s) returns string = external;
 };
-
-public function Person.printName(string s) returns string = external;

@@ -20,12 +20,11 @@ package org.ballerinalang.stdlib.socket.endpoint.udp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -59,28 +58,29 @@ public class SendTo extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
-        DatagramChannel socket = (DatagramChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        BValueArray content = (BValueArray) context.getRefArgument(1);
-        BMap<String, BValue> remoteAddress = (BMap<String, BValue>) context.getRefArgument(2);
-        BString host = (BString) remoteAddress.get(SocketConstants.CONFIG_FIELD_HOST);
-        BInteger port = (BInteger) remoteAddress.get(SocketConstants.CONFIG_FIELD_PORT);
+    }
+
+    public static Object sendTo(Strand strand, ObjectValue client, ArrayValue content,
+            MapValue<String, Object> address) {
+        DatagramChannel socket = (DatagramChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
+        String host = address.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
+        int port = address.getIntValue(SocketConstants.CONFIG_FIELD_PORT).intValue();
         byte[] byteContent = content.getBytes();
         if (log.isDebugEnabled()) {
             log.debug("No of byte going to write[" + socket.hashCode() + "]: " + byteContent.length);
         }
         try {
-            final InetSocketAddress remote = new InetSocketAddress(host.stringValue(), (int) port.intValue());
+            final InetSocketAddress remote = new InetSocketAddress(host, port);
             int write = socket.send(ByteBuffer.wrap(byteContent), remote);
             if (log.isDebugEnabled()) {
                 log.debug("No of byte written for the client[" + socket.hashCode() + "]: " + write);
             }
-            context.setReturnValues(new BInteger(write));
+            return write;
         } catch (ClosedChannelException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket close already."));
+            return SocketUtils.createSocketError("Client socket close already.");
         } catch (IOException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Write failed."));
             log.error("Unable to perform write[" + socket.hashCode() + "]", e);
+            return SocketUtils.createSocketError("Write failed.");
         }
     }
 }
