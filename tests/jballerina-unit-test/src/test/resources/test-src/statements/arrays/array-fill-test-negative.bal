@@ -90,3 +90,8 @@ function testIllegalTwoDimensionalArrayInsertion() returns (int|string|boolean)[
     x[1] = [1, 3];
     return x;
 }
+
+function testTwoDimensionalSealedArrayFill() {
+    int[][2] x = [];
+    x[1] = [1, 3];
+}
