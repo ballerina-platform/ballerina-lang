@@ -56,7 +56,7 @@ public type StringReader object {
     #
     # + nCharacters - read specific number of characters
     # + return - string or an error
-    public function readChar(int nCharacters) @tainted returns string|error? {
+    public function readChar(int nCharacters) returns @tainted string|error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
             return result.read(nCharacters);
