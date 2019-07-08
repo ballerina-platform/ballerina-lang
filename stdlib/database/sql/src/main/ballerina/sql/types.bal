@@ -72,7 +72,7 @@ public type GlobalPoolConfigContainer object {
 
      public function __init() {
          // poolConfig record is frozen so that it cannot be modified during runtime
-         PoolOptions frozenConfig = self.poolConfig.freeze();
+         PoolOptions frozenConfig = self.poolConfig.cloneReadOnly();
          self.initGlobalPoolContainer(frozenConfig);
      }
 
