@@ -21,16 +21,17 @@ description = 'Ballerina - Socket'
 
 dependencies {
     baloCreat project(':lib-creator')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
-    testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
+    testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
@@ -50,16 +51,5 @@ configurations {
 }
 
 createBalo {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-createBir {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-test {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
+    jvmTarget = 'true'
 }

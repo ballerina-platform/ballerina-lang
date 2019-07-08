@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/^"lang.int";
+import ballerina/'lang\.int;
 
 # Represents ActiveMQ Artemis Message.
 public type Message client object {
@@ -21,7 +21,7 @@ public type Message client object {
     private MessageType messageType = TEXT;
     private MessageConfiguration configuration;
 
-    public function __init(Session session, @sensitive MessageContent data, MessageConfiguration? config = ()) {
+    public function __init(Session session, @untainted MessageContent data, MessageConfiguration? config = ()) {
         if (config is MessageConfiguration) {
             self.configuration = config;
         } else {
@@ -68,7 +68,7 @@ public type Message client object {
     #
     # + key - The name of the property
     # + value - The value of the property
-    public function putProperty(string key, @sensitive string | int | float | boolean | byte | byte[] value) = external;
+    public function putProperty(string key, @untainted string | int | float | boolean | byte | byte[] value) = external;
 
     # Get a message property.
     #
@@ -93,7 +93,7 @@ public type Message client object {
     #
     # + ch - The byte channel to save to
     # + return - will return an `error` if the message is not of type `STREAM` or on failure
-    public function saveToWritableByteChannel(@sensitive io:WritableByteChannel ch) returns error? = external;
+    public function saveToWritableByteChannel(@untainted io:WritableByteChannel ch) returns error? = external;
 
     # Get the message configuration.
     #

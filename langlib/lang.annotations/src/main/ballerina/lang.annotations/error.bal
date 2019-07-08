@@ -14,4 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ^"error" error<string, record {| string message?; error cause?; (anydata|error)...; |}>;
+public type 'error error<string, record {| string message?; error cause?; (anydata|error)...; |}>;
