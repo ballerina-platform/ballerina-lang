@@ -32,7 +32,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.connection.DefaultErrorListener;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -68,9 +67,10 @@ public class Register extends BlockingNativeCallableUnit {
         Connection natsConnection =
                 (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.NATS_CONNECTION);
-        DefaultErrorListener errorListener =
-                (DefaultErrorListener) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
-                        .getNativeData(Constants.ERROR_LISTENER);
+        @SuppressWarnings("unchecked")
+        List<ObjectValue> serviceList =
+                (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
+                        .getNativeData(Constants.SERVICE_LIST);
         MapValue<String, Object> subscriptionConfig = getSubscriptionConfig(service.getType().getAnnotation(
                 "ballerina/nats", "SubscriptionConfig"));
         if (subscriptionConfig == null) {
@@ -94,7 +94,7 @@ public class Register extends BlockingNativeCallableUnit {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while registering the subscriber. " +
                     ex.getMessage());
         }
-        errorListener.addServiceObject(service);
+        serviceList.add(service);
         String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
         return null;

@@ -20,11 +20,21 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.nats.basic.consumer.DefaultMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
+
+import static org.ballerinalang.nats.Constants.NATS_ERROR_CODE;
+import static org.ballerinalang.nats.Utils.getMessageObject;
 
 /**
  * ConnectionListener to track the status of a {@link Connection Connection}.
@@ -35,6 +45,13 @@ public class DefaultConnectionListener implements ConnectionListener {
 
     private static final PrintStream console;
     private static final Logger LOG = LoggerFactory.getLogger(DefaultConnectionListener.class);
+    private final Scheduler scheduler;
+    private final List<ObjectValue> serviceList;
+
+    DefaultConnectionListener(Scheduler scheduler, List<ObjectValue> serviceList) {
+        this.scheduler = scheduler;
+        this.serviceList = serviceList;
+    }
 
     @Override
     public void connectionEvent(Connection conn, Events type) {
@@ -47,8 +64,13 @@ public class DefaultConnectionListener implements ConnectionListener {
             case CLOSED: {
                 String message = conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
                         "Connection closed.";
+                ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, message);
                 LOG.warn(message);
-                //strand.setReturnValues(BallerinaErrors.createError(NATS_ERROR_CODE, message));
+                for (ObjectValue service : serviceList) {
+                    Executor.submit(scheduler, service, "onError", new DefaultMessageHandler.ResponseCallback(), null,
+                            getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
+                }
+                // TODO: check whether we can close the application.
                 break;
             }
             case RECONNECTED: {

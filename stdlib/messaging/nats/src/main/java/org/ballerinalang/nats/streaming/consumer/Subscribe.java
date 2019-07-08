@@ -38,6 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,6 +92,9 @@ public class Subscribe implements NativeCallableUnit {
             SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
             streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
             ((AtomicInteger) connection.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
+
+            List<ObjectValue> serviceList = (List<ObjectValue>) connection.getNativeData(Constants.SERVICE_LIST);
+            serviceList.add(service);
         } catch (IOException | TimeoutException e) {
             throw new BallerinaException("Error while creating the subscription: " + e.getMessage());
         } catch (InterruptedException e) {

@@ -45,7 +45,7 @@ public class Constants {
     /**
      * Represent NATS Connection error listener.
      */
-    public static final String ERROR_LISTENER = "error_listener";
+    public static final String SERVICE_LIST = "service_list";
 
     /**
      * Represent whether connection close already triggered.
