@@ -385,15 +385,6 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
     }
 }
 
-function matchAudience(string audiencePayload, JwtValidatorConfig config) returns boolean {
-    foreach string audienceConfig in config.audience {
-        if (audiencePayload == audienceConfig) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function validateExpirationTime(JwtPayload jwtPayload, JwtValidatorConfig config) returns boolean {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;

@@ -36,10 +36,6 @@ public type JwtIssuerConfig record {|
 # + config - JWT issuer config record
 # + return - JWT token string or an `JwtError` if token validation fails
 public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|JwtError {
-    boolean audienceAsArray = false;
-    if (config is JwtIssuerConfig) {
-        audienceAsArray = config.audienceAsArray;
-    }
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
