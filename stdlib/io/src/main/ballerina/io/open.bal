@@ -30,14 +30,14 @@ public const APPEND = "a";
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel | error = external;
+public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel | error = external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + append - Append to end of file.
 # + return - ByteChannel representation of the file resource
-public function openWritableFile(@sensitive string path, boolean append = false)
+public function openWritableFile(@untainted string path, boolean append = false)
     returns @tainted WritableByteChannel = external;
 
 # Creates an in-memory channel which will reference stream of bytes.
@@ -53,10 +53,10 @@ public function createReadableChannel(byte[] content) returns ReadableByteChanne
 # + charset - Encoding characters in the file represents
 # + skipHeaders - Number of headers which should be skipped
 # + return - ReadableCSVChannel which could be used to iterate through the CSV records
-public function openReadableCsvFile(@sensitive string path,
-                            @sensitive Separator fieldSeparator = ",",
-                            @sensitive string charset = "UTF-8",
-                            @sensitive int skipHeaders=0) returns @tainted ReadableCSVChannel | error {
+public function openReadableCsvFile(@untainted string path,
+                            @untainted Separator fieldSeparator = ",",
+                            @untainted string charset = "UTF-8",
+                            @untainted int skipHeaders=0) returns @tainted ReadableCSVChannel | error {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
@@ -69,10 +69,10 @@ public function openReadableCsvFile(@sensitive string path,
 # + charset - Encoding characters in the file represents
 # + skipHeaders - Number of headers which should be skipped
 # + return - WritableCSVChannel which could be used to write CSV records
-public function openWritableCsvFile(@sensitive string path,
-                                    @sensitive Separator fieldSeparator = ",",
-                                    @sensitive string charset = "UTF-8",
-                                    @sensitive int skipHeaders=0) returns @tainted WritableCSVChannel {
+public function openWritableCsvFile(@untainted string path,
+                                    @untainted Separator fieldSeparator = ",",
+                                    @untainted string charset = "UTF-8",
+                                    @untainted int skipHeaders=0) returns @tainted WritableCSVChannel {
     WritableByteChannel byteChannel = openWritableFile(path);
     WritableCharacterChannel charChannel = new(byteChannel, charset);
     return new WritableCSVChannel(charChannel, fs = fieldSeparator);

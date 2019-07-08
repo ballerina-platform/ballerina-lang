@@ -435,6 +435,7 @@ public class BIRPackageSymbolEnter {
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
+        symbol.retType = typeDefSymbol.type;
         scope.define(symbol.name, symbol);
 
         ((BErrorType) typeDefSymbol.type).ctorSymbol = symbol;
@@ -885,6 +886,11 @@ public class BIRPackageSymbolEnter {
                     errorSymbol.name = names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
+                    if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
+                            && Symbols.isFlagOn(typeFlag, Flags.NATIVE)) {
+                        // This is a workaround to avoid, getting no type for error detail field.
+                        return symTable.errorType;
+                    }
                     return errorType;
                 case TypeTags.ITERATOR:
                     // TODO fix

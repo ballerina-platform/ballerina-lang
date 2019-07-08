@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -29,6 +30,7 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -1282,8 +1284,38 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BType errorDetailType = new BMapType(TypeTags.MAP, errorRefRestFieldType, null);
+        BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
         resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+    }
+
+    private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {
+
+        PackageID packageID = env.enclPkg.packageID;
+        BRecordTypeSymbol detailSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+                packageID, null, env.scope.owner);
+        detailSymbol.scope = new Scope(env.scope.owner);
+        BRecordType detailType = new BRecordType(detailSymbol);
+
+        int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
+        BField messageField = new BField(Names.DETAIL_MESSAGE, null,
+                new BVarSymbol(flags, Names.DETAIL_MESSAGE, packageID, symTable.stringType, detailSymbol));
+        detailType.fields.add(messageField);
+        detailSymbol.scope.define(Names.DETAIL_MESSAGE, messageField.symbol);
+
+        BField causeField = new BField(Names.DETAIL_CAUSE, null,
+                new BVarSymbol(flags, Names.DETAIL_CAUSE, packageID, symTable.errorType, detailSymbol));
+        detailType.fields.add(causeField);
+        detailSymbol.scope.define(Names.DETAIL_CAUSE, causeField.symbol);
+
+        detailType.restFieldType = errorRefRestFieldType;
+
+        // TODO : Remove this. Had to add this due to BIR codegen requires this.
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BInvokableSymbol initSymbol = Symbols.createFunctionSymbol(0, Names.INIT_FUNCTION_SUFFIX, packageID,
+                invokableType, detailSymbol, false);
+        detailSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initSymbol, invokableType);
+        detailSymbol.scope.define(initSymbol.name, initSymbol);
+        return detailType;
     }
 
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
@@ -2094,6 +2126,14 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
+        // Annotation such as <@untainted [T]>, where T is not provided, it's merely a annotation on inherent type
+        // of rhs operand of type cast.
+        if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
+            BType expType = checkExpr(conversionExpr.expr, env);
+            resultType = expType;
+            return;
+        }
+
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
         BType expType = conversionExpr.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR ? targetType : symTable.noType;
@@ -2772,7 +2812,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return null;
         }
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
-                SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, null, targetErrorDetailsType.tsymbol.pkgID,
+                SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, Names.EMPTY, targetErrorDetailsType.tsymbol.pkgID,
                 symTable.recordType, null);
         BRecordType recordType = new BRecordType(recordTypeSymbol);
         recordType.sealed = targetErrorDetailsType.sealed;
@@ -2790,7 +2830,7 @@ public class TypeChecker extends BLangNodeVisitor {
             boolean notRequired = (field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
             if (notRequired && !availableErrorDetailFields.contains(field.name)) {
                 BField defaultableField = new BField(field.name, iExpr.pos,
-                        new BVarSymbol(0, field.name, null, field.type, null));
+                        new BVarSymbol(field.symbol.flags, field.name, null, field.type, null));
                 recordType.fields.add(defaultableField);
             }
         }

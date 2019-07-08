@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.int as langint;
+import ballerina/'lang\.float as langfloat;
+import ballerina/internal;
 import ballerina/system;
 
 type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
@@ -30,7 +33,7 @@ const ARRAY = "ARRAY";
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsString(@sensitive string key, string defaultValue = "") returns string {
+public function getAsString(@untainted string key, string defaultValue = "") returns string {
     if (contains(key)) {
         var value = get(key, STRING);
 
@@ -51,7 +54,7 @@ public function getAsString(@sensitive string key, string defaultValue = "") ret
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsInt(@sensitive string key, int defaultValue = 0) returns int {
+public function getAsInt(@untainted string key, int defaultValue = 0) returns int {
     if (contains(key)) {
         var value = get(key, INT);
 
@@ -68,7 +71,7 @@ public function getAsInt(@sensitive string key, int defaultValue = 0) returns in
         return defaultValue;
     }
 
-    var envVar = int.convert(strVal);
+    var envVar = langint:fromString(strVal);
     if (envVar is int) {
         return envVar;
     } else {
@@ -81,7 +84,7 @@ public function getAsInt(@sensitive string key, int defaultValue = 0) returns in
 # + key - The configuration to be retrieved
 # + defaultVal - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsFloat(@sensitive string key, float defaultVal = 0.0) returns float {
+public function getAsFloat(@untainted string key, float defaultVal = 0.0) returns float {
     if (contains(key)) {
         var value = get(key, FLOAT);
 
@@ -98,7 +101,7 @@ public function getAsFloat(@sensitive string key, float defaultVal = 0.0) return
         return defaultVal;
     }
 
-    var envVar = float.convert(strVal);
+    var envVar = langfloat:fromString(strVal);
     if (envVar is float) {
         return envVar;
     } else {
@@ -111,7 +114,7 @@ public function getAsFloat(@sensitive string key, float defaultVal = 0.0) return
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsBoolean(@sensitive string key, boolean defaultValue = false) returns boolean {
+public function getAsBoolean(@untainted string key, boolean defaultValue = false) returns boolean {
     if (contains(key)) {
         var value = get(key, BOOLEAN);
 
@@ -128,14 +131,14 @@ public function getAsBoolean(@sensitive string key, boolean defaultValue = false
         return defaultValue;
     }
 
-    return boolean.convert(strVal);
+    return (strVal.toLowerAscii() == "true");
 }
 
 # Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsMap(@sensitive string key) returns map<any> {
+public function getAsMap(@untainted string key) returns map<any> {
     var value = get(key, MAP);
 
     if (value is map<any>) {
@@ -147,6 +150,6 @@ public function getAsMap(@sensitive string key) returns map<any> {
 }
 
 function lookupEnvVar(string key) returns string {
-    string convertedKey = key.replace(".", "_");
+    string convertedKey = internal:replace(key, ".", "_");
     return system:getEnv(convertedKey);
 }

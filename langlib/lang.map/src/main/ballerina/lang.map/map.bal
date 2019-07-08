@@ -42,7 +42,7 @@ public function entries(map<Type> m) returns map<[string, Type]> = external;
 // Functional iteration
 
 // use delimited identifer for function name to avoid conflict with reserved name
-public function ^"map"(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
+public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies `func` to each member of `m`.
 public function forEach(map<Type> m, function(Type val) returns () func) returns () = external;

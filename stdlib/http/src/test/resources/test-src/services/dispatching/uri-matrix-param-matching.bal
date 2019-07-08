@@ -37,7 +37,7 @@ service testService on testEP {
         string y = queryParams.y;
         outJson.queryParams = string `x=${x}&y=${y}`;
 
-        res.setJsonPayload(untaint outJson);
+        res.setJsonPayload(<@untainted json> outJson);
         checkpanic caller->respond(res);
     }
 
@@ -56,7 +56,7 @@ service testService on testEP {
         map<any> fooMParams = req.getMatrixParams(string `/hello/t2/${person}/foo`);
         outJson.fooParamSize = fooMParams.length();
 
-        res.setJsonPayload(untaint outJson);
+        res.setJsonPayload(<@untainted json> outJson);
         checkpanic caller->respond(res);
     }
 }

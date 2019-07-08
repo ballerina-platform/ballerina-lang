@@ -279,6 +279,7 @@ public class SymbolTable {
         BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
                 null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.detailType);
+        this.errorType.flags |= Flags.NATIVE;
         errorSymbol.type = this.errorType;
 
         int flags = Flags.asMask(new HashSet<>(Lists.of(Flag.OPTIONAL, Flag.PUBLIC)));
@@ -300,6 +301,7 @@ public class SymbolTable {
                 this.errorType.tsymbol.type, this.errorType.tsymbol.owner);
         this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
         this.errorType.ctorSymbol = this.errorConstructor;
+        this.errorConstructor.retType = errorType;
 
         // TODO : Remove this. Had to add this due to BIR codegen requires this.
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), this.nilType, null);

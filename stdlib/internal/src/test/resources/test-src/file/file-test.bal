@@ -154,7 +154,7 @@ function testMoveToFunction(string sourceStr, string target) returns boolean {
     }
 }
 
-function testWriteFile(string pathValue) returns error? {
+function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
