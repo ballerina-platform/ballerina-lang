@@ -75,7 +75,7 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public String toString() {
 
-        if (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR)) {
+        if (tsymbol.name != null && (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR))) {
             // Try to print possible shape. But this may fail with self reference hence avoid .
             int count = 0;
             Map<BType, String> typeNames = new HashMap<>();

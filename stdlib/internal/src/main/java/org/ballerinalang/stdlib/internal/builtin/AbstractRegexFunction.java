@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -28,20 +28,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function ballerina.model.strings:replaceAll.
+ * Extern function ballerina.model.strings:replaceFirst.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "replaceAll",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
+        orgName = "ballerina", packageName = "internal",
+        functionName = "replaceFirst",
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "regex", type = TypeKind.STRING),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReplaceAll extends BlockingNativeCallableUnit {
+public class ReplaceFirst extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -49,12 +49,12 @@ public class ReplaceAll extends BlockingNativeCallableUnit {
         String regex = context.getStringArgument(1);
         String replaceWith = context.getStringArgument(2);
 
-        String replacedString = s.replaceAll(regex, replaceWith);
+        String replacedString = s.replaceFirst(regex, replaceWith);
         context.setReturnValues(new BString(replacedString));
     }
 
-    public static String replaceAll(Strand strand, String value, String regex, String replaceWith) {
+    public static String replaceFirst(Strand strand, String value, String regex, String replaceWith) {
         StringUtils.checkForNull(value, regex, replaceWith);
-        return value.replaceAll(regex, replaceWith);
+        return value.replaceFirst(regex, replaceWith);
     }
 }

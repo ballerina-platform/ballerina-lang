@@ -1934,17 +1934,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int emit(int opcode) {
-        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
+//        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(int opcode, Operand... operands) {
-        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
+//        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(Instruction instr) {
-        currentPkgInfo.instructionList.add(instr);
+//        currentPkgInfo.instructionList.add(instr);
         return currentPkgInfo.instructionList.size();
     }
 

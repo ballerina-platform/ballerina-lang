@@ -13,11 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/^"lang.object" as lang;
 
 # Represents ActiveMQ Artemis Listener. This is an abstraction for that includes the connection and session. 
 # Consumers are represented by the service attaching to this listener.
 public type Listener object {
-    *AbstractListener;
+    *lang:AbstractListener;
     private Session session;
 
     public function __init(Session | EndpointConfiguration sessionOrEndpointConfig) {

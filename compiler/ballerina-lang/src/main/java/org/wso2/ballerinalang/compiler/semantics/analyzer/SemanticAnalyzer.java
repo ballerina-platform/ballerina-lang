@@ -1148,17 +1148,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return true;
 
-        } else if (errorType.detailType.getKind() == TypeKind.MAP) {
-            BType constraintType = ((BMapType) errorType.detailType).constraint;
-            BTypeSymbol memberTypeSym = this.createTypeSymbol(SymTag.UNION_TYPE);
-            BUnionType memberType = BUnionType.create(memberTypeSym, constraintType, symTable.nilType);
-            memberType.setNullable(true);
-            memberTypeSym.type = memberType;
-
-            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
-                errorDetailEntry.valueBindingPattern.type = memberType;
-                errorDetailEntry.valueBindingPattern.accept(this);
-            }
         } else if (errorType.detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType, env.scope.owner);
@@ -1168,15 +1157,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRestDetailBindingAvailable(errorVariable)) {
-            if (errorType.detailType.tag == TypeTags.MAP) {
-                BType constraint = ((BMapType) errorType.detailType).constraint;
-                BTypeSymbol tsymbol = createTypeSymbol(SymTag.TYPE);
-                BMapType restType = new BMapType(TypeTags.MAP, constraint, tsymbol);
-                tsymbol.type = restType;
-                errorVariable.restDetail.type = restType;
-            } else {
-                errorVariable.restDetail.type = symTable.detailType;
-            }
+            // TODO : Fix me.
+            errorVariable.restDetail.type = symTable.detailType;
             errorVariable.restDetail.accept(this);
         }
         return true;
@@ -1638,48 +1620,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // rhs type, could be a map or record
-        if (rhsErrorType.detailType.tag == TypeTags.MAP) {
-            BMapType detailMapType = (BMapType) rhsErrorType.detailType;
-            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
-                checkErrorDetailRefItem(pos, rhsPos, detailItem, detailMapType.constraint);
+        // reason is a record
+        BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
+        Map<String, BField> fields = rhsDetailType.fields.stream()
+                .collect(Collectors.toMap(field -> field.name.value, field -> field));
+        for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
+            BField matchedDetailItem = fields.get(detailItem.name.value);
+            if (matchedDetailItem == null) {
+                dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
+                return;
             }
 
-            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
-                if (!types.isAssignable(detailMapType.constraint, detailItem.expr.type)) {
-                    dlog.error(detailItem.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, detailItem.expr.type,
-                            detailMapType.constraint);
-                }
+            if (!types.isAssignable(matchedDetailItem.type, detailItem.expr.type)) {
+                dlog.error(detailItem.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        detailItem.expr.type, matchedDetailItem.type);
             }
-
-            if (lhsRef.restVar != null) {
-                if (!types.isAssignable(detailMapType, lhsRef.restVar.type)) {
-                    dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type,
-                            detailMapType);
-                }
-            }
-        } else {
-            // reason is a record
-            BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
-            Map<String, BField> fields = rhsDetailType.fields.stream()
-                    .collect(Collectors.toMap(field -> field.name.value, field -> field));
-            for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
-                BField matchedDetailItem = fields.get(detailItem.name.value);
-                if (matchedDetailItem == null) {
-                    dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
-                    return;
-                }
-
-                if (!types.isAssignable(matchedDetailItem.type, detailItem.expr.type)) {
-                    dlog.error(detailItem.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                            detailItem.expr.type, matchedDetailItem.type);
-                }
-                checkErrorDetailRefItem(matchedDetailItem.pos, rhsPos, detailItem, matchedDetailItem.type);
-            }
-            if (lhsRef.restVar != null) {
-                lhsRef.restVar.type = rhsDetailType.restFieldType;
-                typeChecker.checkExpr(lhsRef.restVar, env);
-            }
+            checkErrorDetailRefItem(matchedDetailItem.pos, rhsPos, detailItem, matchedDetailItem.type);
+        }
+        if (lhsRef.restVar != null) {
+            lhsRef.restVar.type = rhsDetailType.restFieldType;
+            typeChecker.checkExpr(lhsRef.restVar, env);
         }
     }
 

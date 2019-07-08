@@ -16,41 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function ballerina.model.strings:unescape.
- *
- * @since 0.8.0
+ * Extern function ballerina.model.strings:split(string, string).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "unescape",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "internal",
+        functionName = "split",
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "regex", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class Unescape extends BlockingNativeCallableUnit {
+public class Split {
 
-    @Override
-    public void execute(Context context) {
-        String stringValue = context.getStringArgument(0);
-        //todo extend this in a proper way
-        String unescapedString = stringValue.replace("\\", "");
-        context.setReturnValues(new BString(unescapedString));
-    }
-
-    public static String unescape(Strand strand, String value) {
-        StringUtils.checkForNull(value);
-        return value.replace("\\", "");
+    public static ArrayValue split(Strand strand, String value, String regex) {
+        StringUtils.checkForNull(value, regex);
+        String[] splitArray = value.split(regex);
+        return new ArrayValue(splitArray);
     }
 }

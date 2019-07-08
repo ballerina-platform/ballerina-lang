@@ -702,7 +702,7 @@ public class Types {
             for (int i = 0; i < source.paramTypes.size(); i++) {
                 BType sourceParam = source.paramTypes.get(i);
                 BType targetParam = target.paramTypes.get(i);
-                boolean isTypeParam = Symbols.isFlagOn(targetParam.tsymbol.flags, Flags.TYPE_PARAM);
+                boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
 
                 if (isTypeParam) {
                     if (!isAssignable(sourceParam, targetParam)) {
@@ -736,7 +736,7 @@ public class Types {
                     if (t.tag == TypeTags.FUNCTION_POINTER) {
                         return containsTypeParams((BInvokableType) t);
                     }
-                    return Symbols.isFlagOn(t.tsymbol.flags, Flags.TYPE_PARAM);
+                    return TypeParamAnalyzer.isTypeParam(t);
                 });
 
         if (hasParameterizedTypes) {
@@ -747,7 +747,7 @@ public class Types {
             return containsTypeParams((BInvokableType) type.retType);
         }
 
-        return Symbols.isFlagOn(type.retType.tsymbol.flags, Flags.TYPE_PARAM);
+        return TypeParamAnalyzer.isTypeParam(type.retType);
     }
 
     private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
@@ -1527,8 +1527,7 @@ public class Types {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                     return t.tag == s.tag
-                            && (Symbols.isFlagOn(t.flags, Flags.TYPE_PARAM) || Symbols.isFlagOn(s.flags,
-                            Flags.TYPE_PARAM));
+                            && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
                 default:
                     break;
             }

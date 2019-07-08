@@ -155,7 +155,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         BStructureType tableConstraint = structType;
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
-                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue(),
+                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.LANG.value + Names.DOT.value + Names.ANNOTATIONS,
                             Names.DEFAULT_VERSION.getValue()), 0, false);
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }

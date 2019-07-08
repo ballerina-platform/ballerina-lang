@@ -93,6 +93,12 @@ public class TypeParamAnalyzer {
         this.types = Types.getInstance(context);
     }
 
+    public static boolean isTypeParam(BType expType) {
+
+        return Symbols.isFlagOn(expType.flags, Flags.TYPE_PARAM)
+                || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
+    }
+
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
         // Not a langlib module invocation
         if (env.typeParamsEntries == null) {
@@ -150,12 +156,6 @@ public class TypeParamAnalyzer {
         }
         // For others, we will use TSymbol.
         return type;
-    }
-
-    private boolean isTypeParam(BType expType) {
-
-        return Symbols.isFlagOn(expType.flags, Flags.TYPE_PARAM)
-                || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
     }
 
     private void findTypeParam(BType expType, BType actualType, SymbolEnv env, List<BType> resolvedTypes,

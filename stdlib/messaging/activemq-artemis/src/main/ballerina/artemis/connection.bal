@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/internal;
 
 # Represents ActiveMQ Artemis Connection.
 public type Connection client object {
@@ -50,7 +51,7 @@ public type Connection client object {
         map<string> queryParams = {};
         self.setQueryParamsForKeyAndTrustStores(secureSocket, queryParams);
         self.setQueryCipherParams(secureSocket, queryParams);
-        queryParams["verifyHost"] = string.convert(secureSocket.verifyHost);
+        queryParams["verifyHost"] = secureSocket.verifyHost.toString();
         return queryParams;
     }
 
@@ -79,7 +80,7 @@ public type Connection client object {
     private function checkAndSetPath(string path, map<string> queryParams, string configName) {
         if (self.isNotBlankString(path)) {
             string absPath = checkpanic filepath:absolute(path);
-            queryParams[configName] = absPath.replaceAll(" ", "%20");
+            queryParams[configName] = internal:replaceAll(absPath, " ", "%20");
         }
     }
 
