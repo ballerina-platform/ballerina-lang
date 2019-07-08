@@ -19,6 +19,7 @@
 package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
+import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.bre.Context;
@@ -30,13 +31,16 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.Constants;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
+import static org.ballerinalang.nats.Constants.ERROR_LISTENER;
+import static org.ballerinalang.nats.Constants.NATS_CONNECTION;
 
 /**
  * Establish a connection with NATS server.
@@ -104,6 +108,13 @@ public class Init extends BlockingNativeCallableUnit {
         // Add inbox prefix.
         opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
 
+        // Add NATS connection listener.
+        opts.connectionListener(new DefaultConnectionListener());
+
+        // Add NATS error listener.
+        ErrorListener errorListener = new DefaultErrorListener(strand.scheduler);
+        opts.errorListener(errorListener);
+
         // Add noEcho.
         if (connectionConfig.getBooleanValue(NO_ECHO)) {
             opts.noEcho();
@@ -112,13 +123,15 @@ public class Init extends BlockingNativeCallableUnit {
 
         try {
             Connection natsConnection = Nats.connect(opts.build());
-            connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+            connectionObject.addNativeData(NATS_CONNECTION, natsConnection);
             @SuppressWarnings("unchecked")
             List<ObjectValue> clientslist = Collections.synchronizedList(new ArrayList());
-            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, clientslist);
+            connectionObject.addNativeData(CONNECTED_CLIENTS, clientslist);
+            connectionObject.addNativeData(ERROR_LISTENER, errorListener);
 
         } catch (IOException | InterruptedException e) {
-            throw new BallerinaConnectorException(e);
+            throw new BallerinaConnectorException("Error while setting up connection with the server(s)."
+                    + e.getMessage());
         }
     }
 }

@@ -32,10 +32,13 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.connection.DefaultErrorListener;
 
+import java.io.PrintStream;
 import java.util.List;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
+import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
 
 /**
  * Creates a subscription with the NATS server.
@@ -51,6 +54,8 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 )
 public class Register extends BlockingNativeCallableUnit {
 
+    private static final PrintStream console;
+
     /**
      * {@inheritDoc}
      */
@@ -63,6 +68,9 @@ public class Register extends BlockingNativeCallableUnit {
         Connection natsConnection =
                 (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.NATS_CONNECTION);
+        DefaultErrorListener errorListener =
+                (DefaultErrorListener) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
+                        .getNativeData(Constants.ERROR_LISTENER);
         MapValue<String, Object> subscriptionConfig = getSubscriptionConfig(service.getType().getAnnotation(
                 "ballerina/nats", "SubscriptionConfig"));
         if (subscriptionConfig == null) {
@@ -86,6 +94,9 @@ public class Register extends BlockingNativeCallableUnit {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while registering the subscriber. " +
                     ex.getMessage());
         }
+        errorListener.addServiceObject(service);
+        String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
+        console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
         return null;
     }
 
@@ -97,5 +108,9 @@ public class Register extends BlockingNativeCallableUnit {
             annotationRecord = (MapValue) annotationData;
         }
         return annotationRecord;
+    }
+
+    static {
+        console = System.out;
     }
 }
