@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "getAsMap(string key)(map)",
+      "label": "getAsMap(string key)(map\u003cany\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

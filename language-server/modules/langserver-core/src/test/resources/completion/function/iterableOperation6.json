@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "add(any data)(error?)",
+      "label": "add(any data)((error|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
