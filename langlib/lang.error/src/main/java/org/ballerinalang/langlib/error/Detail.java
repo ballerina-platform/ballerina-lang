@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.error;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.ANYDATA)})
 public class Detail {
 
-    public static Object detail(Strand strand, ErrorValue value) {
-        return value.getDetails();
+    public static MapValue detail(Strand strand, ErrorValue value) {
+        return (MapValue) value.getDetails();
     }
 }
