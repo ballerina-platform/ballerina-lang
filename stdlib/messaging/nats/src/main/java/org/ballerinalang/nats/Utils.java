@@ -18,10 +18,13 @@
 
 package org.ballerinalang.nats;
 
+import io.nats.client.Message;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * Utilities for producing and consuming via NATS sever.
@@ -46,5 +49,19 @@ public class Utils {
                 .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
         errorDetailRecord.put("message", detailedErrorMessage);
         return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
+    }
+
+    public static ObjectValue getMessageObject(Message message) {
+        ObjectValue msgObj;
+        if (message != null) {
+            ArrayValue msgData = new ArrayValue(message.getData());
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                    Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
+        } else {
+            ArrayValue msgData = new ArrayValue(new byte[0]);
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                    Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
+        }
+        return msgObj;
     }
 }

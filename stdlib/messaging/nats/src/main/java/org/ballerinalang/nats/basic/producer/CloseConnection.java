@@ -19,31 +19,35 @@
 package org.ballerinalang.nats.basic.producer;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
-
 /**
- * Initialize NATS producer using the connection.
+ * Extern function to close logical connection in producer.
  *
  * @since 0.995
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "nats",
-        functionName = "init",
+        functionName = "closeConnection",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Init {
+public class CloseConnection {
 
-    public static void init(Strand strand, ObjectValue producerObject, ObjectValue connectionObject) {
-        // This is to add producer to the connected client list in connection object.
-        ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
+    public static void closeConnection(Strand strand, ObjectValue producerObject) {
+        Object connection = producerObject.get("connection");
+        if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            ObjectValue connectionObject = (ObjectValue) connection;
+            ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
+        }
     }
 }

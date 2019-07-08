@@ -43,6 +43,11 @@ public class Constants {
     public static final String DISPATCHER_LIST = "dispatcher_list";
 
     /**
+     * Represent NATS Connection error listener.
+     */
+    public static final String SERVICE_LIST = "service_list";
+
+    /**
      * Represent whether connection close already triggered.
      */
     public static final String CLOSING = "closing";
@@ -82,4 +87,6 @@ public class Constants {
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
 
     public static final String COUNTDOWN_LATCH = "count_down_latch";
+
+    public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
 }

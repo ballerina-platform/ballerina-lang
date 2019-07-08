@@ -19,6 +19,7 @@
 package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
+import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.bre.Context;
@@ -30,11 +31,17 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.Constants;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
+import static org.ballerinalang.nats.Constants.NATS_CONNECTION;
+import static org.ballerinalang.nats.Constants.SERVICE_LIST;
 
 /**
  * Establish a connection with NATS server.
@@ -102,6 +109,14 @@ public class Init extends BlockingNativeCallableUnit {
         // Add inbox prefix.
         opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
 
+        List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+        // Add NATS connection listener.
+        opts.connectionListener(new DefaultConnectionListener(strand.scheduler, serviceList));
+
+        // Add NATS error listener.
+        ErrorListener errorListener = new DefaultErrorListener(strand.scheduler, serviceList);
+        opts.errorListener(errorListener);
+
         // Add noEcho.
         if (connectionConfig.getBooleanValue(NO_ECHO)) {
             opts.noEcho();
@@ -110,8 +125,9 @@ public class Init extends BlockingNativeCallableUnit {
 
         try {
             Connection natsConnection = Nats.connect(opts.build());
-            connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
-            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
+            connectionObject.addNativeData(NATS_CONNECTION, natsConnection);
+            connectionObject.addNativeData(CONNECTED_CLIENTS, new AtomicInteger(0));
+            connectionObject.addNativeData(SERVICE_LIST, serviceList);
 
         } catch (IOException | InterruptedException e) {
             throw new BallerinaConnectorException(e);

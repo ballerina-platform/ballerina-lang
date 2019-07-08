@@ -52,9 +52,13 @@ public type Producer client object {
     #
     # + return - () or error if unable to complete close operation.
     public function close() returns error? {
+        self.closeConnection();
         if (self.connection is Connection) {
             self.connection = ();
             log:printInfo("Close the logical connection between producer and connection.");
         }
+
     }
+
+    private function closeConnection() = external;
 };

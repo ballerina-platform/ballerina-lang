@@ -35,7 +35,7 @@ import ballerina/crypto;
 # has subscriptions on the subject being published to.
 # + secureSocket - SSL/TLS related options
 public type ConnectionConfig record {|
-  string connectionName = "nats";
+  string connectionName = "ballerina-nats";
   int maxReconnect = 60;
   int reconnectWait = 2;
   int connectionTimeout = 2;

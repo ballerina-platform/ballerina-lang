@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
@@ -46,11 +47,9 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 )
 public class Init {
 
-    @SuppressWarnings("unchecked")
     public static void init(Strand strand, ObjectValue listenerObject, ObjectValue connectionObject) {
-        // This is to add producer to the connected client list in connection object.
-        List<ObjectValue> connectedList = (List<ObjectValue>) connectionObject.getNativeData(CONNECTED_CLIENTS);
-        connectedList.add(listenerObject);
+        // This is to add listener to the connected client list in connection object.
+        ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
         // Initialize dispatcher list to use in service register and listener close.
         List<Dispatcher> dispatcherList = Collections.synchronizedList(new ArrayList<>());
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
