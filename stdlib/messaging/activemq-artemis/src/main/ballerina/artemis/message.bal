@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/^"lang.int";
 
 # Represents ActiveMQ Artemis Message.
 public type Message client object {
@@ -34,12 +35,14 @@ public type Message client object {
             self.messageType = STREAM;
             self.createMessage(session, data, self.configuration);
         } else if (data is byte) {
-            self.createMessage(session, string.convert(int.convert(data)), self.configuration);
+            // Verify this.
+            //self.createMessage(session, string.convert(int.convert(data)), self.configuration);
+            self.createMessage(session, data.toString(), self.configuration);
         } else if (data is map<string | int | float | byte | boolean | byte[]>) {
             self.messageType = MAP;
             self.createMessage(session, data, self.configuration);
         } else if (data is xml) {
-            self.createMessage(session, string.convert(data), self.configuration);
+            self.createMessage(session, data.toString(), self.configuration);
         } else if (data is json) {
             self.createMessage(session, data.toString(), self.configuration);
         } else {
