@@ -158,7 +158,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     RequestError requestError = {errorMessage:msg};
     var resPayload = json.convert(requestError);
     if (resPayload is json) {
-        res.setJsonPayload(untaint resPayload);
+        res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);
         if (resResult is error) {
             log:printError("Could not send Bad Request error response to caller", err = resResult);
@@ -293,12 +293,12 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     Participant2pcClientEP participantEP;
-    if (httpClientCache.hasKey(participantURL)) {
-        return <Participant2pcClientEP>httpClientCache.get(participantURL);
+    if (httpClientCache.hasKey(<@untainted> participantURL)) {
+        return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
     } else {
         lock {
-            if (httpClientCache.hasKey(participantURL)) {
-                return <Participant2pcClientEP>httpClientCache.get(participantURL);
+            if (httpClientCache.hasKey(<@untainted> participantURL)) {
+                return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
             }
             participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
