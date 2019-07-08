@@ -59,7 +59,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public boolean builtinMethodInvocation;
     public BLangBuiltInMethod builtInMethod;
     public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.

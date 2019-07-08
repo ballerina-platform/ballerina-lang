@@ -1499,38 +1499,46 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (invocationExpr.actionInvocation) {
+        if (invocationExpr.actionInvocation || invocationExpr.async) {
             validateActionInvocation(invocationExpr.pos, invocationExpr);
         }
     }
 
     private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
-        final NodeKind clientNodeKind = iExpr.expr.getKind();
-        // Validation against node kind.
-        if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
-        } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
-            if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+        if (iExpr.expr != null) {
+            final NodeKind clientNodeKind = iExpr.expr.getKind();
+            // Validation against node kind.
+            if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
-            } else {
-                final BLangSimpleVarRef selfName = (BLangSimpleVarRef) fieldBasedAccess.expr;
-                if (!Names.SELF.equals(selfName.symbol.name)) {
+            } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
+                if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                     dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                } else {
+                    final BLangSimpleVarRef selfName = (BLangSimpleVarRef) fieldBasedAccess.expr;
+                    if (!Names.SELF.equals(selfName.symbol.name)) {
+                        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                    }
                 }
             }
         }
+        validateActionParentNode(pos, iExpr);
+    }
 
+    private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
         // Validate for parent nodes.
-        BLangNode parent = iExpr.parent;
+        BLangNode parent = node.parent;
         while (parent != null) {
             final NodeKind kind = parent.getKind();
             // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
+            if (kind == NodeKind.ASSIGNMENT
+                    || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
+                    || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
-                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
+                    || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR
+                    || kind == NodeKind.GROUP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1545,27 +1553,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateActions(DiagnosticPos pos, BLangNode bLangNode) {
-        BLangNode parent = bLangNode.parent;
-        while (parent != null) {
-            final NodeKind kind = parent.getKind();
-            // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
-                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
-                return;
-            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
-                    kind == NodeKind.GROUP_EXPR ||
-                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
-                parent = parent.parent;
-                continue;
-            } else if (kind == NodeKind.ELVIS_EXPR
-                    && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
-                    && ((BLangInvocation) ((BLangElvisExpr) parent).lhsExpr).actionInvocation) {
-                parent = parent.parent;
-                continue;
-            }
-            break;
-        }
-        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+        validateActionParentNode(pos, bLangNode);
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -1874,7 +1862,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
 
-            // check if the exprType can be added to implicit default pattern 
+            // check if the exprType can be added to implicit default pattern
             if (!assignable && !this.types.isAssignable(exprType, bLangMatchExpression.type)) {
                 unmatchedExprTypes.add(exprType);
             }
@@ -1937,7 +1925,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // Check whether the condition is always true. If the variable type is assignable to target type,
-        // then type check will always evaluate to true. 
+        // then type check will always evaluate to true.
         if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
             return;
@@ -1945,7 +1933,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         // Check whether the target type can ever be present as the type of the source.
         // It'll be only possible iff, the target type has been assigned to the source
-        // variable at some point. To do that, a value of target type should be assignable 
+        // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
         if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
                 !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
