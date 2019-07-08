@@ -30,8 +30,9 @@ public class StartActionTest {
     @Test (description = "Test negative start action usage")
     public void testStartActionNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeResult, 0, "action invocation as an expression not allowed here", 33, 23);
-        BAssertUtil.validateError(negativeResult, 1, "action invocation as an expression not allowed here", 34, 38);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, 0, "action invocation as an expression not allowed here", 37, 23);
+        BAssertUtil.validateError(negativeResult, 1, "action invocation as an expression not allowed here", 38, 38);
+        BAssertUtil.validateError(negativeResult, 2, "action invocation as an expression not allowed here", 39, 43);
     }
 }

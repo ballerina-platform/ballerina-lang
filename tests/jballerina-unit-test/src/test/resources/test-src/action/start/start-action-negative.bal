@@ -27,9 +27,14 @@ function baz(future<int> f) returns int {
     return 3;
 }
 
+function zee(future<int>|error f) returns int {
+    return 4;
+}
+
 function c() {
     future<int>|error k = trap start foo();
     future<int> r1 = start foo();
     var p = baz(start foo());
     future<int> r2 = start baz(start foo());
+    future<int> r3 = start zee(trap start foo());
 }
