@@ -18,6 +18,11 @@
 
 package org.ballerinalang.nats;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+
 /**
  * Utilities for producing and consuming via NATS sever.
  */
@@ -26,4 +31,20 @@ public class Utils {
      * Message which will be propagated.
      */
     private static final String MESSAGE = "message";
+
+
+    public static ErrorValue createNatsError(String nuid, String detailedErrorMessage) {
+        MapValue<String, Object> errorDetailRecord = BallerinaValues
+                .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
+        MapValue<String, Object> populatedDetailRecord = BallerinaValues
+                .createRecord(errorDetailRecord, nuid, detailedErrorMessage);
+        return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, populatedDetailRecord);
+    }
+
+    public static ErrorValue createNatsError(String detailedErrorMessage) {
+        MapValue<String, Object> errorDetailRecord = BallerinaValues
+                .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
+        errorDetailRecord.put("message", detailedErrorMessage);
+        return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
+    }
 }

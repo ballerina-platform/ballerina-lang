@@ -34,9 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
 import static org.ballerinalang.nats.Constants.ERROR_LISTENER;
@@ -124,14 +122,12 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Connection natsConnection = Nats.connect(opts.build());
             connectionObject.addNativeData(NATS_CONNECTION, natsConnection);
-            @SuppressWarnings("unchecked")
-            List<ObjectValue> clientslist = Collections.synchronizedList(new ArrayList());
-            connectionObject.addNativeData(CONNECTED_CLIENTS, clientslist);
+            connectionObject.addNativeData(CONNECTED_CLIENTS, new AtomicInteger(0));
             connectionObject.addNativeData(ERROR_LISTENER, errorListener);
 
+
         } catch (IOException | InterruptedException e) {
-            throw new BallerinaConnectorException("Error while setting up connection with the server(s)."
-                    + e.getMessage());
+            throw new BallerinaConnectorException(e);
         }
     }
 }
