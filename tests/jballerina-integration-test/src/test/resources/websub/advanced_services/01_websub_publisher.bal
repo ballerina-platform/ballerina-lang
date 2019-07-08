@@ -68,7 +68,7 @@ service publisher on publisherServiceEP {
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
-        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, untaint <json> payload);
+        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
         }
@@ -105,7 +105,7 @@ service publisherTwo on publisherServiceEP {
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
-        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, untaint <json> payload);
+        var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, <@untainted> <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
         }
@@ -141,7 +141,7 @@ service publisherThree on publisherServiceEP {
             panic payload;
         }
         checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
-        var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, untaint <json> payload);
+        var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
             log:printError("Error publishing update remotely", err = err);
         }

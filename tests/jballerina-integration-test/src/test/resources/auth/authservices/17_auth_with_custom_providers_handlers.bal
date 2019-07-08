@@ -173,7 +173,7 @@ public type OutboundCustomAuthHandler object {
         map<anydata> headerMap = { http:STATUS_CODE: resp.statusCode };
         string[] headerNames = resp.getHeaderNames();
         foreach string header in headerNames {
-            string[] headerValues = resp.getHeaders(untaint header);
+            string[] headerValues = resp.getHeaders(<@untainted> header);
             headerMap[header] = headerValues;
         }
         string? token = check authProvider.inspect(headerMap);

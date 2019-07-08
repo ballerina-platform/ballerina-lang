@@ -50,7 +50,7 @@ service echo on echoEP {
         } else {
             string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
-            resp.setPayload(untaint errMsg);
+            resp.setPayload(<@untainted> errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
                 io:println("Error sending response: ", responseError.detail().message);
@@ -73,7 +73,7 @@ service ClientService = service {
             if (length > 0) {
                 var str = getString(content);
                 if (str is string) {
-                    io:println(untaint str);
+                    io:println(<@untainted> str);
                 } else {
                     io:println(str.reason());
                 }

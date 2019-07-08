@@ -219,13 +219,13 @@ service mock03 on backendEP03 {
                                 var childBlobContent = childPart.getByteArray();
                             }
                             io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                            bodyPart.setBodyParts(<@untainted> childParts, contentType = <@untainted> bodyPart.getContentType());
                         }
                     } else {
                         var bodyPartBlobContent = bodyPart.getByteArray();
                     }
                 }
-                response.setBodyParts(untaint mimeEntity, contentType = untaint req.getContentType());
+                response.setBodyParts(<@untainted> mimeEntity, contentType = <@untainted> req.getContentType());
             }
         } else {
             response.setPayload("Mock Resource is Invoked.");
