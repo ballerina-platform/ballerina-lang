@@ -6,7 +6,7 @@
   "source": "function/source/completionWithinInvocationArgs8.bal",
   "items": [
     {
-      "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
+      "label": "queryTableWithJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, table\u003crecord {}\u003e joinTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
+      "label": "queryTableWithoutJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -883,6 +883,28 @@
             }
           },
           "newText": "import ballerina/jms;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/socket",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "socket",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },
