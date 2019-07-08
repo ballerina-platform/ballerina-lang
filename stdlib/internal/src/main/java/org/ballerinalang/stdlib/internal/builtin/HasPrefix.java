@@ -16,13 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,23 +30,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "hasPrefix",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "prefix", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasPrefix extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String param1 = context.getStringArgument(0);
-        String prefix = context.getStringArgument(1);
-
-        BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
-        context.setReturnValues(booleanValue);
-    }
+public class HasPrefix {
 
     public static boolean hasPrefix(Strand strand, String value, String prefix) {
         StringUtils.checkForNull(value, prefix);

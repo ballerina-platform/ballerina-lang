@@ -16,13 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,23 +30,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "hasSuffix",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "suffix", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasSuffix extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String param1 = context.getStringArgument(0);
-        String suffix = context.getStringArgument(1);
-
-        BBoolean booleanValue = new BBoolean(param1.endsWith(suffix));
-        context.setReturnValues(booleanValue);
-    }
+public class HasSuffix {
 
     public static boolean hasSuffix(Strand strand, String value, String suffix) {
         StringUtils.checkForNull(value, suffix);

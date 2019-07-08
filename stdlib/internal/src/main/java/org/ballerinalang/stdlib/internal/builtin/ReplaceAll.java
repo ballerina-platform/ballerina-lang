@@ -16,45 +16,32 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function ballerina.model.strings:replaceFirst.
+ * Extern function ballerina.model.strings:replaceAll.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
-        functionName = "replaceFirst",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+        orgName = "ballerina", packageName = "internal",
+        functionName = "replaceAll",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "regex", type = TypeKind.STRING),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReplaceFirst extends BlockingNativeCallableUnit {
+public class ReplaceAll {
 
-    @Override
-    public void execute(Context context) {
-        String s = context.getStringArgument(0);
-        String regex = context.getStringArgument(1);
-        String replaceWith = context.getStringArgument(2);
-
-        String replacedString = s.replaceFirst(regex, replaceWith);
-        context.setReturnValues(new BString(replacedString));
-    }
-
-    public static String replaceFirst(Strand strand, String value, String regex, String replaceWith) {
+    public static String replaceAll(Strand strand, String value, String regex, String replaceWith) {
         StringUtils.checkForNull(value, regex, replaceWith);
-        return value.replaceFirst(regex, replaceWith);
+        return value.replaceAll(regex, replaceWith);
     }
 }

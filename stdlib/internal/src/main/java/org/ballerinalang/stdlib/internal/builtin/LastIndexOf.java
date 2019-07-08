@@ -16,13 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,23 +30,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "lastIndexOf",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "subString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class LastIndexOf extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String param1 = context.getStringArgument(0);
-        String subString = context.getStringArgument(1);
-
-        BInteger bInteger = new BInteger(param1.lastIndexOf(subString));
-        context.setReturnValues(bInteger);
-    }
+public class LastIndexOf {
 
     public static long lastIndexOf(Strand strand, String value, String subString) {
         StringUtils.checkForNull(value, subString);

@@ -16,13 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "internal",
         functionName = "replace",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "regex", type = TypeKind.STRING),
@@ -41,17 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Replace extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String s = context.getStringArgument(0);
-        String regex = context.getStringArgument(1);
-        String replaceWith = context.getStringArgument(2);
-
-        String replacedString = s.replace(regex, replaceWith);
-        context.setReturnValues(new BString(replacedString));
-    }
+public class Replace {
 
     public static String replace(Strand strand, String value, String regex, String replaceWith) {
         StringUtils.checkForNull(value, regex, replaceWith);
