@@ -760,7 +760,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     arrayLiteralType = superType;
                 }
                 if (arrayLiteralType.tag != TypeTags.SEMANTIC_ERROR) {
-                    actualType = new BArrayType(arrayLiteralType);
+                    if (type.tag == TypeTags.ARRAY && ((BArrayType) type).state != BArrayState.UNSEALED) {
+                        actualType = new BArrayType(arrayLiteralType, null,
+                                ((BArrayType) type).state == BArrayState.CLOSED_SEALED
+                                        ? listConstructorExpr.exprs.size() : ((BArrayType) type).size,
+                                ((BArrayType) type).state);
+                    } else {
+                        actualType = new BArrayType(arrayLiteralType);
+                    }
                     listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
                 }
             }
