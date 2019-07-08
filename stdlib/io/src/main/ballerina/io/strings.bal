@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/time;
 
 # Represents a reader which will wrap string content as a channel.
 public type StringReader object {
