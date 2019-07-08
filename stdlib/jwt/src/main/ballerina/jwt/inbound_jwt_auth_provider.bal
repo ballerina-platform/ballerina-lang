@@ -45,7 +45,7 @@ public type InboundJwtAuthProvider object {
     #
     # + credential - Jwt token extracted from the authentication header
     # + return - `true` if authentication is successful, othewise `false` or `auth:AuthError` occurred during JWT validation
-    public function authenticate(string credential) returns @tainted boolean|auth:AuthError {
+    public function authenticate(string credential) returns @tainted (boolean|auth:AuthError) {
         string[] jwtComponents = credential.split("\\.");
         if (jwtComponents.length() != 3) {
             return false;

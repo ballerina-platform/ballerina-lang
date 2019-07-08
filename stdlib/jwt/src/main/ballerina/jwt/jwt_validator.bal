@@ -52,7 +52,7 @@ public type CachedJwt record {|
 # + jwtToken - JWT token that need to validate
 # + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload. An `JwtError` if token validation fails.
-public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted JwtPayload|JwtError {
+public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|JwtError) {
     string[] encodedJWTComponents = [];
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
@@ -91,7 +91,7 @@ function getJWTComponents(string jwtToken) returns string[]|JwtError {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns @tainted [JwtHeader, JwtPayload]|JwtError {
+function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, JwtPayload]|JwtError) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
@@ -106,7 +106,7 @@ function parseJWT(string[] encodedJWTComponents) returns @tainted [JwtHeader, Jw
     return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted [json, json]|JwtError {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([json, json]|JwtError) {
     string jwtHeader = "";
     string jwtPayload = "";
 
