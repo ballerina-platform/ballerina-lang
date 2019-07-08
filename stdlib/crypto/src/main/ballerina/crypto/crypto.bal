@@ -228,7 +228,7 @@ public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
 public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) 
-returns boolean|error = external;
+                                      returns boolean|error = external;
 
 # Verify RSA-SHA1 based signature.
 #
@@ -237,7 +237,7 @@ returns boolean|error = external;
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
 public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error = external;
+                                       returns boolean|error = external;
 
 # Verify RSA-SHA256 based signature.
 #
@@ -246,7 +246,7 @@ returns boolean|error = external;
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
 public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error = external;
+                                         returns boolean|error = external;
 
 # Verify RSA-SHA384 based signature.
 #
@@ -255,7 +255,7 @@ returns boolean|error = external;
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
 public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error = external;
+                                         returns boolean|error = external;
 
 # Verify RSA-SHA512 based signature.
 #
@@ -264,7 +264,7 @@ returns boolean|error = external;
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
 public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error = external;
+                                         returns boolean|error = external;
 
 # Read a private key from the provided PKCS#12 archive file.
 #
@@ -273,7 +273,7 @@ returns boolean|error = external;
 # + keyPassword - Key password
 # + return - Reference to the private key or error if private key was unreadable
 public function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (), string? keyPassword = ())
-returns PrivateKey|error = external;
+                                 returns PrivateKey|error = external;
 
 # Read a public key from the provided PKCS#12 archive file.
 #
