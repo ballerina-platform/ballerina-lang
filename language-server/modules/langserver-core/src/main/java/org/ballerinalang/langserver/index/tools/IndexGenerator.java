@@ -41,7 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
@@ -148,7 +148,7 @@ public class IndexGenerator {
         }
     }
 
-    private void insertOtherTypes(int pkgEntryId, List<BTypeSymbol> symbols, LSIndexImpl lsIndex) {
+    private void insertOtherTypes(int pkgEntryId, List<BSymbol> symbols, LSIndexImpl lsIndex) {
         List<OtherTypeSymbolDTO> dtos = symbols.stream()
                 .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(symbol -> DTOUtil.getOtherTypeSymbolDTO(pkgEntryId, symbol))
