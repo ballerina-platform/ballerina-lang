@@ -123,7 +123,7 @@ function buildPayloadString(JwtPayload payload) returns string|error {
     var aud = payload["aud"];
     if (aud is string) {
         payloadJson[AUD] = aud;
-    } else if (aud is string[] && aud.length() > 0) {
+    } else if (aud is string[]) {
         payloadJson[AUD] = aud;
     }
     var customClaims = payload["customClaims"];
