@@ -55,9 +55,9 @@ service Ecommerce on serviceEndpoint5 {
         path:"/products/{prodId}"
     }
     resource function productsInfo(http:Caller caller, http:Request req, string prodId) {
-        string reqPath = "/productsservice/" + untaint prodId;
+        string reqPath = "/productsservice/" + <@untainted> prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService->get(untaint reqPath, message = clientRequest);
+        var clientResponse = productsService->get(<@untainted> reqPath, message = clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -73,7 +73,7 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
-            clientRequest.setPayload(untaint jsonReq);
+            clientRequest.setPayload(<@untainted> jsonReq);
         } else {
             io:println("Error occurred while reading products payload");
         }
