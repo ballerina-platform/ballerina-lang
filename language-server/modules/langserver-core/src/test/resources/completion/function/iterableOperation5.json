@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "toXML($anonType$builtin$0 options)((xml|error))",
+      "label": "toXML(record {\nstring attributePrefix;\nstring arrayEntryTag;\n} options)((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

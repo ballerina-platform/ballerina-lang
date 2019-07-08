@@ -310,6 +310,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/socket",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/sql",
       "kind": "Module",
       "detail": "Package",

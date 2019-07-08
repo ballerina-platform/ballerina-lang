@@ -265,6 +265,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "socket",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "sql",
       "kind": "Module",
       "detail": "Package",
