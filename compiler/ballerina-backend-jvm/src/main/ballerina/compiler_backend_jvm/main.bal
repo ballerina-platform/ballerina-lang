@@ -58,8 +58,7 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
         // TODO 29/06/2019: See if this call to cleanupName() can be removed
         externalMapCache = {};
         foreach var (k, v) in tempMap {
-            string newKey = cleanupName(k);
-            externalMapCache[newKey] = v;
+            externalMapCache[k] = v;
         }
     }
 
