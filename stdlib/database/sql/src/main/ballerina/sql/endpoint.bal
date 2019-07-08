@@ -25,7 +25,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `sql:JdbcClientError` will be returned if there is any error
-    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|JdbcClientError {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
@@ -43,7 +43,7 @@ public type Client client object {
     //Param... parameters) returns @tainted table<record {}>|error {
     //    return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     //}
-    public remote function select(@sensitive string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc? recordType,
     Param... parameters) returns @tainted table<record {}>|JdbcClientError {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
@@ -55,7 +55,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - A `sql:UpdateResult` with the updated row count and key column values,
     #            else `sql:JdbcClientError` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
+    public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
                                returns UpdateResult|JdbcClientError {
         return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
     }
@@ -73,7 +73,7 @@ public type Client client object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, Param?[]... parameters)
+    public remote function batchUpdate(@untainted string sqlQuery, Param?[]... parameters)
                                     returns int[]|JdbcClientError {
         return nativeBatchUpdate(self, sqlQuery, ...parameters);
     }
@@ -81,16 +81,16 @@ public type Client client object {
 
 //function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
 //   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
-function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
+function nativeSelect(Client sqlClient, @untainted string sqlQuery, typedesc? recordType,
    Param... parameters) returns @tainted table<record {}>|JdbcClientError = external;
 
-function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+function nativeCall(Client sqlClient, @untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|JdbcClientError = external;
 
-function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
+function nativeUpdate(Client sqlClient, @untainted string sqlQuery, string[]? keyColumns = (),
                              Param... parameters) returns UpdateResult|JdbcClientError = external;
 
-function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param?[]... parameters)
+function nativeBatchUpdate(Client sqlClient, @untainted string sqlQuery, Param?[]... parameters)
     returns int[]|JdbcClientError = external;
 
 # An internal function used by clients to shutdown the connection pool.

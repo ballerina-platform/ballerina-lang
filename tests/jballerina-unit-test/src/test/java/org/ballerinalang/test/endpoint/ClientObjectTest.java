@@ -96,41 +96,40 @@ public class ClientObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/remote_basic_negative.bal");
         int errIdx = 0;
         BAssertUtil.validateError(compileResult, errIdx++,
-                "remote modifier not allowed in non-object attached function test1", 22, 1);
+                                  "remote modifier not allowed in non-object attached function test1", 22, 1);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "remote modifier not allowed in non-object attached function test2", 26, 1);
+                                  "remote modifier not allowed in non-object attached function test2", 26, 1);
         BAssertUtil.validateError(compileResult, errIdx++,
-                "remote modifier not allowed in non-object attached function test3", 30, 1);
+                                  "remote modifier not allowed in non-object attached function test3", 30, 1);
 
-        BAssertUtil.validateError(compileResult, errIdx++, "attempt to refer non-remote function abc as remote", 45, 1);
-        BAssertUtil.validateError(compileResult, errIdx++, "remote modifier required here", 50, 1);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                        57, 13);
+                               51, 13);
         BAssertUtil
-                .validateError(compileResult, errIdx++, "undefined remote function 'abc' in client object Foo", 59, 13);
+                .validateError(compileResult, errIdx++, "undefined remote function 'abc' in client object Foo", 53, 13);
 
-        BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 65, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 59, 5);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                        67, 13);
+                               61, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                        71, 9);
+                               65, 9);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation, expected an client object",
-                        75, 9);
+                               69, 9);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                        91, 13);
+                               85, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++, "invalid remote function invocation syntax, use '->' operator",
-                        99, 13);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 106, 12);
-        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 113, 13);
+                               93, 13);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 100, 12);
+        BAssertUtil.validateError(compileResult, errIdx++, "variable 'ep' is not initialized", 107, 13);
 
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 118, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 127, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 112, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 121, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), errIdx);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }
