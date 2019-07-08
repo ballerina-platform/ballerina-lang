@@ -2744,9 +2744,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
-        if (!reasonArgGiven) {
-
-        }
 
         if (ctorType.detailType.tag == TypeTags.RECORD) {
             BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
