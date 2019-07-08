@@ -18,9 +18,9 @@
 package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -53,20 +53,21 @@ import javax.crypto.spec.SecretKeySpec;
 public class CryptoUtils {
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+
     /**
      * Cipher mode that is used to decide if encryption or decryption operation should be performed.
      */
-    public enum CipherMode { ENCRYPT, DECRYPT }
+    public enum CipherMode {ENCRYPT, DECRYPT}
 
     /**
      * Valid tag sizes usable with GCM mode encryption.
      */
-    private static final int[] VALID_GCM_TAG_SIZES = new int[] { 32, 63, 96, 104, 112, 120, 128 };
+    private static final int[] VALID_GCM_TAG_SIZES = new int[]{32, 63, 96, 104, 112, 120, 128};
 
     /**
      * Valid AES key sizes.
      */
-    private static final int[] VALID_AES_KEY_SIZES = new int[] { 16 , 24, 32 };
+    private static final int[] VALID_AES_KEY_SIZES = new int[]{16, 24, 32};
 
     private CryptoUtils() {
 
@@ -87,8 +88,7 @@ public class CryptoUtils {
             mac.init(secretKey);
             return mac.doFinal(input);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "error occurred while calculating HMAC: " + e.getMessage());
+            throw new BallerinaException("error occurred while calculating HMAC: " + e.getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ public class CryptoUtils {
      * Generate Hash of a byte array based on the provided hashing algorithm.
      *
      * @param algorithm algorithm used during hashing
-     * @param input input byte array for hashing
+     * @param input     input byte array for hashing
      * @return calculated hash value
      */
     public static byte[] hash(String algorithm, byte[] input) {
@@ -106,17 +106,16 @@ public class CryptoUtils {
             messageDigest.update(input);
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "error occurred while calculating hash: " + e.getMessage());
+            throw new BallerinaException("error occurred while calculating hash: " + e.getMessage());
         }
     }
 
     /**
      * Generate signature of a byte array based on the provided signing algorithm.
      *
-     * @param algorithm algorithm used during signing
+     * @param algorithm  algorithm used during signing
      * @param privateKey private key to be used during signing
-     * @param input input byte array for signing
+     * @param input      input byte array for signing
      * @return calculated signature
      * @throws InvalidKeyException if the privateKey is invalid
      */
@@ -127,8 +126,7 @@ public class CryptoUtils {
             sig.update(input);
             return sig.sign();
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "error occurred while calculating signature: " + e.getMessage());
+            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage());
         }
     }
 
@@ -137,7 +135,7 @@ public class CryptoUtils {
      *
      * @param algorithm algorithm used during verification
      * @param publicKey public key to be used during verification
-     * @param data input byte array for verification
+     * @param data      input byte array for verification
      * @param signature signature byte array for verification
      * @return validity of the signature
      * @throws InvalidKeyException if the publicKey is invalid
@@ -150,8 +148,7 @@ public class CryptoUtils {
             sig.update(data);
             return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "error occurred while calculating signature: " + e.getMessage());
+            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage());
         }
     }
 
@@ -168,13 +165,13 @@ public class CryptoUtils {
     /**
      * Encrypt or decrypt byte array based on RSA algorithm.
      *
-     * @param cipherMode cipher mode depending on encryption or decryption
-     * @param algorithmMode mode used during encryption
+     * @param cipherMode       cipher mode depending on encryption or decryption
+     * @param algorithmMode    mode used during encryption
      * @param algorithmPadding padding used during encryption
-     * @param key key to be used during encryption
-     * @param input input byte array for encryption
-     * @param iv initialization vector
-     * @param tagSize tag size used for GCM encryption
+     * @param key              key to be used during encryption
+     * @param input            input byte array for encryption
+     * @param iv               initialization vector
+     * @param tagSize          tag size used for GCM encryption
      * @return Decrypted data or error if key is invalid
      */
     public static Object rsaEncryptDecrypt(CipherMode cipherMode, String algorithmMode,
@@ -187,15 +184,15 @@ public class CryptoUtils {
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance(Constants.RSA + "/" + transformedAlgorithmMode + "/"
-                                                       + transformedAlgorithmPadding);
+                    + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, key, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createCryptoError("unsupported algorithm: AES " + algorithmMode + " "
-                                                         + algorithmPadding);
+                    + algorithmPadding);
         } catch (NoSuchPaddingException e) {
             return CryptoUtils.createCryptoError("unsupported padding scheme defined in the algorithm: AES "
-                                                         + algorithmMode + " " + algorithmPadding);
+                    + algorithmMode + " " + algorithmPadding);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
                 IllegalBlockSizeException | BallerinaException e) {
             return CryptoUtils.createCryptoError(e.getMessage());
@@ -205,13 +202,13 @@ public class CryptoUtils {
     /**
      * Encrypt or decrypt byte array based on AES algorithm.
      *
-     * @param cipherMode cipher mode depending on encryption or decryption
-     * @param algorithmMode mode used during encryption
+     * @param cipherMode       cipher mode depending on encryption or decryption
+     * @param algorithmMode    mode used during encryption
      * @param algorithmPadding padding used during encryption
-     * @param key key to be used during encryption
-     * @param input input byte array for encryption
-     * @param iv initialization vector
-     * @param tagSize tag size used for GCM encryption
+     * @param key              key to be used during encryption
+     * @param input            input byte array for encryption
+     * @param iv               initialization vector
+     * @param tagSize          tag size used for GCM encryption
      * @return Decrypted data or error if key is invalid
      */
     public static Object aesEncryptDecrypt(CipherMode cipherMode, String algorithmMode,
@@ -219,14 +216,14 @@ public class CryptoUtils {
         try {
             if (Arrays.stream(VALID_AES_KEY_SIZES).noneMatch(validSize -> validSize == key.length)) {
                 return CryptoUtils.createCryptoError("invalid key size. valid key sizes in bytes: " +
-                                                             Arrays.toString(VALID_AES_KEY_SIZES));
+                        Arrays.toString(VALID_AES_KEY_SIZES));
             }
             String transformedAlgorithmMode = transformAlgorithmMode(algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(algorithmPadding);
             SecretKeySpec keySpec = new SecretKeySpec(key, Constants.AES);
             if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(validSize -> validSize == tagSize)) {
                 return CryptoUtils.createCryptoError("invalid tag size. valid tag sizes in bytes: " +
-                                                             Arrays.toString(VALID_GCM_TAG_SIZES));
+                        Arrays.toString(VALID_GCM_TAG_SIZES));
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance("AES/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
@@ -234,10 +231,10 @@ public class CryptoUtils {
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createCryptoError("unsupported algorithm: AES " +
-                                                         algorithmMode + " " + algorithmPadding);
+                    algorithmMode + " " + algorithmPadding);
         } catch (NoSuchPaddingException e) {
             return CryptoUtils.createCryptoError("unsupported padding scheme defined in  the algorithm: AES " +
-                                                         algorithmMode + " " + algorithmPadding);
+                    algorithmMode + " " + algorithmPadding);
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
                 InvalidKeyException | BallerinaException e) {
             return CryptoUtils.createCryptoError(e.getMessage());
@@ -247,11 +244,11 @@ public class CryptoUtils {
     /**
      * Initialize cipher for encryption and decryption operations.
      *
-     * @param cipher cipher instance to initialize
+     * @param cipher     cipher instance to initialize
      * @param cipherMode mode denoting if cipher is used for encryption or decryption
-     * @param key key used for crypto operation
-     * @param paramSpec cipher parameter specification
-     * @throws InvalidKeyException if provided key was not valid
+     * @param key        key used for crypto operation
+     * @param paramSpec  cipher parameter specification
+     * @throws InvalidKeyException                if provided key was not valid
      * @throws InvalidAlgorithmParameterException if algorithm parameters are insufficient
      */
     private static void initCipher(Cipher cipher, CipherMode cipherMode, Key key, AlgorithmParameterSpec paramSpec)
@@ -278,27 +275,27 @@ public class CryptoUtils {
      * Build algorithm parameter specification based on the cipher mode.
      *
      * @param algorithmMode algorithm mode
-     * @param iv initialization vector for CBC and GCM mode
-     * @param tagSize tag size for GCM mode
+     * @param iv            initialization vector for CBC and GCM mode
+     * @param tagSize       tag size for GCM mode
      * @return algorithm parameter specification
      */
     private static AlgorithmParameterSpec buildParameterSpec(String algorithmMode, byte[] iv, int tagSize) {
         switch (algorithmMode) {
             case Constants.GCM:
                 if (iv == null) {
-                    throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("GCM mode requires 16 byte IV");
+                    throw new BallerinaException("GCM mode requires 16 byte IV");
                 } else {
                     return new GCMParameterSpec(tagSize, iv);
                 }
             case Constants.CBC:
                 if (iv == null) {
-                    throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("CBC mode requires 16 byte IV");
+                    throw new BallerinaException("CBC mode requires 16 byte IV");
                 } else {
                     return new IvParameterSpec(iv);
                 }
             case Constants.ECB:
                 if (iv != null) {
-                    throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("ECB mode cannot use IV");
+                    throw new BallerinaException("ECB mode cannot use IV");
                 }
         }
         return null;
@@ -311,11 +308,10 @@ public class CryptoUtils {
      * @return transformed algorithm mode
      * @throws BallerinaException if algorithm mode is not supported
      */
-    private static String transformAlgorithmMode(String algorithmMode) throws
-                                          org.ballerinalang.jvm.util.exceptions.BallerinaException {
+    private static String transformAlgorithmMode(String algorithmMode) throws BallerinaException {
         if (!algorithmMode.equals(Constants.CBC) && !algorithmMode.equals(Constants.ECB)
                 && !algorithmMode.equals(Constants.GCM)) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("unsupported mode: " + algorithmMode);
+            throw new BallerinaException("unsupported mode: " + algorithmMode);
         }
         return algorithmMode;
     }
@@ -327,8 +323,7 @@ public class CryptoUtils {
      * @return transformed  padding algorithm name
      * @throws BallerinaException if padding algorithm is not supported
      */
-    private static String transformAlgorithmPadding(String algorithmPadding)
-            throws org.ballerinalang.jvm.util.exceptions.BallerinaException {
+    private static String transformAlgorithmPadding(String algorithmPadding) throws BallerinaException {
         switch (algorithmPadding) {
             case "PKCS1":
                 algorithmPadding = "PKCS1Padding";
@@ -355,8 +350,7 @@ public class CryptoUtils {
                 algorithmPadding = "NoPadding";
                 break;
             default:
-                throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                        "unsupported padding: " + algorithmPadding);
+                throw new BallerinaException("unsupported padding: " + algorithmPadding);
         }
         return algorithmPadding;
     }
@@ -364,7 +358,7 @@ public class CryptoUtils {
     /**
      * Replace system property holders in the property values.
      * e.g. Replace ${ballerina.home} with value of the ballerina.home system property.
-     *
+     * <p>
      * This logic is originally from http-transport-utils. Since, HTTP stdlib depends on http-transport,
      * HTTP stdlib directly uses this method form the original utility. This is added here, not to make Auth stdlib
      * depend on http-transport.
@@ -389,7 +383,7 @@ public class CryptoUtils {
 
                 sysPropValue = sysPropValue.replace("\\", "\\\\");
                 matcher.appendReplacement(sb, sysPropValue);
-            } while(matcher.find());
+            } while (matcher.find());
 
             matcher.appendTail(sb);
             return sb.toString();
