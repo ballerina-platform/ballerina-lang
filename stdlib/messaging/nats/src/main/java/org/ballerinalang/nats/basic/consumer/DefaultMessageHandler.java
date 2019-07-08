@@ -21,6 +21,8 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -36,8 +38,10 @@ public class DefaultMessageHandler implements MessageHandler {
      * Resource which the message should be dispatched.
      */
     private ObjectValue serviceObject;
+    private Scheduler scheduler;
 
-    DefaultMessageHandler(ObjectValue serviceObject) {
+    DefaultMessageHandler(Scheduler scheduler, ObjectValue serviceObject) {
+        this.scheduler = scheduler;
         this.serviceObject = serviceObject;
     }
 
@@ -46,10 +50,11 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     @Override
     public void onMessage(Message message) {
+        ArrayValue msgData = new ArrayValue(message.getData());
         ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
-                Constants.NATS_MESSAGE_OBJ_NAME, message.getData(), message.getSubject(), message.getReplyTo());
-        msgObj.addNativeData(Constants.NATS_MSG, message);
-        Executor.submit(serviceObject, "onMessage", new ResponseCallback(), null, msgObj);
+                Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
+        Executor.submit(scheduler, serviceObject, "onMessage", new ResponseCallback(), null, msgObj, Boolean.TRUE);
+
     }
 
     /**
@@ -61,6 +66,7 @@ public class DefaultMessageHandler implements MessageHandler {
          */
         @Override
         public void notifySuccess() {
+
             // Nothing to do on success
         }
 

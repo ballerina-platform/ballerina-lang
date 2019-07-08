@@ -25,7 +25,10 @@ public type Listener object {
     # + c - An already established connection or configuration to create a new connection.
     public function __init(Connection c) {
         self.connection = c;
+        self.init(c);
     }
+
+    private function init(Connection c) = external;
 
     # Binds the NATS consumer to a service.
     #
@@ -42,14 +45,17 @@ public type Listener object {
     #
     # + return - Error or ().
     public function __start() returns error? {
-        //ignore : since connection can be re-used between multiple listeners
+        return self.start();
     }
+
+    function start() = external;
 
     # Stops the listener in the lifecyle.
     #
     # + return - error or ().
     public function __stop() returns error? {
-        //ignore : since connection can be re-used between multiple listeners
+        return self.stop();
     }
 
+    function stop() = external;
 };

@@ -38,6 +38,11 @@ public class Constants {
     public static final String CONNECTED_CLIENTS = "connected_clients";
 
     /**
+     * Represents dispatcher list.
+     */
+    public static final String DISPATCHER_LIST = "dispatcher_list";
+
+    /**
      * Represent whether connection close already triggered.
      */
     public static final String CLOSING = "closing";
@@ -55,11 +60,6 @@ public class Constants {
      * Represents the NATS message.
      */
     public static final String NATS_MSG = "NATSMSG";
-
-    /**
-     * Represents the message content native data.
-     */
-    public static final String MSG_CONTENT_NAME = "content";
 
     /**
      * Error code for i/o.
@@ -81,4 +81,5 @@ public class Constants {
      */
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
 
+    public static final String COUNTDOWN_LATCH = "count_down_latch";
 }
