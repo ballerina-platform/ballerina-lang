@@ -19,9 +19,9 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -52,27 +52,17 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 public class Visit extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
-
-        BallerinaClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
-        int versionNumber = (int) context.getIntArgument(0);
-        int access = (int) context.getIntArgument(1);
-        String name = context.getStringArgument(0);
-        String superName = context.getStringArgument(1);
-        String[] interfaces = getInterfaces(context.getNullableRefArgument(2));
-        cw.visitClass(versionNumber, access, name, null, superName, interfaces);
+        throw new UnsupportedOperationException("BVM Unsupported");
     }
 
-    private String[] getInterfaces(BValue value) {
-        if (!(value instanceof BValueArray)) {
-            return null;
-        }
+    public static void visit(Strand strand, ObjectValue oCw, long versionNumber, long access,
+                             String name, Object signature, String superName, Object optInterfaces) {
 
-        BValueArray valueArray = (BValueArray) value;
-        String[] stringArray = new String[(int) valueArray.size()];
-        for (int i = 0; i < valueArray.size(); i++) {
-            stringArray[i] = valueArray.getString(i);
-        }
-        return stringArray;
+        BallerinaClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
+        String[] interfaces = ASMUtil.fromNilableStringArray(optInterfaces);
+        cw.visitClass(((int) versionNumber), ((int) access), name, null, superName, interfaces);
     }
+
 }

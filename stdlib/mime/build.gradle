@@ -59,7 +59,6 @@ dependencies {
     testImplementation project(':ballerina-time')
     testImplementation project(':ballerina-internal')
     testImplementation project(':ballerina-reflect')
-    testImplementation project(':ballerina-jvm')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 

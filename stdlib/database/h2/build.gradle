@@ -78,7 +78,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'
-    testCompile project(':ballerina-jvm')
 }
 
 configurations {

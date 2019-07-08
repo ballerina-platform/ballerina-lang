@@ -374,10 +374,14 @@ public class TypeChecker {
             case TypeTags.XML_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
-                                                                .allMatch(bValue -> checkIsType(bValue, targetType));
+                            .allMatch(bValue -> checkIsType(bValue, targetType));
                 }
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.INT_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                            .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);

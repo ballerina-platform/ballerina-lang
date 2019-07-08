@@ -9,15 +9,16 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
@@ -34,54 +35,36 @@ public class BootstrapRunner {
         }
 
         List<String> commands = new ArrayList<>();
-        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows");
-        if (isWindows) {
-            commands.add("cmd.exe");
-            commands.add("/c");
-            commands.add(bootstrapHome + "\\bin\\ballerina.bat");
-        } else {
-            commands.add("sh");
-            commands.add(bootstrapHome + "/bin/ballerina");
-        }
-        commands.add("run");
-        commands.add(bootstrapHome + "/bin/compiler_backend_jvm.balx");
         commands.add(entryBir);
-        if (isWindows) {
-            commands.add("\"\""); // no native map for test file
-        } else {
-            commands.add(""); // no native map for test file
-        }
+        commands.add(""); // no native map for test file
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
 
         ProcessBuilder balProcess = new ProcessBuilder(commands);
+        Map<String, String> environment = balProcess.environment();
+        environment.remove("BAL_JAVA_DEBUG");
+        environment.remove("JAVA_OPTS");
 
         try {
-            Process process = balProcess.start();
-            Scanner errorScanner = new Scanner(process.getErrorStream());
-            Scanner outputScanner = new Scanner(process.getInputStream());
+            Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
+            Method backendMainMethod = backendMain.getMethod("main", String[].class);
+            Object[] params = new Object[]{commands.toArray(new String[0])};
+            backendMainMethod.invoke(null, params);
+        } catch (ClassNotFoundException | NoSuchMethodException |
+                IllegalAccessException | InvocationTargetException e) {
+            throw new BLangCompilerException("could not invoke compiler backend", e);
+        }
+    }
 
-            boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
-
+    private static void pipeIo(Scanner outputScanner, PrintStream outStream) {
+        Thread ioInherit = new Thread(() -> {
             while (outputScanner.hasNext()) {
                 outStream.println(outputScanner.nextLine());
             }
-
-            while (errorScanner.hasNext()) {
-                errorStream.println(errorScanner.nextLine());
-            }
-            if (!processEnded) {
-                throw new BLangCompilerException("failed to generate jar file within 120s.");
-            }
-            if (process.exitValue() != 0) {
-                throw new BLangCompilerException("jvm code gen phase failed.");
-            }
-        } catch (IOException e) {
-            throw new BLangCompilerException("could not run compiler_backend_jvm.balx", e);
-        } catch (InterruptedException e) {
-            throw new BLangCompilerException("jvm code gen interrupted", e);
-        }
+        }, "io-pipe");
+        ioInherit.setDaemon(true);
+        ioInherit.start();
     }
 
     public static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,

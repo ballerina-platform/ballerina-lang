@@ -73,18 +73,23 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
 }
 
 function readMap(string path) returns map<string> {
-    io:ReadableByteChannel rbc = io:openReadableFile(path);
-    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
-    var result = untaint rch.readJson();
-    var didClose = rch.close();
-    if (result is error) {
-        panic result;
+    var rbc = io:openReadableFile(path);
+    if (rbc is error) {
+        panic rbc;
     } else {
-        var externalMap = map<string>.convert(result);
-        if (externalMap is error){
-            panic externalMap;
+        io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+
+        var result = untaint rch.readJson();
+        var didClose = rch.close();
+        if (result is error) {
+            panic result;
         } else {
-            return externalMap;
+            var externalMap = map<string>.convert(result);
+            if (externalMap is error){
+                panic externalMap;
+            } else {
+                return externalMap;
+            }
         }
     }
 }

@@ -453,7 +453,7 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        error err = error("unsupported literal value type in annotation attachment value", {"type":bType});
+        error err = error("unsupported literal value type in annotation attachment value", err = {"type":bType});
         panic err;
     }
     return value;

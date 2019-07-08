@@ -19,12 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,33 +46,30 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitLdcInsn extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        BValue value = context.getRefArgument(1);
-        switch (value.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                long longVal = ((BInteger) value).intValue();
-                mv.visitLdcInsn(longVal);
-                break;
-            case TypeTags.FLOAT_TAG:
-                double doubleVal = ((BFloat) value).floatValue();
-                mv.visitLdcInsn(doubleVal);
-                break;
-            case TypeTags.STRING_TAG:
-                String stringVal = value.stringValue();
-                mv.visitLdcInsn(stringVal);
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                boolean booleanValue = ((BBoolean) value).booleanValue();
-                mv.visitLdcInsn(booleanValue);
-                break;
-            case TypeTags.BYTE_TAG:
-                int intVal = (int) ((BByte) value).byteValue();
-                mv.visitLdcInsn(intVal);
-                break;
-            default:
-                throw new UnsupportedOperationException();
+    public static void visitLdcInsn(Strand strand, ObjectValue oMv, Object oValue) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        if (Long.class.equals(oValue.getClass())) {
+            long longVal = (Long) oValue;
+            mv.visitLdcInsn(longVal);
+        } else if (Double.class.equals(oValue.getClass())) {
+            double doubleVal = (Double) oValue;
+            mv.visitLdcInsn(doubleVal);
+        } else if (String.class.equals(oValue.getClass())) {
+            String stringVal = (String) oValue;
+            mv.visitLdcInsn(stringVal);
+        } else if (Boolean.class.equals(oValue.getClass())) {
+            boolean booleanValue = (Boolean) oValue;
+            mv.visitLdcInsn(booleanValue);
+        } else if (Integer.class.equals(oValue.getClass())) {
+            int intVal = (Integer) oValue;
+            mv.visitLdcInsn(intVal);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 }

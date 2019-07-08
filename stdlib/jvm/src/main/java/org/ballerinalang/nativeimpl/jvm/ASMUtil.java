@@ -18,12 +18,11 @@
 package org.ballerinalang.nativeimpl.jvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
@@ -47,29 +46,36 @@ public class ASMUtil {
     public static final String METHOD_TYPE_DESC = "Ljava/lang/invoke/MethodType;";
     public static final String MAP_VALUE_DESC = "Lorg/ballerinalang/jvm/values/MapValue;";
 
-    public static BMap<String, BValue> newObject(Context context, String type) {
-
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(JVM_PKG_PATH);
-        if (packageInfo == null) {
-            throw new BallerinaException("package - " + JVM_PKG_PATH + " does not exist");
-        }
-        StructureTypeInfo structureInfo = packageInfo.getStructInfo(type);
-        BStructureType structType = structureInfo.getType();
-        return new BMap<>(structType);
+    public static ObjectValue newObject(String type) {
+        return BallerinaValues.createObjectValue(JVM_PKG_PATH, type);
     }
 
+    @Deprecated
     public static <T> T getRefArgumentNativeData(Context context, int index) {
 
         return getNativeData(context.getRefArgument(index));
     }
 
+    @Deprecated
     private static <T> T getNativeData(BValue ref) {
 
         return (T) ((BMap<String, BValue>) ref).getNativeData(NATIVE_KEY);
     }
 
-    public static void addNativeDataToObject(Object data, BMap<String, BValue> bStruct) {
-
+    @Deprecated
+    public static void addNativeDataToBVMObject(Object data, BMap<String, BValue> bStruct) {
         bStruct.addNativeData(NATIVE_KEY, data);
+    }
+
+    public static <T> T getRefArgumentNativeData(ObjectValue objectValue) {
+        return (T) objectValue.getNativeData().get(NATIVE_KEY);
+    }
+
+    public static void addNativeDataToObject(Object data, ObjectValue objectValue) {
+        objectValue.addNativeData(NATIVE_KEY, data);
+    }
+
+    public static String[] fromNilableStringArray(Object optArray) {
+        return optArray == null ? null : ((ArrayValue) optArray).getStringArray();
     }
 }

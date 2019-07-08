@@ -29,7 +29,7 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
+map<[bir:AsyncCall|bir:FPLoad,string]> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
@@ -106,7 +106,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     string moduleName = moduleId.name;
     string pkgName = getPackageName(orgName, moduleName);
 
-    var (module, isFromCache) = lookupModule(moduleId);
+    [bir:Package, boolean] [ module, isFromCache ] = lookupModule(moduleId);
 
     if (!isEntry && isFromCache) {
         return;
@@ -133,7 +133,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
-    foreach var (moduleClass, v) in jvmClassMap {
+    foreach var [ moduleClass, v ] in jvmClassMap {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = untaint moduleClass;
         if (moduleClass == typeOwnerClass) {
@@ -177,7 +177,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
             generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -244,14 +244,14 @@ function computeLockNameFromString(string varName) returns string {
     return "$lock" + varName;
 }
 
-function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
+function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
         string orgName = modId.org;
         string moduleName = modId.name;
         string versionName = modId.modVersion;
 
         var pkgFromCache = compiledPkgCache[orgName + moduleName];
         if (pkgFromCache is bir:Package) {
-            return (pkgFromCache, true);
+            return [pkgFromCache, true];
         }
 
         var cacheDir = findCacheDirFor(modId);
@@ -260,12 +260,12 @@ function lookupModule(bir:ModuleID modId) returns (bir:Package, boolean) {
         internal:Path mappingPath = new(mappingFile);
         if (mappingPath.exists()) {
             var externalMap = readMap(mappingFile);
-            foreach var (key,val) in externalMap {
+            foreach var [key,val] in externalMap {
                 externalMapCache[key] = val;
             }
         }
         compiledPkgCache[orgName + moduleName] = parsedPkg;
-        return (parsedPkg, false);
+        return [parsedPkg, false];
 
 }
 
@@ -315,11 +315,11 @@ function getPackageName(string orgName, string moduleName) returns string {
     return packageName;
 }
 
-function splitPkgName(string key) returns (string, string) {
+function splitPkgName(string key) returns [string, string] {
     int index = key.lastIndexOf("/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
-    return (pkgName, functionName);
+    return [pkgName, functionName];
 }
 
 function cleanupName(string name) returns string {
@@ -344,7 +344,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
+                                   map<[bir:AsyncCall|bir:FPLoad,string]> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
