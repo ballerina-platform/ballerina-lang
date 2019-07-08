@@ -24,7 +24,7 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -51,7 +51,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-io')
     implementation project(':ballerina-time')

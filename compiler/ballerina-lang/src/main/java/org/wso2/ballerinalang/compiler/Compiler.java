@@ -21,18 +21,18 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @since 0.94
@@ -147,7 +147,7 @@ public class Compiler {
         if (isBuild) {
             outStream.println("Compiling source");
         }
-        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
+        List<BLangPackage> compiledPackages = compilePackages(pkgList, isBuild);
         // If it is a build and dlog is not empty, compilation should fail
         if (isBuild && this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
@@ -156,17 +156,16 @@ public class Compiler {
     }
     // private methods
 
-    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
-        // TODO This is hack to load the builtin package. We will fix this with BALO support
-        this.compilerDriver.loadBuiltinPackage();
+    private List<BLangPackage> compilePackages(List<PackageID> pkgIdList, boolean isBuild) {
+
+        this.compilerDriver.loadLangModules(pkgIdList);
         this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
-        List<BLangPackage> packages = pkgIdStream
-                .filter(p -> (!SymbolTable.BUILTIN.equals(p) || !SymbolTable.UTILS.equals(p)))
+        List<BLangPackage> packages = pkgIdList.stream()
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
-                .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
+                .filter(Objects::nonNull) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
@@ -178,7 +177,8 @@ public class Compiler {
     }
 
     private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
-        List<BLangPackage> compiledPackages = compilePackages(Stream.of(packageID), isBuild);
+
+        List<BLangPackage> compiledPackages = compilePackages(Lists.of(packageID), isBuild);
         // TODO: this should check for dlog.errorCount > 0. But currently some errors are
         // not getting added to dlog, hence cannot check for error count. Issue #10454.
         if (compiledPackages.isEmpty()) {

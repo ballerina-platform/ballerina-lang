@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -201,7 +202,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.TYPE_DEF) {
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return true;
         }
 
@@ -688,6 +689,61 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol lookupLangLibMethod(BType type, Name name) {
+
+        if (symTable.langAnnotationModuleSymbol == null) {
+            return symTable.notFoundSymbol;
+        }
+        BSymbol bSymbol;
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                bSymbol = lookupLangLibMethodInModule(symTable.langArrayModuleSymbol, name);
+                break;
+            case TypeTags.DECIMAL:
+                bSymbol = lookupLangLibMethodInModule(symTable.langDecimalModuleSymbol, name);
+                break;
+            case TypeTags.ERROR:
+                bSymbol = lookupLangLibMethodInModule(symTable.langErrorModuleSymbol, name);
+                break;
+            case TypeTags.FLOAT:
+                bSymbol = lookupLangLibMethodInModule(symTable.langFloatModuleSymbol, name);
+                break;
+            case TypeTags.FUTURE:
+                bSymbol = lookupLangLibMethodInModule(symTable.langFutureModuleSymbol, name);
+                break;
+            case TypeTags.INT:
+                bSymbol = lookupLangLibMethodInModule(symTable.langIntModuleSymbol, name);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                bSymbol = lookupLangLibMethodInModule(symTable.langMapModuleSymbol, name);
+                break;
+            case TypeTags.OBJECT:
+                bSymbol = lookupLangLibMethodInModule(symTable.langObjectModuleSymbol, name);
+                break;
+            case TypeTags.STREAM:
+                bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
+                break;
+            case TypeTags.STRING:
+                bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
+                break;
+            case TypeTags.TABLE:
+                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
+                break;
+            case TypeTags.XML:
+                bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                break;
+            default:
+                bSymbol = symTable.notFoundSymbol;
+        }
+        if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = lookupLangLibMethodInModule(symTable.langValueModuleSymbol, name);
+        }
+
+        return bSymbol;
+    }
+
     /**
      * Recursively analyse the symbol env to find the closure variable symbol that is being resolved.
      *
@@ -746,6 +802,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
     }
 
+    private BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
+
+        // What we get here is T.Name, this should convert to
+        ScopeEntry entry = moduleSymbol.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
+                entry = entry.next;
+                continue;
+            }
+            if (isMemberAccessAllowed(env, entry.symbol)) {
+                return entry.symbol;
+            }
+            return symTable.notFoundSymbol;
+        }
+        return symTable.notFoundSymbol;
+    }
 
     /**
      * Return the symbol with the given name.
@@ -791,6 +863,24 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, BXMLNSSymbol> namespaces = new LinkedHashMap<Name, BXMLNSSymbol>();
         addNamespacesInScope(namespaces, env);
         return namespaces;
+    }
+
+    public void reloadErrorType() {
+
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.errorType = (BErrorType) entry.symbol.type;
+            symTable.detailType = (BRecordType) symTable.errorType.detailType;
+            symTable.errorConstructor = symTable.errorType.ctorSymbol;
+            symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
+            symTable.detailType.restFieldType = symTable.pureType;
+            return;
+        }
+        throw new IllegalStateException("built-in error not found ?");
     }
 
     // visit type nodes
@@ -925,9 +1015,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.pureTypeConstrainedMap);
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
-        if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
+        if (reasonType == symTable.stringType && detailType == symTable.detailType) {
             resultType = symTable.errorType;
             return;
         }

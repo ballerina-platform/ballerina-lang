@@ -55,7 +55,8 @@ public class Symbols {
 
     private static BPackageSymbol createPackageSymbolScope(SymbolTable symTable,
                                                            BPackageSymbol pkgSymbol) {
-        if (pkgSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
+
+        if (pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
             pkgSymbol.scope = symTable.rootScope;
         } else {
             pkgSymbol.scope = new Scope(pkgSymbol);

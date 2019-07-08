@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -986,7 +987,7 @@ public class Desugar extends BLangNodeVisitor {
         if (detailType.tag == TypeTags.MAP) {
             detailMapType = detailType;
         } else {
-            detailMapType = symTable.pureTypeConstrainedMap;
+            detailMapType = symTable.detailType;
         }
 
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
@@ -1063,7 +1064,7 @@ public class Desugar extends BLangNodeVisitor {
 
         filterIterator.iContext = iterableContext;
 
-        iterableContext.resultType = symTable.pureTypeConstrainedMap;
+        iterableContext.resultType = symTable.detailType;
         Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
         filterOperation.pos = pos;
         filterOperation.collectionType = filterOperation.expectedType = iterableContext.resultType;
@@ -1723,8 +1724,9 @@ public class Desugar extends BLangNodeVisitor {
                 parentIndexAccessExpr);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail$" + errorCount++,
-                symTable.pureTypeConstrainedMap, errorDetailBuiltinFunction, parentErrorVarRef.pos);
-        detailTempVarDef.type = symTable.pureTypeConstrainedMap;
+                                                               symTable.detailType, errorDetailBuiltinFunction,
+                                                               parentErrorVarRef.pos);
+        detailTempVarDef.type = symTable.detailType;
         parentBlockStmt.addStatement(detailTempVarDef);
         this.env.scope.define(names.fromIdNode(detailTempVarDef.var.name), detailTempVarDef.var.symbol);
 
@@ -2536,11 +2538,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
 
-        if (safeNavigate(iExpr)) {
-            result = rewriteExpr(rewriteSafeNavigationExpr(iExpr));
-            return;
-        }
-
         if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
             result = rewriteErrorConstructor(iExpr);
         }
@@ -2555,6 +2552,7 @@ public class Desugar extends BLangNodeVisitor {
             visitFunctionPointerInvocation(iExpr);
             return;
         } else if (iExpr.iterableOperationInvocation) {
+            // TODO : Fix this.
             visitIterableOperationInvocation(iExpr);
             return;
         }
@@ -2564,6 +2562,10 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = genIExpr;
+        if (iExpr.langLibInvocation) {
+            return;
+        }
+        // TODO : Remove this if block. Not needed.
         if (iExpr.expr == null) {
             if (iExpr.exprSymbol == null) {
                 return;
@@ -2571,19 +2573,7 @@ public class Desugar extends BLangNodeVisitor {
             iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, iExpr.exprSymbol);
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
-
         switch (iExpr.expr.type.tag) {
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.MAP:
-            case TypeTags.TABLE:
-            case TypeTags.STREAM:
-            case TypeTags.FUTURE:
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
@@ -3615,7 +3605,6 @@ public class Desugar extends BLangNodeVisitor {
                 InstructionCodes.ITR_NEXT);
 
         nextInvocation.type = foreach.nillableResultType;
-        nextInvocation.originalType = foreach.nillableResultType;
         return nextInvocation;
     }
 
@@ -4045,17 +4034,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
-        if (iExpr.expr.type.tag == TypeTags.STRING) {
-            // Builtin module provides string.length() function hence reusing it.
-            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symResolver
-                    .lookupSymbol(symTable.pkgEnvMap.get(symTable.builtInPackageSymbol),
-                                  names.fromString(BLangBuiltInMethod.STRING_LENGTH.getName()), SymTag.FUNCTION);
-            BLangInvocation builtInLengthMethod = ASTBuilderUtil
-                    .createInvocationExprMethod(iExpr.pos, bInvokableSymbol, new ArrayList<>(),
-                                                new ArrayList<>(), new ArrayList<>(), symResolver);
-            builtInLengthMethod.expr = iExpr.expr;
-            return rewrite(builtInLengthMethod, env);
-        }
         return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr));
     }
 
@@ -4546,6 +4524,25 @@ public class Desugar extends BLangNodeVisitor {
             return expr;
         }
 
+        if (expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
+
+            if (TypeParamAnalyzer.isTypeParam(invocation.type)) {
+                BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
+                                                                                    symTable.errorType, false, true,
+                                                                                    InstructionCodes.NOP, null, null);
+                BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                        TreeBuilder.createTypeConversionNode();
+                conversionExpr.expr = expr;
+                conversionExpr.targetType = lhsType;
+                conversionExpr.conversionSymbol = conversionSymbol;
+                conversionExpr.type = lhsType;
+                conversionExpr.pos = expr.pos;
+                return conversionExpr;
+            }
+        }
+
         BType rhsType = expr.type;
         if (types.isSameType(rhsType, lhsType)) {
             return expr;
@@ -4718,7 +4715,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                     null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
-                detailType = symTable.pureTypeConstrainedMap;
+                detailType = symTable.detailType;
             } else {
                 detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
 
@@ -4983,8 +4980,7 @@ public class Desugar extends BLangNodeVisitor {
 
         NodeKind kind = accessExpr.expr.getKind();
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+                kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             return safeNavigate((BLangAccessExpression) accessExpr.expr);
         }
 
@@ -5080,19 +5076,6 @@ public class Desugar extends BLangNodeVisitor {
             this.successPattern.body = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(matchStmt));
         }
         this.successPattern = successPattern;
-    }
-
-    private boolean isSafeNavigationAllowedBuiltinInvocation(BLangInvocation iExpr) {
-        if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
-            if (iExpr.expr.type.tag == TypeTags.UNION && iExpr.expr.type.isNullable()) {
-                BUnionType unionType = (BUnionType) iExpr.expr.type;
-                return unionType.getMemberTypes().size() == 2 && unionType.getMemberTypes().stream()
-                        .noneMatch(type -> type.tag != TypeTags.NIL && types.isValueType(type));
-            }
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {
-            return false;
-        }
-        return true;
     }
 
     private BLangMatchTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,

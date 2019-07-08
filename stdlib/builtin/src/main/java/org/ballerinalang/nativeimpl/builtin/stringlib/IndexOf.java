@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -33,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.indexOf",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "indexOf",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "substring", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},

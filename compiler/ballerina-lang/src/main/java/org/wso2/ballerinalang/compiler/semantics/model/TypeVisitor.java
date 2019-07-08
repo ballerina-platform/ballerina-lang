@@ -99,4 +99,5 @@ public interface TypeVisitor {
     void visit(BType bType);
 
     void visit(BFutureType bFutureType);
+
 }

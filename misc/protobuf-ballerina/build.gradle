@@ -26,7 +26,7 @@ dependencies {
     implementation 'info.picocli:picocli'
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'

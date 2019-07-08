@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
+import ballerina/'lang\.int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
 public const string BOUNDARY = "boundary";
@@ -169,7 +170,7 @@ public type Entity object {
     # + contentLength - Content length that needs to be set to entity
     public function setContentLength(@untainted int contentLength) {
         self.cLength = contentLength;
-        var contentLengthStr = string.convert(contentLength);
+        var contentLengthStr = contentLength.toString();
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 
@@ -184,7 +185,7 @@ public type Entity object {
         if (contentLength == "") {
             return -1;
         } else {
-            return int.convert(contentLength);
+            return langint:fromString(contentLength);
         }
     }
 

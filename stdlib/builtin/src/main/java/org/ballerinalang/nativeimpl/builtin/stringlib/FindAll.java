@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaErrors;
@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,8 +39,8 @@ import java.util.regex.PatternSyntaxException;
  * Extern function ballerina.model.strings:findAll.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.findAll",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "findAll",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
@@ -64,7 +63,7 @@ public class FindAll extends AbstractRegexFunction {
             }
             context.setReturnValues(stringArray);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(BuiltInUtils.createStringError(context, e.getMessage()));
+            context.setReturnValues(ErrorUtils.createStringError(context, e.getMessage()));
         }
     }
 

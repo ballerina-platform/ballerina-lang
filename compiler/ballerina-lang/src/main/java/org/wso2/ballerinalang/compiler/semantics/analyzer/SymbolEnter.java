@@ -145,6 +145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<TypeDefinition> unresolvedTypes;
     private List<PackageID> importedPackages;
     private int typePrecedence;
+    private final TypeParamAnalyzer typeParamAnalyzer;
 
     private SymbolEnv env;
 
@@ -166,12 +167,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.importedPackages = new ArrayList<>();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
-        defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol));
+        defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol));
         return pkgNode;
     }
 
@@ -340,10 +342,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
-        if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
-                    importPkgNode.getQualifiedPackageName());
-            return;
+
+        // Built-in Annotation module is not allowed to import.
+        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL)) {
+            // Only peer lang.* modules able to see these two modules.
+            // Spec allows to annotation model to be imported, but implementation not support this.
+            if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
+                    && enclPackageID.name.value.startsWith(Names.LANG.value))) {
+                dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
+                        importPkgNode.getQualifiedPackageName());
+                return;
+            }
         }
 
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
@@ -619,7 +628,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
-
+        if (typeDefinition.annAttachments.stream()
+                .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
+            // TODO : Clean this. Not a nice way to handle this.
+            //  TypeParam is built-in annotation, and limited only within lang.* modules.
+            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
+            } else {
+                dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
         typeDefinition.symbol = typeDefSymbol;
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
 
@@ -634,6 +653,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
+        symbol.retType = typeDefSymbol.type;
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
@@ -1236,9 +1256,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.pureTypeConstrainedMap);
+                                        .orElse(symTable.detailType);
 
-            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
+            if (reasonType == symTable.stringType && detailType == symTable.detailType) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }
@@ -1382,6 +1402,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             paramTypes.add(invokableSymbol.restParam.type);
         }
         invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags,
+                                                                Names.EMPTY, env.enclPkg.symbol.pkgID,
+                                                                invokableSymbol.type, env.scope.owner);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -1645,25 +1668,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        if (funcNode.receiver.type.tag != TypeTags.BOOLEAN
-                && funcNode.receiver.type.tag != TypeTags.STRING
-                && funcNode.receiver.type.tag != TypeTags.INT
-                && funcNode.receiver.type.tag != TypeTags.FLOAT
-                && funcNode.receiver.type.tag != TypeTags.DECIMAL
-                && funcNode.receiver.type.tag != TypeTags.JSON
-                && funcNode.receiver.type.tag != TypeTags.XML
-                && funcNode.receiver.type.tag != TypeTags.MAP
-                && funcNode.receiver.type.tag != TypeTags.TABLE
-                && funcNode.receiver.type.tag != TypeTags.STREAM
-                && funcNode.receiver.type.tag != TypeTags.FUTURE
-                && funcNode.receiver.type.tag != TypeTags.OBJECT
-                && funcNode.receiver.type.tag != TypeTags.RECORD) {
-            dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return false;
-        }
-
-        if (!this.env.enclPkg.symbol.pkgID.equals(funcNode.receiver.type.tsymbol.pkgID)) {
+        if (funcNode.receiver.type.tag == TypeTags.OBJECT
+                && !this.env.enclPkg.symbol.pkgID.equals(funcNode.receiver.type.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
                     funcNode.name.value, funcNode.receiver.type.toString());
             return false;

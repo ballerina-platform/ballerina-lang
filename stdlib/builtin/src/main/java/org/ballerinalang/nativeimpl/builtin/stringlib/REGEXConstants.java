@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 /**
  * Constants for Ballerina Regex.

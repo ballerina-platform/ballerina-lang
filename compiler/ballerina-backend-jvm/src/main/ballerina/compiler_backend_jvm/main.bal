@@ -53,7 +53,13 @@ public function main(string... args) {
 
 function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
     if (mapPath != "") {
-        externalMapCache = readMap(mapPath);
+        map<string> tempMap = readMap(mapPath);
+
+        // TODO 29/06/2019: See if this call to cleanupName() can be removed
+        externalMapCache = {};
+        foreach var (k, v) in tempMap {
+            externalMapCache[k] = v;
+        }
     }
 
     byte[] moduleBytes = readFileFully(pathToEntryBir);

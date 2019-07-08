@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/log;
+import ballerina/internal;
 
 # Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
@@ -53,7 +54,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
-    string[] decodedCredentials = decodedHeaderValue.split(":");
+    string[] decodedCredentials = internal:split(decodedHeaderValue, ":");
     if (decodedCredentials.length() != 2) {
         return prepareError("Incorrect credential format. Format should be username:password");
     } else {
@@ -68,6 +69,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
-    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = err.reason());
+    string? reasonString = err is error ? err.reason() : ();
+    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = reasonString);
     return preparedError;
 }

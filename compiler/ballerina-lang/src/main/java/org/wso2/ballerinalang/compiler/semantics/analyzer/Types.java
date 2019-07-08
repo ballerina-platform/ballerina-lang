@@ -81,7 +81,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -96,21 +95,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_
  */
 public class Types {
 
-    /**
-     * @since 0.94
-     */
-    public enum RecordKind {
-        STRUCT("struct"),
-        MAP("map"),
-        JSON("json");
-
-        public String value;
-
-        RecordKind(String value) {
-            this.value = value;
-        }
-    }
-
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
 
@@ -119,8 +103,6 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
-
-    private Stack<BType> typeStack;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -137,7 +119,6 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.typeStack = new Stack<>();
         this.names = Names.getInstance(context);
     }
 
@@ -573,6 +554,7 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+
         if (isSameType(source, target)) {
             return true;
         }
@@ -750,9 +732,63 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              List<TypePair> unresolvedTypes) {
+        // For invokable types with typeParam parameters, we have to check whether the source param types are
+        // covariant with the target param types.
+        if (containsTypeParams(target)) {
+            // TODO: 7/4/19 See if the below code can be generalized to avoid code duplication
+            if (source.paramTypes.size() != target.paramTypes.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < source.paramTypes.size(); i++) {
+                BType sourceParam = source.paramTypes.get(i);
+                BType targetParam = target.paramTypes.get(i);
+                boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
+
+                if (isTypeParam) {
+                    if (!isAssignable(sourceParam, targetParam)) {
+                        return false;
+                    }
+                } else {
+                    if (!isAssignable(targetParam, sourceParam)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (source.retType == null && target.retType == null) {
+                return true;
+            } else if (source.retType == null || target.retType == null) {
+                return false;
+            }
+
+            // Source return type should be covariant with target return type
+            return isAssignable(source.retType, target.retType, unresolvedTypes);
+        }
+
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean containsTypeParams(BInvokableType type) {
+        boolean hasParameterizedTypes = type.paramTypes.stream()
+                .anyMatch(t -> {
+                    if (t.tag == TypeTags.FUNCTION_POINTER) {
+                        return containsTypeParams((BInvokableType) t);
+                    }
+                    return TypeParamAnalyzer.isTypeParam(t);
+                });
+
+        if (hasParameterizedTypes) {
+            return hasParameterizedTypes;
+        }
+
+        if (type.retType.tag == TypeTags.FUNCTION_POINTER) {
+            return containsTypeParams((BInvokableType) type.retType);
+        }
+
+        return TypeParamAnalyzer.isTypeParam(type.retType);
     }
 
     private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
@@ -1181,12 +1217,9 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-                return isAssignable(detailType, symTable.pureTypeConstrainedMap);
             case TypeTags.RECORD:
-                BRecordType detailRecordType = (BRecordType) detailType;
-                return detailRecordType.fields.stream()
-                        .allMatch(field -> isAssignable(field.type, symTable.pureType)) &&
-                        (detailRecordType.sealed || isAssignable(detailRecordType.restFieldType, symTable.pureType));
+                return isAssignable(detailType, symTable.detailType);
+
         }
         return false;
     }
@@ -1504,8 +1537,10 @@ public class Types {
 
         @Override
         public BSymbol visit(BServiceType t, BType s) {
+
             return symTable.notFoundSymbol;
         }
+
     };
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -1519,7 +1554,25 @@ public class Types {
 //    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
-            return t == s;
+
+            if (t == s) {
+                return true;
+            }
+            switch (t.tag) {
+                case TypeTags.INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
+                case TypeTags.STRING:
+                case TypeTags.BOOLEAN:
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                    return t.tag == s.tag
+                            && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
+                default:
+                    break;
+            }
+            return false;
 
         }
 
@@ -1668,8 +1721,10 @@ public class Types {
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
+
             return s == t;
         }
+
     };
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
