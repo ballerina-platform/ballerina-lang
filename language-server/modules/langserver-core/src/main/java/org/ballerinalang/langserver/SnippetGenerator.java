@@ -348,18 +348,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Object Initializer Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getObjectInitializerSnippet() {
-        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
-                CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
-                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
-    }
-
-    /**
      * Get Object Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -416,14 +404,27 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Resource Definition Snippet Block.
+     * Get HTTP Resource Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getResourceDefinitionSnippet() {
+    public static SnippetBlock getHttpResourceDefinitionSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get Common/Generic Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommonResourceDefinitionSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "resource function ${1:newResource}(${2}) {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
     }
@@ -447,7 +448,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketResourceOnOpenSnippet() {
-        return SnippetGenerator.getResourceDefinitionSnippet("onOpen", Collections.singletonList(
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onOpen", Collections.singletonList(
                 "http:WebSocketCaller ${#:caller}"), new ImmutablePair<>("ballerina", "http"));
     }
 
@@ -457,7 +458,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketResourceOnTextSnippet() {
-        return SnippetGenerator.getResourceDefinitionSnippet("onText", Arrays.asList(
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onText", Arrays.asList(
                 "http:WebSocketCaller ${#:caller}", "string ${#:data}", "boolean ${#:finalFrame}"),
                                                              new ImmutablePair<>("ballerina", "http"));
     }
@@ -468,7 +469,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketResourceOnCloseSnippet() {
-        return SnippetGenerator.getResourceDefinitionSnippet("onClose", Arrays.asList(
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onClose", Arrays.asList(
                 "http:WebSocketCaller ${#:caller}", "int ${#:statusCode}", "string ${#:reason}"),
                                                              new ImmutablePair<>("ballerina", "http"));
     }
@@ -479,7 +480,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSubResourceOnIntentVerificationSnippet() {
-        return SnippetGenerator.getResourceDefinitionSnippet("onIntentVerification",
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onIntentVerification",
                                                              Arrays.asList("websub:Caller ${#:caller}",
                                                                            "websub:IntentVerificationRequest " +
                                                                                    "${#:request}"),
@@ -493,7 +494,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSubResourceOnNotificationSnippet() {
-        return SnippetGenerator.getResourceDefinitionSnippet("onNotification",
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onNotification",
                 Collections.singletonList("websub:Notification ${#:notification}"),
                 new ImmutablePair<>("ballerina", "websub"));
     }
@@ -506,8 +507,8 @@ public class SnippetGenerator {
      * @param orgToAliasImport import
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getResourceDefinitionSnippet(String name, List<String> params,
-                                                            Pair<String, String> orgToAliasImport) {
+    public static SnippetBlock getHttpResourceDefinitionSnippet(String name, List<String> params,
+                                                                Pair<String, String> orgToAliasImport) {
         StringJoiner paramsJoiner = new StringJoiner(",");
         IntStream.range(0, params.size()).forEach(
                 i -> paramsJoiner.add(params.get(i).replace("#", String.valueOf(i + 2))));
@@ -971,5 +972,53 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableOnXmlParamSnippet() {
         return new SnippetBlock("xml v", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Object Initializer Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getInitFunctionSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Attach Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAttachFunctionSnippet() {
+        String snippet = "function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Start Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStartFunctionSnippet() {
+        String snippet = "function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Stop Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStopFunctionSnippet() {
+        String snippet = "function __stop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.STOP_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
     }
 }

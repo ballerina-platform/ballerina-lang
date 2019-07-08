@@ -29,7 +29,7 @@ function testRecordUnreachablePattern() returns string {
     any a = k;
     match k {
         var{x: name, y: age} => return "A";
-        var{x: name, y: (p, q)} => return "A"; // unreachable since y is matched above
+        var{x: name, y: [p, q]} => return "A"; // unreachable since y is matched above
         var{x: name} => return "A";
         var{x: name} => return "A"; // unreachable since same type
     }

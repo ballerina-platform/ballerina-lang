@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.spi;
 
 import org.antlr.v4.runtime.CommonToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -53,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -62,9 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -124,7 +124,7 @@ public abstract class LSCompletionProvider {
         symbolInfoList.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
-                completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
+                completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo, context));
             } else if (bSymbol instanceof BConstantSymbol) {
                 completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
@@ -372,7 +372,8 @@ public abstract class LSCompletionProvider {
                 return completionItems;
             }
             if (assignmentType.get() instanceof BLangFunctionTypeNode) {
-                fillFunctionSnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
+                // Function Type Suggestion
+                fillFunctionWithBodySnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
                 fillArrowFunctionSnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
             } else if (assignmentType.get() instanceof BLangUserDefinedType) {
                 BLangUserDefinedType type = ((BLangUserDefinedType) assignmentType.get());
@@ -404,7 +405,10 @@ public abstract class LSCompletionProvider {
                 if (initFunction == null) {
                     newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();");
                 } else {
-                    newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol);
+                    Pair<String, String> signature = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
+                            "new", context);
+                    newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol, signature.getRight(),
+                            signature.getLeft());
                 }
                 completionItems.add(newCItem);
             }
@@ -424,33 +428,41 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> getResourceSnippets(LSContext ctx) {
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CompletionItem> items = new ArrayList<>();
-        if (symbolEnvNode instanceof BLangService) {
-            BLangService service = (BLangService) symbolEnvNode;
-            String owner = service.listenerType.tsymbol.owner.name.value;
-            String serviceTypeName = service.listenerType.tsymbol.name.value;
-            // Only http, grpc have generic resource templates, others will have generic resource snippet
-            switch (owner) {
-                case "http":
-                    if ("Listener".equals(serviceTypeName)) {
-                        items.add(Snippet.DEF_RESOURCE.get().build(ctx));
-                        break;
-                    } else if ("WebSocketListener".equals(serviceTypeName)) {
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
-                        break;
-                    }
-                    return items;
-                case "grpc":
-                    items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+        if (!(symbolEnvNode instanceof BLangService)) {
+            return items;
+        }
+        BLangService service = (BLangService) symbolEnvNode;
+        
+        if (service.listenerType == null) {
+            items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
+            return items;
+        }
+        
+        String owner = service.listenerType.tsymbol.owner.name.value;
+        String serviceTypeName = service.listenerType.tsymbol.name.value;
+        
+        // Only http, grpc have generic resource templates, others will have generic resource snippet
+        switch (owner) {
+            case "http":
+                if ("Listener".equals(serviceTypeName)) {
+                    items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
                     break;
-                case "websub":
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                } else if ("WebSocketListener".equals(serviceTypeName)) {
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
                     break;
-                default:
-                    return items;
-            }
+                }
+                return items;
+            case "grpc":
+                items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+                break;
+            case "websub":
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                break;
+            default:
+                return items;
         }
         return items;
     }
@@ -483,7 +495,7 @@ public abstract class LSCompletionProvider {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+    private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo, LSContext context) {
         if (symbolInfo.isCustomOperation()) {
             SymbolInfo.CustomOperationSignature signature =
                     symbolInfo.getCustomOperationSignature();
@@ -493,7 +505,7 @@ public abstract class LSCompletionProvider {
         if (!(bSymbol instanceof BInvokableSymbol)) {
             return null;
         }
-        return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol);
+        return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
     }
 
     /**
@@ -552,13 +564,13 @@ public abstract class LSCompletionProvider {
         return Optional.of(typeNode);
     }
 
-    private void fillFunctionSnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
-                                     List<CompletionItem> completionItems)
+    private void fillFunctionWithBodySnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
+                                             List<CompletionItem> completionItems)
             throws LSCompletionException {
 
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
-        String functionSignature = this.getFunctionSignature(params, returnBLangType);
+        String functionSignature = this.getFunctionSignature(params, returnBLangType, context);
         String body = this.getAnonFunctionSnippetBody(returnBLangType, params.size());
         String snippet = functionSignature + body;
         String label = this.convertToLabel(functionSignature);
@@ -569,14 +581,14 @@ public abstract class LSCompletionProvider {
         completionItems.add(snippetBlock.build(context));
     }
 
-    private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType)
+    private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType, LSContext context)
             throws LSCompletionException {
         StringBuilder signature = new StringBuilder("function ");
 
-        signature.append(this.getParamsSnippet(paramTypes, true));
+        signature.append(this.getDynamicParamsSnippet(paramTypes, true, context));
         if (!(returnType.type instanceof BNilType)) {
             signature.append("returns (")
-                    .append(this.getTypeName(returnType))
+                    .append(CommonUtil.getBTypeName(returnType.type, context))
                     .append(") ");
         }
 
@@ -587,7 +599,7 @@ public abstract class LSCompletionProvider {
                                            List<CompletionItem> completionItems) throws LSCompletionException {
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
-        String paramSignature = this.getParamsSnippet(params, false);
+        String paramSignature = this.getDynamicParamsSnippet(params, false, context);
         StringBuilder signature = new StringBuilder(paramSignature);
 
         signature.append(" => ")
@@ -640,22 +652,31 @@ public abstract class LSCompletionProvider {
                 .replaceAll("(\\$\\{\\d\\})", "");
     }
 
-    private String getParamsSnippet(List<BLangVariable> paramTypes, boolean withType) throws LSCompletionException {
+    /**
+     * Get the function parameter signature generated dynamically, with the given list of parameter types.
+     * Parameter names will not be included for the arrow function snippets and the parameter names are generated 
+     * dynamically
+     * 
+     * @param paramTypes List of Parameter Types
+     * @param withType Whether tha parameters included with the types. In case of arrow functions this value is false
+     * @param context Language server operation context
+     *                 
+     * @return {@link String} Generated function parameter snippet
+     * @throws LSCompletionException Completion exception
+     */
+    private String getDynamicParamsSnippet(List<BLangVariable> paramTypes, boolean withType, LSContext context)
+            throws LSCompletionException {
         String paramName = "param";
         StringBuilder signature = new StringBuilder("(");
         List<String> params = IntStream.range(0, paramTypes.size())
                 .mapToObj(index -> {
-                    try {
-                        int paramIndex = index + 1;
-                        String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
-                        if (withType) {
-                            paramPlaceHolder = this.getTypeName(paramTypes.get(index).getTypeNode()) + " "
-                                    + paramPlaceHolder;
-                        }
-                        return paramPlaceHolder;
-                    } catch (LSCompletionException e) {
-                        return "";
+                    int paramIndex = index + 1;
+                    String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
+                    if (withType) {
+                        BType paramType = paramTypes.get(index).getTypeNode().type;
+                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context) + " " + paramPlaceHolder;
                     }
+                    return paramPlaceHolder;
                 })
                 .collect(Collectors.toList());
 
@@ -667,19 +688,6 @@ public abstract class LSCompletionProvider {
                 .append(") ");
 
         return signature.toString();
-    }
-
-    private String getTypeName(BLangType bLangType) throws LSCompletionException {
-        if (bLangType instanceof BLangValueType || bLangType instanceof BLangUnionTypeNode) {
-            return bLangType.toString();
-        } else if (bLangType instanceof BLangUserDefinedType) {
-            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) bLangType;
-            String pkgAlias = userDefinedType.getPackageAlias().getValue();
-            String typeName = userDefinedType.getTypeName().getValue();
-            return pkgAlias.isEmpty() ? typeName : (pkgAlias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName);
-        } else {
-            throw new LSCompletionException("Error identifying the type of anonymous function parameter");
-        }
     }
 
     /**
