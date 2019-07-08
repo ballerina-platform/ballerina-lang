@@ -22,3 +22,12 @@ public type IOError record {|
     string message;
     int id;
 |};
+
+public const NATS_ERROR_REASON = "{ballerina/nats}NatsError";
+
+public type NatsError error<NATS_ERROR_REASON, NatsErrorData>;
+
+public type NatsErrorData record {|
+    string? nuid;
+    string message;
+|};

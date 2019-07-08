@@ -34,8 +34,7 @@ import org.ballerinalang.nats.Constants;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Establish a connection with NATS server.
@@ -112,8 +111,7 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Connection natsConnection = Nats.connect(opts.build());
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
-            List clientslist = new ArrayList();
-            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, clientslist);
+            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
 
         } catch (IOException | InterruptedException e) {
             throw new BallerinaConnectorException(e);

@@ -28,6 +28,11 @@ public class Constants {
     public static final String NATS_CONNECTION = "nats_connection";
 
     /**
+     * Represents the NATS streaming connection.
+     */
+    public static final String NATS_STREAMING_CONNECTION = "nats_streaming_connection";
+
+    /**
      * Represents connected clients.
      */
     public static final String CONNECTED_CLIENTS = "connected_clients";
@@ -59,10 +64,21 @@ public class Constants {
     /**
      * Error code for i/o.
      */
-    public static final String NATS_ERROR_CODE = "{ballerina/nats}NATSError";
+    public static final String NATS_ERROR_CODE = "{ballerina/nats}NatsError";
+
+    /**
+     * Represents the NATS error detail record.
+     */
+    public static final String NATS_ERROR_DETAIL_RECORD = "NatsErrorData";
 
     /**
      * Represents the object which holds the connection.
      */
     public static final String CONNECTION_OBJ = "connection";
+
+    /**
+     * Represents the NATS Streaming message.
+     */
+    public static final String NATS_STREAMING_MSG = "nats_streaming_message";
+
 }
