@@ -45,9 +45,11 @@ subprojects {
     }
 
     release {
+        // Disable check snapshots temporarily
+        failOnSnapshotDependencies = false
         failOnCommitNeeded = false
         git {
-            //To release from any branch
+            // To release from any branch
             requireBranch = null
         }
     }
