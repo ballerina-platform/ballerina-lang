@@ -426,6 +426,17 @@ public class HttpConstants {
 
     public static final String HTTP_VERSION_1_1 = "1.1";
 
+    // Ballerina error types related constants
+    public static final String HTTP_ERROR_DETAIL_RECORD = "Detail";
+
+    // Union error type names
+    public static final String HTTP_CLIENT_RESILIENCY_ERROR = "HttpClientResiliencyError";
+    public static final String HTTP_CLIENT_AUTH_ERROR = "HttpClientAuthError";
+    public static final String HTTP_CLIENT_OUTBOUND_REQUEST_ERROR = "HttpClientOutboundRequestError";
+    public static final String HTTP_CLIENT_INBOUND_RESPONSE_ERROR = "HttpClientInboundResponseError";
+    public static final String HTTP_CLIENT_ERROR = "HttpClientError";
+    public static final String HTTP_LISTENER_ERROR = "HttpListenerError";
+
     private HttpConstants() {
     }
 }

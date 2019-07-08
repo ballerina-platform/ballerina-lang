@@ -107,9 +107,10 @@ service InitiatorService on coordinatorListener {
                     res.statusCode = http:OK_200;
                     res.setJsonPayload(<@untainted json> resPayload);
                     var resResult = conn->respond(res);
-                    if (resResult is error) {
+                    if (resResult is http:ListenerError) {
+                        error err = resResult;
                         log:printError("Sending response for register request for transaction " + txnId +
-                                " failed", err = resResult);
+                                " failed", err = err);
                     } else {
                         log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }

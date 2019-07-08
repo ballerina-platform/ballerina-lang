@@ -27,6 +27,7 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -170,7 +171,8 @@ public class ResponseWriter {
 
         @Override
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil.getError(throwable);
+            ErrorValue httpConnectorError = HttpUtil.createHttpError(throwable.getMessage(),
+                    HttpErrorType.GENERIC_LISTENER_ERROR);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.dataContext.getOutboundRequest().setIoException((IOException) throwable);

@@ -39,7 +39,7 @@ public type AuthzHandler object {
     # + return - `true` if can be authorized, else `false`, or `error` if error occurred
     function canHandle(Request req) returns boolean|error {
         if (runtime:getInvocationContext().principal.username.length() == 0) {
-            return prepareError("Username not set in auth context. Unable to authorize.");
+            return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
         }
         return true;
     }

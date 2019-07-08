@@ -50,7 +50,8 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType = contentType);
         } else {
-            outResponse.setPayload(<@untainted string> <string>bodyParts.detail().message);
+            error err = bodyParts;
+            outResponse.setPayload(<@untainted string> <string>err.detail().message);
         }
         checkpanic caller->respond(outResponse);
     }

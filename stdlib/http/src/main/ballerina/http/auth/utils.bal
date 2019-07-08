@@ -211,13 +211,32 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
     return headerMap;
 }
 
-# Logs, prepares, and returns the `error`.
+# Logs, prepares, and returns the `AuthenticationError`.
 #
 # + message -The error message.
 # + err - The `error` instance.
-# + return - Returns the prepared `error` instance.
-function prepareError(string message, error? err = ()) returns error {
+# + return - Returns the prepared `AuthenticationError` instance.
+function prepareAuthenticationError(string message, error? err = ()) returns AuthenticationError {
     log:printDebug(function () returns string { return message; });
-    error preparedError = error(HTTP_ERROR_CODE, message = message, reason = err.reason());
+    if (err is error) {
+        AuthenticationError preparedError = error(AUTHN_FAILED, message = message, cause = err);
+        return preparedError;   
+    }
+    AuthenticationError preparedError = error(AUTHN_FAILED, message = message);
+    return preparedError;
+}
+
+# Logs, prepares, and returns the `AuthorizationError`.
+#
+# + message -The error message.
+# + err - The `error` instance.
+# + return - Returns the prepared `AuthorizationError` instance.
+function prepareAuthorizationError(string message, error? err = ()) returns AuthorizationError {
+    log:printDebug(function () returns string { return message; });
+    if (err is error) {
+        AuthorizationError preparedError = error(AUTHZ_FAILED, message = message, cause = err);
+        return preparedError;
+    }
+    AuthorizationError preparedError = error(AUTHZ_FAILED, message = message);
     return preparedError;
 }

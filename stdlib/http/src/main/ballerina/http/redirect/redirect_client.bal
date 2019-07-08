@@ -56,7 +56,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function get(string path, RequestMessage message = ()) returns Response|error {
+    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is Response) {
             return result;
@@ -72,7 +72,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function post(string path, RequestMessage message) returns Response|error {
+    public function post(string path, RequestMessage message) returns Response|ClientError {
         var result =  performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
         if (result is Response) {
             return result;
@@ -88,7 +88,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function head(string path, RequestMessage message = ()) returns Response|error {
+    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
         if (result is Response) {
             return result;
@@ -104,7 +104,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function put(string path, RequestMessage message) returns Response|error {
+    public function put(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
         if (result is Response) {
             return result;
@@ -118,7 +118,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function forward(string path, Request request) returns Response|error {
+    public remote function forward(string path, Request request) returns Response|ClientError {
         return self.httpClient->forward(path, request);
     }
 
@@ -129,7 +129,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
@@ -151,7 +151,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function patch(string path, RequestMessage message) returns Response|error {
+    public function patch(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
         if (result is Response) {
             return result;
@@ -167,7 +167,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function delete(string path, RequestMessage message) returns Response|error {
+    public function delete(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
         if (result is Response) {
             return result;
@@ -183,7 +183,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function options(string path, RequestMessage message = ()) returns Response|error {
+    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
         if (result is Response) {
             return result;
@@ -201,7 +201,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         return self.httpClient->submit(httpVerb, path, <Request>message);
     }
 
@@ -209,7 +209,7 @@ public type RedirectClient client object {
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
-    public function getResponse(HttpFuture httpFuture) returns Response|error {
+    public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
 
@@ -225,7 +225,7 @@ public type RedirectClient client object {
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
@@ -233,7 +233,7 @@ public type RedirectClient client object {
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
-    public function getPromisedResponse(PushPromise promise) returns Response|error {
+    public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
@@ -248,19 +248,19 @@ public type RedirectClient client object {
 
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
-                                   HttpOperation httpOperation) returns HttpResponse|error {
+                                   HttpOperation httpOperation) returns HttpResponse|ClientError {
     string originalUrl = redirectClient.url + path;
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
-    HttpResponse|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
+    HttpResponse|ClientError result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
     return checkRedirectEligibility(result, originalUrl, httpOperation, request, redirectClient);
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(HttpResponse|error response, string resolvedRequestedURI,
+function checkRedirectEligibility(HttpResponse|ClientError response, string resolvedRequestedURI,
                                   HttpOperation httpVerb, Request request, RedirectClient redirectClient)
-                                    returns @untainted HttpResponse|error {
+                                    returns @untainted HttpResponse|ClientError {
     if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
@@ -285,7 +285,7 @@ function isRedirectResponse(int statusCode) returns boolean {
 
 //If max redirect count is not reached, perform redirection.
 function redirect(Response response, HttpOperation httpVerb, Request request,
-                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted HttpResponse|error {
+                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted HttpResponse|ClientError {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
@@ -318,7 +318,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
                 }
             } else {
                 redirectClient.currentRedirectCount = 0;
-                error err = error("Location header not available!");
+                string message = "Location header not available!";
+                GenericClientError err = error(GENERIC_CLIENT_ERROR, message = message);
                 return err;
             }
         } else {
@@ -329,13 +330,13 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-                            Request request, Response response) returns @untainted HttpResponse|error {
+                            Request request, Response response) returns @untainted HttpResponse|ClientError {
     var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
     if (retryClient is HttpClient) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
-        HttpResponse|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+        HttpResponse|ClientError result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
             redirectMethod, retryClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {

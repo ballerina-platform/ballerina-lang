@@ -124,8 +124,15 @@ service echo on echoEP {
             json responseJson = {"Name":name , "Team":team};
             res.setJsonPayload(<@untainted json> responseJson);
         } else {
-            string errMsg = <string> params.detail().message;
-            res.setPayload(<@untainted string> errMsg);
+            if (params is http:GenericClientError) {
+                error err = params.detail().cause;
+                string errMsg = <string> err.detail().message;
+                res.setPayload(<@untainted string> errMsg);
+            } else {
+                error err = params;
+                string errMsg = <string> err.detail().message;
+                res.setPayload(<@untainted string> errMsg);
+            }
         }
         checkpanic caller->respond(res);
     }

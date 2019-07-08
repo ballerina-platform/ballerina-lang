@@ -56,7 +56,7 @@ public type BasicAuthHandler object {
         if (authProvider is auth:InboundAuthProvider) {
             return authProvider.authenticate(credential);
         } else {
-            return prepareError("Outbound auth provider is configured for inbound authentication.");
+            return prepareAuthenticationError("Outbound auth provider is configured for inbound authentication.");
         }
     }
 
@@ -71,7 +71,7 @@ public type BasicAuthHandler object {
             req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
             return req;
         } else {
-            return prepareError("Inbound auth provider is configured for outbound authentication.");
+            return prepareAuthenticationError("Inbound auth provider is configured for outbound authentication.");
         }
     }
 
@@ -91,7 +91,7 @@ public type BasicAuthHandler object {
             }
             return ();
         } else {
-            return prepareError("Inbound auth provider is configured for outbound authentication.");
+            return prepareAuthenticationError("Inbound auth provider is configured for outbound authentication.");
         }
     }
 };

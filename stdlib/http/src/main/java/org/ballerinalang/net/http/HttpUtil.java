@@ -129,9 +129,8 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CER
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
@@ -158,6 +157,10 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -493,13 +496,10 @@ public class HttpUtil {
      * @return Error struct
      */
     public static ErrorValue getError(String errMsg) {
-        MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
-        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
-        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
-    }
-
-    private static MapValue<String, Object> createHTTPErrorRecord() {
-        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
+//        MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
+//        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
+//        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
+        return createHttpError(errMsg);
     }
 
     /**
@@ -513,6 +513,48 @@ public class HttpUtil {
             return getError(IO_EXCEPTION_OCCURED);
         } else {
             return getError(throwable.getMessage());
+        }
+    }
+
+    public static ErrorValue createHttpError(String errorMessage) {
+        HttpErrorType errorType = getErrorType(errorMessage);
+        return createHttpError(errorMessage, errorType);
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
+        MapValue<String, Object> detail = BallerinaValues
+                .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
+        return BallerinaValues.createRecord(detail, message, cause);
+    }
+
+    // TODO: Find a better way to get the error type than String matching.
+    private static HttpErrorType getErrorType(String errorMessage) {
+        // Every Idle Timeout triggered error is mapped to IdleTimeoutTriggeredError
+        if (errorMessage.contains("Idle timeout triggered")) {
+            return HttpErrorType.IDLE_TIMEOUT_TRIGGERED;
+        }
+
+        switch (errorMessage) {
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE:
+                return HttpErrorType.INIT_INBOUND_RESPONSE_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.READING_INBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY:
+                return HttpErrorType.READING_INBOUND_RESPONSE_BODY_FAILED;
+            case PROMISED_STREAM_REJECTED_ERROR:
+                return HttpErrorType.HTTP2_CLIENT_ERROR;
+            default:
+                return HttpErrorType.GENERIC_CLIENT_ERROR;
         }
     }
 

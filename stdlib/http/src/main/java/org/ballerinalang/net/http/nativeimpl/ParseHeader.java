@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BTupleType;
@@ -29,6 +30,8 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 
 import java.util.Arrays;
@@ -90,6 +93,8 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        return MimeUtil.createError(READING_HEADER_FAILED, errMsg);
+        ErrorValue mimeError = MimeUtil.createError(READING_HEADER_FAILED, errMsg);
+        String httpErrorMessage = "MimeError occurred while parsing the header";
+        return HttpUtil.createHttpError(httpErrorMessage, HttpErrorType.GENERIC_CLIENT_ERROR, mimeError);
     }
 }

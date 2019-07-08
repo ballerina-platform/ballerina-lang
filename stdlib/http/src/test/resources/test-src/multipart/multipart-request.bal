@@ -124,7 +124,8 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else {
-            response.setPayload(<@untainted string>bodyParts.detail().message);
+            error err = bodyParts;
+            response.setPayload(<@untainted string>err.detail().message);
         }
         checkpanic caller->respond(response);
     }

@@ -33,8 +33,8 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - Returns an `error` if failed to respond
-    public remote function respond(ResponseMessage message) returns error? {
+    # + return - Returns an `http:ListenerError` if failed to respond
+    public remote function respond(ResponseMessage message) returns ListenerError? {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
         if (filterContext is FilterContext) {
@@ -53,15 +53,16 @@ public type Caller client object {
     # Pushes a promise to the caller.
     #
     # + promise - Push promise message
-    # + return - An `error` in case of failures
-    public remote function promise(PushPromise promise) returns error? = external;
+    # + return - An `http:ListenerError` in case of failures
+    public remote function promise(PushPromise promise) returns ListenerError? = external;
 
     # Sends a promised push response to the caller.
     #
     # + promise - Push promise message
     # + response - The outbound response
-    # + return - An `error` in case of failures while responding with the promised response
-    public remote function pushPromisedResponse(PushPromise promise, Response response) returns error? = external;
+    # + return - An `http:ListenerError` in case of failures while responding with the promised response
+    public remote function pushPromisedResponse(PushPromise promise, Response response)
+                                                                returns ListenerError? = external;
 
     # Sends an upgrade request with custom headers.
     #
@@ -79,8 +80,8 @@ public type Caller client object {
 
     # Sends a `100-continue` response to the caller.
     #
-    # + return - Returns an `error` if failed to send the `100-continue` response
-    public remote function continue() returns error? {
+    # + return - Returns an `http:ListenerError` if failed to send the `100-continue` response
+    public remote function continue() returns ListenerError? {
         Response res = new;
         res.statusCode = CONTINUE_100;
         return self->respond(res);
@@ -91,8 +92,8 @@ public type Caller client object {
     # + response - Response to be sent to the caller
     # + code - The redirect status code to be sent
     # + locations - An array of URLs to which the caller can redirect to
-    # + return - Returns an `error` if failed to send the redirect response
-    public remote function redirect(Response response, RedirectCode code, string[] locations) returns error? {
+    # + return - Returns an `http:ListenerError` if failed to send the redirect response
+    public remote function redirect(Response response, RedirectCode code, string[] locations) returns ListenerError? {
         if (code == REDIRECT_MULTIPLE_CHOICES_300) {
             response.statusCode = MULTIPLE_CHOICES_300;
         } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -124,8 +125,8 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - Returns an `error` if failed to respond
-    public remote function ok(ResponseMessage message) returns error? {
+    # + return - Returns an `http:ListenerError` if failed to respond
+    public remote function ok(ResponseMessage message) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = OK_200;
         return self->respond(response);
@@ -136,8 +137,8 @@ public type Caller client object {
     # + uri - Represents the most specific URI for the newly created resource
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
-    # + return - Returns an `error` if failed to respond
-    public remote function created(string uri, ResponseMessage message = ()) returns error? {
+    # + return - Returns an `http:ListenerError` if failed to respond
+    public remote function created(string uri, ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = CREATED_201;
         if (uri.length() > 0) {
@@ -150,15 +151,15 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
-    # + return - Returns an `error` if failed to respond
-    public remote function accepted(ResponseMessage message = ()) returns error? {
+    # + return - Returns an `http:ListenerError` if failed to respond
+    public remote function accepted(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = ACCEPTED_202;
         return self->respond(response);
     }
 };
 
-function nativeRespond(Caller caller, Response response) returns error? = external;
+function nativeRespond(Caller caller, Response response) returns ListenerError? = external;
 
 /////////////////////////////////
 /// Ballerina Implementations ///
