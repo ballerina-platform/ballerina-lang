@@ -138,6 +138,20 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
+    @Test(priority = 2, description = "Test case for validating JWT token with single audience")
+    public void testCompleteValidatorWithSingleAud() {
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithSingleAud", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
+    }
+
+    @Test(priority = 2, description = "Test case for validating JWT token with single audience as array")
+    public void testCompleteValidatorWithSingleAudAndAudAsArray() {
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithSingleAudAndAudAsArray", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
+    }
+
     @Test(priority = 2, description = "Test case for validating JWT token without issuer or subject information, " +
             "using a validator configured to validate issuer and subject")
     public void testCompleteValidatorWithNoIssOrSubNegative() {
