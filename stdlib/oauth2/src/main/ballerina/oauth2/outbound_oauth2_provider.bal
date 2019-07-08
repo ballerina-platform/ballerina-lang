@@ -451,7 +451,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
                 return prepareOAuth2Error("Client id or client secret cannot be empty.");
             }
-            refreshUrl = untaint refreshConfig.refreshUrl;
+            refreshUrl = <@untainted> refreshConfig.refreshUrl;
             requestConfig = {
                 payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
                 clientId: config.clientId,
