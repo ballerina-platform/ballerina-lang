@@ -312,7 +312,6 @@ public class Desugar extends BLangNodeVisitor {
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
